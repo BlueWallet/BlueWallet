@@ -1,0 +1,2512 @@
+[
+ {
+  "name": "change that blends in",
+  "seed": "0101010101010101010101010101010101010101010101010101010101010101",
+  "coins": [
+   {
+    "valueSats": 120000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 130000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 140000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 300000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    2
+   ],
+   "payments": [
+    94310,
+    205690
+   ],
+   "changeSats": 89692,
+   "feeSats": 308,
+   "uihClean": true,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "the coin that leaves change in range is chosen",
+  "seed": "0202020202020202020202020202020202020202020202020202020202020202",
+  "coins": [
+   {
+    "valueSats": 120000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 130000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 100000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 140000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003eb"
+   }
+  ],
+  "paymentSats": 300000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    3
+   ],
+   "payments": [
+    212297,
+    87703
+   ],
+   "changeSats": 89692,
+   "feeSats": 308,
+   "uihClean": true,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "small change stands out",
+  "seed": "0303030303030303030303030303030303030303030303030303030303030303",
+  "coins": [
+   {
+    "valueSats": 100000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 100000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 110000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 300000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    2
+   ],
+   "payments": [
+    95922,
+    204078
+   ],
+   "changeSats": 9692,
+   "feeSats": 308,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "large coins leave an unnecessary input",
+  "seed": "0404040404040404040404040404040404040404040404040404040404040404",
+  "coins": [
+   {
+    "valueSats": 500000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 500000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 500000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 300000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    2
+   ],
+   "payments": [
+    188422,
+    111578
+   ],
+   "changeSats": 1199692,
+   "feeSats": 308,
+   "uihClean": false,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "a remainder at or below dust goes to the fee",
+  "seed": "0505050505050505050505050505050505050505050505050505050505050505",
+  "coins": [
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 200408,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 800000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    2
+   ],
+   "payments": [
+    356591,
+    443409
+   ],
+   "changeSats": 0,
+   "feeSats": 408,
+   "uihClean": true,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "round change gives 1 sat to the fee",
+  "seed": "0606060606060606060606060606060606060606060606060606060606060606",
+  "coins": [
+   {
+    "valueSats": 120000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 130000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 140308,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 300000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    2
+   ],
+   "payments": [
+    201278,
+    98722
+   ],
+   "changeSats": 89999,
+   "feeSats": 309,
+   "uihClean": true,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "four inputs and three outputs",
+  "seed": "0707070707070707070707070707070707070707070707070707070707070707",
+  "coins": [
+   {
+    "valueSats": 199300,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 249300,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 149300,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003eb"
+   }
+  ],
+  "paymentSats": 750000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003"
+  ],
+  "numInputs": 4,
+  "numOutputs": 3,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    2,
+    0,
+    1,
+    3
+   ],
+   "payments": [
+    129974,
+    320636,
+    299390
+   ],
+   "changeSats": 147086,
+   "feeSats": 814,
+   "uihClean": true,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "three inputs and five outputs",
+  "seed": "0808080808080808080808080808080808080808080808080808080808080808",
+  "coins": [
+   {
+    "valueSats": 199300,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 249300,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 600000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003",
+   "00140000000000000000000000000000000000000004",
+   "00140000000000000000000000000000000000000005"
+  ],
+  "numInputs": 3,
+  "numOutputs": 5,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    2
+   ],
+   "payments": [
+    67923,
+    137608,
+    168079,
+    72674,
+    153716
+   ],
+   "changeSats": 147798,
+   "feeSats": 802,
+   "uihClean": true,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "a pick among many swapped coins",
+  "seed": "0909090909090909090909090909090909090909090909090909090909090909",
+  "coins": [
+   {
+    "valueSats": 60000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 61000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 62000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 63000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 64000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ed"
+   },
+   {
+    "valueSats": 70000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ee"
+   },
+   {
+    "valueSats": 90000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ef"
+   }
+  ],
+  "paymentSats": 150000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    2,
+    6
+   ],
+   "payments": [
+    104177,
+    45823
+   ],
+   "changeSats": 41384,
+   "feeSats": 616,
+   "uihClean": true,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "the smallest amount for two outputs",
+  "seed": "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+  "coins": [
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 591,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    2
+   ],
+   "payments": [
+    295,
+    296
+   ],
+   "changeSats": 898793,
+   "feeSats": 616,
+   "uihClean": false,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "a payment at the dust threshold",
+  "seed": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+  "coins": [
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 294,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "error": "amountBelowDust"
+  }
+ },
+ {
+  "name": "too small for two different outputs",
+  "seed": "0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c",
+  "coins": [
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 590,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "error": "outputBelowDust"
+  }
+ },
+ {
+  "name": "not enough swapped coins",
+  "seed": "0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d",
+  "coins": [
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003e9"
+   }
+  ],
+  "paymentSats": 100000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "error": "notEnoughSwappedCoins"
+  }
+ },
+ {
+  "name": "no coin of the sender",
+  "seed": "0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e",
+  "coins": [
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 100000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "error": "noSenderCoin"
+  }
+ },
+ {
+  "name": "not enough funds",
+  "seed": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+  "coins": [
+   {
+    "valueSats": 100000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 100000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 100000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 400000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "error": "insufficientFunds"
+  }
+ },
+ {
+  "name": "no change is preferred",
+  "seed": "1010101010101010101010101010101010101010101010101010101010101010",
+  "coins": [
+   {
+    "valueSats": 120000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 130000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 140000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 50400,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003eb"
+   }
+  ],
+  "paymentSats": 300000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    3
+   ],
+   "payments": [
+    147792,
+    152208
+   ],
+   "changeSats": 0,
+   "feeSats": 400,
+   "uihClean": true,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "equal outputs without change",
+  "seed": "1111111111111111111111111111111111111111111111111111111111111111",
+  "coins": [
+   {
+    "valueSats": 120000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 130000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 140000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 50400,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003eb"
+   }
+  ],
+  "paymentSats": 300000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": true,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    3
+   ],
+   "payments": [
+    150000,
+    150000
+   ],
+   "changeSats": 0,
+   "feeSats": 400,
+   "uihClean": true,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "equal outputs with change",
+  "seed": "1212121212121212121212121212121212121212121212121212121212121212",
+  "coins": [
+   {
+    "valueSats": 120000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 130000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 140000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 300001,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": true,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    2
+   ],
+   "payments": [
+    150001,
+    150000
+   ],
+   "changeSats": 89691,
+   "feeSats": 308,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "three equal outputs",
+  "seed": "1313131313131313131313131313131313131313131313131313131313131313",
+  "coins": [
+   {
+    "valueSats": 199300,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 249300,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 149300,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003eb"
+   }
+  ],
+  "paymentSats": 750000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003"
+  ],
+  "numInputs": 4,
+  "numOutputs": 3,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": true,
+  "expected": {
+   "inputs": [
+    2,
+    0,
+    1,
+    3
+   ],
+   "payments": [
+    250000,
+    250000,
+    250000
+   ],
+   "changeSats": 147086,
+   "feeSats": 814,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "too small for two equal outputs",
+  "seed": "1414141414141414141414141414141414141414141414141414141414141414",
+  "coins": [
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 300000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 589,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": true,
+  "expected": {
+   "error": "outputBelowDust"
+  }
+ },
+ {
+  "name": "random wallet 1",
+  "seed": "d3addccb2c33be0ac79d679346d4ac7a5c3902b38963dc6e8534f45738d048ec",
+  "coins": [
+   {
+    "valueSats": 354893,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 330163,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 281196,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 1412596,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 867281,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   }
+  ],
+  "paymentSats": 1562501,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003"
+  ],
+  "numInputs": 3,
+  "numOutputs": 3,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    2,
+    1,
+    3
+   ],
+   "payments": [
+    719971,
+    287767,
+    554763
+   ],
+   "changeSats": 461115,
+   "feeSats": 339,
+   "uihClean": false,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "random wallet 2",
+  "seed": "3fb62d2c81862fc9634f806fabf4a07c566002249b191bf4d8441b5616332aca",
+  "coins": [
+   {
+    "valueSats": 9342176,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 4907118,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 4250188,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 4010128,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 7486897,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 13146438,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   }
+  ],
+  "paymentSats": 15765197,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003"
+  ],
+  "numInputs": 3,
+  "numOutputs": 3,
+  "feeRate": 2.5,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    2,
+    1,
+    4
+   ],
+   "payments": [
+    4416358,
+    7451726,
+    3897113
+   ],
+   "changeSats": 878158,
+   "feeSats": 848,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "random wallet 3",
+  "seed": "4e1bcb383bb4a570294c4ea3738d243a6e58d5ca49c7b59b995253fd6c79a3de",
+  "coins": [
+   {
+    "valueSats": 8569869,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 18123833,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 27533339,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 31980648,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 42444189,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 21422525,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   }
+  ],
+  "paymentSats": 49967376,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 11,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    1,
+    2,
+    5
+   ],
+   "payments": [
+    13290308,
+    36677068
+   ],
+   "changeSats": 17108933,
+   "feeSats": 3388,
+   "uihClean": true,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "random wallet 4",
+  "seed": "2f0733c846bbe9e870ef55b1a1f65507a2909cb633e238b4e9dd38b869ace913",
+  "coins": [
+   {
+    "valueSats": 100941073,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 103054963,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 118272071,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 94548014,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 77314885,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 83798101,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   }
+  ],
+  "paymentSats": 250393927,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 4,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    2,
+    5
+   ],
+   "payments": [
+    126687643,
+    123706284
+   ],
+   "changeSats": 155671905,
+   "feeSats": 376,
+   "uihClean": false,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "random wallet 5",
+  "seed": "b281b8885b69dc230af5ac870692b534758240df4a7a03052d733dcdef40af2e",
+  "coins": [
+   {
+    "valueSats": 122613,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 210305,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 235790,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 412975,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 214786,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 154351,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   }
+  ],
+  "paymentSats": 722491,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003",
+   "00140000000000000000000000000000000000000004"
+  ],
+  "numInputs": 4,
+  "numOutputs": 4,
+  "feeRate": 2.5,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": true,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    2,
+    4
+   ],
+   "payments": [
+    180623,
+    180623,
+    180623,
+    180622
+   ],
+   "changeSats": 59908,
+   "feeSats": 1095,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "random wallet 6",
+  "seed": "54d08ce628adf9c6f6396ae3994b971761b2ceba40031ad622ed93874ac034cf",
+  "coins": [
+   {
+    "valueSats": 291321,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 202839,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 464466,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 337853,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 204204,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 430333,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   },
+   {
+    "valueSats": 323384,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ee"
+   }
+  ],
+  "paymentSats": 736024,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003"
+  ],
+  "numInputs": 3,
+  "numOutputs": 3,
+  "feeRate": 11,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    1,
+    0,
+    5
+   ],
+   "payments": [
+    168725,
+    206475,
+    360824
+   ],
+   "changeSats": 184740,
+   "feeSats": 3729,
+   "uihClean": true,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "random wallet 7",
+  "seed": "ad448abd9874f8822b2df98dbcb3fd500e2637300fecf10e0f30e0051d1615ad",
+  "coins": [
+   {
+    "valueSats": 319511,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 466900,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 218202,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 397626,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 611839,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   }
+  ],
+  "paymentSats": 1003753,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003"
+  ],
+  "numInputs": 3,
+  "numOutputs": 3,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    2,
+    0,
+    4
+   ],
+   "payments": [
+    455638,
+    207865,
+    340250
+   ],
+   "changeSats": 145121,
+   "feeSats": 678,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "random wallet 8",
+  "seed": "6bd5231f38146a2f0970425b7defb12b691e8e3b705620733deaaddd33a760e1",
+  "coins": [
+   {
+    "valueSats": 308047,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 486970,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 863099,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 389824,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003eb"
+   }
+  ],
+  "paymentSats": 1079004,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 11,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    3
+   ],
+   "payments": [
+    292780,
+    786224
+   ],
+   "changeSats": 102449,
+   "feeSats": 3388,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "random wallet 9",
+  "seed": "50842aaaed939512e41a3f3d0d20464953341f5b2446913842fdef77dea5486a",
+  "coins": [
+   {
+    "valueSats": 7819,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 5262,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 5347,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 8911,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 8895,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 8715,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ed"
+   },
+   {
+    "valueSats": 13356,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ee"
+   },
+   {
+    "valueSats": 12328,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ef"
+   }
+  ],
+  "paymentSats": 47430,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 5,
+  "numOutputs": 2,
+  "feeRate": 11,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    5,
+    4,
+    3,
+    6,
+    7
+   ],
+   "payments": [
+    15184,
+    32246
+   ],
+   "changeSats": 0,
+   "feeSats": 4775,
+   "uihClean": true,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "random wallet 10",
+  "seed": "cd152d1aaf9b1084cd285f3ba79c875d3719d668872c92ea6b8468c8d09872a7",
+  "coins": [
+   {
+    "valueSats": 334335,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 687914,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 458081,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 837019,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 410406,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 858100,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   },
+   {
+    "valueSats": 1225152,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ee"
+   }
+  ],
+  "paymentSats": 1421481,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003",
+   "00140000000000000000000000000000000000000004"
+  ],
+  "numInputs": 3,
+  "numOutputs": 4,
+  "feeRate": 2.5,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": true,
+  "expected": {
+   "inputs": [
+    0,
+    4,
+    5
+   ],
+   "payments": [
+    355371,
+    355370,
+    355370,
+    355370
+   ],
+   "changeSats": 180435,
+   "feeSats": 925,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "random wallet 11",
+  "seed": "cc4a988537f2555b63f40668ed6f642c675a9879bf1a447878e100a991b77af5",
+  "coins": [
+   {
+    "valueSats": 159729,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 343364,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 461196,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 203292,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 199797,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 311766,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   }
+  ],
+  "paymentSats": 1091006,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003"
+  ],
+  "numInputs": 4,
+  "numOutputs": 3,
+  "feeRate": 11,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    3,
+    1,
+    2,
+    4
+   ],
+   "payments": [
+    198739,
+    495406,
+    396861
+   ],
+   "changeSats": 112166,
+   "feeSats": 4477,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "random wallet 12",
+  "seed": "d184933d54a506fe9bb81a4fabe63b142972601033a09bf9f37207e3e0f2f8e9",
+  "coins": [
+   {
+    "valueSats": 9180,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 8851,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 8960,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 5667,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 9737,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 11567,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   }
+  ],
+  "paymentSats": 15272,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    3,
+    2,
+    5
+   ],
+   "payments": [
+    7527,
+    7745
+   ],
+   "changeSats": 10614,
+   "feeSats": 308,
+   "uihClean": false,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "random wallet 13",
+  "seed": "d672c8b84c04286902b37cf9e7b06b4385e26df5e10ad788c48016c814668eea",
+  "coins": [
+   {
+    "valueSats": 6135807,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 6739577,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 4190659,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 7136517,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 2729372,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   }
+  ],
+  "paymentSats": 20351939,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003",
+   "00140000000000000000000000000000000000000004"
+  ],
+  "numInputs": 5,
+  "numOutputs": 4,
+  "feeRate": 2.5,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    2,
+    0,
+    1,
+    3,
+    4
+   ],
+   "payments": [
+    5778996,
+    2783194,
+    4194991,
+    7594758
+   ],
+   "changeSats": 6578728,
+   "feeSats": 1265,
+   "uihClean": false,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "random wallet 14",
+  "seed": "ffe4d7b9833189cb5daa78bce2a5d4ffcc60e6739ef7590eea6ef21a1d4cab27",
+  "coins": [
+   {
+    "valueSats": 561511,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 311836,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 352448,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 271220,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 568185,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 248434,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   }
+  ],
+  "paymentSats": 1189547,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 4,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    3,
+    1,
+    0,
+    5
+   ],
+   "payments": [
+    708077,
+    481470
+   ],
+   "changeSats": 203078,
+   "feeSats": 376,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "random wallet 15",
+  "seed": "8ab78912423455f256ad802ddc1d41417e8782b35399187b2638fb22b4ebf26a",
+  "coins": [
+   {
+    "valueSats": 41911984,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 38781096,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 26776518,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 24890315,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 14679971,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 37502903,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ed"
+   },
+   {
+    "valueSats": 21947239,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ee"
+   },
+   {
+    "valueSats": 35652612,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ef"
+   },
+   {
+    "valueSats": 21641468,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003f0"
+   }
+  ],
+  "paymentSats": 107147600,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003",
+   "00140000000000000000000000000000000000000004"
+  ],
+  "numInputs": 5,
+  "numOutputs": 4,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": true,
+  "expected": {
+   "inputs": [
+    4,
+    2,
+    5,
+    0,
+    6
+   ],
+   "payments": [
+    26786900,
+    26786900,
+    26786900,
+    26786900
+   ],
+   "changeSats": 35670003,
+   "feeSats": 1012,
+   "uihClean": false,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "random wallet 16",
+  "seed": "fc5db3502e2f91d5c4447b043aad70915b56a0604b1f9ac5d8fa5aa16942e300",
+  "coins": [
+   {
+    "valueSats": 2887,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 3356,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 5206,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 1515,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003eb"
+   }
+  ],
+  "paymentSats": 5364,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    3
+   ],
+   "payments": [
+    2121,
+    3243
+   ],
+   "changeSats": 1778,
+   "feeSats": 616,
+   "uihClean": false,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "random wallet 17",
+  "seed": "6ef34cd1221cfbb2570d1f72a97e833bfc63adaf5cb7cc8b98dac428c5630494",
+  "coins": [
+   {
+    "valueSats": 104645672,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 69388191,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 96367386,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 87521165,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 110639890,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 147030541,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   },
+   {
+    "valueSats": 133539151,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ee"
+   },
+   {
+    "valueSats": 66124652,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ef"
+   }
+  ],
+  "paymentSats": 170186928,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 2.5,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    1,
+    3,
+    7
+   ],
+   "payments": [
+    113566902,
+    56620026
+   ],
+   "changeSats": 52846310,
+   "feeSats": 770,
+   "uihClean": true,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "random wallet 18",
+  "seed": "53a0cf685f346b34a77d19085463ca582dff38dae77f3fbfefaa0591a54b6eeb",
+  "coins": [
+   {
+    "valueSats": 498188,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 895069,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 1123567,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 658571,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 1593082,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 487122,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   },
+   {
+    "valueSats": 452717,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ee"
+   }
+  ],
+  "paymentSats": 1746642,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 11,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    2,
+    6
+   ],
+   "payments": [
+    1303660,
+    442982
+   ],
+   "changeSats": 324442,
+   "feeSats": 3388,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "random wallet 19",
+  "seed": "f7eddf51ecfb1dd1c29fde5a13af9896f01af969fe159a6d92e8c849a937cb4d",
+  "coins": [
+   {
+    "valueSats": 5143523,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 2957271,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 5192040,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 12791102,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003"
+  ],
+  "numInputs": 3,
+  "numOutputs": 3,
+  "feeRate": 11,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    1,
+    0,
+    2
+   ],
+   "payments": [
+    2693996,
+    4560422,
+    5536684
+   ],
+   "changeSats": 498003,
+   "feeSats": 3729,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "random wallet 20",
+  "seed": "879e66f0a075c01d8987af02539d339fbee46e993af96fde5e1c29694f46f6b4",
+  "coins": [
+   {
+    "valueSats": 77441691,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 66367700,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 47466628,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 79338439,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 52080759,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 85957591,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   },
+   {
+    "valueSats": 114647135,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ee"
+   }
+  ],
+  "paymentSats": 121277715,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": true,
+  "expected": {
+   "inputs": [
+    2,
+    1,
+    4
+   ],
+   "payments": [
+    60638858,
+    60638857
+   ],
+   "changeSats": 44636756,
+   "feeSats": 616,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "random wallet 21",
+  "seed": "eb82c4f1a16d65c4fce1b259f70e39e6f94a4dfd754c4bc31155dcc082e4fbb2",
+  "coins": [
+   {
+    "valueSats": 304803,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 95936,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 220769,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 185437,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 329429,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 280024,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ed"
+   },
+   {
+    "valueSats": 300940,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ee"
+   },
+   {
+    "valueSats": 415776,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ef"
+   },
+   {
+    "valueSats": 103664,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003f0"
+   }
+  ],
+  "paymentSats": 890244,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003",
+   "00140000000000000000000000000000000000000004"
+  ],
+  "numInputs": 5,
+  "numOutputs": 4,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    1,
+    3,
+    5,
+    0,
+    8
+   ],
+   "payments": [
+    161003,
+    311547,
+    259202,
+    158492
+   ],
+   "changeSats": 78608,
+   "feeSats": 1012,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "random wallet 22",
+  "seed": "9ee4509cae421df494f0c9adca5a6e3165dd409a29cf50740c009fddf2ab6e3f",
+  "coins": [
+   {
+    "valueSats": 704325,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 273824,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 360268,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 454244,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 518065,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   }
+  ],
+  "paymentSats": 1634532,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003"
+  ],
+  "numInputs": 4,
+  "numOutputs": 3,
+  "feeRate": 2,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    1,
+    2,
+    0,
+    4
+   ],
+   "payments": [
+    787911,
+    273309,
+    573312
+   ],
+   "changeSats": 221136,
+   "feeSats": 814,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "random wallet 23",
+  "seed": "a7b9d5ab2631c786bb3835092c1d71a8b3b52c42a1aa036ee3e63ae19c17a48e",
+  "coins": [
+   {
+    "valueSats": 5441,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 10106,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 6263,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 6916,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 6928,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 26001,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   }
+  ],
+  "paymentSats": 39364,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 4,
+  "numOutputs": 2,
+  "feeRate": 2.5,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    0,
+    2,
+    3,
+    5
+   ],
+   "payments": [
+    17789,
+    21575
+   ],
+   "changeSats": 4317,
+   "feeSats": 940,
+   "uihClean": true,
+   "changeHidden": false
+  }
+ },
+ {
+  "name": "random wallet 24",
+  "seed": "e3c0a00ddff1c6ca29d58ae02b04527a603f852a115b6b4781f1a4267bf3fdd2",
+  "coins": [
+   {
+    "valueSats": 68325779,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 78850825,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 56826500,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 30212973,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 75045755,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 40455217,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   },
+   {
+    "valueSats": 48622969,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ee"
+   }
+  ],
+  "paymentSats": 197586576,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 5,
+  "numOutputs": 2,
+  "feeRate": 2.5,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "expected": {
+   "inputs": [
+    3,
+    2,
+    0,
+    1,
+    5
+   ],
+   "payments": [
+    133385391,
+    64201185
+   ],
+   "changeSats": 77083608,
+   "feeSats": 1110,
+   "uihClean": false,
+   "changeHidden": true
+  }
+ },
+ {
+  "name": "random wallet 25",
+  "seed": "d93d1e6b1daff6d6281bca3b15f848fc270b1920ca1a5205f5c8bf794dd2c995",
+  "coins": [
+   {
+    "valueSats": 363604,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 590665,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 249998,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 628708,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 214484,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 1104306,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ed"
+   },
+   {
+    "valueSats": 894130,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ee"
+   }
+  ],
+  "paymentSats": 1480552,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002",
+   "00140000000000000000000000000000000000000003",
+   "00140000000000000000000000000000000000000004"
+  ],
+  "numInputs": 4,
+  "numOutputs": 4,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": true,
+  "expected": {
+   "inputs": [
+    4,
+    0,
+    1,
+    6
+   ],
+   "payments": [
+    370138,
+    370138,
+    370138,
+    370138
+   ],
+   "changeSats": 581893,
+   "feeSats": 438,
+   "uihClean": false,
+   "changeHidden": false
+  }
+ }
+]

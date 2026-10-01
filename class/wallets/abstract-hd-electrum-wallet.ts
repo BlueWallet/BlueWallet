@@ -18,7 +18,7 @@ import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
 import { SilentPayment, UTXOType as SPUTXOType, UTXO as SPUTXO } from 'silent-payments';
 import { isValidBech32Address } from '../../util/isValidBech32Address.ts';
-import { OCTOJOIN_DUST_THRESHOLD } from '../octojoin';
+import { octojoinFeeAndChange } from '../octojoin';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -1044,29 +1044,22 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     if (this.segwitType === 'p2sh(p2wpkh)') inputVbytes = 91;
     else if (this.segwitType === 'p2tr') inputVbytes = 58;
     else if (!this.segwitType) inputVbytes = 148;
-    const OUTPUT_VBYTES = 34;
-    const TX_OVERHEAD = 11;
 
     const inputs = utxos as CoinSelectReturnInput[];
     const totalInput = inputs.reduce((sum, u) => sum + u.value, 0);
     const totalOutput = targets.reduce((sum, t) => sum + (t.value ?? 0), 0);
 
-    const estimatedVbytes = TX_OVERHEAD + inputs.length * inputVbytes + (targets.length + 1) * OUTPUT_VBYTES;
-    let fee = Math.ceil(estimatedVbytes * feeRate);
-    const change = totalInput - totalOutput - fee;
-
-    if (change < 0) {
+    const funded = octojoinFeeAndChange(totalInput, totalOutput, inputs.length, targets.length, { feeRate, inputVbytes });
+    if (!funded) {
       throw new Error('Not enough balance. Try sending a smaller amount or decrease the fee.');
     }
 
     const outputs: CoinSelectOutput[] = targets.map(t => ({ address: t.address, value: t.value as number }));
-    if (change > OCTOJOIN_DUST_THRESHOLD) {
-      outputs.push({ value: change });
-    } else {
-      fee = totalInput - totalOutput;
+    if (funded.change > 0) {
+      outputs.push({ value: funded.change });
     }
 
-    return { inputs, outputs, fee };
+    return { inputs, outputs, fee: funded.fee };
   }
 
   createTransaction(

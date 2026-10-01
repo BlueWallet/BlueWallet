@@ -37,13 +37,17 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../../class/wallets/types';
 import {
-  decomposeAmount,
   isOctojoinMemo,
   OCTOJOIN_DUST_THRESHOLD,
   OCTOJOIN_MIN_INPUTS,
   OCTOJOIN_MIN_OUTPUTS,
+  OctojoinRandomness,
+  OctojoinWarning,
   planOctojoin,
+  smallestSplittable,
 } from '../../class/octojoin';
+import { randomBytes } from '../../class/rng';
+import confirm from '../../helpers/confirm';
 import AddressInput from '../../components/AddressInput';
 import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
@@ -558,8 +562,7 @@ const SendDetails = () => {
     if (!amountSats || amountSats <= OCTOJOIN_DUST_THRESHOLD) {
       return loc.send.details_amount_field_is_not_valid;
     }
-    const denominations = decomposeAmount(amountSats);
-    if (denominations.length === 0 || denominations.reduce((sum, v) => sum + v, 0) !== amountSats) {
+    if (amountSats < smallestSplittable(isSilentPayment ? numOutputs : addressList.length, OCTOJOIN_DUST_THRESHOLD)) {
       return loc.send.details_amount_field_is_not_valid;
     }
     if (!feeRate || parseFloat(feeRate) < 0) {
@@ -731,7 +734,21 @@ const SendDetails = () => {
         numOutputs,
         feeRate: requestedSatPerByte,
         inputVbytes,
+        rng: new OctojoinRandomness(await randomBytes(32)),
       });
+
+      if (plan.warnings.length > 0) {
+        const warningTexts: Record<OctojoinWarning, string> = {
+          unnecessaryInput: loc.send.octojoin_warning_unnecessary_input,
+          changeIdentifiable: loc.send.octojoin_warning_change,
+          changeBesideEqualOutputs: loc.send.octojoin_warning_equal_change,
+        };
+        const text = plan.warnings.map(w => warningTexts[w]).join('\n\n');
+        if (!(await confirm(loc.send.octojoin_title, `${text}\n\n${loc.send.octojoin_pay_anyway}`))) {
+          setIsLoading(false);
+          return;
+        }
+      }
 
       for (const t of plan.paymentTargets) targets.push(t);
       txInputs = plan.inputs as unknown as CreateTransactionUtxo[];
