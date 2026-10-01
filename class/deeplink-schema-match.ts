@@ -100,6 +100,21 @@ class DeeplinkSchemaMatch {
           }
         }
       }
+    } else if (DeeplinkSchemaMatch.isPossiblyCoordinationFile(event.url)) {
+      readFileOutsideSandbox(decodeURI(event.url))
+        .then(file => {
+          if (!file) return;
+          completionHandler([
+            'AddWalletRoot',
+            {
+              screen: 'ImportWallet',
+              // External files must be reviewed before discovery can save a wallet.
+              params: { triggerImport: false, label: file },
+            },
+          ]);
+        })
+        .catch(e => console.warn(e));
+      return;
     } else if (DeeplinkSchemaMatch.isPossiblyPSBTFile(event.url)) {
       readFileOutsideSandbox(decodeURI(event.url))
         .then(file => {
@@ -280,6 +295,10 @@ class DeeplinkSchemaMatch {
 
   static isPossiblyPSBTFile(filePath: string): boolean {
     return filePath.toLowerCase().endsWith('.psbt');
+  }
+
+  static isPossiblyCoordinationFile(filePath: string): boolean {
+    return /^(file|content):\/\//i.test(filePath) && filePath.toLowerCase().endsWith('.bwcoord');
   }
 
   static isPossiblyCosignerFile(filePath: string): boolean {
