@@ -808,7 +808,7 @@ const TransactionStatus: React.FC = () => {
 
   const handleOpenMempoolAccelerator = useCallback(() => {
     if (!tx?.hash) return;
-    Linking.openURL(`https://mempool.space/tx/${tx.hash}#partnerCode=bluewallet`).catch(e => {
+    Linking.openURL(`https://mempool.space/tx/${tx.hash}#accelerate&partnerCode=bluewallet`).catch(e => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ message: e.message });
     });

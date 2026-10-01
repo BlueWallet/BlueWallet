@@ -515,7 +515,7 @@ describe('TransactionStatus regression', () => {
 
     fireEvent.press(view.getByText('Bump Fee'));
 
-    expect(openURL).toHaveBeenCalledWith('https://mempool.space/tx/mock-tx#partnerCode=bluewallet');
+    expect(openURL).toHaveBeenCalledWith('https://mempool.space/tx/mock-tx#accelerate&partnerCode=bluewallet');
     openURL.mockRestore();
   });
 });
