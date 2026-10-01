@@ -374,7 +374,6 @@
     "onchain": "Áketu",
     "details_to": "Úttøk",
     "enable_offline_signing": "Mappan verður, sum er, ikki nýtt í.s.v. eina avlinjuundirritanareind. Ynskir tú at nýta mappuna í.s.v. eina avlinjuundirritanareind?",
-    "list_conf": "Váttanir: {number}",
     "pending": "Óváttað",
     "pending_with_amount": "Óváttað {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
@@ -723,7 +722,7 @@
     "notification_tx_unconfirmed": "Fráboðanarflytingin er ikki váttað enn. Vinaliga bíða.",
     "failed_create_notif_tx": "Miseydnaðist at gera áketuflyting",
     "onchain_tx_needed": "Tørvur er á áketuflyting",
-    "notif_tx_sent" : "Fráboðanarflytingin er send. Vinaliga bíða til hon verður váttað.",
+    "notif_tx_sent": "Fráboðanarflytingin er send. Vinaliga bíða til hon verður váttað.",
     "notif_tx": "BIP47 fráboðanarflyting",
     "not_found": "Fann ikki gjaldkotu"
   }

@@ -361,7 +361,6 @@
     "onchain": "on-chain",
     "details_to": "გამავალი",
     "enable_offline_signing": "ეს საფულე არ გამოიყენება ოფლაინ ხელმოწერასთან ერთად. გსურთ მისი ახლავე ჩართვა?",
-    "list_conf": "დადასტ.: {number}",
     "pending": "მოლოდინში",
     "pending_with_amount": "მოლოდინში {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
