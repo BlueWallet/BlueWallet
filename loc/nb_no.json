@@ -361,7 +361,6 @@
     "onchain": "På kjeden",
     "details_to": "Utdata",
     "enable_offline_signing": "Denne lommeboken brukes ikke i forbindelse med en offline-signering. Vil du aktivere det nå?",
-    "list_conf": "Bekreftelser: {number}",
     "pending": "Venter",
     "pending_with_amount": "Venter {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

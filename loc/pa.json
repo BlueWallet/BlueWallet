@@ -361,7 +361,6 @@
     "onchain": "ਆਨ-ਚੇਨ",
     "details_to": "ਆਉਟਪੁੱਟ",
     "enable_offline_signing": "ਇਹ ਵਾਲਿਟ ਆਫਲਾਈਨ ਦਸਤਖ਼ਤ ਦੇ ਨਾਲ ਨਹੀਂ ਵਰਤਿਆ ਜਾ ਰਿਹਾ। ਕੀ ਤੁਸੀਂ ਇਸ ਨੂੰ ਹੁਣ ਚਾਲੂ ਕਰਨਾ ਚਾਹੋਗੇ?",
-    "list_conf": "ਪੁਸ਼ਟੀ: {number}",
     "pending": "ਬਕਾਇਆ",
     "pending_with_amount": "ਬਕਾਇਆ {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

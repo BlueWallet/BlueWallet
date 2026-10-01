@@ -361,7 +361,6 @@
     "onchain": "آن چین",
     "details_to": "آؤٹ پُٹ",
     "enable_offline_signing": "یہ والٹ آف لائن دستخط کے ساتھ استعمال نہیں ہو رہا۔ کیا آپ اسے اب فعال کرنا چاہیں گے؟",
-    "list_conf": "تصدیق: {number}",
     "pending": "زیر التواء",
     "pending_with_amount": "زیر التواء {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
