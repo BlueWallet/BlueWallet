@@ -16,6 +16,8 @@ const EXTENDED_KEY_PREFIX = /(xprv|xpub|ypub|yprv|zpub|zprv|tpub|tprv|vprv|vpub)
 const HEX_BODY_PATTERN = /^[0-9a-fA-F]+$/;
 const LND_AEZEED_PREFIX = /aezeed/i;
 const BASIC_LATIN_FRAGMENT_PATTERN = /^[\p{L}\p{M}]+$/u;
+/** Last code point of Latin Extended-B. Characters above this are not BIP39 candidates unless they are whitespace. */
+const LATIN_EXTENDED_B_MAX = 0x024f;
 
 export interface WordFragment {
   fragment: string;
@@ -74,6 +76,17 @@ export function replaceWordFragment(text: string, fragment: WordFragment, word: 
   return { newText, newCursor };
 }
 
+function hasCharacterOutsideLatinExtendedB(text: string): boolean {
+  for (const char of text) {
+    const codePoint = char.codePointAt(0);
+    if (codePoint === undefined || codePoint <= LATIN_EXTENDED_B_MAX || /\s/u.test(char)) {
+      continue;
+    }
+    return true;
+  }
+  return false;
+}
+
 function getCompletedWords(text: string): string[] {
   const trimmed = text.trimEnd();
   if (!trimmed) {
@@ -109,7 +122,7 @@ export function shouldOfferBip39Suggestions(text: string): boolean {
     return false;
   }
 
-  if (/[^\u0000-\u024F\s]/u.test(trimmed)) {
+  if (hasCharacterOutsideLatinExtendedB(trimmed)) {
     return false;
   }
 
