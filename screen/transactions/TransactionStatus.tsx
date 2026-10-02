@@ -4,6 +4,7 @@ import {
   Alert,
   BackHandler,
   Linking,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -1160,13 +1161,13 @@ const TransactionStatus: React.FC = () => {
                       </TouchableOpacity>
                     )}
                     {showMempoolSpeedUp && (
-                      <TouchableOpacity
+                      <Pressable
                         onPress={handleOpenMempoolAccelerator}
                         style={[styles.speedUpButton, stylesHook.speedUpButton]}
                         accessibilityRole="button"
                       >
                         <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>{loc.transactions.status_bump}</BlueText>
-                      </TouchableOpacity>
+                      </Pressable>
                     )}
                     {isRBFCancelPossible === ButtonStatus.Possible && (
                       <TouchableOpacity
