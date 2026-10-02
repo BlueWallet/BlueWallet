@@ -1,4 +1,4 @@
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
@@ -63,24 +63,28 @@ import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
 import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
 import BlueText from '../components/BlueText';
 import dayjs from 'dayjs';
-import { DetailViewStackParamList } from './DetailViewStackParamList';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
 
-const TransactionDetailHeaderTitle = (_props: { children: string; tintColor?: string }): React.JSX.Element => {
-  const { hash, tx } = useRoute<RouteProp<DetailViewStackParamList, 'TransactionStatus'>>().params;
-  const { colors } = useTheme();
-  const { fontScale } = useWindowDimensions();
+type TransactionDetailHeaderTitleProps = {
+  hash?: string;
+  tx?: any;
+  colors: ReturnType<typeof useTheme>['colors'];
+  fontScale: number;
+  maxWidth: number;
+};
+
+const TransactionDetailHeaderTitle = ({ hash, tx, colors, fontScale, maxWidth }: TransactionDetailHeaderTitleProps): React.JSX.Element => {
   const transactionId = tx?.hash || tx?.txid || hash;
   const value = Number(tx?.value);
   const direction = Number.isFinite(value) && value < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
   const date = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
 
   return (
-    <View style={styles.transactionHeaderTitleContainer}>
+    <View style={[styles.transactionHeaderTitleContainer, { maxWidth }]}>
       <BlueText
         style={[styles.transactionHeaderDirection, { color: colors.foregroundColor, lineHeight: Math.round(22 * fontScale) }]}
         numberOfLines={1}
@@ -101,6 +105,9 @@ const TransactionDetailHeaderTitle = (_props: { children: string; tintColor?: st
     </View>
   );
 };
+
+const createTransactionDetailHeaderTitle = (props: TransactionDetailHeaderTitleProps) => () =>
+  React.createElement(TransactionDetailHeaderTitle, props);
 
 const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
   const opacity = useRef(new Animated.Value(1)).current;
@@ -194,7 +201,7 @@ const DetailViewStackScreensStack = () => {
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { sizeClass } = useSizeClass();
-  const { width: windowWidth } = useWindowDimensions();
+  const { width: windowWidth, fontScale } = useWindowDimensions();
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
   // Probe connection health from the UI (e.g. WalletsList focus / 30s timer).
@@ -437,13 +444,16 @@ const DetailViewStackScreensStack = () => {
               const transactionId = route.params?.tx?.hash || route.params?.tx?.txid || route.params?.hash || '';
               return {
                 ...options,
-                title: transactionId,
-                headerTitle: transactionId ? TransactionDetailHeaderTitle : '',
+                headerTitle: transactionId
+                  ? createTransactionDetailHeaderTitle({
+                      tx: route.params?.tx,
+                      hash: route.params?.hash,
+                      colors: theme.colors,
+                      fontScale,
+                      maxWidth: Math.max(0, windowWidth - 96),
+                    })
+                  : '',
                 headerTitleAlign: 'left',
-                headerTitleContainerStyle: {
-                  flex: 1,
-                  maxWidth: Math.max(0, windowWidth - 96),
-                },
               };
             },
           )(theme)}

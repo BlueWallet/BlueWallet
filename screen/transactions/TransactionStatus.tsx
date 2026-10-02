@@ -987,8 +987,8 @@ const TransactionStatus: React.FC = () => {
 
   // Keep the route transaction current so the stack owns and renders the header options.
   useEffect(() => {
-    if (tx && tx !== initialTx) navigation.setParams?.({ tx });
-  }, [initialTx, navigation, tx]);
+    if (tx && tx !== initialTx && (tx.hash || tx.txid) === hash) navigation.setParams({ tx });
+  }, [hash, initialTx, navigation, tx]);
 
   if (loadingError) {
     return (
