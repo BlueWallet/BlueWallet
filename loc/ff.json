@@ -361,7 +361,6 @@
     "onchain": "On-chain",
     "details_to": "Yaltirde",
     "enable_offline_signing": "Ndee boktoore huutoraaka wonndude e siiñagol offline. Aɗa yiɗi hurminde ɗum jooni?",
-    "list_conf": "Tab: {number}",
     "pending": "Ina padii",
     "pending_with_amount": "Ina padii {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

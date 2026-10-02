@@ -361,7 +361,6 @@
     "onchain": "В цепочке",
     "details_to": "Выход",
     "enable_offline_signing": "Включить офлайн-подпись для этого кошелька?",
-    "list_conf": "Подтв.: {number}",
     "pending": "В ожидании",
     "pending_with_amount": "Ожидает {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

@@ -361,7 +361,6 @@
     "onchain": "លើខ្សែ",
     "details_to": "ធាតុចេញ",
     "enable_offline_signing": "កាបូបនេះមិនត្រូវបានប្រើរួមជាមួយការចុះហត្ថលេខាក្រៅបណ្ដាញទេ។ តើអ្នកចង់បើកវាឥឡូវនេះដែរឬទេ?",
-    "list_conf": "Conf: {number}",
     "pending": "កំពុងរង់ចាំ",
     "pending_with_amount": "កំពុងរង់ចាំ {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

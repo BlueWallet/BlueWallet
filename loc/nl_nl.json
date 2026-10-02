@@ -361,7 +361,6 @@
     "onchain": "On-chain",
     "details_to": "Uitvoer",
     "enable_offline_signing": "Deze wallet wordt niet gebruikt in combinatie met een hardware wallet. Wilt u het gebruik inschakelen?",
-    "list_conf": "conf: {number}",
     "pending": "In afwachting",
     "pending_with_amount": "Bezig {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

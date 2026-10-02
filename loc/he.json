@@ -361,7 +361,6 @@
     "onchain": "בשרשרת",
     "details_to": "פלט",
     "enable_offline_signing": "ארנק זה לא בשימוש בצירוף חיתום קר. האם ברצונך לאפשר זאת עכשיו?",
-    "list_conf": "אישורים: {number}",
     "pending": "ממתינה",
     "pending_with_amount": "ממתין {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
