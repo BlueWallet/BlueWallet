@@ -361,7 +361,6 @@
     "onchain": "Ar y gadwyn",
     "details_to": "Allbwn",
     "enable_offline_signing": "Nid yw'r waled hon yn cael ei defnyddio ar y cyd â llofnodi all-lein. A hoffet ei alluogi nawr?",
-    "list_conf": "Cad: {number}",
     "pending": "Disgwyl",
     "pending_with_amount": "Yn aros {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

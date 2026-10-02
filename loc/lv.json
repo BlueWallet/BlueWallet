@@ -361,7 +361,6 @@
     "onchain": "Ķēdē",
     "details_to": "Izvade",
     "enable_offline_signing": "Šis maks netiek izmantots kopā ar bezsaistes parakstīšanu. Vai vēlaties to tagad iespējot?",
-    "list_conf": "Apst.: {number}",
     "pending": "Gaida",
     "pending_with_amount": "Gaida {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
