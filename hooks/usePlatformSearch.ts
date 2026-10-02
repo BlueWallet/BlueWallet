@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { Platform } from 'react-native';
 import { navigationRef } from '../NavigationService';
 import NativePlatformSearch, {
   beginPlatformSearchWalletIndexing,
@@ -8,7 +7,6 @@ import NativePlatformSearch, {
 import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { formatBalanceWithoutSuffix } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import { isDesktop } from '../blue_modules/environment';
 import { useSettings } from './context/useSettings';
 import { useStorage } from './context/useStorage';
 
@@ -84,11 +82,14 @@ const usePlatformSearch = (): (() => void) => {
   }, [updatePlatformSearchActivity]);
 
   useEffect(() => {
-    const supportsSystemSearch = Platform.OS === 'ios' || isDesktop || (Platform.OS === 'android' && Number(Platform.Version) >= 31);
-    if (!supportsSystemSearch || !NativePlatformSearch) return;
+    if (!NativePlatformSearch) return;
     const platformSearch = NativePlatformSearch;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    const clearIndex = () =>
+      enqueuePlatformSearchOperation(() => platformSearch.deleteIndex()).catch(error =>
+        console.warn('[PlatformSearch] Unable to clear index:', error),
+      );
 
     const updateIndex = async (): Promise<void> => {
       // Disabled search still clears old entries, but must not initialize storage.
@@ -100,9 +101,7 @@ const usePlatformSearch = (): (() => void) => {
       if (cancelled) return;
 
       if (!searchEnabled || storageIsEncrypted) {
-        enqueuePlatformSearchOperation(() => platformSearch.deleteIndex()).catch(error =>
-          console.warn('[PlatformSearch] Unable to clear index:', error),
-        );
+        clearIndex();
         return;
       }
 
@@ -179,9 +178,7 @@ const usePlatformSearch = (): (() => void) => {
 
     updateIndex().catch(error => {
       console.warn('[PlatformSearch] Unable to determine storage encryption state; clearing index:', error);
-      enqueuePlatformSearchOperation(() => platformSearch.deleteIndex()).catch(deleteError =>
-        console.warn('[PlatformSearch] Unable to clear index after encryption-state failure:', deleteError),
-      );
+      clearIndex();
     });
 
     return () => {

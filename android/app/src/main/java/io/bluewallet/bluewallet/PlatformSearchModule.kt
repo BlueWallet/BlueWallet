@@ -33,29 +33,22 @@ class PlatformSearchModule(reactContext: ReactApplicationContext) : NativePlatfo
     @ReactMethod
     override fun isIndexingAvailable(promise: Promise) {
         // Launcher search preferences are not exposed by AppSearch.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            promise.resolve(false)
-            return
-        }
-        AndroidAppSearchIndex.isAvailable(reactApplicationContext, promise)
+        withAppSearch(promise, false) { AndroidAppSearchIndex.isAvailable(reactApplicationContext, promise) }
     }
 
     @ReactMethod
     override fun replaceIndex(itemsJSON: String, promise: Promise) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            promise.resolve(0)
-            return
-        }
-        AndroidAppSearchIndex.replace(reactApplicationContext, itemsJSON, promise)
+        withAppSearch(promise, 0) { AndroidAppSearchIndex.replace(reactApplicationContext, itemsJSON, promise) }
     }
 
     @ReactMethod
     override fun deleteIndex(promise: Promise) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            promise.resolve(null)
-            return
-        }
-        AndroidAppSearchIndex.delete(reactApplicationContext, promise)
+        withAppSearch(promise, null) { AndroidAppSearchIndex.delete(reactApplicationContext, promise) }
+    }
+
+    private fun withAppSearch(promise: Promise, unsupportedResult: Any?, operation: () -> Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) operation()
+        else promise.resolve(unsupportedResult)
     }
 
     @ReactMethod
@@ -111,12 +104,7 @@ private object AndroidAppSearchIndex {
             return
         }
 
-        openSession(context) { session, error ->
-            if (error != null || session == null) {
-                promise.reject("app_search_open_failed", error?.message, error)
-                return@openSession
-            }
-
+        withSession(context, promise) { session ->
             val schemaRequest = SetSchemaRequest.Builder()
                 .addSchemas(schema)
                 .setSchemaTypeDisplayedBySystem(SCHEMA, true)
@@ -133,11 +121,7 @@ private object AndroidAppSearchIndex {
     }
 
     fun delete(context: Context, promise: Promise) {
-        openSession(context) { session, error ->
-            if (error != null || session == null) {
-                promise.reject("app_search_open_failed", error?.message, error)
-                return@openSession
-            }
+        withSession(context, promise) { session ->
             val searchSpec = SearchSpec.Builder().addFilterNamespaces(NAMESPACE).build()
             session.remove("", searchSpec, executor) { result ->
                 context.getSharedPreferences(STATE_PREFERENCES, Context.MODE_PRIVATE).edit().remove(STATE_KEY).apply()
@@ -232,6 +216,13 @@ private object AndroidAppSearchIndex {
         }
     }
 
+    private fun withSession(context: Context, promise: Promise, operation: (AppSearchSession) -> Unit) {
+        openSession(context) { session, error ->
+            if (error != null || session == null) promise.reject("app_search_open_failed", error?.message, error)
+            else operation(session)
+        }
+    }
+
     private fun parseItems(itemsJson: String): ParsedItems {
         val array = JSONArray(itemsJson)
         val documents = ArrayList<GenericDocument>(array.length())
@@ -284,16 +275,14 @@ private object AndroidAppSearchIndex {
         .digest(value.toByteArray())
         .joinToString("") { "%02x".format(it) }
 
-    private fun searchableString(name: String, cardinality: Int) = AppSearchSchema.StringPropertyConfig.Builder(name)
-        .setCardinality(cardinality)
-        .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-        .build()
+    private fun searchableString(name: String, cardinality: Int) = stringProperty(name, cardinality, true)
 
-    private fun unindexedString(name: String, cardinality: Int) = AppSearchSchema.StringPropertyConfig.Builder(name)
+    private fun unindexedString(name: String, cardinality: Int) = stringProperty(name, cardinality, false)
+
+    private fun stringProperty(name: String, cardinality: Int, searchable: Boolean) = AppSearchSchema.StringPropertyConfig.Builder(name)
         .setCardinality(cardinality)
-        .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
-        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
+        .setIndexingType(if (searchable) AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES else AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+        .setTokenizerType(if (searchable) AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN else AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
         .build()
 
     private data class ParsedItems(val documents: List<GenericDocument>, val fingerprints: Map<String, String>)
