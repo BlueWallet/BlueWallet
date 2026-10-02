@@ -17,6 +17,20 @@ final class PlatformSearchModule: NSObject {
 
     private var currentActivity: NSUserActivity?
 
+    override init() {
+        super.init()
+        deleteSavedActivities()
+    }
+
+    private func deleteSavedActivities() {
+        let defaults = UserDefaults.standard
+        let identifiers = defaults.stringArray(forKey: Self.donatedActivityIdentifiersKey) ?? []
+        guard !identifiers.isEmpty else { return }
+        NSUserActivity.deleteSavedUserActivities(withPersistentIdentifiers: identifiers) {
+            defaults.removeObject(forKey: Self.donatedActivityIdentifiersKey)
+        }
+    }
+
     static func moduleName() -> String! { "PlatformSearchModule" }
     static func requiresMainQueueSetup() -> Bool { false }
 
@@ -126,11 +140,7 @@ final class PlatformSearchModule: NSObject {
         clearActivity()
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: Self.indexedItemsKey)
-        let donatedIdentifiers = defaults.stringArray(forKey: Self.donatedActivityIdentifiersKey) ?? []
-        if !donatedIdentifiers.isEmpty {
-            NSUserActivity.deleteSavedUserActivities(withPersistentIdentifiers: donatedIdentifiers) {}
-            defaults.removeObject(forKey: Self.donatedActivityIdentifiersKey)
-        }
+        deleteSavedActivities()
         index.deleteAllSearchableItems { error in
             if let error {
                 reject("platform_search_delete_failed", error.localizedDescription, error)
@@ -164,7 +174,8 @@ final class PlatformSearchModule: NSObject {
             activity.title = title
             activity.userInfo = [Self.activityIdentifierKey: identifier]
             activity.contentAttributeSet = attributes
-            activity.isEligibleForPrediction = true
+            // System search is an on-device opt-in; Siri predictions can reach other devices.
+            activity.isEligibleForPrediction = false
             activity.isEligibleForSearch = false
             activity.isEligibleForHandoff = false
             activity.isEligibleForPublicIndexing = false
@@ -172,11 +183,6 @@ final class PlatformSearchModule: NSObject {
             activity.persistentIdentifier = NSUserActivityPersistentIdentifier(persistentIdentifier)
             activity.becomeCurrent()
             self.currentActivity = activity
-
-            let defaults = UserDefaults.standard
-            var identifiers = Set(defaults.stringArray(forKey: Self.donatedActivityIdentifiersKey) ?? [])
-            identifiers.insert(persistentIdentifier)
-            defaults.set(Array(identifiers), forKey: Self.donatedActivityIdentifiersKey)
         }
     }
 
