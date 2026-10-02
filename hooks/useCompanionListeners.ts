@@ -25,7 +25,7 @@ import presentAlert from '../components/Alert';
 import useWidgetCommunication from './useWidgetCommunication';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
-import useMenuElements from './useMenuElements';
+import useMenuActions from './useMenuActions';
 import useClipboardDetection from './useClipboardDetection';
 
 /**
@@ -54,7 +54,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   // Initialize other hooks regardless of activation status
   // They'll handle their own conditional logic internally
   useWidgetCommunication();
-  useMenuElements();
+  useMenuActions();
   useDeviceQuickActions();
   useHandoffListener();
 
