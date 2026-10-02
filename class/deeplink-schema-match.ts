@@ -5,6 +5,7 @@ import { readDroppedFileContents } from '../blue_modules/fs';
 import { Chain } from '../models/bitcoinUnits';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import Azteco from './azteco';
+import { ContactList } from './contact-list';
 import Lnurl from './lnurl';
 import type { TWallet } from './wallets/types';
 
@@ -183,6 +184,16 @@ class DeeplinkSchemaMatch {
           screen: 'SendDetails',
           params: {
             uri: event.url.replace('://', ':'),
+          },
+        },
+      ]);
+    } else if (new ContactList().isPaymentCodeValid(event.url)) {
+      completionHandler([
+        'SendDetailsRoot',
+        {
+          screen: 'SendDetails',
+          params: {
+            uri: event.url,
           },
         },
       ]);

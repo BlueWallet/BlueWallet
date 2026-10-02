@@ -361,7 +361,6 @@
     "onchain": "on-chain",
     "details_to": "Výstup",
     "enable_offline_signing": "Táto peňaženka sa nepoužíva v spojení s offline podpisovaním. Chceli by ste ho teraz zapnúť?",
-    "list_conf": "Pot: {number}",
     "pending": "Čaká...",
     "pending_with_amount": "Čaká {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

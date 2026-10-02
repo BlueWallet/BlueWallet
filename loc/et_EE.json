@@ -361,7 +361,6 @@
     "onchain": "On-chain",
     "details_to": "Väljund",
     "enable_offline_signing": "Seda rahakotti ei kasutata koos võrguta allkirjastamisega. Kas soovid selle nüüd lubada?",
-    "list_conf": "Kinn: {number}",
     "pending": "Ootel",
     "pending_with_amount": "Ootel {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

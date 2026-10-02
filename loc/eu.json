@@ -361,7 +361,6 @@
     "onchain": "Katean",
     "details_to": "Irteera",
     "enable_offline_signing": "Diru-zorro hau ez da lineaz kanpoko sinadurarekin batera erabiltzen ari. Orain gaitu nahi duzu?",
-    "list_conf": "Berr.: {number}",
     "pending": "Zain",
     "pending_with_amount": "Zain {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

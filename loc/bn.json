@@ -361,7 +361,6 @@
     "onchain": "অন-চেইন",
     "details_to": "আউটপুট",
     "enable_offline_signing": "এই ওয়ালেটটি অফলাইন স্বাক্ষরের সাথে ব্যবহার করা হচ্ছে না। আপনি কি এটি এখন সক্রিয় করতে চান?",
-    "list_conf": "নিশ্চিত: {number}",
     "pending": "অপেক্ষমাণ",
     "pending_with_amount": "অপেক্ষমাণ {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

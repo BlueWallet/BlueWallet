@@ -7,6 +7,7 @@ import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { AddWalletStackParamList } from './AddWalletStack';
+import { ClipboardPaymentKind } from '../blue_modules/clipboardPayment';
 
 export type ScanQRCodeParamList = {
   cameraStatusGranted?: boolean;
@@ -180,4 +181,9 @@ export type DetailViewStackParamList = {
   };
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
   ManageWallets: { search?: string; isSearchFocused?: boolean } | undefined;
+  ClipboardDetected: {
+    payload: string;
+    kind: ClipboardPaymentKind;
+    contentHash: string;
+  };
 };
