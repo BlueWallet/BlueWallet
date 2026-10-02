@@ -367,7 +367,6 @@
     "onchain": "Onchain",
     "details_to": "Wyjście",
     "enable_offline_signing": "Ten portfel nie jest używany w połączeniu z podpisem offline. Czy chcesz to teraz włączyć?",
-    "list_conf": "potwierdzenia: {number}",
     "pending": "Oczekuje",
     "pending_with_amount": "Oczekuje {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

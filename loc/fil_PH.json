@@ -361,7 +361,6 @@
     "onchain": "Onchain",
     "details_to": "Labasan",
     "enable_offline_signing": "Hindi ginagamit ang wallet na ito kasabay ng offline signing. Nais mo ba itong i-enable ngayon?",
-    "list_conf": "Kump: {number}",
     "pending": "Nakabinbin",
     "pending_with_amount": "Nakabinbin {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

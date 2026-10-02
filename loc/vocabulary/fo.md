@@ -89,7 +89,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Receive | móttaka / inngjald | verb / noun · `móttaka` (verb) / `inngjald` (noun, shipped `receive.header` + `transactions.incoming_transaction`). |
 | Settings | stillingar | noun, lowercase · general app preferences · shipped `settings.header`. ⚠️ NOT the same as "Options" — see next row. |
 | Options | kostur | noun · a list of choices about a single thing (e.g. a wallet or transaction), distinct from "Settings"/`stillingar` · shipped `wallets.details_options`. |
-| Confirm | vátta / váttan | verb / noun · shipped `send.confirm_header` (verb) + `transactions.list_conf` `Váttanir` (plural noun = confirmations). |
+| Confirm | vátta / váttan | verb / noun · shipped `send.confirm_header` (verb). |
 | QR Code | QR-kota | noun · lit. "QR code" · shipped `receive.qrcode_for_the_address`, `send.qr_error_no_qrcode` + Bitcoin Core fo. Hyphenated because one element (`QR`) is an abbreviation. |
 | Clipboard | setiborð | noun, lowercase · lit. "set-board" · shipped `_.clipboard` + Bitcoin Core fo. |
 | Memo | viðmerking | noun, lowercase · lit. "annotation/comment" · shipped `send.create_memo`, `details_note_placeholder`. |

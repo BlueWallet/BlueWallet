@@ -710,15 +710,17 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitForKeyboardToClose();
     await element(by.id('FreezeSwitch')).tap(); // freeze switch
     await waitForSwitchValue('FreezeSwitch', true);
-    await element(by.id('CoinControlOutputDone')).tap();
-    await waitFor(element(by.id('CoinControlOutputDone')))
+    await goBack();
+    await waitFor(element(by.id('OutputMemo')))
       .not.toBeVisible()
       .withTimeout(20000);
     await expect(element(by.id('OutputMemoLabel').and(by.text('Test2')))).toBeVisible();
     await expect(element(by.id('FrozenBadge'))).toBeVisible();
 
-    // use frozen output to create tx using "Use coin" feature
+    // A frozen coin cannot be spent. Unfreeze it, then use that coin.
     await element(by.text('Test2')).atIndex(0).tap();
+    await element(by.id('FreezeSwitch')).tap();
+    await waitForSwitchValue('FreezeSwitch', false);
     await element(by.id('UseCoin')).tap();
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('HeaderMenuButton')).tap();
@@ -744,9 +746,21 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await goBack();
     await goBack();
 
-    // create tx with unfrozen input
+    // Freeze that coin again so full balance skips it and spends the other coins.
     await waitForId('SendButton');
     await element(by.id('SendButton')).tap();
+    await tapHeaderMenuItem('Coin Control', { actionId: 'coin_control' });
+    await waitFor(element(by.id('Loading')))
+      .not.toExist()
+      .withTimeout(300 * 1000);
+    await element(by.text('Test2')).atIndex(0).tap();
+    await element(by.id('FreezeSwitch')).tap();
+    await waitForSwitchValue('FreezeSwitch', true);
+    await goBack();
+    await goBack();
+
+    // create tx with the remaining unfrozen inputs
+    await waitForId('AddressInput');
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Use Full Balance')).tap();
@@ -764,8 +778,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(uint8ArrayToHex(tx2.outs[0].script), '00147ea385f352be696ab0f6e94a0ee0e3c6d4b14a53');
     assert.strictEqual(tx2.outs[0].value, 35369n);
     assert.strictEqual(tx2.ins.length, 3);
-    assert.strictEqual(uint8ArrayToHex(tx2.ins[0].hash), 'd479264875a0f7c4a84e47141be005404531a8655f2388ae21e89a9701f14c10');
-    assert.strictEqual(tx2.ins[0].index, 0);
+    const tx2InputHashes = tx2.ins.map(input => uint8ArrayToHex(input.hash));
+    // Full balance must skip the frozen coin. Input order follows the latest UTXO fetch, so don't require a specific input to be first.
+    assert.ok(!tx2InputHashes.includes('20ecd27b453461df63079782874226386901f873dcd3e021e0126319c7b20a8b'));
+    assert.ok(tx2InputHashes.includes('d479264875a0f7c4a84e47141be005404531a8655f2388ae21e89a9701f14c10'));
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
