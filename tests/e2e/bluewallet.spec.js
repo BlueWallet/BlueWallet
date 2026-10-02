@@ -729,7 +729,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await element(by.id('CreateTransactionButton')).tap();
 
-    await waitFor(element(by.id('ItemUnsigned')))
+    // Both vault keys are unsigned initially; select each row explicitly.
+    await waitFor(element(by.id('ItemUnsigned')).atIndex(0))
+      .toBeVisible()
+      .withTimeout(33_000);
+    await waitFor(element(by.id('ItemUnsigned')).atIndex(1))
       .toBeVisible()
       .withTimeout(33_000);
     await waitFor(element(by.id('ItemSigned')))
