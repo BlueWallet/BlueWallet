@@ -14,12 +14,19 @@ type Props = {
 
 const WalletExportDragSource: React.FC<Props> = ({ wallet, children, enabled = true, style }) => {
   const secret = useMemo(() => {
-    const value = wallet instanceof WatchOnlyWallet ? wallet.getSecretForExport() : wallet.getSecret();
+    const value = wallet instanceof WatchOnlyWallet ? wallet.getSecretForExport() : typeof wallet.getSecret === 'function' ? wallet.getSecret() : '';
     return Array.isArray(value) ? value.join('\n') : String(value ?? '');
   }, [wallet]);
   const exportFileName = useMemo(() => makeLabelFileName(wallet.getLabel(), 'txt'), [wallet]);
   return (
-    <AuthenticatedFileDragSource fileName={exportFileName} mimeType="text/plain" content={secret} enabled={enabled} style={style}>
+    <AuthenticatedFileDragSource
+      fileName={exportFileName}
+      mimeType="text/plain"
+      content={secret}
+      requireAuthentication
+      enabled={enabled && secret.length > 0}
+      style={style}
+    >
       {children}
     </AuthenticatedFileDragSource>
   );

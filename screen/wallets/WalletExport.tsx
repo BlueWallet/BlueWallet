@@ -185,7 +185,7 @@ const WalletExport: React.FC = () => {
       <BlueText style={styles.scanText}>{loc.wallets.scan_import}</BlueText>
 
       <View style={styles.qrCodeContainer}>
-        <QRCode isMenuAvailable={false} value={secret} size={qrCodeSize} logoSize={70} />
+        <QRCode isMenuAvailable={false} value={secret} size={qrCodeSize} logoSize={70} requireDragAuthentication />
       </View>
 
       {/* Do not allow to copy mnemonic */}
@@ -201,7 +201,7 @@ const WalletExport: React.FC = () => {
             content={secret.trim().split(/\s+/).join(' ')}
             enabled={!isPrivacyBlurEnabled}
           >
-            <SeedWords seed={secret} selectable={!isPrivacyBlurEnabled} />
+            <SeedWords seed={secret} />
           </AuthenticatedFileDragSource>
         </>
       ) : (

@@ -135,13 +135,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
         DragAndDropLog.debug("App target accepted \(session.items.count) item(s)")
         for item in session.items {
             let provider = item.itemProvider
-            if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier), provider.canLoadObject(ofClass: NSURL.self) {
-                provider.loadObject(ofClass: NSURL.self) { [weak self] object, _ in
-                    guard !DragAndDropState.isScreenProtected, let nsURL = object as? NSURL else { return }
-                    let url = nsURL as URL
-                    self?.openDroppedURL(self?.localCopyIfNeeded(url) ?? url)
-                }
-            } else if let type = preferredFileRepresentation(for: provider) {
+            if let type = preferredFileRepresentation(for: provider) {
                 provider.loadFileRepresentation(forTypeIdentifier: type.identifier) { [weak self] url, error in
                     guard !DragAndDropState.isScreenProtected else { return }
                     guard let url else {
@@ -192,7 +186,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
     private func preferredFileRepresentation(for provider: NSItemProvider) -> UTType? {
         let types = provider.registeredTypeIdentifiers.compactMap(UTType.init)
         return types.first { $0.conforms(to: .image) }
-          ?? types.first { $0.conforms(to: .data) && !$0.conforms(to: .text) && !$0.conforms(to: .url) }
+          ?? types.first { $0.conforms(to: .data) && !$0.conforms(to: .url) }
     }
 
     private func copyProviderFile(_ url: URL, contentType: UTType) -> URL? {
@@ -283,26 +277,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
         guard let overlay = dropOverlay else { return }
         dropOverlay = nil
         UIView.animate(withDuration: 0.12, animations: { overlay.alpha = 0 }) { _ in overlay.removeFromSuperview() }
-    }
-
-    private func localCopyIfNeeded(_ url: URL) -> URL {
-        guard url.isFileURL else { return url }
-
-        let didAccess = url.startAccessingSecurityScopedResource()
-        defer {
-            if didAccess { url.stopAccessingSecurityScopedResource() }
-        }
-
-        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("DroppedItems", isDirectory: true)
-        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        let destination = directory.appendingPathComponent("\(UUID().uuidString)-\(url.lastPathComponent)")
-        do {
-            try FileManager.default.copyItem(at: url, to: destination)
-            return destination
-        } catch {
-            NSLog("[DragAndDrop] Could not copy dropped file: %@", error.localizedDescription)
-            return url
-        }
     }
 
     private func openDroppedURL(_ url: URL) {

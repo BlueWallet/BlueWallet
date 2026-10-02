@@ -27,7 +27,7 @@ import { pop } from '../NavigationService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import ListItem from './ListItem';
-import DraggableFile from './DraggableFile';
+import AuthenticatedFileDragSource from './AuthenticatedFileDragSource';
 
 const styles = StyleSheet.create({
   fullWidthButton: {
@@ -573,45 +573,46 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
       accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
       accessibilityRole="button"
     >
-      <DraggableFile
+      <AuthenticatedFileDragSource
         fileName={transactionExport.fileName}
         mimeType="application/json"
         content={transactionExport.content}
+        requireAuthentication
         style={styles.fullWidthButton}
       >
         <AnimatedPressableRow onPress={onPress} accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}>
           {/* @ts-ignore - Context menu wrapper types can be overly strict about child element props */}
           <ListItem
-          leftAvatar={avatar}
-          title={listTitle}
-          subtitle={dateLine}
-          chevron={false}
-          rightTitle={rowTitle}
-          rightTitleStyle={rowTitleStyle}
-          rightSubtitle={rightSubtitle}
-          rightSubtitleStyle={styles.rightColumn}
-          containerStyle={combinedStyle}
-          testID="TransactionListItem"
-          accessibilityRole="button"
-          accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
-        >
-          <View style={styles.row}>
-            <View style={styles.avatarContainer}>{avatar}</View>
-            <View style={styles.textContainer}>
-              <Text style={[styles.title, titleStyle]} numberOfLines={1}>
-                {title}
-              </Text>
-              {subtitleContent}
+            leftAvatar={avatar}
+            title={listTitle}
+            subtitle={dateLine}
+            chevron={false}
+            rightTitle={rowTitle}
+            rightTitleStyle={rowTitleStyle}
+            rightSubtitle={rightSubtitle}
+            rightSubtitleStyle={styles.rightColumn}
+            containerStyle={combinedStyle}
+            testID="TransactionListItem"
+            accessibilityRole="button"
+            accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
+          >
+            <View style={styles.row}>
+              <View style={styles.avatarContainer}>{avatar}</View>
+              <View style={styles.textContainer}>
+                <Text style={[styles.title, titleStyle]} numberOfLines={1}>
+                  {title}
+                </Text>
+                {subtitleContent}
+              </View>
+              <View style={styles.rightColumn}>
+                <Text style={[styles.rightTitle, rowTitleStyle]} numberOfLines={1}>
+                  {rowTitle}
+                </Text>
+              </View>
             </View>
-            <View style={styles.rightColumn}>
-              <Text style={[styles.rightTitle, rowTitleStyle]} numberOfLines={1}>
-                {rowTitle}
-              </Text>
-            </View>
-          </View>
           </ListItem>
         </AnimatedPressableRow>
-      </DraggableFile>
+      </AuthenticatedFileDragSource>
     </ToolTipMenu>
   );
 };

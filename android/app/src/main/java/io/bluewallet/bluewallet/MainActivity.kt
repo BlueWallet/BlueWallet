@@ -138,14 +138,19 @@ class MainActivity : ReactActivity() {
                 window.decorView.performHapticFeedback(
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) HapticFeedbackConstants.CONFIRM else HapticFeedbackConstants.VIRTUAL_KEY,
                 )
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    requestDragAndDropPermissions(event)?.let(dropPermissions::add)
+                val hasDropPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    requestDragAndDropPermissions(event)?.also(dropPermissions::add) != null
+                } else {
+                    false
                 }
                 val clipData = event.clipData ?: return false
                 if (BuildConfig.DEBUG) Log.d("DragAndDrop", "App target accepted ${clipData.itemCount} item(s)")
                 for (index in 0 until clipData.itemCount) {
                     val item = clipData.getItemAt(index)
                     val uri = item.uri
+                    // Only content-provider items accompanied by Android's drag grant
+                    // are authority to read a URI. Never accept source-supplied file paths.
+                    if (uri != null && (!uri.scheme.equals("content", true) || !hasDropPermission)) continue
                     val droppedValue = uri?.toString()
                         ?: item.text?.toString()?.trim()
                         ?: item.coerceToText(this)?.toString()?.trim()

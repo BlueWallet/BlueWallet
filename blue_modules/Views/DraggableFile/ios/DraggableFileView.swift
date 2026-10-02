@@ -131,6 +131,9 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
 
   private func makeDragItems() -> [UIDragItem] {
     if secureContentExport {
+      if captureViewAsImage {
+        return makeSecureImageDragItems()
+      }
       return makeSecureTextDragItems()
     }
     let contentType = UTType(mimeType: mimeType)
@@ -176,6 +179,61 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
     }
     provider.suggestedName = URL(fileURLWithPath: fileName).lastPathComponent
     return [UIDragItem(itemProvider: provider)]
+  }
+
+  private func makeSecureImageDragItems() -> [UIDragItem] {
+    let contentType = UTType(mimeType: mimeType) ?? .png
+    let provider = NSItemProvider()
+    provider.suggestedName = URL(fileURLWithPath: fileName).lastPathComponent
+
+    provider.registerFileRepresentation(forTypeIdentifier: contentType.identifier, fileOptions: [], visibility: .all) { [weak self] completion in
+      guard let self else {
+        completion(nil, false, NSError(domain: "io.bluewallet.dragdrop", code: 8))
+        return Self.completedProgress()
+      }
+      return self.authenticateForExport { error in
+        guard error == nil else {
+          completion(nil, false, error)
+          return
+        }
+        _ = self.fulfillExport { url, exportError in completion(url, false, exportError) }
+      }
+    }
+
+    provider.registerDataRepresentation(forTypeIdentifier: contentType.identifier, visibility: .all) { [weak self] completion in
+      guard let self else {
+        completion(nil, NSError(domain: "io.bluewallet.dragdrop", code: 9))
+        return Self.completedProgress()
+      }
+      return self.authenticateForExport { error in
+        guard error == nil else {
+          completion(nil, error)
+          return
+        }
+        _ = self.fulfillExportData(completion)
+      }
+    }
+    DragAndDropLog.debug("Prepared deferred image export type=\(contentType.identifier)")
+    return [UIDragItem(itemProvider: provider)]
+  }
+
+  private func authenticateForExport(_ completion: @escaping (Error?) -> Void) -> Progress {
+    guard biometricEnabled else {
+      completion(nil)
+      return Self.completedProgress()
+    }
+    let progress = Progress(totalUnitCount: 1)
+    let context = LAContext()
+    context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: authenticationPrompt) { success, error in
+      if success {
+        progress.completedUnitCount = 1
+        completion(nil)
+      } else {
+        DragAndDropLog.debug("Image export authentication cancelled or failed")
+        completion(error ?? NSError(domain: "io.bluewallet.dragdrop", code: 10))
+      }
+    }
+    return progress
   }
 
   private func makeSecureTextDragItems() -> [UIDragItem] {
@@ -308,17 +366,6 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
   }
 
   private func loadDroppedItem(_ provider: NSItemProvider) {
-    if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier), provider.canLoadObject(ofClass: NSURL.self) {
-      DragAndDropLog.debug("Loading inbound file URL representation")
-      provider.loadObject(ofClass: NSURL.self) { [weak self] object, _ in
-        guard let self, let nsURL = object as? NSURL else { return }
-        let url = nsURL as URL
-        let type = UTType(filenameExtension: url.pathExtension) ?? .data
-        guard let copiedURL = copyDroppedFile(url, type: type) else { return }
-        emitDroppedFile(copiedURL, mimeType: type.preferredMIMEType)
-      }
-      return
-    }
     if let type = preferredFileRepresentation(for: provider) {
       DragAndDropLog.debug("Loading inbound file representation type=\(type.identifier)")
       provider.loadFileRepresentation(forTypeIdentifier: type.identifier) { [weak self] url, _ in
@@ -339,7 +386,7 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
   private func preferredFileRepresentation(for provider: NSItemProvider) -> UTType? {
     let types = provider.registeredTypeIdentifiers.compactMap(UTType.init)
     return types.first { $0.conforms(to: .image) }
-      ?? types.first { $0.conforms(to: .data) && !$0.conforms(to: .text) && !$0.conforms(to: .url) }
+      ?? types.first { $0.conforms(to: .data) && !$0.conforms(to: .url) }
   }
 
   private func copyDroppedFile(_ url: URL, type: UTType) -> URL? {
