@@ -40,6 +40,7 @@ jest.mock('../../hooks/useWalletSubscribe', () => ({
 }));
 
 let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet', key: 'transaction-status-test' };
+const mockSetParams = jest.fn();
 
 jest.mock('@react-navigation/native', () => {
   const actual = jest.requireActual('@react-navigation/native');
@@ -49,6 +50,7 @@ jest.mock('@react-navigation/native', () => {
     useNavigation: () => ({
       navigate: jest.fn(),
       setOptions: jest.fn(),
+      setParams: mockSetParams,
       goBack: jest.fn(),
       addListener: jest.fn(),
     }),
@@ -293,6 +295,18 @@ describe('TransactionStatus regression', () => {
       expect(walletMock.getTransactions).toHaveBeenCalledTimes(initialCalls + 1);
       expect(view.getByText('confirmations: 4')).toBeTruthy();
     });
+  });
+
+  it('does not publish a previous transaction after the route hash changes', async () => {
+    routeParams = { hash: 'mock-tx', walletID: 'mock-wallet', tx: { ...mockTxBase } };
+    const view = render(<TransactionStatus />);
+
+    act(() => {
+      routeParams = { ...routeParams, hash: 'next-tx' };
+      view.rerender(<TransactionStatus />);
+    });
+
+    expect(mockSetParams).not.toHaveBeenCalled();
   });
 
   it('when editing a note, passes current memo as default value in the input (not in alert message)', async () => {
