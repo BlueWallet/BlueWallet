@@ -484,12 +484,12 @@ const DetailViewStackScreensStack = () => {
                 headerTitleAlign: 'left' as const,
               };
 
-              if (isIOS26OrHigher) {
+              if (Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop) {
                 return {
                   ...transactionOptions,
                   headerRight: undefined,
                   unstable_headerRightItems: (): HeaderRightItem[] => {
-                    if (isDesktop || !transactionId) return [];
+                    if (!transactionId) return [];
                     return [
                       {
                         type: 'button',
