@@ -1241,8 +1241,7 @@ const SendDetails = () => {
 
   const setHeaderRightOptions = useCallback(() => {
     navigation.setOptions({
-      headerRight: headerMenuOptions.headerRight,
-      unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems,
+      ...headerMenuOptions,
     });
   }, [headerMenuOptions, navigation]);
 

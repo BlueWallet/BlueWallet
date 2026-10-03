@@ -1,3 +1,4 @@
+import { headerMenuScreenLayout } from '../components/HeaderMenu';
 import React, { lazy } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
@@ -20,7 +21,7 @@ const ExportMultisigCoordinationSetupStack = () => {
   const theme = useTheme();
 
   return (
-    <Stack.Navigator initialRouteName="ExportMultisigCoordinationSetup">
+    <Stack.Navigator screenLayout={headerMenuScreenLayout} initialRouteName="ExportMultisigCoordinationSetup">
       <Stack.Screen
         name="ExportMultisigCoordinationSetup"
         component={ExportMultisigCoordinationSetupComponent}

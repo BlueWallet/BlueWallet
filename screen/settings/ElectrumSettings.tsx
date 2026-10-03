@@ -17,6 +17,8 @@ import {
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { createEllipsisHeaderMenuOptions } from '../../components/headerMenuOptions';
+import { usesHeaderMenu } from '../../components/HeaderMenu';
 import {
   SettingsSection,
   SettingsListItem,
@@ -410,9 +412,13 @@ const ElectrumSettings: React.FC = () => {
   useEffect(() => {
     const nextHeaderRight = isElectrumDisabled ? null : renderHeaderRight;
     navigation.setOptions({
-      headerRight: nextHeaderRight,
+      ...(usesHeaderMenu
+        ? isElectrumDisabled
+          ? { headerRight: undefined, unstable_headerRightItems: undefined, headerMenuActions: [] }
+          : createEllipsisHeaderMenuOptions({ actions: generateToolTipActions(), onPressMenuItem })
+        : { headerRight: nextHeaderRight }),
     });
-  }, [isElectrumDisabled, navigation, renderHeaderRight]);
+  }, [isElectrumDisabled, navigation, renderHeaderRight, generateToolTipActions, onPressMenuItem]);
 
   const checkServer = async () => {
     setIsLoading(true);

@@ -1,3 +1,4 @@
+import { getHeaderMenuOptions } from '../../components/HeaderMenu';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
@@ -79,10 +80,17 @@ const SendCreate = () => {
   );
 
   useEffect(() => {
-    navigation.setOptions({
-      headerRight: renderHeaderRight,
-    });
-  }, [navigation, renderHeaderRight]);
+    navigation.setOptions(
+      getHeaderMenuOptions({ headerRight: renderHeaderRight }, [
+        {
+          id: 'ExportTransaction',
+          text: loc.multisig.share,
+          icon: { iconValue: 'square.and.arrow.up' },
+          onPress: exportTXN,
+        },
+      ]),
+    );
+  }, [navigation, renderHeaderRight, exportTXN]);
 
   const _renderItem = ({ index, item }: ListRenderItemInfo<CreateTransactionTarget>) => {
     return (

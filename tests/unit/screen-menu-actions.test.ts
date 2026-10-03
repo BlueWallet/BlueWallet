@@ -21,7 +21,9 @@ jest.mock('../../hooks/useMenuElements', () => ({
 it('keeps committed handlers fresh, removes unavailable commands, and registers again on refocus', () => {
   const unregister = jest.fn();
   const register = jest.fn((_handlers: MenuActionHandlers, _routeKey: string) => unregister);
-  jest.mocked(useMenuElements).mockReturnValue({ registerMenuActions: register, isMenuElementsSupported: true });
+  jest
+    .mocked(useMenuElements)
+    .mockReturnValue({ registerMenuActions: register, registerHeaderMenu: jest.fn(() => jest.fn()), isMenuElementsSupported: true });
   const oldSend = jest.fn();
   const newSend = jest.fn();
   const hook = renderHook(({ send }: { send: (() => void) | undefined }) => useScreenMenuActions({ send }), {

@@ -1,10 +1,4 @@
-export type ScreenMenuAction =
-  | 'reloadTransactions'
-  | 'send'
-  | 'receive'
-  | 'walletDetails'
-  | 'copyAddress'
-  | 'copyTransactionId';
+export type ScreenMenuAction = 'reloadTransactions' | 'send' | 'receive' | 'walletDetails' | 'copyAddress' | 'copyTransactionId';
 export type MenuAction = ScreenMenuAction | 'settings' | 'addWallet' | 'importWallet' | 'backToWallets' | 'keyboardShortcuts';
 export type MenuActionHandlers = Partial<Record<ScreenMenuAction, () => void>>;
 
