@@ -77,7 +77,7 @@ const SCROLLED_HEADER_SHOW_OFFSET = 180;
 const SCROLLED_HEADER_FADE_IN_MS = 180;
 const SCROLLED_HEADER_FADE_OUT_MS = 150;
 
-const usesIos26AnimatedScrolledHeader = Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop;
+const usesIos26AnimatedScrolledHeader = Platform.OS === 'ios' && isIOS26OrHigher;
 
 /** Native stack options used when scrolled; includes props missing from the published TS types. */
 type WalletTransactionsScrolledHeaderOptions = NativeStackNavigationOptions & {
@@ -649,7 +649,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         ? {
             headerTintColor: scrolledHeaderIconColor,
             statusBarStyle: 'light',
-            ...(isIOS26OrHigher && !isDesktop
+            ...(isIOS26OrHigher
               ? {
                   headerRight: undefined,
                   unstable_headerRightItems: createWalletDetailsHeaderRightItems({

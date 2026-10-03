@@ -1,8 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
+import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import Clipboard from '@react-native-clipboard/clipboard';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
@@ -62,74 +61,11 @@ import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
 import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
-import BlueText from '../components/BlueText';
-import dayjs from 'dayjs';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
-
-type TransactionDetailHeaderTitleProps = {
-  hash?: string;
-  tx?: any;
-  colors: ReturnType<typeof useTheme>['colors'];
-  fontScale: number;
-  maxWidth: number;
-};
-
-const TransactionDetailHeaderTitle = ({ hash, tx, colors, fontScale, maxWidth }: TransactionDetailHeaderTitleProps): React.JSX.Element => {
-  const transactionId = tx?.hash || tx?.txid || hash;
-  const value = Number(tx?.value);
-  const direction = Number.isFinite(value) && value < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
-  const date = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
-
-  return (
-    <View style={[styles.transactionHeaderTitleContainer, { maxWidth }]}>
-      <BlueText
-        style={[styles.transactionHeaderDirection, { color: colors.foregroundColor, lineHeight: Math.round(22 * fontScale) }]}
-        numberOfLines={1}
-        ellipsizeMode="middle"
-      >
-        {transactionId}
-      </BlueText>
-      {tx ? (
-        <BlueText
-          style={[styles.transactionHeaderDate, { color: colors.alternativeTextColor, lineHeight: Math.round(18 * fontScale) }]}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={0.8}
-        >
-          {`${direction} · ${date}`}
-        </BlueText>
-      ) : null}
-    </View>
-  );
-};
-
-const createTransactionDetailHeaderTitle = (props: TransactionDetailHeaderTitleProps) => () =>
-  React.createElement(TransactionDetailHeaderTitle, props);
-
-type TransactionCopyHeaderButtonProps = {
-  accessibilityLabel: string;
-  color: string;
-  onPress: () => void;
-};
-
-const TransactionCopyHeaderButton = ({ accessibilityLabel, color, onPress }: TransactionCopyHeaderButtonProps): React.JSX.Element => (
-  <Pressable
-    accessibilityRole="button"
-    accessibilityLabel={accessibilityLabel}
-    style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
-    onPress={onPress}
-  >
-    <Icon name="content-copy" type="material" size={20} color={color} />
-  </Pressable>
-);
-
-const createTransactionCopyHeaderRight = (props: TransactionCopyHeaderButtonProps) => () =>
-  React.createElement(TransactionCopyHeaderButton, props);
 
 const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
   const opacity = useRef(new Animated.Value(1)).current;
@@ -223,7 +159,6 @@ const DetailViewStackScreensStack = () => {
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { sizeClass } = useSizeClass();
-  const { width: windowWidth, fontScale } = useWindowDimensions();
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
   // Probe connection health from the UI (e.g. WalletsList focus / 30s timer).
@@ -454,69 +389,13 @@ const DetailViewStackScreensStack = () => {
             hash: undefined,
             walletID: undefined,
           }}
-          options={navigationStyle(
-            {
-              headerStyle: {
-                backgroundColor: theme.colors.customHeader,
-              },
-              headerTitle: '',
-              headerBackButtonDisplayMode: 'default',
+          options={navigationStyle({
+            headerStyle: {
+              backgroundColor: theme.colors.customHeader,
             },
-            (options, { route }) => {
-              const transactionId = route.params?.tx?.hash || route.params?.tx?.txid || route.params?.hash || '';
-              const copyTransactionId = () => {
-                if (!transactionId) return;
-                Clipboard.setString(transactionId);
-                triggerHapticFeedback(HapticFeedbackTypes.Selection);
-              };
-
-              const transactionOptions = {
-                ...options,
-                headerTitle: transactionId
-                  ? createTransactionDetailHeaderTitle({
-                      tx: route.params?.tx,
-                      hash: route.params?.hash,
-                      colors: theme.colors,
-                      fontScale,
-                      maxWidth: Math.max(0, windowWidth - 96),
-                    })
-                  : '',
-                headerTitleAlign: 'left' as const,
-              };
-
-              if (Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop) {
-                return {
-                  ...transactionOptions,
-                  headerRight: undefined,
-                  unstable_headerRightItems: (): HeaderRightItem[] => {
-                    if (!transactionId) return [];
-                    return [
-                      {
-                        type: 'button',
-                        label: loc.transactions.details_copy,
-                        accessibilityLabel: `${loc.transactions.details_copy} ${loc.transactions.txid}`,
-                        icon: { type: 'sfSymbol', name: 'doc.on.doc' },
-                        identifier: 'CopyTransactionId',
-                        onPress: copyTransactionId,
-                      },
-                    ];
-                  },
-                };
-              }
-
-              return {
-                ...transactionOptions,
-                headerRight: transactionId
-                  ? createTransactionCopyHeaderRight({
-                      accessibilityLabel: `${loc.transactions.details_copy} ${loc.transactions.txid}`,
-                      color: theme.colors.foregroundColor,
-                      onPress: copyTransactionId,
-                    })
-                  : undefined,
-                unstable_headerRightItems: undefined,
-              };
-            },
-          )(theme)}
+            headerTitle: '',
+            headerBackButtonDisplayMode: 'default',
+          })(theme)}
         />
         <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
         <DetailViewStack.Screen
@@ -704,21 +583,6 @@ const DetailViewStackScreensStack = () => {
 export default DetailViewStackScreensStack;
 
 const styles = StyleSheet.create({
-  transactionHeaderTitleContainer: {
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    flex: 1,
-    minWidth: 0,
-  },
-  transactionHeaderDirection: {
-    fontSize: 17,
-    fontWeight: '600',
-    marginBottom: 2,
-    letterSpacing: 0.15,
-  },
-  transactionHeaderDate: {
-    fontSize: 13,
-  },
   headerIconButton: {
     minWidth: 40,
     height: 40,
