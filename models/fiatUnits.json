@@ -139,13 +139,6 @@
         "symbol": "HK$",
         "country": "Hong Kong (Hong Kong Dollar)"
     },
-    "HRK": {
-        "endPointKey": "HRK",
-        "locale": "hr-HR",
-        "source": "Coinbase",
-        "symbol": "HRK",
-        "country": "Croatia (Croatian Kuna)"
-    },
     "HUF": {
         "endPointKey": "HUF",
         "locale": "hu-HU",
@@ -254,7 +247,7 @@
     "MZN": {
         "endPointKey": "MZN",
         "locale": "seh-MZ",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "MTn",
         "country": "Mozambique (Mozambican Metical)"
     },
@@ -331,7 +324,7 @@
     "RUB": {
         "endPointKey": "RUB",
         "locale": "ru-RU",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "₽",
         "country": "Russia (Russian Ruble)"
     },
@@ -405,13 +398,6 @@
         "symbol": "$",
         "country": "Uruguay (Uruguayan Peso)"
     },
-    "VEF": {
-        "endPointKey": "VEF",
-        "locale": "es-VE",
-        "source": "Coinbase",
-        "symbol": "Bs.",
-        "country": "Venezuela (Venezuelan Bolívar Fuerte)"
-    },
     "VES": {
         "endPointKey": "VES",
         "locale": "es-VE",
@@ -439,5 +425,96 @@
         "source": "Coinbase",
         "symbol": "₵",
         "country": "Ghana (Ghanaian Cedi)"
+    },
+    "PKR": {
+        "endPointKey": "PKR",
+        "locale": "ur-PK",
+        "source": "Coinbase",
+        "symbol": "Rs",
+        "country": "Pakistan (Pakistani Rupee)"
+    },
+    "BDT": {
+        "endPointKey": "BDT",
+        "locale": "bn-BD",
+        "source": "Coinbase",
+        "symbol": "৳",
+        "country": "Bangladesh (Bangladeshi Taka)"
+    },
+    "VND": {
+        "endPointKey": "VND",
+        "locale": "vi-VN",
+        "source": "Coinbase",
+        "symbol": "₫",
+        "country": "Vietnam (Vietnamese Dong)"
+    },
+    "ETB": {
+        "endPointKey": "ETB",
+        "locale": "am-ET",
+        "source": "YadioConvert",
+        "symbol": "ብር",
+        "country": "Ethiopia (Ethiopian Birr)"
+    },
+    "DZD": {
+        "endPointKey": "DZD",
+        "locale": "ar-DZ",
+        "source": "YadioConvert",
+        "symbol": "د.ج.",
+        "country": "Algeria (Algerian Dinar)"
+    },
+    "XOF": {
+        "endPointKey": "XOF",
+        "locale": "fr-SN",
+        "source": "Coinbase",
+        "symbol": "F CFA",
+        "country": "West Africa (West African CFA Franc)"
+    },
+    "MAD": {
+        "endPointKey": "MAD",
+        "locale": "ar-MA",
+        "source": "Coinbase",
+        "symbol": "د.م.",
+        "country": "Morocco (Moroccan Dirham)"
+    },
+    "KZT": {
+        "endPointKey": "KZT",
+        "locale": "kk-KZ",
+        "source": "Coinbase",
+        "symbol": "₸",
+        "country": "Kazakhstan (Kazakhstani Tenge)"
+    },
+    "UZS": {
+        "endPointKey": "UZS",
+        "locale": "uz-UZ",
+        "source": "Coinbase",
+        "symbol": "soʻm",
+        "country": "Uzbekistan (Uzbekistani Som)"
+    },
+    "PEN": {
+        "endPointKey": "PEN",
+        "locale": "es-PE",
+        "source": "Coinbase",
+        "symbol": "S/",
+        "country": "Peru (Peruvian Sol)"
+    },
+    "DOP": {
+        "endPointKey": "DOP",
+        "locale": "es-DO",
+        "source": "Coinbase",
+        "symbol": "RD$",
+        "country": "Dominican Republic (Dominican Peso)"
+    },
+    "GTQ": {
+        "endPointKey": "GTQ",
+        "locale": "es-GT",
+        "source": "Coinbase",
+        "symbol": "Q",
+        "country": "Guatemala (Guatemalan Quetzal)"
+    },
+    "BOB": {
+        "endPointKey": "BOB",
+        "locale": "es-BO",
+        "source": "Coinbase",
+        "symbol": "Bs",
+        "country": "Bolivia (Bolivian Boliviano)"
     }
 }

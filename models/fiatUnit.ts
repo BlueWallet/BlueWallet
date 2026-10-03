@@ -33,6 +33,7 @@ const COINGECKO_FIAT = new Set([
   'AED',
   'ARS',
   'AUD',
+  'BDT',
   'BHD',
   'BRL',
   'CAD',
@@ -58,6 +59,7 @@ const COINGECKO_FIAT = new Set([
   'NOK',
   'NZD',
   'PHP',
+  'PKR',
   'PLN',
   'RUB',
   'SAR',
@@ -67,6 +69,7 @@ const COINGECKO_FIAT = new Set([
   'TRY',
   'TWD',
   'UAH',
+  'VND',
   'ZAR',
 ]);
 

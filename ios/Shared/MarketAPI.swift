@@ -22,8 +22,8 @@ class MarketAPI {
     private static let bitstampFiatPairs: Set<String> = ["USD", "EUR", "GBP"]
     /// Our tickers that CoinGecko accepts as vs_currency — from /api/v3/simple/supported_vs_currencies
     private static let coinGeckoFiat: Set<String> = [
-        "USD", "AED", "ARS", "AUD", "BHD", "BRL", "CAD", "CHF", "CLP", "CNY", "CZK", "DKK", "EUR", "GBP", "HKD", "HUF", "IDR", "ILS", "INR", "JPY",
-        "KRW", "KWD", "LKR", "MXN", "MYR", "NGN", "NOK", "NZD", "PHP", "PLN", "RUB", "SAR", "SEK", "SGD", "THB", "TRY", "TWD", "UAH", "ZAR",
+        "USD", "AED", "ARS", "AUD", "BDT", "BHD", "BRL", "CAD", "CHF", "CLP", "CNY", "CZK", "DKK", "EUR", "GBP", "HKD", "HUF", "IDR", "ILS", "INR", "JPY",
+        "KRW", "KWD", "LKR", "MXN", "MYR", "NGN", "NOK", "NZD", "PHP", "PKR", "PLN", "RUB", "SAR", "SEK", "SGD", "THB", "TRY", "TWD", "UAH", "VND", "ZAR",
     ]
     /// Prefer Kraken over Coinbase when both can serve the ticker.
     /// CoinGecko sits after the exchanges on purpose: the keyless tier is throttled per IP (observed 429 after ~5 calls
@@ -88,14 +88,12 @@ class MarketAPI {
         }
     }
 
-    private static func handleDefaultData(data: Data, source: String, endPointKey: String) throws -> WidgetDataStore? {
+    private static func handleDefaultData(data: Data, source: String, endPointKey: String) throws -> WidgetDataStore {
         guard let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? [String: Any] else {
             throw CurrencyError(errorDescription: "JSON parsing error.")
         }
 
-        guard let store = try parseJSONBasedOnSource(json: json, source: source, endPointKey: endPointKey) else {
-            return nil
-        }
+        let store = try parseJSONBasedOnSource(json: json, source: source, endPointKey: endPointKey)
         // Reject 0 / NaN / Inf so a broken provider falls through to the next source instead of ending the chain
         guard store.rateDouble.isFinite, store.rateDouble > 0 else {
             throw CurrencyError(errorDescription: "Invalid rate '\(store.rate)' from source: \(source)")
@@ -103,9 +101,7 @@ class MarketAPI {
         return store
     }
 
-    private static func parseJSONBasedOnSource(json: [String: Any], source: String, endPointKey: String) throws -> WidgetDataStore? {
-        var latestRateDataStore: WidgetDataStore?
-
+    private static func parseJSONBasedOnSource(json: [String: Any], source: String, endPointKey: String) throws -> WidgetDataStore {
         switch source {
         case "Yadio":
             // Yadio puts `timestamp` at the top level, not inside the currency object
@@ -114,8 +110,7 @@ class MarketAPI {
                let lastUpdated = json["timestamp"] as? Int {
                 let unix = Double(lastUpdated / 1_000)
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: unix))
-                latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-                return latestRateDataStore
+                return WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
             } else {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
             }
@@ -126,21 +121,18 @@ class MarketAPI {
             }
             let unix = Double(lastUpdated / 1_000)
             let lastUpdatedString = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: unix))
-            latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-            return latestRateDataStore
+            return WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
         case "Exir":
             if let rateDouble = json["last"] as? Double {
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-                latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-                return latestRateDataStore
+                return WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
             } else {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
             }
         case "Bitstamp":
             if let rateString = json["last"] as? String, let rateDouble = Double(rateString) {
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-                latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-                return latestRateDataStore
+                return WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
             } else {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
             }
@@ -150,8 +142,7 @@ class MarketAPI {
                let rateDouble = currencyDict["price"] as? Double {
                 let rateString = String(rateDouble)
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-                latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-                return latestRateDataStore
+                return WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
             } else {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
             }
@@ -160,8 +151,7 @@ class MarketAPI {
                let rateString = data["amount"] as? String,
                let rateDouble = Double(rateString) {
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-                latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-                return latestRateDataStore
+                return WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
             } else {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
             }
@@ -169,8 +159,7 @@ class MarketAPI {
             if let bitcoinDict = json["bitcoin"] as? [String: Any],
                let rateDouble = bitcoinDict[endPointKey.lowercased()] as? Double {
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-                latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-                return latestRateDataStore
+                return WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
             } else {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
             }
@@ -184,8 +173,7 @@ class MarketAPI {
                let rateString = c.first,
                let rateDouble = Double(rateString) {
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-                latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-                return latestRateDataStore
+                return WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
             } else {
                 if let errorMessage = json["error"] as? [String] {
                     throw CurrencyError(errorDescription: "Kraken API error: \(errorMessage.joined(separator: ", "))")
@@ -198,7 +186,7 @@ class MarketAPI {
         }
     }
 
-    private static func fetchFromSource(source: String, endPointKey: String) async throws -> WidgetDataStore? {
+    private static func fetchFromSource(source: String, endPointKey: String) async throws -> WidgetDataStore {
         let urlString = try buildURLString(source: source, endPointKey: endPointKey)
         guard let url = URL(string: urlString) else {
             throw CurrencyError(errorDescription: "Invalid URL.")
@@ -219,9 +207,7 @@ class MarketAPI {
 
         for source in sources {
             do {
-                if let dataStore = try await fetchFromSource(source: source, endPointKey: endPointKey) {
-                    return dataStore
-                }
+                return try await fetchFromSource(source: source, endPointKey: endPointKey)
             } catch {
                 lastError = error
             }
