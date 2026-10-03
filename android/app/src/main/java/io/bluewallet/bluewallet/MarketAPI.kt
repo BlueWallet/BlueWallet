@@ -37,7 +37,15 @@ object MarketAPI {
         "CHF" to "XBTCHF",
     )
     private val bitstampFiatPairs = setOf("USD", "EUR", "GBP")
-    private val universalFallbacks = listOf("YadioConvert", "Kraken", "Coinbase", "Bitstamp")
+    // Our tickers that CoinGecko accepts as vs_currency — from /api/v3/simple/supported_vs_currencies
+    private val coinGeckoFiat = setOf(
+        "USD", "AED", "ARS", "AUD", "BHD", "BRL", "CAD", "CHF", "CLP", "CNY", "CZK", "DKK", "EUR", "GBP", "HKD", "HUF", "IDR", "ILS", "INR", "JPY",
+        "KRW", "KWD", "LKR", "MXN", "MYR", "NGN", "NOK", "NZD", "PHP", "PLN", "RUB", "SAR", "SEK", "SGD", "THB", "TRY", "TWD", "UAH", "ZAR",
+    )
+    // Prefer Kraken over Coinbase when both can serve the ticker.
+    // CoinGecko sits after the exchanges on purpose: the keyless tier is throttled per IP (observed 429 after ~5 calls
+    // in 10 s), so many users behind one NAT would be rate-limited if it were primary. Fine as a last resort.
+    private val universalFallbacks = listOf("YadioConvert", "Kraken", "Coinbase", "CoinGecko", "Bitstamp")
     
     data class ApiResponse(val body: String?, val code: Int)
     data class PriceResult(val rateDouble: Double, val formattedRate: String?)
@@ -68,6 +76,7 @@ object MarketAPI {
         return when (source) {
             "Kraken" -> krakenBtcFiatPairs.containsKey(upper)
             "Bitstamp" -> bitstampFiatPairs.contains(upper)
+            "CoinGecko" -> coinGeckoFiat.contains(upper)
             "BNR" -> upper == "RON"
             "Exir" -> upper == "IRR" || upper == "IRT"
             "coinpaprika" -> upper == "INR"
@@ -131,7 +140,9 @@ object MarketAPI {
                 } else {
                     Log.w(TAG, "Failed to fetch price for $currency from $source (code: ${response.code})")
                 }
-                lastResponse = response
+                // Only the primary's 429 may trigger the widget's 30-min rate-limit cooldown.
+                // A 429 from a last-resort fallback (CoinGecko throttles per IP) must not bench the widget.
+                lastResponse = if (response.code == 429 && source != primarySource) response.copy(code = -1) else response
             }
 
             val totalDuration = System.currentTimeMillis() - startTime
@@ -175,7 +186,8 @@ object MarketAPI {
                 Log.w(TAG, "Invalid rate '$parsedResult' from $source")
             }
 
-            return ApiResponse(validResult, if (validResult != null) 200 else responseCode)
+            // 200 with an unusable body is still a failure; don't let it surface as code 200 with null body
+            return if (validResult != null) ApiResponse(validResult, 200) else ApiResponse(null, 422)
         }
     }
 
@@ -200,6 +212,9 @@ object MarketAPI {
                     return ApiResponse(null, usdResponse.code)
                 }
                 val btcToRon = btcToUsd * usdToRonRate
+                if (!btcToRon.isFinite() || btcToRon <= 0.0) {
+                    return ApiResponse(null, 422)
+                }
                 return ApiResponse(btcToRon.toString(), 200)
             }
         } catch (e: Exception) {
@@ -219,6 +234,7 @@ object MarketAPI {
                 "coinpaprika" -> "https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=INR"
                 "Bitstamp" -> "https://www.bitstamp.net/api/v2/ticker/btc${endPointKey.lowercase()}"
                 "Coinbase" -> "https://api.coinbase.com/v2/prices/BTC-${endPointKey.uppercase()}/spot"
+                "CoinGecko" -> "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${endPointKey.lowercase()}"
                 "BNR" -> "https://curs.bnr.ro/nbrfxrates.xml"
                 "Kraken" -> {
                     val pair = krakenPair(endPointKey)
@@ -240,6 +256,7 @@ object MarketAPI {
                 "Bitstamp" -> json.getString("last")
                 "coinpaprika" -> json.getJSONObject("quotes").getJSONObject("INR").getString("price")
                 "Coinbase" -> json.getJSONObject("data").getString("amount")
+                "CoinGecko" -> json.getJSONObject("bitcoin").getString(endPointKey.lowercase())
                 "Kraken" -> {
                     val pair = krakenPair(endPointKey) ?: return null
                     json.getJSONObject("result").getJSONObject(pair).getJSONArray("c").getString(0)

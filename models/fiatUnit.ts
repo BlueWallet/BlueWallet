@@ -3,6 +3,7 @@ import untypedFiatUnit from './fiatUnits.json';
 
 export const FiatUnitSource = {
   Coinbase: 'Coinbase',
+  CoinGecko: 'CoinGecko',
   Kraken: 'Kraken',
   Yadio: 'Yadio',
   YadioConvert: 'YadioConvert',
@@ -27,8 +28,55 @@ export const KRAKEN_BTC_FIAT_PAIRS: Record<string, string> = {
   CHF: 'XBTCHF',
 };
 
-/** Prefer Kraken over Coinbase when both can serve the ticker */
-const UNIVERSAL_FALLBACKS: RateSource[] = ['YadioConvert', 'Kraken', 'Coinbase', 'Bitstamp'];
+/** Our tickers that CoinGecko accepts as vs_currency — from /api/v3/simple/supported_vs_currencies */
+const COINGECKO_FIAT = new Set([
+  'USD',
+  'AED',
+  'ARS',
+  'AUD',
+  'BHD',
+  'BRL',
+  'CAD',
+  'CHF',
+  'CLP',
+  'CNY',
+  'CZK',
+  'DKK',
+  'EUR',
+  'GBP',
+  'HKD',
+  'HUF',
+  'IDR',
+  'ILS',
+  'INR',
+  'JPY',
+  'KRW',
+  'KWD',
+  'LKR',
+  'MXN',
+  'MYR',
+  'NGN',
+  'NOK',
+  'NZD',
+  'PHP',
+  'PLN',
+  'RUB',
+  'SAR',
+  'SEK',
+  'SGD',
+  'THB',
+  'TRY',
+  'TWD',
+  'UAH',
+  'ZAR',
+]);
+
+/**
+ * Prefer Kraken over Coinbase when both can serve the ticker.
+ * CoinGecko sits after the exchanges on purpose: the keyless tier is throttled per IP (observed 429 after ~5 calls
+ * in 10 s), so many users behind one NAT would be rate-limited if it were primary. Fine as a last resort.
+ */
+const UNIVERSAL_FALLBACKS: RateSource[] = ['YadioConvert', 'Kraken', 'Coinbase', 'CoinGecko', 'Bitstamp'];
 
 /** Reject 0 / NaN / Infinity so a broken provider falls through to the next source instead of ending the chain */
 const assertValidRate = (rate: number): number => {
@@ -47,6 +95,12 @@ const fetchRate = async (url: string): Promise<unknown> => {
 interface CoinbaseResponse {
   data: {
     amount: string;
+  };
+}
+
+interface CoinGeckoResponse {
+  bitcoin: {
+    [ticker: string]: number;
   };
 }
 
@@ -93,6 +147,7 @@ function canUseRateSource(source: RateSource, ticker: string): boolean {
   const upper = ticker.toUpperCase();
   if (source === 'Kraken') return upper in KRAKEN_BTC_FIAT_PAIRS;
   if (source === 'Bitstamp') return BITSTAMP_FIAT.has(upper);
+  if (source === 'CoinGecko') return COINGECKO_FIAT.has(upper);
   if (source === 'BNR') return upper === 'RON';
   if (source === 'Exir') return upper === 'IRR' || upper === 'IRT';
   if (source === 'coinpaprika') return upper === 'INR';
@@ -119,6 +174,13 @@ async function fetchRateFromSource(source: RateSource, ticker: string): Promise<
     case 'Coinbase': {
       const json = (await fetchRate(`https://api.coinbase.com/v2/prices/BTC-${ticker.toUpperCase()}/spot`)) as CoinbaseResponse;
       const rate = Number(json?.data?.amount);
+      return assertValidRate(rate);
+    }
+    case 'CoinGecko': {
+      const json = (await fetchRate(
+        `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${ticker.toLowerCase()}`,
+      )) as CoinGeckoResponse;
+      const rate = Number(json?.bitcoin?.[ticker.toLowerCase()]);
       return assertValidRate(rate);
     }
     case 'Bitstamp': {

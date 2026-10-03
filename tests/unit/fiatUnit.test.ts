@@ -12,12 +12,13 @@ type Reply = { status?: number; body: unknown };
 const ok = (body: unknown): Reply => ({ body });
 const http = (status: number): Reply => ({ status, body: {} });
 
-/** Route fetch by URL substring; unmatched URLs get 404. Returns the list of hosts hit, in order. */
+/** Route fetch by URL substring; unmatched URLs get 404. Returns the list of URLs hit (host+path+query), in order. */
 function route(routes: Record<string, Reply>): string[] {
   const hits: string[] = [];
   mockFetch.mockImplementation((input: RequestInfo | URL) => {
     const url = String(input);
-    hits.push(new URL(url).hostname + new URL(url).pathname);
+    const u = new URL(url);
+    hits.push(u.hostname + u.pathname + u.search);
     const reply = Object.entries(routes).find(([needle]) => url.includes(needle))?.[1] ?? http(404);
     const status = reply.status ?? 200;
     return Promise.resolve({
@@ -40,12 +41,13 @@ describe('fiatUnit', () => {
     assert.strictEqual(krakenSupportsFiat('AED'), false);
   });
 
-  it('buildRateSourceOrder: primary first, then YadioConvert > Kraken > Coinbase > Bitstamp, gated per ticker', () => {
-    assert.deepStrictEqual(buildRateSourceOrder('USD'), ['Kraken', 'YadioConvert', 'Coinbase', 'Bitstamp']);
-    assert.deepStrictEqual(buildRateSourceOrder('AUD'), ['Kraken', 'YadioConvert', 'Coinbase']);
-    assert.deepStrictEqual(buildRateSourceOrder('AED'), ['Coinbase', 'YadioConvert']);
+  it('buildRateSourceOrder: primary first, then YadioConvert > Kraken > Coinbase > CoinGecko > Bitstamp, gated per ticker', () => {
+    assert.deepStrictEqual(buildRateSourceOrder('USD'), ['Kraken', 'YadioConvert', 'Coinbase', 'CoinGecko', 'Bitstamp']);
+    assert.deepStrictEqual(buildRateSourceOrder('AUD'), ['Kraken', 'YadioConvert', 'Coinbase', 'CoinGecko']);
+    assert.deepStrictEqual(buildRateSourceOrder('AED'), ['Coinbase', 'YadioConvert', 'CoinGecko']);
     assert.deepStrictEqual(buildRateSourceOrder('RON'), ['BNR', 'YadioConvert', 'Coinbase']);
-    assert.deepStrictEqual(buildRateSourceOrder('ARS'), ['Yadio', 'YadioConvert', 'Coinbase']);
+    assert.deepStrictEqual(buildRateSourceOrder('KES'), ['Coinbase', 'YadioConvert']);
+    assert.deepStrictEqual(buildRateSourceOrder('ARS'), ['Yadio', 'YadioConvert', 'Coinbase', 'CoinGecko']);
   });
 
   it('parses each provider payload, including non-XXBTZ Kraken pair keys', async () => {
@@ -57,6 +59,9 @@ describe('fiatUnit', () => {
 
     route({ 'bitstamp.net/api/v2/ticker/btcgbp': ok({ last: '63000' }), 'pair=XXBTZGBP': http(503) });
     assert.strictEqual(await getFiatRate('GBP'), 63000);
+
+    route({ 'coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=aed': ok({ bitcoin: { aed: 307000 } }) });
+    assert.strictEqual(await getFiatRate('AED'), 307000);
   });
 
   it('walks the whole chain in order and succeeds on the last hop', async () => {
@@ -64,13 +69,15 @@ describe('fiatUnit', () => {
       'pair=XXBTZUSD': http(500),
       'yadio.io/convert': http(500),
       'coinbase.com': http(500),
+      'coingecko.com': http(429),
       'bitstamp.net': ok({ last: '83000' }),
     });
     assert.strictEqual(await getFiatRate('USD'), 83000);
     assert.deepStrictEqual(hits, [
-      'api.kraken.com/0/public/Ticker',
+      'api.kraken.com/0/public/Ticker?pair=XXBTZUSD',
       'api.yadio.io/convert/1/BTC/USD',
       'api.coinbase.com/v2/prices/BTC-USD/spot',
+      'api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',
       'www.bitstamp.net/api/v2/ticker/btcusd',
     ]);
   });
@@ -81,16 +88,25 @@ describe('fiatUnit', () => {
     assert.ok(hits.every(h => !h.includes('kraken')));
   });
 
-  it.each<[string, string, Reply]>([
-    ['Kraken error array with HTTP 200', 'pair=XXBTZUSD', ok({ error: ['EQuery:Unknown asset pair'], result: {} })],
-    ['Kraken zero rate', 'pair=XXBTZUSD', KRAKEN_OK('XXBTZUSD', '0')],
-    ['YadioConvert currency-not-found with HTTP 200', 'yadio.io/convert', ok({ error: 'currency not found' })],
-    ['YadioConvert non-numeric rate', 'yadio.io/convert', ok({ rate: 'N/A' })],
-    ['Coinbase Infinity', 'coinbase.com', ok({ data: { amount: 'Infinity' } })],
-    ['Yadio object without price (CLP shape)', 'yadio.io/json/USD', ok({ USD: { offers: {} }, timestamp: 1 })],
-  ])('treats bad payload as failure and moves on: %s', async (_name, needle, reply) => {
-    route({ [needle]: reply, 'bitstamp.net': ok({ last: '83000' }) });
-    assert.strictEqual(await getFiatRate('USD'), 83000);
+  // [name, ticker, bad-route, bad-reply, rescue-route]; rescue always answers 83000
+  it.each<[string, string, string, Reply, string]>([
+    ['Kraken error array with HTTP 200', 'USD', 'pair=XXBTZUSD', ok({ error: ['EQuery:Unknown asset pair'], result: {} }), 'bitstamp.net'],
+    ['Kraken zero rate', 'USD', 'pair=XXBTZUSD', KRAKEN_OK('XXBTZUSD', '0'), 'bitstamp.net'],
+    ['Kraken negative rate', 'USD', 'pair=XXBTZUSD', KRAKEN_OK('XXBTZUSD', '-1'), 'bitstamp.net'],
+    ['YadioConvert currency-not-found with HTTP 200', 'USD', 'yadio.io/convert', ok({ error: 'currency not found' }), 'bitstamp.net'],
+    ['YadioConvert non-numeric rate', 'USD', 'yadio.io/convert', ok({ rate: 'N/A' }), 'bitstamp.net'],
+    ['Coinbase Infinity', 'USD', 'coinbase.com', ok({ data: { amount: 'Infinity' } }), 'bitstamp.net'],
+    ['Coinbase overflow string', 'USD', 'coinbase.com', ok({ data: { amount: '1e309' } }), 'bitstamp.net'],
+    ['CoinGecko empty object with HTTP 200', 'USD', 'coingecko.com', ok({}), 'bitstamp.net'],
+    ['Yadio object without price', 'ARS', 'yadio.io/json/ARS', ok({ ARS: { offers: {} }, timestamp: 1 }), 'yadio.io/convert/1/BTC/ARS'],
+  ])('treats bad payload as failure and moves on: %s', async (_name, ticker, badRoute, badReply, rescueRoute) => {
+    const rescue = rescueRoute.includes('bitstamp') ? ok({ last: '83000' }) : ok({ rate: 83000 });
+    const hits = route({ [badRoute]: badReply, [rescueRoute]: rescue });
+    assert.strictEqual(await getFiatRate(ticker), 83000);
+    assert.ok(
+      hits.some(h => h.includes(badRoute)),
+      `bad route ${badRoute} was never requested`,
+    );
   });
 
   it('BNR: USD/RON × BTC/USD via the USD chain, never recursing into BNR', async () => {
@@ -112,7 +128,7 @@ describe('fiatUnit', () => {
     route({});
     await assert.rejects(
       () => getFiatRate('USD'),
-      /Could not update rate for USD from any provider[\s\S]*Kraken[\s\S]*YadioConvert[\s\S]*Coinbase[\s\S]*Bitstamp/,
+      /Could not update rate for USD from any provider[\s\S]*Kraken[\s\S]*YadioConvert[\s\S]*Coinbase[\s\S]*CoinGecko[\s\S]*Bitstamp/,
     );
   });
 });

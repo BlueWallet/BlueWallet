@@ -20,7 +20,15 @@ class MarketAPI {
         "CHF": "XBTCHF",
     ]
     private static let bitstampFiatPairs: Set<String> = ["USD", "EUR", "GBP"]
-    private static let universalFallbacks = ["YadioConvert", "Kraken", "Coinbase", "Bitstamp"]
+    /// Our tickers that CoinGecko accepts as vs_currency — from /api/v3/simple/supported_vs_currencies
+    private static let coinGeckoFiat: Set<String> = [
+        "USD", "AED", "ARS", "AUD", "BHD", "BRL", "CAD", "CHF", "CLP", "CNY", "CZK", "DKK", "EUR", "GBP", "HKD", "HUF", "IDR", "ILS", "INR", "JPY",
+        "KRW", "KWD", "LKR", "MXN", "MYR", "NGN", "NOK", "NZD", "PHP", "PLN", "RUB", "SAR", "SEK", "SGD", "THB", "TRY", "TWD", "UAH", "ZAR",
+    ]
+    /// Prefer Kraken over Coinbase when both can serve the ticker.
+    /// CoinGecko sits after the exchanges on purpose: the keyless tier is throttled per IP (observed 429 after ~5 calls
+    /// in 10 s), so many users behind one NAT would be rate-limited if it were primary. Fine as a last resort.
+    private static let universalFallbacks = ["YadioConvert", "Kraken", "Coinbase", "CoinGecko", "Bitstamp"]
 
     private static func canUseRateSource(source: String, endPointKey: String) -> Bool {
         let upper = endPointKey.uppercased()
@@ -29,6 +37,8 @@ class MarketAPI {
             return krakenBtcFiatPairs[upper] != nil
         case "Bitstamp":
             return bitstampFiatPairs.contains(upper)
+        case "CoinGecko":
+            return coinGeckoFiat.contains(upper)
         case "BNR":
             return upper == "RON"
         case "Exir":
@@ -68,6 +78,8 @@ class MarketAPI {
             return "https://www.bitstamp.net/api/v2/ticker/btc\(endPointKey.lowercased())"
         case "Coinbase":
             return "https://api.coinbase.com/v2/prices/BTC-\(endPointKey.uppercased())/spot"
+        case "CoinGecko":
+            return "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=\(endPointKey.lowercased())"
         case "BNR":
             return "https://curs.bnr.ro/nbrfxrates.xml"
         case "Kraken":
@@ -157,6 +169,15 @@ class MarketAPI {
             } else {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
             }
+        case "CoinGecko":
+            if let bitcoinDict = json["bitcoin"] as? [String: Any],
+               let rateDouble = bitcoinDict[endPointKey.lowercased()] as? Double {
+                let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+                latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+                return latestRateDataStore
+            } else {
+                throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
+            }
         case "Kraken":
             guard let pair = krakenPair(for: endPointKey) else {
                 throw CurrencyError(errorDescription: "No Kraken BTC pair for \(endPointKey)")
@@ -197,6 +218,9 @@ class MarketAPI {
                 throw CurrencyError(errorDescription: "Invalid BTC/USD rate for RON conversion.")
             }
             let btcToRonRate = btcToUsdRate * usdToRonRate
+            guard btcToRonRate.isFinite, btcToRonRate > 0 else {
+                throw CurrencyError(errorDescription: "Invalid BTC/RON rate.")
+            }
             let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
             let latestRateDataStore = WidgetDataStore(rate: String(btcToRonRate), lastUpdate: lastUpdatedString, rateDouble: btcToRonRate)
             return latestRateDataStore
