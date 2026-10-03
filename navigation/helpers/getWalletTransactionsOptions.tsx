@@ -5,7 +5,7 @@ import Icon from '../../components/Icon';
 import { DetailViewStackParamList } from '../DetailViewStackParamList';
 import { navigationRef } from '../../NavigationService';
 import { RouteProp } from '@react-navigation/native';
-import { isDesktop, isIOS26OrHigher } from '../../blue_modules/environment';
+import { isIOS26OrHigher } from '../../blue_modules/environment';
 import loc from '../../loc';
 
 export type WalletTransactionsRouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
@@ -83,7 +83,7 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
     headerRight: createWalletDetailsHeaderRight({ walletID, isLoading, iconColor: HERO_HEADER_ICON_COLOR }),
   };
 
-  if (Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop) {
+  if (Platform.OS === 'ios' && isIOS26OrHigher) {
     return {
       ...base,
       headerRight: undefined,
