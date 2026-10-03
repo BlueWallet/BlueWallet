@@ -411,8 +411,9 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ("walletDetails", "Wallet Details", #selector(walletDetailsMenuAction), "d", .command, walletMenuID),
             ("reloadTransactions", "Reload Transactions", #selector(reloadTransactionsAction), "r", .command, .view),
             ("backToWallets", "Back to Wallets", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view),
-            ("copyAddress", "Copy Address", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit),
-            ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit),
+            // The edit menu must not register duplicate key commands. Keep these unique even when both actions are enabled.
+            ("copyAddress", "Copy Address", #selector(copyAddressMenuAction), "c", .command, .edit),
+            ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "t", [.command, .shift], .edit),
             ("keyboardShortcuts", "Keyboard Shortcuts", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
         ]
         for parent in [walletMenuID, .edit, .view, .help] {
