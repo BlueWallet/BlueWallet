@@ -122,6 +122,7 @@ object MarketAPI {
             Log.d(TAG, "Price source order for $currency: $sources")
 
             var lastResponse = ApiResponse(null, -1)
+            var primaryRateLimited = false
             for (source in sources) {
                 val response = try {
                     fetchFromSource(context, source, endPointKey)
@@ -140,14 +141,15 @@ object MarketAPI {
                 } else {
                     Log.w(TAG, "Failed to fetch price for $currency from $source (code: ${response.code})")
                 }
-                // Only the primary's 429 may trigger the widget's 30-min rate-limit cooldown.
+                // Only the primary's 429 may trigger the widget's 30-min rate-limit cooldown (see fetchMarketData).
                 // A 429 from a last-resort fallback (CoinGecko throttles per IP) must not bench the widget.
-                lastResponse = if (response.code == 429 && source != primarySource) response.copy(code = -1) else response
+                if (response.code == 429 && source == primarySource) primaryRateLimited = true
+                lastResponse = if (response.code == 429) response.copy(code = -1) else response
             }
 
             val totalDuration = System.currentTimeMillis() - startTime
             Log.e(TAG, "Failed to fetch price for $currency from all sources (total time: ${totalDuration}ms)")
-            return lastResponse
+            return if (primaryRateLimited) ApiResponse(null, 429) else lastResponse
         } catch (e: Exception) {
             val totalDuration = System.currentTimeMillis() - startTime
             Log.e(TAG, "Error fetching price for $currency after ${totalDuration}ms: ${e.javaClass.simpleName} - ${e.message}")
@@ -167,10 +169,6 @@ object MarketAPI {
         val response = withContext(Dispatchers.IO) { client.newCall(request).execute() }
         response.use {
             val responseCode = it.code
-
-            if (responseCode == 429) {
-                return ApiResponse(null, responseCode)
-            }
 
             if (!it.isSuccessful) {
                 return ApiResponse(null, responseCode)
