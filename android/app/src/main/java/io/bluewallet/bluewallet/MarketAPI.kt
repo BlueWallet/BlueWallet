@@ -77,7 +77,6 @@ object MarketAPI {
             "Kraken" -> krakenBtcFiatPairs.containsKey(upper)
             "Bitstamp" -> bitstampFiatPairs.contains(upper)
             "CoinGecko" -> coinGeckoFiat.contains(upper)
-            "BNR" -> upper == "RON"
             "Exir" -> upper == "IRR" || upper == "IRT"
             "coinpaprika" -> upper == "INR"
             else -> true
@@ -158,10 +157,6 @@ object MarketAPI {
     }
 
     private suspend fun fetchFromSource(context: Context, source: String, endPointKey: String): ApiResponse {
-        if (source == "BNR") {
-            return fetchBnrRate(context)
-        }
-
         val urlString = buildURLString(source, endPointKey)
         Log.d(TAG, "Fetching price from URL: $urlString")
 
@@ -189,38 +184,6 @@ object MarketAPI {
         }
     }
 
-    private suspend fun fetchBnrRate(context: Context): ApiResponse {
-        return try {
-            val urlString = buildURLString("BNR", "RON")
-            val request = Request.Builder().url(urlString).build()
-            val response = withContext(Dispatchers.IO) { client.newCall(request).execute() }
-            response.use {
-                if (!it.isSuccessful) {
-                    return ApiResponse(null, it.code)
-                }
-                val xmlData = it.body?.string() ?: return ApiResponse(null, it.code)
-                val match = Regex("""<Rate currency="USD">([\d.]+)</Rate>""").find(xmlData)
-                val usdToRonRate = match?.groupValues?.get(1)?.toDoubleOrNull()
-                    ?.takeIf { it.isFinite() && it > 0.0 }
-                    ?: return ApiResponse(null, -1)
-
-                val usdResponse = fetchPriceWithResponse(context, "USD")
-                val btcToUsd = usdResponse.body?.toDoubleOrNull()
-                if (btcToUsd == null || btcToUsd <= 0) {
-                    return ApiResponse(null, usdResponse.code)
-                }
-                val btcToRon = btcToUsd * usdToRonRate
-                if (!btcToRon.isFinite() || btcToRon <= 0.0) {
-                    return ApiResponse(null, 422)
-                }
-                return ApiResponse(btcToRon.toString(), 200)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error fetching BNR rate", e)
-            ApiResponse(null, -1)
-        }
-    }
-
     private fun buildURLString(source: String, endPointKey: String): String {
         return if (baseUrl != null) {
             baseUrl + endPointKey
@@ -233,7 +196,6 @@ object MarketAPI {
                 "Bitstamp" -> "https://www.bitstamp.net/api/v2/ticker/btc${endPointKey.lowercase()}"
                 "Coinbase" -> "https://api.coinbase.com/v2/prices/BTC-${endPointKey.uppercase()}/spot"
                 "CoinGecko" -> "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${endPointKey.lowercase()}"
-                "BNR" -> "https://curs.bnr.ro/nbrfxrates.xml"
                 "Kraken" -> {
                     val pair = krakenPair(endPointKey)
                         ?: throw IllegalArgumentException("No Kraken BTC pair for $endPointKey")

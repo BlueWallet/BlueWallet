@@ -10,7 +10,6 @@ export const FiatUnitSource = {
   Exir: 'Exir',
   coinpaprika: 'coinpaprika',
   Bitstamp: 'Bitstamp',
-  BNR: 'BNR',
 } as const;
 
 export type RateSource = keyof typeof FiatUnitSource;
@@ -148,7 +147,6 @@ function canUseRateSource(source: RateSource, ticker: string): boolean {
   if (source === 'Kraken') return upper in KRAKEN_BTC_FIAT_PAIRS;
   if (source === 'Bitstamp') return BITSTAMP_FIAT.has(upper);
   if (source === 'CoinGecko') return COINGECKO_FIAT.has(upper);
-  if (source === 'BNR') return upper === 'RON';
   if (source === 'Exir') return upper === 'IRR' || upper === 'IRT';
   if (source === 'coinpaprika') return upper === 'INR';
   return true;
@@ -197,34 +195,6 @@ async function fetchRateFromSource(source: RateSource, ticker: string): Promise<
       }
       const rate = Number(json?.result?.[pair]?.c?.[0]);
       return assertValidRate(rate);
-    }
-    case 'BNR': {
-      const xmlResponse = await fetch('https://curs.bnr.ro/nbrfxrates.xml');
-      if (!xmlResponse.ok) {
-        throw new Error(`HTTP error! status: ${xmlResponse.status}`);
-      }
-      const xmlData = await xmlResponse.text();
-      const matches = xmlData.match(/<Rate currency="USD">([\d.]+)<\/Rate>/);
-      if (!matches?.[1]) {
-        throw new Error('No valid USD to RON rate found');
-      }
-      const usdToRonRate = assertValidRate(parseFloat(matches[1]));
-      let btcToUsdRate: number | undefined;
-      const usdErrors: string[] = [];
-      for (const usdSource of buildRateSourceOrder('USD')) {
-        if (usdSource === 'BNR') continue;
-        try {
-          btcToUsdRate = await fetchRateFromSource(usdSource, 'USD');
-          break;
-        } catch (error: unknown) {
-          const message = error instanceof Error ? error.message : String(error);
-          usdErrors.push(`${usdSource}: ${message}`);
-        }
-      }
-      if (btcToUsdRate === undefined) {
-        throw new Error(`Could not fetch BTC/USD for RON conversion (${usdErrors.join('; ')})`);
-      }
-      return assertValidRate(btcToUsdRate * usdToRonRate);
     }
     case 'Yadio': {
       const json = (await fetchRate(`https://api.yadio.io/json/${ticker}`)) as YadioResponse;

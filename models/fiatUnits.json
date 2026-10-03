@@ -317,7 +317,7 @@
     "RON": {
         "endPointKey": "RON",
         "locale": "ro-RO",
-        "source": "BNR",
+        "source": "Coinbase",
         "symbol": "lei",
         "country": "Romania (Romanian Leu)"
     },

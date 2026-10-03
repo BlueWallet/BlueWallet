@@ -39,8 +39,6 @@ class MarketAPI {
             return bitstampFiatPairs.contains(upper)
         case "CoinGecko":
             return coinGeckoFiat.contains(upper)
-        case "BNR":
-            return upper == "RON"
         case "Exir":
             return upper == "IRR" || upper == "IRT"
         case "coinpaprika":
@@ -80,8 +78,6 @@ class MarketAPI {
             return "https://api.coinbase.com/v2/prices/BTC-\(endPointKey.uppercased())/spot"
         case "CoinGecko":
             return "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=\(endPointKey.lowercased())"
-        case "BNR":
-            return "https://curs.bnr.ro/nbrfxrates.xml"
         case "Kraken":
             guard let pair = krakenPair(for: endPointKey) else {
                 throw CurrencyError(errorDescription: "No Kraken BTC pair for \(endPointKey)")
@@ -202,33 +198,6 @@ class MarketAPI {
         }
     }
 
-    private static func handleBNRData(data: Data) async throws -> WidgetDataStore? {
-        let parser = XMLParser(data: data)
-        let delegate = BNRXMLParserDelegate()
-        parser.delegate = delegate
-        if parser.parse(), let usdToRonRate = delegate.usdRate {
-            guard usdToRonRate.isFinite, usdToRonRate > 0 else {
-                throw CurrencyError(errorDescription: "Invalid USD/RON rate from BNR.")
-            }
-            guard let usdStore = try await fetchPrice(currency: "USD") else {
-                throw CurrencyError(errorDescription: "Could not fetch BTC/USD for RON conversion.")
-            }
-            let btcToUsdRate = usdStore.rateDouble
-            guard btcToUsdRate > 0 else {
-                throw CurrencyError(errorDescription: "Invalid BTC/USD rate for RON conversion.")
-            }
-            let btcToRonRate = btcToUsdRate * usdToRonRate
-            guard btcToRonRate.isFinite, btcToRonRate > 0 else {
-                throw CurrencyError(errorDescription: "Invalid BTC/RON rate.")
-            }
-            let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-            let latestRateDataStore = WidgetDataStore(rate: String(btcToRonRate), lastUpdate: lastUpdatedString, rateDouble: btcToRonRate)
-            return latestRateDataStore
-        } else {
-            throw CurrencyError(errorDescription: "XML parsing error.")
-        }
-    }
-
     private static func fetchFromSource(source: String, endPointKey: String) async throws -> WidgetDataStore? {
         let urlString = try buildURLString(source: source, endPointKey: endPointKey)
         guard let url = URL(string: urlString) else {
@@ -236,9 +205,6 @@ class MarketAPI {
         }
 
         let (data, _) = try await URLSession.shared.data(from: url)
-        if source == "BNR" {
-            return try await handleBNRData(data: data)
-        }
         return try handleDefaultData(data: data, source: source, endPointKey: endPointKey)
     }
 

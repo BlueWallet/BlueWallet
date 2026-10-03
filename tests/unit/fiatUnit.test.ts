@@ -45,7 +45,7 @@ describe('fiatUnit', () => {
     assert.deepStrictEqual(buildRateSourceOrder('USD'), ['Kraken', 'YadioConvert', 'Coinbase', 'CoinGecko', 'Bitstamp']);
     assert.deepStrictEqual(buildRateSourceOrder('AUD'), ['Kraken', 'YadioConvert', 'Coinbase', 'CoinGecko']);
     assert.deepStrictEqual(buildRateSourceOrder('AED'), ['Coinbase', 'YadioConvert', 'CoinGecko']);
-    assert.deepStrictEqual(buildRateSourceOrder('RON'), ['BNR', 'YadioConvert', 'Coinbase']);
+    assert.deepStrictEqual(buildRateSourceOrder('RON'), ['Coinbase', 'YadioConvert']);
     assert.deepStrictEqual(buildRateSourceOrder('KES'), ['Coinbase', 'YadioConvert']);
     assert.deepStrictEqual(buildRateSourceOrder('ARS'), ['Yadio', 'YadioConvert', 'Coinbase', 'CoinGecko']);
   });
@@ -107,21 +107,6 @@ describe('fiatUnit', () => {
       hits.some(h => h.includes(badRoute)),
       `bad route ${badRoute} was never requested`,
     );
-  });
-
-  it('BNR: USD/RON × BTC/USD via the USD chain, never recursing into BNR', async () => {
-    const hits = route({
-      'curs.bnr.ro': ok('<DataSet><Rate currency="USD">4.5</Rate></DataSet>'),
-      'pair=XXBTZUSD': http(500),
-      'yadio.io/convert/1/BTC/USD': ok({ rate: 80000 }),
-    });
-    assert.strictEqual(await getFiatRate('RON'), 360000);
-    assert.strictEqual(hits.filter(h => h.includes('bnr.ro')).length, 1);
-  });
-
-  it('BNR: XML without a USD rate falls through to the RON fallbacks', async () => {
-    route({ 'curs.bnr.ro': ok('<DataSet></DataSet>'), 'yadio.io/convert/1/BTC/RON': ok({ rate: 390000 }) });
-    assert.strictEqual(await getFiatRate('RON'), 390000);
   });
 
   it('throws listing every provider when all sources fail', async () => {
