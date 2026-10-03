@@ -28,6 +28,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import { navigateToWalletsList } from '../../NavigationService';
+import DraggableFile from '../../components/DraggableFile';
 
 type RouteParams = RouteProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
 type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
@@ -219,190 +220,209 @@ const ViewEditMultisigCosigners: React.FC = () => {
     }
 
     const length = walletData.length;
+    const dragKeyIndex = el.index + 1;
+    const fingerprint = wallet.getFingerprint(dragKeyIndex);
+    const derivationPath = wallet.getCustomDerivationPathForCosigner(dragKeyIndex);
+    const cosignerValue = wallet.getCosigner(dragKeyIndex);
+    const cosignerXpub = isXpub
+      ? cosignerValue
+      : derivationPath
+        ? wallet.convertXpubToMultisignatureXpub(
+            MultisigHDWallet.seedToXpub(cosignerValue, derivationPath, wallet.getCosignerPassphrase(dragKeyIndex)),
+          )
+        : '';
+    const exportContent = derivationPath ? MultisigCosigner.exportToJson(fingerprint, cosignerXpub, derivationPath) : '';
 
     return (
-      <View>
-        <MultipleStepsListItem
-          checked
-          leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-          dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Bottom : MultipleStepsListItemDashType.TopAndBottom}
-        />
+      <DraggableFile
+        fileName={`bw-cosigner-${fingerprint}.bwcosigner`}
+        mimeType="application/json"
+        content={exportContent}
+        dragEnabled={Boolean(exportContent)}
+      >
+        <View>
+          <MultipleStepsListItem
+            checked
+            leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
+            dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Bottom : MultipleStepsListItemDashType.TopAndBottom}
+          />
 
-        {isXpub ? (
-          <View>
-            {!vaultKeyData.isLoading && (
-              <MultipleStepsListItem
-                button={{
-                  testID: 'VaultCosignerView' + String(el.index + 1),
-                  buttonType: MultipleStepsListItemButtonType.Partial,
-                  leftText,
-                  text: loc.multisig.view,
-                  showActivityIndicator: isVaultKeyIndexDataLoading === el.index + 1,
-                  disabled: vaultKeyData.isLoading,
-                  onPress: () => {
-                    setIsVaultKeyIndexDataLoading(el.index + 1);
-                    setTimeout(() => {
-                      const keyIndex = el.index + 1;
-                      const xpub = wallet.getCosigner(keyIndex);
-                      const fp = wallet.getFingerprint(keyIndex);
-                      const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
-                      if (!path) {
-                        presentAlert({ message: 'Cannot find derivation path for this cosigner' });
-                        return;
-                      }
-                      const exportJson = MultisigCosigner.exportToJson(fp, xpub, path);
-                      const exportFilenameValue = 'bw-cosigner-' + fp + '.json';
-                      const exportUr = encodeUR(exportJson, 175, null)[0];
-                      setVaultKeyData({
-                        keyIndex,
-                        seed: '',
-                        passphrase: '',
-                        xpub,
-                        fp,
-                        path,
-                        isLoading: false,
-                      });
-                      navigate('ViewEditMultisigCosignerViewSheet', {
-                        walletID,
-                        vaultKeyData: {
+          {isXpub ? (
+            <View>
+              {!vaultKeyData.isLoading && (
+                <MultipleStepsListItem
+                  button={{
+                    testID: 'VaultCosignerView' + String(el.index + 1),
+                    buttonType: MultipleStepsListItemButtonType.Partial,
+                    leftText,
+                    text: loc.multisig.view,
+                    showActivityIndicator: isVaultKeyIndexDataLoading === el.index + 1,
+                    disabled: vaultKeyData.isLoading,
+                    onPress: () => {
+                      setIsVaultKeyIndexDataLoading(el.index + 1);
+                      setTimeout(() => {
+                        const keyIndex = el.index + 1;
+                        const xpub = wallet.getCosigner(keyIndex);
+                        const fp = wallet.getFingerprint(keyIndex);
+                        const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
+                        if (!path) {
+                          presentAlert({ message: 'Cannot find derivation path for this cosigner' });
+                          return;
+                        }
+                        const exportJson = MultisigCosigner.exportToJson(fp, xpub, path);
+                        const exportFilenameValue = 'bw-cosigner-' + fp + '.json';
+                        const exportUr = encodeUR(exportJson, 175, null)[0];
+                        setVaultKeyData({
                           keyIndex,
                           seed: '',
                           passphrase: '',
                           xpub,
                           fp,
                           path,
-                          cosignerXpubURv2: exportUr,
-                          exportFilename: exportFilenameValue,
-                          exportString: exportJson,
-                        },
-                      });
-                      setIsVaultKeyIndexDataLoading(undefined);
-                    }, 100);
-                  },
-                }}
-                dashes={MultipleStepsListItemDashType.TopAndBottom}
-              />
-            )}
-            <MultipleStepsListItem
-              showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
-              button={{
-                testID: 'VaultCosignerImportMnemonics' + String(el.index + 1),
-                text: loc.multisig.i_have_mnemonics,
-                buttonType: MultipleStepsListItemButtonType.Full,
-                disabled: vaultKeyData.isLoading,
-                onPress: () => {
-                  setCurrentlyEditingCosignerNum(el.index + 1);
-                  navigate('ViewEditMultisigProvideMnemonicsSheet', {
-                    walletID,
-                    currentlyEditingCosignerNum: el.index + 1,
-                    importText,
-                    askPassphrase,
-                  });
-                },
-              }}
-              dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
-            />
-          </View>
-        ) : (
-          <View>
-            {!vaultKeyData.isLoading && (
+                          isLoading: false,
+                        });
+                        navigate('ViewEditMultisigCosignerViewSheet', {
+                          walletID,
+                          vaultKeyData: {
+                            keyIndex,
+                            seed: '',
+                            passphrase: '',
+                            xpub,
+                            fp,
+                            path,
+                            cosignerXpubURv2: exportUr,
+                            exportFilename: exportFilenameValue,
+                            exportString: exportJson,
+                          },
+                        });
+                        setIsVaultKeyIndexDataLoading(undefined);
+                      }, 100);
+                    },
+                  }}
+                  dashes={MultipleStepsListItemDashType.TopAndBottom}
+                />
+              )}
               <MultipleStepsListItem
                 showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
                 button={{
-                  testID: 'VaultCosignerView' + String(el.index + 1),
-                  leftText,
-                  text: loc.multisig.view,
+                  testID: 'VaultCosignerImportMnemonics' + String(el.index + 1),
+                  text: loc.multisig.i_have_mnemonics,
+                  buttonType: MultipleStepsListItemButtonType.Full,
                   disabled: vaultKeyData.isLoading,
-                  showActivityIndicator: isVaultKeyIndexDataLoading === el.index + 1,
-                  buttonType: MultipleStepsListItemButtonType.Partial,
                   onPress: () => {
-                    setIsVaultKeyIndexDataLoading(el.index + 1);
-                    setTimeout(() => {
-                      const keyIndex = el.index + 1;
-                      const seed = wallet.getCosigner(keyIndex);
-                      const passphrase = wallet.getCosignerPassphrase(keyIndex);
-                      setVaultKeyData({
-                        keyIndex,
-                        seed,
-                        xpub: '',
-                        fp: '',
-                        path: '',
-                        passphrase: passphrase ?? '',
-                        isLoading: false,
-                      });
-                      const fp = wallet.getFingerprint(keyIndex);
-                      const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
-                      if (!path) {
-                        presentAlert({ message: 'Cannot find derivation path for this cosigner' });
-                        return;
-                      }
-                      const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
-                      const exportJson = MultisigCosigner.exportToJson(fp, xpub, path);
-                      const exportFilenameValue = 'bw-cosigner-' + fp + '.json';
-                      const exportUr = encodeUR(exportJson, 175, null)[0];
-                      setAskPassphrase(false);
-                      navigate('ViewEditMultisigCosignerViewSheet', {
-                        walletID,
-                        vaultKeyData: {
-                          keyIndex,
-                          seed,
-                          xpub,
-                          fp,
-                          path,
-                          passphrase: passphrase ?? '',
-                          cosignerXpubURv2: exportUr,
-                          exportFilename: exportFilenameValue,
-                          exportString: exportJson,
-                        },
-                      });
-                      setIsVaultKeyIndexDataLoading(undefined);
-                    }, 100);
+                    setCurrentlyEditingCosignerNum(el.index + 1);
+                    navigate('ViewEditMultisigProvideMnemonicsSheet', {
+                      walletID,
+                      currentlyEditingCosignerNum: el.index + 1,
+                      importText,
+                      askPassphrase,
+                    });
                   },
                 }}
-                dashes={MultipleStepsListItemDashType.TopAndBottom}
+                dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
               />
-            )}
-
-            <MultipleStepsListItem
-              actionSheetOptions={{
-                options: [loc._.cancel, loc.multisig.confirm],
-                title: loc._.seed,
-                message: loc.multisig.are_you_sure_seed_will_be_lost,
-                cancelButtonIndex: 0,
-                confirmButtonIndex: 1,
-              }}
-              showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
-              dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
-              button={{
-                testID: 'VaultCosignerForgetSeed' + String(el.index + 1),
-                text: loc.multisig.forget_this_seed,
-                disabled: vaultKeyData.isLoading,
-                buttonType: MultipleStepsListItemButtonType.Full,
-
-                onPress: (e: number | GestureResponderEvent) => {
-                  if (e === 0) return;
-                  setVaultKeyData({
-                    ...vaultKeyData,
-                    isLoading: true,
-                    keyIndex: el.index + 1,
-                  });
-                  setTimeout(
-                    () =>
-                      xpubInsteadOfSeed(el.index + 1).finally(() => {
+            </View>
+          ) : (
+            <View>
+              {!vaultKeyData.isLoading && (
+                <MultipleStepsListItem
+                  showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
+                  button={{
+                    testID: 'VaultCosignerView' + String(el.index + 1),
+                    leftText,
+                    text: loc.multisig.view,
+                    disabled: vaultKeyData.isLoading,
+                    showActivityIndicator: isVaultKeyIndexDataLoading === el.index + 1,
+                    buttonType: MultipleStepsListItemButtonType.Partial,
+                    onPress: () => {
+                      setIsVaultKeyIndexDataLoading(el.index + 1);
+                      setTimeout(() => {
+                        const keyIndex = el.index + 1;
+                        const seed = wallet.getCosigner(keyIndex);
+                        const passphrase = wallet.getCosignerPassphrase(keyIndex);
                         setVaultKeyData({
-                          ...vaultKeyData,
+                          keyIndex,
+                          seed,
+                          xpub: '',
+                          fp: '',
+                          path: '',
+                          passphrase: passphrase ?? '',
                           isLoading: false,
-                          keyIndex: el.index + 1,
                         });
-                      }),
-                    100,
-                  );
-                },
-              }}
-            />
-          </View>
-        )}
-      </View>
+                        const fp = wallet.getFingerprint(keyIndex);
+                        const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
+                        if (!path) {
+                          presentAlert({ message: 'Cannot find derivation path for this cosigner' });
+                          return;
+                        }
+                        const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
+                        const exportJson = MultisigCosigner.exportToJson(fp, xpub, path);
+                        const exportFilenameValue = 'bw-cosigner-' + fp + '.json';
+                        const exportUr = encodeUR(exportJson, 175, null)[0];
+                        setAskPassphrase(false);
+                        navigate('ViewEditMultisigCosignerViewSheet', {
+                          walletID,
+                          vaultKeyData: {
+                            keyIndex,
+                            seed,
+                            xpub,
+                            fp,
+                            path,
+                            passphrase: passphrase ?? '',
+                            cosignerXpubURv2: exportUr,
+                            exportFilename: exportFilenameValue,
+                            exportString: exportJson,
+                          },
+                        });
+                        setIsVaultKeyIndexDataLoading(undefined);
+                      }, 100);
+                    },
+                  }}
+                  dashes={MultipleStepsListItemDashType.TopAndBottom}
+                />
+              )}
+
+              <MultipleStepsListItem
+                actionSheetOptions={{
+                  options: [loc._.cancel, loc.multisig.confirm],
+                  title: loc._.seed,
+                  message: loc.multisig.are_you_sure_seed_will_be_lost,
+                  cancelButtonIndex: 0,
+                  confirmButtonIndex: 1,
+                }}
+                showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
+                dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
+                button={{
+                  testID: 'VaultCosignerForgetSeed' + String(el.index + 1),
+                  text: loc.multisig.forget_this_seed,
+                  disabled: vaultKeyData.isLoading,
+                  buttonType: MultipleStepsListItemButtonType.Full,
+
+                  onPress: (e: number | GestureResponderEvent) => {
+                    if (e === 0) return;
+                    setVaultKeyData({
+                      ...vaultKeyData,
+                      isLoading: true,
+                      keyIndex: el.index + 1,
+                    });
+                    setTimeout(
+                      () =>
+                        xpubInsteadOfSeed(el.index + 1).finally(() => {
+                          setVaultKeyData({
+                            ...vaultKeyData,
+                            isLoading: false,
+                            keyIndex: el.index + 1,
+                          });
+                        }),
+                      100,
+                    );
+                  },
+                }}
+              />
+            </View>
+          )}
+        </View>
+      </DraggableFile>
     );
   };
 

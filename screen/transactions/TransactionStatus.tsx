@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { sha256 } from '@noble/hashes/sha256';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
-import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import dayjs from 'dayjs';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
@@ -46,6 +46,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { isOnChainTransaction, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
+import DraggableFile from '../../components/DraggableFile';
 
 dayjs.extend(relativeTime);
 
@@ -75,10 +76,6 @@ enum ButtonStatus {
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'TransactionStatus'>;
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'TransactionStatus'>;
-
-type TransactionStatusHeaderOptions = NativeStackNavigationOptions & {
-  headerTitleContainerStyle?: { flex: number; maxWidth: number };
-};
 
 enum ActionType {
   SetCPFPPossible,
@@ -144,24 +141,6 @@ const reducer = (state: State, action: { type: ActionType; payload?: any }): Sta
   }
 };
 
-type TransactionDetailHeaderTitleProps = {
-  direction: string;
-  date: string;
-  directionStyle: any;
-  dateStyle: any;
-};
-
-const TransactionDetailHeaderTitle: React.FC<TransactionDetailHeaderTitleProps> = ({ direction, date, directionStyle, dateStyle }) => (
-  <View style={styles.headerTitleContainer}>
-    <BlueText style={directionStyle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
-      {direction}
-    </BlueText>
-    <BlueText style={dateStyle} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.8}>
-      {date}
-    </BlueText>
-  </View>
-);
-
 const TransactionStatus: React.FC = () => {
   const { hash, walletID, tx: initialTx } = useRoute<RouteProps>().params;
   const [state, dispatch] = useReducer(reducer, {
@@ -175,7 +154,7 @@ const TransactionStatus: React.FC = () => {
   useScreenMenuActions({ copyTransactionId: transactionId && !loadingError ? () => transactionIdCopyRef.current?.copy() : undefined });
   const { wallets, txMetadata, counterpartyMetadata, addressMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const subscribedWallet = useWalletSubscribe(walletID);
-  const { navigate, goBack, setOptions } = useNavigation<NavigationProps>();
+  const { navigate, goBack, setParams } = useNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { width: windowWidth, fontScale } = useWindowDimensions();
   const { selectedBlockExplorer } = useSettings();
@@ -194,12 +173,6 @@ const TransactionStatus: React.FC = () => {
       localCurrency: {
         lineHeight: Math.round(20 * fontScale),
         marginTop: Math.round(6 * fontScale),
-      },
-      headerTitleDirection: {
-        lineHeight: Math.round(22 * fontScale),
-      },
-      headerTitleDate: {
-        lineHeight: Math.round(18 * fontScale),
       },
       stateLabel: {
         lineHeight: Math.round(22 * fontScale),
@@ -254,13 +227,11 @@ const TransactionStatus: React.FC = () => {
   const stylesHook = StyleSheet.create({
     value: { color: colors.foregroundColor },
     valueUnit: { color: colors.foregroundColor },
-    titleDate: { color: colors.alternativeTextColor },
     localCurrency: { color: colors.alternativeTextColor },
     counterpartyContainer: { backgroundColor: colors.cardSectionHeaderBackground },
     counterpartyAvatar: { backgroundColor: colors.lightButton },
     counterpartyAvatarText: { color: colors.foregroundColor },
     counterpartyName: { color: colors.foregroundColor },
-    headerTitleDirection: { color: colors.foregroundColor },
     stateLabelPending: { color: colors.transactionPendingColor },
     stateLabelSent: { color: colors.transactionSentColor },
     stateLabelReceived: { color: colors.transactionReceivedColor },
@@ -1033,29 +1004,10 @@ const TransactionStatus: React.FC = () => {
     }
   }, [paymentCode]);
 
-  // Set header title with direction and date (inline component required by React Navigation API)
+  const hasTransaction = !!tx;
   useEffect(() => {
-    if (tx) {
-      setOptions({
-        // eslint-disable-next-line react/no-unstable-nested-components -- React Navigation setOptions expects a render function
-        headerTitle: () => (
-          <TransactionDetailHeaderTitle
-            direction={transactionDirection}
-            date={transactionDate}
-            directionStyle={[styles.headerTitleDirection, stylesHook.headerTitleDirection, scaledStyles.headerTitleDirection]}
-            dateStyle={[styles.headerTitleDate, stylesHook.titleDate, scaledStyles.headerTitleDate]}
-          />
-        ),
-        headerTitleAlign: 'left',
-        headerTitleContainerStyle: {
-          flex: 1,
-          maxWidth: Math.max(0, windowWidth - 96),
-        },
-      } as TransactionStatusHeaderOptions);
-    }
-    // stylesHook is derived from colors; omitting to avoid unnecessary effect runs
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tx, transactionDirection, transactionDate, setOptions, colors, windowWidth, scaledStyles]);
+    setParams({ header: hasTransaction ? { direction: transactionDirection, date: transactionDate } : undefined });
+  }, [hasTransaction, transactionDirection, transactionDate, setParams]);
 
   if (loadingError) {
     return (
@@ -1319,7 +1271,12 @@ const TransactionStatus: React.FC = () => {
           <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
             <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_id}</BlueText>
             <View style={styles.detailValueContainer}>
-              <View style={styles.detailValueCopyContainer}>
+              <DraggableFile
+                fileName={`bitcoin-transaction-${transactionId}.txt`}
+                mimeType="text/plain"
+                content={transactionId}
+                style={styles.detailValueCopyContainer}
+              >
                 <CopyTextToClipboard
                   containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, detailValueWidthStyle])}
                   ref={transactionIdCopyRef}
@@ -1340,7 +1297,7 @@ const TransactionStatus: React.FC = () => {
                   interactive={false}
                   selectable
                 />
-              </View>
+              </DraggableFile>
             </View>
           </View>
         )}
@@ -1494,22 +1451,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     paddingTop: 42,
     paddingBottom: 42,
-  },
-  headerTitleContainer: {
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    flex: 1,
-    minWidth: 0,
-  },
-  headerTitleDirection: {
-    fontSize: 17,
-    fontWeight: '600',
-    marginBottom: 2,
-    letterSpacing: 0.15,
-  },
-  headerTitleDate: {
-    fontSize: 13,
-    lineHeight: 18,
   },
   valueCard: {
     marginTop: 0,

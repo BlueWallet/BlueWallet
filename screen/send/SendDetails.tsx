@@ -57,6 +57,7 @@ import ActionSheet from '../ActionSheet';
 import { isCancel, pickTransaction } from '../../blue_modules/fs';
 import { Measure } from '../../class/measure';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
+import { useFileDrop } from '../../hooks/useFileDrop';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -900,6 +901,45 @@ const SendDetails = () => {
     },
     [_importTransactionMultisig, presentAlert],
   );
+
+  const handleDroppedOnchainData = useCallback(
+    async (value: string) => {
+      const data = value.trim();
+      if (!data || !wallet) return;
+
+      try {
+        const droppedPsbt = bitcoin.Psbt.fromBase64(data);
+        if (wallet.type === WatchOnlyWallet.type) {
+          let possiblySignedPsbt = droppedPsbt.clone();
+          try {
+            possiblySignedPsbt = possiblySignedPsbt.finalizeAllInputs();
+            const txhex = possiblySignedPsbt.extractTransaction().toHex();
+            navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), txhex });
+            return;
+          } catch {}
+          navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), psbt: droppedPsbt });
+          return;
+        }
+        await _importTransactionMultisig(data);
+        return;
+      } catch {}
+
+      try {
+        bitcoin.Transaction.fromHex(data.replace(/[\r\n]/g, ''));
+        navigation.navigate('PsbtWithHardwareWallet', {
+          memo: transactionMemo,
+          walletID: wallet.getID(),
+          txhex: data.replace(/[\r\n]/g, ''),
+        });
+        return;
+      } catch {}
+
+      processAddressData(data);
+    },
+    [_importTransactionMultisig, navigation, processAddressData, transactionMemo, wallet],
+  );
+
+  useFileDrop(handleDroppedOnchainData);
 
   const handlePsbtSign = useCallback(
     async (psbtBase64: string) => {

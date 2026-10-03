@@ -408,6 +408,17 @@ const handleImageFile = async (fileCopyUri: string): Promise<{ data: string | fa
   throw new Error(loc.send.qr_error_no_qrcode);
 };
 
+export const readDroppedFileContents = async (uri: string, mimeType?: string): Promise<string> => {
+  if (/\.psbt(?:$|[?#])/i.test(uri)) return _readPsbtFileIntoBase64(uri);
+  const isImage = mimeType?.toLowerCase().startsWith('image/') || /\.(png|jpe?g)(?:$|[?#])/i.test(uri);
+  if (isImage) {
+    const result = await handleImageFile(uri);
+    if (result.data) return result.data;
+    throw new Error(loc.send.qr_error_no_qrcode);
+  }
+  return readFileOutsideSandbox(decodeURI(uri));
+};
+
 export const readFileOutsideSandbox = (filePath: string) => {
   if (Platform.OS === 'ios') {
     return readFile(filePath);

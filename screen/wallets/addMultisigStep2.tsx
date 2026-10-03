@@ -22,6 +22,7 @@ import MultipleStepsListItem, {
 } from '../../components/MultipleStepsListItem';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { useFileDrop } from '../../hooks/useFileDrop';
 
 type MultisigStep2Params = {
   m: number;
@@ -234,6 +235,7 @@ const WalletsAddMultisigStep2 = () => {
       navigation.navigate('WalletsAddMultisigVaultKeySheet', {
         keyIndex: cosignersCopy.length,
         seed: w.getSecret(),
+        walletLabel,
       });
       setTimeout(() => {
         // filling cache
@@ -242,7 +244,7 @@ const WalletsAddMultisigStep2 = () => {
         setIsLoading(false);
       }, 500);
     });
-  }, [cosigners, navigation, setFpCacheForMnemonics, setXpubCacheForMnemonics]);
+  }, [cosigners, navigation, setFpCacheForMnemonics, setXpubCacheForMnemonics, walletLabel]);
 
   const viewKey = useCallback(
     (cosigner: CosignerTuple) => {
@@ -498,6 +500,8 @@ const WalletsAddMultisigStep2 = () => {
     },
     [askPassphrase, cosigners, format, getXpubCacheForMnemonics, tryUsingXpub, utilizeMnemonicPhrase],
   );
+
+  useFileDrop(onBarScanned);
 
   useEffect(() => {
     const scannedData = params.onBarScanned;

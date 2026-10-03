@@ -11,12 +11,14 @@ import Icon from '../../components/Icon';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+import AuthenticatedFileDragSource from '../../components/AuthenticatedFileDragSource';
+import { makeLabelFileName } from '../../blue_modules/dragFileName';
 
 const WalletsAddMultisigVaultKeySheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<AddWalletStackParamList, 'WalletsAddMultisigVaultKeySheet'>>();
   const route = useRoute<RouteProp<AddWalletStackParamList, 'WalletsAddMultisigVaultKeySheet'>>();
   const { colors } = useTheme();
-  const { keyIndex, seed } = route.params;
+  const { keyIndex, seed, walletLabel } = route.params;
 
   const words = useMemo(() => seed.split(' '), [seed]);
 
@@ -33,13 +35,19 @@ const WalletsAddMultisigVaultKeySheet = () => {
         <BlueSpacing20 />
         <BlueTextCentered>{loc._.seed}</BlueTextCentered>
         <BlueSpacing10 />
-        <View style={[styles.secretContainer, { borderColor: colors.formBorder }]}>
-          {words.map((text, index) => (
-            <View style={[styles.word, { backgroundColor: colors.inputBackgroundColor }]} key={`${text}${index}`}>
-              <BlueTextCentered>{`${index + 1}. ${text}`}</BlueTextCentered>
-            </View>
-          ))}
-        </View>
+        <AuthenticatedFileDragSource
+          fileName={makeLabelFileName(`${walletLabel}-cosigner-${keyIndex}`, 'txt')}
+          mimeType="text/plain"
+          content={seed}
+        >
+          <View style={[styles.secretContainer, { borderColor: colors.formBorder }]}>
+            {words.map((text, index) => (
+              <View style={[styles.word, { backgroundColor: colors.inputBackgroundColor }]} key={`${text}${index}`}>
+                <BlueTextCentered>{`${index + 1}. ${text}`}</BlueTextCentered>
+              </View>
+            ))}
+          </View>
+        </AuthenticatedFileDragSource>
       </ScrollView>
       <View style={styles.footer}>
         <Button testID="VaultKeyDone" title={loc.send.success_done} onPress={() => navigation.goBack()} />

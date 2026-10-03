@@ -20,6 +20,7 @@ import { useScreenProtect } from '../../hooks/useScreenProtect';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { getImportWalletSuggestions, getWordFragmentAtCursor, replaceWordFragment } from '../../blue_modules/bip39WordSuggestions';
+import { useFileDrop } from '../../hooks/useFileDrop';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWallet'>;
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWallet'>;
@@ -182,6 +183,8 @@ const ImportWallet = () => {
     },
     [commitImportText, importMnemonic],
   );
+
+  useFileDrop(onBarScanned);
 
   useEffect(() => {
     const data = route.params?.onBarScanned;
