@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import Clipboard from '@react-native-clipboard/clipboard';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
@@ -63,6 +64,7 @@ import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
 import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
 import BlueText from '../components/BlueText';
 import dayjs from 'dayjs';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
@@ -108,6 +110,26 @@ const TransactionDetailHeaderTitle = ({ hash, tx, colors, fontScale, maxWidth }:
 
 const createTransactionDetailHeaderTitle = (props: TransactionDetailHeaderTitleProps) => () =>
   React.createElement(TransactionDetailHeaderTitle, props);
+
+type TransactionCopyHeaderButtonProps = {
+  accessibilityLabel: string;
+  color: string;
+  onPress: () => void;
+};
+
+const TransactionCopyHeaderButton = ({ accessibilityLabel, color, onPress }: TransactionCopyHeaderButtonProps): React.JSX.Element => (
+  <Pressable
+    accessibilityRole="button"
+    accessibilityLabel={accessibilityLabel}
+    style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
+    onPress={onPress}
+  >
+    <Icon name="content-copy" type="material" size={20} color={color} />
+  </Pressable>
+);
+
+const createTransactionCopyHeaderRight = (props: TransactionCopyHeaderButtonProps) => () =>
+  React.createElement(TransactionCopyHeaderButton, props);
 
 const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
   const opacity = useRef(new Animated.Value(1)).current;
@@ -442,6 +464,13 @@ const DetailViewStackScreensStack = () => {
             },
             (options, { route }) => {
               const transactionId = route.params?.tx?.hash || route.params?.tx?.txid || route.params?.hash || '';
+              const isNativeHeaderRight = Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop;
+              const copyTransactionId = () => {
+                if (!transactionId) return;
+                Clipboard.setString(transactionId);
+                triggerHapticFeedback(HapticFeedbackTypes.Selection);
+              };
+
               return {
                 ...options,
                 headerTitle: transactionId
@@ -454,6 +483,31 @@ const DetailViewStackScreensStack = () => {
                     })
                   : '',
                 headerTitleAlign: 'left',
+                headerRight:
+                  isNativeHeaderRight || !transactionId
+                    ? undefined
+                    : createTransactionCopyHeaderRight({
+                        accessibilityLabel: `${loc.transactions.details_copy} ${loc.transactions.txid}`,
+                        color: theme.colors.foregroundColor,
+                        onPress: copyTransactionId,
+                      }),
+                ...(isNativeHeaderRight
+                  ? {
+                      unstable_headerRightItems: (): HeaderRightItem[] =>
+                        transactionId
+                          ? [
+                              {
+                                type: 'button',
+                                label: loc.transactions.details_copy,
+                                accessibilityLabel: `${loc.transactions.details_copy} ${loc.transactions.txid}`,
+                                icon: { type: 'sfSymbol', name: 'doc.on.doc' },
+                                identifier: 'CopyTransactionId',
+                                onPress: copyTransactionId,
+                              },
+                            ]
+                          : [],
+                    }
+                  : { unstable_headerRightItems: undefined }),
               };
             },
           )(theme)}
