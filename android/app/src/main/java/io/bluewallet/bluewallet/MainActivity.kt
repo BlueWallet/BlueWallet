@@ -26,6 +26,21 @@ class MainActivity : ReactActivity() {
         (application as MainApplication).reactHost.currentReactContext
             ?.getNativeModule(MenuElementsModule::class.java)
 
+    fun openAppMenu() {
+        val module = menuModule() ?: return
+        if (module.availableActions().isEmpty()) return
+        // Android suppresses legacy options panels on extra-large screens.
+        // A native popup works with NoActionBar on tablets too.
+        val anchor = com.facebook.react.uimanager.util.ReactFindViewUtil.findView(window.decorView, "AndroidAppMenuAnchor")
+            ?: currentFocus ?: findViewById<android.view.View>(android.R.id.content)
+        val popup = androidx.appcompat.widget.PopupMenu(this, anchor, android.view.Gravity.END)
+        module.addMenuItems(popup.menu)
+        popup.setOnMenuItemClickListener { onOptionsItemSelected(it) }
+        popup.setOnDismissListener { optionsMenuVisible = false }
+        optionsMenuVisible = true
+        popup.show()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
         return true
@@ -34,16 +49,15 @@ class MainActivity : ReactActivity() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
         menu.removeGroup(R.id.wallet_menu_group)
-        menuModule()?.availableActions()?.forEachIndexed { index, action ->
-            menu.add(R.id.wallet_menu_group, action.itemId, index, action.titleId).apply {
-                setAlphabeticShortcut(action.shortcut, action.modifiers)
-                setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-            }
-        }
+        menuModule()?.addMenuItems(menu)
         return menu.hasVisibleItems()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        item.intent?.getStringExtra("bluewallet.headerAction")?.let { action ->
+            menuModule()?.performHeaderAction(action)
+            return true
+        }
         val action = WalletMenuAction.entries.firstOrNull { it.itemId == item.itemId }
         if (action != null) {
             // Consume stale items too; the module checks the latest screen state.
@@ -53,14 +67,41 @@ class MainActivity : ReactActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    private var optionsMenuVisible = false
+
+    override fun onMenuOpened(featureId: Int, menu: Menu): Boolean {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) optionsMenuVisible = true
+        return super.onMenuOpened(featureId, menu)
+    }
+
+    override fun onPanelClosed(featureId: Int, menu: Menu) {
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) optionsMenuVisible = false
+        super.onPanelClosed(featureId, menu)
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (!optionsMenuVisible && event.keyCode == KeyEvent.KEYCODE_ESCAPE && event.hasNoModifiers()) {
+            val module = menuModule()
+            module?.closeHeaderAction()?.let { action ->
+                if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) module.performHeaderAction(action)
+                return true
+            }
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
     override fun dispatchKeyShortcutEvent(event: KeyEvent): Boolean {
         val module = menuModule()
         val available = module?.availableActions().orEmpty()
         if (available.isNotEmpty() && event.keyCode == KeyEvent.KEYCODE_M && event.hasModifiers(KeyEvent.META_CTRL_ON)) {
             if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
                 // The app uses NoActionBar; open the native options panel directly.
-                window.openPanel(Window.FEATURE_OPTIONS_PANEL, null)
+                openAppMenu()
             }
+            return true
+        }
+        module?.headerShortcut(event)?.let { shortcut ->
+            if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) module.performHeaderAction(shortcut.action)
             return true
         }
         val action = available.firstOrNull { it.matches(event) }
@@ -80,6 +121,10 @@ class MainActivity : ReactActivity() {
             KeyboardShortcutInfo(getString(it.titleId), it.keyCode, it.modifiers)
         } + KeyboardShortcutInfo(getString(R.string.wallet_menu_open), KeyEvent.KEYCODE_M, KeyEvent.META_CTRL_ON)
         data.add(KeyboardShortcutGroup(getString(R.string.app_name), shortcuts))
+        val headerShortcuts = menuModule()?.headerShortcuts.orEmpty().filter { it.enabled }.map {
+            KeyboardShortcutInfo(it.title, it.keyCode, it.modifiers)
+        }
+        if (headerShortcuts.isNotEmpty()) data.add(KeyboardShortcutGroup(getString(R.string.wallet_menu_screen_actions), headerShortcuts))
     }
 
     /**

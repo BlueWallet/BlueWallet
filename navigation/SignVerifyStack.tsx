@@ -1,3 +1,4 @@
+import { headerMenuScreenLayout } from '../components/HeaderMenu';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
 
@@ -15,7 +16,7 @@ const SignVerifyStackRoot = () => {
   const theme = useTheme();
 
   return (
-    <Stack.Navigator screenOptions={{ headerShadowVisible: false }}>
+    <Stack.Navigator screenLayout={headerMenuScreenLayout} screenOptions={{ headerShadowVisible: false }}>
       <Stack.Screen
         name="SignVerify"
         component={SignVerifyComponent}

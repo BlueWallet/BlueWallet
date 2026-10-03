@@ -401,27 +401,72 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         builder.remove(menu: .preferences)
 
         let actions = MenuElementsController.shared.availableActions
+        let walletMenuID = UIMenu.Identifier("io.bluewallet.wallet")
+        builder.remove(menu: walletMenuID)
         let commands: [(String, String, Selector, String, UIKeyModifierFlags, UIMenu.Identifier)] = [
-            ("addWallet", "Add Wallet", #selector(addWalletAction), "a", [.command, .shift], .file),
-            ("importWallet", "Import Wallet", #selector(importWalletAction), "i", .command, .file),
-            ("send", "Send…", #selector(sendMenuAction), "s", [.command, .shift], .file),
-            ("receive", "Receive…", #selector(receiveMenuAction), "r", [.command, .shift], .file),
-            ("walletDetails", "Wallet Details…", #selector(walletDetailsMenuAction), "d", .command, .file),
+            ("addWallet", "Add Wallet…", #selector(addWalletAction), "a", [.command, .shift], walletMenuID),
+            ("importWallet", "Import Wallet…", #selector(importWalletAction), "i", .command, walletMenuID),
+            ("send", "Send…", #selector(sendMenuAction), "s", [.command, .shift], walletMenuID),
+            ("receive", "Receive…", #selector(receiveMenuAction), "r", [.command, .shift], walletMenuID),
+            ("walletDetails", "Wallet Details", #selector(walletDetailsMenuAction), "d", .command, walletMenuID),
             ("reloadTransactions", "Reload Transactions", #selector(reloadTransactionsAction), "r", .command, .view),
             ("backToWallets", "Back to Wallets", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view),
             ("copyAddress", "Copy Address", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit),
             ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit),
-            ("keyboardShortcuts", "Keyboard Shortcuts…", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
+            ("keyboardShortcuts", "Keyboard Shortcuts", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
         ]
-        for parent in [UIMenu.Identifier.file, .edit, .view, .help] {
+        for parent in [walletMenuID, .edit, .view, .help] {
             let identifier = UIMenu.Identifier("io.bluewallet.commands.\(parent.rawValue)")
             builder.remove(menu: identifier)
-            let children = commands.filter { actions.contains($0.0) && $0.5 == parent }.map {
-                UIKeyCommand(title: $0.1, action: $0.2, input: $0.3, modifierFlags: $0.4)
+            let usesStableMenus = UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .mac
+            let children = commands.filter { $0.5 == parent && (actions.contains($0.0) || (usesStableMenus && !actions.isEmpty)) }.map {
+                let command = UIKeyCommand(title: $0.1, action: $0.2, input: $0.3, modifierFlags: $0.4, propertyList: $0.0)
+                if !actions.contains($0.0) { command.attributes = .disabled }
+                return command
             }
             if !children.isEmpty {
-                builder.insertChild(UIMenu(title: "", identifier: identifier,
-                                           options: .displayInline, children: children), atStartOfMenu: parent)
+                if parent == walletMenuID {
+                    builder.insertSibling(UIMenu(title: "Wallet", identifier: walletMenuID,
+                                                 children: children), afterMenu: .view)
+                } else {
+                    builder.insertChild(UIMenu(title: "", identifier: identifier,
+                                               options: .displayInline, children: children), atStartOfMenu: parent)
+                }
+            }
+        }
+
+        let categories = ["file", "edit", "view", "wallet", "transaction", "recipients", "sort", "server", "settings", "help"]
+        for category in categories {
+            builder.remove(menu: UIMenu.Identifier("io.bluewallet.screenActions.\(category)"))
+        }
+        if UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .mac {
+            var menus: [String: UIMenu] = [:]
+            for case let menu as UIMenu in MenuElementsController.shared.headerMenuElements() {
+                menus[menu.identifier.rawValue.replacingOccurrences(of: "category:", with: "")] = menu
+            }
+            // Install custom menus once in a fixed order after View.
+            if let menu = menus["wallet"], let existing = builder.menu(for: walletMenuID) {
+                builder.replace(menu: walletMenuID, with: UIMenu(title: menu.title, identifier: walletMenuID,
+                                                               children: existing.children + menu.children))
+            }
+            var anchor = UIMenu.Identifier.view
+            for category in ["wallet", "transaction", "recipients", "server", "settings"] {
+                if category == "wallet", builder.menu(for: walletMenuID) != nil {
+                    anchor = walletMenuID
+                    continue
+                }
+                guard let menu = menus[category] else { continue }
+                let identifier = UIMenu.Identifier("io.bluewallet.screenActions.\(category)")
+                builder.insertSibling(UIMenu(title: menu.title, identifier: identifier, children: menu.children), afterMenu: anchor)
+                anchor = identifier
+            }
+            for category in ["file", "edit", "view", "sort", "help"] {
+                guard let menu = menus[category] else { continue }
+                let identifier = UIMenu.Identifier("io.bluewallet.screenActions.\(category)")
+                let parent: UIMenu.Identifier = category == "file" ? .file : category == "edit" ? .edit : category == "help" ? .help : .view
+                let child = category == "sort" ? UIMenu(title: menu.title, identifier: identifier, children: menu.children)
+                    : UIMenu(title: "", identifier: identifier, options: .displayInline, children: menu.children)
+                builder.insertChild(child, atEndOfMenu: parent)
             }
         }
 
@@ -485,7 +530,27 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         }
     }
     
+    @objc func performHeaderMenuAction(_ command: UIKeyCommand) {
+        guard let id = command.propertyList as? String else { return }
+        MenuElementsController.shared.perform(id)
+    }
+
+    override var keyCommands: [UIKeyCommand]? {
+        (super.keyCommands ?? []) + MenuElementsController.shared.closeKeyCommands()
+    }
+
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        if action == #selector(performHeaderMenuAction(_:)) {
+            guard let command = sender as? UIKeyCommand, let id = command.propertyList as? String else { return false }
+            return MenuElementsController.shared.isHeaderActionEnabled(id)
+        }
+        if let command = sender as? UIKeyCommand, let id = command.propertyList as? String,
+           [#selector(addWalletAction), #selector(importWalletAction), #selector(sendMenuAction),
+            #selector(receiveMenuAction), #selector(walletDetailsMenuAction), #selector(reloadTransactionsAction),
+            #selector(backToWalletsMenuAction), #selector(copyAddressMenuAction), #selector(copyTransactionIdMenuAction),
+            #selector(keyboardShortcutsMenuAction)].contains(action) {
+            return MenuElementsController.shared.availableActions.contains(id)
+        }
         if action == #selector(showHelp(_:)) {
             return true
         } else {

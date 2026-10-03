@@ -1,5 +1,9 @@
 package io.bluewallet.bluewallet
 
+import android.view.Menu
+import android.view.KeyEvent
+import com.learnium.RNDeviceInfo.resolver.DeviceTypeResolver
+import org.json.JSONArray
 import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
@@ -11,7 +15,13 @@ class MenuElementsModule(context: ReactApplicationContext) :
     NativeMenuElementsEmitterSpec(context), LifecycleEventListener {
 
     // Menu state and dispatch are confined to the UI thread.
+    private var headerItems = JSONArray()
+    private var headerJSON = "[]"
+    private var headerActionIDs = emptySet<String>()
     private var actions = emptySet<String>()
+    private val usesHeaderMenu = DeviceTypeResolver(context).isTablet()
+    internal var headerShortcuts = emptyList<HeaderMenuShortcut>()
+        private set
     @Volatile private var invalidated = false
 
     init {
@@ -28,6 +38,55 @@ class MenuElementsModule(context: ReactApplicationContext) :
                 reactApplicationContext.currentActivity?.invalidateOptionsMenu()
             }
         }
+    }
+
+    override fun openMenu() {
+        UiThreadUtil.runOnUiThread {
+            if (!invalidated) (reactApplicationContext.currentActivity as? MainActivity)?.openAppMenu()
+        }
+    }
+
+    override fun setHeaderMenu(items: String) {
+        val parsed = try { JSONArray(items) } catch (_: Exception) { return }
+        UiThreadUtil.runOnUiThread {
+            if (!invalidated && headerJSON != items) {
+                headerJSON = items
+                headerItems = parsed
+                headerShortcuts = HeaderMenuShortcut.collect(parsed)
+                val enabled = mutableSetOf<String>()
+                fun collect(entries: JSONArray) {
+                    for (index in 0 until entries.length()) {
+                        val entry = entries.optJSONObject(index) ?: continue
+                        if (entry.optBoolean("disabled")) continue
+                        val children = entry.optJSONArray("children")
+                        if (children != null && children.length() > 0) collect(children)
+                        else enabled.add(entry.optString("id"))
+                    }
+                }
+                collect(parsed)
+                headerActionIDs = enabled
+                reactApplicationContext.currentActivity?.invalidateOptionsMenu()
+            }
+        }
+    }
+
+    fun addMenuItems(menu: Menu) {
+        UiThreadUtil.assertOnUiThread()
+        if (invalidated || actions.isEmpty()) return
+        HeaderMenuRenderer(reactApplicationContext).populate(menu, headerItems, availableActions().toSet(), usesHeaderMenu)
+    }
+
+    internal fun headerShortcut(event: KeyEvent): HeaderMenuShortcut? =
+        if (invalidated) null else headerShortcuts.firstOrNull { it.matches(event) }
+
+    fun closeHeaderAction(): String? =
+        if (invalidated) null else headerActionIDs.firstOrNull { it.endsWith(":NavigationCloseButton") }
+
+    fun performHeaderAction(action: String): Boolean {
+        UiThreadUtil.assertOnUiThread()
+        if (invalidated || action !in headerActionIDs || !reactApplicationContext.hasActiveReactInstance()) return false
+        emitOnMenuAction(action)
+        return true
     }
 
     fun availableActions(): List<WalletMenuAction> {
@@ -54,6 +113,9 @@ class MenuElementsModule(context: ReactApplicationContext) :
         reactApplicationContext.removeLifecycleEventListener(this)
         UiThreadUtil.runOnUiThread {
             actions = emptySet()
+            headerItems = JSONArray()
+            headerActionIDs = emptySet()
+            headerShortcuts = emptyList()
             reactApplicationContext.currentActivity?.invalidateOptionsMenu()
         }
         super.invalidate()

@@ -2,6 +2,8 @@ import type { NativeStackNavigationOptions } from '@react-navigation/native-stac
 import React from 'react';
 
 import HeaderMenuButton from './HeaderMenuButton';
+import { usesHeaderMenu } from './HeaderMenu';
+import { attachHeaderMenuHandlers, type HeaderMenuOptions as SystemHeaderMenuOptions } from '../blue_modules/headerMenuActions';
 import { mapActionGroupsToNativeHeaderMenuItems, mapActionsToNativeHeaderMenuItems } from './nativeHeaderMenuItems';
 import { Action } from './types';
 
@@ -9,9 +11,9 @@ type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight
 type HeaderItemsGetter = NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>;
 
 type HeaderMenuOptions = {
-  headerRight: HeaderRightRenderer;
-  unstable_headerRightItems: HeaderItemsGetter;
-};
+  headerRight?: HeaderRightRenderer;
+  unstable_headerRightItems?: HeaderItemsGetter;
+} & SystemHeaderMenuOptions;
 
 type HeaderMenuOptionsParams = {
   actions: Action[] | Action[][];
@@ -30,6 +32,11 @@ export const createEllipsisHeaderMenuOptions = ({
   identifier = 'HeaderMenuButton',
   title = '',
 }: HeaderMenuOptionsParams): HeaderMenuOptions => {
+  if (usesHeaderMenu) {
+    return {
+      headerMenuActions: attachHeaderMenuHandlers(actions, onPressMenuItem, disabled),
+    };
+  }
   const hasGroups = Array.isArray(actions[0]);
   const nativeHeaderMenuItems = hasGroups
     ? mapActionGroupsToNativeHeaderMenuItems(actions as Action[][], onPressMenuItem, preserveGroups)

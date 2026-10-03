@@ -1,3 +1,4 @@
+import { headerMenuScreenLayout, getHeaderMenuOptions } from '../components/HeaderMenu';
 import React, { lazy, useMemo } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform } from 'react-native';
@@ -97,12 +98,14 @@ const SendDetailsStack = () => {
         ...options,
         headerRight: hasUtxos ? headerMenuOptions.headerRight : undefined,
         ...(isIOS26OrHigher ? { unstable_headerRightItems: hasUtxos ? headerMenuOptions.unstable_headerRightItems : undefined } : {}),
+        ...(headerMenuOptions.headerMenuActions ? { headerMenuActions: hasUtxos ? headerMenuOptions.headerMenuActions : [] } : {}),
       };
     },
   )(theme);
 
   return (
     <Stack.Navigator
+      screenLayout={headerMenuScreenLayout}
       initialRouteName="SendDetails"
       screenOptions={{ headerShadowVisible: false, fullScreenGestureEnabled: false }}
       UNSTABLE_router={navigationGuardRouter}
@@ -137,7 +140,17 @@ const SendDetailsStack = () => {
         name="Confirm"
         component={ConfirmComponent}
         options={navigationStyle(
-          { title: loc.send.confirm_header, headerRight: () => DetailsButton },
+          {
+            title: loc.send.confirm_header,
+            ...getHeaderMenuOptions({ headerRight: () => DetailsButton }, [
+              {
+                id: 'TransactionDetailsButton',
+                text: loc.send.create_details,
+                disabled: true,
+                onPress: () => {},
+              },
+            ]),
+          },
           withRouteParamHeaderOptions({ headerRight: true }),
         )(theme)}
       />

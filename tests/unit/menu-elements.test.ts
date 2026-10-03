@@ -4,10 +4,18 @@ import MenuElementsEmitter from '../../blue_modules/NativeMenuElementsEmitter';
 import { navigationRef, navigateToWalletsList } from '../../NavigationService';
 import type { MenuActionHandlers } from '../../blue_modules/menuActions';
 
-jest.mock('@react-navigation/native', () => ({ CommonActions: { navigate: (payload: unknown) => ({ type: 'NAVIGATE', payload }) } }));
+jest.mock('@react-navigation/native', () => ({
+  CommonActions: {
+    navigate: (payload: unknown) => ({ type: 'NAVIGATE', payload }),
+  },
+}));
 jest.mock('../../blue_modules/NativeMenuElementsEmitter', () => ({
   __esModule: true,
-  default: { setAvailableActions: jest.fn(), onMenuAction: jest.fn(() => ({ remove: jest.fn() })) },
+  default: {
+    setHeaderMenu: jest.fn(),
+    setAvailableActions: jest.fn(),
+    onMenuAction: jest.fn(() => ({ remove: jest.fn() })),
+  },
 }));
 jest.mock('../../NavigationService', () => ({
   navigationRef: {
@@ -88,7 +96,10 @@ it('updates on ready, modal navigation, and lock state', () => {
     payload: {
       name: 'DrawerRoot',
       pop: true,
-      params: { screen: 'DetailViewStackScreensStack', params: { screen: 'Settings' } },
+      params: {
+        screen: 'DetailViewStackScreensStack',
+        params: { screen: 'Settings' },
+      },
     },
   });
   emit('keyboardShortcuts');
@@ -147,5 +158,75 @@ it('keeps newer registrations when an older owner cleans up and routes Back to W
   emit('backToWallets');
   expect(navigateToWalletsList).toHaveBeenCalledTimes(1);
   act(removeCurrent);
+  hook.unmount();
+});
+
+it('dispatches dynamic header menus only for the active unlocked route and drops disabled actions', () => {
+  setRoute('CoinControl', 'coin-1');
+  const hook = renderHook(useMenuElements);
+  const sort = jest.fn();
+  const done = jest.fn();
+  let unregister!: () => void;
+  act(() => {
+    unregister = hook.result.current.registerHeaderMenu(
+      [
+        { id: 'sort', text: 'Sort', onPress: sort },
+        { id: 'done', text: 'Done', disabled: true, onPress: done },
+      ],
+      'coin-1',
+    );
+  });
+  expect(JSON.parse(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0])).toHaveLength(2);
+  emit('header:coin-1:sort');
+  emit('header:coin-1:done');
+  expect(sort).toHaveBeenCalledTimes(1);
+  expect(done).not.toHaveBeenCalled();
+  setRoute('CoinControl', 'coin-2');
+  emit('header:coin-1:sort');
+  expect(sort).toHaveBeenCalledTimes(1);
+  notifyNavigation('state');
+  expect(MenuElementsEmitter!.setHeaderMenu).toHaveBeenLastCalledWith('[]');
+  setRoute('UnlockWithScreen');
+  emit('header:coin-1:sort');
+  expect(sort).toHaveBeenCalledTimes(1);
+  act(unregister);
+  hook.unmount();
+});
+
+it('keeps commands already present in the system menu from appearing twice', () => {
+  setRoute('WalletsList', 'wallets');
+  const hook = renderHook(useMenuElements);
+  let unregister!: () => void;
+  act(() => {
+    unregister = hook.result.current.registerHeaderMenu(
+      [
+        { id: 'AddWalletButton', text: 'Add Wallet', onPress: jest.fn() },
+        { id: 'ImportWallet', text: 'Import Wallet', onPress: jest.fn() },
+        { id: 'SettingsButton', text: 'Settings', onPress: jest.fn() },
+        { id: 'custom', text: 'Custom', onPress: jest.fn() },
+      ],
+      'wallets',
+    );
+  });
+  const items = JSON.parse(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]);
+  expect(items[0].title).toBe('Wallet');
+  expect(items[0].children.map((item: { title: string }) => item.title)).toEqual(['Custom']);
+  act(unregister);
+  hook.unmount();
+});
+
+it('does not duplicate Wallet Details while the stable system command is disabled', () => {
+  setRoute('WalletTransactions', 'wallet');
+  const hook = renderHook(useMenuElements);
+  let unregister!: () => void;
+  act(() => {
+    unregister = hook.result.current.registerHeaderMenu(
+      [{ id: 'WalletDetails', text: 'Wallet Details', disabled: true, onPress: jest.fn() }],
+      'wallet',
+    );
+  });
+  expect(MenuElementsEmitter!.setHeaderMenu).toHaveBeenLastCalledWith('[]');
+  expect(jest.mocked(MenuElementsEmitter!.setAvailableActions).mock.lastCall![0]).not.toContain('walletDetails');
+  act(unregister);
   hook.unmount();
 });

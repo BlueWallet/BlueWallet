@@ -29,5 +29,13 @@ enum class WalletMenuAction(
     SHORTCUTS("keyboardShortcuts", R.id.wallet_menu_shortcuts, R.string.wallet_menu_shortcuts, KeyEvent.KEYCODE_SLASH, '/'),
     SETTINGS("settings", R.id.wallet_menu_settings, R.string.wallet_menu_settings, KeyEvent.KEYCODE_COMMA, ',');
 
+    val category: String get() = when (this) {
+        RELOAD_TRANSACTIONS, BACK_TO_WALLETS -> "view"
+        COPY_ADDRESS, COPY_TRANSACTION_ID -> "edit"
+        SHORTCUTS -> "help"
+        SETTINGS -> "settings"
+        else -> "wallet"
+    }
+
     fun matches(event: KeyEvent): Boolean = event.keyCode == keyCode && event.hasModifiers(modifiers)
 }

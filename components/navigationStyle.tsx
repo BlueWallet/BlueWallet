@@ -3,6 +3,8 @@ import React from 'react';
 import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import loc from '../loc';
+import { usesHeaderMenu } from './HeaderMenu';
+import type { HeaderMenuOptions } from '../blue_modules/headerMenuActions';
 import { Theme } from './themes';
 
 const styles = StyleSheet.create({
@@ -29,9 +31,9 @@ enum CloseButtonPosition {
 }
 
 type OptionsFormatter = (
-  options: NativeStackNavigationOptions,
+  options: NativeStackNavigationOptions & HeaderMenuOptions,
   deps: { theme: Theme; navigation: any; route: any },
-) => NativeStackNavigationOptions;
+) => NativeStackNavigationOptions & HeaderMenuOptions;
 
 type RouteParamHeaderOptions = {
   headerLeft?: boolean;
@@ -40,7 +42,9 @@ type RouteParamHeaderOptions = {
   statusBarStyle?: boolean;
 };
 
-export type NavigationOptionsGetter = (theme: Theme) => (deps: { navigation: any; route: any }) => NativeStackNavigationOptions;
+export type NavigationOptionsGetter = (
+  theme: Theme,
+) => (deps: { navigation: any; route: any }) => NativeStackNavigationOptions & HeaderMenuOptions;
 
 const withRouteParamHeaderOptions =
   (config: RouteParamHeaderOptions): OptionsFormatter =>
@@ -48,6 +52,7 @@ const withRouteParamHeaderOptions =
     const routeParams = route?.params ?? {};
     return {
       ...options,
+      ...(usesHeaderMenu && config.headerRight && routeParams.headerRight === null ? { headerMenuActions: [] } : {}),
       ...(config.headerLeft && routeParams.headerLeft !== undefined ? { headerLeft: routeParams.headerLeft } : {}),
       ...(config.headerRight && routeParams.headerRight !== undefined ? { headerRight: routeParams.headerRight } : {}),
       ...(config.headerBackVisible && routeParams.headerBackVisible !== undefined
@@ -91,12 +96,13 @@ const navigationStyle = (
     closeButtonIfFirstInStack,
     onCloseButtonPressed,
     ...opts
-  }: NativeStackNavigationOptions & {
-    closeButtonPosition?: CloseButtonPosition;
-    /** When set, show this close control only if this screen is the first route in the stack (e.g. Coin Control opened from wallet details). */
-    closeButtonIfFirstInStack?: CloseButtonPosition;
-    onCloseButtonPressed?: (deps: { navigation: any; route: any }) => void;
-  },
+  }: NativeStackNavigationOptions &
+    HeaderMenuOptions & {
+      closeButtonPosition?: CloseButtonPosition;
+      /** When set, show this close control only if this screen is the first route in the stack (e.g. Coin Control opened from wallet details). */
+      closeButtonIfFirstInStack?: CloseButtonPosition;
+      onCloseButtonPressed?: (deps: { navigation: any; route: any }) => void;
+    },
   formatter?: OptionsFormatter,
 ): NavigationOptionsGetter => {
   return theme =>
@@ -165,7 +171,7 @@ const navigationStyle = (
       const statusBarStyle: NativeStackNavigationOptions['statusBarStyle'] =
         opts.statusBarStyle && opts.statusBarStyle !== 'auto' ? opts.statusBarStyle : theme.barStyle === 'light-content' ? 'light' : 'dark';
 
-      let options: NativeStackNavigationOptions = {
+      let options: NativeStackNavigationOptions & HeaderMenuOptions = {
         ...baseHeaderStyle,
         ...leftCloseButtonStyle,
         headerBackButtonDisplayMode: 'minimal',
@@ -180,7 +186,16 @@ const navigationStyle = (
         options = formatter(options, { theme, navigation, route });
       }
 
-      return options;
+      if (!usesHeaderMenu) return options;
+      const showClose = closeButton === CloseButtonPosition.Right && options.headerRight !== null;
+      const closeAvailable = showClose || (closeButton === CloseButtonPosition.Left && options.headerLeft !== null);
+      const closeAction = { id: 'NavigationCloseButton', text: loc._.close, onPress: handleClose };
+      return {
+        ...options,
+        headerMenuCloseAction: closeAvailable ? closeAction : options.headerMenuCloseAction,
+        headerRight: showClose ? renderCloseButtonElement : undefined,
+        unstable_headerRightItems: showClose ? buildUnstableCloseButtonItems : undefined,
+      };
     };
 };
 

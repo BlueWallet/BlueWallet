@@ -1,3 +1,4 @@
+import { headerMenuScreenLayout } from '../components/HeaderMenu';
 import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
 import { Platform } from 'react-native';
@@ -67,7 +68,11 @@ const MainRoot = () => {
   const theme = useTheme();
 
   return (
-    <DetailViewStack.Navigator UNSTABLE_router={navigationGuardRouter} screenOptions={{ headerShown: false }}>
+    <DetailViewStack.Navigator
+      screenLayout={headerMenuScreenLayout}
+      UNSTABLE_router={navigationGuardRouter}
+      screenOptions={{ headerShown: false }}
+    >
       {!walletsInitialized ? (
         <DetailViewStack.Screen name="UnlockWithScreen" component={UnlockWith} />
       ) : (
