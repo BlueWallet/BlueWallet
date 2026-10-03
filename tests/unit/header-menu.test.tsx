@@ -236,6 +236,26 @@ it('uses native shortcut metadata and correct ellipses without changing phone ac
   expect(new Set(keys).size).toBe(keys.length);
 });
 
+it('uses size-class-aware palette layouts for native Apple menus', () => {
+  const { Dimensions } = require('react-native');
+  const dimensionsSpy = jest.spyOn(Dimensions, 'get').mockReturnValue({ width: 1024, height: 768, scale: 2, fontScale: 1 });
+
+  try {
+    const { getAppleNativeMenuLayout, mapActionsToNativeHeaderMenuItems } =
+      require('../../components/nativeHeaderMenuItems') as typeof import('../../components/nativeHeaderMenuItems');
+
+    expect(getAppleNativeMenuLayout()).toBe('palette');
+    expect(
+      mapActionsToNativeHeaderMenuItems(
+        [{ id: 'sort', text: 'Sort', subactions: [{ id: 'height', text: 'Height' }] }],
+        jest.fn(),
+      )[0].layout,
+    ).toBe('palette');
+  } finally {
+    dimensionsSpy.mockRestore();
+  }
+});
+
 it('separates sorting criteria from direction without nesting another visible parent', () => {
   const { items } = buildHeaderMenu(
     [

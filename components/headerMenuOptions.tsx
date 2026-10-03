@@ -4,7 +4,11 @@ import React from 'react';
 import HeaderMenuButton from './HeaderMenuButton';
 import { usesHeaderMenu } from './HeaderMenu';
 import { attachHeaderMenuHandlers, type HeaderMenuOptions as SystemHeaderMenuOptions } from '../blue_modules/headerMenuActions';
-import { mapActionGroupsToNativeHeaderMenuItems, mapActionsToNativeHeaderMenuItems } from './nativeHeaderMenuItems';
+import {
+  getAppleNativeMenuLayout,
+  mapActionGroupsToNativeHeaderMenuItems,
+  mapActionsToNativeHeaderMenuItems,
+} from './nativeHeaderMenuItems';
 import { Action } from './types';
 
 type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
@@ -53,6 +57,7 @@ export const createEllipsisHeaderMenuOptions = ({
         menu: {
           title,
           items: nativeHeaderMenuItems,
+          ...(Platform.OS === 'ios' ? { layout: getAppleNativeMenuLayout() } : {}),
         },
       },
     ],
