@@ -464,14 +464,13 @@ const DetailViewStackScreensStack = () => {
             },
             (options, { route }) => {
               const transactionId = route.params?.tx?.hash || route.params?.tx?.txid || route.params?.hash || '';
-              const isNativeHeaderRight = Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop;
               const copyTransactionId = () => {
                 if (!transactionId) return;
                 Clipboard.setString(transactionId);
                 triggerHapticFeedback(HapticFeedbackTypes.Selection);
               };
 
-              return {
+              const transactionOptions = {
                 ...options,
                 headerTitle: transactionId
                   ? createTransactionDetailHeaderTitle({
@@ -482,32 +481,39 @@ const DetailViewStackScreensStack = () => {
                       maxWidth: Math.max(0, windowWidth - 96),
                     })
                   : '',
-                headerTitleAlign: 'left',
-                headerRight:
-                  isNativeHeaderRight || !transactionId
-                    ? undefined
-                    : createTransactionCopyHeaderRight({
+                headerTitleAlign: 'left' as const,
+              };
+
+              if (isIOS26OrHigher) {
+                return {
+                  ...transactionOptions,
+                  headerRight: undefined,
+                  unstable_headerRightItems: (): HeaderRightItem[] => {
+                    if (isDesktop || !transactionId) return [];
+                    return [
+                      {
+                        type: 'button',
+                        label: loc.transactions.details_copy,
                         accessibilityLabel: `${loc.transactions.details_copy} ${loc.transactions.txid}`,
-                        color: theme.colors.foregroundColor,
+                        icon: { type: 'sfSymbol', name: 'doc.on.doc' },
+                        identifier: 'CopyTransactionId',
                         onPress: copyTransactionId,
-                      }),
-                ...(isNativeHeaderRight
-                  ? {
-                      unstable_headerRightItems: (): HeaderRightItem[] =>
-                        transactionId
-                          ? [
-                              {
-                                type: 'button',
-                                label: loc.transactions.details_copy,
-                                accessibilityLabel: `${loc.transactions.details_copy} ${loc.transactions.txid}`,
-                                icon: { type: 'sfSymbol', name: 'doc.on.doc' },
-                                identifier: 'CopyTransactionId',
-                                onPress: copyTransactionId,
-                              },
-                            ]
-                          : [],
-                    }
-                  : { unstable_headerRightItems: undefined }),
+                      },
+                    ];
+                  },
+                };
+              }
+
+              return {
+                ...transactionOptions,
+                headerRight: transactionId
+                  ? createTransactionCopyHeaderRight({
+                      accessibilityLabel: `${loc.transactions.details_copy} ${loc.transactions.txid}`,
+                      color: theme.colors.foregroundColor,
+                      onPress: copyTransactionId,
+                    })
+                  : undefined,
+                unstable_headerRightItems: undefined,
               };
             },
           )(theme)}
