@@ -438,6 +438,65 @@ export const removeTrailingZeros = (value: number | string): string => {
   return ret;
 };
 
+const FALLBACK_LOCALE = 'en-US';
+
+/**
+ * Overrides for BlueWallet language codes that are NOT valid BCP 47 even after the
+ * `_` -> `-` + upper-case-region normalisation. Without these, `Intl.NumberFormat`
+ * silently resolves the tag to en-US (or throws), defeating the locale fix for
+ * those languages. The set of overrides mirrors the language-renaming switch in
+ * `setDateTimeLocale` (above) so the source of truth stays consistent.
+ */
+const BCP47_OVERRIDES: Record<string, string> = {
+  bqi: 'fa', // Bakhtiari -> Persian (no Bakhtiari data in Intl)
+  jp_jp: 'ja-JP', // BlueWallet uses ISO-3166 `jp`; BCP 47 wants the ISO-639 `ja`
+  'kk@Cyrl': 'kk-Cyrl', // Linux modifier syntax -> BCP 47 script subtag
+  lrc: 'fa', // Northern Luri -> Persian (no Luri data in Intl)
+  pcm: 'en', // Nigerian Pidgin -> English (no Pidgin data in Intl)
+  sr_rs: 'sr-Cyrl', // BlueWallet defaults Serbian to Cyrillic script
+  ua: 'uk', // BlueWallet uses country `ua`; BCP 47 wants language `uk`
+  zar_afr: 'af', // Afrikaans (South Africa); `zar` isn't a language subtag
+  zar_xho: 'xh', // Xhosa; same reasoning
+};
+
+/**
+ * Returns the user's current in-app language as a BCP 47 tag. BlueWallet stores codes with
+ * underscores (e.g. "de_de", "pt_br"); BCP 47 wants dashes with an upper-case region
+ * ("de-DE", "pt-BR"). Anything we can't normalize is returned as-is so that the formatter's
+ * own try/catch can fall back to FALLBACK_LOCALE.
+ */
+function getCurrentLocale(): string {
+  try {
+    const lang = loc.getLanguage();
+    if (!lang) return FALLBACK_LOCALE;
+    if (BCP47_OVERRIDES[lang]) return BCP47_OVERRIDES[lang];
+    // Default: only uppercase 2-3 letter trailing tokens (ISO-3166 region codes).
+    // Longer tails are likely script subtags (e.g. "Cyrl", "Hant") that should
+    // stay Title Case — those are handled by BCP47_OVERRIDES above.
+    return lang.replace('_', '-').replace(/-([a-z]{2,3})$/i, (_match, region) => '-' + region.toUpperCase());
+  } catch {
+    return FALLBACK_LOCALE;
+  }
+}
+
+/** Returns the locale's decimal separator (e.g. "." for en-US, "," for de-DE). */
+function getDecimalSeparator(locale: string): string {
+  try {
+    return new Intl.NumberFormat(locale).formatToParts(1.1).find(p => p.type === 'decimal')?.value ?? '.';
+  } catch {
+    return '.';
+  }
+}
+
+/** Locale-aware integer grouping using Latin digits, falling back to en-US on bad locales. */
+function formatIntegerForLocale(value: number, locale: string): string {
+  try {
+    return new Intl.NumberFormat(locale, { numberingSystem: 'latn' }).format(value);
+  } catch {
+    return new Intl.NumberFormat(FALLBACK_LOCALE, { numberingSystem: 'latn' }).format(value);
+  }
+}
+
 /**
  *
  * @param balance {number} Satoshis
@@ -450,10 +509,13 @@ export function formatBalance(balance: number, toUnit: string, withFormatting = 
     return balance + ' ' + loc.units[BitcoinUnit.BTC];
   }
   if (toUnit === BitcoinUnit.BTC) {
+    const decimalSep = getDecimalSeparator(getCurrentLocale());
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return removeTrailingZeros(value) + ' ' + loc.units[BitcoinUnit.BTC];
+    const trimmed = removeTrailingZeros(value); // operates on "."-decimal string first
+    const localized = decimalSep === '.' ? trimmed : trimmed.replace('.', decimalSep);
+    return localized + ' ' + loc.units[BitcoinUnit.BTC];
   } else if (toUnit === BitcoinUnit.SATS) {
-    return (withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance)) + ' ' + loc.units[BitcoinUnit.SATS];
+    return (withFormatting ? formatIntegerForLocale(balance, getCurrentLocale()) : String(balance)) + ' ' + loc.units[BitcoinUnit.SATS];
   } else {
     console.debug('[UnitSwitch/Fiat] formatBalance to fiat', { balance, unit: toUnit, withFormatting });
     return satoshiToLocalCurrency(balance);
@@ -472,10 +534,12 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withForm
     return balance;
   }
   if (toUnit === BitcoinUnit.BTC) {
+    const decimalSep = getDecimalSeparator(getCurrentLocale());
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return removeTrailingZeros(value);
+    const trimmed = removeTrailingZeros(value);
+    return decimalSep === '.' ? trimmed : trimmed.replace('.', decimalSep);
   } else if (toUnit === BitcoinUnit.SATS) {
-    return withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance);
+    return withFormatting ? formatIntegerForLocale(balance, getCurrentLocale()) : String(balance);
   } else {
     console.debug('[UnitSwitch/Fiat] formatBalanceWithoutSuffix to fiat', { balance, unit: toUnit, withFormatting });
     return satoshiToLocalCurrency(balance);
