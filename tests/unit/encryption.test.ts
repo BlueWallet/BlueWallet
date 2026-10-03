@@ -1,31 +1,45 @@
 import assert from 'assert';
+import { NativeModules } from 'react-native';
 
 import * as c from '../../blue_modules/encryption';
 
 describe('unit - encryption', function () {
-  it('encrypts and decrypts', function () {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('encrypts and decrypts using the shared secure RNG', async function () {
+    const getRandomBase64 = jest.spyOn(NativeModules.RNGetRandomValues, 'getRandomBase64');
     const data2encrypt = 'really long data string bla bla really long data string bla bla really long data string bla bla';
-    const crypted = c.encrypt(data2encrypt, 'password');
+    const crypted = await c.encrypt(data2encrypt, 'password');
     const decrypted = c.decrypt(crypted, 'password');
 
+    expect(getRandomBase64).toHaveBeenCalledTimes(1);
+    expect(getRandomBase64).toHaveBeenCalledWith(8);
     assert.ok(crypted);
     assert.ok(decrypted);
     assert.strictEqual(decrypted, data2encrypt);
     assert.ok(crypted !== data2encrypt);
 
-    let decryptedWithBadPassword;
-    try {
-      decryptedWithBadPassword = c.decrypt(crypted, 'passwordBad');
-    } catch (e) {}
-    assert.ok(!decryptedWithBadPassword);
+    assert.strictEqual(c.decrypt(crypted, 'passwordBad'), false);
+  });
 
-    let exceptionRaised = false;
-    try {
-      c.encrypt('yolo', 'password');
-    } catch (_) {
-      exceptionRaised = true;
-    }
-    assert.ok(exceptionRaised);
+  it('rejects short plaintext before requesting randomness', async () => {
+    const getRandomBase64 = jest.spyOn(NativeModules.RNGetRandomValues, 'getRandomBase64');
+
+    await assert.rejects(c.encrypt('yolo', 'password'), {
+      message: 'data length cant be < 10',
+    });
+    expect(getRandomBase64).not.toHaveBeenCalled();
+  });
+
+  it('rejects encryption when native randomness fails', async () => {
+    const error = new Error('Secure random generation failed');
+    jest.spyOn(NativeModules.RNGetRandomValues, 'getRandomBase64').mockImplementation(() => {
+      throw error;
+    });
+
+    await expect(c.encrypt('really long data string', 'password')).rejects.toBe(error);
   });
 
   it('handles ok malformed data', function () {
