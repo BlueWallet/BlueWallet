@@ -2,9 +2,9 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
-import loc from '../loc';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
 import { PromptPasswordConfirmationStackParamList } from './PromptPasswordConfirmationStackParamList';
+import loc from '../loc';
 
 const Stack = createNativeStackNavigator<PromptPasswordConfirmationStackParamList>();
 
