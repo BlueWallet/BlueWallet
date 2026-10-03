@@ -25,7 +25,6 @@ function route(routes: Record<string, Reply>): string[] {
       ok: status < 400,
       status,
       json: async () => reply.body,
-      text: async () => (typeof reply.body === 'string' ? reply.body : JSON.stringify(reply.body)),
     } as Response);
   });
   return hits;

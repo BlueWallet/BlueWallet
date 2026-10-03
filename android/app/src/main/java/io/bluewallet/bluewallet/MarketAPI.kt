@@ -124,7 +124,7 @@ object MarketAPI {
             var primaryRateLimited = false
             for (source in sources) {
                 val response = try {
-                    fetchFromSource(context, source, endPointKey)
+                    fetchFromSource(source, endPointKey)
                 } catch (e: Exception) {
                     // OkHttp execute() throws on DNS/timeout/reset — keep walking like JS/iOS
                     Log.w(TAG, "Error fetching price for $currency from $source: ${e.javaClass.simpleName} - ${e.message}")
@@ -156,7 +156,7 @@ object MarketAPI {
         }
     }
 
-    private suspend fun fetchFromSource(context: Context, source: String, endPointKey: String): ApiResponse {
+    private suspend fun fetchFromSource(source: String, endPointKey: String): ApiResponse {
         val urlString = buildURLString(source, endPointKey)
         Log.d(TAG, "Fetching price from URL: $urlString")
 
