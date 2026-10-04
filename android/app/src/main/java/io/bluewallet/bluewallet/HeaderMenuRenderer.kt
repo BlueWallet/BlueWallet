@@ -31,7 +31,7 @@ internal class HeaderMenuRenderer(private val context: Context) {
         }
         val titles = linkedMapOf(
             "file" to R.string.wallet_menu_category_file, "edit" to R.string.wallet_menu_category_edit,
-            "view" to R.string.wallet_menu_category_view, "wallet" to R.string.wallet_menu_category_wallet,
+            "view" to R.string.wallet_menu_category_view,
             "transaction" to R.string.wallet_menu_category_transaction, "recipients" to R.string.wallet_menu_category_recipients,
             "server" to R.string.wallet_menu_category_server, "settings" to R.string.wallet_menu_category_settings,
             "help" to R.string.wallet_menu_category_help

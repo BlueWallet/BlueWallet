@@ -411,9 +411,9 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         let commands: [(String, String, Selector, String, UIKeyModifierFlags, UIMenu.Identifier)] = [
             ("addWallet", "Add Wallet…", #selector(addWalletAction), "a", [.command, .shift], .file),
             ("importWallet", "Import Wallet…", #selector(importWalletAction), "i", .command, .file),
-            ("send", "Send…", #selector(sendMenuAction), "s", [.command, .shift], walletMenuID),
-            ("receive", "Receive…", #selector(receiveMenuAction), "r", [.command, .shift], walletMenuID),
-            ("walletDetails", "Wallet Details", #selector(walletDetailsMenuAction), "d", .command, walletMenuID),
+            ("send", "Send…", #selector(sendMenuAction), "s", [.command, .shift], .file),
+            ("receive", "Receive…", #selector(receiveMenuAction), "r", [.command, .shift], .file),
+            ("walletDetails", "Wallet Details", #selector(walletDetailsMenuAction), "d", .command, .file),
             ("reloadTransactions", "Reload Transactions", #selector(reloadTransactionsAction), "r", .command, .view),
             ("backToWallets", "Back to Wallets", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view),
             // The edit menu must not register duplicate key commands. Keep these unique even when both actions are enabled.
@@ -421,7 +421,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "t", [.command, .shift], .edit),
             ("keyboardShortcuts", "Keyboard Shortcuts", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
         ]
-        for parent in [.file, walletMenuID, .edit, .view, .help] {
+        for parent in [.file, .edit, .view, .help] {
             let identifier = UIMenu.Identifier("io.bluewallet.commands.\(parent.rawValue)")
             builder.remove(menu: identifier)
             let children = commands.filter { $0.5 == parent && actions.contains($0.0) }.map {
@@ -429,13 +429,8 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
                 return command
             }
             if !children.isEmpty {
-                if parent == walletMenuID {
-                    builder.insertSibling(UIMenu(title: "Wallet", identifier: walletMenuID,
-                                                 children: children), afterMenu: .view)
-                } else {
-                    builder.insertChild(UIMenu(title: "", identifier: identifier,
-                                               options: .displayInline, children: children), atStartOfMenu: parent)
-                }
+                builder.insertChild(UIMenu(title: "", identifier: identifier,
+                                           options: .displayInline, children: children), atStartOfMenu: parent)
             }
         }
 
@@ -449,16 +444,8 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
                 menus[menu.identifier.rawValue.replacingOccurrences(of: "category:", with: "")] = menu
             }
             // Install custom menus once in a fixed order after View.
-            if let menu = menus["wallet"], let existing = builder.menu(for: walletMenuID) {
-                builder.replace(menu: walletMenuID, with: UIMenu(title: menu.title, identifier: walletMenuID,
-                                                               children: existing.children + menu.children))
-            }
             var anchor = UIMenu.Identifier.view
-            for category in ["wallet", "transaction", "recipients", "server", "settings"] {
-                if category == "wallet", builder.menu(for: walletMenuID) != nil {
-                    anchor = walletMenuID
-                    continue
-                }
+            for category in ["transaction", "recipients", "server", "settings"] {
                 guard let menu = menus[category] else { continue }
                 let identifier = UIMenu.Identifier("io.bluewallet.screenActions.\(category)")
                 builder.insertSibling(UIMenu(title: menu.title, identifier: identifier, children: menu.children), afterMenu: anchor)

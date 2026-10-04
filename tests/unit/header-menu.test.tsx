@@ -176,7 +176,7 @@ it('keeps Add Wallet named parents visible instead of flattening Wallet Type cho
     'add',
   );
   const groups = groupHeaderMenu(items, 'AddWallet');
-  expect(groups[0].title).toBe('Wallet');
+  expect(groups[0].title).toBe('File');
   expect(groups[0].children![0]).toMatchObject({ title: 'Wallet Type', inline: false });
   expect(groups[0].children![0].children![0].state).toBe(true);
   expect(items[0].inline).toBe(true); // The phone action metadata remains unchanged.
@@ -200,7 +200,7 @@ it.each([
   expect(options.unstable_headerRightItems).toBeUndefined();
   const { items, handlers } = buildHeaderMenu(options.headerMenuActions!, 'wallet');
   expect(groupHeaderMenu(items, 'WalletTransactions')[0]).toMatchObject({
-    title: 'Wallet',
+    title: 'File',
     children: [{ id: 'header:wallet:WalletDetails', disabled: true }],
   });
   expect(handlers['header:wallet:WalletDetails']).toBeUndefined();
@@ -321,4 +321,17 @@ it('registers Android left Close shortcuts when the native back image supplies t
   } finally {
     Platform.OS = original;
   }
+});
+
+it('puts wallet screen commands in File without a Wallet menu', () => {
+  const { items } = buildHeaderMenu(
+    [
+      { id: 'scan_qr', text: 'Scan', onPress: jest.fn() },
+      { id: 'WalletDetails', text: 'Wallet Details', onPress: jest.fn() },
+    ],
+    'wallets',
+  );
+  const groups = groupHeaderMenu(items, 'WalletsList');
+  expect(groups.map(group => group.id)).toEqual(['category:file']);
+  expect(groups[0].children!.map(item => item.id)).toEqual(['header:wallets:scan_qr', 'header:wallets:WalletDetails']);
 });

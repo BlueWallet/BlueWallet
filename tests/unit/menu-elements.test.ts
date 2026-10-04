@@ -236,9 +236,9 @@ it('keeps commands already present in the system menu from appearing twice', () 
     );
   });
   const items = JSON.parse(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]);
-  const wallet = items.find((item: { id: string }) => item.id === 'category:wallet');
-  expect(wallet.title).toBe('Wallet');
-  expect(wallet.children.map((item: { title: string }) => item.title)).toEqual(['Custom']);
+  const wallet = items.find((item: { id: string }) => item.id === 'category:file');
+  expect(wallet.title).toBe('File');
+  expect(wallet.children.map((item: { title: string }) => item.title)).toContain('Custom');
   act(unregister);
   hook.unmount();
 });

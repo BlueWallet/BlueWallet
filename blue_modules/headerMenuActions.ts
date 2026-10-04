@@ -183,9 +183,10 @@ export function groupHeaderMenu(items: NativeHeaderMenuEntry[], screenName: stri
               : ['hideBalance', 'hide', 'viewInBitcoin', 'viewInSats', 'viewInFiat'].includes(id)
                 ? 'view'
                 : defaultGroup;
-    const entries = groups.get(group) ?? [];
+    const parent = group === 'wallet' ? 'file' : group;
+    const entries = groups.get(parent) ?? [];
     entries.push(preserveNamedParents(item));
-    groups.set(group, entries);
+    groups.set(parent, entries);
   };
   items.forEach(add);
   const order = ['file', 'edit', 'view', 'wallet', 'transaction', 'recipients', 'sort', 'server', 'settings', 'help'];

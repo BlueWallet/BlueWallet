@@ -35,7 +35,7 @@ enum class WalletMenuAction(
         COPY_ADDRESS, COPY_TRANSACTION_ID -> "edit"
         SHORTCUTS -> "help"
         SETTINGS -> "settings"
-        else -> "wallet"
+        else -> "file"
     }
 
     fun matches(event: KeyEvent): Boolean = event.keyCode == keyCode && event.hasModifiers(modifiers)
