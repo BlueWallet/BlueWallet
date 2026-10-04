@@ -37,7 +37,7 @@ import { TX_ROW_BASE_HEIGHT } from '../../components/ListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalance } from '../../loc';
-import { Chain } from '../../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
 import WatchOnlyWarning from '../../components/WatchOnlyWarning';
@@ -49,6 +49,8 @@ import { presentWalletExportReminder } from '../../helpers/presentWalletExportRe
 import selectWallet from '../../helpers/select-wallet';
 import assert from 'assert';
 import useScreenMenuActions from '../../hooks/useScreenMenuActions';
+import useMenuElements from '../../hooks/useMenuElements';
+import { usesHeaderMenu } from '../../components/HeaderMenu';
 import { useSettings } from '../../hooks/context/useSettings';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe';
 import { getClipboardContent } from '../../blue_modules/clipboard';
@@ -96,6 +98,57 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const [isWatchOnlyWarningVisible, setIsWatchOnlyWarningVisible] = useState<boolean>(() => {
     return wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).isWatchOnlyWarningVisible;
   });
+  const unitSwitchInProgress = useRef(false);
+  const changePreferredBalanceUnit = useCallback(
+    async (selectedUnit: BitcoinUnit) => {
+      if (unitSwitchInProgress.current) return;
+      unitSwitchInProgress.current = true;
+      setIsUnitSwitching(true);
+      setDisplayUnit(selectedUnit);
+      if ('setPreferredBalanceUnit' in wallet) {
+        wallet.setPreferredBalanceUnit(selectedUnit);
+      } else {
+        (wallet as TWallet).preferredBalanceUnit = selectedUnit;
+      }
+      try {
+        await saveToDisk();
+      } catch (error) {
+        presentAlert({ title: loc.errors.error, message: error instanceof Error ? error.message : String(error) });
+      } finally {
+        unitSwitchInProgress.current = false;
+        setIsUnitSwitching(false);
+      }
+    },
+    [wallet, saveToDisk],
+  );
+  const { registerHeaderMenu } = useMenuElements();
+  const balanceHidden = wallet.hideBalance;
+  useFocusEffect(
+    useCallback(() => {
+      if (!usesHeaderMenu) return;
+      return registerHeaderMenu(
+        [
+          {
+            id: 'changeBalanceUnit',
+            text: loc.wallets.change_balance_unit,
+            disabled: isUnitSwitching || balanceHidden,
+            onPress: () => {
+              if (wallet.hideBalance) return;
+              const current = wallet.getPreferredBalanceUnit();
+              const next =
+                current === BitcoinUnit.BTC
+                  ? BitcoinUnit.SATS
+                  : current === BitcoinUnit.SATS
+                    ? BitcoinUnit.LOCAL_CURRENCY
+                    : BitcoinUnit.BTC;
+              changePreferredBalanceUnit(next);
+            },
+          },
+        ],
+        route.key,
+      );
+    }, [registerHeaderMenu, route.key, wallet, balanceHidden, isUnitSwitching, changePreferredBalanceUnit]),
+  );
   const MAX_FAILURES = 3;
   const flatListRef = useRef<FlatList<Transaction>>(null);
   const headerRef = useRef<View>(null);
@@ -550,19 +603,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       <TransactionsNavigationHeader
         headerOverlayHeight={headerOverlayHeight}
         wallet={wallet}
-        onWalletUnitChange={async selectedUnit => {
-          setIsUnitSwitching(true);
-          setDisplayUnit(selectedUnit);
-          if ('setPreferredBalanceUnit' in wallet) {
-            wallet.setPreferredBalanceUnit(selectedUnit);
-          } else {
-            (wallet as TWallet).preferredBalanceUnit = selectedUnit;
-          }
-          await saveToDisk();
-          setTimeout(() => {
-            setIsUnitSwitching(false);
-          }, 50);
-        }}
+        onWalletUnitChange={changePreferredBalanceUnit}
         unit={displayUnit}
         unitSwitching={isUnitSwitching}
         onWalletBalanceVisibilityChange={async shouldHideBalance => {

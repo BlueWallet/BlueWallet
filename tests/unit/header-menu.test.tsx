@@ -351,3 +351,19 @@ it('provides distinct ScanQRCode import and photo shortcuts and omits unavailabl
   expect(hidden.items).toEqual([]);
   expect(hidden.handlers).toEqual({});
 });
+
+it('places the preferred balance unit shortcut in View and blocks it while unavailable', () => {
+  const changeUnit = jest.fn();
+  const enabled = buildHeaderMenu([{ id: 'changeBalanceUnit', text: 'Change Balance Unit', onPress: changeUnit }], 'wallet');
+  const groups = groupHeaderMenu(enabled.items, 'WalletTransactions');
+  expect(groups[0].id).toBe('category:view');
+  expect(groups[0].children![0].shortcut).toEqual({ input: 'u', modifiers: ['command', 'shift'] });
+  enabled.handlers['header:wallet:changeBalanceUnit']();
+  expect(changeUnit).toHaveBeenCalledTimes(1);
+  const disabled = buildHeaderMenu(
+    [{ id: 'changeBalanceUnit', text: 'Change Balance Unit', disabled: true, onPress: changeUnit }],
+    'wallet',
+  );
+  expect(disabled.items[0].disabled).toBe(true);
+  expect(disabled.handlers['header:wallet:changeBalanceUnit']).toBeUndefined();
+});

@@ -180,7 +180,7 @@ export function groupHeaderMenu(items: NativeHeaderMenuEntry[], screenName: stri
             ? 'edit'
             : ['share', 'saveFile', 'ExportTransaction', 'NavigationCloseButton', 'open_recent'].includes(id)
               ? 'file'
-              : ['hideBalance', 'hide', 'viewInBitcoin', 'viewInSats', 'viewInFiat'].includes(id)
+              : ['changeBalanceUnit', 'hideBalance', 'hide', 'viewInBitcoin', 'viewInSats', 'viewInFiat'].includes(id)
                 ? 'view'
                 : defaultGroup;
     const parent = group === 'wallet' ? 'file' : group;

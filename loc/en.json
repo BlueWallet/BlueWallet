@@ -436,6 +436,7 @@
     "details_outputs_count": "Outputs ({count})"
   },
   "wallets": {
+    "change_balance_unit": "Change Balance Unit",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Create",
