@@ -26,10 +26,10 @@ headerSuite('device-specific right headers', () => {
     if (deviceKind === 'tablet' && device.getPlatform() === 'android') {
       await expect(element(by.id('AndroidAppMenuButton'))).toBeVisible();
       await element(by.id('AndroidAppMenuButton')).tap();
-      await waitFor(element(by.text('Wallet')))
+      await waitFor(element(by.text('File')))
         .toBeVisible()
         .withTimeout(10_000);
-      await element(by.text('Wallet')).tap();
+      await element(by.text('File')).tap();
       await element(by.text('Add Wallet…')).tap();
       await waitFor(element(by.id('WalletNameInput')))
         .toBeVisible()

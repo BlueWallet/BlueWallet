@@ -395,6 +395,11 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         super.buildMenu(with: builder)
         
         guard builder.system === UIMenuSystem.main else { return }
+        // Catalyst supplies Duplicate, Move, Rename and Export As here by
+        // default, even though BlueWallet does not manage documents.
+        if #available(iOS 16.0, *) {
+            builder.remove(menu: .document)
+        }
         builder.remove(menu: .services)
         builder.remove(menu: .format)
         builder.remove(menu: .toolbar)
@@ -404,8 +409,8 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         let walletMenuID = UIMenu.Identifier("io.bluewallet.wallet")
         builder.remove(menu: walletMenuID)
         let commands: [(String, String, Selector, String, UIKeyModifierFlags, UIMenu.Identifier)] = [
-            ("addWallet", "Add Wallet…", #selector(addWalletAction), "a", [.command, .shift], walletMenuID),
-            ("importWallet", "Import Wallet…", #selector(importWalletAction), "i", .command, walletMenuID),
+            ("addWallet", "Add Wallet…", #selector(addWalletAction), "a", [.command, .shift], .file),
+            ("importWallet", "Import Wallet…", #selector(importWalletAction), "i", .command, .file),
             ("send", "Send…", #selector(sendMenuAction), "s", [.command, .shift], walletMenuID),
             ("receive", "Receive…", #selector(receiveMenuAction), "r", [.command, .shift], walletMenuID),
             ("walletDetails", "Wallet Details", #selector(walletDetailsMenuAction), "d", .command, walletMenuID),
@@ -416,7 +421,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "t", [.command, .shift], .edit),
             ("keyboardShortcuts", "Keyboard Shortcuts", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
         ]
-        for parent in [walletMenuID, .edit, .view, .help] {
+        for parent in [.file, walletMenuID, .edit, .view, .help] {
             let identifier = UIMenu.Identifier("io.bluewallet.commands.\(parent.rawValue)")
             builder.remove(menu: identifier)
             let children = commands.filter { $0.5 == parent && actions.contains($0.0) }.map {

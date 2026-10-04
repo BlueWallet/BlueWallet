@@ -30,6 +30,7 @@ enum class WalletMenuAction(
     SETTINGS("settings", R.id.wallet_menu_settings, R.string.wallet_menu_settings, KeyEvent.KEYCODE_COMMA, ',');
 
     val category: String get() = when (this) {
+        ADD_WALLET, IMPORT_WALLET -> "file"
         RELOAD_TRANSACTIONS, BACK_TO_WALLETS -> "view"
         COPY_ADDRESS, COPY_TRANSACTION_ID -> "edit"
         SHORTCUTS -> "help"

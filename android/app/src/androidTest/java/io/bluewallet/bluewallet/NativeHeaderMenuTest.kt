@@ -51,9 +51,12 @@ class NativeHeaderMenuTest {
             assertNotNull(menu.findItem(WalletMenuAction.SEND.itemId))
             assertFalse(menu.findItem(WalletMenuAction.SEND.itemId)!!.isEnabled)
             assertTrue(menu.findItem(WalletMenuAction.SETTINGS.itemId)!!.isEnabled)
-            assertEquals(listOf("Edit", "View", "Wallet", "Recipients", "Settings", "Help"),
+            assertEquals(listOf("File", "Edit", "View", "Wallet", "Recipients", "Settings", "Help"),
                 (0 until menu.size()).map { menu.getItem(it).title.toString() })
-            val recipients = menu.getItem(3).subMenu!!
+            val file = menu.getItem(0).subMenu!!
+            assertNotNull(file.findItem(WalletMenuAction.ADD_WALLET.itemId))
+            assertNotNull(file.findItem(WalletMenuAction.IMPORT_WALLET.itemId))
+            val recipients = menu.getItem(4).subMenu!!
             assertTrue(recipients.getItem(0).isChecked)
             assertEquals('n', recipients.getItem(0).alphabeticShortcut)
             assertFalse(recipients.getItem(1).isEnabled)
