@@ -419,10 +419,8 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         for parent in [walletMenuID, .edit, .view, .help] {
             let identifier = UIMenu.Identifier("io.bluewallet.commands.\(parent.rawValue)")
             builder.remove(menu: identifier)
-            let usesStableMenus = UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .mac
-            let children = commands.filter { $0.5 == parent && (actions.contains($0.0) || (usesStableMenus && !actions.isEmpty)) }.map {
+            let children = commands.filter { $0.5 == parent && actions.contains($0.0) }.map {
                 let command = UIKeyCommand(title: $0.1, action: $0.2, input: $0.3, modifierFlags: $0.4, propertyList: $0.0)
-                if !actions.contains($0.0) { command.attributes = .disabled }
                 return command
             }
             if !children.isEmpty {
