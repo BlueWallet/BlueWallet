@@ -52,6 +52,14 @@ beforeEach(() => {
   setRoute('WalletTransactions', 'wallet-1');
 });
 
+it('treats missing native header metadata as an empty menu without throwing', () => {
+  const { getHeaderMenuEntries, getHeaderMenuHandlers } = require('../../hooks/useMenuElements.native') as typeof import('../../hooks/useMenuElements.native');
+  expect(getHeaderMenuEntries(undefined)).toEqual([]);
+  expect(getHeaderMenuEntries({} as any)).toEqual([]);
+  expect(getHeaderMenuHandlers(undefined)).toEqual({});
+  expect(getHeaderMenuHandlers({} as any)).toEqual({});
+});
+
 it('shares subscriptions, dispatches only to the current route, and cleans up', () => {
   const first = renderHook(useMenuElements);
   const second = renderHook(useMenuElements);

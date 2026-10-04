@@ -12,6 +12,14 @@ const headerRegistry = new Map<string, Map<symbol, ReturnType<typeof buildHeader
 let consumers = 0;
 let dispose: (() => void) | undefined;
 
+export function getHeaderMenuEntries(header: { items?: ReturnType<typeof buildHeaderMenu>['items'] } | undefined) {
+  return Array.isArray(header?.items) ? header.items : [];
+}
+
+export function getHeaderMenuHandlers(header: { handlers?: Record<string, () => void> } | undefined) {
+  return header?.handlers ?? {};
+}
+
 function currentContext() {
   const ready = navigationRef.isReady();
   const route = ready ? navigationRef.getCurrentRoute() : undefined;
@@ -20,6 +28,8 @@ function currentContext() {
   const unlocked = !!root?.routeNames.includes('DrawerRoot') && root.routes[root.index]?.name !== 'UnlockWithScreen';
   const handlers: MenuActionHandlers = Object.assign({}, ...(route ? (handlerRegistry.get(route.key)?.values() ?? []) : []));
   const header = route ? [...(headerRegistry.get(route.key)?.values() ?? [])].at(-1) : undefined;
+  const headerItems = getHeaderMenuEntries(header);
+  const headerHandlers = getHeaderMenuHandlers(header);
   const actions = availableMenuActions(route?.name, Object.keys(handlers) as ScreenMenuAction[], unlocked);
   const migratedCommands = {
     AddWalletButton: 'addWallet',
@@ -28,7 +38,7 @@ function currentContext() {
     WalletDetails: 'walletDetails',
   } as const;
   // Existing system commands already expose these actions; avoid duplicate entries.
-  const items = header?.items.filter(
+  const items = headerItems.filter(
     item =>
       !Object.entries(migratedCommands).some(
         ([id, action]) => item.id.endsWith(`:${id}`) && (Platform.OS === 'ios' || isTablet || isDesktop || actions.includes(action)),
@@ -36,7 +46,8 @@ function currentContext() {
   );
 
   return {
-    header: unlocked && header ? { ...header, items: groupHeaderMenu(items!, route?.name ?? '') } : undefined,
+    header: unlocked && header ? { ...header, items: groupHeaderMenu(items, route?.name ?? '') } : undefined,
+    headerHandlers,
     handlers,
     actions,
   };
@@ -51,9 +62,9 @@ function syncMenu() {
 function subscribe() {
   if (!MenuElementsEmitter) return;
   const subscription = MenuElementsEmitter.onMenuAction(action => {
-    const { actions, handlers, header } = currentContext();
+    const { actions, handlers, headerHandlers } = currentContext();
     if (action.startsWith('header:')) {
-      header?.handlers[action]?.();
+      headerHandlers[action]?.();
       return;
     }
     if (!actions.some(available => available === action)) return;
