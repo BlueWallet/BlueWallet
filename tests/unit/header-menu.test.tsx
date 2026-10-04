@@ -23,13 +23,19 @@ it('preserves phone options, including native header items', () => {
 it.each([
   [true, false],
   [false, true],
-])('removes both right header APIs on tablets and Mac (%s, %s)', (tablet, desktop) => {
+])('keeps native right header APIs on tablets while Mac remains menu-only (%s, %s)', (tablet, desktop) => {
   const { getHeaderMenuOptions } = loadMenu(tablet, desktop);
   const onPress = jest.fn();
   const actions = [{ id: 'details', text: 'Details', onPress }];
   const options = getHeaderMenuOptions({ headerRight: () => null, unstable_headerRightItems: () => [] }, actions);
-  expect(options.headerRight).toBeUndefined();
-  expect(options.unstable_headerRightItems).toBeUndefined();
+
+  if (tablet) {
+    expect(options.headerRight).toBeDefined();
+    expect(options.unstable_headerRightItems).toBeDefined();
+  } else {
+    expect(options.headerRight).toBeUndefined();
+    expect(options.unstable_headerRightItems).toBeUndefined();
+  }
   expect(options.headerMenuActions).toEqual(actions);
 });
 

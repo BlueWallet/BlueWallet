@@ -9,11 +9,19 @@ import useMenuElements from '../hooks/useMenuElements';
 
 export type HeaderMenuAction = HeaderMenuEntry & { onPress: () => void };
 export const usesHeaderMenu = isTablet || isDesktop;
+export const keepNativeHeaderRightItems = isTablet && !isDesktop;
 
 export const getHeaderMenuOptions = (
   phoneOptions: NativeStackNavigationOptions,
   actions: HeaderMenuAction[],
-): NativeStackNavigationOptions & HeaderMenuOptions => (usesHeaderMenu ? { headerMenuActions: actions } : phoneOptions);
+): NativeStackNavigationOptions & HeaderMenuOptions =>
+  usesHeaderMenu
+    ? {
+        ...phoneOptions,
+        headerMenuActions: actions,
+        ...(keepNativeHeaderRightItems ? {} : { headerRight: undefined, unstable_headerRightItems: undefined }),
+      }
+    : phoneOptions;
 
 /** Registers screen actions in the system menu without rendering a header control. */
 const HeaderMenu = ({

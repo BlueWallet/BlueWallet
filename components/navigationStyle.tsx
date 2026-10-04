@@ -3,7 +3,7 @@ import React from 'react';
 import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import loc from '../loc';
-import { usesHeaderMenu } from './HeaderMenu';
+import { keepNativeHeaderRightItems, usesHeaderMenu } from './HeaderMenu';
 import type { HeaderMenuOptions } from '../blue_modules/headerMenuActions';
 import { Theme } from './themes';
 
@@ -52,9 +52,11 @@ const withRouteParamHeaderOptions =
     const routeParams = route?.params ?? {};
     return {
       ...options,
-      ...(usesHeaderMenu && config.headerRight && routeParams.headerRight === null ? { headerMenuActions: [] } : {}),
+      ...(usesHeaderMenu && config.headerRight && routeParams.headerRight === null ? { headerMenuActions: [], headerRight: undefined, unstable_headerRightItems: undefined } : {}),
       ...(config.headerLeft && routeParams.headerLeft !== undefined ? { headerLeft: routeParams.headerLeft } : {}),
-      ...(config.headerRight && routeParams.headerRight !== undefined ? { headerRight: routeParams.headerRight } : {}),
+      ...(config.headerRight && routeParams.headerRight !== undefined
+        ? { headerRight: routeParams.headerRight === null ? undefined : routeParams.headerRight }
+        : {}),
       ...(config.headerBackVisible && routeParams.headerBackVisible !== undefined
         ? { headerBackVisible: routeParams.headerBackVisible }
         : {}),
@@ -193,8 +195,12 @@ const navigationStyle = (
       return {
         ...options,
         headerMenuCloseAction: closeAvailable ? closeAction : options.headerMenuCloseAction,
-        headerRight: showClose ? renderCloseButtonElement : undefined,
-        unstable_headerRightItems: showClose ? buildUnstableCloseButtonItems : undefined,
+        ...(keepNativeHeaderRightItems
+          ? {}
+          : {
+              headerRight: showClose ? renderCloseButtonElement : undefined,
+              unstable_headerRightItems: showClose ? buildUnstableCloseButtonItems : undefined,
+            }),
       };
     };
 };

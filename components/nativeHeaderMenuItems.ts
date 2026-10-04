@@ -3,8 +3,12 @@ import { getSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import { Action } from './types';
 import type { NativeStackHeaderItemMenuAction, NativeStackHeaderItemMenuSubmenu } from '@react-navigation/native-stack';
 
-type NativeHeaderMenuAction = NativeStackHeaderItemMenuAction & { identifier?: string };
-type NativeHeaderMenuSubmenu = NativeStackHeaderItemMenuSubmenu & { identifier?: string; items: NativeHeaderMenuItem[] };
+type NativeHeaderMenuAction = NativeStackHeaderItemMenuAction & { identifier?: string; layout?: 'default' | 'palette' };
+type NativeHeaderMenuSubmenu = NativeStackHeaderItemMenuSubmenu & {
+  identifier?: string;
+  items: NativeHeaderMenuItem[];
+  layout?: 'default' | 'palette';
+};
 type NativeHeaderMenuItem = NativeHeaderMenuAction | NativeHeaderMenuSubmenu;
 
 const toNativeState = (menuState: Action['menuState']): 'on' | 'off' | 'mixed' | undefined => {

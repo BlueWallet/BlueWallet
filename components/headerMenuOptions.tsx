@@ -1,8 +1,9 @@
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React from 'react';
+import { Platform } from 'react-native';
 
 import HeaderMenuButton from './HeaderMenuButton';
-import { usesHeaderMenu } from './HeaderMenu';
+import { keepNativeHeaderRightItems, usesHeaderMenu } from './HeaderMenu';
 import { attachHeaderMenuHandlers, type HeaderMenuOptions as SystemHeaderMenuOptions } from '../blue_modules/headerMenuActions';
 import {
   getAppleNativeMenuLayout,
@@ -36,17 +37,21 @@ export const createEllipsisHeaderMenuOptions = ({
   identifier = 'HeaderMenuButton',
   title = '',
 }: HeaderMenuOptionsParams): HeaderMenuOptions => {
-  if (usesHeaderMenu) {
+  const headerMenuActions = attachHeaderMenuHandlers(actions, onPressMenuItem, disabled);
+
+  if (usesHeaderMenu && !keepNativeHeaderRightItems) {
     return {
-      headerMenuActions: attachHeaderMenuHandlers(actions, onPressMenuItem, disabled),
+      headerMenuActions,
     };
   }
+
   const hasGroups = Array.isArray(actions[0]);
   const nativeHeaderMenuItems = hasGroups
     ? mapActionGroupsToNativeHeaderMenuItems(actions as Action[][], onPressMenuItem, preserveGroups)
     : mapActionsToNativeHeaderMenuItems(actions as Action[], onPressMenuItem);
 
   return {
+    headerMenuActions,
     headerRight: () => React.createElement(HeaderMenuButton, { onPressMenuItem, actions, disabled }),
     unstable_headerRightItems: () => [
       {
