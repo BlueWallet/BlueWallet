@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
-import { LayoutChangeEvent, ScrollView, StyleSheet, Pressable, View } from 'react-native';
+import { ActivityIndicator, LayoutChangeEvent, ScrollView, StyleSheet, Pressable, View } from 'react-native';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { validateMnemonic } from '../../blue_modules/bip39';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -14,15 +15,17 @@ import QRCode from '../../components/QRCode';
 import SeedWords from '../../components/SeedWords';
 import { useTheme } from '../../components/themes';
 import { HandOffActivityType } from '../../components/types';
-import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import useAppState from '../../hooks/useAppState';
 import loc from '../../loc';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { WalletExportStackParamList } from '../../navigation/WalletExportStack';
 
 type RouteProps = RouteProp<WalletExportStackParamList, 'WalletExport'>;
+type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 
 const HORIZONTAL_PADDING = 20;
+const CLOSE_TRANSITION_FALLBACK_MS = 5000;
 
 const CopyBox: React.FC<{ text: string; onPress: () => void }> = ({ text, onPress }) => {
   const { colors } = useTheme();
@@ -57,14 +60,19 @@ const DoNotDisclose: React.FC = () => {
 
 const WalletExport: React.FC = () => {
   const { wallets } = useStorage();
-  const { walletID } = useRoute<RouteProps>().params;
-  const navigation = useNavigation();
-  const { isPrivacyBlurEnabled } = useSettings();
+  const route = useRoute<RouteProps>();
+  const { walletID } = route.params;
+  const navigation = useNavigation<NavigationProps>();
   const { colors } = useTheme();
   const wallet = wallets.find(w => w.getID() === walletID)!;
   const [qrCodeSize, setQRCodeSize] = useState(90);
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
+  const { lockScreenProtect, unlockScreenProtect } = useScreenProtect();
   const { currentAppState, previousAppState } = useAppState();
+  const [isScreenProtectionReady, setIsScreenProtectionReady] = useState(false);
+  const fallbackTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const isProtectionReleased = useRef(false);
+  const isScreenFocused = useRef(false);
+  const isScreenMounted = useRef(false);
   const stylesHook = StyleSheet.create({
     root: { backgroundColor: colors.elevated },
   });
@@ -83,9 +91,25 @@ const WalletExport: React.FC = () => {
     return validateMnemonic(wallet.getSecret());
   }, [wallet]);
 
+  const hasSeedPhrase = secrets.length > 1 || secretIsMnemonic;
+
+  const releaseProtection = useCallback(() => {
+    if (!hasSeedPhrase || isProtectionReleased.current) return;
+    isProtectionReleased.current = true;
+    if (fallbackTimer.current) clearTimeout(fallbackTimer.current);
+    void unlockScreenProtect().catch(error => console.warn('Failed to disable wallet export screen protection:', error));
+  }, [hasSeedPhrase, unlockScreenProtect]);
+
+  const scheduleProtectionFallback = useCallback(() => {
+    if (!hasSeedPhrase || isProtectionReleased.current || fallbackTimer.current) return;
+    fallbackTimer.current = setTimeout(() => {
+      fallbackTimer.current = undefined;
+      if (!isScreenFocused.current || !isScreenMounted.current) releaseProtection();
+    }, CLOSE_TRANSITION_FALLBACK_MS);
+  }, [hasSeedPhrase, releaseProtection]);
+
   useEffect(() => {
     if (previousAppState === 'active' && currentAppState !== 'active') {
-      disableScreenProtect();
       const timer = setTimeout(() => {
         navigation.goBack();
       }, 500);
@@ -94,15 +118,50 @@ const WalletExport: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentAppState, previousAppState]);
 
+  useFocusEffect(
+    useCallback(() => {
+      isScreenFocused.current = true;
+      isProtectionReleased.current = false;
+      if (fallbackTimer.current) {
+        clearTimeout(fallbackTimer.current);
+        fallbackTimer.current = undefined;
+      }
+
+      let isFocused = true;
+      setIsScreenProtectionReady(false);
+      if (hasSeedPhrase) {
+        void lockScreenProtect()
+          .then(() => {
+            if (isFocused) setIsScreenProtectionReady(true);
+          })
+          .catch(error => console.warn('Failed to enable wallet export screen protection:', error));
+      }
+
+      return () => {
+        isScreenFocused.current = false;
+        isFocused = false;
+      };
+    }, [hasSeedPhrase, lockScreenProtect]),
+  );
+
   useEffect(() => {
-    if (isPrivacyBlurEnabled) {
-      enableScreenProtect();
-    }
+    isScreenMounted.current = true;
+    const isClosingWalletExport = (event: { data: { closing: boolean }; target?: string }) =>
+      event.data.closing && event.target === route.key;
+    const unsubscribeStart = navigation.addListener('transitionStart', event => {
+      if (hasSeedPhrase && isClosingWalletExport(event)) scheduleProtectionFallback();
+    });
+    const unsubscribeEnd = navigation.addListener('transitionEnd', event => {
+      if (isClosingWalletExport(event)) releaseProtection();
+    });
+
     return () => {
-      disableScreenProtect();
+      isScreenMounted.current = false;
+      unsubscribeStart();
+      unsubscribeEnd();
+      scheduleProtectionFallback();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPrivacyBlurEnabled]);
+  }, [hasSeedPhrase, navigation, releaseProtection, route.key, scheduleProtectionFallback]);
 
   const onLayout = useCallback((e: LayoutChangeEvent) => {
     const { height, width } = e.nativeEvent.layout;
@@ -142,6 +201,15 @@ const WalletExport: React.FC = () => {
     ),
     [onLayout, stylesHook.root],
   );
+
+  if (hasSeedPhrase && !isScreenProtectionReady) {
+    return (
+      <Scroll>
+        <DoNotDisclose />
+        <ActivityIndicator color={colors.foregroundColor} />
+      </Scroll>
+    );
+  }
 
   // for SLIP39
   if (secrets.length !== 1) {
