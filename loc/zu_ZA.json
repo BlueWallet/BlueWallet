@@ -361,7 +361,6 @@
     "onchain": "Onchain",
     "details_to": "Okukhishwayo",
     "enable_offline_signing": "Lesi sikhwama asisetshenziswa kanye nokusayina okungaxhumi. Ungathanda ukukunika amandla manje?",
-    "list_conf": "Ukuqin: {number}",
     "pending": "Kulindile",
     "pending_with_amount": "Kulindile {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
