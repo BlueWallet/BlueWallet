@@ -28,7 +28,7 @@ export const menuShortcuts = [
   { title: 'Receive…', key: 'Shift+R', where: 'Transactions, when this wallet supports receiving' },
   { title: 'Wallet Details…', key: 'D', where: 'Transactions' },
   { title: 'Copy Address', key: 'Shift+C', where: 'Receive screen, when an address is displayed' },
-  { title: 'Copy Transaction ID', key: 'Shift+C', where: 'Transaction details, when an ID is available' },
+  { title: 'Copy Transaction ID', key: 'Shift+T', where: 'Transaction details, when an ID is available' },
   { title: 'Back to Wallets', key: 'Shift+W', where: 'Wallet detail screens' },
   { title: 'Settings', key: ',', where: 'Anywhere after unlocking' },
   { title: 'Keyboard Shortcuts…', key: '/', where: 'Anywhere after unlocking' },

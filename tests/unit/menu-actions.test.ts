@@ -1,4 +1,4 @@
-import { availableMenuActions } from '../../blue_modules/menuActions';
+import { availableMenuActions, menuShortcuts } from '../../blue_modules/menuActions';
 
 describe('native menu availability', () => {
   it.each([undefined, 'UnlockWithScreen', 'WalletTransactions', 'Settings', 'SendDetails'])(
@@ -30,5 +30,11 @@ describe('native menu availability', () => {
     ]);
     expect(availableMenuActions('TransactionStatus', ['copyTransactionId'], true)).toContain('copyTransactionId');
     expect(availableMenuActions('WalletsList', [], true)).not.toContain('backToWallets');
+  });
+
+  it('keeps copy shortcuts unique to avoid menu builder conflicts', () => {
+    const keys = menuShortcuts.filter(({ title }) => title === 'Copy Address' || title === 'Copy Transaction ID').map(({ key }) => key);
+    expect(new Set(keys).size).toBe(keys.length);
+    expect(keys).toEqual(['Shift+C', 'Shift+T']);
   });
 });
