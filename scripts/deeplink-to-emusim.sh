@@ -1,5 +1,9 @@
 #!/bin/bash
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+default_psbt_file="$script_dir/../tests/unit/fixtures/quicklook-preview-sample.psbt"
+psbt_option="__OPEN_PSBT_FILE__"
+
 deepLinks=(
   "bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG"
   "bitcoin:bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo"
@@ -13,6 +17,7 @@ deepLinks=(
   "bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com"
   "lnaddress@zbd.gg"
   "zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx"
+  "$psbt_option"
 )
 
 testOptions=("Send" "Notification")
@@ -76,10 +81,14 @@ select_option() {
       echo -e "\n\033[1m[Test: $TEST_TYPE] Select a deep link:\033[0m\n"
     fi
     for i in "${!deepLinks[@]}"; do
+      option_label="${deepLinks[$i]}"
+      if [[ "$option_label" == "$psbt_option" ]]; then
+        option_label="Open a PSBT file in BlueWallet"
+      fi
       if [ $i -eq $selected ]; then
-        echo "> ${deepLinks[$i]}"
+        echo "> $option_label"
       else
-        echo "  ${deepLinks[$i]}"
+        echo "  $option_label"
       fi
     done
 
@@ -109,6 +118,17 @@ select_option() {
 }
 
 select_option
+
+if [[ "$selectedLink" == "$psbt_option" ]]; then
+  psbt_file="${PSBT_FILE:-$default_psbt_file}"
+  read -r -p "PSBT file path [$psbt_file]: " selected_psbt_file
+  psbt_file="${selected_psbt_file:-$psbt_file}"
+  if [[ ! -f "$psbt_file" ]]; then
+    echo -e "\n\033[1mPSBT file not found: $psbt_file\033[0m\n"
+    exit 1
+  fi
+  psbt_file="$(cd "$(dirname "$psbt_file")" && pwd)/$(basename "$psbt_file")"
+fi
 
 # Enumerate booted iOS simulators with OS versions
 ios_sims=()
@@ -199,10 +219,23 @@ JSON
       xcrun simctl push "$udid" "$apns_file"
       rm "$apns_file"
     else
-      echo -e "\nSending deep link to iOS simulator: $selectedLink\n"
-      xcrun simctl openurl "$udid" "$selectedLink"
+      if [[ "$selectedLink" == "$psbt_option" ]]; then
+        app_container=$(xcrun simctl get_app_container "$udid" io.bluewallet.bluewallet data)
+        destination="$app_container/Documents/$(basename "$psbt_file")"
+        mkdir -p "$app_container/Documents"
+        cp "$psbt_file" "$destination"
+        echo -e "\nOpening PSBT in iOS simulator: $destination\n"
+        xcrun simctl openurl "$udid" "file://$destination"
+      else
+        echo -e "\nSending deep link to iOS simulator: $selectedLink\n"
+        xcrun simctl openurl "$udid" "$selectedLink"
+      fi
     fi
   else
+    if [[ "$selectedLink" == "$psbt_option" ]]; then
+      echo -e "\n\033[1mPSBT file deep links are currently supported for iOS simulators only.\033[0m\n"
+      exit 1
+    fi
     echo -e "\nSending deep link to Android emulator: $selectedLink\n"
     # Strip version info to get the emulator device ID
     emuId="${dev%% *}"
