@@ -239,7 +239,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
 
   const setLanguageStorage = useCallback(async (newLanguage: string): Promise<void> => {
     try {
-      await saveLanguage(newLanguage);
+      await saveLanguage(newLanguage, { userSelected: true });
       setLanguage(newLanguage);
     } catch (e) {
       console.error('Error setting language:', e);

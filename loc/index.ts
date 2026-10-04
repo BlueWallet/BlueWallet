@@ -7,15 +7,17 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Localization, { LocalizedStrings } from 'react-localization';
-import { I18nManager } from 'react-native';
+import { AppState, I18nManager } from 'react-native';
 import * as RNLocalize from 'react-native-localize';
 
 import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages, LangCode } from './languages';
+import { resolveLangCodeFromRnLocales } from './resolveDeviceLangCode';
 import enJson from './en.json';
 
 export const STORAGE_KEY = 'lang';
+export const LANG_USER_OVERRIDE_KEY = 'langUserOverride';
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
@@ -361,25 +363,7 @@ const setDateTimeLocale = async () => {
   }
 };
 
-// Fire-and-forget; `loc` starts as `{en}` until this resolves, so synchronous reads on a cold launch with non-en saved preference render English briefly.
-const init = async () => {
-  const lang = await AsyncStorage.getItem(STORAGE_KEY);
-  if (lang) {
-    await saveLanguage(lang);
-  } else {
-    const locales = RNLocalize.getLocales();
-    const detected = locales[0]?.languageCode;
-    if (detected && AvailableLanguages.some(language => language.value === detected)) {
-      await saveLanguage(detected);
-    } else {
-      await saveLanguage('en');
-    }
-  }
-};
-init();
-
-export const saveLanguage = async (lang: string) => {
-  await AsyncStorage.setItem(STORAGE_KEY, lang);
+const applyLanguageSideEffects = async (lang: string) => {
   applyLanguage(lang);
   // even tho it makes no effect changing it in this run, it will on the next run, so we are doign it here:
   if (process.env.JEST_WORKER_ID === undefined) {
@@ -389,6 +373,61 @@ export const saveLanguage = async (lang: string) => {
   }
   await setDateTimeLocale();
 };
+
+const applyDeviceLanguage = async () => {
+  const mapped = resolveLangCodeFromRnLocales(RNLocalize.getLocales());
+  await AsyncStorage.removeItem(LANG_USER_OVERRIDE_KEY);
+  await saveLanguage(mapped);
+};
+
+// Fire-and-forget; `loc` starts as `{en}` until this resolves, so synchronous reads on a cold launch with non-en saved preference render English briefly.
+const init = async () => {
+  const userOverride = await AsyncStorage.getItem(LANG_USER_OVERRIDE_KEY);
+  const stored = await AsyncStorage.getItem(STORAGE_KEY);
+  if (userOverride === '1' && stored) {
+    await applyLanguageSideEffects(stored);
+    return;
+  }
+  await applyDeviceLanguage();
+};
+
+init();
+
+let lastDeviceLocaleFingerprint = '';
+
+const getDeviceLocaleFingerprint = (): string =>
+  RNLocalize.getLocales()
+    .map(locale => locale.languageTag ?? locale.languageCode)
+    .join('|');
+
+const syncDeviceLanguageIfNeeded = async () => {
+  const fingerprint = getDeviceLocaleFingerprint();
+  if (fingerprint === lastDeviceLocaleFingerprint) {
+    return;
+  }
+  lastDeviceLocaleFingerprint = fingerprint;
+  await applyDeviceLanguage();
+};
+
+if (process.env.JEST_WORKER_ID === undefined) {
+  lastDeviceLocaleFingerprint = getDeviceLocaleFingerprint();
+  AppState.addEventListener('change', nextState => {
+    if (nextState === 'active') {
+      syncDeviceLanguageIfNeeded().catch(console.error);
+    }
+  });
+}
+
+export const saveLanguage = async (lang: string, options?: { userSelected?: boolean }) => {
+  await AsyncStorage.setItem(STORAGE_KEY, lang);
+  if (options?.userSelected) {
+    await AsyncStorage.setItem(LANG_USER_OVERRIDE_KEY, '1');
+  }
+  await applyLanguageSideEffects(lang);
+};
+
+export { resolveLangCodeFromRnLocale, resolveLangCodeFromRnLocales } from './resolveDeviceLangCode';
+export { CF_BUNDLE_APPLE_LOCALES, CF_BUNDLE_LANG_CODES, langCodeToAppleLocale } from './appleLocale';
 
 export const transactionTimeToReadable = (time: number | string) => {
   if (time === -1) {
