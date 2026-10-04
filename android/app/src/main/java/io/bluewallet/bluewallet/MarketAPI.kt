@@ -11,7 +11,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.text.NumberFormat
 import java.util.Currency
-import kotlin.math.min
 
 object MarketAPI {
 
@@ -39,8 +38,8 @@ object MarketAPI {
     private val bitstampFiatPairs = setOf("USD", "EUR", "GBP")
     // Our tickers that CoinGecko accepts as vs_currency — from /api/v3/simple/supported_vs_currencies
     private val coinGeckoFiat = setOf(
-        "USD", "AED", "ARS", "AUD", "BHD", "BRL", "CAD", "CHF", "CLP", "CNY", "CZK", "DKK", "EUR", "GBP", "HKD", "HUF", "IDR", "ILS", "INR", "JPY",
-        "KRW", "KWD", "LKR", "MXN", "MYR", "NGN", "NOK", "NZD", "PHP", "PLN", "RUB", "SAR", "SEK", "SGD", "THB", "TRY", "TWD", "UAH", "ZAR",
+        "USD", "AED", "ARS", "AUD", "BDT", "BHD", "BRL", "CAD", "CHF", "CLP", "CNY", "CZK", "DKK", "EUR", "GBP", "HKD", "HUF", "IDR", "ILS", "INR", "JPY",
+        "KRW", "KWD", "LKR", "MXN", "MYR", "NGN", "NOK", "NZD", "PHP", "PKR", "PLN", "RUB", "SAR", "SEK", "SGD", "THB", "TRY", "TWD", "UAH", "VND", "ZAR",
     )
     // Prefer Kraken over Coinbase when both can serve the ticker.
     // CoinGecko sits after the exchanges on purpose: the keyless tier is throttled per IP (observed 429 after ~5 calls
@@ -48,7 +47,6 @@ object MarketAPI {
     private val universalFallbacks = listOf("YadioConvert", "Kraken", "Coinbase", "CoinGecko", "Bitstamp")
     
     data class ApiResponse(val body: String?, val code: Int)
-    data class PriceResult(val rateDouble: Double, val formattedRate: String?)
 
     suspend fun fetchPrice(context: Context, currency: String): String? {
         Log.i(TAG, "Fetching Bitcoin price for currency: $currency")
