@@ -335,3 +335,19 @@ it('puts wallet screen commands in File without a Wallet menu', () => {
   expect(groups.map(group => group.id)).toEqual(['category:file']);
   expect(groups[0].children!.map(item => item.id)).toEqual(['header:wallets:scan_qr', 'header:wallets:WalletDetails']);
 });
+
+it('provides distinct ScanQRCode import and photo shortcuts and omits unavailable import', () => {
+  const { items, handlers } = buildHeaderMenu(
+    [
+      { id: 'import_file', text: 'Import File', onPress: jest.fn() },
+      { id: 'choose_photo', text: 'Choose Photo', onPress: jest.fn() },
+    ],
+    'scan',
+  );
+  expect(items[0].shortcut).toEqual({ input: 'i', modifiers: ['command', 'shift'] });
+  expect(items[1].shortcut).toEqual({ input: 'p', modifiers: ['command', 'shift'] });
+  expect(Object.keys(handlers)).toEqual(['header:scan:import_file', 'header:scan:choose_photo']);
+  const hidden = buildHeaderMenu([{ id: 'import_file', text: 'Import File', hidden: true, onPress: jest.fn() }], 'scan');
+  expect(hidden.items).toEqual([]);
+  expect(hidden.handlers).toEqual({});
+});

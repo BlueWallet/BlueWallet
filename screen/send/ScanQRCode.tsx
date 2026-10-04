@@ -251,6 +251,51 @@ const ScanQRCode = () => {
     navigation.goBack();
   };
 
+  const filePickerAction = useRef(showFilePicker);
+  const imagePickerAction = useRef(onShowImagePickerButtonPress);
+  const dismissAction = useRef(dismiss);
+  filePickerAction.current = showFilePicker;
+  imagePickerAction.current = onShowImagePickerButtonPress;
+  dismissAction.current = dismiss;
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerMenuActions: [
+        ...(cameraStatusGranted === false
+          ? [
+              {
+                id: 'open_camera_settings',
+                text: loc.send.open_settings,
+                image: 'gearshape',
+                onPress: openPrivacyDesktopSettings,
+              },
+            ]
+          : []),
+        ...(showFileImportButton
+          ? [
+              {
+                id: 'import_file',
+                text: loc.wallets.import_file,
+                image: 'doc',
+                onPress: () => filePickerAction.current(),
+              },
+            ]
+          : []),
+        {
+          id: 'choose_photo',
+          text: loc.wallets.list_long_choose,
+          image: 'photo',
+          onPress: () => imagePickerAction.current(),
+        },
+      ],
+      headerMenuCloseAction: {
+        id: 'NavigationCloseButton',
+        text: loc._.close,
+        onPress: () => dismissAction.current(),
+      },
+    });
+  }, [cameraStatusGranted, navigation, showFileImportButton]);
+
   const handleReadCode = (event: any) => {
     onBarCodeRead({ data: event?.nativeEvent?.codeStringValue });
   };
