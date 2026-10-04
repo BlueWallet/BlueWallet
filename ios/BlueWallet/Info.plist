@@ -11,6 +11,75 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>af</string>
+		<string>am</string>
+		<string>ar</string>
+		<string>az</string>
+		<string>be</string>
+		<string>bg</string>
+		<string>bn</string>
+		<string>bqi</string>
+		<string>ca</string>
+		<string>cs</string>
+		<string>cy</string>
+		<string>de</string>
+		<string>el</string>
+		<string>en</string>
+		<string>es</string>
+		<string>es-419</string>
+		<string>et</string>
+		<string>eu</string>
+		<string>fa</string>
+		<string>ff</string>
+		<string>fi</string>
+		<string>fo</string>
+		<string>fr</string>
+		<string>gn</string>
+		<string>hak</string>
+		<string>he</string>
+		<string>hi</string>
+		<string>hr</string>
+		<string>hu</string>
+		<string>hy</string>
+		<string>id</string>
+		<string>it</string>
+		<string>ja</string>
+		<string>ka</string>
+		<string>kk</string>
+		<string>km</string>
+		<string>kn</string>
+		<string>ko</string>
+		<string>lrc</string>
+		<string>lv</string>
+		<string>ms</string>
+		<string>nb</string>
+		<string>ne</string>
+		<string>pa</string>
+		<string>pl</string>
+		<string>pt-BR</string>
+		<string>pt-PT</string>
+		<string>ro</string>
+		<string>ru</string>
+		<string>si</string>
+		<string>sk</string>
+		<string>sl</string>
+		<string>sq</string>
+		<string>sr</string>
+		<string>st</string>
+		<string>sv</string>
+		<string>sw</string>
+		<string>th</string>
+		<string>tr</string>
+		<string>uk</string>
+		<string>ur</string>
+		<string>vi</string>
+		<string>xh</string>
+		<string>zh-Hans</string>
+		<string>zh-Hant</string>
+		<string>zu</string>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>BlueWallet</string>
 	<key>CFBundleDocumentTypes</key>
