@@ -13,11 +13,19 @@ import * as RNLocalize from 'react-native-localize';
 import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages, LangCode } from './languages';
+import {
+  DEVICE_LOCALE_FINGERPRINT_KEY,
+  executeLanguageBootstrap,
+  fingerprintFromLocales,
+  LANG_USER_OVERRIDE_KEY,
+  notifyLanguageChanged,
+  STORAGE_KEY,
+} from './languageSync';
 import { resolveLangCodeFromRnLocales } from './resolveDeviceLangCode';
 import enJson from './en.json';
 
-export const STORAGE_KEY = 'lang';
-export const LANG_USER_OVERRIDE_KEY = 'langUserOverride';
+export { DEVICE_LOCALE_FINGERPRINT_KEY, LANGUAGE_CHANGED_EVENT, LANG_USER_OVERRIDE_KEY, STORAGE_KEY } from './languageSync';
+export { decideLaunchLanguage, executeLanguageBootstrap, fingerprintFromLocales, notifyLanguageChanged } from './languageSync';
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
@@ -380,37 +388,30 @@ const applyDeviceLanguage = async () => {
   await saveLanguage(mapped);
 };
 
-// Fire-and-forget; `loc` starts as `{en}` until this resolves, so synchronous reads on a cold launch with non-en saved preference render English briefly.
-const init = async () => {
-  const userOverride = await AsyncStorage.getItem(LANG_USER_OVERRIDE_KEY);
-  const stored = await AsyncStorage.getItem(STORAGE_KEY);
-  if (userOverride === '1' && stored) {
-    await applyLanguageSideEffects(stored);
+const syncDeviceLanguageIfNeeded = async () => {
+  const currentFingerprint = fingerprintFromLocales(RNLocalize.getLocales());
+  const persistedFingerprint = await AsyncStorage.getItem(DEVICE_LOCALE_FINGERPRINT_KEY);
+  if (currentFingerprint === persistedFingerprint) {
     return;
   }
+  await AsyncStorage.setItem(DEVICE_LOCALE_FINGERPRINT_KEY, currentFingerprint);
   await applyDeviceLanguage();
+};
+
+// Fire-and-forget; `loc` starts as `{en}` until this resolves, so synchronous reads on a cold launch with non-en saved preference render English briefly.
+const init = async () => {
+  await executeLanguageBootstrap({
+    getLocales: () => RNLocalize.getLocales(),
+    getItem: key => AsyncStorage.getItem(key),
+    setItem: (key, value) => AsyncStorage.setItem(key, value),
+    removeItem: key => AsyncStorage.removeItem(key),
+    applyLanguage: lang => saveLanguage(lang),
+  });
 };
 
 init();
 
-let lastDeviceLocaleFingerprint = '';
-
-const getDeviceLocaleFingerprint = (): string =>
-  RNLocalize.getLocales()
-    .map(locale => locale.languageTag ?? locale.languageCode)
-    .join('|');
-
-const syncDeviceLanguageIfNeeded = async () => {
-  const fingerprint = getDeviceLocaleFingerprint();
-  if (fingerprint === lastDeviceLocaleFingerprint) {
-    return;
-  }
-  lastDeviceLocaleFingerprint = fingerprint;
-  await applyDeviceLanguage();
-};
-
 if (process.env.JEST_WORKER_ID === undefined) {
-  lastDeviceLocaleFingerprint = getDeviceLocaleFingerprint();
   AppState.addEventListener('change', nextState => {
     if (nextState === 'active') {
       syncDeviceLanguageIfNeeded().catch(console.error);
@@ -424,6 +425,7 @@ export const saveLanguage = async (lang: string, options?: { userSelected?: bool
     await AsyncStorage.setItem(LANG_USER_OVERRIDE_KEY, '1');
   }
   await applyLanguageSideEffects(lang);
+  notifyLanguageChanged(lang);
 };
 
 export { resolveLangCodeFromRnLocale, resolveLangCodeFromRnLocales } from './resolveDeviceLangCode';

@@ -4,7 +4,7 @@ import { isReadClipboardAllowed, setReadClipboardAllowed } from '../../blue_modu
 import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon, setPreferredCurrency } from '../../blue_modules/currency';
 import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import { BlueApp } from '../../class/blue-app';
-import { saveLanguage, STORAGE_KEY } from '../../loc';
+import { LANGUAGE_CHANGED_EVENT, saveLanguage, STORAGE_KEY } from '../../loc';
 import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
 import {
   getEnabled as getIsDeviceQuickActionsEnabled,
@@ -18,6 +18,7 @@ import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer,
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DeviceEventEmitter } from 'react-native';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -207,6 +208,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   }, []);
 
   useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener(LANGUAGE_CHANGED_EVENT, (lang: string) => {
+      setLanguage(lang);
+    });
+    return () => subscription.remove();
+  }, []);
+
+  useEffect(() => {
     initCurrencyDaemon()
       .then(getPreferredCurrency)
       .then(currency => {
@@ -240,7 +248,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const setLanguageStorage = useCallback(async (newLanguage: string): Promise<void> => {
     try {
       await saveLanguage(newLanguage, { userSelected: true });
-      setLanguage(newLanguage);
     } catch (e) {
       console.error('Error setting language:', e);
     }
