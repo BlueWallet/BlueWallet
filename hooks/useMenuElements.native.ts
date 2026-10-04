@@ -9,8 +9,61 @@ import { navigationRef, navigateToWalletsList } from '../NavigationService';
 
 const handlerRegistry = new Map<string, Map<symbol, MenuActionHandlers>>();
 const headerRegistry = new Map<string, Map<symbol, ReturnType<typeof buildHeaderMenu>>>();
+type RecentRoute = { key: string; name: string; params?: object };
+type RecentScreen = { id: string; title: string; path: RecentRoute[] };
+const recentScreens: RecentScreen[] = [];
+const transientScreens = new Set(['UnlockWithScreen', 'ScanQRCode', 'Success', 'ClipboardDetected', 'KeyboardShortcuts']);
+const navigationContainers = new Set(['Drawer', 'DrawerRoot', 'MainRoot']);
+const isNavigationContainer = (name: string) => navigationContainers.has(name) || /Stack$/.test(name);
 let consumers = 0;
 let dispose: (() => void) | undefined;
+
+function activeRoutePath(): RecentRoute[] {
+  const path: RecentRoute[] = [];
+  let state: any = navigationRef.isReady() ? navigationRef.getRootState() : undefined;
+  while (state?.routes?.length) {
+    const route = state.routes[state.index ?? 0];
+    if (!route) break;
+    path.push({ key: route.key, name: route.name, params: route.params });
+    state = route.state;
+  }
+  const current = navigationRef.getCurrentRoute();
+  if (current && path.at(-1)?.key !== current.key) {
+    path.push({ key: current.key, name: current.name, params: current.params });
+  }
+  return path;
+}
+
+export function resetRecentScreens() {
+  recentScreens.length = 0;
+}
+
+function screenTitle(name: string) {
+  return name
+    .replace(/Root$|Stack$/g, '')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .trim();
+}
+
+function recordCurrentScreen() {
+  const path = activeRoutePath();
+  const route = path.at(-1);
+  if (!route || transientScreens.has(route.name) || isNavigationContainer(route.name)) return;
+  const existing = recentScreens.findIndex(screen => screen.id === route.key);
+  if (existing >= 0) recentScreens.splice(existing, 1);
+  recentScreens.unshift({ id: route.key, title: screenTitle(route.name), path });
+  recentScreens.splice(10);
+}
+
+function openRecentScreen(path: RecentRoute[]) {
+  const leaf = path.at(-1);
+  if (!leaf) return;
+  let destination: { name: string; params?: object } = { name: leaf.name, params: leaf.params };
+  for (let index = path.length - 2; index >= 0; index--) {
+    destination = { name: path[index].name, params: { screen: destination.name, params: destination.params } };
+  }
+  navigationRef.dispatch(CommonActions.navigate(destination));
+}
 
 export function getHeaderMenuEntries(header: { items?: ReturnType<typeof buildHeaderMenu>['items'] } | undefined) {
   return Array.isArray(header?.items) ? header.items : [];
@@ -27,9 +80,15 @@ function currentContext() {
   // MainRoot registers DrawerRoot only after storage has been unlocked.
   const unlocked = !!root?.routeNames.includes('DrawerRoot') && root.routes[root.index]?.name !== 'UnlockWithScreen';
   const handlers: MenuActionHandlers = Object.assign({}, ...(route ? (handlerRegistry.get(route.key)?.values() ?? []) : []));
-  const header = route ? [...(headerRegistry.get(route.key)?.values() ?? [])].at(-1) : undefined;
+  const headers = route ? [...(headerRegistry.get(route.key)?.values() ?? [])] : [];
+  const header = headers.length
+    ? {
+        items: [...new Map(headers.flatMap(entry => entry.items.map(item => [item.id, item] as const))).values()],
+        handlers: Object.assign({}, ...headers.map(entry => entry.handlers)),
+      }
+    : undefined;
   const headerItems = getHeaderMenuEntries(header);
-  const headerHandlers = getHeaderMenuHandlers(header);
+  const headerHandlers = { ...getHeaderMenuHandlers(header) };
   const actions = availableMenuActions(route?.name, Object.keys(handlers) as ScreenMenuAction[], unlocked);
   const migratedCommands = {
     AddWalletButton: 'addWallet',
@@ -44,6 +103,24 @@ function currentContext() {
         ([id, action]) => item.id.endsWith(`:${id}`) && (Platform.OS === 'ios' || isTablet || isDesktop || actions.includes(action)),
       ),
   );
+  if (!transientScreens.has(route?.name ?? '') && recentScreens.length > 0) {
+    const recent = buildHeaderMenu(
+      [
+        {
+          id: 'open_recent',
+          text: 'Open Recent',
+          subactions: recentScreens.map(screen => ({
+            id: `open_recent_${screen.id}`,
+            text: screen.title,
+            onPress: () => openRecentScreen(screen.path),
+          })),
+        },
+      ],
+      'recent',
+    );
+    items.push(...recent.items);
+    Object.assign(headerHandlers, recent.handlers);
+  }
 
   return {
     header: unlocked && header ? { ...header, items: groupHeaderMenu(items, route?.name ?? '') } : undefined,
@@ -54,6 +131,7 @@ function currentContext() {
 }
 
 function syncMenu() {
+  recordCurrentScreen();
   const { actions, header } = currentContext();
   MenuElementsEmitter?.setAvailableActions(actions);
   MenuElementsEmitter?.setHeaderMenu(JSON.stringify(header?.items ?? []));

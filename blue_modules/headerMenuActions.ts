@@ -178,7 +178,7 @@ export function groupHeaderMenu(items: NativeHeaderMenuEntry[], screenName: stri
                 'clearClipboard',
               ].includes(id)
             ? 'edit'
-            : ['share', 'saveFile', 'ExportTransaction', 'NavigationCloseButton'].includes(id)
+            : ['share', 'saveFile', 'ExportTransaction', 'NavigationCloseButton', 'open_recent'].includes(id)
               ? 'file'
               : ['hideBalance', 'hide', 'viewInBitcoin', 'viewInSats', 'viewInFiat'].includes(id)
                 ? 'view'

@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react-native';
-import useMenuElements from '../../hooks/useMenuElements.native';
+import useMenuElements, { resetRecentScreens } from '../../hooks/useMenuElements.native';
 import MenuElementsEmitter from '../../blue_modules/NativeMenuElementsEmitter';
 import { navigationRef, navigateToWalletsList } from '../../NavigationService';
 import type { MenuActionHandlers } from '../../blue_modules/menuActions';
@@ -40,6 +40,7 @@ const notifyNavigation = (type: 'ready' | 'state') => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  resetRecentScreens();
   jest.mocked(navigationRef.isReady).mockReturnValue(true);
   jest.mocked(navigationRef.getRootState).mockReturnValue({
     stale: false,
@@ -53,7 +54,8 @@ beforeEach(() => {
 });
 
 it('treats missing native header metadata as an empty menu without throwing', () => {
-  const { getHeaderMenuEntries, getHeaderMenuHandlers } = require('../../hooks/useMenuElements.native') as typeof import('../../hooks/useMenuElements.native');
+  const { getHeaderMenuEntries, getHeaderMenuHandlers } =
+    require('../../hooks/useMenuElements.native') as typeof import('../../hooks/useMenuElements.native');
   expect(getHeaderMenuEntries(undefined)).toEqual([]);
   expect(getHeaderMenuEntries({} as any)).toEqual([]);
   expect(getHeaderMenuHandlers(undefined)).toEqual({});
@@ -169,6 +171,19 @@ it('keeps newer registrations when an older owner cleans up and routes Back to W
   hook.unmount();
 });
 
+it('reopens a screen selected from the actual navigation history', () => {
+  const hook = renderHook(useMenuElements);
+  emit('header:recent:open_recent_wallet-1');
+  expect(navigationRef.dispatch).toHaveBeenCalledWith({
+    type: 'NAVIGATE',
+    payload: {
+      name: 'DrawerRoot',
+      params: { screen: 'WalletTransactions', params: undefined },
+    },
+  });
+  hook.unmount();
+});
+
 it('dispatches dynamic header menus only for the active unlocked route and drops disabled actions', () => {
   setRoute('CoinControl', 'coin-1');
   const hook = renderHook(useMenuElements);
@@ -184,7 +199,11 @@ it('dispatches dynamic header menus only for the active unlocked route and drops
       'coin-1',
     );
   });
-  expect(JSON.parse(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0])).toHaveLength(2);
+  expect(
+    JSON.parse(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]).filter(
+      (item: { id: string }) => item.id !== 'category:file',
+    ),
+  ).toHaveLength(2);
   emit('header:coin-1:sort');
   emit('header:coin-1:done');
   expect(sort).toHaveBeenCalledTimes(1);
@@ -217,8 +236,9 @@ it('keeps commands already present in the system menu from appearing twice', () 
     );
   });
   const items = JSON.parse(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]);
-  expect(items[0].title).toBe('Wallet');
-  expect(items[0].children.map((item: { title: string }) => item.title)).toEqual(['Custom']);
+  const wallet = items.find((item: { id: string }) => item.id === 'category:wallet');
+  expect(wallet.title).toBe('Wallet');
+  expect(wallet.children.map((item: { title: string }) => item.title)).toEqual(['Custom']);
   act(unregister);
   hook.unmount();
 });
@@ -229,12 +249,58 @@ it('does not duplicate Wallet Details while the stable system command is disable
   let unregister!: () => void;
   act(() => {
     unregister = hook.result.current.registerHeaderMenu(
-      [{ id: 'WalletDetails', text: 'Wallet Details', disabled: true, onPress: jest.fn() }],
+      [
+        {
+          id: 'WalletDetails',
+          text: 'Wallet Details',
+          disabled: true,
+          onPress: jest.fn(),
+        },
+      ],
       'wallet',
     );
   });
-  expect(MenuElementsEmitter!.setHeaderMenu).toHaveBeenLastCalledWith('[]');
+  const items = JSON.parse(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]);
+  expect(items).toHaveLength(1);
+  expect(items[0].children[0].title).toBe('Open Recent');
   expect(jest.mocked(MenuElementsEmitter!.setAvailableActions).mock.lastCall![0]).not.toContain('walletDetails');
   act(unregister);
+  hook.unmount();
+});
+
+it.each(['Drawer', 'DrawerRoot', 'DetailViewStackScreensStack'])('excludes navigation container %s from Open Recent', name => {
+  setRoute(name, 'container');
+  const hook = renderHook(useMenuElements);
+  let unregister!: () => void;
+  act(() => {
+    unregister = hook.result.current.registerHeaderMenu([], 'container');
+  });
+  expect(MenuElementsEmitter!.setHeaderMenu).toHaveBeenLastCalledWith('[]');
+  act(unregister);
+  hook.unmount();
+});
+
+it('combines WalletsList Scan with stack menu entries and scopes its handler to the screen', () => {
+  setRoute('WalletsList', 'wallets');
+  const hook = renderHook(useMenuElements);
+  const scan = jest.fn();
+  let removeStack!: () => void;
+  let removeScan!: () => void;
+  act(() => {
+    removeStack = hook.result.current.registerHeaderMenu([{ id: 'existing', text: 'Existing', onPress: jest.fn() }], 'wallets');
+    removeScan = hook.result.current.registerHeaderMenu([{ id: 'scan_qr', text: 'Scan', onPress: scan }], 'wallets');
+  });
+  const entries = JSON.stringify(JSON.parse(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]));
+  expect(entries).toContain('header:wallets:existing');
+  expect(entries).toContain('header:wallets:scan_qr');
+  emit('header:wallets:scan_qr');
+  expect(scan).toHaveBeenCalledTimes(1);
+  setRoute('Settings', 'settings');
+  emit('header:wallets:scan_qr');
+  expect(scan).toHaveBeenCalledTimes(1);
+  act(() => {
+    removeScan();
+    removeStack();
+  });
   hook.unmount();
 });
