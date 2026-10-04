@@ -31,7 +31,12 @@ const CopyBox: React.FC<{ text: string; onPress: () => void }> = ({ text, onPres
   });
 
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [pressed && styles.pressed, styles.copyRoot, stylesHook.copyRoot]}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${loc.transactions.details_copy}: ${text}`}
+      onPress={onPress}
+      style={({ pressed }) => [pressed && styles.pressed, styles.copyRoot, stylesHook.copyRoot]}
+    >
       <View style={styles.copyLeft}>
         <BlueText textBreakStrategy="balanced" style={styles.copyText}>
           {text}

@@ -85,7 +85,12 @@ const LnurlAuth = () => {
   const renderWalletSelectionButton = authState === AuthState.USER_PROMPT && (
     <View style={styles.walletSelectRoot}>
       {authState !== AuthState.IN_PROGRESS && (
-        <TouchableOpacity accessibilityRole="button" style={styles.walletSelectTouch} onPress={showSelectWalletScreen}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={loc.wallets.select_wallet}
+          style={styles.walletSelectTouch}
+          onPress={showSelectWalletScreen}
+        >
           <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
           <Icon name={direction === 'rtl' ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
         </TouchableOpacity>

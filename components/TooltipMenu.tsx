@@ -95,6 +95,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
       <View
         style={visibleStyle}
         testID={testID}
+        accessible={Boolean(accessibilityLabel || accessibilityHint || accessibilityRole)}
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
         accessibilityRole={accessibilityRole}

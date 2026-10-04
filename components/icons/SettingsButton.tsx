@@ -34,7 +34,7 @@ const SettingsButton = () => {
       onPress={onPress}
       buttonStyle={[style.buttonStyle, { backgroundColor: colors.lightButton }]}
       accessibilityRole="button"
-      accessibilityLabel={loc.settings.default_title}
+      accessibilityLabel={loc.settings.header}
       testID="SettingsButton"
       onPressMenuItem={onPressMenuItem}
       actions={actions}

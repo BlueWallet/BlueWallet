@@ -80,6 +80,7 @@ const WalletButton: React.FC<WalletButtonProps> = ({ buttonType, testID, onPress
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ selected: active }}
       testID={testID}
       onPress={onPress}
       style={({ pressed }) => [pressed && styles.pressed, styles.touchable]}

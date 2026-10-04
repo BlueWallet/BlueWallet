@@ -73,10 +73,16 @@ export const SettingsListItem: React.FC<ListItemProps & { iconName?: SettingsIco
   iconName,
   containerStyle,
   leftAvatar,
+  title,
+  subtitle,
+  accessibilityLabel,
   ...rest
 }) => (
   <ListItem
     {...rest}
+    title={title}
+    subtitle={subtitle}
+    accessibilityLabel={accessibilityLabel ?? [title, typeof subtitle === 'string' ? subtitle : undefined].filter(Boolean).join(', ')}
     containerStyle={[styles.transparentBackground, containerStyle]}
     leftAvatar={iconName ? <SettingsIcon name={iconName} /> : leftAvatar}
   />
