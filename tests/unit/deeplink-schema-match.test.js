@@ -10,6 +10,39 @@ jest.mock('../../blue_modules/BlueElectrum', () => {
   };
 });
 
+describe('Platform search deep links', () => {
+  const wallet = {
+    getID: () => 'wallet id',
+    type: 'HDsegwitBech32',
+  };
+  const context = {
+    wallets: [wallet],
+    saveToDisk: jest.fn(),
+    addWallet: jest.fn(),
+    setSharedCosigner: jest.fn(),
+  };
+
+  it.each([
+    ['wallet', 'bluewallet://wallet/wallet%20id', 'WalletTransactions', { walletID: 'wallet id', walletType: wallet.type }],
+    [
+      'transaction',
+      'bluewallet://transaction?walletID=wallet%20id&txid=abc123',
+      'TransactionStatus',
+      { hash: 'abc123', walletID: 'wallet id' },
+    ],
+    ['contact', 'bluewallet://contact?paymentCode=PM8test', 'PaymentCodeList', { paymentCode: 'PM8test' }],
+  ])('opens a %s result', (_kind, url, screen, params, done) => {
+    DeeplinkSchemaMatch.navigationRouteFor(
+      { url },
+      route => {
+        expect(route).toEqual(['DrawerRoot', { screen: 'DetailViewStackScreensStack', params: { screen, params } }]);
+        done();
+      },
+      context,
+    );
+  });
+});
+
 // helper function that promisifies function with a callback:
 const asyncNavigationRouteFor = async function (event) {
   return new Promise(function (resolve) {
