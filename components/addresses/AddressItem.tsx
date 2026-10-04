@@ -27,6 +27,7 @@ interface AddressItemProps {
   allowSignVerifyMessage: boolean;
   onPress?: () => void; // example: ManageWallets uses this
   searchQuery?: string;
+  showWalletDetails?: boolean;
   renderHighlightedText?: (text: string, query: string) => React.ReactElement;
 }
 
@@ -39,6 +40,7 @@ const AddressItem = ({
   allowSignVerifyMessage,
   onPress,
   searchQuery = '',
+  showWalletDetails = true,
   renderHighlightedText,
 }: AddressItemProps) => {
   const { wallets, addressMetadata } = useStorage();
@@ -139,7 +141,9 @@ const AddressItem = ({
     try {
       const wif = wallet._getWIFbyAddress(item.address);
       if (!wif) {
-        presentAlert({ message: 'Internal error: cant get WIF from the wallet' });
+        presentAlert({
+          message: 'Internal error: cant get WIF from the wallet',
+        });
         return;
       }
       triggerHapticFeedback(HapticFeedbackTypes.Selection);
@@ -215,14 +219,16 @@ const AddressItem = ({
             <Text style={[stylesHook.balance, styles.balance]}>{balance}</Text>
           </View>
         </View>
-        <View style={styles.rightContainer}>
+        <View style={showWalletDetails || addressLabel ? styles.rightContainer : undefined}>
           <View style={styles.badgesRow}>
-            <AddressTypeBadge isInternal={item.isInternal} hasTransactions={hasTransactions} />
+            {showWalletDetails && <AddressTypeBadge isInternal={item.isInternal} hasTransactions={hasTransactions} />}
             {addressLabel ? <AddressLabelBadge label={addressLabel} style={styles.labelBadge} /> : null}
           </View>
-          <Text style={[stylesHook.balance, styles.balance]}>
-            {loc.addresses.transactions}: {item.transactions ?? 0}
-          </Text>
+          {showWalletDetails && (
+            <Text style={[stylesHook.balance, styles.balance]}>
+              {loc.addresses.transactions}: {item.transactions ?? 0}
+            </Text>
+          )}
         </View>
       </View>
     </ToolTipMenu>
