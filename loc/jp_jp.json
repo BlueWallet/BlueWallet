@@ -374,7 +374,6 @@
     "onchain": "オンチェーン",
     "details_to": "送り先",
     "enable_offline_signing": "このウォレットではオフライン署名が使われていません。今すぐ有効にしますか？",
-    "list_conf": "コンファメーション: {number}",
     "pending": "保留中",
     "pending_with_amount": "保留中 {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

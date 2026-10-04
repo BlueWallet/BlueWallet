@@ -1,29 +1,13 @@
 import { useCallback } from 'react';
+import type { MenuActionHandlers } from '../blue_modules/menuActions';
 
-type MenuActionHandler = () => void;
-
-interface MenuElementsHook {
-  registerTransactionsHandler: (handler: MenuActionHandler, screenKey?: string) => boolean;
-  unregisterTransactionsHandler: (screenKey: string) => void;
-  isMenuElementsSupported: boolean;
-}
-
-// Default implementation for platforms other than iOS
-const useMenuElements = (): MenuElementsHook => {
-  const registerTransactionsHandler = useCallback((_handler: MenuActionHandler, _screenKey?: string): boolean => {
-    // Non-functional stub for non-iOS platforms
-    return false;
-  }, []);
-
-  const unregisterTransactionsHandler = useCallback((_screenKey: string): void => {
-    // No-op for non-supported platforms
-  }, []);
-
-  return {
-    registerTransactionsHandler,
-    unregisterTransactionsHandler,
-    isMenuElementsSupported: false, // Not supported on platforms other than iOS
-  };
+// Platforms without a native menu module.
+const useMenuElements = () => {
+  const registerMenuActions = useCallback(
+    (_handlers: MenuActionHandlers, _screenKey: string): (() => void) =>
+      () => {},
+    [],
+  );
+  return { registerMenuActions, isMenuElementsSupported: false };
 };
-
 export default useMenuElements;

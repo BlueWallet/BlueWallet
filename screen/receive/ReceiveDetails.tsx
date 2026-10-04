@@ -1,3 +1,5 @@
+import Clipboard from '@react-native-clipboard/clipboard';
+import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -202,6 +204,15 @@ const ReceiveDetails = () => {
   });
 
   const copyRef = useRef<CopyTextToClipboardHandle>(null);
+  useScreenMenuActions({
+    copyAddress:
+      showAddress && currentTab === segmentControlValues[0] && !!address
+        ? () => {
+            Clipboard.setString(address);
+            triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+          }
+        : undefined,
+  });
   const scrollLayoutRef = useRef({ width: 0, height: 0 });
   const pressScale = useSharedValue(1);
   const pressAnimatedStyle = useAnimatedStyle(() => ({

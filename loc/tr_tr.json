@@ -361,7 +361,6 @@
     "onchain": "Zincir üstü",
     "details_to": "Çıktı",
     "enable_offline_signing": "Bu cüzdan çevrimdışı imzalama ile birlikte kullanılmıyor. Şimdi etkinleştirmek ister misiniz?",
-    "list_conf": "Onay: {number}",
     "pending": "Beklemede",
     "pending_with_amount": "Beklemede {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

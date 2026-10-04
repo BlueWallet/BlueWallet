@@ -361,7 +361,6 @@
     "onchain": "Onchain",
     "details_to": "Til",
     "enable_offline_signing": "Denne wallet bruges ikke sammen med offline-signering. Vil du aktivere det nu?",
-    "list_conf": "Bekr.: {number}",
     "pending": "Afventende",
     "pending_with_amount": "Afventende {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

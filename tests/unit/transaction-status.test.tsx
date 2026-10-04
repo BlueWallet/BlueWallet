@@ -39,19 +39,20 @@ jest.mock('../../hooks/useWalletSubscribe', () => ({
   default: () => mockWalletSubscribe,
 }));
 
-let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet' };
+let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet', key: 'transaction-status-test' };
 
 jest.mock('@react-navigation/native', () => {
   const actual = jest.requireActual('@react-navigation/native');
   return {
     ...actual,
-    useRoute: () => ({ params: routeParams }),
+    useRoute: () => ({ params: routeParams, key: routeParams.key }),
     useNavigation: () => ({
       navigate: jest.fn(),
       setOptions: jest.fn(),
       goBack: jest.fn(),
       addListener: jest.fn(),
     }),
+    useFocusEffect: (effect: () => void | (() => void)) => effect(),
   };
 });
 
@@ -488,5 +489,33 @@ describe('TransactionStatus regression', () => {
 
     expect(BlueElectrum.getConfirmedBlockHeight).not.toHaveBeenCalled();
     expect(BlueElectrum.getBlockTimestamps).not.toHaveBeenCalled();
+  });
+
+  it('opens mempool.space when an unconfirmed tx cannot be sped up in-app', async () => {
+    const { Linking } = require('react-native');
+    const openURL = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+
+    const walletMock = {
+      getID: () => 'mock-wallet',
+      getTransactions: jest.fn(() => [{ ...mockTxBase, confirmations: 0 }]),
+      getLastTxFetch: jest.fn(() => 1000),
+      allowRBF: jest.fn(() => false),
+      preferredBalanceUnit: 'BTC',
+      type: 'watchOnly',
+    } as any;
+    mockStorageState = { ...mockStorageState, wallets: [walletMock] };
+    mockWalletSubscribe = walletMock;
+
+    const view = render(<TransactionStatus />);
+
+    await waitFor(() => {
+      expect(view.getByText('Pending')).toBeTruthy();
+      expect(view.getByText('Bump Fee')).toBeTruthy();
+    });
+
+    fireEvent.press(view.getByText('Bump Fee'));
+
+    expect(openURL).toHaveBeenCalledWith('https://mempool.space/tx/mock-tx#accelerate&partnerCode=bluewallet');
+    openURL.mockRestore();
   });
 });

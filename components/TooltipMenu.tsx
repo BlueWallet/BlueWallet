@@ -64,6 +64,10 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
 
   const buttonShellStyle: StyleProp<ViewStyle> = isButton ? styles.button : undefined;
   const visibleStyle = StyleSheet.flatten([buttonShellStyle, style, buttonStyle]);
+  // Compact buttons shrink-wrap. A full-width row must stretch: shrink-wrapping a
+  // `flex: 1` child collapses it, which hides the address and leaves only the badge column.
+  const fillsWidth = visibleStyle?.width === '100%' || visibleStyle?.alignSelf === 'stretch';
+  const contextMenuStyle = !wrapInPressable ? visibleStyle : isButton && !fillsWidth ? styles.menuButtonInner : styles.menuFlex;
 
   const menu = (
     <ContextMenu
@@ -72,7 +76,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
       onPress={handlePressMenuItem}
       actions={items}
       dropdownMenuMode={!shouldOpenOnLongPress}
-      style={wrapInPressable ? (isButton ? styles.menuButtonInner : styles.menuFlex) : visibleStyle}
+      style={contextMenuStyle}
     >
       {children}
     </ContextMenu>
