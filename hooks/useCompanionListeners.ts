@@ -26,6 +26,7 @@ import useWidgetCommunication from './useWidgetCommunication';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
+import { isPlatformSearchDeepLink, popPendingPlatformSearchURL } from '../blue_modules/NativePlatformSearch';
 import useClipboardDetection from './useClipboardDetection';
 
 /**
@@ -308,6 +309,9 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             saveToDisk,
             setSharedCosigner,
           });
+          if (isPlatformSearchDeepLink(event.url)) {
+            popPendingPlatformSearchURL().catch(error => console.debug('[PlatformSearch] Unable to clear pending URL:', error));
+          }
         }
       } catch (err: any) {
         console.error('Error in handleOpenURL:', err);
