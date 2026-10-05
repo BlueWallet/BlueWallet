@@ -1181,8 +1181,12 @@ const SendDetails = () => {
     const walletActions: Action[][] = [];
 
     const recipientActions: Action[] = [
-      { id: 'PreviousRecipient', text: loc.send.previous_recipient, disabled: isLoading || recipientIndex <= 0 || addresses.length < 2 },
-      { id: 'NextRecipient', text: loc.send.next_recipient, disabled: isLoading || recipientIndex >= addresses.length - 1 },
+      {
+        id: 'PreviousRecipient',
+        text: `< ${loc.send.previous_recipient}`,
+        disabled: isLoading || recipientIndex <= 0 || addresses.length < 2,
+      },
+      { id: 'NextRecipient', text: `${loc.send.next_recipient} >`, disabled: isLoading || recipientIndex >= addresses.length - 1 },
       CommonToolTipActions.AddRecipient,
       {
         ...CommonToolTipActions.RemoveRecipient,
