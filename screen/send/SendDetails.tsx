@@ -111,6 +111,7 @@ const SendDetails = () => {
     [],
   );
   const scrollIndex = useRef(0);
+  const [recipientIndex, setRecipientIndex] = useState(0);
   /** Used so we only clear coin-selection (utxos) when the user switches wallet, not on first mount (e.g. Send opened from wallet details with pre-selected UTXOs). */
   const prevWalletIdForCoinResetRef = useRef<string | null>(null);
   const { colors } = useTheme();
@@ -980,11 +981,24 @@ const SendDetails = () => {
     handlePsbtSign,
   ]);
 
+  const moveRecipient = useCallback(
+    (step: number) => {
+      if (isLoading || addresses.length < 2) return;
+      const index = Math.max(0, Math.min(addresses.length - 1, scrollIndex.current + step));
+      scrollIndex.current = index;
+      setRecipientIndex(index);
+      // Immediate paging keeps repeated shortcuts in sync with the displayed recipient.
+      scrollView.current?.scrollToIndex({ index, animated: false });
+    },
+    [addresses.length, isLoading],
+  );
+
   const handleAddRecipient = useCallback(() => {
     // Check if any recipient is incomplete (missing address or amount)
     const incompleteIndex = addresses.findIndex(item => !item.address || !item.amount);
     if (incompleteIndex !== -1) {
       scrollIndex.current = incompleteIndex;
+      setRecipientIndex(incompleteIndex);
       scrollView.current?.scrollToIndex({ index: incompleteIndex, animated: true });
       presentAlert({
         title: loc.send.please_complete_recipient_title,
@@ -997,6 +1011,7 @@ const SendDetails = () => {
     // Wait for the state to update before scrolling
     setTimeout(() => {
       scrollIndex.current = addresses.length; // New index at the end
+      setRecipientIndex(addresses.length);
       scrollView.current?.scrollToIndex({
         index: scrollIndex.current,
         animated: true,
@@ -1006,6 +1021,7 @@ const SendDetails = () => {
 
   const onRemoveAllRecipientsConfirmed = useCallback(() => {
     scrollIndex.current = 0;
+    setRecipientIndex(0);
     setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]);
     setTimeout(() => {
       scrollView.current?.scrollToOffset({ offset: 0, animated: false });
@@ -1050,6 +1066,7 @@ const SendDetails = () => {
 
       // Update the scroll index reference
       scrollIndex.current = newIndex;
+      setRecipientIndex(newIndex);
     }
   }, [addresses]);
 
@@ -1106,7 +1123,11 @@ const SendDetails = () => {
   const headerRightOnPress = useCallback(
     (id: string) => {
       Keyboard.dismiss();
-      if (id === CommonToolTipActions.AddRecipient.id) {
+      if (id === 'PreviousRecipient') {
+        moveRecipient(-1);
+      } else if (id === 'NextRecipient') {
+        moveRecipient(1);
+      } else if (id === CommonToolTipActions.AddRecipient.id) {
         handleAddRecipient();
       } else if (id === CommonToolTipActions.RemoveRecipient.id) {
         handleRemoveRecipient();
@@ -1138,6 +1159,7 @@ const SendDetails = () => {
       }
     },
     [
+      moveRecipient,
       handleAddRecipient,
       handleRemoveRecipient,
       navigateToQRCodeScanner,
@@ -1159,6 +1181,8 @@ const SendDetails = () => {
     const walletActions: Action[][] = [];
 
     const recipientActions: Action[] = [
+      { id: 'PreviousRecipient', text: loc.send.previous_recipient, disabled: isLoading || recipientIndex <= 0 || addresses.length < 2 },
+      { id: 'NextRecipient', text: loc.send.next_recipient, disabled: isLoading || recipientIndex >= addresses.length - 1 },
       CommonToolTipActions.AddRecipient,
       {
         ...CommonToolTipActions.RemoveRecipient,
@@ -1224,7 +1248,7 @@ const SendDetails = () => {
     walletActions.push(specificWalletActions);
 
     return walletActions;
-  }, [addresses, isEditable, wallet, isTransactionReplaceable]);
+  }, [addresses, isEditable, wallet, isTransactionReplaceable, recipientIndex, isLoading]);
 
   const headerRightActionGroups = useMemo(() => headerRightActions(), [headerRightActions]);
 
@@ -1293,8 +1317,10 @@ const SendDetails = () => {
   const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffset = e.nativeEvent.contentOffset;
     const viewSize = e.nativeEvent.layoutMeasurement;
-    const index = Math.floor(contentOffset.x / viewSize.width);
+    if (viewSize.width <= 0) return;
+    const index = Math.max(0, Math.min(addresses.length - 1, Math.round(contentOffset.x / viewSize.width)));
     scrollIndex.current = index;
+    setRecipientIndex(index);
   };
 
   const formatFee = (fee: number) => formatBalance(fee, feeUnit!, true);

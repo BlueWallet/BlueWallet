@@ -33,3 +33,21 @@ it('propagates disabled state and omits hidden commands and their handlers', () 
   expect(menu.items[0].children![0].disabled).toBe(true);
   expect(menu.handlers).toEqual({});
 });
+
+it('groups recipient paging commands with native shortcuts and boundary disabled states', () => {
+  const menu = buildHeaderMenu(
+    [
+      { id: 'PreviousRecipient', text: 'Previous Recipient', disabled: true, onPress: jest.fn() },
+      { id: 'NextRecipient', text: 'Next Recipient', onPress: jest.fn() },
+    ],
+    'send',
+  );
+  const group = groupHeaderMenu(menu.items, 'SendDetails')[0];
+  expect(group.id).toBe('category:recipients');
+  expect(group.children).toMatchObject([
+    { disabled: true, shortcut: { input: '[', modifiers: ['command', 'alternate'] } },
+    { disabled: false, shortcut: { input: ']', modifiers: ['command', 'alternate'] } },
+  ]);
+  expect(menu.handlers['header:send:PreviousRecipient']).toBeUndefined();
+  expect(menu.handlers['header:send:NextRecipient']).toBeDefined();
+});

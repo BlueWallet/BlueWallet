@@ -21,6 +21,8 @@ export const headerMenuShortcuts: Record<string, HeaderMenuShortcut> = {
   edit_address_label: { input: 'l', modifiers: ['command', 'alternate'] },
   view_verify_transaction: { input: 'v', modifiers: ['command', 'alternate'] },
   view_address_qr: { input: 'q', modifiers: ['command', 'alternate'] },
+  PreviousRecipient: { input: '[', modifiers: ['command', 'alternate'] },
+  NextRecipient: { input: ']', modifiers: ['command', 'alternate'] },
   AddRecipient: { input: 'n', modifiers: ['command', 'shift'] },
   insert_contact: { input: 'n', modifiers: ['command', 'alternate'] },
   import_transaction: { input: 'i', modifiers: ['command', 'shift'] },
@@ -44,6 +46,8 @@ export const headerMenuShortcuts: Record<string, HeaderMenuShortcut> = {
 };
 
 export const headerMenuShortcutHelp = () => [
+  { title: loc.send.previous_recipient, key: 'Option+[', where: loc._.menu_recipients },
+  { title: loc.send.next_recipient, key: 'Option+]', where: loc._.menu_recipients },
   { title: loc.receive.details_share, key: 'Shift+S', where: loc._.menu_file },
   { title: loc.transactions.details_copy, key: 'Option+C', where: loc._.menu_edit },
   { title: loc.wallets.import_scan_qr, key: 'Option+I', where: loc._.menu_file },

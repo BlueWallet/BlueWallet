@@ -176,7 +176,7 @@ export function groupHeaderMenu(items: NativeHeaderMenuEntry[], screenName: stri
     children: item.children?.map(preserveNamedParents),
   });
   const commandGroups: Record<string, readonly string[]> = {
-    recipients: ['AddRecipient', 'RemoveRecipient', 'RemoveAllRecipients', 'insert_contact'],
+    recipients: ['PreviousRecipient', 'NextRecipient', 'AddRecipient', 'RemoveRecipient', 'RemoveAllRecipients', 'insert_contact'],
     help: ['MultisigHelp', 'moreInfo'],
     edit: [
       'copyTX_ID',

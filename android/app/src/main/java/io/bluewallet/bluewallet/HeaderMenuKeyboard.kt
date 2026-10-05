@@ -16,6 +16,8 @@ internal data class HeaderMenuShortcut(
             val input = shortcut.optString("input").singleOrNull() ?: return null
             val keyCode = when (input) {
                 '\r' -> KeyEvent.KEYCODE_ENTER
+                '[' -> KeyEvent.KEYCODE_LEFT_BRACKET
+                ']' -> KeyEvent.KEYCODE_RIGHT_BRACKET
                 in '0'..'9' -> KeyEvent.KEYCODE_0 + (input - '0')
                 in 'a'..'z' -> KeyEvent.KEYCODE_A + (input - 'a')
                 else -> return null

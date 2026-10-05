@@ -147,6 +147,8 @@
     "bip47_explanation": "Payment codes are a universal address that avoids disclosing your wallet addresses. Not all services will support them."
   },
   "send": {
+    "previous_recipient": "Previous Recipient",
+    "next_recipient": "Next Recipient",
     "provided_address_is_invoice": "This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.",
     "broadcastButton": "Broadcast",
     "broadcastError": "Error",
