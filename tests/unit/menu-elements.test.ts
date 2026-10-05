@@ -173,6 +173,8 @@ it('keeps newer registrations when an older owner cleans up and routes Back to W
 
 it('reopens a screen selected from the actual navigation history', () => {
   const hook = renderHook(useMenuElements);
+  setRoute('Settings', 'settings');
+  notifyNavigation('state');
   emit('header:recent:open_recent_wallet-1');
   expect(navigationRef.dispatch).toHaveBeenCalledWith({
     type: 'NAVIGATE',
@@ -261,8 +263,7 @@ it('does not duplicate Wallet Details while the stable system command is disable
     );
   });
   const items = JSON.parse(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]);
-  expect(items).toHaveLength(1);
-  expect(items[0].children[0].title).toBe('Open Recent');
+  expect(items).toHaveLength(0);
   expect(jest.mocked(MenuElementsEmitter!.setAvailableActions).mock.lastCall![0]).not.toContain('walletDetails');
   act(unregister);
   hook.unmount();
@@ -301,6 +302,34 @@ it('combines WalletsList Scan with stack menu entries and scopes its handler to 
   act(() => {
     removeScan();
     removeStack();
+  });
+  hook.unmount();
+});
+
+it('hides the current route from Open Recent and retains it when navigating away', () => {
+  setRoute('WalletsList', 'wallets');
+  const hook = renderHook(useMenuElements);
+  let removeWallets!: () => void;
+  let removeSettings!: () => void;
+  act(() => {
+    removeWallets = hook.result.current.registerHeaderMenu([], 'wallets');
+  });
+  expect(MenuElementsEmitter!.setHeaderMenu).toHaveBeenLastCalledWith('[]');
+  setRoute('Settings', 'settings');
+  act(() => {
+    removeSettings = hook.result.current.registerHeaderMenu([], 'settings');
+  });
+  let menu = jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0];
+  expect(menu).toContain('open_recent_wallets');
+  expect(menu).not.toContain('open_recent_settings');
+  setRoute('WalletsList', 'wallets');
+  notifyNavigation('state');
+  menu = jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0];
+  expect(menu).toContain('open_recent_settings');
+  expect(menu).not.toContain('open_recent_wallets');
+  act(() => {
+    removeSettings();
+    removeWallets();
   });
   hook.unmount();
 });

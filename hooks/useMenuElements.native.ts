@@ -103,13 +103,14 @@ function currentContext() {
         ([id, action]) => item.id.endsWith(`:${id}`) && (Platform.OS === 'ios' || isTablet || isDesktop || actions.includes(action)),
       ),
   );
-  if (!transientScreens.has(route?.name ?? '') && recentScreens.length > 0) {
+  const otherRecentScreens = recentScreens.filter(screen => screen.id !== route?.key);
+  if (!transientScreens.has(route?.name ?? '') && otherRecentScreens.length > 0) {
     const recent = buildHeaderMenu(
       [
         {
           id: 'open_recent',
           text: 'Open Recent',
-          subactions: recentScreens.map(screen => ({
+          subactions: otherRecentScreens.map(screen => ({
             id: `open_recent_${screen.id}`,
             text: screen.title,
             onPress: () => openRecentScreen(screen.path),
