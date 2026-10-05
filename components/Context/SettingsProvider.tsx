@@ -217,7 +217,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
 
   useEffect(() => {
     const subscription = DeviceEventEmitter.addListener(LANGUAGE_RTL_RESTART_EVENT, () => {
-      presentAlert({ message: loc.settings.language_isRTL });
+      presentAlert({ message: loc.settings.language_isRTL, allowRepeat: false });
     });
     return () => subscription.remove();
   }, []);

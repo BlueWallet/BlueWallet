@@ -20,6 +20,7 @@ import {
   LANG_USER_OVERRIDE_KEY,
   notifyLanguageChanged,
   notifyRtlRestartNeeded,
+  shouldNotifyRtlLanguageRestart,
   STORAGE_KEY,
 } from './languageSync';
 import { resolveLangCodeFromRnLocales } from './resolveDeviceLangCode';
@@ -38,6 +39,7 @@ export {
   fingerprintFromLocales,
   notifyLanguageChanged,
   notifyRtlRestartNeeded,
+  shouldNotifyRtlLanguageRestart,
 } from './languageSync';
 
 dayjs.extend(relativeTime);
@@ -384,18 +386,21 @@ const setDateTimeLocale = async () => {
   }
 };
 
-const applyLanguageSideEffects = async (lang: string) => {
+let lastAppliedLangForSideEffects: string | null = null;
+
+const applyLanguageSideEffects = async (lang: string, options?: { userSelected?: boolean }) => {
+  const previousLang = lastAppliedLangForSideEffects;
   applyLanguage(lang);
   const foundLang = AvailableLanguages.find(language => language.value === lang);
   const desiredRtl = foundLang?.isRTL ?? false;
   if (process.env.JEST_WORKER_ID === undefined) {
-    const needsRtlRestart = I18nManager.isRTL !== desiredRtl;
     I18nManager.allowRTL(desiredRtl);
     I18nManager.forceRTL(desiredRtl);
-    if (needsRtlRestart) {
+    if (shouldNotifyRtlLanguageRestart({ previousLang, newLang: lang, userSelected: options?.userSelected })) {
       notifyRtlRestartNeeded();
     }
   }
+  lastAppliedLangForSideEffects = lang;
   await setDateTimeLocale();
 };
 
@@ -441,7 +446,7 @@ export const saveLanguage = async (lang: string, options?: { userSelected?: bool
   if (options?.userSelected) {
     await AsyncStorage.setItem(LANG_USER_OVERRIDE_KEY, '1');
   }
-  await applyLanguageSideEffects(lang);
+  await applyLanguageSideEffects(lang, options);
   notifyLanguageChanged(lang);
 };
 

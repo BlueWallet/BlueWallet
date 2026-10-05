@@ -123,6 +123,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('Language')).tap();
     await element(by.text('English')).tap();
     await goBack();
+    // RTL restart alert (SettingsProvider) blocks navigation until dismissed
+    await dismissAlertByText('OK', 5000);
 
     // security
     await element(by.id('SecurityButton')).tap();
@@ -222,6 +224,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
         await waitForId('WalletsList');
         await element(by.id('SettingsButton')).tap();
       } else {
+        await dismissAlertByText('OK', 5000);
         await goBack();
         await goBack();
       }

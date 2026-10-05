@@ -27,6 +27,20 @@ export const notifyRtlRestartNeeded = (): void => {
   DeviceEventEmitter.emit(LANGUAGE_RTL_RESTART_EVENT);
 };
 
+const catalogIsRtl = (lang: string): boolean => AvailableLanguages.find(language => language.value === lang)?.isRTL ?? false;
+
+/** Matches pre–SettingsProvider Language screen: alert only on manual RTL ↔ LTR picks. */
+export const shouldNotifyRtlLanguageRestart = (params: {
+  previousLang: string | null;
+  newLang: string;
+  userSelected?: boolean;
+}): boolean => {
+  if (!params.userSelected || params.previousLang === null) {
+    return false;
+  }
+  return catalogIsRtl(params.previousLang) !== catalogIsRtl(params.newLang);
+};
+
 export type LaunchLanguageDecision = { action: 'apply_device'; clearOverride: boolean } | { action: 'apply_stored'; clearOverride: false };
 
 export const decideLaunchLanguage = (params: {
