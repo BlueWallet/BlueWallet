@@ -22,6 +22,8 @@ import MultipleStepsListItem, {
 } from '../../components/MultipleStepsListItem';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 
 type MultisigStep2Params = {
   m: number;
@@ -46,7 +48,7 @@ const WalletsAddMultisigStep2 = () => {
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const { colors } = useTheme();
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<AddWalletStackParamList, 'WalletsAddMultisigStep2'>>();
   const route = useRoute<RouteProp<{ WalletsAddMultisigStep2: MultisigStep2Params }, 'WalletsAddMultisigStep2'>>();
   const params = route.params;
   const { m, n, format, walletLabel } = params;
@@ -115,20 +117,20 @@ const WalletsAddMultisigStep2 = () => {
   });
 
   useLayoutEffect(() => {
-    navigation.setOptions({
+    navigation.setParams({
       headerRight: renderHeaderRight,
     });
   }, [navigation, renderHeaderRight]);
 
   const onCreate = async () => {
     setIsLoading(true);
-    navigation.setOptions({ headerBackVisible: false });
+    navigation.setParams({ headerBackVisible: false });
     await sleep(100);
     try {
       await _onCreate(); // this can fail with "Duplicate fingerprint" error or other
     } catch (e) {
       setIsLoading(false);
-      navigation.setOptions({ headerBackVisible: true });
+      navigation.setParams({ headerBackVisible: true });
       const message = e instanceof Error ? e.message : String(e);
       presentAlert({ message });
       console.log('create MS wallet error', e);
