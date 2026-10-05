@@ -17,6 +17,7 @@ import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CreateTransactionTarget } from '../../class/wallets/types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const SendCreate = () => {
   const {
@@ -32,7 +33,7 @@ const SendCreate = () => {
   const size = transaction.virtualSize();
   const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<SendDetailsStackParamList, 'CreateTransaction'>>();
 
   const styleHooks = StyleSheet.create({
     transactionDetailsTitle: {
@@ -79,7 +80,7 @@ const SendCreate = () => {
   );
 
   useEffect(() => {
-    navigation.setOptions({
+    navigation.setParams({
       headerRight: renderHeaderRight,
     });
   }, [navigation, renderHeaderRight]);
