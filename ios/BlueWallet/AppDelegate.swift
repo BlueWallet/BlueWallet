@@ -421,7 +421,8 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "t", [.command, .shift], .edit),
             ("keyboardShortcuts", "Keyboard Shortcuts", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
         ]
-        for parent in [.file, .edit, .view, .help] {
+        let commandParents: [UIMenu.Identifier] = [.file, .edit, .view, .help]
+        for parent in commandParents {
             let identifier = UIMenu.Identifier("io.bluewallet.commands.\(parent.rawValue)")
             builder.remove(menu: identifier)
             let children = commands.filter { $0.5 == parent && actions.contains($0.0) }.map {
