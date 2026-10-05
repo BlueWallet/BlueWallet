@@ -437,6 +437,10 @@
   },
   "wallets": {
     "change_balance_unit": "Change Balance Unit",
+    "balance_unit": "Balance Unit",
+    "local_currency": "Local Currency",
+    "copy_balance": "Copy Balance",
+    "open_block_explorer": "Open Block Explorer",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Create",

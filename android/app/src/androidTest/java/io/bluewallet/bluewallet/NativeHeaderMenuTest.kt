@@ -31,6 +31,9 @@ class NativeHeaderMenuTest {
         assertEquals('\n', enter.character)
         val alt = HeaderMenuShortcut.from(command("Contact", "n", listOf("command", "alternate")), true)!!
         assertEquals(KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON, alt.modifiers)
+        val unit = HeaderMenuShortcut.from(command("BTC", "1", listOf("command", "alternate")), true)!!
+        assertEquals(KeyEvent.KEYCODE_1, unit.keyCode)
+        assertTrue(unit.matches(KeyEvent(0, 0, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_1, 0, KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON)))
         val parent = JSONObject().put("disabled", true).put("children", JSONArray().put(entry))
         assertFalse(HeaderMenuShortcut.collect(JSONArray().put(parent)).single().enabled)
     }

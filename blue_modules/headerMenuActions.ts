@@ -2,7 +2,7 @@ import loc from '../loc';
 import { headerMenuShortcuts, type HeaderMenuShortcut } from './headerMenuShortcuts';
 import type { Action } from '../components/types';
 
-export type HeaderMenuEntry = Action & { onPress?: () => void };
+export type HeaderMenuEntry = Omit<Action, 'subactions'> & { onPress?: () => void; subactions?: HeaderMenuEntry[] };
 export type HeaderMenuOptions = {
   headerMenuCloseAction?: HeaderMenuEntry;
   headerMenuActions?: HeaderMenuEntry[] | HeaderMenuEntry[][];
@@ -32,6 +32,7 @@ function normalizeHeaderMenuTitle(id: string, title: string, isParent: boolean):
     'import_transaction_multisig',
     'import_transaction_qr',
     'ExportTransaction',
+    'ExportWallet',
     'share',
     'saveFile',
     'scan_qr',
@@ -172,6 +173,7 @@ export function groupHeaderMenu(items: NativeHeaderMenuEntry[], screenName: stri
                 'copyTX_ID',
                 'copy_blockExplorer',
                 'copyAmount',
+                'copyBalance',
                 'copyNote',
                 'copyToClipboard',
                 'pasteFromClipboard',
@@ -180,7 +182,7 @@ export function groupHeaderMenu(items: NativeHeaderMenuEntry[], screenName: stri
             ? 'edit'
             : ['share', 'saveFile', 'ExportTransaction', 'NavigationCloseButton', 'open_recent'].includes(id)
               ? 'file'
-              : ['changeBalanceUnit', 'hideBalance', 'hide', 'viewInBitcoin', 'viewInSats', 'viewInFiat'].includes(id)
+              : ['balance_units', 'open_block_explorer', 'changeBalanceUnit', 'hideBalance', 'hide', 'viewInBitcoin', 'viewInSats', 'viewInFiat'].includes(id)
                 ? 'view'
                 : defaultGroup;
     const parent = group === 'wallet' ? 'file' : group;
