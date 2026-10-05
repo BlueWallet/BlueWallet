@@ -15,6 +15,7 @@ import { useScreenProtect } from '../../hooks/useScreenProtect';
 import SafeArea from '../../components/SafeArea';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { stringToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -82,7 +83,8 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
   const { colors } = useTheme();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
 
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ExportMultisigCoordinationSetupStackRootParamList, 'ExportMultisigCoordinationSetup'>>();
   const stylesHook = StyleSheet.create({
     scrollViewContent: {
       backgroundColor: colors.elevated,
@@ -152,7 +154,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       if (closeButtonState) {
-        navigation.setOptions({ closeButtonState: 'Enabled' });
+        navigation.setParams({ closeButtonState: 'Enabled' });
       }
     }, [closeButtonState, navigation]),
   );
