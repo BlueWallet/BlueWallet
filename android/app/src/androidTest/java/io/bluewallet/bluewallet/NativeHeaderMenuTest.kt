@@ -116,4 +116,24 @@ class NativeHeaderMenuTest {
         }
     }
 
+    @Test fun rendersMenuButtonWithAndroidAccessibilityAndInteraction() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            val base = ContextThemeWrapper(InstrumentationRegistry.getInstrumentation().targetContext, R.style.AppTheme)
+            val manager = AppMenuButtonManager()
+            var clicks = 0
+            val button = manager.createButton(base) { clicks++ }
+            assertEquals(base.getString(R.string.wallet_menu_open), button.text.toString())
+            assertEquals(button.text.toString(), button.contentDescription.toString())
+            assertTrue(button.isFocusable)
+            assertTrue(button.isClickable)
+            manager.setTextColor(button, android.graphics.Color.WHITE)
+            manager.setButtonTintColor(button, android.graphics.Color.BLUE)
+            assertEquals(android.graphics.Color.WHITE, button.currentTextColor)
+            assertEquals(android.graphics.Color.BLUE, button.backgroundTintList!!.defaultColor)
+            assertNotNull(button.background)
+            button.performClick()
+            assertEquals(1, clicks)
+        }
+    }
+
 }

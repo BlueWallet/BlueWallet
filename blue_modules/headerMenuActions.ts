@@ -176,6 +176,31 @@ export function groupHeaderMenu(items: NativeHeaderMenuEntry[], screenName: stri
     inline: item.title && item.children?.length ? false : item.inline,
     children: item.children?.map(preserveNamedParents),
   });
+  const commandGroups: Record<string, readonly string[]> = {
+    recipients: ['AddRecipient', 'RemoveRecipient', 'RemoveAllRecipients', 'insert_contact'],
+    help: ['MultisigHelp', 'moreInfo'],
+    edit: [
+      'copyTX_ID',
+      'copy_blockExplorer',
+      'copyAmount',
+      'copyBalance',
+      'copyNote',
+      'copyToClipboard',
+      'pasteFromClipboard',
+      'clearClipboard',
+    ],
+    file: ['share', 'saveFile', 'ExportTransaction', 'NavigationCloseButton', 'open_recent'],
+    view: [
+      'balance_units',
+      'open_block_explorer',
+      'changeBalanceUnit',
+      'hideBalance',
+      'hide',
+      'viewInBitcoin',
+      'viewInSats',
+      'viewInFiat',
+    ],
+  };
   const add = (item: NativeHeaderMenuEntry) => {
     // Anonymous inline sections are separators, not meaningful parent menus.
     if (item.inline && !item.title && item.children) {
@@ -186,37 +211,8 @@ export function groupHeaderMenu(items: NativeHeaderMenuEntry[], screenName: stri
     const explicitGroup = /^(file|edit|view|settings|help)_/.exec(id)?.[1];
     const group =
       explicitGroup ??
-      (['AddRecipient', 'RemoveRecipient', 'RemoveAllRecipients', 'insert_contact'].includes(id)
-        ? 'recipients'
-        : /^(sort|Sort)/.test(id)
-          ? 'sort'
-          : ['MultisigHelp', 'moreInfo'].includes(id)
-            ? 'help'
-            : [
-                  'copyTX_ID',
-                  'copy_blockExplorer',
-                  'copyAmount',
-                  'copyBalance',
-                  'copyNote',
-                  'copyToClipboard',
-                  'pasteFromClipboard',
-                  'clearClipboard',
-                ].includes(id)
-              ? 'edit'
-              : ['share', 'saveFile', 'ExportTransaction', 'NavigationCloseButton', 'open_recent'].includes(id)
-                ? 'file'
-                : [
-                      'balance_units',
-                      'open_block_explorer',
-                      'changeBalanceUnit',
-                      'hideBalance',
-                      'hide',
-                      'viewInBitcoin',
-                      'viewInSats',
-                      'viewInFiat',
-                    ].includes(id)
-                  ? 'view'
-                  : defaultGroup);
+      (/^(sort|Sort)/.test(id) ? 'sort' : Object.keys(commandGroups).find(category => commandGroups[category].includes(id))) ??
+      defaultGroup;
     const parent = group === 'wallet' ? 'file' : group;
     const entries = groups.get(parent) ?? [];
     entries.push(preserveNamedParents(item));

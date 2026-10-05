@@ -1,11 +1,11 @@
 # Native header menus on iPad and Mac Catalyst
 
-Phone headers keep their existing controls. On tablets and Mac, HeaderMenu registers the focused screen's actions with the system menu. Close remains visible and also supports Command-W and Escape in sheets/modals, including Import and Manage Wallets.
+iPhone headers keep their existing controls. Android phones and tablets expose commands through the app menu. On tablets and Mac, HeaderMenu registers the focused screen's actions with the system menu. Close remains visible and also supports Command-W and Escape in sheets/modals, including Import and Manage Wallets.
 
 ## Menu behavior
 
 - Standard File, Edit, View, and Help menus retain their system commands.
-- Wallet, Transaction, Recipients, Server, and Settings appear in a fixed order after View when applicable.
+- Transaction, Recipients, Server, and Settings appear in a fixed order after View when applicable.
 - Familiar wallet commands stay visible after unlocking and dim when unavailable. Screen commands still honor explicit hidden states.
 - Sort criteria and direction, transaction import options, and destructive actions have separate inline sections. Named submenus retain their parent names.
 - Checkmarks, mixed states, disabled states, icons, and subtitles use native menu properties. Disabled and stale actions cannot dispatch.
@@ -57,13 +57,13 @@ These complement automated accessibility auditing; an audit is not a VoiceOver w
 
 The app and UI test target build successfully. Simulator discovery currently blocks executing the native audit in the development environment; the on-device keyboard/VoiceOver walkthrough remains outstanding.
 
-## Android tablets
+## Android phones and tablets
 
-Android tablets use a menu strip beneath the header to open a native popup menu. Only the active leaf screen renders it, with a 48 dp touch target, keyboard focus indicator, and TalkBack label/hint. Phone headers and their existing flat options menu remain unchanged.
+Android phones and tablets use a Fabric-hosted Android button beneath the header to open a native popup menu. Android owns its rendering, focus, ripple, accessibility, and click handling. Only the active leaf mounts it, with a 48 dp touch target. Duplicate right-header actions are hidden; Close remains visible and appears separately at the bottom of the app menu. Settings is available only on Wallets List.
 
 The same screen shortcuts use Ctrl instead of Command, Alt instead of Option, and Enter instead of Return. Ctrl-M opens the app menu. Escape dismisses an open menu first, then the current sheet/modal. Android's keyboard shortcut overlay lists enabled screen commands.
 
-Tablet options menus keep familiar commands visible but disabled when unavailable. They preserve named groups, native checkboxes, section dividers, icons where available, subtitles, and destructive action styling/descriptions. Android menu checkboxes do not support an indeterminate state; mixed selections use a visible and spoken “partially selected” label.
+Android menus show app commands only where available; screen commands retain their disabled states. They preserve named groups, native checkboxes, section dividers, icons where available, subtitles, and destructive action styling/descriptions. Android menu checkboxes do not support an indeterminate state; mixed selections use a visible and spoken “partially selected” label.
 
 The Android native regression tests run on a fresh tablet emulator:
 
@@ -76,4 +76,4 @@ cd android
 
 Test menu access by touch and keyboard, Ctrl/Alt shortcuts, Ctrl-W/Escape dismissal, submenu navigation with the D-pad, and focus return. With TalkBack enabled, verify item labels, checked/disabled/mixed states, destructive descriptions, and shortcut help. Use an isolated emulator with test wallets for screen interaction checks.
 
-Verification: the Android app builds, all three native instrumentation tests pass, and the tablet Detox touch test passes (right-header removal, opening the menu, Wallet > Add Wallet, and returning with Back). The targeted JavaScript suite has 50 passing tests; TypeScript and ESLint pass. A spoken TalkBack and physical-keyboard walkthrough remains outstanding.
+Open Recent records only explicitly approved destinations and scalar navigation identifiers. It excludes protected routes and secret-bearing workflows, drops all ancestor parameters, and clears history when the app locks or the menu subscription ends.

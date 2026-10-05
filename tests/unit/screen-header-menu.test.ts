@@ -4,10 +4,11 @@ import useMenuElements from '../../hooks/useMenuElements';
 
 let mockFocused = true;
 let mockUsesHeaderMenu = true;
-jest.mock('../../components/HeaderMenu', () => ({
-  get usesHeaderMenu() {
+jest.mock('../../blue_modules/environment', () => ({
+  get isTablet() {
     return mockUsesHeaderMenu;
   },
+  isDesktop: false,
 }));
 jest.mock('@react-navigation/native', () => ({
   useRoute: () => ({ key: 'details' }),

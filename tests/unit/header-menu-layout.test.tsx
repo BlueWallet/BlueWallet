@@ -13,6 +13,7 @@ jest.mock('../../hooks/useMenuElements', () => ({
   default: () => ({ registerHeaderMenu: mockRegister }),
 }));
 jest.mock('@react-navigation/native', () => ({
+  useRoute: () => ({ key: 'layout' }),
   useFocusEffect: (callback: () => (() => void) | void) => {
     const focused = mockFocused;
     React.useEffect(() => (focused ? callback() : undefined), [callback, focused]);

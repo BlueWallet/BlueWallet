@@ -22,9 +22,6 @@ RCT_EXPORT_MODULE(MenuElementsEmitter)
   return self;
 }
 
-// Android's tablet menu strip uses this entry point. UIKit supplies its own menu bar.
-- (void)openMenu {}
-
 - (void)setHeaderMenu:(NSString *)items
 {
   dispatch_async(dispatch_get_main_queue(), ^{

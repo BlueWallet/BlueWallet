@@ -1,11 +1,10 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Platform, View, StyleSheet } from 'react-native';
 import AndroidHeaderMenuBar from './AndroidHeaderMenuBar';
-import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { isDesktop, isTablet } from '../blue_modules/environment';
 import type { HeaderMenuEntry, HeaderMenuOptions } from '../blue_modules/headerMenuActions';
-import useMenuElements from '../hooks/useMenuElements';
+import useScreenHeaderMenu from '../hooks/useScreenHeaderMenu';
 
 export type HeaderMenuAction = HeaderMenuEntry & { onPress: () => void };
 export const usesHeaderMenu = Platform.OS === 'android' || isTablet || isDesktop;
@@ -33,7 +32,6 @@ const HeaderMenu = ({
   routeKey: string;
   children: React.ReactElement;
 }) => {
-  const { registerHeaderMenu } = useMenuElements();
   const actions = useMemo(() => {
     const entries = options.headerMenuActions ?? [];
     if (!options.headerMenuCloseAction) return entries;
@@ -41,13 +39,7 @@ const HeaderMenu = ({
       ? [...(entries as HeaderMenuEntry[][]), [options.headerMenuCloseAction]]
       : [...(entries as HeaderMenuEntry[]), options.headerMenuCloseAction];
   }, [options.headerMenuActions, options.headerMenuCloseAction]);
-  // Re-sync when the route regains focus, including returning from a nested stack.
-  useFocusEffect(
-    useCallback(() => {
-      if (!usesHeaderMenu) return;
-      return registerHeaderMenu(actions ?? [], routeKey);
-    }, [actions, registerHeaderMenu, routeKey]),
-  );
+  useScreenHeaderMenu(actions, routeKey);
   if (Platform.OS === 'android' && usesHeaderMenu && options.headerShown !== false) {
     return (
       <View style={styles.container}>

@@ -38,12 +38,6 @@ class MenuElementsModule(context: ReactApplicationContext) :
         }
     }
 
-    override fun openMenu() {
-        UiThreadUtil.runOnUiThread {
-            if (!invalidated) (reactApplicationContext.currentActivity as? MainActivity)?.openAppMenu()
-        }
-    }
-
     override fun setHeaderMenu(items: String) {
         val parsed = try { JSONArray(items) } catch (_: Exception) { return }
         UiThreadUtil.runOnUiThread {
