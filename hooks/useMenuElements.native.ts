@@ -6,6 +6,7 @@ import { CommonActions } from '@react-navigation/native';
 import MenuElementsEmitter from '../blue_modules/NativeMenuElementsEmitter';
 import { availableMenuActions, MenuActionHandlers, ScreenMenuAction } from '../blue_modules/menuActions';
 import { navigationRef, navigateToWalletsList } from '../NavigationService';
+import loc from '../loc';
 
 const handlerRegistry = new Map<string, Map<symbol, MenuActionHandlers>>();
 const headerRegistry = new Map<string, Map<symbol, ReturnType<typeof buildHeaderMenu>>>();
@@ -110,11 +111,28 @@ function currentContext() {
         {
           id: 'open_recent',
           text: 'Open Recent',
-          subactions: otherRecentScreens.map(screen => ({
-            id: `open_recent_${screen.id}`,
-            text: screen.title,
-            onPress: () => openRecentScreen(screen.path),
-          })),
+          subactions: [
+            ...otherRecentScreens.map(screen => ({
+              id: `open_recent_${screen.id}`,
+              text: screen.title,
+              onPress: () => openRecentScreen(screen.path),
+            })),
+            {
+              id: 'clear_recent_section',
+              text: '',
+              displayInline: true,
+              subactions: [
+                {
+                  id: 'clear_recent',
+                  text: loc._.menu_clear_recent,
+                  onPress: () => {
+                    resetRecentScreens();
+                    MenuElementsEmitter?.setHeaderMenu(JSON.stringify(currentContext().header?.items ?? []));
+                  },
+                },
+              ],
+            },
+          ],
         },
       ],
       'recent',

@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation, CommonActions, RouteProp, useFocusEffect, useLocale, useRoute } from '@react-navigation/native';
 import { navigationRef, pop } from '../../NavigationService';
@@ -385,6 +386,8 @@ const LNDCreateInvoice = () => {
     setParams({ walletID: selectedWallet.getID() });
     pop();
   };
+
+  useScreenHeaderMenu([{ id: 'scan_qr', text: loc.wallets.import_scan_qr, disabled: isLoading, onPress: navigateToScanQRCode }]);
 
   if (!wallet.current) {
     return (

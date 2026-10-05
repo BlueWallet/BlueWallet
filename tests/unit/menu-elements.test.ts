@@ -327,6 +327,9 @@ it('hides the current route from Open Recent and retains it when navigating away
   menu = jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0];
   expect(menu).toContain('open_recent_settings');
   expect(menu).not.toContain('open_recent_wallets');
+  expect(menu).toContain('clear_recent');
+  emit('header:recent:clear_recent');
+  expect(MenuElementsEmitter!.setHeaderMenu).toHaveBeenLastCalledWith('[]');
   act(() => {
     removeSettings();
     removeWallets();

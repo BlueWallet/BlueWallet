@@ -2,7 +2,10 @@ import loc from '../loc';
 import { headerMenuShortcuts, type HeaderMenuShortcut } from './headerMenuShortcuts';
 import type { Action } from '../components/types';
 
-export type HeaderMenuEntry = Omit<Action, 'subactions'> & { onPress?: () => void; subactions?: HeaderMenuEntry[] };
+export type HeaderMenuEntry = Omit<Action, 'subactions'> & {
+  onPress?: () => void;
+  subactions?: HeaderMenuEntry[];
+};
 export type HeaderMenuOptions = {
   headerMenuCloseAction?: HeaderMenuEntry;
   headerMenuActions?: HeaderMenuEntry[] | HeaderMenuEntry[][];
@@ -97,7 +100,8 @@ export function buildHeaderMenu(
           id,
           title: normalizeHeaderMenuTitle(String(entry.id), entry.text, Boolean(children?.length)),
           subtitle: entry.subtitle,
-          discoverabilityTitle: entry.discoverabilityTitle,
+          discoverabilityTitle:
+            entry.discoverabilityTitle ?? normalizeHeaderMenuTitle(String(entry.id), entry.text, Boolean(children?.length)),
           shortcut: children?.length ? undefined : headerMenuShortcuts[String(entry.id)],
           disabled,
           destructive: Boolean(entry.destructive),
@@ -179,28 +183,40 @@ export function groupHeaderMenu(items: NativeHeaderMenuEntry[], screenName: stri
       return;
     }
     const id = item.id.split(':').at(-1)!;
-    const group = ['AddRecipient', 'RemoveRecipient', 'RemoveAllRecipients', 'insert_contact'].includes(id)
-      ? 'recipients'
-      : /^(sort|Sort)/.test(id)
-        ? 'sort'
-        : ['MultisigHelp', 'moreInfo'].includes(id)
-          ? 'help'
-          : [
-                'copyTX_ID',
-                'copy_blockExplorer',
-                'copyAmount',
-                'copyBalance',
-                'copyNote',
-                'copyToClipboard',
-                'pasteFromClipboard',
-                'clearClipboard',
-              ].includes(id)
-            ? 'edit'
-            : ['share', 'saveFile', 'ExportTransaction', 'NavigationCloseButton', 'open_recent'].includes(id)
-              ? 'file'
-              : ['balance_units', 'open_block_explorer', 'changeBalanceUnit', 'hideBalance', 'hide', 'viewInBitcoin', 'viewInSats', 'viewInFiat'].includes(id)
-                ? 'view'
-                : defaultGroup;
+    const explicitGroup = /^(file|edit|view|settings|help)_/.exec(id)?.[1];
+    const group =
+      explicitGroup ??
+      (['AddRecipient', 'RemoveRecipient', 'RemoveAllRecipients', 'insert_contact'].includes(id)
+        ? 'recipients'
+        : /^(sort|Sort)/.test(id)
+          ? 'sort'
+          : ['MultisigHelp', 'moreInfo'].includes(id)
+            ? 'help'
+            : [
+                  'copyTX_ID',
+                  'copy_blockExplorer',
+                  'copyAmount',
+                  'copyBalance',
+                  'copyNote',
+                  'copyToClipboard',
+                  'pasteFromClipboard',
+                  'clearClipboard',
+                ].includes(id)
+              ? 'edit'
+              : ['share', 'saveFile', 'ExportTransaction', 'NavigationCloseButton', 'open_recent'].includes(id)
+                ? 'file'
+                : [
+                      'balance_units',
+                      'open_block_explorer',
+                      'changeBalanceUnit',
+                      'hideBalance',
+                      'hide',
+                      'viewInBitcoin',
+                      'viewInSats',
+                      'viewInFiat',
+                    ].includes(id)
+                  ? 'view'
+                  : defaultGroup);
     const parent = group === 'wallet' ? 'file' : group;
     const entries = groups.get(parent) ?? [];
     entries.push(preserveNamedParents(item));

@@ -4,6 +4,23 @@ export type HeaderMenuShortcut = { input: string; modifiers: ('command' | 'shift
 
 // Avoid standard text-editing shortcuts and shortcuts that broadcast or sign funds.
 export const headerMenuShortcuts: Record<string, HeaderMenuShortcut> = {
+  share: { input: 's', modifiers: ['command', 'shift'] },
+  copyToClipboard: { input: 'c', modifiers: ['command', 'alternate'] },
+  scan_qr: { input: 'i', modifiers: ['command', 'alternate'] },
+  file_save: { input: '\r', modifiers: ['command'] },
+  edit_reset: { input: 'r', modifiers: ['command', 'alternate'] },
+  edit_wallet_name: { input: 'r', modifiers: ['command', 'alternate'] },
+  view_addresses: { input: 'a', modifiers: ['command', 'alternate'] },
+  view_contacts: { input: 'n', modifiers: ['command', 'alternate'] },
+  view_xpub: { input: 'x', modifiers: ['command', 'alternate'] },
+  file_sign_verify: { input: 'v', modifiers: ['command', 'alternate'] },
+  file_export_setup: { input: 'e', modifiers: ['command', 'shift', 'alternate'] },
+  edit_cosigners: { input: 'k', modifiers: ['command', 'alternate'] },
+  file_custom_amount: { input: 'm', modifiers: ['command', 'alternate'] },
+  file_receive_options: { input: 'o', modifiers: ['command', 'alternate'] },
+  edit_address_label: { input: 'l', modifiers: ['command', 'alternate'] },
+  view_verify_transaction: { input: 'v', modifiers: ['command', 'alternate'] },
+  view_address_qr: { input: 'q', modifiers: ['command', 'alternate'] },
   AddRecipient: { input: 'n', modifiers: ['command', 'shift'] },
   insert_contact: { input: 'n', modifiers: ['command', 'alternate'] },
   import_transaction: { input: 'i', modifiers: ['command', 'shift'] },
@@ -27,6 +44,17 @@ export const headerMenuShortcuts: Record<string, HeaderMenuShortcut> = {
 };
 
 export const headerMenuShortcutHelp = () => [
+  { title: loc.receive.details_share, key: 'Shift+S', where: loc._.menu_file },
+  { title: loc.transactions.details_copy, key: 'Option+C', where: loc._.menu_edit },
+  { title: loc.wallets.import_scan_qr, key: 'Option+I', where: loc._.menu_file },
+  { title: loc.receive.details_save, key: 'Return', where: loc._.menu_file },
+  { title: loc.receive.reset, key: 'Option+R', where: loc._.menu_edit },
+  { title: loc.wallets.details_show_addresses, key: 'Option+A', where: loc.wallets.details_title },
+  { title: loc.wallets.details_show_xpub, key: 'Option+X', where: loc.wallets.details_title },
+  { title: loc.bip47.contacts, key: 'Option+N', where: loc.wallets.details_title },
+  { title: loc.receive.details_setAmount, key: 'Option+M', where: loc.receive.header },
+  { title: loc.receive.option_label, key: 'Option+L', where: loc.receive.header },
+  { title: loc.send.create_verify, key: 'Option+V', where: loc._.menu_transaction },
   { title: loc.send.details_add_rec_add, key: 'Shift+N', where: loc._.menu_recipients },
   { title: loc.send.details_insert_contact, key: 'Option+N', where: loc._.menu_recipients },
   { title: loc.send.details_adv_import, key: 'Shift+I', where: loc._.menu_transaction },

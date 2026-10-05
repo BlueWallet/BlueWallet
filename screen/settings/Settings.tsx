@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import { useNavigation } from '@react-navigation/native';
 import React, { useMemo, useLayoutEffect, useCallback } from 'react';
 import { View, StyleSheet, Linking, Image } from 'react-native';
@@ -25,6 +26,16 @@ const Settings = () => {
     ),
     [],
   );
+
+  useScreenHeaderMenu([
+    { id: 'settings_general', text: loc.settings.general, onPress: () => navigate('GeneralSettings') },
+    { id: 'settings_currency', text: loc.settings.currency, onPress: () => navigate('Currency') },
+    { id: 'settings_language', text: loc.settings.language, onPress: () => navigate('Language') },
+    { id: 'settings_security', text: loc.settings.encrypt_title, onPress: () => navigate('EncryptStorage') },
+    { id: 'settings_network', text: loc.settings.network, onPress: () => navigate('NetworkSettings') },
+    { id: 'settings_tools', text: loc.settings.tools, onPress: () => navigate('SettingsTools') },
+    { id: 'settings_about', text: loc.settings.about, onPress: () => navigate('About') },
+  ]);
 
   return (
     <SettingsScrollView testID="SettingsRoot">

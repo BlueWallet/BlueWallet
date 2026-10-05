@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { Platform } from 'react-native';
@@ -22,6 +23,18 @@ const NetworkSettings: React.FC = () => {
   const navigateToNotificationSettings = () => {
     navigation.navigate('NotificationSettings');
   };
+
+  useScreenHeaderMenu([
+    { id: 'settings_explorer', text: loc.settings.block_explorer, onPress: navigateToBlockExplorerSettings },
+    { id: 'settings_electrum', text: loc.settings.network_electrum, onPress: navigateToElectrumSettings },
+    { id: 'settings_lightning', text: loc.settings.lightning_settings, onPress: navigateToLightningSettings },
+    {
+      id: 'settings_notifications',
+      text: loc.settings.notifications,
+      hidden: !isNotificationsCapable,
+      onPress: navigateToNotificationSettings,
+    },
+  ]);
 
   return (
     <SettingsScrollView>

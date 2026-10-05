@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
@@ -144,6 +145,17 @@ const WalletExport: React.FC = () => {
   );
 
   // for SLIP39
+  const secret = secrets[0];
+  useScreenHeaderMenu([
+    {
+      id: 'copyToClipboard',
+      text: loc.transactions.details_copy,
+      hidden: secretIsMnemonic || secrets.length !== 1,
+      disabled: !secret,
+      onPress: handleCopy,
+    },
+  ]);
+
   if (secrets.length !== 1) {
     return (
       <Scroll>
@@ -154,10 +166,10 @@ const WalletExport: React.FC = () => {
           <BlueText style={styles.writeText}>{loc.wallets.write_down}</BlueText>
         </View>
 
-        {secrets.map((secret, index) => (
-          <React.Fragment key={secret}>
+        {secrets.map((exportedSeed, index) => (
+          <React.Fragment key={exportedSeed}>
             <BlueText style={styles.scanText}>{loc.formatString(loc.wallets.share_number, { number: index + 1 })}</BlueText>
-            <SeedWords seed={secret} />
+            <SeedWords seed={exportedSeed} />
           </React.Fragment>
         ))}
 
@@ -165,8 +177,6 @@ const WalletExport: React.FC = () => {
       </Scroll>
     );
   }
-
-  const secret = secrets[0];
 
   return (
     <ScrollView

@@ -28,13 +28,13 @@ class MainActivity : ReactActivity() {
 
     fun openAppMenu() {
         val module = menuModule() ?: return
-        if (module.availableActions().isEmpty()) return
         // Android suppresses legacy options panels on extra-large screens.
         // A native popup works with NoActionBar on tablets too.
         val anchor = com.facebook.react.uimanager.util.ReactFindViewUtil.findView(window.decorView, "AndroidAppMenuAnchor")
             ?: currentFocus ?: findViewById<android.view.View>(android.R.id.content)
         val popup = androidx.appcompat.widget.PopupMenu(this, anchor, android.view.Gravity.END)
         module.addMenuItems(popup.menu)
+        if (!popup.menu.hasVisibleItems()) return
         popup.setOnMenuItemClickListener { onOptionsItemSelected(it) }
         popup.setOnDismissListener { optionsMenuVisible = false }
         optionsMenuVisible = true
@@ -93,7 +93,7 @@ class MainActivity : ReactActivity() {
     override fun dispatchKeyShortcutEvent(event: KeyEvent): Boolean {
         val module = menuModule()
         val available = module?.availableActions().orEmpty()
-        if (available.isNotEmpty() && event.keyCode == KeyEvent.KEYCODE_M && event.hasModifiers(KeyEvent.META_CTRL_ON)) {
+        if ((available.isNotEmpty() || module?.headerShortcuts?.isNotEmpty() == true) && event.keyCode == KeyEvent.KEYCODE_M && event.hasModifiers(KeyEvent.META_CTRL_ON)) {
             if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
                 // The app uses NoActionBar; open the native options panel directly.
                 openAppMenu()
@@ -116,7 +116,7 @@ class MainActivity : ReactActivity() {
         // Let the system describe other menus, avoiding duplicate entries for our own group.
         super.onProvideKeyboardShortcuts(data, null, deviceId)
         val actions = menuModule()?.availableActions().orEmpty()
-        if (actions.isEmpty()) return
+        if (actions.isEmpty() && menuModule()?.headerShortcuts.orEmpty().isEmpty()) return
         val shortcuts = actions.map {
             KeyboardShortcutInfo(getString(it.titleId), it.keyCode, it.modifiers)
         } + KeyboardShortcutInfo(getString(R.string.wallet_menu_open), KeyEvent.KEYCODE_M, KeyEvent.META_CTRL_ON)

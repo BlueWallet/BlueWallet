@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import { getHeaderMenuOptions } from '../../components/HeaderMenu';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
@@ -161,6 +162,16 @@ const SendCreate = () => {
       )}
     </View>
   );
+
+  useScreenHeaderMenu([
+    { id: 'copyToClipboard', text: loc.send.create_copy, disabled: !tx, onPress: () => Clipboard.setString(tx) },
+    {
+      id: 'view_verify_transaction',
+      text: loc.send.create_verify,
+      disabled: !tx,
+      onPress: () => Linking.openURL('https://coinb.in/?verify=' + tx),
+    },
+  ]);
 
   return (
     <FlatList<CreateTransactionTarget>

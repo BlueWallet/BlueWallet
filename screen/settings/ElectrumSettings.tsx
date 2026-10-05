@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Dimensions, Keyboard, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
@@ -676,6 +677,8 @@ const ElectrumSettings: React.FC = () => {
       </>
     );
   };
+
+  useScreenHeaderMenu([{ id: 'file_save', text: loc.settings.save, disabled: saveDisabled, onPress: save }]);
 
   return (
     <SettingsScrollView
