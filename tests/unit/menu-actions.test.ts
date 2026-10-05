@@ -38,3 +38,11 @@ describe('native menu availability', () => {
     expect(keys).toEqual(['Shift+C', 'Shift+T']);
   });
 });
+
+it('limits Android Settings to Wallets List while preserving Apple availability', () => {
+  expect(availableMenuActions('WalletsList', [], true, 'android')).toContain('settings');
+  for (const screen of ['WalletTransactions', 'ReceiveDetails', 'Settings', 'ImportWallet', 'SendDetails']) {
+    expect(availableMenuActions(screen, [], true, 'android')).not.toContain('settings');
+    expect(availableMenuActions(screen, [], true, 'ios')).toContain('settings');
+  }
+});

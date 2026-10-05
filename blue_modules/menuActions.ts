@@ -10,9 +10,15 @@ const screenActions: Record<string, readonly ScreenMenuAction[]> = {
 };
 const walletDetailScreens = new Set(['WalletTransactions', 'WalletDetails', 'TransactionStatus', 'ReceiveDetails', 'WalletAddresses']);
 
-export function availableMenuActions(screen: string | undefined, registered: readonly ScreenMenuAction[], unlocked: boolean): MenuAction[] {
+export function availableMenuActions(
+  screen: string | undefined,
+  registered: readonly ScreenMenuAction[],
+  unlocked: boolean,
+  platform: string = 'ios',
+): MenuAction[] {
   if (!unlocked || !screen || screen === 'UnlockWithScreen') return [];
-  const actions: MenuAction[] = ['settings', 'keyboardShortcuts'];
+  const actions: MenuAction[] =
+    platform === 'android' && screen !== 'WalletsList' ? ['keyboardShortcuts'] : ['settings', 'keyboardShortcuts'];
   if (screen === 'WalletsList' || screen === 'WalletTransactions') actions.push('addWallet', 'importWallet');
   if (walletDetailScreens.has(screen)) actions.push('backToWallets');
   actions.push(...(screenActions[screen] ?? []).filter(action => registered.includes(action)));

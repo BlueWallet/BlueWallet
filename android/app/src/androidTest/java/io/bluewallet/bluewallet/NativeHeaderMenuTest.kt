@@ -94,4 +94,26 @@ class NativeHeaderMenuTest {
         }
     }
 
+    @Test fun keepsCloseOutsideActionGroupsAndRemovesEmptyParents() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            val context = ContextThemeWrapper(InstrumentationRegistry.getInstrumentation().targetContext, R.style.AppTheme)
+            val close = command("NavigationCloseButton", "w", listOf("command"))
+            for (withImport in listOf(false, true)) {
+                val children = JSONArray().put(JSONObject().put("inline", true).put("children", JSONArray().put(close)))
+                if (withImport) children.put(command("import_file", "i", listOf("command")))
+                val items = JSONArray().put(JSONObject().put("id", "category:file").put("title", "File").put("children", children))
+                val menu = MenuBuilder(context)
+                HeaderMenuRenderer(context).populate(menu, items, emptySet())
+                assertEquals(if (withImport) 2 else 1, menu.size())
+                val closeItem = menu.getItem(menu.size() - 1)
+                assertEquals("NavigationCloseButton", closeItem.title.toString())
+                assertFalse(closeItem.hasSubMenu())
+                assertEquals('w', closeItem.alphabeticShortcut)
+                assertEquals("header:screen:NavigationCloseButton", closeItem.intent!!.getStringExtra("bluewallet.headerAction"))
+                if (withImport) assertEquals(1, menu.getItem(0).subMenu!!.size())
+                assertEquals(1, items.getJSONObject(0).getJSONArray("children").getJSONObject(0).getJSONArray("children").length())
+            }
+        }
+    }
+
 }

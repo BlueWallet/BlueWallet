@@ -23,7 +23,8 @@ internal class HeaderMenuRenderer(private val context: Context) {
         val dynamic = mutableMapOf<String, JSONObject>()
         for (index in 0 until items.length()) {
             val entry = items.optJSONObject(index) ?: continue
-            dynamic[entry.optString("id").removePrefix("category:")] = entry
+            val filtered = withoutClose(entry) ?: continue
+            dynamic[filtered.optString("id").removePrefix("category:")] = filtered
         }
         val titles = linkedMapOf(
             "file" to R.string.wallet_menu_category_file, "edit" to R.string.wallet_menu_category_edit,
@@ -48,7 +49,29 @@ internal class HeaderMenuRenderer(private val context: Context) {
             entry?.optJSONArray("children")?.let { add(it, submenu, nextGroupId++) }
             if (sort != null) add(JSONArray().put(sort), submenu, nextGroupId++)
         }
+        // Closing a screen is navigation, so keep it outside object/action submenus.
+        val closeActions = JSONArray()
+        fun collectClose(entries: JSONArray) {
+            for (index in 0 until entries.length()) {
+                val entry = entries.optJSONObject(index) ?: continue
+                if (entry.optString("id").endsWith(":NavigationCloseButton")) closeActions.put(entry)
+                else entry.optJSONArray("children")?.let { collectClose(it) }
+            }
+        }
+        collectClose(items)
+        add(closeActions, menu, nextGroupId++, includeClose = true)
         menu.setQwertyMode(true)
+    }
+
+    private fun withoutClose(entry: JSONObject): JSONObject? {
+        if (entry.optString("id").endsWith(":NavigationCloseButton")) return null
+        val children = entry.optJSONArray("children") ?: return entry
+        val filtered = JSONArray()
+        for (index in 0 until children.length()) {
+            children.optJSONObject(index)?.let { withoutClose(it) }?.let { filtered.put(it) }
+        }
+        if (filtered.length() == 0) return null
+        return JSONObject(entry.toString()).put("children", filtered)
     }
 
     private fun addCommand(menu: Menu, action: WalletMenuAction, order: Int) {
@@ -65,10 +88,11 @@ internal class HeaderMenuRenderer(private val context: Context) {
         }
     }
 
-    private fun add(entries: JSONArray, menu: Menu, groupId: Int, parentEnabled: Boolean = true) {
+    private fun add(entries: JSONArray, menu: Menu, groupId: Int, parentEnabled: Boolean = true, includeClose: Boolean = false) {
         MenuCompat.setGroupDividerEnabled(menu, true)
         for (index in 0 until entries.length()) {
             val entry = entries.optJSONObject(index) ?: continue
+            if (!includeClose && entry.optString("id").endsWith(":NavigationCloseButton")) continue
             val children = entry.optJSONArray("children")
             val enabled = parentEnabled && !entry.optBoolean("disabled")
             if (children != null && children.length() > 0) {

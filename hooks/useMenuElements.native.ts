@@ -90,7 +90,7 @@ function currentContext() {
     : undefined;
   const headerItems = getHeaderMenuEntries(header);
   const headerHandlers = { ...getHeaderMenuHandlers(header) };
-  const actions = availableMenuActions(route?.name, Object.keys(handlers) as ScreenMenuAction[], unlocked);
+  const actions = availableMenuActions(route?.name, Object.keys(handlers) as ScreenMenuAction[], unlocked, Platform.OS);
   const migratedCommands = {
     AddWalletButton: 'addWallet',
     ImportWallet: 'importWallet',
@@ -100,6 +100,7 @@ function currentContext() {
   // Existing system commands already expose these actions; avoid duplicate entries.
   const items = headerItems.filter(
     item =>
+      !(Platform.OS === 'android' && route?.name !== 'WalletsList' && item.id.endsWith(':SettingsButton')) &&
       !Object.entries(migratedCommands).some(
         ([id, action]) => item.id.endsWith(`:${id}`) && (Platform.OS === 'ios' || isTablet || isDesktop || actions.includes(action)),
       ),
