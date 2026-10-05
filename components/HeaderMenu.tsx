@@ -9,7 +9,7 @@ import useMenuElements from '../hooks/useMenuElements';
 
 export type HeaderMenuAction = HeaderMenuEntry & { onPress: () => void };
 export const usesHeaderMenu = Platform.OS === 'android' || isTablet || isDesktop;
-export const keepNativeHeaderRightItems = Platform.OS === 'android' || (isTablet && !isDesktop);
+export const keepNativeHeaderRightItems = Platform.OS !== 'android' && isTablet && !isDesktop;
 
 export const getHeaderMenuOptions = (
   phoneOptions: NativeStackNavigationOptions,
