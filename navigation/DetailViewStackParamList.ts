@@ -52,7 +52,14 @@ export type DetailViewStackParamList = {
   };
   WalletDetails: { walletID: string };
   // TODO: type tx properly once Transaction and ElectrumTransaction are unified
-  TransactionStatus: { hash: string; walletID: string; tx?: any };
+  TransactionStatus: {
+    hash: string;
+    walletID: string;
+    tx?: any;
+    headerTitle?: NativeStackNavigationOptions['headerTitle'];
+    headerTitleAlign?: NativeStackNavigationOptions['headerTitleAlign'];
+    headerTitleContainerStyle?: { flex: number; maxWidth: number };
+  };
   CPFP: {
     wallet: TWallet | null;
     txid: string;
@@ -66,6 +73,8 @@ export type DetailViewStackParamList = {
     noWalletExplanationText?: string;
     onChainRequireSend?: boolean;
     selectedWalletID?: string; // Add this parameter to scroll to a specific wallet
+    statusBarStyle?: NativeStackNavigationOptions['statusBarStyle'];
+    headerBackVisible?: boolean;
   };
   LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };
@@ -113,7 +122,7 @@ export type DetailViewStackParamList = {
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;
-  Language: undefined;
+  Language: { search?: string } | undefined;
   LightningSettings: {
     url?: string;
     onBarScanned?: string;

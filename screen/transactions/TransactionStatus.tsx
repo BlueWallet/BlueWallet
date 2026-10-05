@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { sha256 } from '@noble/hashes/sha256';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
-import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import dayjs from 'dayjs';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
@@ -75,10 +75,6 @@ enum ButtonStatus {
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'TransactionStatus'>;
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'TransactionStatus'>;
-
-type TransactionStatusHeaderOptions = NativeStackNavigationOptions & {
-  headerTitleContainerStyle?: { flex: number; maxWidth: number };
-};
 
 enum ActionType {
   SetCPFPPossible,
@@ -175,7 +171,7 @@ const TransactionStatus: React.FC = () => {
   useScreenMenuActions({ copyTransactionId: transactionId && !loadingError ? () => transactionIdCopyRef.current?.copy() : undefined });
   const { wallets, txMetadata, counterpartyMetadata, addressMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const subscribedWallet = useWalletSubscribe(walletID);
-  const { navigate, goBack, setOptions } = useNavigation<NavigationProps>();
+  const { navigate, goBack, setParams } = useNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { width: windowWidth, fontScale } = useWindowDimensions();
   const { selectedBlockExplorer } = useSettings();
@@ -1033,11 +1029,11 @@ const TransactionStatus: React.FC = () => {
     }
   }, [paymentCode]);
 
-  // Set header title with direction and date (inline component required by React Navigation API)
+  // Publish the dynamic header values for the stack-level options.
   useEffect(() => {
     if (tx) {
-      setOptions({
-        // eslint-disable-next-line react/no-unstable-nested-components -- React Navigation setOptions expects a render function
+      setParams({
+        // eslint-disable-next-line react/no-unstable-nested-components -- React Navigation headerTitle expects a render function
         headerTitle: () => (
           <TransactionDetailHeaderTitle
             direction={transactionDirection}
@@ -1051,11 +1047,11 @@ const TransactionStatus: React.FC = () => {
           flex: 1,
           maxWidth: Math.max(0, windowWidth - 96),
         },
-      } as TransactionStatusHeaderOptions);
+      });
     }
     // stylesHook is derived from colors; omitting to avoid unnecessary effect runs
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tx, transactionDirection, transactionDate, setOptions, colors, windowWidth, scaledStyles]);
+  }, [tx, transactionDirection, transactionDate, setParams, colors, windowWidth, scaledStyles]);
 
   if (loadingError) {
     return (
