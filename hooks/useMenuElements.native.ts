@@ -7,6 +7,7 @@ import MenuElementsEmitter from '../blue_modules/NativeMenuElementsEmitter';
 import { availableMenuActions, MenuActionHandlers, ScreenMenuAction } from '../blue_modules/menuActions';
 import { navigationRef, navigateToWalletsList } from '../NavigationService';
 import loc from '../loc';
+import { navigationGuardPolicies } from '../navigation/navigationGuard';
 
 const handlerRegistry = new Map<string, Map<symbol, MenuActionHandlers>>();
 const headerRegistry = new Map<string, Map<symbol, ReturnType<typeof buildHeaderMenu>>>();
@@ -18,6 +19,34 @@ const navigationContainers = new Set(['Drawer', 'DrawerRoot', 'MainRoot']);
 const isNavigationContainer = (name: string) => navigationContainers.has(name) || /Stack$/.test(name);
 let consumers = 0;
 let dispose: (() => void) | undefined;
+
+// Explicit destinations and scalar identifiers avoid retaining seeds, wallet
+// objects, callbacks, or nested navigation params in process-global history.
+const recentScreenParams: Record<string, readonly string[]> = {
+  WalletsList: [],
+  WalletTransactions: ['walletID', 'walletType'],
+  WalletDetails: ['walletID'],
+  TransactionStatus: ['walletID', 'hash'],
+  Settings: [],
+  Currency: [],
+  GeneralSettings: [],
+  Licensing: [],
+  NetworkSettings: [],
+  About: [],
+  ElectrumSettings: [],
+  SettingsBlockExplorer: [],
+  Language: [],
+  LightningSettings: [],
+  NotificationSettings: [],
+  ReleaseNotes: [],
+  SettingsTools: [],
+};
+
+function isUnlocked() {
+  if (!navigationRef.isReady()) return false;
+  const root = navigationRef.getRootState();
+  return root.routeNames.includes('DrawerRoot') && root.routes[root.index]?.name !== 'UnlockWithScreen';
+}
 
 function activeRoutePath(): RecentRoute[] {
   const path: RecentRoute[] = [];
@@ -50,13 +79,24 @@ function recordCurrentScreen() {
   const path = activeRoutePath();
   const route = path.at(-1);
   if (!route || transientScreens.has(route.name) || isNavigationContainer(route.name)) return;
+  const keys = recentScreenParams[route.name];
+  if (!keys || path.some(entry => entry.name in navigationGuardPolicies)) return;
+  const params = Object.fromEntries(
+    keys.flatMap(key => {
+      const value = (route.params as Record<string, unknown> | undefined)?.[key];
+      return typeof value === 'string' ? [[key, value]] : [];
+    }),
+  );
+  const safePath = path.map(entry => ({ key: entry.key, name: entry.name }) as RecentRoute);
+  if (Object.keys(params).length) safePath[safePath.length - 1].params = params;
   const existing = recentScreens.findIndex(screen => screen.id === route.key);
   if (existing >= 0) recentScreens.splice(existing, 1);
-  recentScreens.unshift({ id: route.key, title: screenTitle(route.name), path });
+  recentScreens.unshift({ id: route.key, title: screenTitle(route.name), path: safePath });
   recentScreens.splice(10);
 }
 
 function openRecentScreen(path: RecentRoute[]) {
+  if (!isUnlocked()) return;
   const leaf = path.at(-1);
   if (!leaf) return;
   let destination: { name: string; params?: object } = { name: leaf.name, params: leaf.params };
@@ -77,9 +117,9 @@ export function getHeaderMenuHandlers(header: { handlers?: Record<string, () => 
 function currentContext() {
   const ready = navigationRef.isReady();
   const route = ready ? navigationRef.getCurrentRoute() : undefined;
-  const root = ready ? navigationRef.getRootState() : undefined;
   // MainRoot registers DrawerRoot only after storage has been unlocked.
-  const unlocked = !!root?.routeNames.includes('DrawerRoot') && root.routes[root.index]?.name !== 'UnlockWithScreen';
+  const unlocked = isUnlocked();
+  if (!unlocked) resetRecentScreens();
   const handlers: MenuActionHandlers = Object.assign({}, ...(route ? (handlerRegistry.get(route.key)?.values() ?? []) : []));
   const headers = route ? [...(headerRegistry.get(route.key)?.values() ?? [])] : [];
   const header = headers.length
@@ -144,14 +184,15 @@ function currentContext() {
 
   return {
     header: unlocked && header ? { ...header, items: groupHeaderMenu(items, route?.name ?? '') } : undefined,
-    headerHandlers,
+    headerHandlers: unlocked ? headerHandlers : {},
     handlers,
     actions,
   };
 }
 
 function syncMenu() {
-  recordCurrentScreen();
+  if (isUnlocked()) recordCurrentScreen();
+  else resetRecentScreens();
   const { actions, header } = currentContext();
   MenuElementsEmitter?.setAvailableActions(actions);
   MenuElementsEmitter?.setHeaderMenu(JSON.stringify(header?.items ?? []));
@@ -202,6 +243,7 @@ function subscribe() {
     subscription.remove();
     removeStateListener();
     removeReadyListener();
+    resetRecentScreens();
     MenuElementsEmitter?.setAvailableActions([]);
     MenuElementsEmitter?.setHeaderMenu('[]');
   };

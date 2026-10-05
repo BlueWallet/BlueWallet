@@ -357,3 +357,91 @@ it('keeps ScanQRCode file import registered when camera controls replace header 
   act(removeCamera);
   hook.unmount();
 });
+
+it.each([
+  'ViewEditMultisigCosignerViewSheet',
+  'ViewEditMultisigProvideMnemonicsSheet',
+  'ViewEditMultisigShareCosignerSheet',
+  'ViewEditMultisigCosigners',
+  'WalletXpub',
+  'WalletExport',
+  'UnknownSecretScreen',
+])('never records sensitive or unapproved destination %s', name => {
+  const hook = renderHook(useMenuElements);
+  jest.mocked(navigationRef.getCurrentRoute).mockReturnValue({ name, key: 'secret', params: { importText: 'secret seed' } });
+  notifyNavigation('state');
+  setRoute('Settings');
+  notifyNavigation('state');
+  emit('header:recent:open_recent_secret');
+  expect(navigationRef.dispatch).not.toHaveBeenCalled();
+  hook.unmount();
+});
+
+it('retains only approved identifiers and drops secret parameters from every route level', () => {
+  const hook = renderHook(useMenuElements);
+  jest.mocked(navigationRef.getRootState).mockReturnValue({
+    stale: false,
+    type: 'stack',
+    key: 'root',
+    index: 0,
+    routeNames: ['DrawerRoot'],
+    routes: [{ name: 'DrawerRoot', key: 'drawer', params: { seed: 'parent secret', params: { passphrase: 'secret' } } }],
+  });
+  jest.mocked(navigationRef.getCurrentRoute).mockReturnValue({
+    name: 'WalletTransactions',
+    key: 'safe-wallet',
+    params: {
+      walletID: 'wallet-id',
+      walletType: 'HD',
+      seed: 'secret seed',
+      wallet: { seed: 'secret object' },
+      onBarScanned: 'secret input',
+    },
+  });
+  notifyNavigation('state');
+  setRoute('Settings');
+  notifyNavigation('state');
+  emit('header:recent:open_recent_safe-wallet');
+  expect(navigationRef.dispatch).toHaveBeenCalledWith({
+    type: 'NAVIGATE',
+    payload: {
+      name: 'DrawerRoot',
+      params: {
+        screen: 'WalletTransactions',
+        params: { walletID: 'wallet-id', walletType: 'HD' },
+      },
+    },
+  });
+  hook.unmount();
+});
+
+it('clears history on lock and rejects stale recent commands after unlocking', () => {
+  const hook = renderHook(useMenuElements);
+  setRoute('Settings');
+  notifyNavigation('state');
+  jest.mocked(navigationRef.getRootState).mockReturnValue({
+    stale: false,
+    type: 'stack',
+    key: 'root',
+    index: 0,
+    routeNames: ['DrawerRoot', 'UnlockWithScreen'],
+    routes: [{ name: 'UnlockWithScreen', key: 'lock' }],
+  });
+  setRoute('UnlockWithScreen');
+  notifyNavigation('state');
+  emit('header:recent:open_recent_wallet-1');
+  expect(navigationRef.dispatch).not.toHaveBeenCalled();
+  jest.mocked(navigationRef.getRootState).mockReturnValue({
+    stale: false,
+    type: 'stack',
+    key: 'root',
+    index: 0,
+    routeNames: ['DrawerRoot'],
+    routes: [{ name: 'DrawerRoot', key: 'drawer' }],
+  });
+  setRoute('Settings');
+  notifyNavigation('state');
+  emit('header:recent:open_recent_wallet-1');
+  expect(navigationRef.dispatch).not.toHaveBeenCalled();
+  hook.unmount();
+});
