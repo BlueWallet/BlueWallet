@@ -22,22 +22,31 @@ export function walletTransactionsMenu(options: WalletMenuOptions): HeaderMenuEn
     { id: 'changeBalanceUnit', text: loc.wallets.change_balance_unit, disabled, onPress: options.cycleUnit },
     {
       id: 'balance_units',
+      singleSelection: true,
+      preferredElementSize: 'automatic',
+      maximumNumberOfTitleLines: 2,
       text: loc.wallets.balance_unit,
       disabled,
       subactions: [
         {
+          keepsMenuPresented: true,
+          preferredImageVisibility: 'hidden',
           id: 'viewInBitcoin',
           text: loc.units.BTC,
           menuState: options.unit === BitcoinUnit.BTC,
           onPress: () => options.changeUnit(BitcoinUnit.BTC),
         },
         {
+          keepsMenuPresented: true,
+          preferredImageVisibility: 'hidden',
           id: 'viewInSats',
           text: loc.units.sats,
           menuState: options.unit === BitcoinUnit.SATS,
           onPress: () => options.changeUnit(BitcoinUnit.SATS),
         },
         {
+          keepsMenuPresented: true,
+          preferredImageVisibility: 'hidden',
           id: 'viewInFiat',
           text: loc.wallets.local_currency,
           menuState: options.unit === BitcoinUnit.LOCAL_CURRENCY,

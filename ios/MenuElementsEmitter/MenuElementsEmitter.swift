@@ -40,20 +40,68 @@ final class MenuElementsController: NSObject {
             return nil
         }
         guard let id = closeID(headerItems) else { return [] }
-        return [UIKeyCommand(title: "Close", action: NSSelectorFromString("performHeaderMenuAction:"),
-                             input: UIKeyCommand.inputEscape, modifierFlags: [], propertyList: id)]
+        let command = UIKeyCommand(title: "Close", action: NSSelectorFromString("performHeaderMenuAction:"),
+                                   input: UIKeyCommand.inputEscape, modifierFlags: [], propertyList: id)
+        if #available(iOS 26.0, *) { command.repeatBehavior = .nonRepeatable }
+        return [command]
     }
 
     func headerMenuElements() -> [UIMenuElement] {
+        func menuOptions(_ item: [String: Any]) -> UIMenu.Options {
+            var options: UIMenu.Options = []
+            if item["inline"] as? Bool == true { options.insert(.displayInline) }
+            if item["destructive"] as? Bool == true { options.insert(.destructive) }
+            if item["singleSelection"] as? Bool == true { options.insert(.singleSelection) }
+            if #available(iOS 17.0, *), item["displayAsPalette"] as? Bool == true { options.insert(.displayAsPalette) }
+            return options
+        }
+
+        func configure(_ element: UIMenuElement, from item: [String: Any]) {
+            if #available(iOS 27.0, *), let visibility = item["preferredImageVisibility"] as? String {
+                element.preferredImageVisibility = visibility == "visible" ? .visible : visibility == "hidden" ? .hidden : .automatic
+            }
+        }
+
+        func configure(_ menu: UIMenu, from item: [String: Any]) {
+            menu.subtitle = item["subtitle"] as? String
+            if #available(iOS 16.0, *), let size = item["preferredElementSize"] as? String {
+                switch size {
+                case "small": menu.preferredElementSize = .small
+                case "medium": menu.preferredElementSize = .medium
+                case "large": menu.preferredElementSize = .large
+                default:
+                    if #available(iOS 17.0, *) { menu.preferredElementSize = .automatic }
+                }
+            }
+            if #available(iOS 17.4, *), let lineCount = item["maximumNumberOfTitleLines"] as? Int {
+                let preferences = UIMenuDisplayPreferences()
+                preferences.maximumNumberOfTitleLines = max(0, lineCount)
+                menu.displayPreferences = preferences
+            }
+            configure(menu as UIMenuElement, from: item)
+        }
+
+        func configure(_ command: UICommand, from item: [String: Any]) {
+            command.discoverabilityTitle = item["discoverabilityTitle"] as? String ?? command.title
+            if #available(iOS 26.0, *), let behavior = item["repeatBehavior"] as? String {
+                command.repeatBehavior = behavior == "repeatable" ? .repeatable : behavior == "nonRepeatable" ? .nonRepeatable : .automatic
+            }
+            configure(command as UIMenuElement, from: item)
+        }
+
         func elements(_ items: [[String: Any]]) -> [UIMenuElement] {
             items.compactMap { item in
                 guard let id = item["id"] as? String, let title = item["title"] as? String else { return nil }
                 if let children = item["children"] as? [[String: Any]], !children.isEmpty {
-                    return UIMenu(title: title, identifier: UIMenu.Identifier(id), options: item["inline"] as? Bool == true ? .displayInline : [], children: elements(children))
+                    let menu = UIMenu(title: title, image: (item["icon"] as? String).flatMap { UIImage(systemName: $0) },
+                                      identifier: UIMenu.Identifier(id), options: menuOptions(item), children: elements(children))
+                    configure(menu, from: item)
+                    return menu
                 }
                 var attributes: UIMenuElement.Attributes = []
                 if item["disabled"] as? Bool == true { attributes.insert(.disabled) }
                 if item["destructive"] as? Bool == true { attributes.insert(.destructive) }
+                if #available(iOS 16.0, *), item["keepsMenuPresented"] as? Bool == true { attributes.insert(.keepsMenuPresented) }
                 let state: UIMenuElement.State = item["state"] as? String == "mixed" ? .mixed : item["state"] as? Bool == true ? .on : .off
                 let image = (item["icon"] as? String).flatMap { UIImage(systemName: $0) }
                 if let shortcut = item["shortcut"] as? [String: Any], let input = shortcut["input"] as? String {
@@ -67,11 +115,17 @@ final class MenuElementsController: NSObject {
                                                input: input, modifierFlags: flags, propertyList: id)
                     command.attributes = attributes
                     command.state = state
-                    command.discoverabilityTitle = title
+                    configure(command, from: item)
                     return command
                 }
-                let action = UIAction(title: title, image: image, attributes: attributes, state: state) { [weak self] _ in self?.perform(id) }
+                let action = UIAction(title: title, image: image, identifier: UIAction.Identifier(id),
+                                      discoverabilityTitle: item["discoverabilityTitle"] as? String,
+                                      attributes: attributes, state: state) { [weak self] _ in self?.perform(id) }
                 if #available(iOS 16.0, *) { action.subtitle = item["subtitle"] as? String }
+                if #available(iOS 26.0, *), let behavior = item["repeatBehavior"] as? String {
+                    action.repeatBehavior = behavior == "repeatable" ? .repeatable : behavior == "nonRepeatable" ? .nonRepeatable : .automatic
+                }
+                configure(action as UIMenuElement, from: item)
                 return action
             }
         }

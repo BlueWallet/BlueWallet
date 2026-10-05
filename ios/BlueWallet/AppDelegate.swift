@@ -427,6 +427,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             builder.remove(menu: identifier)
             let children = commands.filter { $0.5 == parent && actions.contains($0.0) }.map {
                 let command = UIKeyCommand(title: $0.1, action: $0.2, input: $0.3, modifierFlags: $0.4, propertyList: $0.0)
+                if #available(iOS 26.0, *) { command.repeatBehavior = .nonRepeatable }
                 return command
             }
             if !children.isEmpty {
@@ -467,6 +468,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         if actions.contains("settings") {
             let command = UIKeyCommand(title: "Settings…", action: #selector(openSettings),
                                        input: ",", modifierFlags: .command)
+            if #available(iOS 26.0, *) { command.repeatBehavior = .nonRepeatable }
             builder.insertSibling(UIMenu(title: "", identifier: settingsMenuID,
                                          options: .displayInline, children: [command]), afterMenu: .about)
         }

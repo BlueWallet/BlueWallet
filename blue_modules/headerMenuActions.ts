@@ -14,9 +14,17 @@ export type NativeHeaderMenuEntry = {
   destructive: boolean;
   shortcut?: HeaderMenuShortcut;
   subtitle?: string;
+  discoverabilityTitle?: string;
   icon?: string;
   state?: 'mixed' | boolean;
   inline?: boolean;
+  singleSelection?: boolean;
+  displayAsPalette?: boolean;
+  preferredElementSize?: Action['preferredElementSize'];
+  maximumNumberOfTitleLines?: number;
+  preferredImageVisibility?: Action['preferredImageVisibility'];
+  keepsMenuPresented?: boolean;
+  repeatBehavior?: Action['repeatBehavior'];
   children?: NativeHeaderMenuEntry[];
 };
 
@@ -89,12 +97,20 @@ export function buildHeaderMenu(
           id,
           title: normalizeHeaderMenuTitle(String(entry.id), entry.text, Boolean(children?.length)),
           subtitle: entry.subtitle,
+          discoverabilityTitle: entry.discoverabilityTitle,
           shortcut: children?.length ? undefined : headerMenuShortcuts[String(entry.id)],
           disabled,
           destructive: Boolean(entry.destructive),
           icon: entry.icon?.iconValue ?? entry.image,
           state: entry.menuState,
           inline: entry.displayInline,
+          singleSelection: entry.singleSelection,
+          displayAsPalette: entry.displayAsPalette,
+          preferredElementSize: entry.preferredElementSize,
+          maximumNumberOfTitleLines: entry.maximumNumberOfTitleLines,
+          preferredImageVisibility: entry.preferredImageVisibility,
+          keepsMenuPresented: entry.keepsMenuPresented,
+          repeatBehavior: children?.length ? undefined : (entry.repeatBehavior ?? 'nonRepeatable'),
           children,
         };
       });

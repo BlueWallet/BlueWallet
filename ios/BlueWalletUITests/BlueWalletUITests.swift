@@ -98,7 +98,8 @@ final class HeaderMenuNativeTests: XCTestCase {
            "shortcut":{"input":"n","modifiers":["command","shift"]}},
           {"id":"header:send:ExportTransaction","title":"Export…","disabled":true,
            "shortcut":{"input":"e","modifiers":["command","shift"]}},
-          {"id":"header:send:remove","title":"Remove Recipient","destructive":true,"state":"mixed"},
+          {"id":"header:send:remove","title":"Remove Recipient","subtitle":"From this payment","destructive":true,
+           "state":"mixed","keepsMenuPresented":true,"repeatBehavior":"nonRepeatable","preferredImageVisibility":"visible"},
           {"id":"header:send:NavigationCloseButton","title":"Close",
            "shortcut":{"input":"w","modifiers":["command"]}}
         ]}]
@@ -115,6 +116,9 @@ final class HeaderMenuNativeTests: XCTestCase {
         let remove = try XCTUnwrap(menu.children[2] as? UIAction)
         XCTAssertEqual(remove.state, .mixed)
         XCTAssertTrue(remove.attributes.contains(.destructive))
+        if #available(iOS 16.0, *) { XCTAssertTrue(remove.attributes.contains(.keepsMenuPresented)) }
+        if #available(iOS 26.0, *) { XCTAssertEqual(remove.repeatBehavior, .nonRepeatable) }
+        if #available(iOS 27.0, *) { XCTAssertEqual(remove.preferredImageVisibility, .visible) }
         XCTAssertTrue(controller.isHeaderActionEnabled("header:send:AddRecipient"))
         XCTAssertFalse(controller.isHeaderActionEnabled("header:send:ExportTransaction"))
         XCTAssertEqual(controller.closeKeyCommands().first?.input, UIKeyCommand.inputEscape)

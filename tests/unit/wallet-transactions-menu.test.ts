@@ -21,7 +21,12 @@ it.each([BitcoinUnit.BTC, BitcoinUnit.SATS, BitcoinUnit.LOCAL_CURRENCY])(
   unit => {
     const handlers = options();
     const result = buildHeaderMenu(walletTransactionsMenu({ ...handlers, unit }), 'wallet');
-    const units = result.items.find(item => item.id.endsWith(':balance_units'))!.children!;
+    const unitMenu = result.items.find(item => item.id.endsWith(':balance_units'))!;
+    expect(unitMenu.singleSelection).toBe(true);
+    expect(unitMenu.preferredElementSize).toBe('automatic');
+    expect(unitMenu.maximumNumberOfTitleLines).toBe(2);
+    const units = unitMenu.children!;
+    expect(units.every(item => item.keepsMenuPresented && item.repeatBehavior === 'nonRepeatable')).toBe(true);
     expect(units.filter(item => item.state)).toHaveLength(1);
     expect(units.find(item => item.state)!.id).toBe(
       `header:wallet:${unit === BitcoinUnit.BTC ? 'viewInBitcoin' : unit === BitcoinUnit.SATS ? 'viewInSats' : 'viewInFiat'}`,

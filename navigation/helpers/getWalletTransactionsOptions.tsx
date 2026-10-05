@@ -73,7 +73,7 @@ const WalletTransactionsScrolledHeaderTitle: React.FC<WalletTransactionsScrolled
     opacity.value = withTiming(isScrolled ? 1 : 0, {
       duration: isScrolled ? SCROLLED_HEADER_FADE_IN_MS : SCROLLED_HEADER_FADE_OUT_MS,
     });
-  }, [isScrolled, opacity, usesIos26AnimatedHeader]);
+  }, [isScrolled, opacity]);
 
   const titleColor = Platform.OS === 'ios' ? colors.foregroundColor : '#FFFFFF';
   const titleContent = (
