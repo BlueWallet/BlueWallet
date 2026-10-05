@@ -57,9 +57,12 @@ final class MenuElementsController: NSObject {
         }
 
         func configure(_ element: UIMenuElement, from item: [String: Any]) {
+            // Runtime availability cannot hide declarations from older Xcode SDKs.
+            #if compiler(>=6.4)
             if #available(iOS 27.0, *), let visibility = item["preferredImageVisibility"] as? String {
                 element.preferredImageVisibility = visibility == "visible" ? .visible : visibility == "hidden" ? .hidden : .automatic
             }
+            #endif
         }
 
         func configure(_ menu: UIMenu, from item: [String: Any]) {
