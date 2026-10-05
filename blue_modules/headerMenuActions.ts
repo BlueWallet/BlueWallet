@@ -157,7 +157,6 @@ export function groupHeaderMenu(items: NativeHeaderMenuEntry[], screenName: stri
     view: loc._.menu_view,
     recipients: loc._.menu_recipients,
     transaction: loc._.menu_transaction,
-    wallet: loc._.menu_wallet,
     sort: loc._.menu_sort,
     help: loc._.menu_help,
     server: loc._.menu_server,
@@ -170,7 +169,7 @@ export function groupHeaderMenu(items: NativeHeaderMenuEntry[], screenName: stri
         ? 'transaction'
         : /Settings/.test(screenName)
           ? 'settings'
-          : 'wallet';
+          : 'file';
   const preserveNamedParents = (item: NativeHeaderMenuEntry): NativeHeaderMenuEntry => ({
     ...item,
     inline: item.title && item.children?.length ? false : item.inline,
@@ -213,13 +212,12 @@ export function groupHeaderMenu(items: NativeHeaderMenuEntry[], screenName: stri
       explicitGroup ??
       (/^(sort|Sort)/.test(id) ? 'sort' : Object.keys(commandGroups).find(category => commandGroups[category].includes(id))) ??
       defaultGroup;
-    const parent = group === 'wallet' ? 'file' : group;
-    const entries = groups.get(parent) ?? [];
+    const entries = groups.get(group) ?? [];
     entries.push(preserveNamedParents(item));
-    groups.set(parent, entries);
+    groups.set(group, entries);
   };
   items.forEach(add);
-  const order = ['file', 'edit', 'view', 'wallet', 'transaction', 'recipients', 'sort', 'server', 'settings', 'help'];
+  const order = ['file', 'edit', 'view', 'transaction', 'recipients', 'sort', 'server', 'settings', 'help'];
   return [...groups]
     .sort(([a], [b]) => order.indexOf(a) - order.indexOf(b))
     .map(([group, children]) => ({
