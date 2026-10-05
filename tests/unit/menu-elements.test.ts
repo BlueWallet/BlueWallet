@@ -333,3 +333,24 @@ it('hides the current route from Open Recent and retains it when navigating away
   });
   hook.unmount();
 });
+
+it('keeps ScanQRCode file import registered when camera controls replace header options', () => {
+  setRoute('ScanQRCode', 'scan');
+  const hook = renderHook(useMenuElements);
+  const importFile = jest.fn();
+  let removeScreen!: () => void;
+  let removeCamera!: () => void;
+  act(() => {
+    removeScreen = hook.result.current.registerHeaderMenu([{ id: 'import_file', text: 'Import File', onPress: importFile }], 'scan');
+    removeCamera = hook.result.current.registerHeaderMenu([{ id: 'choose_photo', text: 'Choose Photo', onPress: jest.fn() }], 'scan');
+  });
+  expect(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]).toContain('header:scan:import_file');
+  emit('header:scan:import_file');
+  expect(importFile).toHaveBeenCalledTimes(1);
+  act(removeScreen);
+  expect(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]).not.toContain('header:scan:import_file');
+  emit('header:scan:import_file');
+  expect(importFile).toHaveBeenCalledTimes(1);
+  act(removeCamera);
+  hook.unmount();
+});
