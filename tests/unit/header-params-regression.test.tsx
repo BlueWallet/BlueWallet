@@ -7,13 +7,11 @@ import MultisigAdvanced from '../../screen/wallets/MultisigAdvanced';
 let routeParams: any = {};
 
 const setParamsMock = jest.fn();
-const setOptionsMock = jest.fn();
 const navigateMock = jest.fn();
 const goBackMock = jest.fn();
 
 const navigationMock = {
   setParams: setParamsMock,
-  setOptions: setOptionsMock,
   navigate: navigateMock,
   goBack: goBackMock,
 };
@@ -149,12 +147,11 @@ jest.mock('../../loc', () => ({
 describe('Header options regression guards', () => {
   beforeEach(() => {
     setParamsMock.mockClear();
-    setOptionsMock.mockClear();
     navigateMock.mockClear();
     goBackMock.mockClear();
   });
 
-  it('sets Confirm headerRight only once across same-props rerenders', async () => {
+  it('sets Confirm headerRight param only once across same-props rerenders', async () => {
     routeParams = {
       recipients: [{ address: 'bc1qtestaddress0000000000000000000000000000', value: 1234 }],
       targets: [{ address: 'bc1qtestaddress0000000000000000000000000000', value: 1234 }],
@@ -170,13 +167,13 @@ describe('Header options regression guards', () => {
     const screen = render(<Confirm />);
 
     await waitFor(() => {
-      expect(setOptionsMock).toHaveBeenCalledTimes(1);
+      expect(setParamsMock).toHaveBeenCalledTimes(1);
     });
 
     screen.rerender(<Confirm />);
 
     await waitFor(() => {
-      expect(setOptionsMock).toHaveBeenCalledTimes(1);
+      expect(setParamsMock).toHaveBeenCalledTimes(1);
     });
   });
 
