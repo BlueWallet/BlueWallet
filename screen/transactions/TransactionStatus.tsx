@@ -1061,7 +1061,7 @@ const TransactionStatus: React.FC = () => {
   useScreenHeaderMenu([
     {
       id: 'open_block_explorer',
-      text: loc.wallets.open_block_explorer,
+      text: loc.transactions.details_view_in_browser,
       disabled: !tx?.hash || !selectedBlockExplorer,
       onPress: handleOpenBlockExplorer,
     },

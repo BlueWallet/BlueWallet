@@ -20,10 +20,10 @@ it('shows Ctrl/Alt/Enter shortcuts and readable TalkBack descriptions on Android
   try {
     const view = render(<KeyboardShortcuts />);
     expect(view.getByLabelText('Add Recipient, Control Shift N. Recipients')).toBeTruthy();
-    expect(view.getByLabelText(/Control Alt N/)).toBeTruthy();
+    expect(view.getAllByLabelText(/Control Alt N/)).toHaveLength(2);
     expect(view.getByLabelText('Close, Control W or Escape. Current sheet or modal')).toBeTruthy();
-    expect(view.getByText('Ctrl+Alt+N')).toBeTruthy();
-    expect(view.getByText('Ctrl+Enter')).toBeTruthy();
+    expect(view.getAllByText('Ctrl+Alt+N')).toHaveLength(2);
+    expect(view.getAllByText('Ctrl+Enter')).toHaveLength(2);
     expect(view.getByText('Ctrl+M')).toBeTruthy();
     view.unmount();
   } finally {
