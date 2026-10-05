@@ -19,13 +19,26 @@ import {
   fingerprintFromLocales,
   LANG_USER_OVERRIDE_KEY,
   notifyLanguageChanged,
+  notifyRtlRestartNeeded,
   STORAGE_KEY,
 } from './languageSync';
 import { resolveLangCodeFromRnLocales } from './resolveDeviceLangCode';
 import enJson from './en.json';
 
-export { DEVICE_LOCALE_FINGERPRINT_KEY, LANGUAGE_CHANGED_EVENT, LANG_USER_OVERRIDE_KEY, STORAGE_KEY } from './languageSync';
-export { decideLaunchLanguage, executeLanguageBootstrap, fingerprintFromLocales, notifyLanguageChanged } from './languageSync';
+export {
+  DEVICE_LOCALE_FINGERPRINT_KEY,
+  LANGUAGE_CHANGED_EVENT,
+  LANGUAGE_RTL_RESTART_EVENT,
+  LANG_USER_OVERRIDE_KEY,
+  STORAGE_KEY,
+} from './languageSync';
+export {
+  decideLaunchLanguage,
+  executeLanguageBootstrap,
+  fingerprintFromLocales,
+  notifyLanguageChanged,
+  notifyRtlRestartNeeded,
+} from './languageSync';
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
@@ -326,8 +339,8 @@ const setDateTimeLocale = async () => {
       require('dayjs/locale/sl');
       break;
     case 'sr_rs':
-      lang = 'sr-cyrl';
-      require('dayjs/locale/sr-cyrl');
+      lang = 'sr';
+      require('dayjs/locale/sr');
       break;
     case 'sv_se':
       require('dayjs/locale/sv');
@@ -373,11 +386,15 @@ const setDateTimeLocale = async () => {
 
 const applyLanguageSideEffects = async (lang: string) => {
   applyLanguage(lang);
-  // even tho it makes no effect changing it in this run, it will on the next run, so we are doign it here:
+  const foundLang = AvailableLanguages.find(language => language.value === lang);
+  const desiredRtl = foundLang?.isRTL ?? false;
   if (process.env.JEST_WORKER_ID === undefined) {
-    const foundLang = AvailableLanguages.find(language => language.value === lang);
-    I18nManager.allowRTL(foundLang?.isRTL ?? false);
-    I18nManager.forceRTL(foundLang?.isRTL ?? false);
+    const needsRtlRestart = I18nManager.isRTL !== desiredRtl;
+    I18nManager.allowRTL(desiredRtl);
+    I18nManager.forceRTL(desiredRtl);
+    if (needsRtlRestart) {
+      notifyRtlRestartNeeded();
+    }
   }
   await setDateTimeLocale();
 };
@@ -394,8 +411,8 @@ const syncDeviceLanguageIfNeeded = async () => {
   if (currentFingerprint === persistedFingerprint) {
     return;
   }
-  await AsyncStorage.setItem(DEVICE_LOCALE_FINGERPRINT_KEY, currentFingerprint);
   await applyDeviceLanguage();
+  await AsyncStorage.setItem(DEVICE_LOCALE_FINGERPRINT_KEY, currentFingerprint);
 };
 
 // Fire-and-forget; `loc` starts as `{en}` until this resolves, so synchronous reads on a cold launch with non-en saved preference render English briefly.

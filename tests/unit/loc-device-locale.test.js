@@ -27,6 +27,8 @@ describe('Device locale → LangCode', () => {
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'uk', languageTag: 'uk-UA' }), 'ua');
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'zh', languageTag: 'zh-Hans-CN' }), 'zh_cn');
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'zh', languageTag: 'zh-Hant-TW' }), 'zh_tw');
+    assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'zh', languageTag: 'zh-Hant-SG' }), 'zh_tw');
+    assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'zh', languageTag: 'zh-Hant-CN' }), 'zh_tw');
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'pt', languageTag: 'pt-BR' }), 'pt_br');
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'pt', languageTag: 'pt-PT' }), 'pt_pt');
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'es', languageTag: 'es-419' }), 'es_419');

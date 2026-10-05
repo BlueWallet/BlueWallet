@@ -4,7 +4,8 @@ import { isReadClipboardAllowed, setReadClipboardAllowed } from '../../blue_modu
 import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon, setPreferredCurrency } from '../../blue_modules/currency';
 import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import { BlueApp } from '../../class/blue-app';
-import { LANGUAGE_CHANGED_EVENT, saveLanguage, STORAGE_KEY } from '../../loc';
+import presentAlert from '../Alert';
+import loc, { LANGUAGE_CHANGED_EVENT, LANGUAGE_RTL_RESTART_EVENT, saveLanguage, STORAGE_KEY } from '../../loc';
 import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
 import {
   getEnabled as getIsDeviceQuickActionsEnabled,
@@ -210,6 +211,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   useEffect(() => {
     const subscription = DeviceEventEmitter.addListener(LANGUAGE_CHANGED_EVENT, (lang: string) => {
       setLanguage(lang);
+    });
+    return () => subscription.remove();
+  }, []);
+
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener(LANGUAGE_RTL_RESTART_EVENT, () => {
+      presentAlert({ message: loc.settings.language_isRTL });
     });
     return () => subscription.remove();
   }, []);

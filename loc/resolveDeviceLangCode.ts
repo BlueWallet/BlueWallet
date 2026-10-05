@@ -94,11 +94,11 @@ const resolvePortuguese = (locale: RnLocale): LangCode | null => {
 
 const resolveChinese = (locale: RnLocale): LangCode | null => {
   const tag = locale.languageTag ? normalizeTag(locale.languageTag).toLowerCase() : '';
-  if (tag.includes('hans') || tag.includes('cn') || tag.endsWith('-sg')) {
-    return 'zh_cn';
-  }
   if (tag.includes('hant') || tag.includes('-tw') || tag.includes('-hk') || tag.includes('-mo')) {
     return 'zh_tw';
+  }
+  if (tag.includes('hans') || tag.includes('-cn') || tag.endsWith('-sg')) {
+    return 'zh_cn';
   }
   const script = locale.scriptCode?.toLowerCase();
   if (script === 'hans') {

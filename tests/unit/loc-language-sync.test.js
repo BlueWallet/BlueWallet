@@ -24,13 +24,14 @@ const makeStorage = (initial = {}) => {
 };
 
 describe('decideLaunchLanguage', () => {
-  it('applies device language when persisted fingerprint differs (iOS Settings relaunch)', () => {
+  it('applies device language when persisted LangCode fingerprint differs (iOS Settings relaunch)', () => {
     assert.deepStrictEqual(
       decideLaunchLanguage({
         userOverride: true,
         storedLang: 'fr_fr',
-        persistedFingerprint: 'en-US',
-        currentFingerprint: 'de-DE',
+        persistedFingerprint: 'en',
+        currentFingerprint: 'de_de',
+        legacyAutodetect: 'en',
       }),
       { action: 'apply_device', clearOverride: true },
     );
@@ -41,8 +42,9 @@ describe('decideLaunchLanguage', () => {
       decideLaunchLanguage({
         userOverride: true,
         storedLang: 'fr_fr',
-        persistedFingerprint: 'en-US',
-        currentFingerprint: 'en-US',
+        persistedFingerprint: 'en',
+        currentFingerprint: 'en',
+        legacyAutodetect: 'en',
       }),
       { action: 'apply_stored', clearOverride: false },
     );
@@ -54,9 +56,36 @@ describe('decideLaunchLanguage', () => {
         userOverride: true,
         storedLang: 'fr_fr',
         persistedFingerprint: null,
-        currentFingerprint: 'en-US',
+        currentFingerprint: 'en',
+        legacyAutodetect: 'en',
       }),
       { action: 'apply_stored', clearOverride: false },
+    );
+  });
+
+  it('keeps pre-upgrade in-app language when it differed from legacy autodetect', () => {
+    assert.deepStrictEqual(
+      decideLaunchLanguage({
+        userOverride: false,
+        storedLang: 'fr_fr',
+        persistedFingerprint: null,
+        currentFingerprint: 'en',
+        legacyAutodetect: 'en',
+      }),
+      { action: 'apply_stored', clearOverride: false },
+    );
+  });
+
+  it('applies mapped device language when stored en matches legacy autodetect on upgrade', () => {
+    assert.deepStrictEqual(
+      decideLaunchLanguage({
+        userOverride: false,
+        storedLang: 'en',
+        persistedFingerprint: null,
+        currentFingerprint: 'de_de',
+        legacyAutodetect: 'en',
+      }),
+      { action: 'apply_device', clearOverride: false },
     );
   });
 });
@@ -66,7 +95,7 @@ describe('executeLanguageBootstrap', () => {
     const storage = makeStorage({
       [STORAGE_KEY]: 'fr_fr',
       [LANG_USER_OVERRIDE_KEY]: '1',
-      [DEVICE_LOCALE_FINGERPRINT_KEY]: 'en-US',
+      [DEVICE_LOCALE_FINGERPRINT_KEY]: 'en',
     });
     let applied;
     const result = await executeLanguageBootstrap({
@@ -81,10 +110,9 @@ describe('executeLanguageBootstrap', () => {
 
     assert.strictEqual(applied, 'de_de');
     assert.strictEqual(result.lang, 'de_de');
-    assert.strictEqual(result.fingerprint, 'de-DE');
+    assert.strictEqual(result.fingerprint, 'de_de');
     const snap = storage.snapshot();
-    assert.strictEqual(snap[STORAGE_KEY], 'fr_fr');
-    assert.strictEqual(snap[DEVICE_LOCALE_FINGERPRINT_KEY], 'de-DE');
+    assert.strictEqual(snap[DEVICE_LOCALE_FINGERPRINT_KEY], 'de_de');
     assert.strictEqual(snap[LANG_USER_OVERRIDE_KEY], undefined);
   });
 
@@ -92,7 +120,7 @@ describe('executeLanguageBootstrap', () => {
     const storage = makeStorage({
       [STORAGE_KEY]: 'fr_fr',
       [LANG_USER_OVERRIDE_KEY]: '1',
-      [DEVICE_LOCALE_FINGERPRINT_KEY]: 'en-US',
+      [DEVICE_LOCALE_FINGERPRINT_KEY]: 'en',
     });
     let applied;
     await executeLanguageBootstrap({
@@ -107,6 +135,57 @@ describe('executeLanguageBootstrap', () => {
 
     assert.strictEqual(applied, 'fr_fr');
     assert.strictEqual(storage.snapshot()[LANG_USER_OVERRIDE_KEY], '1');
+  });
+
+  it('retroactively sets langUserOverride on upgrade when stored language was an in-app choice', async () => {
+    const storage = makeStorage({
+      [STORAGE_KEY]: 'fr_fr',
+    });
+    await executeLanguageBootstrap({
+      getLocales: () => [{ languageCode: 'en', languageTag: 'en-US' }],
+      getItem: storage.getItem,
+      setItem: storage.setItem,
+      removeItem: storage.removeItem,
+      applyLanguage: async () => {},
+    });
+    assert.strictEqual(storage.snapshot()[LANG_USER_OVERRIDE_KEY], '1');
+    assert.strictEqual(storage.snapshot()[DEVICE_LOCALE_FINGERPRINT_KEY], 'en');
+  });
+
+  it('upgrade with stored en on a German device applies de_de without override', async () => {
+    const storage = makeStorage({
+      [STORAGE_KEY]: 'en',
+    });
+    let applied;
+    await executeLanguageBootstrap({
+      getLocales: () => [{ languageCode: 'de', languageTag: 'de-DE' }],
+      getItem: storage.getItem,
+      setItem: storage.setItem,
+      removeItem: storage.removeItem,
+      applyLanguage: async lang => {
+        applied = lang;
+      },
+    });
+    assert.strictEqual(applied, 'de_de');
+    assert.strictEqual(storage.snapshot()[LANG_USER_OVERRIDE_KEY], undefined);
+  });
+
+  it('persists fingerprint only after applyLanguage succeeds', async () => {
+    const storage = makeStorage();
+    const order = [];
+    await executeLanguageBootstrap({
+      getLocales: () => [{ languageCode: 'de', languageTag: 'de-DE' }],
+      getItem: storage.getItem,
+      setItem: async (key, value) => {
+        order.push(['set', key]);
+        return storage.setItem(key, value);
+      },
+      removeItem: storage.removeItem,
+      applyLanguage: async () => {
+        order.push(['apply']);
+      },
+    });
+    assert.deepStrictEqual(order, [['apply'], ['set', DEVICE_LOCALE_FINGERPRINT_KEY]]);
   });
 
   it('first launch after upgrade records fingerprint without clearing override', async () => {
@@ -128,18 +207,20 @@ describe('executeLanguageBootstrap', () => {
     assert.strictEqual(applied, 'fr_fr');
     const snap = storage.snapshot();
     assert.strictEqual(snap[LANG_USER_OVERRIDE_KEY], '1');
-    assert.strictEqual(snap[DEVICE_LOCALE_FINGERPRINT_KEY], 'en-US');
+    assert.strictEqual(snap[DEVICE_LOCALE_FINGERPRINT_KEY], 'en');
   });
 });
 
 describe('fingerprintFromLocales', () => {
-  it('joins language tags in order', () => {
+  it('stores resolved LangCode, not raw region tags', () => {
+    assert.strictEqual(fingerprintFromLocales([{ languageCode: 'en', languageTag: 'en-US' }]), 'en');
+    assert.strictEqual(fingerprintFromLocales([{ languageCode: 'de', languageTag: 'de-DE' }]), 'de_de');
     assert.strictEqual(
       fingerprintFromLocales([
         { languageCode: 'en', languageTag: 'en-US' },
         { languageCode: 'de', languageTag: 'de-DE' },
       ]),
-      'en-US|de-DE',
+      'en',
     );
   });
 });
