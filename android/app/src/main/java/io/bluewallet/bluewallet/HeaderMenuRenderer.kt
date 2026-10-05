@@ -33,30 +33,32 @@ internal class HeaderMenuRenderer(private val context: Context) {
             "help" to R.string.wallet_menu_category_help
         )
         for ((category, titleId) in titles) {
-            val commands = WalletMenuAction.entries.filter { it.category == category }
+            val commands = WalletMenuAction.entries.filter { it.category == category && it in available }
             val entry = dynamic[category]
             val sort = if (category == "view") dynamic["sort"] else null
             if (commands.isEmpty() && entry == null && sort == null) continue
+            // Single app destinations don't need an otherwise empty parent menu.
+            if (category in setOf("settings", "help") && commands.size == 1 && entry == null && sort == null) {
+                addCommand(menu, commands.single(), Menu.NONE)
+                continue
+            }
             val title = entry?.optString("title") ?: context.getString(titleId)
             val submenu = menu.addSubMenu(R.id.wallet_menu_group, nextId++, Menu.NONE, title)
-            commands.forEachIndexed { index, action -> addCommand(submenu, action, index, action in available, true) }
+            commands.forEachIndexed { index, action -> addCommand(submenu, action, index) }
             entry?.optJSONArray("children")?.let { add(it, submenu, nextGroupId++) }
             if (sort != null) add(JSONArray().put(sort), submenu, nextGroupId++)
         }
         menu.setQwertyMode(true)
     }
 
-    private fun addCommand(menu: Menu, action: WalletMenuAction, order: Int, enabled: Boolean, tablet: Boolean) {
-        val titleId = if (tablet) when (action) {
-            WalletMenuAction.ADD_WALLET -> R.string.wallet_menu_add_prompt
-            WalletMenuAction.IMPORT_WALLET -> R.string.wallet_menu_import_prompt
+    private fun addCommand(menu: Menu, action: WalletMenuAction, order: Int) {
+        val titleId = when (action) {
             WalletMenuAction.DETAILS -> R.string.wallet_menu_details_plain
             WalletMenuAction.SHORTCUTS -> R.string.wallet_menu_shortcuts_plain
-            WalletMenuAction.SETTINGS -> R.string.wallet_menu_settings_open
             else -> action.titleId
-        } else action.titleId
+        }
         menu.add(R.id.wallet_menu_group, action.itemId, order, titleId).apply {
-            isEnabled = enabled
+            isEnabled = true
             MenuItemCompat.setContentDescription(this, context.getString(titleId))
             MenuItemCompat.setAlphabeticShortcut(this, action.shortcut, action.modifiers)
             setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)

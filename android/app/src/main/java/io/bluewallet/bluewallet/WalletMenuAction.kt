@@ -31,7 +31,8 @@ enum class WalletMenuAction(
 
     val category: String get() = when (this) {
         ADD_WALLET, IMPORT_WALLET -> "file"
-        RELOAD_TRANSACTIONS, BACK_TO_WALLETS -> "view"
+        RELOAD_TRANSACTIONS, BACK_TO_WALLETS, DETAILS -> "view"
+        SEND, RECEIVE -> "transaction"
         COPY_ADDRESS, COPY_TRANSACTION_ID -> "edit"
         SHORTCUTS -> "help"
         SETTINGS -> "settings"

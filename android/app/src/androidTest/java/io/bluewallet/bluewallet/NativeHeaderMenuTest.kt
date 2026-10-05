@@ -51,18 +51,11 @@ class NativeHeaderMenuTest {
                 .put(JSONObject().put("id", "section:remove").put("inline", true).put("children", JSONArray().put(remove)))
             val items = JSONArray().put(JSONObject().put("id", "category:recipients").put("title", "Recipients").put("children", sections))
             HeaderMenuRenderer(context).populate(menu, items, setOf(WalletMenuAction.SETTINGS))
-            assertNotNull(menu.findItem(WalletMenuAction.SEND.itemId))
-            assertFalse(menu.findItem(WalletMenuAction.SEND.itemId)!!.isEnabled)
+            assertNull(menu.findItem(WalletMenuAction.SEND.itemId))
             assertTrue(menu.findItem(WalletMenuAction.SETTINGS.itemId)!!.isEnabled)
-            assertEquals(listOf("File", "Edit", "View", "Recipients", "Settings", "Help"),
+            assertEquals(listOf("Recipients", "Settings"),
                 (0 until menu.size()).map { menu.getItem(it).title.toString() })
-            val file = menu.getItem(0).subMenu!!
-            assertNotNull(file.findItem(WalletMenuAction.ADD_WALLET.itemId))
-            assertNotNull(file.findItem(WalletMenuAction.IMPORT_WALLET.itemId))
-            assertNotNull(file.findItem(WalletMenuAction.SEND.itemId))
-            assertNotNull(file.findItem(WalletMenuAction.RECEIVE.itemId))
-            assertNotNull(file.findItem(WalletMenuAction.DETAILS.itemId))
-            val recipients = menu.getItem(3).subMenu!!
+            val recipients = menu.getItem(0).subMenu!!
             assertTrue(recipients.getItem(0).isChecked)
             assertEquals('n', recipients.getItem(0).alphabeticShortcut)
             assertFalse(recipients.getItem(1).isEnabled)
@@ -78,11 +71,27 @@ class NativeHeaderMenuTest {
             val context = ContextThemeWrapper(InstrumentationRegistry.getInstrumentation().targetContext, R.style.AppTheme)
             val menu = MenuBuilder(context)
             HeaderMenuRenderer(context).populate(menu, JSONArray(), setOf(WalletMenuAction.SHORTCUTS, WalletMenuAction.SETTINGS))
-            assertTrue(menu.getItem(0).hasSubMenu())
-            assertFalse(menu.findItem(WalletMenuAction.SEND.itemId).isEnabled)
+            assertFalse(menu.getItem(0).hasSubMenu())
+            assertNull(menu.findItem(WalletMenuAction.SEND.itemId))
             assertTrue(menu.findItem(WalletMenuAction.SHORTCUTS.itemId).isEnabled)
             assertTrue(menu.findItem(WalletMenuAction.SETTINGS.itemId).isEnabled)
-            assertEquals("File", menu.getItem(0).title.toString())
+            assertEquals(listOf("Settings", "Keyboard Shortcuts"),
+                (0 until menu.size()).map { menu.getItem(it).title.toString() })
         }
     }
+    @Test fun groupsWalletOperationsByTheirPurpose() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            val context = ContextThemeWrapper(InstrumentationRegistry.getInstrumentation().targetContext, R.style.AppTheme)
+            val menu = MenuBuilder(context)
+            HeaderMenuRenderer(context).populate(menu, JSONArray(), setOf(
+                WalletMenuAction.ADD_WALLET, WalletMenuAction.IMPORT_WALLET, WalletMenuAction.DETAILS,
+                WalletMenuAction.SEND, WalletMenuAction.RECEIVE))
+            assertEquals(listOf("File", "View", "Transaction"),
+                (0 until menu.size()).map { menu.getItem(it).title.toString() })
+            assertNotNull(menu.getItem(0).subMenu!!.findItem(WalletMenuAction.IMPORT_WALLET.itemId))
+            assertNotNull(menu.getItem(1).subMenu!!.findItem(WalletMenuAction.DETAILS.itemId))
+            assertNotNull(menu.getItem(2).subMenu!!.findItem(WalletMenuAction.SEND.itemId))
+        }
+    }
+
 }
