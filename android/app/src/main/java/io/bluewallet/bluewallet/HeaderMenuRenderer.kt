@@ -19,11 +19,7 @@ internal class HeaderMenuRenderer(private val context: Context) {
     private var nextId = 0x02000000
     private var nextGroupId = 0x03000000
 
-    fun populate(menu: Menu, items: JSONArray, available: Set<WalletMenuAction>, tablet: Boolean) {
-        if (!tablet) {
-            available.forEachIndexed { index, action -> addCommand(menu, action, index, true, false) }
-            return
-        }
+    fun populate(menu: Menu, items: JSONArray, available: Set<WalletMenuAction>) {
         val dynamic = mutableMapOf<String, JSONObject>()
         for (index in 0 until items.length()) {
             val entry = items.optJSONObject(index) ?: continue

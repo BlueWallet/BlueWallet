@@ -2,7 +2,6 @@ package io.bluewallet.bluewallet
 
 import android.view.Menu
 import android.view.KeyEvent
-import com.learnium.RNDeviceInfo.resolver.DeviceTypeResolver
 import org.json.JSONArray
 import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.ReactApplicationContext
@@ -19,7 +18,6 @@ class MenuElementsModule(context: ReactApplicationContext) :
     private var headerJSON = "[]"
     private var headerActionIDs = emptySet<String>()
     private var actions = emptySet<String>()
-    private val usesHeaderMenu = DeviceTypeResolver(context).isTablet()
     internal var headerShortcuts = emptyList<HeaderMenuShortcut>()
         private set
     @Volatile private var invalidated = false
@@ -73,7 +71,7 @@ class MenuElementsModule(context: ReactApplicationContext) :
     fun addMenuItems(menu: Menu) {
         UiThreadUtil.assertOnUiThread()
         if (invalidated || actions.isEmpty()) return
-        HeaderMenuRenderer(reactApplicationContext).populate(menu, headerItems, availableActions().toSet(), usesHeaderMenu)
+        HeaderMenuRenderer(reactApplicationContext).populate(menu, headerItems, availableActions().toSet())
     }
 
     internal fun headerShortcut(event: KeyEvent): HeaderMenuShortcut? =

@@ -8,7 +8,7 @@ import type { HeaderMenuEntry, HeaderMenuOptions } from '../blue_modules/headerM
 import useMenuElements from '../hooks/useMenuElements';
 
 export type HeaderMenuAction = HeaderMenuEntry & { onPress: () => void };
-export const usesHeaderMenu = isTablet || isDesktop;
+export const usesHeaderMenu = Platform.OS === 'android' || isTablet || isDesktop;
 export const keepNativeHeaderRightItems = isTablet && !isDesktop;
 
 export const getHeaderMenuOptions = (

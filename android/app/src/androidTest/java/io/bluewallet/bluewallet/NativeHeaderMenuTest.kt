@@ -50,7 +50,7 @@ class NativeHeaderMenuTest {
                 .put(JSONObject().put("id", "section:normal").put("inline", true).put("children", JSONArray().put(add).put(disabled).put(mixed)))
                 .put(JSONObject().put("id", "section:remove").put("inline", true).put("children", JSONArray().put(remove)))
             val items = JSONArray().put(JSONObject().put("id", "category:recipients").put("title", "Recipients").put("children", sections))
-            HeaderMenuRenderer(context).populate(menu, items, setOf(WalletMenuAction.SETTINGS), true)
+            HeaderMenuRenderer(context).populate(menu, items, setOf(WalletMenuAction.SETTINGS))
             assertNotNull(menu.findItem(WalletMenuAction.SEND.itemId))
             assertFalse(menu.findItem(WalletMenuAction.SEND.itemId)!!.isEnabled)
             assertTrue(menu.findItem(WalletMenuAction.SETTINGS.itemId)!!.isEnabled)
@@ -73,15 +73,16 @@ class NativeHeaderMenuTest {
         }
     }
 
-    @Test fun leavesPhoneMenusUnchanged() {
+    @Test fun groupsCommandsOnPhonesAndTablets() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
             val context = ContextThemeWrapper(InstrumentationRegistry.getInstrumentation().targetContext, R.style.AppTheme)
             val menu = MenuBuilder(context)
-            HeaderMenuRenderer(context).populate(menu, JSONArray(), setOf(WalletMenuAction.SHORTCUTS, WalletMenuAction.SETTINGS), false)
-            assertEquals(2, menu.size())
-            assertNull(menu.findItem(WalletMenuAction.SEND.itemId))
-            assertEquals("Keyboard Shortcuts…", menu.getItem(0).title.toString())
-            assertFalse(menu.getItem(0).hasSubMenu())
+            HeaderMenuRenderer(context).populate(menu, JSONArray(), setOf(WalletMenuAction.SHORTCUTS, WalletMenuAction.SETTINGS))
+            assertTrue(menu.getItem(0).hasSubMenu())
+            assertFalse(menu.findItem(WalletMenuAction.SEND.itemId).isEnabled)
+            assertTrue(menu.findItem(WalletMenuAction.SHORTCUTS.itemId).isEnabled)
+            assertTrue(menu.findItem(WalletMenuAction.SETTINGS.itemId).isEnabled)
+            assertEquals("File", menu.getItem(0).title.toString())
         }
     }
 }
