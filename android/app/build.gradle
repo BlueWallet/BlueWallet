@@ -7,6 +7,8 @@ apply plugin: "com.facebook.react"
  * By default you don't need to apply any configuration, just uncomment the lines you need.
  */
 react {
+    // Only debug uses Metro; standalone bundles JS for Android Studio Run.
+    debuggableVariants = ["debug"]
     /* Folders */
     //   The root of your project, i.e. where "package.json" lives. Default is '../..'
     // root = file("../../")
@@ -111,6 +113,11 @@ android {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
+        }
+        standalone {
+            initWith release
+            matchingFallbacks = ['release']
+            signingConfig signingConfigs.debug
         }
     }
 

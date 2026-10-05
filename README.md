@@ -44,25 +44,21 @@ npm install
 
 Please make sure that your console is running the most stable versions of npm and node (even-numbered versions).
 
-* To run on Android:
+* To build and run in Android Studio:
 
-You will now need to either connect an Android device to your computer or run an emulated Android device using AVD Manager which comes shipped with Android Studio. To run an emulator using AVD Manager:
+1. Install Java 17 or select Android Studio's bundled JDK in **Settings → Build, Execution, Deployment → Build Tools → Gradle**. Use the project's Gradle wrapper.
+2. In SDK Manager, install Android SDK Platform 36, Build Tools 36.0.0, NDK 28.2.13676358, and CMake 3.22.1. Gradle may offer to install missing SDK components.
+3. Run `npm ci` in the repository root. Quit Android Studio if it is already running, then run `npm run android:studio`. This opens the `android/` project with Node on its PATH, including when Node is installed through nvm. If Studio is installed elsewhere, set `ANDROID_STUDIO_BIN` to its executable path.
+4. Let Gradle sync finish. In **Build Variants**, select **standalone** for the `app` module. This variant bundles JavaScript, uses local debug signing, and runs without Metro.
+5. Select the **app** run configuration and a phone or tablet in Device Manager, then click **Run**. To generate an APK, use **Build → Generate App Bundles or APKs → Generate APKs**. The standalone APK is written to `android/app/build/outputs/apk/standalone/app-standalone.apk`.
 
-1. Download and run Android Studio
-2. Click on "Open an existing Android Studio Project"
-3. Open `build.gradle` file under `BlueWallet/android/` folder
-4. Android Studio will take some time to set things up. Once everything is set up, go to `Tools` -> `AVD Manager`.
-    * 📝 This option [may take some time to appear in the menu](https://stackoverflow.com/questions/47173708/why-avd-manager-options-are-not-showing-in-android-studio) if you're opening the project in a freshly-installed version of Android Studio.
-5. Click on "Create Virtual Device..." and go through the steps to create a virtual device
-6. Launch your newly created virtual device by clicking the `Play` button under `Actions` column
+The standalone variant is for local development; production release signing is configured separately. To use Fast Refresh, select **debug**, run `npm start` in a terminal, and run `adb reverse tcp:8081 tcp:8081` for a USB-connected device.
 
-Once you connected an Android device or launched an emulator, run this:
+The command-line workflow remains available:
 
 ```
 npx react-native run-android
 ```
-
-The above command will build the app and install it. Once you launch the app it will take some time for all of the dependencies to load. Once everything loads up, you should have the built app running.
 
 * To run on iOS:
 
