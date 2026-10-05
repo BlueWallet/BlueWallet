@@ -180,7 +180,7 @@ describe('Header options regression guards', () => {
     });
   });
 
-  it('sets MultisigAdvanced headerRight only once across same-props rerenders', async () => {
+  it('sets MultisigAdvanced headerRight param only once across same-props rerenders', async () => {
     routeParams = {
       m: 2,
       n: 3,
@@ -191,13 +191,13 @@ describe('Header options regression guards', () => {
     const screen = render(<MultisigAdvanced />);
 
     await waitFor(() => {
-      expect(setOptionsMock).toHaveBeenCalledTimes(1);
+      expect(setParamsMock).toHaveBeenCalledTimes(1);
     });
 
     screen.rerender(<MultisigAdvanced />);
 
     await waitFor(() => {
-      expect(setOptionsMock).toHaveBeenCalledTimes(1);
+      expect(setParamsMock).toHaveBeenCalledTimes(1);
     });
   });
 });
