@@ -3,9 +3,11 @@ import React, { useMemo, useCallback } from 'react';
 import { View, StyleSheet, Linking, Image } from 'react-native';
 import loc from '../../loc';
 import { SettingsSection, SettingsListItem, SettingsScrollView } from '../../components/SettingsSection';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const Settings = () => {
   const { navigate } = useNavigation();
+  useSettings(); // Re-render localized labels when the language changes.
 
   const handleDonatePress = useCallback(() => {
     Linking.openURL('https://donate.bluewallet.io/');
