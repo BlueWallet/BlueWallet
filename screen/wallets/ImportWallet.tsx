@@ -2,11 +2,11 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Keyboard, StyleSheet, TextInput, TextInputSelectionChangeEvent, TouchableWithoutFeedback, View } from 'react-native';
-import AndroidKeyboardAccessoryDock from '../../components/AndroidKeyboardAccessoryDock';
+import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
 import BlueFormLabel from '../../components/BlueFormLabel';
 import BlueFormMultiInput from '../../components/BlueFormMultiInput';
 import Button from '../../components/Button';
-import { DoneAndDismissKeyboardInputAccessory } from '../../components/DoneAndDismissKeyboardInputAccessory';
+import KeyboardAccessorySuggestions from '../../components/KeyboardAccessorySuggestions';
 import InputClearPasteOverlay from '../../components/InputClearPasteOverlay';
 import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -215,21 +215,14 @@ const ImportWallet = () => {
     if (triggerImport) handleImport();
   }, [triggerImport, handleImport]);
 
-  const keyboardAccessory = (
-    <DoneAndDismissKeyboardInputAccessory
-      onClearTapped={handleClearTapped}
-      onPasteTapped={handlePasteTapped}
-      suggestions={suggestions}
-      onSuggestionTapped={handleSuggestionTapped}
-    />
-  );
+  const keyboardAccessory = <KeyboardAccessorySuggestions suggestions={suggestions} onSuggestionTapped={handleSuggestionTapped} />;
 
   const scrollView = (
     <SafeAreaScrollView
       style={styles.screen}
       contentContainerStyle={[styles.root, styles.scrollContent]}
       keyboardShouldPersistTaps="always"
-      // IME lift comes from AndroidKeyboardAccessoryDock on both platforms.
+      // IME lift comes from KeyboardAccessoryDock on both platforms.
       automaticallyAdjustKeyboardInsets={false}
       scrollToOverflowEnabled={false}
     >
@@ -260,9 +253,9 @@ const ImportWallet = () => {
 
   return (
     <View style={styles.screen}>
-      <AndroidKeyboardAccessoryDock active={isInputFocused} accessory={keyboardAccessory}>
+      <KeyboardAccessoryDock active={isInputFocused} accessory={keyboardAccessory}>
         {scrollView}
-      </AndroidKeyboardAccessoryDock>
+      </KeyboardAccessoryDock>
     </View>
   );
 };

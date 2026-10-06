@@ -1,29 +1,14 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import {
-  InputAccessoryView,
-  Keyboard,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleProp,
-  StyleSheet,
-  Text,
-  TextStyle,
-  useColorScheme,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { Keyboard, Pressable, ScrollView, StyleProp, StyleSheet, Text, TextStyle, useColorScheme, View, ViewStyle } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+
 import BlueButtonLink from './BlueButtonLink';
-import loc from '../loc';
+import { KEYBOARD_ACCESSORY_BAR_HEIGHT, useKeyboardAccessoryCapsuleChrome } from './keyboardAccessory';
 import { useTheme } from './themes';
-import Clipboard from '@react-native-clipboard/clipboard';
-import { isIOS26OrHigher } from '../blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { withAlpha } from './color';
-
-export const KEYBOARD_ACCESSORY_BAR_HEIGHT = 44;
+import loc from '../loc';
 
 const BAR_HEIGHT = KEYBOARD_ACCESSORY_BAR_HEIGHT;
 const CHIP_FADE_IN_MS = 180;
@@ -34,11 +19,9 @@ const chipFadeEasing = Easing.out(Easing.cubic);
 const RIGHT_EDGE_FADE_START = { x: 0, y: 0.5 };
 const RIGHT_EDGE_FADE_END = { x: 1, y: 0.5 };
 
-interface DoneAndDismissKeyboardInputAccessoryProps {
-  onPasteTapped: (clipboard: string) => void;
-  onClearTapped: () => void;
-  suggestions?: string[];
-  onSuggestionTapped?: (word: string) => void;
+interface KeyboardAccessorySuggestionsProps {
+  suggestions: string[];
+  onSuggestionTapped: (word: string) => void;
 }
 
 interface SuggestionChipProps {
@@ -91,21 +74,14 @@ const SuggestionChip: React.FC<SuggestionChipProps> = ({ word, chipStyle, chipTe
   );
 };
 
-export const DoneAndDismissKeyboardInputAccessoryViewID = 'DoneAndDismissKeyboardInputAccessory';
-
-export const DoneAndDismissKeyboardInputAccessory: React.FC<DoneAndDismissKeyboardInputAccessoryProps> = props => {
+/** Pure BIP39 suggestion chips + Done content for KeyboardAccessoryDock (chrome lives on the dock). */
+const KeyboardAccessorySuggestions: React.FC<KeyboardAccessorySuggestionsProps> = ({ suggestions, onSuggestionTapped }) => {
   const { colors } = useTheme();
   const isDark = useColorScheme() === 'dark';
-  const isSuggestionMode = props.onSuggestionTapped != null;
-  const useIos26Capsule = isSuggestionMode && isIOS26OrHigher;
-  const suggestions = props.suggestions ?? [];
-  const onSuggestionTapped = props.onSuggestionTapped;
+  const useIosCapsule = useKeyboardAccessoryCapsuleChrome;
 
   const styleHooks = StyleSheet.create({
-    container: {
-      backgroundColor: colors.inputBackgroundColor,
-    },
-    chip: useIos26Capsule
+    chip: useIosCapsule
       ? {
           backgroundColor: isDark ? colors.buttonDisabledBackgroundColor : withAlpha(colors.shadowColor, 0.06),
         }
@@ -113,13 +89,10 @@ export const DoneAndDismissKeyboardInputAccessory: React.FC<DoneAndDismissKeyboa
           backgroundColor: colors.buttonDisabledBackgroundColor,
         },
     chipText: {
-      color: useIos26Capsule && isDark ? colors.buttonDisabledTextColor : colors.alternativeTextColor,
+      color: useIosCapsule && isDark ? colors.buttonDisabledTextColor : colors.alternativeTextColor,
     },
     doneText: {
       color: colors.foregroundColor,
-    },
-    androidSeparator: {
-      borderTopColor: colors.formBorder,
     },
   });
 
@@ -128,30 +101,15 @@ export const DoneAndDismissKeyboardInputAccessory: React.FC<DoneAndDismissKeyboa
     [colors.inputBackgroundColor],
   );
 
-  const onPasteTapped = async () => {
-    const clipboard = await Clipboard.getString();
-    props.onPasteTapped(clipboard);
-  };
-
   const handleSuggestionTapped = useCallback(
     (word: string) => {
-      onSuggestionTapped?.(word);
+      onSuggestionTapped(word);
     },
     [onSuggestionTapped],
   );
 
-  // Suggestion mode is docked by the parent (not InputAccessoryView) so chip updates can animate.
-  const inputView = isSuggestionMode ? (
-    <View
-      style={[
-        styles.suggestionBar,
-        useIos26Capsule && styles.suggestionBarIos26,
-        Platform.OS === 'android' && styles.suggestionBarAndroid,
-        styleHooks.container,
-        Platform.OS === 'android' && styleHooks.androidSeparator,
-      ]}
-      testID="ImportWalletKeyboardAccessoryBar"
-    >
+  return (
+    <View style={styles.suggestionBar} testID="ImportWalletKeyboardAccessoryBar">
       <View style={styles.suggestionsScroll}>
         <ScrollView
           horizontal
@@ -178,7 +136,7 @@ export const DoneAndDismissKeyboardInputAccessory: React.FC<DoneAndDismissKeyboa
           style={styles.rightEdgeFade}
         />
       </View>
-      {useIos26Capsule ? (
+      {useIosCapsule ? (
         <Pressable
           accessibilityRole="button"
           onPress={Keyboard.dismiss}
@@ -190,42 +148,15 @@ export const DoneAndDismissKeyboardInputAccessory: React.FC<DoneAndDismissKeyboa
         <BlueButtonLink title={loc.send.input_done} onPress={Keyboard.dismiss} />
       )}
     </View>
-  ) : (
-    <View style={[styles.container, styleHooks.container]}>
-      <BlueButtonLink title={loc.send.input_clear} onPress={props.onClearTapped} />
-      <BlueButtonLink title={loc.send.input_paste} onPress={onPasteTapped} />
-      <BlueButtonLink title={loc.send.input_done} onPress={Keyboard.dismiss} />
-    </View>
   );
-
-  if (Platform.OS === 'ios' && !isSuggestionMode) {
-    return <InputAccessoryView nativeID={DoneAndDismissKeyboardInputAccessoryViewID}>{inputView}</InputAccessoryView>;
-  }
-
-  return inputView;
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    maxHeight: BAR_HEIGHT,
-  },
   suggestionBar: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     height: BAR_HEIGHT,
-    maxHeight: BAR_HEIGHT,
-    overflow: 'hidden',
-  },
-  suggestionBarIos26: {
-    marginHorizontal: 8,
-    marginBottom: 4,
-    borderRadius: 20,
-  },
-  suggestionBarAndroid: {
-    borderTopWidth: StyleSheet.hairlineWidth,
   },
   suggestionsScroll: {
     flex: 1,
@@ -275,3 +206,5 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+
+export default KeyboardAccessorySuggestions;
