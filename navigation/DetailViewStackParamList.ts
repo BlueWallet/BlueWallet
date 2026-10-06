@@ -5,6 +5,7 @@ import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
+import { ClipboardPaymentKind } from '../blue_modules/clipboardPayment';
 
 export type ScanQRCodeParamList = {
   cameraStatusGranted?: boolean;
@@ -40,7 +41,15 @@ export type DetailViewStackParamList = {
   UnlockWithScreen: undefined;
   KeyboardShortcuts: undefined;
   WalletsList: { onBarScanned?: string };
-  WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string; onBarScanned?: string };
+  WalletTransactions: {
+    isLoading?: boolean;
+    walletID: string;
+    walletType: string;
+    onBarScanned?: string;
+    headerIsScrolled?: boolean;
+    headerWalletLabel?: string;
+    headerWalletBalance?: string;
+  };
   WalletDetails: { walletID: string };
   // TODO: type tx properly once Transaction and ElectrumTransaction are unified
   TransactionStatus: { hash: string; walletID: string; tx?: any };
@@ -177,4 +186,9 @@ export type DetailViewStackParamList = {
   };
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
   ManageWallets: undefined;
+  ClipboardDetected: {
+    payload: string;
+    kind: ClipboardPaymentKind;
+    contentHash: string;
+  };
 };

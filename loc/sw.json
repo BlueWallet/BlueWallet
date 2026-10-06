@@ -361,7 +361,6 @@
     "onchain": "Ndani ya Mnyororo",
     "details_to": "Toleo",
     "enable_offline_signing": "Pochi hii haitumiki pamoja na utiaji saini wa nje ya mtandao. Je, ungependa kuuwezesha sasa?",
-    "list_conf": "Uthibitisho: {number}",
     "pending": "Inasubiri",
     "pending_with_amount": "Inasubiri {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

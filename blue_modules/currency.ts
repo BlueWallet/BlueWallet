@@ -45,13 +45,31 @@ function getCurrencyFormatter(): Intl.NumberFormat {
   return currencyFormatter;
 }
 
-async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
+async function storeExchangeRate(endPointKey: string, rate: number): Promise<void> {
+  exchangeRates[LAST_UPDATED] = Date.now();
+  exchangeRates[BTC_PREFIX + endPointKey] = rate;
+  exchangeRates.LAST_UPDATED_ERROR = false;
+
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    await DefaultPreference.set(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(exchangeRates));
+  } catch (error) {
+    await DefaultPreference.clear(EXCHANGE_RATES_STORAGE_KEY);
+    exchangeRates = { LAST_UPDATED_ERROR: false };
+  }
+}
+
+/** `prefetchedRate` (already fetched by the caller) is stored as fresh so the daemon doesn't fetch it a second time */
+async function setPreferredCurrency(item: FiatUnitType, prefetchedRate?: number): Promise<void> {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   try {
     await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, item.endPointKey);
     await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, item.locale.replace('-', '_'));
     preferredFiatCurrency = FiatUnit[item.endPointKey];
     currencyFormatter = null; // Remove cached formatter
+    if (prefetchedRate !== undefined) {
+      await storeExchangeRate(item.endPointKey, prefetchedRate);
+    }
     console.debug('Preferred currency set to:', item);
     console.debug('Preferred currency locale set to:', item.locale.replace('-', '_'));
     console.debug('Cleared all cached currency formatters');
@@ -62,35 +80,39 @@ async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
   currencyFormatter = null;
 }
 
+/** A cached rate counts only if it is a positive finite number — `0`, `NaN`, `null` from an old blob must trigger a refetch */
+function hasValidCachedRate(rates: Record<string, unknown>, endPointKey: string): boolean {
+  const cached = rates[BTC_PREFIX + endPointKey];
+  return typeof cached === 'number' && Number.isFinite(cached) && cached > 0;
+}
+
 async function updateExchangeRate(): Promise<void> {
   if (skipUpdateExchangeRate) return;
-  if (Date.now() - lastTimeUpdateExchangeRateWasCalled <= 10000) {
-    // simple debounce so there's no race conditions
-    return;
+
+  // Capture the key: the user can switch currency while getFiatRate is in flight, and the result must not be
+  // stored under the new key
+  const endPointKey = preferredFiatCurrency.endPointKey;
+  const hasRateForCurrency = hasValidCachedRate(exchangeRates, endPointKey);
+
+  // The debounce and the 30-min throttle only apply when we already have a rate for this currency;
+  // a currency with no cached rate (e.g. fallback after a removed currency) must always fetch
+  if (hasRateForCurrency) {
+    if (Date.now() - lastTimeUpdateExchangeRateWasCalled <= 10000) {
+      // simple debounce so there's no race conditions
+      return;
+    }
+    const lastUpdated = exchangeRates[LAST_UPDATED] as number | undefined;
+    if (lastUpdated && Date.now() - lastUpdated <= 30 * 60 * 1000) {
+      // not updating too often
+      return;
+    }
   }
   lastTimeUpdateExchangeRateWasCalled = Date.now();
-
-  const lastUpdated = exchangeRates[LAST_UPDATED] as number | undefined;
-  if (lastUpdated && Date.now() - lastUpdated <= 30 * 60 * 1000) {
-    // not updating too often
-    return;
-  }
   console.log('updating exchange rate...');
 
   try {
-    const rate = await getFiatRate(preferredFiatCurrency.endPointKey);
-    exchangeRates[LAST_UPDATED] = Date.now();
-    exchangeRates[BTC_PREFIX + preferredFiatCurrency.endPointKey] = rate;
-    exchangeRates.LAST_UPDATED_ERROR = false;
-
-    try {
-      const exchangeRatesString = JSON.stringify(exchangeRates);
-      await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-      await DefaultPreference.set(EXCHANGE_RATES_STORAGE_KEY, exchangeRatesString);
-    } catch (error) {
-      await DefaultPreference.clear(EXCHANGE_RATES_STORAGE_KEY);
-      exchangeRates = { LAST_UPDATED_ERROR: false };
-    }
+    const rate = await getFiatRate(endPointKey);
+    await storeExchangeRate(endPointKey, rate);
   } catch (error) {
     try {
       await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
@@ -151,6 +173,8 @@ async function getPreferredCurrency(): Promise<FiatUnitType> {
     }
   }
 
+  // Persist whatever we resolved to: native widgets read this key directly and default to USD when it's missing
+  await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, preferredFiatCurrency.endPointKey);
   await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, preferredFiatCurrency.locale.replace('-', '_'));
   return preferredFiatCurrency;
 }
@@ -221,6 +245,13 @@ async function _restoreSavedPreferredFiatCurrencyFromStorage(): Promise<void> {
       preferredFiatCurrency = FiatUnit.USD;
     }
   }
+
+  // Persist whatever we resolved to: native widgets read this key directly and default to USD when it's missing
+  try {
+    await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, preferredFiatCurrency.endPointKey);
+  } catch (error) {
+    console.warn('Failed to persist preferred currency:', error);
+  }
 }
 
 async function isRateOutdated(): Promise<boolean> {
@@ -245,7 +276,12 @@ async function isRateOutdated(): Promise<boolean> {
     } else {
       rate = {};
     }
-    return rate.LAST_UPDATED_ERROR || Date.now() - (rate[LAST_UPDATED] || 0) >= 31 * 60 * 1000;
+    // No cached rate for the preferred currency counts as outdated, mirroring updateExchangeRate's throttle gate
+    return (
+      rate.LAST_UPDATED_ERROR ||
+      !hasValidCachedRate(rate, preferredFiatCurrency.endPointKey) ||
+      Date.now() - (rate[LAST_UPDATED] || 0) >= 31 * 60 * 1000
+    );
   } catch {
     return true;
   }
