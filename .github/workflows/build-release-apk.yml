@@ -59,7 +59,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
         with:
           # Override the default package list, which includes the unavailable legacy tools package.
           packages: 'platform-tools'
@@ -73,9 +73,9 @@ jobs:
         run: npm ci --omit=dev --yes
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
-          ruby-version: 3.4.10
+          ruby-version: 3.4.11
           bundler-cache: true
 
       - name: Generate Build Number based on timestamp
@@ -141,9 +141,9 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
-          ruby-version: 3.4.10
+          ruby-version: 3.4.11
           bundler-cache: true
 
       - name: Install dependencies with Bundler
