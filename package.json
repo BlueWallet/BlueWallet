@@ -33,6 +33,8 @@
     "@types/wif": "^2.0.5",
     "@typescript-eslint/eslint-plugin": "^8.64.0",
     "@typescript-eslint/parser": "^8.64.0",
+    "appium": "3.7.0",
+    "appium-mac2-driver": "4.3.5",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard": "^17.1.0",
@@ -51,7 +53,8 @@
     "prettier": "^3.2.5",
     "react-test-renderer": "19.2.3",
     "ts-jest": "^29.1.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "webdriverio": "9.32.0"
   },
   "engines": {
     "node": ">= 22.11.0"
@@ -84,6 +87,8 @@
     "e2e:release-test-device": "detox test -c android.release.device  --loglevel info --record-videos all",
     "e2e:build:ios-release": "detox build -c ios.release",
     "e2e:test:ios-release": "detox test -c ios.release",
+    "e2e:catalyst:build": "./tests/e2e-appium/build-catalyst.sh",
+    "e2e:catalyst:test": "NODE_OPTIONS=--experimental-vm-modules jest -c tests/e2e-appium/jest.config.js",
     "tslint": "tsc",
     "lint": " npm run tslint && node scripts/find-unused-loc.js && node scripts/find-english-leftovers.js && node scripts/validate-fastlane-metadata.js && eslint --ext .js,.ts,.tsx '*.@(js|ts|tsx)' screen 'blue_modules/*.@(js|ts|tsx)' class models loc tests components navigation typings",
     "lint:fix": "npm run lint -- --fix",
