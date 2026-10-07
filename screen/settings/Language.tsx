@@ -1,7 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useLayoutEffect, useState, useCallback } from 'react';
 import { Keyboard, NativeSyntheticEvent, StyleSheet } from 'react-native';
-import presentAlert from '../../components/Alert';
 import loc from '../../loc';
 import { AvailableLanguages, TLanguage } from '../../loc/languages';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -33,14 +32,9 @@ const Language = () => {
   const onLanguageSelect = useCallback(
     (item: TLanguage) => {
       Keyboard.dismiss();
-      const currentLanguage = AvailableLanguages.find(l => l.value === language);
-      setLanguageStorage(item.value).then(() => {
-        if (currentLanguage?.isRTL !== item.isRTL) {
-          presentAlert({ message: loc.settings.language_isRTL });
-        }
-      });
+      setLanguageStorage(item.value);
     },
-    [language, setLanguageStorage],
+    [setLanguageStorage],
   );
 
   const renderItem = useCallback(

@@ -7,15 +7,43 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Localization, { LocalizedStrings } from 'react-localization';
-import { I18nManager } from 'react-native';
+import { AppState, I18nManager } from 'react-native';
 import * as RNLocalize from 'react-native-localize';
 
 import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages, LangCode } from './languages';
+import {
+  DEVICE_LOCALE_FINGERPRINT_KEY,
+  executeLanguageBootstrap,
+  fingerprintFromLocales,
+  LANG_USER_OVERRIDE_KEY,
+  layoutDirectionIsRtl,
+  RTL_FORCE_DIRECTION_KEY,
+  legacyAutodetectLangCode,
+  notifyLanguageChanged,
+  notifyRtlRestartNeeded,
+  resumeShouldReapplyLanguage,
+  shouldNotifyRtlLanguageRestart,
+  STORAGE_KEY,
+} from './languageSync';
 import enJson from './en.json';
 
-export const STORAGE_KEY = 'lang';
+export {
+  DEVICE_LOCALE_FINGERPRINT_KEY,
+  LANGUAGE_CHANGED_EVENT,
+  LANGUAGE_RTL_RESTART_EVENT,
+  LANG_USER_OVERRIDE_KEY,
+  STORAGE_KEY,
+} from './languageSync';
+export {
+  decideLaunchLanguage,
+  executeLanguageBootstrap,
+  fingerprintFromLocales,
+  notifyLanguageChanged,
+  notifyRtlRestartNeeded,
+  shouldNotifyRtlLanguageRestart,
+} from './languageSync';
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
@@ -316,8 +344,8 @@ const setDateTimeLocale = async () => {
       require('dayjs/locale/sl');
       break;
     case 'sr_rs':
-      lang = 'sr-cyrl';
-      require('dayjs/locale/sr-cyrl');
+      lang = 'sr';
+      require('dayjs/locale/sr');
       break;
     case 'sv_se':
       require('dayjs/locale/sv');
@@ -361,34 +389,95 @@ const setDateTimeLocale = async () => {
   }
 };
 
-// Fire-and-forget; `loc` starts as `{en}` until this resolves, so synchronous reads on a cold launch with non-en saved preference render English briefly.
-const init = async () => {
-  const lang = await AsyncStorage.getItem(STORAGE_KEY);
-  if (lang) {
-    await saveLanguage(lang);
-  } else {
-    const locales = RNLocalize.getLocales();
-    const detected = locales[0]?.languageCode;
-    if (detected && AvailableLanguages.some(language => language.value === detected)) {
-      await saveLanguage(detected);
-    } else {
-      await saveLanguage('en');
-    }
-  }
-};
-init();
+let lastAppliedLangForSideEffects: string | null = null;
 
-export const saveLanguage = async (lang: string) => {
-  await AsyncStorage.setItem(STORAGE_KEY, lang);
+const applyLanguageSideEffects = async (lang: string, options?: { userSelected?: boolean }) => {
+  const previousLang = lastAppliedLangForSideEffects;
   applyLanguage(lang);
-  // even tho it makes no effect changing it in this run, it will on the next run, so we are doign it here:
+  const foundLang = AvailableLanguages.find(language => language.value === lang);
+  const desiredRtl = foundLang?.isRTL ?? false;
   if (process.env.JEST_WORKER_ID === undefined) {
-    const foundLang = AvailableLanguages.find(language => language.value === lang);
-    I18nManager.allowRTL(foundLang?.isRTL ?? false);
-    I18nManager.forceRTL(foundLang?.isRTL ?? false);
+    I18nManager.allowRTL(desiredRtl);
+    I18nManager.forceRTL(desiredRtl);
+    const forcedFlag = await AsyncStorage.getItem(RTL_FORCE_DIRECTION_KEY);
+    const previouslyForcedRtl = forcedFlag === '1' ? true : forcedFlag === '0' ? false : null;
+    if (
+      shouldNotifyRtlLanguageRestart({
+        previousLang,
+        newLang: lang,
+        userSelected: options?.userSelected,
+        currentLayoutRtl: layoutDirectionIsRtl(I18nManager.isRTL),
+        previouslyForcedRtl,
+      })
+    ) {
+      notifyRtlRestartNeeded();
+    }
+    await AsyncStorage.setItem(RTL_FORCE_DIRECTION_KEY, desiredRtl ? '1' : '0');
   }
+  lastAppliedLangForSideEffects = lang;
   await setDateTimeLocale();
 };
+
+const syncDeviceLanguageIfNeeded = async () => {
+  const locales = RNLocalize.getLocales();
+  const currentFingerprint = fingerprintFromLocales(locales);
+  const persistedFingerprint = await AsyncStorage.getItem(DEVICE_LOCALE_FINGERPRINT_KEY);
+  const userOverride = (await AsyncStorage.getItem(LANG_USER_OVERRIDE_KEY)) === '1';
+  const stored = await AsyncStorage.getItem(STORAGE_KEY);
+  if (
+    !resumeShouldReapplyLanguage({
+      userOverride,
+      storedLang: stored,
+      persistedFingerprint,
+      currentFingerprint,
+      legacyAutodetect: legacyAutodetectLangCode(locales),
+    })
+  ) {
+    return;
+  }
+  // Same decision as cold start, including a missing fingerprint. Fingerprint is written
+  // only after applyLanguage succeeds inside executeLanguageBootstrap.
+  await executeLanguageBootstrap({
+    getLocales: () => locales,
+    getItem: key => AsyncStorage.getItem(key),
+    setItem: (key, value) => AsyncStorage.setItem(key, value),
+    removeItem: key => AsyncStorage.removeItem(key),
+    applyLanguage: lang => saveLanguage(lang),
+  });
+};
+
+// Fire-and-forget; `loc` starts as `{en}` until this resolves, so synchronous reads on a cold launch with non-en saved preference render English briefly.
+const init = async () => {
+  await executeLanguageBootstrap({
+    getLocales: () => RNLocalize.getLocales(),
+    getItem: key => AsyncStorage.getItem(key),
+    setItem: (key, value) => AsyncStorage.setItem(key, value),
+    removeItem: key => AsyncStorage.removeItem(key),
+    applyLanguage: lang => saveLanguage(lang),
+  });
+};
+
+init();
+
+if (process.env.JEST_WORKER_ID === undefined) {
+  AppState.addEventListener('change', nextState => {
+    if (nextState === 'active') {
+      syncDeviceLanguageIfNeeded().catch(console.error);
+    }
+  });
+}
+
+export const saveLanguage = async (lang: string, options?: { userSelected?: boolean }) => {
+  await AsyncStorage.setItem(STORAGE_KEY, lang);
+  if (options?.userSelected) {
+    await AsyncStorage.setItem(LANG_USER_OVERRIDE_KEY, '1');
+  }
+  await applyLanguageSideEffects(lang, options);
+  notifyLanguageChanged(lang);
+};
+
+export { resolveLangCodeFromRnLocale, resolveLangCodeFromRnLocales } from './resolveDeviceLangCode';
+export { CF_BUNDLE_APPLE_LOCALES, CF_BUNDLE_LANG_CODES, langCodeToAppleLocale } from './appleLocale';
 
 export const transactionTimeToReadable = (time: number | string) => {
   if (time === -1) {
