@@ -1,4 +1,4 @@
-import { langCodeToAppleLocale } from './appleLocale';
+import { CF_BUNDLE_LANG_CODES, langCodeToAppleLocale } from './appleLocale';
 import { LangCode } from './languages';
 
 export type RnLocale = {
@@ -46,14 +46,14 @@ const ES_419_COUNTRY_CODES = new Set([
 
 const appleLocaleToLangCode = (() => {
   const map = new Map<string, LangCode>();
-  for (const [lang, apple] of Object.entries(langCodeToAppleLocale) as [LangCode, string][]) {
-    map.set(apple.toLowerCase(), lang);
+  // Only locales declared in CFBundleLocalizations. Partial catalogs (da, nl, fil, ak, pcm)
+  // stay available in the in-app picker but must not win device resolution ahead of UIKit.
+  for (const lang of CF_BUNDLE_LANG_CODES) {
+    map.set(langCodeToAppleLocale[lang].toLowerCase(), lang);
   }
-  // Legacy / alias tags seen from NSLocale / react-native-localize.
+  // Legacy / alias tags. `no` is the Norwegian macrolanguage (Android). `nn` is omitted so
+  // Nynorsk falls through to the next preferred language UIKit would actually select.
   map.set('no', 'nb_no');
-  map.set('nn', 'nb_no');
-  map.set('tl', 'fil_PH');
-  map.set('tl-ph', 'fil_PH');
   map.set('iw', 'he');
   map.set('in', 'id_id');
   return map;
@@ -94,18 +94,19 @@ const resolvePortuguese = (locale: RnLocale): LangCode | null => {
 
 const resolveChinese = (locale: RnLocale): LangCode | null => {
   const tag = locale.languageTag ? normalizeTag(locale.languageTag).toLowerCase() : '';
-  if (tag.includes('hant') || tag.includes('-tw') || tag.includes('-hk') || tag.includes('-mo')) {
-    return 'zh_tw';
-  }
-  if (tag.includes('hans') || tag.includes('-cn') || tag.endsWith('-sg')) {
-    return 'zh_cn';
-  }
   const script = locale.scriptCode?.toLowerCase();
-  if (script === 'hans') {
+  // Script before region: `zh-Hans-TW` is Simplified, `zh-Hant-CN` is Traditional.
+  if (script === 'hant' || tag.includes('hant')) {
+    return 'zh_tw';
+  }
+  if (script === 'hans' || tag.includes('hans')) {
     return 'zh_cn';
   }
-  if (script === 'hant') {
+  if (tag.includes('-tw') || tag.includes('-hk') || tag.includes('-mo')) {
     return 'zh_tw';
+  }
+  if (tag.includes('-cn') || tag.endsWith('-sg')) {
+    return 'zh_cn';
   }
   const cc = locale.countryCode?.toUpperCase();
   if (cc === 'TW' || cc === 'HK' || cc === 'MO') {

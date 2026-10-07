@@ -29,16 +29,27 @@ export const notifyRtlRestartNeeded = (): void => {
 
 const catalogIsRtl = (lang: string): boolean => AvailableLanguages.find(language => language.value === lang)?.isRTL ?? false;
 
-/** Matches pre–SettingsProvider Language screen: alert only on manual RTL ↔ LTR picks. */
+/** `I18nManager.isRTL` is a boolean; the native bridge has also surfaced 0/1. */
+export const layoutDirectionIsRtl = (value: unknown): boolean => value === true || value === 1;
+
+/**
+ * Alert when this process's layout direction does not match the catalog (automatic
+ * and manual applies), or when a manual pick crosses the RTL/LTR catalog boundary.
+ */
 export const shouldNotifyRtlLanguageRestart = (params: {
   previousLang: string | null;
   newLang: string;
   userSelected?: boolean;
+  currentLayoutRtl?: boolean;
 }): boolean => {
+  const newRtl = catalogIsRtl(params.newLang);
+  if (params.currentLayoutRtl !== undefined && params.currentLayoutRtl !== newRtl) {
+    return true;
+  }
   if (!params.userSelected || params.previousLang === null) {
     return false;
   }
-  return catalogIsRtl(params.previousLang) !== catalogIsRtl(params.newLang);
+  return catalogIsRtl(params.previousLang) !== newRtl;
 };
 
 export type LaunchLanguageDecision = { action: 'apply_device'; clearOverride: boolean } | { action: 'apply_stored'; clearOverride: false };
@@ -65,6 +76,19 @@ export const decideLaunchLanguage = (params: {
   }
 
   return { action: 'apply_device', clearOverride: false };
+};
+
+/** Resume should re-run bootstrap when the cold-start decision would change language or fingerprint. */
+export const resumeShouldReapplyLanguage = (params: {
+  userOverride: boolean;
+  storedLang: string | null;
+  persistedFingerprint: string | null;
+  currentFingerprint: string;
+  legacyAutodetect: string;
+}): boolean => {
+  const decision = decideLaunchLanguage(params);
+  const desiredLang = decision.action === 'apply_device' ? params.currentFingerprint : (params.storedLang ?? 'en');
+  return !(params.persistedFingerprint === params.currentFingerprint && params.storedLang === desiredLang && !decision.clearOverride);
 };
 
 export const notifyLanguageChanged = (lang: string): void => {

@@ -18,12 +18,14 @@ import {
   executeLanguageBootstrap,
   fingerprintFromLocales,
   LANG_USER_OVERRIDE_KEY,
+  layoutDirectionIsRtl,
+  legacyAutodetectLangCode,
   notifyLanguageChanged,
   notifyRtlRestartNeeded,
+  resumeShouldReapplyLanguage,
   shouldNotifyRtlLanguageRestart,
   STORAGE_KEY,
 } from './languageSync';
-import { resolveLangCodeFromRnLocales } from './resolveDeviceLangCode';
 import enJson from './en.json';
 
 export {
@@ -396,7 +398,14 @@ const applyLanguageSideEffects = async (lang: string, options?: { userSelected?:
   if (process.env.JEST_WORKER_ID === undefined) {
     I18nManager.allowRTL(desiredRtl);
     I18nManager.forceRTL(desiredRtl);
-    if (shouldNotifyRtlLanguageRestart({ previousLang, newLang: lang, userSelected: options?.userSelected })) {
+    if (
+      shouldNotifyRtlLanguageRestart({
+        previousLang,
+        newLang: lang,
+        userSelected: options?.userSelected,
+        currentLayoutRtl: layoutDirectionIsRtl(I18nManager.isRTL),
+      })
+    ) {
       notifyRtlRestartNeeded();
     }
   }
@@ -404,20 +413,32 @@ const applyLanguageSideEffects = async (lang: string, options?: { userSelected?:
   await setDateTimeLocale();
 };
 
-const applyDeviceLanguage = async () => {
-  const mapped = resolveLangCodeFromRnLocales(RNLocalize.getLocales());
-  await AsyncStorage.removeItem(LANG_USER_OVERRIDE_KEY);
-  await saveLanguage(mapped);
-};
-
 const syncDeviceLanguageIfNeeded = async () => {
-  const currentFingerprint = fingerprintFromLocales(RNLocalize.getLocales());
+  const locales = RNLocalize.getLocales();
+  const currentFingerprint = fingerprintFromLocales(locales);
   const persistedFingerprint = await AsyncStorage.getItem(DEVICE_LOCALE_FINGERPRINT_KEY);
-  if (currentFingerprint === persistedFingerprint) {
+  const userOverride = (await AsyncStorage.getItem(LANG_USER_OVERRIDE_KEY)) === '1';
+  const stored = await AsyncStorage.getItem(STORAGE_KEY);
+  if (
+    !resumeShouldReapplyLanguage({
+      userOverride,
+      storedLang: stored,
+      persistedFingerprint,
+      currentFingerprint,
+      legacyAutodetect: legacyAutodetectLangCode(locales),
+    })
+  ) {
     return;
   }
-  await applyDeviceLanguage();
-  await AsyncStorage.setItem(DEVICE_LOCALE_FINGERPRINT_KEY, currentFingerprint);
+  // Same decision as cold start, including a missing fingerprint. Fingerprint is written
+  // only after applyLanguage succeeds inside executeLanguageBootstrap.
+  await executeLanguageBootstrap({
+    getLocales: () => locales,
+    getItem: key => AsyncStorage.getItem(key),
+    setItem: (key, value) => AsyncStorage.setItem(key, value),
+    removeItem: key => AsyncStorage.removeItem(key),
+    applyLanguage: lang => saveLanguage(lang),
+  });
 };
 
 // Fire-and-forget; `loc` starts as `{en}` until this resolves, so synchronous reads on a cold launch with non-en saved preference render English briefly.

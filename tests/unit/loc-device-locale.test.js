@@ -29,6 +29,10 @@ describe('Device locale → LangCode', () => {
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'zh', languageTag: 'zh-Hant-TW' }), 'zh_tw');
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'zh', languageTag: 'zh-Hant-SG' }), 'zh_tw');
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'zh', languageTag: 'zh-Hant-CN' }), 'zh_tw');
+    assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'zh', languageTag: 'zh-Hans-TW', scriptCode: 'Hans' }), 'zh_cn');
+    assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'zh', languageTag: 'zh-Hans-HK' }), 'zh_cn');
+    assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'zh', languageTag: 'zh-Hans-MO' }), 'zh_cn');
+    assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'zh', languageTag: 'zh-TW' }), 'zh_tw');
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'pt', languageTag: 'pt-BR' }), 'pt_br');
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'pt', languageTag: 'pt-PT' }), 'pt_pt');
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'es', languageTag: 'es-419' }), 'es_419');
@@ -44,6 +48,24 @@ describe('Device locale → LangCode', () => {
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'kk', languageTag: 'kk-KZ' }), 'kk@Cyrl');
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'nb', languageTag: 'nb-NO' }), 'nb_no');
     assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'ru', languageTag: 'ru-RU' }), 'ru');
+  });
+
+  it('does not map locales excluded from CFBundleLocalizations', () => {
+    assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'da', languageTag: 'da-DK' }), null);
+    assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'nl', languageTag: 'nl-NL' }), null);
+    assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'fil', languageTag: 'fil-PH' }), null);
+    assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'tl', languageTag: 'tl-PH' }), null);
+    assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'ak', languageTag: 'ak-GH' }), null);
+    assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'pcm', languageTag: 'pcm-NG' }), null);
+    assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'nn', languageTag: 'nn-NO' }), null);
+    assert.strictEqual(resolveLangCodeFromRnLocale({ languageCode: 'no', languageTag: 'no-NO' }), 'nb_no');
+    assert.strictEqual(
+      resolveLangCodeFromRnLocales([
+        { languageCode: 'nl', languageTag: 'nl-NL' },
+        { languageCode: 'en', languageTag: 'en-US' },
+      ]),
+      'en',
+    );
   });
 
   it('uses the first matching locale in the preference list', () => {

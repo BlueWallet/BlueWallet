@@ -6,6 +6,7 @@ import {
   executeLanguageBootstrap,
   fingerprintFromLocales,
   LANG_USER_OVERRIDE_KEY,
+  resumeShouldReapplyLanguage,
   STORAGE_KEY,
 } from '../../loc/languageSync';
 
@@ -86,6 +87,57 @@ describe('decideLaunchLanguage', () => {
         legacyAutodetect: 'en',
       }),
       { action: 'apply_device', clearOverride: false },
+    );
+  });
+});
+
+describe('resumeShouldReapplyLanguage', () => {
+  it('does not reapply when the fingerprint and stored language already match', () => {
+    assert.strictEqual(
+      resumeShouldReapplyLanguage({
+        userOverride: true,
+        storedLang: 'fr_fr',
+        persistedFingerprint: 'en',
+        currentFingerprint: 'en',
+        legacyAutodetect: 'en',
+      }),
+      false,
+    );
+  });
+
+  it('reapplies through the cold-start decision when the fingerprint is missing', () => {
+    assert.strictEqual(
+      resumeShouldReapplyLanguage({
+        userOverride: true,
+        storedLang: 'fr_fr',
+        persistedFingerprint: null,
+        currentFingerprint: 'en',
+        legacyAutodetect: 'en',
+      }),
+      true,
+    );
+    assert.strictEqual(
+      resumeShouldReapplyLanguage({
+        userOverride: false,
+        storedLang: 'en',
+        persistedFingerprint: null,
+        currentFingerprint: 'de_de',
+        legacyAutodetect: 'en',
+      }),
+      true,
+    );
+  });
+
+  it('reapplies when the device LangCode fingerprint changes', () => {
+    assert.strictEqual(
+      resumeShouldReapplyLanguage({
+        userOverride: true,
+        storedLang: 'fr_fr',
+        persistedFingerprint: 'en',
+        currentFingerprint: 'de_de',
+        legacyAutodetect: 'en',
+      }),
+      true,
     );
   });
 });

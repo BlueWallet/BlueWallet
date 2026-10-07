@@ -3,6 +3,7 @@ import { DeviceEventEmitter, I18nManager } from 'react-native';
 
 import {
   LANGUAGE_RTL_RESTART_EVENT,
+  layoutDirectionIsRtl,
   notifyRtlRestartNeeded,
   shouldNotifyRtlLanguageRestart,
 } from '../../loc/languageSync';
@@ -27,26 +28,23 @@ describe('RTL restart notification', () => {
   });
 
   it('does not require restart alert for LTR to LTR manual language changes', () => {
-    assert.strictEqual(
-      shouldNotifyRtlLanguageRestart({ previousLang: 'en', newLang: 'zar_afr', userSelected: true }),
-      false,
-    );
-    assert.strictEqual(
-      shouldNotifyRtlLanguageRestart({ previousLang: 'zar_afr', newLang: 'en', userSelected: true }),
-      false,
-    );
+    assert.strictEqual(shouldNotifyRtlLanguageRestart({ previousLang: 'en', newLang: 'zar_afr', userSelected: true }), false);
+    assert.strictEqual(shouldNotifyRtlLanguageRestart({ previousLang: 'zar_afr', newLang: 'en', userSelected: true }), false);
   });
 
-  it('requires restart alert only when manual pick crosses RTL catalog boundary', () => {
-    assert.strictEqual(
-      shouldNotifyRtlLanguageRestart({ previousLang: 'en', newLang: 'ar', userSelected: true }),
-      true,
-    );
-    assert.strictEqual(
-      shouldNotifyRtlLanguageRestart({ previousLang: 'ar', newLang: 'en', userSelected: true }),
-      true,
-    );
-    assert.strictEqual(shouldNotifyRtlLanguageRestart({ previousLang: 'en', newLang: 'ar' }), false);
+  it('requires restart alert when a manual pick crosses the RTL catalog boundary', () => {
+    assert.strictEqual(shouldNotifyRtlLanguageRestart({ previousLang: 'en', newLang: 'ar', userSelected: true }), true);
+    assert.strictEqual(shouldNotifyRtlLanguageRestart({ previousLang: 'ar', newLang: 'en', userSelected: true }), true);
     assert.strictEqual(shouldNotifyRtlLanguageRestart({ previousLang: null, newLang: 'ar', userSelected: true }), false);
+  });
+
+  it('alerts on the automatic path when the running layout does not match the catalog', () => {
+    assert.strictEqual(layoutDirectionIsRtl(0), false);
+    assert.strictEqual(layoutDirectionIsRtl(1), true);
+    assert.strictEqual(layoutDirectionIsRtl(false), false);
+    assert.strictEqual(layoutDirectionIsRtl(true), true);
+    assert.strictEqual(shouldNotifyRtlLanguageRestart({ previousLang: null, newLang: 'ar', currentLayoutRtl: false }), true);
+    assert.strictEqual(shouldNotifyRtlLanguageRestart({ previousLang: 'en', newLang: 'de_de', currentLayoutRtl: false }), false);
+    assert.strictEqual(shouldNotifyRtlLanguageRestart({ previousLang: 'en', newLang: 'ar', currentLayoutRtl: true }), false);
   });
 });
