@@ -95,17 +95,25 @@ const resolvePortuguese = (locale: RnLocale): LangCode | null => {
 const resolveChinese = (locale: RnLocale): LangCode | null => {
   const tag = locale.languageTag ? normalizeTag(locale.languageTag).toLowerCase() : '';
   const script = locale.scriptCode?.toLowerCase();
-  // Script before region: `zh-Hans-TW` is Simplified, `zh-Hant-CN` is Traditional.
-  if (script === 'hant' || tag.includes('hant')) {
+  // Explicit scriptCode, then script in the tag, then region subtags. `zh-Hans-TW` is
+  // Simplified. Subtags are exact so `zh-Mong` is not treated as Macau (`-mo`).
+  if (script === 'hant') {
     return 'zh_tw';
   }
-  if (script === 'hans' || tag.includes('hans')) {
+  if (script === 'hans') {
     return 'zh_cn';
   }
-  if (tag.includes('-tw') || tag.includes('-hk') || tag.includes('-mo')) {
+  if (tag.includes('hant')) {
     return 'zh_tw';
   }
-  if (tag.includes('-cn') || tag.endsWith('-sg')) {
+  if (tag.includes('hans')) {
+    return 'zh_cn';
+  }
+  const subtags = new Set(tag.split('-').filter(Boolean));
+  if (subtags.has('tw') || subtags.has('hk') || subtags.has('mo')) {
+    return 'zh_tw';
+  }
+  if (subtags.has('cn') || subtags.has('sg')) {
     return 'zh_cn';
   }
   const cc = locale.countryCode?.toUpperCase();

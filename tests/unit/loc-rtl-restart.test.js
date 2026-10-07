@@ -46,5 +46,41 @@ describe('RTL restart notification', () => {
     assert.strictEqual(shouldNotifyRtlLanguageRestart({ previousLang: null, newLang: 'ar', currentLayoutRtl: false }), true);
     assert.strictEqual(shouldNotifyRtlLanguageRestart({ previousLang: 'en', newLang: 'de_de', currentLayoutRtl: false }), false);
     assert.strictEqual(shouldNotifyRtlLanguageRestart({ previousLang: 'en', newLang: 'ar', currentLayoutRtl: true }), false);
+    // Layout is already LTR, so switching back to English does not need a restart.
+    assert.strictEqual(
+      shouldNotifyRtlLanguageRestart({ previousLang: 'ar', newLang: 'en', userSelected: true, currentLayoutRtl: false }),
+      false,
+    );
+  });
+
+  it('does not repeat the automatic alert once that direction was already forced', () => {
+    assert.strictEqual(
+      shouldNotifyRtlLanguageRestart({
+        previousLang: null,
+        newLang: 'en',
+        currentLayoutRtl: true,
+        previouslyForcedRtl: true,
+      }),
+      true,
+    );
+    assert.strictEqual(
+      shouldNotifyRtlLanguageRestart({
+        previousLang: null,
+        newLang: 'en',
+        currentLayoutRtl: true,
+        previouslyForcedRtl: false,
+      }),
+      false,
+    );
+    assert.strictEqual(
+      shouldNotifyRtlLanguageRestart({
+        previousLang: 'ar',
+        newLang: 'en',
+        userSelected: true,
+        currentLayoutRtl: true,
+        previouslyForcedRtl: false,
+      }),
+      true,
+    );
   });
 });

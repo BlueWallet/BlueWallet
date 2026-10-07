@@ -19,6 +19,7 @@ import {
   fingerprintFromLocales,
   LANG_USER_OVERRIDE_KEY,
   layoutDirectionIsRtl,
+  RTL_FORCE_DIRECTION_KEY,
   legacyAutodetectLangCode,
   notifyLanguageChanged,
   notifyRtlRestartNeeded,
@@ -398,16 +399,20 @@ const applyLanguageSideEffects = async (lang: string, options?: { userSelected?:
   if (process.env.JEST_WORKER_ID === undefined) {
     I18nManager.allowRTL(desiredRtl);
     I18nManager.forceRTL(desiredRtl);
+    const forcedFlag = await AsyncStorage.getItem(RTL_FORCE_DIRECTION_KEY);
+    const previouslyForcedRtl = forcedFlag === '1' ? true : forcedFlag === '0' ? false : null;
     if (
       shouldNotifyRtlLanguageRestart({
         previousLang,
         newLang: lang,
         userSelected: options?.userSelected,
         currentLayoutRtl: layoutDirectionIsRtl(I18nManager.isRTL),
+        previouslyForcedRtl,
       })
     ) {
       notifyRtlRestartNeeded();
     }
+    await AsyncStorage.setItem(RTL_FORCE_DIRECTION_KEY, desiredRtl ? '1' : '0');
   }
   lastAppliedLangForSideEffects = lang;
   await setDateTimeLocale();

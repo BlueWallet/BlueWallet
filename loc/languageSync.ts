@@ -8,6 +8,8 @@ export const LANGUAGE_CHANGED_EVENT = 'locLanguageChanged';
 
 export const LANG_USER_OVERRIDE_KEY = 'langUserOverride';
 export const STORAGE_KEY = 'lang';
+/** `'1'` / `'0'` — last direction passed to `I18nManager.forceRTL`. */
+export const RTL_FORCE_DIRECTION_KEY = 'langRtlForceDirection';
 
 /** Resolved LangCode for the device preferred locale (stable across region tag churn). */
 export const fingerprintFromLocales = (locales: readonly RnLocale[]): string => resolveLangCodeFromRnLocales(locales);
@@ -41,15 +43,26 @@ export const shouldNotifyRtlLanguageRestart = (params: {
   newLang: string;
   userSelected?: boolean;
   currentLayoutRtl?: boolean;
+  /** Last direction written with `forceRTL`. `null` if this install has never written it. */
+  previouslyForcedRtl?: boolean | null;
 }): boolean => {
   const newRtl = catalogIsRtl(params.newLang);
-  if (params.currentLayoutRtl !== undefined && params.currentLayoutRtl !== newRtl) {
-    return true;
+  if (params.currentLayoutRtl === undefined) {
+    if (!params.userSelected || params.previousLang === null) {
+      return false;
+    }
+    return catalogIsRtl(params.previousLang) !== newRtl;
   }
-  if (!params.userSelected || params.previousLang === null) {
+  if (params.currentLayoutRtl === newRtl) {
     return false;
   }
-  return catalogIsRtl(params.previousLang) !== newRtl;
+  // `forceRTL(false)` does not override an RTL application language (iOS falls through to
+  // `defaultWritingDirectionForLanguage:nil`; Android falls through to the device locale).
+  // After that direction is already stored, another automatic alert every launch cannot help.
+  if (!params.userSelected && params.previouslyForcedRtl === newRtl) {
+    return false;
+  }
+  return true;
 };
 
 export type LaunchLanguageDecision = { action: 'apply_device'; clearOverride: boolean } | { action: 'apply_stored'; clearOverride: false };
