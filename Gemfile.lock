@@ -87,7 +87,7 @@ GEM
     colored2 (3.1.2)
     commander (4.6.0)
       highline (~> 2.0.0)
-    concurrent-ruby (1.3.7)
+    concurrent-ruby (1.3.8)
     connection_pool (3.0.2)
     csv (3.3.6)
     declarative (0.0.20)
@@ -357,7 +357,7 @@ DEPENDENCIES
   benchmark
   bigdecimal
   cocoapods (>= 1.13, != 1.15.1, != 1.15.0)
-  concurrent-ruby (< 1.3.8)
+  concurrent-ruby (< 1.3.9)
   fastlane (~> 2.240)
   fastlane-plugin-browserstack
   fastlane-plugin-bugsnag
@@ -368,7 +368,7 @@ DEPENDENCIES
   xcodeproj (< 1.28.2)
 
 RUBY VERSION
-   ruby 3.4.10p104
+   ruby 3.4.11p137
 
 BUNDLED WITH
    2.6.9
