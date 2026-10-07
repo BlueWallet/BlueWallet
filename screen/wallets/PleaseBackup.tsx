@@ -1,15 +1,17 @@
 import { RouteProp, useFocusEffect, useLocale, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect } from 'react';
-import { BackHandler, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, BackHandler, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
-import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import SeedWords from '../../components/SeedWords';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
+
+const CLOSE_TRANSITION_FALLBACK_MS = 5000;
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'PleaseBackup'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'PleaseBackup'>;
@@ -19,10 +21,14 @@ const PleaseBackup: React.FC = () => {
   const { walletID } = useRoute<RouteProps>().params;
   const wallet = wallets.find(w => w.getID() === walletID)!;
   const navigation = useNavigation<NavigationProp>();
-  const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
   const { direction } = useLocale();
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
+  const { lockScreenProtect, unlockScreenProtect } = useScreenProtect();
+  const [isScreenProtectionReady, setIsScreenProtectionReady] = useState(false);
+  const fallbackTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const isProtectionReleased = useRef(false);
+  const isScreenFocused = useRef(false);
+  const isScreenMounted = useRef(false);
 
   const stylesHook = StyleSheet.create({
     flex: {
@@ -39,6 +45,21 @@ const PleaseBackup: React.FC = () => {
     return true;
   }, [navigation]);
 
+  const releaseProtection = useCallback(() => {
+    if (isProtectionReleased.current) return;
+    isProtectionReleased.current = true;
+    if (fallbackTimer.current) clearTimeout(fallbackTimer.current);
+    void unlockScreenProtect().catch(error => console.warn('Failed to disable seed phrase screen protection:', error));
+  }, [unlockScreenProtect]);
+
+  const scheduleProtectionFallback = useCallback(() => {
+    if (isProtectionReleased.current || fallbackTimer.current) return;
+    fallbackTimer.current = setTimeout(() => {
+      fallbackTimer.current = undefined;
+      if (!isScreenFocused.current || !isScreenMounted.current) releaseProtection();
+    }, CLOSE_TRANSITION_FALLBACK_MS);
+  }, [releaseProtection]);
+
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', handleBackButton);
 
@@ -49,12 +70,47 @@ const PleaseBackup: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      if (isPrivacyBlurEnabled) enableScreenProtect();
+      isScreenFocused.current = true;
+      isProtectionReleased.current = false;
+      if (fallbackTimer.current) {
+        clearTimeout(fallbackTimer.current);
+        fallbackTimer.current = undefined;
+      }
+      let isFocused = true;
+      setIsScreenProtectionReady(false);
+      void lockScreenProtect()
+        .then(() => {
+          if (isFocused) setIsScreenProtectionReady(true);
+        })
+        .catch(error => console.warn('Failed to enable seed phrase screen protection:', error));
+
       return () => {
-        disableScreenProtect();
+        isScreenFocused.current = false;
+        isFocused = false;
       };
-    }, [disableScreenProtect, enableScreenProtect, isPrivacyBlurEnabled]),
+    }, [lockScreenProtect]),
   );
+
+  useEffect(() => {
+    isScreenMounted.current = true;
+    const parentNavigation = navigation.getParent<NativeStackNavigationProp<DetailViewStackParamList>>();
+    const addWalletRouteKey = parentNavigation?.getState().routes.find(route => route.name === 'AddWalletRoot')?.key;
+    const isClosingAddWallet = (event: { data: { closing: boolean }; target?: string }) =>
+      Boolean(addWalletRouteKey && event.data.closing && event.target === addWalletRouteKey);
+    const unsubscribeStart = parentNavigation?.addListener('transitionStart', event => {
+      if (isClosingAddWallet(event)) scheduleProtectionFallback();
+    });
+    const unsubscribeEnd = parentNavigation?.addListener('transitionEnd', event => {
+      if (isClosingAddWallet(event)) releaseProtection();
+    });
+
+    return () => {
+      isScreenMounted.current = false;
+      unsubscribeStart?.();
+      unsubscribeEnd?.();
+      scheduleProtectionFallback();
+    };
+  }, [navigation, releaseProtection, scheduleProtectionFallback]);
 
   return (
     <ScrollView
@@ -68,7 +124,7 @@ const PleaseBackup: React.FC = () => {
         <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</Text>
       </View>
       <View style={styles.list}>
-        <SeedWords seed={wallet.getSecret()} />
+        {isScreenProtectionReady ? <SeedWords seed={wallet.getSecret()} /> : <ActivityIndicator color={colors.foregroundColor} />}
       </View>
       <View style={styles.bottom}>
         <Button testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
