@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { TextInput, View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -121,6 +122,11 @@ const ReceiveCustomAmountSheet = () => {
       { merge: true },
     );
   }, [address, navigation, preferredUnit]);
+
+  useScreenHeaderMenu([
+    { id: 'file_save', text: loc.receive.details_add, onPress: handleSave },
+    { id: 'edit_reset', text: loc.receive.reset, onPress: handleReset },
+  ]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>

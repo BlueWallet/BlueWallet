@@ -395,33 +395,71 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         super.buildMenu(with: builder)
         
         guard builder.system === UIMenuSystem.main else { return }
+        // Catalyst supplies Duplicate, Move, Rename and Export As here by
+        // default, even though BlueWallet does not manage documents.
+        if #available(iOS 16.0, *) {
+            builder.remove(menu: .document)
+        }
         builder.remove(menu: .services)
         builder.remove(menu: .format)
         builder.remove(menu: .toolbar)
         builder.remove(menu: .preferences)
 
         let actions = MenuElementsController.shared.availableActions
+        let walletMenuID = UIMenu.Identifier("io.bluewallet.wallet")
+        builder.remove(menu: walletMenuID)
         let commands: [(String, String, Selector, String, UIKeyModifierFlags, UIMenu.Identifier)] = [
-            ("addWallet", "Add Wallet", #selector(addWalletAction), "a", [.command, .shift], .file),
-            ("importWallet", "Import Wallet", #selector(importWalletAction), "i", .command, .file),
+            ("addWallet", "Add Wallet…", #selector(addWalletAction), "a", [.command, .shift], .file),
+            ("importWallet", "Import Wallet…", #selector(importWalletAction), "i", .command, .file),
             ("send", "Send…", #selector(sendMenuAction), "s", [.command, .shift], .file),
             ("receive", "Receive…", #selector(receiveMenuAction), "r", [.command, .shift], .file),
-            ("walletDetails", "Wallet Details…", #selector(walletDetailsMenuAction), "d", .command, .file),
+            ("walletDetails", "Wallet Details", #selector(walletDetailsMenuAction), "d", .command, .file),
             ("reloadTransactions", "Reload Transactions", #selector(reloadTransactionsAction), "r", .command, .view),
             ("backToWallets", "Back to Wallets", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view),
+            // The edit menu must not register duplicate key commands. Keep these unique even when both actions are enabled.
             ("copyAddress", "Copy Address", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit),
-            ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit),
-            ("keyboardShortcuts", "Keyboard Shortcuts…", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
+            ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "t", [.command, .shift], .edit),
+            ("keyboardShortcuts", "Keyboard Shortcuts", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
         ]
-        for parent in [UIMenu.Identifier.file, .edit, .view, .help] {
+        let commandParents: [UIMenu.Identifier] = [.file, .edit, .view, .help]
+        for parent in commandParents {
             let identifier = UIMenu.Identifier("io.bluewallet.commands.\(parent.rawValue)")
             builder.remove(menu: identifier)
-            let children = commands.filter { actions.contains($0.0) && $0.5 == parent }.map {
-                UIKeyCommand(title: $0.1, action: $0.2, input: $0.3, modifierFlags: $0.4)
+            let children = commands.filter { $0.5 == parent && actions.contains($0.0) }.map {
+                let command = UIKeyCommand(title: $0.1, action: $0.2, input: $0.3, modifierFlags: $0.4, propertyList: $0.0)
+                if #available(iOS 26.0, *) { command.repeatBehavior = .nonRepeatable }
+                return command
             }
             if !children.isEmpty {
                 builder.insertChild(UIMenu(title: "", identifier: identifier,
                                            options: .displayInline, children: children), atStartOfMenu: parent)
+            }
+        }
+
+        let categories = ["file", "edit", "view", "wallet", "transaction", "recipients", "sort", "server", "settings", "help"]
+        for category in categories {
+            builder.remove(menu: UIMenu.Identifier("io.bluewallet.screenActions.\(category)"))
+        }
+        if UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .mac {
+            var menus: [String: UIMenu] = [:]
+            for case let menu as UIMenu in MenuElementsController.shared.headerMenuElements() {
+                menus[menu.identifier.rawValue.replacingOccurrences(of: "category:", with: "")] = menu
+            }
+            // Install custom menus once in a fixed order after View.
+            var anchor = UIMenu.Identifier.view
+            for category in ["transaction", "recipients", "server", "settings"] {
+                guard let menu = menus[category] else { continue }
+                let identifier = UIMenu.Identifier("io.bluewallet.screenActions.\(category)")
+                builder.insertSibling(UIMenu(title: menu.title, identifier: identifier, children: menu.children), afterMenu: anchor)
+                anchor = identifier
+            }
+            for category in ["file", "edit", "view", "sort", "help"] {
+                guard let menu = menus[category] else { continue }
+                let identifier = UIMenu.Identifier("io.bluewallet.screenActions.\(category)")
+                let parent: UIMenu.Identifier = category == "file" ? .file : category == "edit" ? .edit : category == "help" ? .help : .view
+                let child = category == "sort" ? UIMenu(title: menu.title, identifier: identifier, children: menu.children)
+                    : UIMenu(title: "", identifier: identifier, options: .displayInline, children: menu.children)
+                builder.insertChild(child, atEndOfMenu: parent)
             }
         }
 
@@ -430,6 +468,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         if actions.contains("settings") {
             let command = UIKeyCommand(title: "Settings…", action: #selector(openSettings),
                                        input: ",", modifierFlags: .command)
+            if #available(iOS 26.0, *) { command.repeatBehavior = .nonRepeatable }
             builder.insertSibling(UIMenu(title: "", identifier: settingsMenuID,
                                          options: .displayInline, children: [command]), afterMenu: .about)
         }
@@ -485,7 +524,27 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         }
     }
     
+    @objc func performHeaderMenuAction(_ command: UIKeyCommand) {
+        guard let id = command.propertyList as? String else { return }
+        MenuElementsController.shared.perform(id)
+    }
+
+    override var keyCommands: [UIKeyCommand]? {
+        (super.keyCommands ?? []) + MenuElementsController.shared.closeKeyCommands()
+    }
+
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        if action == #selector(performHeaderMenuAction(_:)) {
+            guard let command = sender as? UIKeyCommand, let id = command.propertyList as? String else { return false }
+            return MenuElementsController.shared.isHeaderActionEnabled(id)
+        }
+        if let command = sender as? UIKeyCommand, let id = command.propertyList as? String,
+           [#selector(addWalletAction), #selector(importWalletAction), #selector(sendMenuAction),
+            #selector(receiveMenuAction), #selector(walletDetailsMenuAction), #selector(reloadTransactionsAction),
+            #selector(backToWalletsMenuAction), #selector(copyAddressMenuAction), #selector(copyTransactionIdMenuAction),
+            #selector(keyboardShortcutsMenuAction)].contains(action) {
+            return MenuElementsController.shared.availableActions.contains(id)
+        }
         if action == #selector(showHelp(_:)) {
             return true
         } else {

@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import Clipboard from '@react-native-clipboard/clipboard';
 import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -716,6 +717,17 @@ const ReceiveDetails = () => {
 
     Share.open({ message }).catch(error => console.debug('Error sharing:', error));
   };
+
+  useScreenHeaderMenu([
+    {
+      id: 'share',
+      text: loc.receive.details_share,
+      disabled: !bip21encoded && !(currentTab === segmentControlValues[1] && isBIP47Enabled),
+      onPress: handleShareButtonPressed,
+    },
+    { id: 'file_receive_options', text: loc.receive.details_more_options, disabled: !address, onPress: showMoreOptionsSheet },
+    { id: 'edit_address_label', text: loc.receive.option_label, disabled: !address, onPress: navigateToAddressLabel },
+  ]);
 
   return (
     <Animated.View layout={Layout.duration(200)} style={[styles.flex, stylesHook.root]}>

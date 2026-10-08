@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import Icon from '../../components/Icon';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
@@ -24,6 +23,7 @@ import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 type MultisigStep2Params = {
+  isCreatingWallet?: boolean;
   m: number;
   n: number;
   format: number | string;
@@ -86,49 +86,21 @@ const WalletsAddMultisigStep2 = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSharedCosigner]);
 
-  const handleOnHelpPress = useCallback(() => {
-    navigation.navigate('WalletsAddMultisigHelp');
-  }, [navigation]);
-
-  const renderHeaderRight = useCallback(
-    () => (
-      <Pressable
-        accessibilityRole="button"
-        style={({ pressed }) => [
-          styles.helpButton,
-          { backgroundColor: colors.buttonDisabledBackgroundColor },
-          pressed && styles.helpButtonPressed,
-        ]}
-        onPress={handleOnHelpPress}
-      >
-        <Icon size={20} name="help-outline" type="material" color={colors.foregroundColor} />
-        <Text style={[styles.helpButtonText, { color: colors.foregroundColor }]}>{loc.multisig.ms_help}</Text>
-      </Pressable>
-    ),
-    [colors.buttonDisabledBackgroundColor, colors.foregroundColor, handleOnHelpPress],
-  );
-
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
     },
   });
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: renderHeaderRight,
-    });
-  }, [navigation, renderHeaderRight]);
-
   const onCreate = async () => {
     setIsLoading(true);
-    navigation.setOptions({ headerBackVisible: false });
+    navigation.setParams({ isCreatingWallet: true });
     await sleep(100);
     try {
       await _onCreate(); // this can fail with "Duplicate fingerprint" error or other
     } catch (e) {
       setIsLoading(false);
-      navigation.setOptions({ headerBackVisible: true });
+      navigation.setParams({ isCreatingWallet: false });
       const message = e instanceof Error ? e.message : String(e);
       presentAlert({ message });
       console.log('create MS wallet error', e);
@@ -626,21 +598,6 @@ const styles = StyleSheet.create({
     flex: 0.12,
     marginBottom: 40,
     justifyContent: 'flex-end',
-  },
-  helpButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 50,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  helpButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 8,
-  },
-  helpButtonPressed: {
-    opacity: 0.75,
   },
 });
 

@@ -22,6 +22,13 @@ RCT_EXPORT_MODULE(MenuElementsEmitter)
   return self;
 }
 
+- (void)setHeaderMenu:(NSString *)items
+{
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [MenuElementsController.shared setHeaderMenu:items];
+  });
+}
+
 - (void)setAvailableActions:(NSArray<NSString *> *)actions
 {
   dispatch_async(dispatch_get_main_queue(), ^{
@@ -39,6 +46,7 @@ RCT_EXPORT_MODULE(MenuElementsEmitter)
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   dispatch_async(dispatch_get_main_queue(), ^{
     [MenuElementsController.shared setAvailableActions:@[]];
+    [MenuElementsController.shared setHeaderMenu:@"[]"];
   });
 }
 

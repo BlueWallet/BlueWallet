@@ -1,3 +1,4 @@
+import { headerMenuScreenLayout } from '../components/HeaderMenu';
 import React, { lazy } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -19,7 +20,7 @@ const WalletExportStack = () => {
   const theme = useTheme();
 
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenLayout={headerMenuScreenLayout}>
       <Stack.Screen
         name="WalletExport"
         component={WalletExportComponent}

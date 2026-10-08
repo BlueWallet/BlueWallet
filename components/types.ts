@@ -8,8 +8,16 @@ export interface Action {
   };
   menuTitle?: string;
   subtitle?: string;
+  discoverabilityTitle?: string;
   menuState?: 'mixed' | boolean | undefined;
   displayInline?: boolean; // Indicates if subactions should be displayed inline or nested (iOS only)
+  singleSelection?: boolean; // Restricts this menu and its submenus to one selected item (iOS 15+)
+  displayAsPalette?: boolean; // Displays child items as a palette (iOS 17+)
+  preferredElementSize?: 'automatic' | 'small' | 'medium' | 'large'; // Child layout size (iOS 16+)
+  maximumNumberOfTitleLines?: number; // Title/subtitle line limit for immediate children (iOS 17.4+)
+  preferredImageVisibility?: 'automatic' | 'visible' | 'hidden'; // Preferred icon visibility (iOS 27+)
+  keepsMenuPresented?: boolean; // Keeps the menu open after invoking the action (iOS 16+)
+  repeatBehavior?: 'automatic' | 'repeatable' | 'nonRepeatable'; // Press-and-hold repeat behavior (iOS 26+)
   image?: string;
   imageColor?: ColorValue;
   destructive?: boolean;

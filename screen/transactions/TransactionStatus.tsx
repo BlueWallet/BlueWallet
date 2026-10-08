@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -1056,6 +1057,15 @@ const TransactionStatus: React.FC = () => {
     // stylesHook is derived from colors; omitting to avoid unnecessary effect runs
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx, transactionDirection, transactionDate, setOptions, colors, windowWidth, scaledStyles]);
+
+  useScreenHeaderMenu([
+    {
+      id: 'open_block_explorer',
+      text: loc.transactions.details_view_in_browser,
+      disabled: !tx?.hash || !selectedBlockExplorer,
+      onPress: handleOpenBlockExplorer,
+    },
+  ]);
 
   if (loadingError) {
     return (

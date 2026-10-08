@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
@@ -102,6 +103,10 @@ const WalletXpub: React.FC = () => {
   const handleShareButtonPressed = useCallback(() => {
     Share.open({ message: xPubText || xpub }).catch(console.log);
   }, [xPubText, xpub]);
+
+  useScreenHeaderMenu([
+    { id: 'share', text: loc.receive.details_share, disabled: isLoading || !xPubText, onPress: handleShareButtonPressed },
+  ]);
 
   return (
     <SafeArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>

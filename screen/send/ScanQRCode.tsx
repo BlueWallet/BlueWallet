@@ -1,7 +1,7 @@
-import { useNavigation, RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, StackActions, useIsFocused, useRoute, useFocusEffect } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import { sha256 } from '@noble/hashes/sha256';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
@@ -13,6 +13,8 @@ import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import CameraScreen from '../../components/CameraScreen';
+import useMenuElements from '../../hooks/useMenuElements';
+import { usesHeaderMenu } from '../../components/HeaderMenu';
 import SafeArea from '../../components/SafeArea';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
@@ -250,6 +252,56 @@ const ScanQRCode = () => {
   const dismiss = () => {
     navigation.goBack();
   };
+
+  const filePickerAction = useRef(showFilePicker);
+  const imagePickerAction = useRef(onShowImagePickerButtonPress);
+  const dismissAction = useRef(dismiss);
+  filePickerAction.current = showFilePicker;
+  imagePickerAction.current = onShowImagePickerButtonPress;
+  dismissAction.current = dismiss;
+
+  const { registerHeaderMenu } = useMenuElements();
+  useFocusEffect(
+    useCallback(() => {
+      if (!usesHeaderMenu) return;
+      return registerHeaderMenu(
+        [
+          ...(cameraStatusGranted === false
+            ? [
+                {
+                  id: 'open_camera_settings',
+                  text: loc.send.open_settings,
+                  image: 'gearshape',
+                  onPress: openPrivacyDesktopSettings,
+                },
+              ]
+            : []),
+          ...(showFileImportButton
+            ? [
+                {
+                  id: 'import_file',
+                  text: loc.wallets.import_file,
+                  image: 'doc',
+                  onPress: () => filePickerAction.current(),
+                },
+              ]
+            : []),
+          {
+            id: 'choose_photo',
+            text: loc.wallets.list_long_choose,
+            image: 'photo',
+            onPress: () => imagePickerAction.current(),
+          },
+          {
+            id: 'NavigationCloseButton',
+            text: loc._.close,
+            onPress: () => dismissAction.current(),
+          },
+        ],
+        route.key,
+      );
+    }, [cameraStatusGranted, registerHeaderMenu, route.key, showFileImportButton]),
+  );
 
   const handleReadCode = (event: any) => {
     onBarCodeRead({ data: event?.nativeEvent?.codeStringValue });

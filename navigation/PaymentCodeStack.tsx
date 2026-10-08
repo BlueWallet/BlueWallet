@@ -1,3 +1,4 @@
+import { headerMenuScreenLayout } from '../components/HeaderMenu';
 import React, { lazy } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import navigationStyle from '../components/navigationStyle';
@@ -13,7 +14,11 @@ const PaymentCodeStackRoot = () => {
   const theme = useTheme();
 
   return (
-    <Stack.Navigator initialRouteName="PaymentCodesList" screenOptions={{ headerShadowVisible: false }}>
+    <Stack.Navigator
+      screenLayout={headerMenuScreenLayout}
+      initialRouteName="PaymentCodesList"
+      screenOptions={{ headerShadowVisible: false }}
+    >
       <Stack.Screen
         name="PaymentCodesList"
         component={PaymentCodesListComponent}

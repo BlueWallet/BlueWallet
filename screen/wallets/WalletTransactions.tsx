@@ -3,6 +3,7 @@ import * as RNLocalize from 'react-native-localize';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Linking,
   Alert,
   Dimensions,
   findNodeHandle,
@@ -37,7 +38,7 @@ import { TX_ROW_BASE_HEIGHT } from '../../components/ListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalance } from '../../loc';
-import { Chain } from '../../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
 import WatchOnlyWarning from '../../components/WatchOnlyWarning';
@@ -49,9 +50,13 @@ import { presentWalletExportReminder } from '../../helpers/presentWalletExportRe
 import selectWallet from '../../helpers/select-wallet';
 import assert from 'assert';
 import useScreenMenuActions from '../../hooks/useScreenMenuActions';
+import useMenuElements from '../../hooks/useMenuElements';
+import { usesHeaderMenu } from '../../components/HeaderMenu';
 import { useSettings } from '../../hooks/context/useSettings';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe';
 import { getClipboardContent } from '../../blue_modules/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
+import { walletTransactionsMenu } from '../../blue_modules/walletTransactionsMenu';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import WalletGradient from '../../class/wallet-gradient';
@@ -81,7 +86,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const navigation = useNavigation();
   const { navigate } = navigation;
   const { colors } = useTheme();
-  const { isElectrumDisabled } = useSettings();
+  const { isElectrumDisabled, selectedBlockExplorer } = useSettings();
   const insets = useSafeAreaInsets();
   const { fontScale, height: windowHeight } = useWindowDimensions();
   const [listHeaderHeight, setListHeaderHeight] = useState(0);
@@ -96,6 +101,94 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const [isWatchOnlyWarningVisible, setIsWatchOnlyWarningVisible] = useState<boolean>(() => {
     return wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).isWatchOnlyWarningVisible;
   });
+  const unitSwitchInProgress = useRef(false);
+  const changePreferredBalanceUnit = useCallback(
+    async (selectedUnit: BitcoinUnit) => {
+      if (unitSwitchInProgress.current) return;
+      unitSwitchInProgress.current = true;
+      setIsUnitSwitching(true);
+      setDisplayUnit(selectedUnit);
+      if ('setPreferredBalanceUnit' in wallet) {
+        wallet.setPreferredBalanceUnit(selectedUnit);
+      } else {
+        (wallet as TWallet).preferredBalanceUnit = selectedUnit;
+      }
+      try {
+        await saveToDisk();
+      } catch (error) {
+        presentAlert({ title: loc.errors.error, message: error instanceof Error ? error.message : String(error) });
+      } finally {
+        unitSwitchInProgress.current = false;
+        setIsUnitSwitching(false);
+      }
+    },
+    [wallet, saveToDisk],
+  );
+  const changeBalanceVisibility = useCallback(
+    async (shouldHideBalance: boolean) => {
+      try {
+        const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
+        if (wallet.hideBalance && !shouldHideBalance && isBiometricsEnabled) {
+          if (!(await unlockWithBiometrics())) {
+            return;
+          }
+        }
+        wallet.hideBalance = shouldHideBalance;
+        await saveToDisk();
+      } catch (error) {
+        console.error('Failed to toggle balance visibility:', error);
+      }
+    },
+    [isBiometricUseCapableAndEnabled, wallet, saveToDisk],
+  );
+  const { registerHeaderMenu } = useMenuElements();
+  const balanceHidden = wallet.hideBalance;
+  useFocusEffect(
+    useCallback(() => {
+      if (!usesHeaderMenu) return;
+      return registerHeaderMenu(
+        walletTransactionsMenu({
+          unit: displayUnit,
+          hidden: balanceHidden,
+          switching: isUnitSwitching,
+          onchain: wallet.chain === Chain.ONCHAIN,
+          explorerAvailable: !!selectedBlockExplorer?.url,
+          changeUnit: changePreferredBalanceUnit,
+          cycleUnit: () => {
+            if (wallet.hideBalance) return;
+            const current = wallet.getPreferredBalanceUnit();
+            const next =
+              current === BitcoinUnit.BTC ? BitcoinUnit.SATS : current === BitcoinUnit.SATS ? BitcoinUnit.LOCAL_CURRENCY : BitcoinUnit.BTC;
+            changePreferredBalanceUnit(next);
+          },
+          toggleBalance: () => {
+            changeBalanceVisibility(!wallet.hideBalance);
+          },
+          copyBalance: () => {
+            if (!wallet.hideBalance) Clipboard.setString(formatBalance(wallet.getBalance(), displayUnit));
+          },
+          openExplorer: () => {
+            if (wallet.chain !== Chain.ONCHAIN || !selectedBlockExplorer?.url) return;
+            Linking.openURL(selectedBlockExplorer.url).catch(error => presentAlert({ title: loc.errors.error, message: error.message }));
+          },
+          exportWallet: () => navigate('WalletExport', { walletID }),
+        }),
+        route.key,
+      );
+    }, [
+      registerHeaderMenu,
+      route.key,
+      wallet,
+      balanceHidden,
+      isUnitSwitching,
+      displayUnit,
+      selectedBlockExplorer,
+      changePreferredBalanceUnit,
+      changeBalanceVisibility,
+      navigate,
+      walletID,
+    ]),
+  );
   const MAX_FAILURES = 3;
   const flatListRef = useRef<FlatList<Transaction>>(null);
   const headerRef = useRef<View>(null);
@@ -550,35 +643,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       <TransactionsNavigationHeader
         headerOverlayHeight={headerOverlayHeight}
         wallet={wallet}
-        onWalletUnitChange={async selectedUnit => {
-          setIsUnitSwitching(true);
-          setDisplayUnit(selectedUnit);
-          if ('setPreferredBalanceUnit' in wallet) {
-            wallet.setPreferredBalanceUnit(selectedUnit);
-          } else {
-            (wallet as TWallet).preferredBalanceUnit = selectedUnit;
-          }
-          await saveToDisk();
-          setTimeout(() => {
-            setIsUnitSwitching(false);
-          }, 50);
-        }}
+        onWalletUnitChange={changePreferredBalanceUnit}
         unit={displayUnit}
         unitSwitching={isUnitSwitching}
-        onWalletBalanceVisibilityChange={async shouldHideBalance => {
-          try {
-            const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-            if (wallet.hideBalance && !shouldHideBalance && isBiometricsEnabled) {
-              if (!(await unlockWithBiometrics())) {
-                return;
-              }
-            }
-            wallet.hideBalance = shouldHideBalance;
-            await saveToDisk();
-          } catch (error) {
-            console.error('Failed to toggle balance visibility:', error);
-          }
-        }}
+        onWalletBalanceVisibilityChange={changeBalanceVisibility}
         onManageFundsPressed={id => {
           if (wallet.type === MultisigHDWallet.type) {
             navigateToViewEditCosigners();

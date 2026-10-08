@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import React, { useCallback } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,6 +21,11 @@ const ReceiveMoreOptionsSheet = () => {
   const navigateToAddressLabel = useCallback(() => {
     navigation.replace('ReceiveAddressLabel', { address });
   }, [navigation, address]);
+
+  useScreenHeaderMenu([
+    { id: 'file_custom_amount', text: loc.receive.details_setAmount, onPress: navigateToCustomAmount },
+    { id: 'edit_address_label', text: loc.receive.option_label, onPress: navigateToAddressLabel },
+  ]);
 
   return (
     <SafeAreaView style={styles.root} edges={['bottom', 'left', 'right']}>

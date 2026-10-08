@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import { useNavigation } from '@react-navigation/native';
 import React, { useRef, useState, useEffect } from 'react';
 import { Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
@@ -122,6 +123,12 @@ const IsItMyAddress: React.FC = () => {
     }
     return parts;
   };
+
+  useScreenHeaderMenu([
+    { id: 'scan_qr', text: loc.wallets.import_scan_qr, onPress: importScan },
+    { id: 'edit_reset', text: loc.receive.reset, disabled: !address, onPress: clearAddressInput },
+    { id: 'view_address_qr', text: loc.is_it_my_address.view_qrcode, hidden: !resultCleanAddress, onPress: viewQRCode },
+  ]);
 
   return (
     <SettingsScrollView

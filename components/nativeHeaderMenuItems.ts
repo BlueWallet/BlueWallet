@@ -1,9 +1,14 @@
 import { Platform } from 'react-native';
+import { getSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import { Action } from './types';
 import type { NativeStackHeaderItemMenuAction, NativeStackHeaderItemMenuSubmenu } from '@react-navigation/native-stack';
 
-type NativeHeaderMenuAction = NativeStackHeaderItemMenuAction & { identifier?: string };
-type NativeHeaderMenuSubmenu = NativeStackHeaderItemMenuSubmenu & { identifier?: string; items: NativeHeaderMenuItem[] };
+type NativeHeaderMenuAction = NativeStackHeaderItemMenuAction & { identifier?: string; layout?: 'default' | 'palette' };
+type NativeHeaderMenuSubmenu = NativeStackHeaderItemMenuSubmenu & {
+  identifier?: string;
+  items: NativeHeaderMenuItem[];
+  layout?: 'default' | 'palette';
+};
 type NativeHeaderMenuItem = NativeHeaderMenuAction | NativeHeaderMenuSubmenu;
 
 const toNativeState = (menuState: Action['menuState']): 'on' | 'off' | 'mixed' | undefined => {
@@ -14,6 +19,16 @@ const toNativeState = (menuState: Action['menuState']): 'on' | 'off' | 'mixed' |
     return 'mixed';
   }
   return menuState ? 'on' : 'off';
+};
+
+export const getAppleNativeMenuLayout = (): 'default' | 'palette' => {
+  if (Platform.OS !== 'ios') {
+    return 'default';
+  }
+
+  const { horizontalSizeClass, verticalSizeClass, isLargeScreen } = getSizeClass();
+  const usePalette = isLargeScreen || horizontalSizeClass === SizeClass.Regular || verticalSizeClass === SizeClass.Regular;
+  return usePalette ? 'palette' : 'default';
 };
 
 const toNativeIcon = (iconValue?: string): { type: 'sfSymbol'; name: string } | undefined => {
@@ -45,6 +60,7 @@ const mapActionToNativeItem = (action: Action, onPressMenuItem: (id: string) => 
       label: action.text,
       ...(Platform.OS === 'ios' ? { identifier: id } : {}),
       inline: action.displayInline,
+      ...(Platform.OS === 'ios' ? { layout: getAppleNativeMenuLayout() } : {}),
       items: subItems,
     };
   }
