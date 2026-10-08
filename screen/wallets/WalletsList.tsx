@@ -30,6 +30,7 @@ import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scanQrHelper } from '../../helpers/scan-qr';
+import FileDropTarget from '../../components/FileDropTarget';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 const SECTION_HEADER_BASE_HEIGHT = 56;
@@ -225,6 +226,22 @@ const WalletsList: React.FC = () => {
     },
     [navigation],
   );
+
+  const openImportWalletForDrop = useCallback(
+    (value: string) => {
+      const importText = value.trim();
+      if (!importText) return;
+      navigation.navigate('AddWalletRoot', {
+        screen: 'ImportWallet',
+        params: { onBarScanned: importText },
+      });
+    },
+    [navigation],
+  );
+
+  const handleWalletDropError = useCallback((error: Error) => {
+    presentAlert({ message: error.message });
+  }, []);
 
   const handleClick = useCallback(
     (item?: TWallet) => {
@@ -524,7 +541,7 @@ const WalletsList: React.FC = () => {
   );
 
   return (
-    <>
+    <FileDropTarget onDrop={openImportWalletForDrop} onError={handleWalletDropError} style={styles.dropTarget}>
       <SafeAreaSectionList<any | string, SectionData>
         testID="Wallets"
         renderItem={renderSectionItem}
@@ -544,13 +561,16 @@ const WalletsList: React.FC = () => {
         {...refreshProps}
       />
       {renderScanButton()}
-    </>
+    </FileDropTarget>
   );
 };
 
 export default WalletsList;
 
 const styles = StyleSheet.create({
+  dropTarget: {
+    flex: 1,
+  },
   listHeaderBack: {
     flexDirection: 'row',
     justifyContent: 'space-between',

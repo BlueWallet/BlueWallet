@@ -1,7 +1,7 @@
 import bip21, { TOptions } from 'bip21';
 import * as bitcoin from 'bitcoinjs-lib';
 import URL from 'url';
-import { readFileOutsideSandbox } from '../blue_modules/fs';
+import { readDroppedFileContents } from '../blue_modules/fs';
 import { Chain } from '../models/bitcoinUnits';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import Azteco from './azteco';
@@ -58,6 +58,66 @@ class DeeplinkSchemaMatch {
       event.url = event.url.substring('bluewallet://'.length);
     }
 
+    if (event.url.toLowerCase().startsWith('bluewallet://drop?')) {
+      const droppedText = new URL.URL(event.url).searchParams.get('text')?.trim();
+      // Text never grants filesystem authority. Refuse nested file/content URLs
+      // rather than interpreting them as a second, app-privileged file read.
+      if (droppedText && !/^(file|content):/i.test(droppedText)) {
+        DeeplinkSchemaMatch.navigationRouteFor({ url: droppedText }, completionHandler, context);
+      }
+      return;
+    }
+
+    if (/^(file|content):/i.test(event.url)) {
+      const droppedURL = event.url;
+      const fileName = decodeURI(droppedURL).split('/').pop()?.toLowerCase() ?? '';
+      readDroppedFileContents(droppedURL)
+        .then(contents => {
+          const value = contents.trim();
+          if (!value) return;
+          let isPSBT = DeeplinkSchemaMatch.isPossiblyPSBTFile(fileName);
+          let isTransaction = DeeplinkSchemaMatch.isTXNFile(fileName);
+          if (!isPSBT) {
+            try {
+              bitcoin.Psbt.fromBase64(value);
+              isPSBT = true;
+            } catch {}
+          }
+          if (!isTransaction && !isPSBT) {
+            try {
+              bitcoin.Transaction.fromHex(value.replace(/[\r\n]/g, ''));
+              isTransaction = true;
+            } catch {}
+          }
+
+          if (DeeplinkSchemaMatch.isPossiblyCosignerFile(fileName) || this.hasNeededJsonKeysForMultiSigSharing(value)) {
+            if (this.hasNeededJsonKeysForMultiSigSharing(value)) context.setSharedCosigner(value);
+          } else if (isPSBT || isTransaction) {
+            completionHandler([
+              'SelectWallet',
+              {
+                chainType: Chain.ONCHAIN,
+                onChainRequireSend: true,
+                onWalletSelect: (wallet: TWallet, { navigation }: any) => {
+                  navigation.pop();
+                  navigation.navigate('SendDetailsRoot', {
+                    screen: 'PsbtWithHardwareWallet',
+                    params: {
+                      walletID: wallet.getID(),
+                      ...(isPSBT ? { deepLinkPSBT: value } : { txhex: value.replace(/[\r\n]/g, '') }),
+                    },
+                  });
+                },
+              },
+            ]);
+          } else if (!/^(file|content):/i.test(value)) {
+            DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionHandler, context);
+          }
+        })
+        .catch(error => console.warn('Could not process dropped file', error));
+      return;
+    }
+
     if (DeeplinkSchemaMatch.isWidgetAction(event.url)) {
       if (context.wallets.length >= 0) {
         const wallet = context.wallets[0];
@@ -100,34 +160,6 @@ class DeeplinkSchemaMatch {
           }
         }
       }
-    } else if (DeeplinkSchemaMatch.isPossiblyPSBTFile(event.url)) {
-      readFileOutsideSandbox(decodeURI(event.url))
-        .then(file => {
-          if (file) {
-            completionHandler([
-              'SendDetailsRoot',
-              {
-                screen: 'PsbtWithHardwareWallet',
-                params: {
-                  deepLinkPSBT: file,
-                },
-              },
-            ]);
-          }
-        })
-        .catch(e => console.warn(e));
-      return;
-    } else if (DeeplinkSchemaMatch.isPossiblyCosignerFile(event.url)) {
-      readFileOutsideSandbox(decodeURI(event.url))
-        .then(file => {
-          // checks whether the necessary json keys are present in order to set a cosigner,
-          // doesn't validate the values this happens later
-          if (!file || !this.hasNeededJsonKeysForMultiSigSharing(file)) {
-            return;
-          }
-          context.setSharedCosigner(file);
-        })
-        .catch(e => console.warn(e));
     }
     let isBothBitcoinAndLightning: TBothBitcoinAndLightning;
     try {

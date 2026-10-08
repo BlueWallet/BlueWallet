@@ -33,4 +33,6 @@
     <string name="cache_cleared_title">Cache Cleared</string>
     <string name="cache_cleared_message">The document, cache, and temp directories have been cleared.</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="drag_drop_open">Drop to open in BlueWallet</string>
+    <string name="drag_drop_open_multiple">Drop %1$d items to open</string>
 </resources>

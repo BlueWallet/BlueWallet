@@ -39,6 +39,8 @@ jest.mock('../../hooks/useWalletSubscribe', () => ({
   default: () => mockWalletSubscribe,
 }));
 
+const mockSetParams = jest.fn();
+
 let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet', key: 'transaction-status-test' };
 
 jest.mock('@react-navigation/native', () => {
@@ -48,7 +50,7 @@ jest.mock('@react-navigation/native', () => {
     useRoute: () => ({ params: routeParams, key: routeParams.key }),
     useNavigation: () => ({
       navigate: jest.fn(),
-      setOptions: jest.fn(),
+      setParams: mockSetParams,
       goBack: jest.fn(),
       addListener: jest.fn(),
     }),
@@ -283,6 +285,7 @@ describe('TransactionStatus regression', () => {
 
     await waitFor(() => {
       expect(view.getByText('confirmations: 1')).toBeTruthy();
+      expect(mockSetParams).toHaveBeenCalledWith({ header: { direction: 'received', date: '-' } });
     });
 
     const initialCalls = walletMock.getTransactions.mock.calls.length;

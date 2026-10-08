@@ -19,6 +19,8 @@ import { useStorage } from '../../hooks/context/useStorage';
 import useAppState from '../../hooks/useAppState';
 import loc from '../../loc';
 import { WalletExportStackParamList } from '../../navigation/WalletExportStack';
+import AuthenticatedFileDragSource from '../../components/AuthenticatedFileDragSource';
+import { makeLabelFileName } from '../../blue_modules/dragFileName';
 
 type RouteProps = RouteProp<WalletExportStackParamList, 'WalletExport'>;
 
@@ -167,6 +169,7 @@ const WalletExport: React.FC = () => {
   }
 
   const secret = secrets[0];
+  const seedFileName = makeLabelFileName(wallet.getLabel(), 'txt');
 
   return (
     <ScrollView
@@ -182,7 +185,7 @@ const WalletExport: React.FC = () => {
       <BlueText style={styles.scanText}>{loc.wallets.scan_import}</BlueText>
 
       <View style={styles.qrCodeContainer}>
-        <QRCode isMenuAvailable={false} value={secret} size={qrCodeSize} logoSize={70} />
+        <QRCode isMenuAvailable={false} value={secret} size={qrCodeSize} logoSize={70} requireDragAuthentication />
       </View>
 
       {/* Do not allow to copy mnemonic */}
@@ -192,7 +195,14 @@ const WalletExport: React.FC = () => {
             <BlueText style={styles.manualText}>{loc.wallets.write_down_header}</BlueText>
             <BlueText style={styles.writeText}>{loc.wallets.write_down}</BlueText>
           </View>
-          <SeedWords seed={secret} />
+          <AuthenticatedFileDragSource
+            fileName={seedFileName}
+            mimeType="text/plain"
+            content={secret.trim().split(/\s+/).join(' ')}
+            enabled={!isPrivacyBlurEnabled}
+          >
+            <SeedWords seed={secret} />
+          </AuthenticatedFileDragSource>
         </>
       ) : (
         <>

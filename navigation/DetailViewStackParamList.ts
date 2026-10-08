@@ -5,6 +5,8 @@ import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
+import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { AddWalletStackParamList } from './AddWalletStack';
 import { ClipboardPaymentKind } from '../blue_modules/clipboardPayment';
 
 export type ScanQRCodeParamList = {
@@ -52,7 +54,7 @@ export type DetailViewStackParamList = {
   };
   WalletDetails: { walletID: string };
   // TODO: type tx properly once Transaction and ElectrumTransaction are unified
-  TransactionStatus: { hash: string; walletID: string; tx?: any };
+  TransactionStatus: { hash: string; walletID: string; tx?: any; header?: { direction: string; date: string } };
   CPFP: {
     wallet: TWallet | null;
     txid: string;
@@ -60,6 +62,7 @@ export type DetailViewStackParamList = {
   RBFBumpFee: { txid: string; wallet: TWallet | null };
   RBFCancel: { txid: string; wallet: TWallet | null };
   SelectWallet: {
+    hasSelectableWallets?: boolean;
     chainType?: Chain;
     onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
     availableWallets?: TWallet[];
@@ -81,8 +84,8 @@ export type DetailViewStackParamList = {
   };
   LnurlAuth: undefined;
   Success: undefined;
-  WalletAddresses: { walletID: string };
-  AddWalletRoot: undefined;
+  WalletAddresses: { walletID: string; search?: string };
+  AddWalletRoot: NavigatorScreenParams<AddWalletStackParamList> | undefined;
   SendDetailsRoot: SendDetailsParams;
   LNDCreateInvoiceRoot: undefined;
   ScanLNDInvoiceRoot: {
@@ -103,7 +106,7 @@ export type DetailViewStackParamList = {
   WalletExport: undefined;
   ExportMultisigCoordinationSetupRoot: undefined;
   Settings: undefined;
-  Currency: undefined;
+  Currency: { search?: string; isSearchFocused?: boolean } | undefined;
   GeneralSettings: undefined;
   Licensing: undefined;
   NetworkSettings: undefined;
@@ -113,7 +116,7 @@ export type DetailViewStackParamList = {
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;
-  Language: undefined;
+  Language: { search?: string } | undefined;
   LightningSettings: {
     url?: string;
     onBarScanned?: string;
@@ -185,7 +188,7 @@ export type DetailViewStackParamList = {
     walletID: string;
   };
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
-  ManageWallets: undefined;
+  ManageWallets: { search?: string; isSearchFocused?: boolean } | undefined;
   ClipboardDetected: {
     payload: string;
     kind: ClipboardPaymentKind;

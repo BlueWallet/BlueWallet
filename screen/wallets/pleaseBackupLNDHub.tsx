@@ -73,7 +73,7 @@ const PleaseBackupLNDHub = () => {
         <BlueSpacing20 />
       </View>
       <BlueSpacing20 />
-      <QRCode value={wallet.getSecret()} size={qrCodeSize} />
+      <QRCode value={wallet.getSecret()} size={qrCodeSize} requireDragAuthentication />
       <View style={styles.copyText}>
         <CopyTextToClipboard text={wallet.getSecret()} />
       </View>

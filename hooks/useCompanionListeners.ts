@@ -19,8 +19,6 @@ import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
 import { useSettings } from './context/useSettings';
 import { useStorage } from './context/useStorage';
-import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
-import RNFS from 'react-native-fs';
 import presentAlert from '../components/Alert';
 import useWidgetCommunication from './useWidgetCommunication';
 import useDeviceQuickActions from './useDeviceQuickActions';
@@ -275,40 +273,12 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
       try {
         if (!event.url) return;
-        let decodedUrl: string;
-        try {
-          decodedUrl = decodeURIComponent(event.url);
-        } catch (e) {
-          console.error('Failed to decode URL, using original', e);
-          decodedUrl = event.url;
-        }
-        const fileName = decodedUrl.split('/').pop()?.toLowerCase() || '';
-        if (/\.(jpe?g|png)$/i.test(fileName)) {
-          let base64: string;
-          try {
-            base64 = await RNFS.readFile(decodedUrl, 'base64');
-          } catch {
-            base64 = await RNFS.readFile(decodedUrl.replace(/^file:\/\//, ''), 'base64');
-          }
-          const qrValue = await detectQRCodeInImage(base64);
-          if (!qrValue) {
-            throw new Error(loc.send.qr_error_no_qrcode);
-          }
-          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          DeeplinkSchemaMatch.navigationRouteFor({ url: qrValue }, (value: [string, any]) => navigationRef.navigate(...value), {
-            wallets,
-            addWallet,
-            saveToDisk,
-            setSharedCosigner,
-          });
-        } else {
-          DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
-            wallets,
-            addWallet,
-            saveToDisk,
-            setSharedCosigner,
-          });
-        }
+        DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
+          wallets,
+          addWallet,
+          saveToDisk,
+          setSharedCosigner,
+        });
       } catch (err: any) {
         console.error('Error in handleOpenURL:', err);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
