@@ -16,7 +16,6 @@ import {
   Keyboard,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -40,9 +39,10 @@ import AddressInput from '../../components/AddressInput';
 import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
-import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
-import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import { createEllipsisHeaderMenuOptions } from '../../components/headerMenuOptions';
+import KeyboardAccessoryAllFunds from '../../components/KeyboardAccessoryAllFunds';
+import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
+import KeyboardAccessoryDone from '../../components/KeyboardAccessoryDone';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
@@ -120,6 +120,7 @@ const SendDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState<TWallet | null>(null);
   const { isVisible } = useKeyboard();
+  const [focusedAccessory, setFocusedAccessory] = useState<'amount' | 'address' | 'memo' | null>(null);
   const [addresses, setAddresses] = useState<IPaymentDestinations[]>([{ address: '', key: String(Math.random()), unit: amountUnit }]);
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
   const [networkTransactionFeesIsLoading, setNetworkTransactionFeesIsLoading] = useState(false);
@@ -1448,7 +1449,8 @@ const SendDetails = () => {
             unit={item.unit || amountUnit}
             editable={isEditable}
             disabled={!isEditable}
-            inputAccessoryViewID={InputAccessoryAllFundsAccessoryViewID}
+            onFocus={() => setFocusedAccessory('amount')}
+            onBlur={() => setFocusedAccessory(null)}
             maxSendableAmount={index === scrollIndex.current ? maxSendableAmount : null}
             isMaxAmountEstimate={!(item.address && wallet?.isAddressValid(item.address))}
           />
@@ -1494,7 +1496,8 @@ const SendDetails = () => {
             }}
             address={item.address}
             isLoading={isLoading}
-            inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
+            onFocus={() => setFocusedAccessory('address')}
+            onBlur={() => setFocusedAccessory(null)}
             editable={isEditable}
             style={styles.fullWidthInput}
           />
@@ -1515,88 +1518,91 @@ const SendDetails = () => {
     index,
   });
 
-  return (
-    <SafeArea style={[styles.root, stylesHook.root]} ignoreTopInset>
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.screenContent}
-        automaticallyAdjustKeyboardInsets
-        contentInsetAdjustmentBehavior="never"
-      >
-        <View>
-          <FlatList
-            onLayout={handleLayout}
-            keyboardShouldPersistTaps="always"
-            scrollEnabled={addresses.length > 1}
-            data={addresses}
-            renderItem={renderBitcoinTransactionInfoFields}
-            horizontal
-            ref={scrollView}
-            automaticallyAdjustKeyboardInsets
-            pagingEnabled
-            removeClippedSubviews={false}
-            onMomentumScrollBegin={Keyboard.dismiss}
-            onScroll={handleRecipientsScroll}
-            scrollEventThrottle={16}
-            scrollIndicatorInsets={styles.scrollViewIndicator}
-            contentContainerStyle={styles.scrollViewContent}
-            getItemLayout={getItemLayout}
-          />
-          <View style={[styles.memo, stylesHook.memo]}>
-            <TextInput
-              onChangeText={setTransactionMemo}
-              placeholder={loc.send.details_note_placeholder}
-              placeholderTextColor="#81868e"
-              value={transactionMemo}
-              numberOfLines={1}
-              style={styles.memoText}
-              editable={!isLoading}
-              onSubmitEditing={Keyboard.dismiss}
-              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
-            />
-          </View>
-          <Pressable
-            testID="chooseFee"
-            accessibilityRole="button"
-            onPress={() => {
-              Keyboard.dismiss();
-              const selectedRecipientUnit = addresses[scrollIndex.current]?.unit || amountUnit;
-              navigation.navigate('SelectFee', {
-                networkTransactionFees,
-                feePrecalc,
-                feeRate,
-                feeUnit: selectedRecipientUnit,
-                walletID: wallet?.getID() || '',
-                customFee,
-              });
-            }}
-            disabled={isLoading}
-            style={({ pressed }) => [pressed && styles.pressed, styles.fee]}
-          >
-            <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
+  const keyboardAccessory =
+    focusedAccessory === 'amount' ? (
+      <KeyboardAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={String(allBalance)} />
+    ) : focusedAccessory === 'address' || focusedAccessory === 'memo' ? (
+      <KeyboardAccessoryDone />
+    ) : null;
 
-            <View style={[styles.feeRow, stylesHook.feeRow]}>
-              {networkTransactionFeesIsLoading ? (
-                <ActivityIndicator />
-              ) : (
-                <Text style={stylesHook.feeValue}>
-                  {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
-                </Text>
-              )}
+  return (
+    <KeyboardAccessoryDock active={focusedAccessory != null} accessory={keyboardAccessory}>
+      <SafeArea style={[styles.root, stylesHook.root]} ignoreTopInset>
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.screenContent}
+          automaticallyAdjustKeyboardInsets={false}
+          contentInsetAdjustmentBehavior="never"
+        >
+          <View>
+            <FlatList
+              onLayout={handleLayout}
+              keyboardShouldPersistTaps="always"
+              scrollEnabled={addresses.length > 1}
+              data={addresses}
+              renderItem={renderBitcoinTransactionInfoFields}
+              horizontal
+              ref={scrollView}
+              automaticallyAdjustKeyboardInsets={false}
+              pagingEnabled
+              removeClippedSubviews={false}
+              onMomentumScrollBegin={Keyboard.dismiss}
+              onScroll={handleRecipientsScroll}
+              scrollEventThrottle={16}
+              scrollIndicatorInsets={styles.scrollViewIndicator}
+              contentContainerStyle={styles.scrollViewContent}
+              getItemLayout={getItemLayout}
+            />
+            <View style={[styles.memo, stylesHook.memo]}>
+              <TextInput
+                onChangeText={setTransactionMemo}
+                placeholder={loc.send.details_note_placeholder}
+                placeholderTextColor="#81868e"
+                value={transactionMemo}
+                numberOfLines={1}
+                style={styles.memoText}
+                editable={!isLoading}
+                onSubmitEditing={Keyboard.dismiss}
+                onFocus={() => setFocusedAccessory('memo')}
+                onBlur={() => setFocusedAccessory(null)}
+              />
             </View>
-          </Pressable>
-          {renderCreateButton()}
-        </View>
-      </ScrollView>
-      <DismissKeyboardInputAccessory />
-      {Platform.select({
-        ios: <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={String(allBalance)} />,
-        android: isVisible && (
-          <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={String(allBalance)} />
-        ),
-      })}
-      {renderWalletSelectionOrCoinsSelected()}
-    </SafeArea>
+            <Pressable
+              testID="chooseFee"
+              accessibilityRole="button"
+              onPress={() => {
+                Keyboard.dismiss();
+                const selectedRecipientUnit = addresses[scrollIndex.current]?.unit || amountUnit;
+                navigation.navigate('SelectFee', {
+                  networkTransactionFees,
+                  feePrecalc,
+                  feeRate,
+                  feeUnit: selectedRecipientUnit,
+                  walletID: wallet?.getID() || '',
+                  customFee,
+                });
+              }}
+              disabled={isLoading}
+              style={({ pressed }) => [pressed && styles.pressed, styles.fee]}
+            >
+              <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
+
+              <View style={[styles.feeRow, stylesHook.feeRow]}>
+                {networkTransactionFeesIsLoading ? (
+                  <ActivityIndicator />
+                ) : (
+                  <Text style={stylesHook.feeValue}>
+                    {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
+                  </Text>
+                )}
+              </View>
+            </Pressable>
+            {renderCreateButton()}
+          </View>
+        </ScrollView>
+        {renderWalletSelectionOrCoinsSelected()}
+      </SafeArea>
+    </KeyboardAccessoryDock>
   );
 };
 

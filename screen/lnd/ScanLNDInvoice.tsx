@@ -17,7 +17,8 @@ import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
+import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
+import KeyboardAccessoryDone from '../../components/KeyboardAccessoryDone';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { LNDStackParamsList } from '../../navigation/LNDStackParamsList';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -51,6 +52,7 @@ const ScanLNDInvoice = () => {
   const [isAmountInitiallyEmpty, setIsAmountInitiallyEmpty] = useState<boolean | undefined>();
   const [expiresIn, setExpiresIn] = useState<string | undefined>();
   const [arkFeesReady, setArkFeesReady] = useState<boolean>(false);
+  const [keyboardAccessoryActive, setKeyboardAccessoryActive] = useState(false);
   const stylesHook = StyleSheet.create({
     walletWrapLabel: {
       color: colors.buttonAlternativeTextColor,
@@ -340,6 +342,7 @@ const ScanLNDInvoice = () => {
   };
 
   const onBlur = (): void => {
+    setKeyboardAccessoryActive(false);
     processTextForInvoice(destination);
   };
 
@@ -388,70 +391,72 @@ const ScanLNDInvoice = () => {
   const feeLabel = wallet instanceof LightningArkWallet ? loc.lnd.network_fee : loc.lnd.potentialFee;
 
   return (
-    <SafeArea style={stylesHook.root}>
-      <View style={[styles.root, stylesHook.root]}>
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          keyboardShouldPersistTaps="handled"
-          automaticallyAdjustContentInsets
-          automaticallyAdjustKeyboardInsets
-          contentInsetAdjustmentBehavior="automatic"
-          scrollToOverflowEnabled
-        >
-          <View style={styles.scrollMargin}>
-            <AmountInput.AmountInput
-              isLoading={isLoading}
-              amount={amount}
-              onAmountUnitChange={setUnit}
-              onChangeText={setAmount}
-              disabled={!isAmountInitiallyEmpty || !decoded || isLoading || decoded.num_satoshis > 0}
-              unit={unit}
-              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
-            />
-          </View>
-
-          <BlueCard>
-            <AddressInput
-              onChangeText={onChangeText}
-              address={destination}
-              isLoading={isLoading}
-              placeholder={loc.lnd.placeholder}
-              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
-              onBlur={onBlur}
-              keyboardType="email-address"
-              style={styles.addressInput}
-            />
-            <View style={styles.description}>
-              <Text numberOfLines={0} style={styles.descriptionText}>
-                {decoded !== undefined ? decoded.description : ''}
-              </Text>
+    <KeyboardAccessoryDock active={keyboardAccessoryActive} accessory={<KeyboardAccessoryDone />}>
+      <SafeArea style={stylesHook.root}>
+        <View style={[styles.root, stylesHook.root]}>
+          <ScrollView
+            contentContainerStyle={styles.scroll}
+            keyboardShouldPersistTaps="handled"
+            automaticallyAdjustContentInsets
+            automaticallyAdjustKeyboardInsets={false}
+            contentInsetAdjustmentBehavior="automatic"
+            scrollToOverflowEnabled
+          >
+            <View style={styles.scrollMargin}>
+              <AmountInput.AmountInput
+                isLoading={isLoading}
+                amount={amount}
+                onAmountUnitChange={setUnit}
+                onChangeText={setAmount}
+                disabled={!isAmountInitiallyEmpty || !decoded || isLoading || decoded.num_satoshis > 0}
+                unit={unit}
+                onFocus={() => setKeyboardAccessoryActive(true)}
+                onBlur={() => setKeyboardAccessoryActive(false)}
+              />
             </View>
-            {expiresIn !== undefined && (
-              <View>
-                <Text style={stylesHook.expiresIn}>{expiresIn}</Text>
-                {decoded && decoded.num_satoshis > 0 && feeText !== '' && (
-                  <Text style={stylesHook.expiresIn}>{loc.formatString(feeLabel, { fee: feeText })}</Text>
-                )}
-              </View>
-            )}
+
             <BlueCard>
-              {isLoading ? (
+              <AddressInput
+                onChangeText={onChangeText}
+                address={destination}
+                isLoading={isLoading}
+                placeholder={loc.lnd.placeholder}
+                onFocus={() => setKeyboardAccessoryActive(true)}
+                onBlur={onBlur}
+                keyboardType="email-address"
+                style={styles.addressInput}
+              />
+              <View style={styles.description}>
+                <Text numberOfLines={0} style={styles.descriptionText}>
+                  {decoded !== undefined ? decoded.description : ''}
+                </Text>
+              </View>
+              {expiresIn !== undefined && (
                 <View>
-                  <ActivityIndicator />
-                </View>
-              ) : (
-                <View>
-                  <Button title={loc.lnd.payButton} onPress={pay} disabled={shouldDisablePayButton()} />
+                  <Text style={stylesHook.expiresIn}>{expiresIn}</Text>
+                  {decoded && decoded.num_satoshis > 0 && feeText !== '' && (
+                    <Text style={stylesHook.expiresIn}>{loc.formatString(feeLabel, { fee: feeText })}</Text>
+                  )}
                 </View>
               )}
+              <BlueCard>
+                {isLoading ? (
+                  <View>
+                    <ActivityIndicator />
+                  </View>
+                ) : (
+                  <View>
+                    <Button title={loc.lnd.payButton} onPress={pay} disabled={shouldDisablePayButton()} />
+                  </View>
+                )}
+              </BlueCard>
             </BlueCard>
-          </BlueCard>
 
-          {renderWalletSelectionButton()}
-        </ScrollView>
-      </View>
-      <DismissKeyboardInputAccessory />
-    </SafeArea>
+            {renderWalletSelectionButton()}
+          </ScrollView>
+        </View>
+      </SafeArea>
+    </KeyboardAccessoryDock>
   );
 };
 

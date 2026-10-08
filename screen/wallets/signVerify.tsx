@@ -23,10 +23,8 @@ import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
-import {
-  DoneAndDismissKeyboardInputAccessory,
-  DoneAndDismissKeyboardInputAccessoryViewID,
-} from '../../components/DoneAndDismissKeyboardInputAccessory';
+import KeyboardAccessoryClearPasteDone from '../../components/KeyboardAccessoryClearPasteDone';
+import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
 import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
 import ActionSheet from '../ActionSheet.ts';
@@ -52,7 +50,6 @@ const SignVerify = () => {
   const [isShareVisible, setIsShareVisible] = useState(false);
 
   const wallet = useWalletSubscribe(walletID);
-  const isToolbarVisibleForAndroid = Platform.OS === 'android' && messageHasFocus && isKeyboardVisible;
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () =>
@@ -155,111 +152,98 @@ const SignVerify = () => {
 
   const scrollBottomPad = isShareVisible && !isKeyboardVisible ? insets.bottom + 80 : undefined;
 
+  const keyboardAccessory = (
+    <KeyboardAccessoryClearPasteDone
+      onClearTapped={() => setMessage('')}
+      onPasteTapped={text => {
+        setMessage(text);
+        Keyboard.dismiss();
+      }}
+    />
+  );
+
   return (
     <View style={[styles.screenRoot, stylesHooks.screen]}>
-      <ScrollView
-        ref={scrollViewRef}
-        automaticallyAdjustContentInsets
-        automaticallyAdjustKeyboardInsets
-        contentInsetAdjustmentBehavior="automatic"
-        scrollToOverflowEnabled
-        contentContainerStyle={[styles.root, scrollBottomPad !== undefined && { paddingBottom: scrollBottomPad }]}
-        style={styles.scroll}
-      >
-        {!isKeyboardVisible && (
-          <>
-            <BlueSpacing20 />
-            <BlueFormLabel>{loc.addresses.sign_help}</BlueFormLabel>
-            <BlueSpacing20 />
-          </>
-        )}
-
-        <TextInput
-          multiline
-          textAlignVertical="top"
-          blurOnSubmit
-          placeholder={loc.addresses.sign_placeholder_address}
-          placeholderTextColor="#81868e"
-          value={address}
-          onChangeText={t => setAddress(t.replace('\n', ''))}
-          testID="SignVerifyAddress"
-          style={[styles.text, stylesHooks.text]}
-          autoCorrect={false}
-          autoCapitalize="none"
-          spellCheck={false}
-        />
-        <BlueSpacing10 />
-
-        <TextInput
-          multiline
-          placeholder={loc.addresses.sign_placeholder_message}
-          placeholderTextColor="#81868e"
-          value={message}
-          onChangeText={setMessage}
-          testID="Message"
-          inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
-          style={[styles.text, styles.messageInput, stylesHooks.text]}
-          autoCorrect={false}
-          autoCapitalize="none"
-          spellCheck={false}
-          scrollEnabled
-          textAlignVertical="top"
-          onFocus={() => handleFocus(true)}
-          onBlur={() => handleFocus(false)}
-        />
-        <BlueSpacing10 />
-
-        <TextInput
-          multiline
-          textAlignVertical="top"
-          blurOnSubmit
-          placeholder={loc.addresses.sign_placeholder_signature}
-          placeholderTextColor="#81868e"
-          value={signature}
-          onChangeText={t => setSignature(t.replace('\n', ''))}
-          testID="SignVerifySignature"
-          style={[styles.text, stylesHooks.text]}
-          autoCorrect={false}
-          autoCapitalize="none"
-          spellCheck={false}
-        />
-        <BlueSpacing40 />
-
-        {!isKeyboardVisible && (
-          <>
-            <View style={styles.actionButtons}>
-              <SecondButton onPress={handleVerify} title={loc.addresses.sign_verify} />
+      <KeyboardAccessoryDock active={messageHasFocus} accessory={keyboardAccessory}>
+        <ScrollView
+          ref={scrollViewRef}
+          automaticallyAdjustContentInsets
+          automaticallyAdjustKeyboardInsets={false}
+          contentInsetAdjustmentBehavior="automatic"
+          scrollToOverflowEnabled
+          contentContainerStyle={[styles.root, scrollBottomPad !== undefined && { paddingBottom: scrollBottomPad }]}
+          style={styles.scroll}
+        >
+          {!isKeyboardVisible && (
+            <>
               <BlueSpacing20 />
-              <Button onPress={handleSign} title={loc.addresses.sign_sign} />
-            </View>
-            <BlueSpacing10 />
-          </>
-        )}
+              <BlueFormLabel>{loc.addresses.sign_help}</BlueFormLabel>
+              <BlueSpacing20 />
+            </>
+          )}
 
-        {Platform.select({
-          ios: (
-            <DoneAndDismissKeyboardInputAccessory
-              onClearTapped={() => setMessage('')}
-              onPasteTapped={text => {
-                setMessage(text);
-                Keyboard.dismiss();
-              }}
-            />
-          ),
-          android: isToolbarVisibleForAndroid && (
-            <DoneAndDismissKeyboardInputAccessory
-              onClearTapped={() => {
-                setMessage('');
-                Keyboard.dismiss();
-              }}
-              onPasteTapped={text => {
-                setMessage(text);
-                Keyboard.dismiss();
-              }}
-            />
-          ),
-        })}
-      </ScrollView>
+          <TextInput
+            multiline
+            textAlignVertical="top"
+            blurOnSubmit
+            placeholder={loc.addresses.sign_placeholder_address}
+            placeholderTextColor="#81868e"
+            value={address}
+            onChangeText={t => setAddress(t.replace('\n', ''))}
+            testID="SignVerifyAddress"
+            style={[styles.text, stylesHooks.text]}
+            autoCorrect={false}
+            autoCapitalize="none"
+            spellCheck={false}
+          />
+          <BlueSpacing10 />
+
+          <TextInput
+            multiline
+            placeholder={loc.addresses.sign_placeholder_message}
+            placeholderTextColor="#81868e"
+            value={message}
+            onChangeText={setMessage}
+            testID="Message"
+            style={[styles.text, styles.messageInput, stylesHooks.text]}
+            autoCorrect={false}
+            autoCapitalize="none"
+            spellCheck={false}
+            scrollEnabled
+            textAlignVertical="top"
+            onFocus={() => handleFocus(true)}
+            onBlur={() => handleFocus(false)}
+          />
+          <BlueSpacing10 />
+
+          <TextInput
+            multiline
+            textAlignVertical="top"
+            blurOnSubmit
+            placeholder={loc.addresses.sign_placeholder_signature}
+            placeholderTextColor="#81868e"
+            value={signature}
+            onChangeText={t => setSignature(t.replace('\n', ''))}
+            testID="SignVerifySignature"
+            style={[styles.text, stylesHooks.text]}
+            autoCorrect={false}
+            autoCapitalize="none"
+            spellCheck={false}
+          />
+          <BlueSpacing40 />
+
+          {!isKeyboardVisible && (
+            <>
+              <View style={styles.actionButtons}>
+                <SecondButton onPress={handleVerify} title={loc.addresses.sign_verify} />
+                <BlueSpacing20 />
+                <Button onPress={handleSign} title={loc.addresses.sign_sign} />
+              </View>
+              <BlueSpacing10 />
+            </>
+          )}
+        </ScrollView>
+      </KeyboardAccessoryDock>
 
       {isShareVisible && !isKeyboardVisible && (
         <>
