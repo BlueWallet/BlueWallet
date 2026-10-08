@@ -1,11 +1,20 @@
 import QuickLook
 import UIKit
+import Network
 
-final class PreviewViewController: UIViewController, QLPreviewingController, UITableViewDataSource, UITableViewDelegate {
+final class PreviewViewController: UIViewController, QLPreviewingController, UITableViewDataSource, UITableViewDelegate, UISearchResultsUpdating {
     private let titleLabel = UILabel()
     private let summaryLabel = UILabel()
     private let tableView = UITableView(frame: .zero, style: .insetGrouped)
+    private let searchController = UISearchController(searchResultsController: nil)
+    private var allRecords: [(label: String, detail: String, symbol: String)] = []
     private var records: [(label: String, detail: String, symbol: String)] = []
+    private enum ConnectionState: Equatable {
+        case testing
+        case success(String)
+        case failure(String)
+    }
+    private var connectionStates: [String: ConnectionState] = [:]
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,37 +29,48 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
         summaryLabel.textColor = .secondaryLabel
         summaryLabel.adjustsFontForContentSizeCategory = true
 
-        let header = UIStackView(arrangedSubviews: [titleLabel, summaryLabel])
+        let header = UIStackView(arrangedSubviews: [titleLabel, summaryLabel, searchController.searchBar])
         header.axis = .vertical
-        header.spacing = 6
-        header.layoutMargins = UIEdgeInsets(top: 22, left: 20, bottom: 18, right: 20)
+        header.spacing = 4
+        header.layoutMargins = UIEdgeInsets(top: 20, left: 20, bottom: 12, right: 20)
         header.isLayoutMarginsRelativeArrangement = true
-        header.backgroundColor = .secondarySystemGroupedBackground
-        header.layer.cornerRadius = 16
-        header.layer.cornerCurve = .continuous
 
         tableView.dataSource = self
         tableView.delegate = self
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 72
         tableView.backgroundColor = .clear
-        tableView.separatorStyle = .none
+        tableView.separatorStyle = .singleLine
 
-        let stack = UIStackView(arrangedSubviews: [header, tableView])
-        stack.axis = .vertical
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(stack)
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search servers"
+        searchController.searchBar.autocapitalizationType = .none
+        searchController.searchBar.autocorrectionType = .no
+        definesPresentationContext = true
+
+        header.translatesAutoresizingMaskIntoConstraints = false
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(header)
+        view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            stack.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            header.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            header.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            header.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: header.bottomAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
 
     func preparePreviewOfFile(at url: URL) async throws {
 		let parsed = try await Task.detached(priority: .userInitiated) {
+			if url.pathExtension.lowercased() == "electrumservers" {
+				let serverHistory = try ElectrumServerPreview.parse(file: url)
+				return (serverHistory.title, serverHistory.summary, serverHistory.records)
+			}
 			if let psbt = try? PSBTPreview.parse(file: url) {
 				return (psbt.title, psbt.summary, psbt.records)
 			}
@@ -112,7 +132,17 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
 
 		titleLabel.text = parsed.0
 		summaryLabel.text = parsed.1
+		allRecords = parsed.2
 		records = parsed.2
+        searchController.searchBar.placeholder = parsed.0 == "Electrum Server History" ? "Search servers" : "Search"
+        tableView.reloadData()
+    }
+
+    func updateSearchResults(for searchController: UISearchController) {
+        let query = searchController.searchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        records = query.isEmpty ? allRecords : allRecords.filter {
+            $0.label.localizedCaseInsensitiveContains(query) || $0.detail.localizedCaseInsensitiveContains(query)
+        }
         tableView.reloadData()
     }
 
@@ -136,34 +166,268 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
         content.imageProperties.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold)
         cell.contentConfiguration = content
         cell.backgroundColor = .secondarySystemGroupedBackground
-        cell.layer.cornerRadius = 14
-        cell.layer.cornerCurve = .continuous
-        cell.clipsToBounds = true
-        cell.layoutMargins = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)
         cell.accessoryType = .none
 
+        if titleLabel.text == "Electrum Server History" {
+            let key = valueToCopy(for: record)
+            switch connectionStates[key] {
+            case .testing:
+                let spinner = UIActivityIndicatorView(style: .medium)
+                spinner.accessibilityLabel = "Testing \(record.label)"
+                spinner.startAnimating()
+                cell.accessoryView = spinner
+            case .success(let message):
+                content.secondaryText = "\(record.detail)\n\(message)"
+                content.secondaryTextProperties.color = .systemGreen
+                cell.contentConfiguration = content
+                cell.accessoryView = testButton(for: record, symbol: "checkmark.circle.fill", tintColor: .systemGreen)
+            case .failure(let message):
+                content.secondaryText = "\(record.detail)\n\(message)"
+                content.secondaryTextProperties.color = .systemRed
+                cell.contentConfiguration = content
+                cell.accessoryView = testButton(for: record, symbol: "exclamationmark.circle.fill", tintColor: .systemRed)
+            case nil:
+                cell.accessoryView = testButton(for: record)
+            }
+        }
+
         return cell
+    }
+
+    private func testButton(
+        for record: (label: String, detail: String, symbol: String),
+        symbol: String = "bolt.horizontal.circle",
+        tintColor: UIColor = .systemBlue
+    ) -> UIButton {
+        var configuration = UIButton.Configuration.plain()
+        configuration.title = "Test"
+        configuration.image = UIImage(systemName: symbol)
+        configuration.imagePadding = 5
+        configuration.baseForegroundColor = tintColor
+        let button = UIButton(configuration: configuration, primaryAction: UIAction { [weak self] _ in
+            self?.testConnection(to: record)
+        })
+        button.accessibilityLabel = "Test connection to \(record.label)"
+        button.accessibilityHint = "Checks whether this Electrum server accepts a connection."
+        return button
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let record = records[indexPath.row]
-        let copyValue: String
-        if record.label.hasPrefix("Input ") || record.label.hasPrefix("Output ") {
-            copyValue = record.detail.components(separatedBy: " · ").first ?? record.detail
-        } else {
-            copyValue = record.detail
-        }
+        let copyValue = valueToCopy(for: record)
         let sheet = UIAlertController(title: record.label, message: record.detail, preferredStyle: .actionSheet)
-        sheet.addAction(UIAlertAction(title: "Copy", style: .default) { _ in
+        sheet.addAction(UIAlertAction(title: titleLabel.text == "Electrum Server History" ? "Copy Server" : "Copy", style: .default) { _ in
             UIPasteboard.general.string = copyValue
         })
+        if titleLabel.text == "Electrum Server History" {
+            sheet.addAction(UIAlertAction(title: "Copy Address", style: .default) { _ in
+                UIPasteboard.general.string = record.label
+            })
+        }
         sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         if let popover = sheet.popoverPresentationController, let cell = tableView.cellForRow(at: indexPath) {
             popover.sourceView = cell
             popover.sourceRect = cell.bounds
         }
         present(sheet, animated: true)
+    }
+
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        guard titleLabel.text == "Electrum Server History" else { return nil }
+        let record = records[indexPath.row]
+        let test = UIContextualAction(style: .normal, title: "Test") { [weak self] _, _, completion in
+            self?.testConnection(to: record)
+            completion(true)
+        }
+        test.image = UIImage(systemName: "waveform.path.ecg")
+        test.backgroundColor = .systemBlue
+        let configuration = UISwipeActionsConfiguration(actions: [test])
+        configuration.performsFirstActionWithFullSwipe = false
+        return configuration
+    }
+
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        let record = records[indexPath.row]
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            guard let self else { return nil }
+            let copy = UIAction(title: self.titleLabel.text == "Electrum Server History" ? "Copy Server" : "Copy", image: UIImage(systemName: "doc.on.doc")) { _ in
+                UIPasteboard.general.string = self.valueToCopy(for: record)
+            }
+            var actions = [copy]
+            if self.titleLabel.text == "Electrum Server History" {
+                actions.insert(UIAction(title: "Test Connection", image: UIImage(systemName: "waveform.path.ecg")) { [weak self] _ in
+                    self?.testConnection(to: record)
+                }, at: 0)
+                actions.append(UIAction(title: "Copy Address", image: UIImage(systemName: "textformat")) { _ in
+                    UIPasteboard.general.string = record.label
+                })
+                actions.append(UIAction(title: "Copy All Servers", image: UIImage(systemName: "doc.on.doc.fill")) { _ in
+                    UIPasteboard.general.string = self.allRecords.map(self.valueToCopy).joined(separator: "\n")
+                })
+            }
+            return UIMenu(children: actions)
+        }
+    }
+
+    private func valueToCopy(for record: (label: String, detail: String, symbol: String)) -> String {
+        if titleLabel.text == "Electrum Server History" {
+            let components = record.detail.components(separatedBy: " · ")
+            let port = components.first ?? record.detail
+            let suffix = components.last == "SSL" ? "s" : "t"
+            return "\(record.label):\(port):\(suffix)"
+        }
+        if record.label.hasPrefix("Input ") || record.label.hasPrefix("Output ") {
+            return record.detail.components(separatedBy: " · ").first ?? record.detail
+        }
+        return record.detail
+    }
+
+    private func testConnection(to record: (label: String, detail: String, symbol: String)) {
+        let components = record.detail.components(separatedBy: " · ")
+        guard let rawPort = components.first,
+              let portNumber = UInt16(rawPort),
+              let port = NWEndpoint.Port(rawValue: portNumber) else { return }
+
+        let recordKey = valueToCopy(for: record)
+        guard connectionStates[recordKey] != .testing else { return }
+        connectionStates[recordKey] = .testing
+        tableView.reloadData()
+
+        let usesTLS = components.last == "SSL"
+        let connection = NWConnection(host: NWEndpoint.Host(record.label), port: port, using: usesTLS ? .tls : .tcp)
+        let queue = DispatchQueue(label: "io.bluewallet.quicklook.electrum-test")
+        let lock = NSLock()
+        var finished = false
+
+        func finish(success: Bool, message: String) {
+            lock.lock()
+            guard !finished else { lock.unlock(); return }
+            finished = true
+            lock.unlock()
+            connection.cancel()
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.connectionStates[recordKey] = success ? .success(message) : .failure(message)
+                self.tableView.reloadData()
+            }
+        }
+
+        connection.stateUpdateHandler = { state in
+            switch state {
+            case .ready:
+                let request: [String: Any] = [
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "server.version",
+                    "params": ["BlueWallet Quick Look", "1.4"],
+                ]
+                guard let data = try? JSONSerialization.data(withJSONObject: request) + Data([0x0A]) else {
+                    finish(success: false, message: "The Electrum request could not be created.")
+                    return
+                }
+                connection.send(content: data, completion: .contentProcessed { error in
+                    if let error {
+                        finish(success: false, message: error.localizedDescription)
+                        return
+                    }
+                    connection.receive(minimumIncompleteLength: 1, maximumLength: 65_536) { data, _, _, error in
+                        if let error {
+                            finish(success: false, message: error.localizedDescription)
+                            return
+                        }
+                        guard let data,
+                              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                              object["result"] != nil else {
+                            finish(success: false, message: "The server connected but did not return a valid Electrum response.")
+                            return
+                        }
+                        finish(success: true, message: "Connected to \(record.label):\(portNumber) over \(usesTLS ? "SSL" : "TCP").")
+                    }
+                })
+            case .failed(let error):
+                finish(success: false, message: error.localizedDescription)
+            case .cancelled:
+                break
+            default:
+                break
+            }
+        }
+        connection.start(queue: queue)
+        queue.asyncAfter(deadline: .now() + 10) {
+            finish(success: false, message: "The server did not respond within 10 seconds.")
+        }
+    }
+}
+
+private enum ElectrumServerPreview {
+    typealias Record = (label: String, detail: String, symbol: String)
+    private enum ParseError: Error { case invalid }
+
+    static func parse(file: URL) throws -> (title: String, summary: String, records: [Record]) {
+        let data = try Data(contentsOf: file)
+        let json = try JSONSerialization.jsonObject(with: data)
+        let values: [Any]
+        if let root = json as? [String: Any], let servers = root["servers"] as? [Any] {
+            values = servers
+        } else if let servers = json as? [Any] {
+            values = servers
+        } else {
+            throw ParseError.invalid
+        }
+
+        var records: [Record] = []
+        var invalidCount = 0
+        var seen = Set<String>()
+
+        for value in values.prefix(1000) {
+            guard let server = value as? [String: Any],
+                  let rawHost = server["host"] as? String else {
+                invalidCount += 1
+                continue
+            }
+            let host = rawHost.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            guard validHost(host) else {
+                invalidCount += 1
+                continue
+            }
+
+            let candidates: [(String, Int?)] = [("SSL", integer(server["ssl"])), ("TCP", integer(server["tcp"]))]
+            let endpoints: [(String, Int)] = candidates
+                .compactMap { entry in entry.1.map { (entry.0, $0) } }
+                .filter { (1...65535).contains($0.1) }
+            guard !endpoints.isEmpty else {
+                invalidCount += 1
+                continue
+            }
+
+            for (protocolName, port) in endpoints {
+                let key = "\(host):\(port):\(protocolName)"
+                guard seen.insert(key).inserted else { continue }
+                records.append((host, "\(port) · \(protocolName)", protocolName == "SSL" ? "lock.shield" : "network"))
+            }
+        }
+
+        guard !records.isEmpty else { throw ParseError.invalid }
+        let serverCount = records.count == 1 ? "1 server" : "\(records.count) servers"
+        let summary = invalidCount == 0 ? serverCount : "\(serverCount) · \(invalidCount) invalid record\(invalidCount == 1 ? "" : "s") skipped"
+        return ("Electrum Server History", summary, records)
+    }
+
+    private static func integer(_ value: Any?) -> Int? {
+        if let number = value as? NSNumber { return number.intValue }
+        if let string = value as? String { return Int(string) }
+        return nil
+    }
+
+    private static func validHost(_ host: String) -> Bool {
+        if host == "localhost" { return true }
+        guard !host.isEmpty, host.count <= 253 else { return false }
+        return host.split(separator: ".", omittingEmptySubsequences: false).allSatisfy { part in
+            guard !part.isEmpty, part.count <= 63, part.first?.isLetter == true || part.first?.isNumber == true,
+                  part.last?.isLetter == true || part.last?.isNumber == true else { return false }
+            return part.allSatisfy { $0.isLetter || $0.isNumber || $0 == "-" }
+        }
     }
 }
 

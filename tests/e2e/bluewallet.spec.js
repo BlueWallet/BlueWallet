@@ -132,14 +132,34 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('NetworkSettings')).tap();
     await waitForId('ElectrumSettings');
 
-    // network -> electrum server
-    // change electrum server to electrum.blockstream.info and revert it back
-    // skip this test on iOS. HeaderMenuButton tap triggers a keyboard open for some reason.
+    // network -> Electrum settings
+    // With no favorite, Suggested Servers is expanded by default.
+    await element(by.id('ElectrumSettings')).tap();
+    await waitForId('ElectrumSettingsScrollView');
+    await expect(element(by.id('ElectrumServer-mainnet.foundationdevices.com-50002'))).toBeVisible();
+
+    // Add Server is a separate form sheet on Apple platforms and a nested stack screen on Android.
+    await element(by.id('HeaderMenuButton')).tap();
+    await expect(element(by.text('Find Servers Nearby'))).toBeVisible();
+    if (device.getPlatform() === 'ios') {
+      await expect(element(by.text('Export History with Handoff'))).toBeVisible();
+    }
+    await element(by.text('Add Server')).tap();
+    await waitForId('AddElectrumServerScrollView');
+    await expect(element(by.id('HostInput'))).toBeVisible();
+    await expect(element(by.id('PortInput'))).toBeVisible();
+    await expect(element(by.id('SetServerAsFavoriteSwitch'))).toHaveToggleValue(true);
+    await goBack();
+    await waitForId('ElectrumSettingsScrollView');
+
+    // Exercise persistence and reset on Android, where this suite has a stable
+    // network-backed keyboard/save flow. Saving dismisses Add Server automatically.
     if (device.getPlatform() === 'android') {
-      await element(by.id('ElectrumSettings')).tap();
+      await element(by.id('HeaderMenuButton')).tap();
+      await element(by.text('Add Server')).tap();
       await waitFor(element(by.id('HostInput')))
         .toBeVisible()
-        .whileElement(by.id('ElectrumSettingsScrollView'))
+        .whileElement(by.id('AddElectrumServerScrollView'))
         .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
       await element(by.id('HostInput')).replaceText('electrum.blockstream.info\n');
       await waitForKeyboardToClose();
@@ -147,25 +167,32 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await waitForKeyboardToClose();
       await waitFor(element(by.id('Save')))
         .toBeVisible()
-        .whileElement(by.id('ElectrumSettingsScrollView'))
+        .whileElement(by.id('AddElectrumServerScrollView'))
         .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
       await element(by.id('Save')).tap();
-      await waitForText('OK');
-      await element(by.text('OK')).tap();
+      await waitForId('ElectrumSettingsScrollView');
+      await expect(element(by.id('FavoriteElectrumServer-electrum.blockstream.info-50001'))).toBeVisible();
+
       await element(by.id('HeaderMenuButton')).tap();
       await element(by.text('Reset to default')).tap();
       await element(by.text('RESET TO DEFAULT')).tap();
       await waitForText('OK');
       await element(by.text('OK')).tap();
+      await expect(element(by.id('FavoriteElectrumServer-electrum.blockstream.info-50001'))).not.toExist();
+      await expect(element(by.id('ElectrumServer-mainnet.foundationdevices.com-50002'))).toBeVisible();
+
+      await element(by.id('HeaderMenuButton')).tap();
+      await element(by.text('Add Server')).tap();
       await waitFor(element(by.id('HostInput')))
         .toBeVisible()
-        .whileElement(by.id('ElectrumSettingsScrollView'))
+        .whileElement(by.id('AddElectrumServerScrollView'))
         .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
       await expect(element(by.id('HostInput'))).toHaveText('');
       await expect(element(by.id('PortInput'))).toHaveText('');
-      await expect(element(by.id('SSLPortInput'))).toHaveToggleValue(false);
       await goBack();
     }
+
+    await goBack();
 
     // network -> lightning
     // change URI and revert it back

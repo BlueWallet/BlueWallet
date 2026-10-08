@@ -17,7 +17,7 @@ class EventEmitter: RCTEventEmitter, NativeEventEmitterSpec {
     }
 
     override func supportedEvents() -> [String]! {
-        return ["onUserActivityOpen"]
+        return ["onUserActivityOpen", "onElectrumServerDiscovered"]
     }
 
     // Required for TurboModule event emitters. Must call super: RCTEventEmitter counts listeners there,
@@ -42,6 +42,11 @@ class EventEmitter: RCTEventEmitter, NativeEventEmitterSpec {
         // no listeners yet (e.g. cold start): JS picks the activity up with getMostRecentUserActivity()
         guard hasListeners else { return }
         sendEvent(withName: "onUserActivityOpen", body: userInfo)
+    }
+
+    @objc func sendElectrumServerDiscovered(_ server: [String: Any]) {
+        guard hasListeners else { return }
+        sendEvent(withName: "onElectrumServerDiscovered", body: server)
     }
 
     @objc func getMostRecentUserActivity(_ resolve: @escaping RCTPromiseResolveBlock,

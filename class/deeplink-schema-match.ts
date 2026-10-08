@@ -1,7 +1,9 @@
 import bip21, { TOptions } from 'bip21';
 import * as bitcoin from 'bitcoinjs-lib';
 import URL from 'url';
+import { Platform } from 'react-native';
 import { readFileOutsideSandbox } from '../blue_modules/fs';
+import { formatElectrumServer, parseElectrumServer, parseElectrumServerHistoryDeepLink } from '../blue_modules/electrumServer';
 import { Chain } from '../models/bitcoinUnits';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import Azteco from './azteco';
@@ -224,14 +226,29 @@ class DeeplinkSchemaMatch {
       (async () => {
         if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
           switch (urlObject.host) {
-            case 'setelectrumserver':
+            case 'setelectrumserver': {
+              const electrumServer = parseElectrumServer(event.url);
+              if (!electrumServer) break;
               completionHandler([
                 'ElectrumSettings',
                 {
-                  server: DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(event.url),
+                  server: electrumServer,
                 },
               ]);
               break;
+            }
+            case 'importelectrumserverhistory': {
+              if (Platform.OS !== 'ios') break;
+              const serverHistoryImport = parseElectrumServerHistoryDeepLink(event.url);
+              if (!serverHistoryImport) break;
+              completionHandler([
+                'ElectrumSettings',
+                {
+                  serverHistoryImport,
+                },
+              ]);
+              break;
+            }
             case 'setlndhuburl':
               completionHandler([
                 'LightningSettings',
@@ -254,10 +271,8 @@ class DeeplinkSchemaMatch {
    * @return {string|boolean}
    */
   static getServerFromSetElectrumServerAction(url: string): string | false {
-    if (!url.startsWith('bluewallet:setelectrumserver') && !url.startsWith('setelectrumserver')) return false;
-    const splt = url.split('server=');
-    if (splt[1]) return decodeURIComponent(splt[1]);
-    return false;
+    const server = parseElectrumServer(url);
+    return server ? formatElectrumServer(server) : false;
   }
 
   /**

@@ -111,7 +111,7 @@
 		B4F0A4A22FA1BC0000AAAA01 /* WidgetHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */; };
 		B4F0A4A42FA1BC0000AAAA03 /* EventEmitter.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A32FA1BC0000AAAA02 /* EventEmitter.mm */; };
 		B4F0A4C22FA1BC2700BBBB02 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4C12FA1BC2700BBBB01 /* SceneDelegate.swift */; };
-		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		C978A716948AB7DEC5B6F677 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		F106AA234C086C6B795EE267 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2162D22139056EC332C84D92 /* Foundation.framework */; };
 		F7A1B2C3D4E5F60718293A4D /* ScriptDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A1B2C3D4E5F60718293A4E /* ScriptDescription.swift */; };
 /* End PBXBuildFile section */
@@ -311,7 +311,7 @@
 			files = (
 				782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */,
 				764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */,
-				C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */,
+				C978A716948AB7DEC5B6F677 /* (null) in Frameworks */,
 				17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -583,6 +583,7 @@
 				8448882949434D41A054C0B2 /* ToolTipMenuTests.xctest */,
 				FC63C7054F1C4FDFB7A830E5 /* libRCTPrivacySnapshot.a */,
 				B4D3235A177F4580BA52F2F9 /* libRNCSlider.a */,
+				B32900000000000000000011 /* QuickLook.framework */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -653,7 +654,6 @@
 				57019CDAE87B27F6F6D28C4A /* Info.plist */,
 				E745397267AD62B80F3CA6C3 /* ThumbnailProvider.swift */,
 			);
-			name = QuickLookThumbnail;
 			path = QuickLookThumbnail;
 			sourceTree = "<group>";
 		};
@@ -981,9 +981,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1019,9 +1023,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

@@ -31,4 +31,13 @@ describe('native menu availability', () => {
     expect(availableMenuActions('TransactionStatus', ['copyTransactionId'], true)).toContain('copyTransactionId');
     expect(availableMenuActions('WalletsList', [], true)).not.toContain('backToWallets');
   });
+
+  it('offers only registered Electrum settings commands', () => {
+    expect(availableMenuActions('ElectrumSettings', ['addElectrumServer', 'exportElectrumServerHistory'], true)).toEqual([
+      'settings',
+      'keyboardShortcuts',
+      'addElectrumServer',
+      'exportElectrumServerHistory',
+    ]);
+  });
 });
