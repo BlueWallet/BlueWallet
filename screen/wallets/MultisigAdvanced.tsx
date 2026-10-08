@@ -191,15 +191,13 @@ const MultisigAdvanced: React.FC = () => {
     [handleSave, isValidSelection],
   );
 
-  const renderHeaderRight = useCallback(() => SaveButton(), [SaveButton]);
-
   React.useLayoutEffect(() => {
     if (Platform.OS !== 'android') {
-      navigation.setOptions({
-        headerRight: renderHeaderRight,
+      navigation.setParams({
+        headerRight: SaveButton,
       });
     }
-  }, [navigation, renderHeaderRight]);
+  }, [navigation, SaveButton]);
 
   return (
     <SafeArea style={stylesHook.root}>

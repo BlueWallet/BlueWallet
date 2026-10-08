@@ -401,13 +401,16 @@ const DetailViewStackScreensStack = () => {
             hash: undefined,
             walletID: undefined,
           }}
-          options={navigationStyle({
-            headerStyle: {
-              backgroundColor: theme.colors.customHeader,
+          options={navigationStyle(
+            {
+              headerStyle: {
+                backgroundColor: theme.colors.customHeader,
+              },
+              headerTitle: '',
+              headerBackButtonDisplayMode: 'default',
             },
-            headerTitle: '',
-            headerBackButtonDisplayMode: 'default',
-          })(theme)}
+            withRouteParamHeaderOptions({ headerTitle: true, headerTitleAlign: true, headerTitleContainerStyle: true }),
+          )(theme)}
         />
         <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
         <DetailViewStack.Screen
@@ -423,7 +426,10 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="SelectWallet"
           component={SelectWallet}
-          options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+          options={navigationStyle(
+            { title: loc.wallets.select_wallet },
+            withRouteParamHeaderOptions({ statusBarStyle: true, headerBackVisible: true }),
+          )(theme)}
         />
         <DetailViewStack.Screen
           name="LNDViewInvoice"
@@ -486,11 +492,30 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="WalletAddresses"
           component={WalletAddresses}
-          options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
+          options={navigationStyle({ title: loc.addresses.addresses_title }, (options, { navigation: screenNavigation }) => ({
+            ...options,
+            headerSearchBarOptions: {
+              onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
+            },
+          }))(theme)}
         />
 
         <DetailViewStack.Screen name="Settings" component={Settings} options={settingsScreenOptions(loc.settings.header)} />
-        <DetailViewStack.Screen name="Currency" component={Currency} options={settingsScreenOptions(loc.settings.currency)} />
+        <DetailViewStack.Screen
+          name="Currency"
+          component={Currency}
+          options={({ navigation: screenNavigation, ...screenProps }) => {
+            const options = settingsScreenOptions(loc.settings.currency);
+            return {
+              ...(typeof options === 'function' ? options({ navigation: screenNavigation, ...screenProps }) : options),
+              headerSearchBarOptions: {
+                onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
+                onFocus: () => screenNavigation.setParams({ isSearchFocused: true }),
+                onBlur: () => screenNavigation.setParams({ isSearchFocused: false }),
+              },
+            };
+          }}
+        />
         <DetailViewStack.Screen name="GeneralSettings" component={GeneralSettings} options={settingsScreenOptions(loc.settings.general)} />
         <DetailViewStack.Screen
           name="PlausibleDeniability"
@@ -525,7 +550,19 @@ const DetailViewStackScreensStack = () => {
           component={EncryptStorage}
           options={settingsScreenOptions(loc.settings.encrypt_title)}
         />
-        <DetailViewStack.Screen name="Language" component={Language} options={settingsScreenOptions(loc.settings.language)} />
+        <DetailViewStack.Screen
+          name="Language"
+          component={Language}
+          options={({ navigation: screenNavigation, ...screenProps }) => {
+            const options = settingsScreenOptions(loc.settings.language);
+            return {
+              ...(typeof options === 'function' ? options({ navigation: screenNavigation, ...screenProps }) : options),
+              headerSearchBarOptions: {
+                onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
+              },
+            };
+          }}
+        />
         <DetailViewStack.Screen
           name="LightningSettings"
           component={LightningSettings}

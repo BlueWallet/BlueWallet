@@ -1,8 +1,8 @@
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { Keyboard, NativeSyntheticEvent, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Keyboard, StyleSheet, Text, View } from 'react-native';
 
 import {
   CurrencyRate,
@@ -18,8 +18,11 @@ import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 dayjs.extend(calendar);
+
+type RouteProps = RouteProp<DetailViewStackParamList, 'Currency'>;
 
 const Currency: React.FC = () => {
   const { setPreferredFiatCurrencyStorage } = useSettings();
@@ -29,10 +32,8 @@ const Currency: React.FC = () => {
     LastUpdated: null,
     Rate: null,
   });
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const { setOptions } = useNavigation();
+  const { search = '', isSearchFocused = false } = useRoute<RouteProps>().params ?? {};
   const { colors } = useTheme();
-  const [search, setSearch] = useState('');
 
   const stylesHook = StyleSheet.create({
     card: { backgroundColor: colors.cardSectionBackground },
@@ -67,20 +68,6 @@ const Currency: React.FC = () => {
   useEffect(() => {
     fetchCurrency();
   }, [fetchCurrency]);
-
-  const handleSearchChange = useCallback((event: NativeSyntheticEvent<{ text: string }>) => {
-    setSearch(event.nativeEvent.text);
-  }, []);
-
-  useLayoutEffect(() => {
-    setOptions({
-      headerSearchBarOptions: {
-        onChangeText: handleSearchChange,
-        onFocus: () => setIsSearchFocused(true),
-        onBlur: () => setIsSearchFocused(false),
-      },
-    });
-  }, [setOptions, handleSearchChange]);
 
   const selectedCurrencyVisible = useMemo(
     () => filteredCurrencies.some(item => item.endPointKey === selectedCurrency.endPointKey),

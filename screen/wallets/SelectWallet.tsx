@@ -93,16 +93,11 @@ const SelectWallet: React.FC = () => {
   }, [isLoading, selectedWalletID, filteredWallets]);
 
   useEffect(() => {
-    navigation.setOptions({
+    navigation.setParams({
       statusBarStyle: isLoading || filteredWallets.length === 0 ? 'light' : 'auto',
+      headerBackVisible: isModal ? undefined : false,
     });
-  }, [isLoading, filteredWallets, navigation]);
-
-  useEffect(() => {
-    if (!isModal) {
-      navigation.setOptions({ headerBackVisible: false });
-    }
-  }, [isModal, navigation]);
+  }, [isLoading, filteredWallets.length, isModal, navigation]);
 
   const onPress = (item: TWallet) => {
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
