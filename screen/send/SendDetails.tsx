@@ -255,7 +255,17 @@ const SendDetails = () => {
       navigation.goBack();
       return;
     }
-    const newWallet = (routeParams.walletID && wallets.find(w => w.getID() === routeParams.walletID)) || suitable[0];
+    const requestedWallet = routeParams.walletID ? wallets.find(w => w.getID() === routeParams.walletID) : undefined;
+    if (routeParams.walletID && !requestedWallet) {
+      // a specific wallet was requested but does not exist (anymore): never silently
+      // fall back to another wallet, as the user could end up spending from a wallet
+      // they did not intend to use. refs #8879
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ title: loc.errors.error, message: loc.send.details_wallet_not_found });
+      navigation.goBack();
+      return;
+    }
+    const newWallet = requestedWallet ?? suitable[0];
     setWallet(newWallet);
     setParams({ feeUnit: newWallet.getPreferredBalanceUnit(), amountUnit: newWallet.getPreferredBalanceUnit() });
 
