@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Alert, Platform } from 'react-native';
 import { openSettings } from 'react-native-permissions';
+import Bugsnag from '@bugsnag/react-native';
 
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import electrumDiscoveryEvents from '../blue_modules/electrumDiscoveryEvents';
@@ -18,6 +19,41 @@ const MAX_DISCOVERY_PAYLOAD_LENGTH = 1_000_000;
 const MAX_DISCOVERED_SERVERS = 1_000;
 const DISCOVERY_TIMEOUT_MS = 15_000;
 const DISCOVERY_EVENT = 'onElectrumServerDiscovered';
+
+type PermissionDiagnostic = {
+  status: string;
+  reason?: string;
+  errorDomain?: string;
+  errorCode?: number;
+};
+
+const parsePermissionDiagnostic = (value: string): PermissionDiagnostic => {
+  try {
+    const parsed = JSON.parse(value) as Partial<PermissionDiagnostic>;
+    if (parsed && typeof parsed.status === 'string') return parsed as PermissionDiagnostic;
+  } catch {
+    // Older native builds return the status as a plain string.
+  }
+  return { status: value };
+};
+
+const reportDiscoveryDiagnostic = (message: string, metadata: Record<string, string | number | boolean | undefined>, notify = false) => {
+  const safeMetadata = Object.fromEntries(
+    Object.entries(metadata).filter((entry): entry is [string, string | number | boolean] => entry[1] !== undefined),
+  );
+  if (__DEV__) console.debug(`[Electrum discovery] ${message}`, safeMetadata);
+  try {
+    Bugsnag.leaveBreadcrumb(`Electrum discovery: ${message}`, safeMetadata, 'log');
+    if (__DEV__ && notify) {
+      Bugsnag.notify(new Error(`Electrum discovery diagnostic: ${message}`), event => {
+        event.severity = 'info';
+        event.addMetadata('electrumDiscovery', safeMetadata);
+      });
+    }
+  } catch {
+    // Diagnostics must never interfere with discovery.
+  }
+};
 
 const discoverWithTimeout = async (): Promise<string> => {
   let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -69,16 +105,27 @@ const useElectrumServerDiscovery = () => {
     if (discoveryInFlight.current) return;
     discoveryInFlight.current = true;
     setIsDiscoveringServers(true);
+    reportDiscoveryDiagnostic('scan requested', { platform: Platform.OS });
 
     try {
       if (Platform.OS === 'ios') {
-        let permissionStatus: string;
+        let permissionDiagnostic: PermissionDiagnostic;
         try {
-          permissionStatus = await NativeWidgetHelper.requestLocalNetworkPermission();
+          permissionDiagnostic = parsePermissionDiagnostic(await NativeWidgetHelper.requestLocalNetworkPermission());
         } catch {
-          permissionStatus = 'unavailable';
+          permissionDiagnostic = { status: 'unavailable', reason: 'native_bridge_rejected' };
         }
-        if (permissionStatus !== 'granted') {
+        reportDiscoveryDiagnostic(
+          'local network permission probe completed',
+          {
+            status: permissionDiagnostic.status,
+            reason: permissionDiagnostic.reason,
+            errorDomain: permissionDiagnostic.errorDomain,
+            errorCode: permissionDiagnostic.errorCode,
+          },
+          permissionDiagnostic.status !== 'granted',
+        );
+        if (permissionDiagnostic.status === 'blocked') {
           if (!mounted.current) return;
           Alert.alert(loc.settings.electrum_discovery_permission_denied, loc.settings.electrum_discovery_permission_denied_message, [
             { text: loc._.cancel, style: 'cancel' },
@@ -89,11 +136,14 @@ const useElectrumServerDiscovery = () => {
           ]);
           return;
         }
+        // An indeterminate Network.framework probe does not mean permission is
+        // disabled. Continue and let the real Bonjour/LAN operations decide.
       }
 
       if (!mounted.current) return;
       setHasStartedDiscovery(true);
       setDiscoveredServers([]);
+      reportDiscoveryDiagnostic('native scan started', { platform: Platform.OS });
 
       const candidateKeys = new Set<string>();
       const pendingValidations = new Set<Promise<void>>();
@@ -104,12 +154,23 @@ const useElectrumServerDiscovery = () => {
         candidateKeys.add(key);
         const validation = BlueElectrum.validateConnection(candidate.host, candidate.tcp, candidate.ssl)
           .then(result => {
-            if (!result.success || !mounted.current) return;
+            if (!result.success || !mounted.current) {
+              reportDiscoveryDiagnostic('candidate validation failed', {
+                protocol: candidate.ssl !== undefined ? 'ssl' : 'tcp',
+                port: candidate.ssl ?? candidate.tcp,
+              });
+              return;
+            }
             discoveredCount += 1;
             setDiscoveredServers(current => uniqueElectrumServers([...current, candidate]));
             AccessibilityInfo.announceForAccessibility(
               loc.formatString(loc.settings.electrum_discovery_found_announcement, { server: candidate.host }),
             );
+            reportDiscoveryDiagnostic('server validated', {
+              discoveredCount,
+              protocol: candidate.ssl !== undefined ? 'ssl' : 'tcp',
+              port: candidate.ssl ?? candidate.tcp,
+            });
           })
           .catch(() => undefined)
           .finally(() => pendingValidations.delete(validation));
@@ -136,10 +197,12 @@ const useElectrumServerDiscovery = () => {
                 : loc.formatString(loc.settings.electrum_discovery_complete_announcement, { count: String(discoveredCount) }),
           );
         }
+        reportDiscoveryDiagnostic('scan completed', { discoveredCount, candidateCount: candidateKeys.size });
       } finally {
         subscription.remove();
       }
-    } catch {
+    } catch (error) {
+      reportDiscoveryDiagnostic('scan failed', { errorType: error instanceof Error ? error.name : typeof error }, true);
       // Keep any progressively discovered results. A scan only clears results
       // when the user explicitly starts it, never because a later source fails.
     } finally {

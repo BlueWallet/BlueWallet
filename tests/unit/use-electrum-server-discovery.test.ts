@@ -12,6 +12,10 @@ jest.mock('../../blue_modules/NativeWidgetHelper', () => ({
     discoverElectrumServers: jest.fn(),
   },
 }));
+jest.mock('@bugsnag/react-native', () => ({
+  __esModule: true,
+  default: { leaveBreadcrumb: jest.fn(), notify: jest.fn() },
+}));
 jest.mock('../../blue_modules/NativeEventEmitter', () => ({
   __esModule: true,
   default: { addListener: jest.fn(), removeListeners: jest.fn() },
@@ -201,6 +205,24 @@ it('does not start discovery when Apple local-network access is blocked', async 
   expect(Alert.alert).toHaveBeenCalledTimes(2);
   expect(hook.result.current.hasStartedDiscovery).toBe(false);
   expect(hook.result.current.isDiscoveringServers).toBe(false);
+});
+
+it('continues discovery when the Apple permission probe is indeterminate', async () => {
+  requestLocalNetworkPermission.mockResolvedValue(
+    JSON.stringify({ status: 'unavailable', reason: 'permission_probe_timed_out', errorDomain: 'dns', errorCode: -65563 }),
+  );
+  nativeDiscover.mockResolvedValue('[]');
+  const hook = renderHook(useElectrumServerDiscovery);
+
+  act(() => hook.result.current.discoverServers());
+  const startDiscovery = jest.mocked(Alert.alert).mock.calls[0][2]?.[1].onPress;
+  await act(async () => {
+    await startDiscovery?.();
+  });
+
+  expect(nativeDiscover).toHaveBeenCalledTimes(1);
+  expect(Alert.alert).toHaveBeenCalledTimes(1);
+  expect(hook.result.current.hasStartedDiscovery).toBe(true);
 });
 
 it('keeps an empty discovered section when native discovery returns malformed JSON', async () => {

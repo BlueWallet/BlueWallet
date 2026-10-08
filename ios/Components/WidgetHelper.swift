@@ -121,10 +121,10 @@ private final class LocalNetworkPermissionRequest {
                 self.finish(with: "granted")
             case .waiting(let error):
                 if self.isPolicyDenied(error) {
-                    self.finish(with: "blocked")
+                    self.finish(with: "blocked", error: error)
                 }
             case .failed(let error):
-                self.finish(with: self.isPolicyDenied(error) ? "blocked" : "unavailable")
+                self.finish(with: self.isPolicyDenied(error) ? "blocked" : "unavailable", error: error)
             case .cancelled:
                 break
             default:
@@ -132,6 +132,9 @@ private final class LocalNetworkPermissionRequest {
             }
         }
         browser.start(queue: .main)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in
+            self?.finish(with: "unavailable", reason: "permission_probe_timed_out")
+        }
     }
 
     func cancel() {
@@ -149,13 +152,35 @@ private final class LocalNetworkPermissionRequest {
         return false
     }
 
-    private func finish(with status: String) {
+    private func finish(with status: String, error: NWError? = nil, reason: String? = nil) {
         guard !finished else { return }
         finished = true
         browser?.stateUpdateHandler = nil
         browser?.cancel()
         browser = nil
-        completion(status)
+        var diagnostic: [String: Any] = ["status": status]
+        if let reason { diagnostic["reason"] = reason }
+        if let error {
+            switch error {
+            case .dns(let code):
+                diagnostic["errorDomain"] = "dns"
+                diagnostic["errorCode"] = Int(code)
+            case .posix(let code):
+                diagnostic["errorDomain"] = "posix"
+                diagnostic["errorCode"] = code.rawValue
+            case .tls(let code):
+                diagnostic["errorDomain"] = "tls"
+                diagnostic["errorCode"] = code
+            @unknown default:
+                diagnostic["errorDomain"] = "unknown"
+            }
+        }
+        if let data = try? JSONSerialization.data(withJSONObject: diagnostic),
+           let value = String(data: data, encoding: .utf8) {
+            completion(value)
+        } else {
+            completion(status)
+        }
     }
 }
 
