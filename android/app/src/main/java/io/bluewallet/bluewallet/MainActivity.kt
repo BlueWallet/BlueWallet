@@ -2,9 +2,6 @@ package io.bluewallet.bluewallet
 
 import android.content.Context
 import android.content.pm.ActivityInfo
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -24,39 +21,6 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnable
 import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 
 class MainActivity : ReactActivity() {
-
-    private fun prepareSharedImageIntent(intent: Intent?) {
-        if (intent?.action != Intent.ACTION_SEND || intent.type?.startsWith("image/") != true) return
-
-        val sharedImage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            intent.getParcelableExtra(Intent.EXTRA_STREAM) as? Uri
-        } ?: return
-
-        val extension = when (intent.type?.lowercase()) {
-            "image/jpeg", "image/jpg" -> "jpg"
-            "image/png" -> "png"
-            else -> contentResolver.getType(sharedImage)?.substringAfter("image/")?.substringBefore('+') ?: "img"
-        }
-
-        try {
-            val importedImage = java.io.File.createTempFile("shared-qr-", ".$extension", cacheDir)
-            contentResolver.openInputStream(sharedImage)?.use { input ->
-                importedImage.outputStream().use(input::copyTo)
-            } ?: return
-
-            // React Native Linking already routes VIEW file URLs through the QR
-            // image importer. Conversion happens only after Android selected us
-            // as an ACTION_SEND target, so it does not advertise image viewing.
-            intent.action = Intent.ACTION_VIEW
-            intent.data = Uri.fromFile(importedImage)
-            intent.removeExtra(Intent.EXTRA_STREAM)
-        } catch (error: Exception) {
-            Log.e("MainActivity", "Unable to import shared image", error)
-        }
-    }
 
     private fun menuModule(): MenuElementsModule? =
         (application as MainApplication).reactHost.currentReactContext
@@ -127,19 +91,12 @@ class MainActivity : ReactActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        prepareSharedImageIntent(intent)
         // react-native-screens override
         supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
         super.onCreate(null)
         if (resources.getBoolean(R.bool.portrait_only)) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        prepareSharedImageIntent(intent)
-        super.onNewIntent(intent)
-        setIntent(intent)
     }
 
     override fun onResume() {

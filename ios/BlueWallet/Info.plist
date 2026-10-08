@@ -35,9 +35,9 @@
 			<key>CFBundleTypeName</key>
 			<string>Image</string>
 			<key>CFBundleTypeRole</key>
-			<string>None</string>
+			<string>Viewer</string>
 			<key>LSHandlerRank</key>
-			<string>None</string>
+			<string>Alternate</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>public.jpeg</string>
