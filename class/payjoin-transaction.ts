@@ -1,4 +1,5 @@
 import * as bitcoin from 'bitcoinjs-lib';
+import { PayjoinClient, type IPayjoinClientWallet } from 'payjoin-client';
 import { ECPairFactory } from 'ecpair';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
@@ -24,6 +25,15 @@ export default class PayjoinTransaction {
     this._broadcast = broadcast;
     this._wallet = wallet;
     this._payjoinPsbt = false;
+  }
+
+  createClient(paymentScript: Uint8Array, payjoinUrl: string): PayjoinClient {
+    return new PayjoinClient({
+      paymentScript: Buffer.from(uint8ArrayToHex(paymentScript), 'hex'),
+      // payjoin-client uses bitcoinjs-lib v5 types while this wallet uses v7.
+      wallet: this as unknown as IPayjoinClientWallet,
+      payjoinUrl,
+    });
   }
 
   async getPsbt() {
