@@ -134,12 +134,11 @@ const LnurlAuth = () => {
 
       {authState === AuthState.SUCCESS && (
         <>
-          <SuccessView />
-          <BlueSpacing20 />
-          <BlueText style={styles.alignSelfCenter}>
-            {loc.formatString(loc.lnurl_auth[`${authParams.action}_answer` as const], { hostname: authParams.domain })}
-          </BlueText>
-          <BlueSpacing20 />
+          <SuccessView>
+            <BlueText style={styles.alignSelfCenter}>
+              {loc.formatString(loc.lnurl_auth[`${authParams.action}_answer` as const], { hostname: authParams.domain })}
+            </BlueText>
+          </SuccessView>
         </>
       )}
 
