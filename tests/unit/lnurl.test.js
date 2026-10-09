@@ -394,7 +394,8 @@ describe('lnurl-auth', function () {
     assert.throws(() => Lnurl.parseAuthUrl(encode(`http://site.com/?tag=login&k1=${K1}`)), /https or onion/);
     assert.throws(() => Lnurl.parseAuthUrl(encode('https://site.com/?tag=login&k1=abcd')), /Invalid k1/);
     assert.throws(() => Lnurl.parseAuthUrl(encode(`https://site.com/?tag=login&k1=${K1}&k1=${K1}`)), /Invalid k1/);
-    assert.throws(() => Lnurl.parseAuthUrl(encode(`https://site.com/?tag=login&k1=${K1}&action=hack`)), /Unsupported action/);
+    assert.strictEqual(Lnurl.parseAuthUrl(encode(`https://site.com/?tag=login&k1=${K1}&action=signup`)).action, 'login');
+    assert.strictEqual(Lnurl.parseAuthUrl(encode(`https://site.com/?tag=login&k1=${K1}&action=REGISTER`)).action, 'register');
     assert.throws(() => Lnurl.parseAuthUrl(encode(`https://site.com/?tag=withdrawRequest&k1=${K1}`)), /lnurl-auth expected/);
   });
 

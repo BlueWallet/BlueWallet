@@ -409,11 +409,11 @@ export default class Lnurl {
       throw new Error('Invalid k1');
     }
 
-    if (typeof action !== 'string' || !LNURL_AUTH_ACTIONS.includes(action as LnurlAuthAction)) {
-      throw new Error('Unsupported action ' + action);
-    }
+    // unknown actions (e.g. "signup") are not rejected: the signature is the same, only the prompt differs, so show the login prompt like Valet
+    const normalizedAction = typeof action === 'string' ? action.toLowerCase() : '';
+    const authAction = LNURL_AUTH_ACTIONS.includes(normalizedAction as LnurlAuthAction) ? (normalizedAction as LnurlAuthAction) : 'login';
 
-    return { href: url.href, domain, k1, action: action as LnurlAuthAction };
+    return { href: url.href, domain, k1, action: authAction };
   }
 
   /**
