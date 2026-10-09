@@ -135,7 +135,7 @@ const LnurlAuth = () => {
       {authState === AuthState.SUCCESS && (
         <>
           <SuccessView>
-            <BlueText style={styles.alignSelfCenter}>
+            <BlueText style={styles.successText}>
               {loc.formatString(loc.lnurl_auth[`${authParams.action}_answer` as const], { hostname: authParams.domain })}
             </BlueText>
           </SuccessView>
@@ -161,6 +161,10 @@ export default LnurlAuth;
 const styles = StyleSheet.create({
   alignSelfCenter: {
     alignSelf: 'center',
+  },
+  successText: {
+    alignSelf: 'center',
+    textAlign: 'center',
   },
   domainName: {
     alignSelf: 'center',
