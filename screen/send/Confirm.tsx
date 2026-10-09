@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
-import { PayjoinClient } from 'payjoin-client';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import BlueCard from '../../components/BlueCard';
@@ -25,7 +24,6 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
-import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -212,11 +210,7 @@ const Confirm: React.FC = () => {
         if (!paymentScript) {
           throw new Error('Invalid payment script');
         }
-        const payjoinClient = new PayjoinClient({
-          paymentScript: Buffer.from(uint8ArrayToHex(paymentScript), 'hex'),
-          wallet: payJoinWallet.getPayjoinPsbt(),
-          payjoinUrl: payjoinUrl as string,
-        });
+        const payjoinClient = payJoinWallet.createClient(paymentScript, payjoinUrl as string);
         await payjoinClient.run();
         const payjoinPsbt = payJoinWallet.getPayjoinPsbt();
         if (payjoinPsbt) {

@@ -19,6 +19,18 @@ const utxos = [
 ];
 
 describe('PayjoinTransaction', () => {
+  it('passes the wallet adapter to the Payjoin client before a proposal is signed', () => {
+    const wallet = new HDSegwitBech32Wallet();
+    const payjoinWallet = new PayjoinTransaction(new bitcoin.Psbt(), async () => true, wallet);
+    const paymentScript = bitcoin.address.toOutputScript('bc1qyvdzueznsh0rsyfqzdtj9ce7nlx4rlg2v93lcl');
+
+    assert.strictEqual(payjoinWallet.getPayjoinPsbt(), false);
+    const client = payjoinWallet.createClient(paymentScript, 'https://example.com/pj');
+
+    assert.ok(client instanceof PayjoinClient);
+    assert.strictEqual((client as unknown as { wallet: unknown }).wallet, payjoinWallet);
+  });
+
   it('throws if smth is wrong with pj transaction', async () => {
     if (!process.env.MNEMONICS_COLDCARD) {
       console.error('process.env.MNEMONICS_COLDCARD not set, skipped');
