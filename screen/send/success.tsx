@@ -78,9 +78,10 @@ interface SuccessViewParam {
   fee?: number;
   invoiceDescription?: string;
   shouldAnimate?: boolean;
+  children?: React.ReactNode;
 }
 
-export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shouldAnimate = true }: SuccessViewParam) => {
+export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shouldAnimate = true, children }: SuccessViewParam) => {
   const { colors } = useTheme();
 
   let unit: string = '';
@@ -147,6 +148,7 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
           resizeMode="center"
         />
       </View>
+      {children}
     </View>
   );
 };
