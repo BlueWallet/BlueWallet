@@ -179,6 +179,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/x-ndjson" />
             </intent-filter>
+
+            <!-- Accept QR images from Android's share sheet without registering
+                 BlueWallet as an image viewer/default image-opening app. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.EDIT" />

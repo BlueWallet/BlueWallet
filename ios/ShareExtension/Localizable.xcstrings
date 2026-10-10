@@ -1,0 +1,202 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "share_error_could_not_open" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "BlueWallet could not be opened." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se pudo abrir BlueWallet." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Impossible d’ouvrir BlueWallet." } }
+      }
+    },
+    "share_error_image_too_large" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The shared image is too large." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "La imagen compartida es demasiado grande." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "L’image partagée est trop volumineuse." } }
+      }
+    },
+    "share_error_image_dimensions_too_large" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The shared image has dimensions that are too large. Choose an image smaller than 16 megapixels." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Las dimensiones de la imagen compartida son demasiado grandes. Elige una imagen de menos de 16 megapíxeles." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Les dimensions de l’image partagée sont trop grandes. Choisissez une image de moins de 16 mégapixels." } }
+      }
+    },
+    "share_error_import_failed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "BlueWallet couldn’t scan this image for a QR code." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "BlueWallet no pudo buscar un código QR en esta imagen." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "BlueWallet n’a pas pu rechercher de code QR dans cette image." } }
+      }
+    },
+    "share_error_qr_not_found" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No QR code was found in the shared image." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se encontró ningún código QR en la imagen compartida." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucun code QR n’a été trouvé dans l’image partagée." } }
+      }
+    },
+    "share_error_storage_unavailable" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "BlueWallet shared storage is unavailable." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El almacenamiento compartido de BlueWallet no está disponible." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Le stockage partagé de BlueWallet est indisponible." } }
+      }
+    },
+    "share_error_unreadable_image" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The shared image could not be read." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se pudo leer la imagen compartida." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Impossible de lire l’image partagée." } }
+      }
+    },
+    "share_error_unsupported_image" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Share one supported image at a time." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Comparte una imagen compatible a la vez." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Partagez une seule image compatible à la fois." } }
+      }
+    },
+    "share_ui_cancel" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Annuler" } }
+      }
+    },
+    "share_ui_close" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cerrar" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Fermer" } }
+      }
+    },
+    "share_ui_close_hint" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Closes the share sheet without opening the QR code." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cierra la hoja para compartir sin abrir el código QR." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ferme la feuille de partage sans ouvrir le code QR." } }
+      }
+    },
+    "share_ui_failure_title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Couldn’t scan this image" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se pudo escanear esta imagen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Impossible d’analyser cette image" } }
+      }
+    },
+    "share_ui_found_message" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The decoded content is ready to open in BlueWallet." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El contenido decodificado está listo para abrirse en BlueWallet." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Le contenu décodé est prêt à être ouvert dans BlueWallet." } }
+      }
+    },
+    "share_ui_found_title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "QR code detected" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Código QR detectado" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Code QR détecté" } }
+      }
+    },
+    "share_ui_help" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View Apple’s guide" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ver la guía de Apple" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Voir le guide Apple" } }
+      }
+    },
+    "share_ui_image_preview" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shared image preview" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Vista previa de la imagen compartida" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aperçu de l’image partagée" } }
+      }
+    },
+    "share_ui_open" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open in BlueWallet" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir en BlueWallet" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvrir dans BlueWallet" } }
+      }
+    },
+    "share_ui_open_hint" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opens the detected QR code in BlueWallet." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre el código QR detectado en BlueWallet." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvre le code QR détecté dans BlueWallet." } }
+      }
+    },
+    "share_ui_opening" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opening BlueWallet…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abriendo BlueWallet…" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouverture de BlueWallet…" } }
+      }
+    },
+    "share_ui_processing_message" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Looking for a QR code in the selected image." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscando un código QR en la imagen seleccionada." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Recherche d’un code QR dans l’image sélectionnée." } }
+      }
+    },
+    "share_ui_processing_title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scanning image" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Escaneando imagen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Analyse de l’image" } }
+      }
+    },
+    "share_ui_qr_preview" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Detected QR code preview" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Vista previa del código QR detectado" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aperçu du code QR détecté" } }
+      }
+    },
+    "share_recovery_import_failed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open the image in Photos, take a screenshot, crop it closely around the QR code, then share the screenshot to BlueWallet." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre la imagen en Fotos, haz una captura, recórtala alrededor del código QR y comparte la captura con BlueWallet." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvrez l’image dans Photos, faites une capture d’écran, recadrez-la autour du code QR, puis partagez-la avec BlueWallet." } }
+      }
+    },
+    "share_recovery_image_too_large" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "In Photos, crop the image closely around the QR code or take a screenshot, then share the smaller image again." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "En Fotos, recorta la imagen alrededor del código QR o haz una captura y vuelve a compartir la imagen más pequeña." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Dans Photos, recadrez l’image autour du code QR ou faites une capture d’écran, puis partagez l’image réduite." } }
+      }
+    },
+    "share_recovery_open_bluewallet" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open BlueWallet once, return to Photos, select one image, tap Share, then choose BlueWallet again." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre BlueWallet una vez, vuelve a Fotos, selecciona una imagen, toca Compartir y elige BlueWallet de nuevo." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvrez BlueWallet une fois, revenez dans Photos, sélectionnez une image, touchez Partager, puis choisissez à nouveau BlueWallet." } }
+      }
+    },
+    "share_recovery_qr_not_found" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use a sharp image with one complete QR code. Crop away surrounding text and buttons, then share it again." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Usa una imagen nítida con un solo código QR completo. Recorta el texto y los botones que lo rodean y vuelve a compartirla." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Utilisez une image nette contenant un seul code QR complet. Recadrez le texte et les boutons autour, puis partagez-la à nouveau." } }
+      }
+    },
+    "share_recovery_unreadable_image" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "In Photos, tap Share, tap Options, choose Most Compatible, then share the image to BlueWallet again." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "En Fotos, toca Compartir, toca Opciones, elige Más compatible y vuelve a compartir la imagen con BlueWallet." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Dans Photos, touchez Partager, Options, Le plus compatible, puis partagez à nouveau l’image avec BlueWallet." } }
+      }
+    },
+    "share_recovery_unsupported_image" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "In Photos, select exactly one image, tap Share, then choose BlueWallet. Do not select a video or multiple items." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "En Fotos, selecciona exactamente una imagen, toca Compartir y elige BlueWallet. No selecciones un vídeo ni varios elementos." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Dans Photos, sélectionnez une seule image, touchez Partager, puis choisissez BlueWallet. Ne sélectionnez pas de vidéo ni plusieurs éléments." } }
+      }
+    }
+  },
+  "version" : "1.1"
+}

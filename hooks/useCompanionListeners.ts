@@ -1,6 +1,6 @@
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
-import { AppState, AppStateStatus, Linking } from 'react-native';
+import { AppState, AppStateStatus, DeviceEventEmitter, Linking } from 'react-native';
 import { reconcileArkBackgroundTaskResults } from '../blue_modules/arkade-background';
 import { updateExchangeRate } from '../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
@@ -19,9 +19,9 @@ import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
 import { useSettings } from './context/useSettings';
 import { useStorage } from './context/useStorage';
-import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
-import RNFS from 'react-native-fs';
 import presentAlert from '../components/Alert';
+import { forwardPendingSharedQRCode, isSharedImageWakeUrl, popPendingSharedQRCode } from '../blue_modules/incoming-image';
+import type { PendingSharedQRCode } from '../blue_modules/incoming-image';
 import useWidgetCommunication from './useWidgetCommunication';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
@@ -42,6 +42,8 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     walletsInitialized,
   } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
+  const initialUrlHandled = useRef(false);
+  const sharedImageProcessing = useRef(false);
   const navigation = useNavigation();
 
   // We need to call hooks unconditionally before any conditional logic
@@ -269,12 +271,48 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldActivateListeners]);
 
+  const handlePendingSharedImage = useCallback(
+    (pending: PendingSharedQRCode): void => {
+      forwardPendingSharedQRCode(pending, decodedContent => {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        DeeplinkSchemaMatch.navigationRouteFor({ url: decodedContent }, (value: [string, any]) => navigationRef.navigate(...value), {
+          wallets,
+          addWallet,
+          saveToDisk,
+          setSharedCosigner,
+        });
+      });
+    },
+    [wallets, addWallet, saveToDisk, setSharedCosigner],
+  );
+
+  const processPendingSharedImage = useCallback(async () => {
+    if (sharedImageProcessing.current) return;
+    sharedImageProcessing.current = true;
+    try {
+      for (let attempt = 0; attempt < 20 && !navigationRef.isReady(); attempt++) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+      if (!navigationRef.isReady()) {
+        console.warn('[useCompanionListeners] Navigation was not ready for the shared QR code');
+        return;
+      }
+      handlePendingSharedImage(await popPendingSharedQRCode());
+    } finally {
+      sharedImageProcessing.current = false;
+    }
+  }, [handlePendingSharedImage]);
+
   const handleOpenURL = useCallback(
     async (event: { url: string }): Promise<void> => {
       if (!shouldActivateListeners) return;
 
       try {
         if (!event.url) return;
+        if (isSharedImageWakeUrl(event.url)) {
+          await processPendingSharedImage();
+          return;
+        }
         let decodedUrl: string;
         try {
           decodedUrl = decodeURIComponent(event.url);
@@ -282,40 +320,19 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
           console.error('Failed to decode URL, using original', e);
           decodedUrl = event.url;
         }
-        const fileName = decodedUrl.split('/').pop()?.toLowerCase() || '';
-        if (/\.(jpe?g|png)$/i.test(fileName)) {
-          let base64: string;
-          try {
-            base64 = await RNFS.readFile(decodedUrl, 'base64');
-          } catch {
-            base64 = await RNFS.readFile(decodedUrl.replace(/^file:\/\//, ''), 'base64');
-          }
-          const qrValue = await detectQRCodeInImage(base64);
-          if (!qrValue) {
-            throw new Error(loc.send.qr_error_no_qrcode);
-          }
-          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          DeeplinkSchemaMatch.navigationRouteFor({ url: qrValue }, (value: [string, any]) => navigationRef.navigate(...value), {
-            wallets,
-            addWallet,
-            saveToDisk,
-            setSharedCosigner,
-          });
-        } else {
-          DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
-            wallets,
-            addWallet,
-            saveToDisk,
-            setSharedCosigner,
-          });
-        }
+        DeeplinkSchemaMatch.navigationRouteFor({ url: decodedUrl }, (value: [string, any]) => navigationRef.navigate(...value), {
+          wallets,
+          addWallet,
+          saveToDisk,
+          setSharedCosigner,
+        });
       } catch (err: any) {
         console.error('Error in handleOpenURL:', err);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ message: err.message || loc.send.qr_error_no_qrcode });
       }
     },
-    [wallets, addWallet, saveToDisk, setSharedCosigner, shouldActivateListeners],
+    [wallets, addWallet, saveToDisk, setSharedCosigner, shouldActivateListeners, processPendingSharedImage],
   );
 
   const handleAppStateChange = useCallback(
@@ -323,12 +340,15 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
       const previousState = appState.current;
       appState.current = nextAppState;
 
-      if (!shouldActivateListeners || wallets.length === 0) return;
+      if (!shouldActivateListeners) return;
 
       if (nextAppState !== 'active') {
         onLeaveForeground(nextAppState);
         return;
       }
+
+      await processPendingSharedImage();
+      if (wallets.length === 0) return;
 
       const wasBackgroundOrInactive = /inactive|background/.test(previousState);
       if (wasBackgroundOrInactive) {
@@ -345,7 +365,15 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         onEnterForeground(previousState, { skipRead: processed });
       }
     },
-    [processPushNotifications, fetchAndSaveWalletTransactions, onLeaveForeground, onEnterForeground, wallets, shouldActivateListeners],
+    [
+      processPendingSharedImage,
+      processPushNotifications,
+      fetchAndSaveWalletTransactions,
+      onLeaveForeground,
+      onEnterForeground,
+      wallets,
+      shouldActivateListeners,
+    ],
   );
 
   const addListeners = useCallback(() => {
@@ -362,12 +390,24 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
   useEffect(() => {
     const subscriptions = addListeners();
+    const sharedImageSubscription = DeviceEventEmitter.addListener('sharedImageAvailable', processPendingSharedImage);
+
+    processPendingSharedImage();
+    if (!initialUrlHandled.current && shouldActivateListeners) {
+      initialUrlHandled.current = true;
+      Linking.getInitialURL()
+        .then(url => {
+          if (url) return handleOpenURL({ url });
+        })
+        .catch(error => console.error('Failed to process initial URL:', error));
+    }
 
     return () => {
       subscriptions.urlSubscription?.remove?.();
       subscriptions.appStateSubscription?.remove?.();
+      sharedImageSubscription.remove();
     };
-  }, [addListeners]);
+  }, [addListeners, handleOpenURL, processPendingSharedImage, shouldActivateListeners]);
 };
 
 export default useCompanionListeners;

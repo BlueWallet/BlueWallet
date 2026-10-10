@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shared_image_confirm_title">Código QR detectado</string>
+    <string name="shared_image_confirm_message">El contenido decodificado está listo para abrirse en BlueWallet.</string>
+    <string name="shared_image_confirm_button">Abrir en BlueWallet</string>
+    <string name="shared_image_qr_preview">Código QR decodificado</string>
+    <string name="shared_image_error_title">No se pudo escanear el código QR</string>
+    <string name="shared_image_error_unreadable">BlueWallet no pudo leer este archivo como imagen. Ábrelo en Fotos, haz una captura de pantalla y comparte la captura con BlueWallet.</string>
+    <string name="shared_image_error_file_too_large">Esta imagen supera los 10 MB. En Fotos, recórtala alrededor del código QR, guarda el recorte y vuelve a compartirlo.</string>
+    <string name="shared_image_error_dimensions_too_large">Esta imagen supera los 16 megapíxeles. Recórtala alrededor del código QR o haz una captura de pantalla y comparte la imagen más pequeña.</string>
+    <string name="shared_image_error_no_qr">No se encontró un código QR legible. Usa una imagen nítida con un solo código QR completo, recorta el texto y los botones que lo rodean y vuelve a compartirla.</string>
+    <string name="shared_image_help_button">Guía de Google para compartir</string>
+</resources>

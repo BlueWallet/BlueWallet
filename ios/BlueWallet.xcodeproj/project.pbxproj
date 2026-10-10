@@ -111,6 +111,18 @@
 		B4F0A4A22FA1BC0000AAAA01 /* WidgetHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */; };
 		B4F0A4A42FA1BC0000AAAA03 /* EventEmitter.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A32FA1BC0000AAAA02 /* EventEmitter.mm */; };
 		B4F0A4C22FA1BC2700BBBB02 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4C12FA1BC2700BBBB01 /* SceneDelegate.swift */; };
+		B5A000000000000000000005 /* ShareRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A000000000000000000001 /* ShareRequestHandler.swift */; };
+		B5A000000000000000000006 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B5A000000000000000000004 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B5A000000000000000000011 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B5A000000000000000000012 /* Localizable.xcstrings */; };
+		B5B000000000000000000001 /* NativeQRCodeDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B000000000000000000003 /* NativeQRCodeDecoder.swift */; };
+		B5B000000000000000000002 /* NativeQRCodeDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B000000000000000000004 /* NativeQRCodeDecoder.m */; };
+		B5B000000000000000000005 /* QRCodeImageDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B000000000000000000007 /* QRCodeImageDecoder.swift */; };
+		B5B000000000000000000006 /* QRCodeImageDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B000000000000000000007 /* QRCodeImageDecoder.swift */; };
+		B5C000000000000000000001 /* SharedImageImportPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C000000000000000000002 /* SharedImageImportPolicy.swift */; };
+		B5C000000000000000000003 /* SharedImageImportPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C000000000000000000002 /* SharedImageImportPolicy.swift */; };
+		B5C000000000000000000004 /* SharedImageImportPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C000000000000000000005 /* SharedImageImportPolicyTests.swift */; };
+		B5C000000000000000000013 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B5A000000000000000000012 /* Localizable.xcstrings */; };
+		B5D000000000000000000001 /* qr-code.png in Resources */ = {isa = PBXBuildFile; fileRef = B5D000000000000000000002 /* qr-code.png */; };
 		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		F106AA234C086C6B795EE267 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2162D22139056EC332C84D92 /* Foundation.framework */; };
 		F7A1B2C3D4E5F60718293A4D /* ScriptDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A1B2C3D4E5F60718293A4E /* ScriptDescription.swift */; };
@@ -145,6 +157,13 @@
 			remoteGlobalIDString = B3290000000000000000000B;
 			remoteInfo = QuickLookPreview;
 		};
+		B5A00000000000000000000C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B5A00000000000000000000B;
+			remoteInfo = ShareExtension;
+		};
 		F7A1B2C3D4E5F60718293A4B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -161,6 +180,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				B5A000000000000000000006 /* ShareExtension.appex in Embed Foundation Extensions */,
 				B32900000000000000000002 /* QuickLookPreview.appex in Embed Foundation Extensions */,
 				6D2A6468258BA92D0092292B /* Stickers.appex in Embed Foundation Extensions */,
 				6DD410A7266CADF40087DE03 /* WidgetsExtension.appex in Embed Foundation Extensions */,
@@ -280,6 +300,18 @@
 		B4F0A4A32FA1BC0000AAAA02 /* EventEmitter.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = EventEmitter.mm; sourceTree = "<group>"; };
 		B4F0A4A52FA1BC0000AAAA05 /* NativeEventEmitterSpec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeEventEmitterSpec.h; sourceTree = "<group>"; };
 		B4F0A4C12FA1BC2700BBBB01 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SceneDelegate.swift; path = BlueWallet/SceneDelegate.swift; sourceTree = "<group>"; };
+		B5A000000000000000000001 /* ShareRequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareRequestHandler.swift; sourceTree = "<group>"; };
+		B5A000000000000000000002 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B5A000000000000000000003 /* ShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShareExtension.entitlements; sourceTree = "<group>"; };
+		B5A000000000000000000004 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5A000000000000000000012 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		B5B000000000000000000003 /* NativeQRCodeDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeQRCodeDecoder.swift; sourceTree = "<group>"; };
+		B5B000000000000000000004 /* NativeQRCodeDecoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NativeQRCodeDecoder.m; sourceTree = "<group>"; };
+		B5B000000000000000000007 /* QRCodeImageDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeImageDecoder.swift; sourceTree = "<group>"; };
+		B5C000000000000000000002 /* SharedImageImportPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedImageImportPolicy.swift; sourceTree = "<group>"; };
+		B5C000000000000000000005 /* SharedImageImportPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedImageImportPolicyTests.swift; sourceTree = "<group>"; };
+		B5C000000000000000000006 /* ShareExtensionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShareExtensionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5D000000000000000000002 /* qr-code.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = qr-code.png; path = ../../img/qr-code.png; sourceTree = "<group>"; };
 		B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTQRCodeLocalImage.a; sourceTree = "<group>"; };
 		B9D9B3A7B2CB4255876B67AF /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		BBA99996E6FA4B49ACE0BEFA /* libRNRate.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNRate.a; sourceTree = "<group>"; };
@@ -337,6 +369,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				B32900000000000000000010 /* QuickLook.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B5A000000000000000000009 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B5C000000000000000000007 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -503,6 +549,8 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				B5C000000000000000000008 /* ShareExtensionTests */,
+				B5A000000000000000000007 /* ShareExtension */,
 				B32900000000000000000006 /* QuickLookPreview */,
 				B49D99932EFE2F3500A718AC /* NativeWidgetHelperSpec.h */,
 				B4F0A4A52FA1BC0000AAAA05 /* NativeEventEmitterSpec.h */,
@@ -529,6 +577,8 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				B5C000000000000000000006 /* ShareExtensionTests.xctest */,
+				B5A000000000000000000004 /* ShareExtension.appex */,
 				B32900000000000000000005 /* QuickLookPreview.appex */,
 				13B07F961A680F5B00A75B9A /* BlueWallet.app */,
 				6D2A6461258BA92C0092292B /* Stickers.appex */,
@@ -590,6 +640,7 @@
 		B44033C82BCC34AC00162242 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				B5B000000000000000000007 /* QRCodeImageDecoder.swift */,
 				B4793DBA2CEDACBD00C92C2E /* Chain.swift */,
 				B450109A2C0FCD7E00619044 /* Utilities */,
 				6D2AA8062568B8E50090B089 /* Fiat */,
@@ -626,6 +677,8 @@
 		B45010A12C1504E900619044 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				B5B000000000000000000003 /* NativeQRCodeDecoder.swift */,
+				B5B000000000000000000004 /* NativeQRCodeDecoder.m */,
 				B4AA75232DAA339E00CF5CBE /* MenuElementsEmitter.mm */,
 				B4B3EC232D69FF8700327F3D /* EventEmitter.swift */,
 				B4F0A4A32FA1BC0000AAAA02 /* EventEmitter.mm */,
@@ -645,6 +698,27 @@
 				B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */,
 			);
 			path = BlueWalletUITests;
+			sourceTree = "<group>";
+		};
+		B5A000000000000000000007 /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				B5A000000000000000000001 /* ShareRequestHandler.swift */,
+				B5C000000000000000000002 /* SharedImageImportPolicy.swift */,
+				B5A000000000000000000012 /* Localizable.xcstrings */,
+				B5D000000000000000000002 /* qr-code.png */,
+				B5A000000000000000000002 /* Info.plist */,
+				B5A000000000000000000003 /* ShareExtension.entitlements */,
+			);
+			path = ShareExtension;
+			sourceTree = "<group>";
+		};
+		B5C000000000000000000008 /* ShareExtensionTests */ = {
+			isa = PBXGroup;
+			children = (
+				B5C000000000000000000005 /* SharedImageImportPolicyTests.swift */,
+			);
+			path = ShareExtensionTests;
 			sourceTree = "<group>";
 		};
 		DBE02524057AE76C1508FC5C /* QuickLookThumbnail */ = {
@@ -687,6 +761,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				B5A00000000000000000000D /* PBXTargetDependency */,
 				B3290000000000000000000C /* PBXTargetDependency */,
 				6D9946682555A661000E52E8 /* PBXTargetDependency */,
 				6D2A6467258BA92D0092292B /* PBXTargetDependency */,
@@ -766,6 +841,40 @@
 			productReference = B32900000000000000000005 /* QuickLookPreview.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		B5A00000000000000000000B /* ShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B5A000000000000000000010 /* Build configuration list for PBXNativeTarget "ShareExtension" */;
+			buildPhases = (
+				B5A000000000000000000008 /* Sources */,
+				B5A000000000000000000009 /* Frameworks */,
+				B5A00000000000000000000A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShareExtension;
+			productName = ShareExtension;
+			productReference = B5A000000000000000000004 /* ShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		B5C000000000000000000009 /* ShareExtensionTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B5C00000000000000000000A /* Build configuration list for PBXNativeTarget "ShareExtensionTests" */;
+			buildPhases = (
+				B5C00000000000000000000B /* Sources */,
+				B5C000000000000000000007 /* Frameworks */,
+				B5C000000000000000000014 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShareExtensionTests;
+			productName = ShareExtensionTests;
+			productReference = B5C000000000000000000006 /* ShareExtensionTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -792,6 +901,12 @@
 						CreatedOnToolsVersion = 12.5;
 					};
 					B3290000000000000000000B = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					B5A00000000000000000000B = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					B5C000000000000000000009 = {
 						CreatedOnToolsVersion = 16.2;
 					};
 				};
@@ -834,6 +949,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				B5C000000000000000000009 /* ShareExtensionTests */,
+				B5A00000000000000000000B /* ShareExtension */,
 				B3290000000000000000000B /* QuickLookPreview */,
 				13B07F861A680F5B00A75B9A /* BlueWallet */,
 				6D2A6460258BA92C0092292B /* Stickers */,
@@ -881,6 +998,23 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B5A00000000000000000000A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5A000000000000000000011 /* Localizable.xcstrings in Resources */,
+				B5D000000000000000000001 /* qr-code.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B5C000000000000000000014 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5C000000000000000000013 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1065,6 +1199,9 @@
 				B4B3EF202D6CFF6C003270A0 /* SegmentedControlBridge.m in Sources */,
 				B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */,
 				B4F0A4A22FA1BC0000AAAA01 /* WidgetHelper.mm in Sources */,
+				B5B000000000000000000001 /* NativeQRCodeDecoder.swift in Sources */,
+				B5B000000000000000000002 /* NativeQRCodeDecoder.m in Sources */,
+				B5B000000000000000000005 /* QRCodeImageDecoder.swift in Sources */,
 				B48630E12CCEE7C800A8425C /* PriceWidgetEntryView.swift in Sources */,
 				B44033DA2BCC369A00162242 /* Colors.swift in Sources */,
 				B44033D32BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */,
@@ -1141,6 +1278,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B5A000000000000000000008 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5A000000000000000000005 /* ShareRequestHandler.swift in Sources */,
+				B5C000000000000000000001 /* SharedImageImportPolicy.swift in Sources */,
+				B5B000000000000000000006 /* QRCodeImageDecoder.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B5C00000000000000000000B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5C000000000000000000003 /* SharedImageImportPolicy.swift in Sources */,
+				B5C000000000000000000004 /* SharedImageImportPolicyTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1164,6 +1320,11 @@
 			platformFilter = ios;
 			target = B3290000000000000000000B /* QuickLookPreview */;
 			targetProxy = B32900000000000000000007 /* PBXContainerItemProxy */;
+		};
+		B5A00000000000000000000D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B5A00000000000000000000B /* ShareExtension */;
+			targetProxy = B5A00000000000000000000C /* PBXContainerItemProxy */;
 		};
 		F7A1B2C3D4E5F60718293A4C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1782,6 +1943,137 @@
 			};
 			name = Release;
 		};
+		B5A00000000000000000000E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1903279999;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(SDKROOT)/usr/lib/swift",
+					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
+					"$(inherited)",
+				);
+				MARKETING_VERSION = 8.0.3;
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.bluewallet.bluewallet.ShareExtension";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,6";
+			};
+			name = Debug;
+		};
+		B5A00000000000000000000F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1903279999;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(SDKROOT)/usr/lib/swift",
+					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
+					"$(inherited)",
+				);
+				MARKETING_VERSION = 8.0.3;
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore io.bluewallet.bluewallet.ShareExtension";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,6";
+			};
+			name = Release;
+		};
+		B5C00000000000000000000C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LIBRARY_SEARCH_PATHS = (
+					"$(SDKROOT)/usr/lib/swift",
+					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
+					"$(inherited)",
+				);
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.ShareExtensionTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B5C00000000000000000000D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LIBRARY_SEARCH_PATHS = (
+					"$(SDKROOT)/usr/lib/swift",
+					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
+					"$(inherited)",
+				);
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.ShareExtensionTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1826,6 +2118,24 @@
 			buildConfigurations = (
 				B3290000000000000000000D /* Debug */,
 				B3290000000000000000000E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B5A000000000000000000010 /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B5A00000000000000000000E /* Debug */,
+				B5A00000000000000000000F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B5C00000000000000000000A /* Build configuration list for PBXNativeTarget "ShareExtensionTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B5C00000000000000000000C /* Debug */,
+				B5C00000000000000000000D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
