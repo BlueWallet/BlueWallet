@@ -2,75 +2,52 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
+BlueWallet: Bitcoin + Lightning wallet. React Native 0.85, TypeScript strict, Electrum backend. iOS / Android / macOS (Catalyst). Node >= 22.11 (CI uses 24).
 
-BlueWallet is a Bitcoin & Lightning Network wallet built with React Native and Electrum. Cross-platform mobile app (iOS/Android/macOS via Catalyst).
-
-## Common Commands
+## Commands
 
 ```bash
-# Development
-npm start                    # Start Metro bundler
-npm run ios                  # Run on iOS
-npm run android              # Run on Android
-
-# Testing
-npm test                     # Full suite (lint + unit + integration)
-npm run lint                 # ESLint + TypeScript check + unused loc keys
-npm run lint:fix             # Auto-fix linting issues
-npm run unit                 # Jest unit tests only
-
-# E2E Testing (Detox)
-npm run e2e:debug            # Debug build and test on Android
-npm run e2e:release-test     # Release build test
-
-# Clean builds
-npm run clean                # Full clean (gradle, cache, node_modules)
-npm run clean:ios            # iOS clean (Pods + node_modules)
-npm run android:clean        # Android clean
+npm start                                 # Metro
+npm run ios / npm run android             # run app
+npm run lint                              # tsc + loc checks + fastlane metadata + eslint (CI gate)
+npm run lint:quickfix                     # eslint --fix only changed .js/.ts files
+npm run unit                              # jest tests/unit
+npx jest tests/unit/foo.test.ts           # one test file
+npx jest tests/unit/foo.test.ts -t 'name' # one test case
+npm run integration                       # jest tests/integration (hits real Electrum, slow)
+npm test                                  # lint + unit + integration
+npm run e2e:debug                         # Detox android debug build + test
+npm run patches                           # re-apply patches/ (patch-package, also runs on postinstall)
+npm run clean / npm run clean:ios         # nuke node_modules, gradle, metro cache / Pods
 ```
+
+Integration and some unit tests need secrets in env (`HD_MNEMONIC`, `HD_MNEMONIC_BIP84`, `BIP47_HD_MNEMONIC`, `MNEMONICS_COLDCARD`, ...). Missing var = test logs "not set, skipped" and passes. Not a failure.
 
 ## Architecture
 
-**Directory Structure:**
-- `components/` - React components and Context providers (SettingsProvider, StorageProvider)
-- `class/` - Core business logic including wallet implementations in `class/wallets/`
-- `blue_modules/` - Utility modules (BlueElectrum, currency, encryption, etc.)
-- `screen/` - Navigation screens organized by feature (wallets, send, receive, settings, lnd)
-- `navigation/` - React Navigation setup with typed param lists
-- `hooks/` - Custom React hooks (useStorage, useSettings, useBiometrics, etc.)
-- `loc/` - Localization files (en.json as source, 55+ languages)
-- `models/` - Type definitions for units, fiat, block explorers
-- `tests/unit/`, `tests/integration/`, `tests/e2e/` - Test suites
+**Boot:** `index.js` (shims, headless Ark task) -> `App.tsx` (providers + NavigationContainer) -> `navigation/MasterView.tsx`.
 
-**Wallet System:**
-Multiple wallet implementations in `class/wallets/`: Legacy, SegWit (P2SH, Bech32), Taproot, HD variants, Lightning (Custodian, Ark), Multisig, Watch-only. Types defined in `class/wallets/types.ts`.
+**State:** React Context, no Redux. `components/Context/StorageProvider.tsx` wraps the `BlueApp` singleton (`class/blue-app.ts`) which owns wallets, tx/address/counterparty metadata and disk persistence (AsyncStorage + secure keystore, optional encryption; Realm caches txs). `SettingsProvider.tsx` holds prefs. Consume via `hooks/context/useStorage.ts` and `useSettings.ts`.
 
-**State Management:**
-React Context providers wrap the app. Custom hooks expose state logic. Realm for database, AsyncStorage for persistence, Keychain for secrets.
+**Wallets** (`class/wallets/`): class hierarchy, every wallet serializes to JSON and lives in the storage bucket.
+- `AbstractWallet` -> `LegacyWallet` -> `SegwitP2SHWallet`, `SegwitBech32Wallet` -> `TaprootWallet`, `WatchOnlyWallet`
+- `LegacyWallet` -> `AbstractHDWallet` -> `AbstractHDElectrumWallet` -> `HDSegwitBech32Wallet`, `HDSegwitP2SHWallet`, `HDLegacyP2PKHWallet`, `HDTaprootWallet`, `MultisigHDWallet`, `HDAezeedWallet`, SLIP39 and Electrum-seed variants
+- `LegacyWallet` -> `LightningCustodianWallet` (LNDHub) -> `LightningArkWallet`
+- `TWallet` union + shared types in `class/wallets/types.ts`. New wallet type must be added there and to `BlueApp` deserialization.
 
-**Navigation:**
-React Navigation 7.x with native stack. Typed params in `navigation/DetailViewStackParamList.ts` and other param list files.
+**Network:** `blue_modules/BlueElectrum.ts` is the single Electrum client (module-level singleton). Wallets call it for balance/tx/utxo/broadcast. `blue_modules/currency.ts` handles fiat rates.
 
-## Code Conventions
+**Navigation:** React Navigation 7 native stacks. One `*Stack.tsx` + `*ParamList.ts` per flow in `navigation/`. `navigation/navigationGuard.ts` intercepts guarded routes (biometrics, backup reminder, camera permission) before dispatch. Screens in `screen/<feature>/`.
 
-**Commit Prefixes:** REL, FIX, ADD, REF, TST, OPS, DOC (e.g., `"ADD: new feature"`)
+**Localization:** `loc/en.json` is the only source. Use `loc.section.key` from `loc/index.ts`. Never edit other `loc/*.json`, Transifex owns them. `loc/vocabulary.md` is the term glossary, ground truth when translating by hand or with an LLM. `npm run lint` fails on unused keys and English leftovers.
 
-**TypeScript:** All new files must be TypeScript. Strict mode enabled.
+**Native patches:** `patches/*.patch` applied by patch-package. Each one documented in `patches/README.md` (what / why / upstream link). Update README when adding or removing a patch.
 
-**Dependencies:** Do not add new dependencies without strong justification. Bonus for removing dependencies.
+## Rules
 
-**Patches:** Local fixes to `node_modules` live in `patches/` and are applied by `patch-package` on `postinstall`. Each patch is documented in `patches/README.md` (what/why + upstream issue link); update it when adding or removing a patch.
+@CONTRIBUTING.md
 
-**Components:** New components go in `components/`, not legacy `BlueComponents.js`.
-
-**Linting Rules:**
-- No inline styles in React Native (`react-native/no-inline-styles`: error)
-- No unused styles (`react-native/no-unused-styles`: error)
-- Prettier: single quotes, 140 char width, trailing commas
-
-**Localization:** Keys in `loc/en.json`. Run `find-unused-loc.js` to detect unused keys. See `loc/vocabulary.md` for the canonical glossary of Bitcoin/Lightning terms and their per-language renderings — use it as ground truth when translating or generating translations with LLMs.
-
-## Testing
-
-Unit tests in `tests/unit/` use Jest with `assert`. Test setup mocks React Native modules (Clipboard, Push Notifications, Keychain, etc.). Integration tests require environment variables for test mnemonics (HD_MNEMONIC, HD_MNEMONIC_BIP84, etc.).
+Extra, not in CONTRIBUTING:
+- No inline styles, no unused styles (eslint errors). Prettier: single quotes, 140 width, trailing commas, no arrow parens.
+- Commit prefix `DEL` also in use for removals.
+- Native modules mocked in `tests/setup.js`, add new mocks there.
