@@ -115,7 +115,88 @@ let latestBlock: { height: number; time: number } | { height: undefined; time: u
 // state machine + `ensureConnected()` below is the only place that mutates the
 // connection lifecycle, and UI is driven by subscribing to state changes.
 
-export type ConnectionState = 'disabled' | 'disconnected' | 'connecting' | 'connected';
+export type ConnectionState = 'disabled' | 'disconnected' | 'connecting' | 'server-not-ready' | 'syncing' | 'connected';
+export type TestConnectionStatus = 'connected' | 'server-not-ready' | 'syncing' | 'failed';
+
+function describeElectrumError(error: unknown): string {
+  if (error instanceof Error) {
+    const cause = 'cause' in error && error.cause ? `; cause=${describeElectrumError(error.cause)}` : '';
+    return `${error.name}: ${error.message}${cause}`;
+  }
+  if (typeof error === 'string') return error;
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
+}
+
+type ElectrumDiagnosticProbe = {
+  method: string;
+  ok: boolean;
+  result?: unknown;
+  error?: string;
+};
+
+async function probeElectrumServer(host: string, tcpPort?: number, sslPort?: number): Promise<ElectrumDiagnosticProbe[]> {
+  const port = sslPort || tcpPort;
+  const protocol = sslPort ? 'tls' : 'tcp';
+  const probes: Array<{ method: string; request: (client: typeof ElectrumClient) => Promise<unknown> }> = [
+    { method: 'server.features', request: client => client.server_features() },
+    { method: 'server.banner', request: client => client.server_banner() },
+    { method: 'blockchain.headers.subscribe', request: client => client.blockchainHeaders_subscribe() },
+  ];
+
+  return Promise.all(
+    probes.map(async ({ method, request }): Promise<ElectrumDiagnosticProbe> => {
+      const probeClient = new ElectrumClient(net, tls, port, host, protocol);
+      let timeoutId: NodeJS.Timeout | undefined;
+      probeClient.onError = (error: unknown) => {
+        console.warn(`[electrum] diagnostic ${method} socket error: ${describeElectrumError(error)}`);
+      };
+      try {
+        const result = await Promise.race([
+          (async () => {
+            await probeClient.connect();
+            return request(probeClient);
+          })(),
+          new Promise<never>((_resolve, reject) => {
+            timeoutId = setTimeout(() => reject(new Error('diagnostic probe timeout')), 5_000);
+          }),
+        ]);
+        return { method, ok: true, result };
+      } catch (error) {
+        return { method, ok: false, error: describeElectrumError(error) };
+      } finally {
+        if (timeoutId) clearTimeout(timeoutId);
+        probeClient.close();
+      }
+    }),
+  );
+}
+
+export function isElectrumServerSyncingError(error: unknown): boolean {
+  const normalized = describeElectrumError(error).toLowerCase();
+  return [
+    'still syncing',
+    'still synchronizing',
+    'still synchronising',
+    'not synchronized',
+    'not synchronised',
+    'not fully synced',
+    'not yet synced',
+    'waiting for bitcoin',
+    'waiting for bitcoind',
+    'bitcoin client is not synced',
+    'bitcoin daemon is not synced',
+    'blockchain is not synced',
+    'initial block download',
+    'initialblockdownload',
+    'loading block index',
+    'verifying blocks',
+  ].some(message => normalized.includes(message));
+}
+
 let connState: ConnectionState = 'disconnected';
 type ConnectionListener = (state: ConnectionState) => void;
 const connectionListeners = new Set<ConnectionListener>();
@@ -372,9 +453,14 @@ function scheduleReconnectFromClient(client: typeof ElectrumClient, usingPeer: P
  * subscribe to headers. No retries, no UI side effects. Returns the peer used
  * (for caller-side telemetry/alerts) and whether the attempt succeeded.
  */
-async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
+async function attemptConnectOnce(): Promise<{
+  status: TestConnectionStatus;
+  peer: Peer;
+}> {
   const usingPeer = await pickPeer();
-  console.log('[electrum] Using peer:', JSON.stringify(usingPeer));
+  const endpoint = `${usingPeer.host}:${usingPeer.ssl || usingPeer.tcp} (${usingPeer.ssl ? 'tls' : 'tcp'})`;
+  let stage = 'creating client';
+  console.log(`[electrum] connection attempt started: ${endpoint}`);
 
   // Drop any prior client before allocating a new one. Closing also neutralises
   // electrum-client's internal `reconnect()` loop on the old instance.
@@ -386,7 +472,6 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
   }
 
   try {
-    console.log('[electrum] begin connection:', JSON.stringify(usingPeer));
     const client = new ElectrumClient(net, tls, usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
     mainClient = client;
 
@@ -394,10 +479,12 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
     // `ensureConnected()` (deduped). Errors during this attempt's own handshake
     // are caught below — we must not double-handle them here.
     client.onError = function (e: { message: string }) {
-      console.log('[electrum] electrum mainClient.onError():', e.message);
+      console.warn(`[electrum] socket error for ${endpoint} during ${stage}: ${describeElectrumError(e)}`);
       scheduleReconnectFromClient(client, usingPeer, 'socket error');
     };
 
+    stage = 'socket connect and version handshake';
+    console.log(`[electrum] ${endpoint}: ${stage}`);
     const ver = await Promise.race([
       client.initElectrum(
         { client: 'bluewallet', version: '1.4' },
@@ -414,11 +501,11 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
       try {
         client.close();
       } catch {}
-      return { ok: false, peer: usingPeer };
+      return { status: 'failed', peer: usingPeer };
     }
 
     if (ver && ver[0]) {
-      console.log('[electrum] connected to ', ver);
+      console.log(`[electrum] ${endpoint}: version handshake succeeded`, ver);
       serverName = ver[0];
       if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs') || ver[0].startsWith('Fulcrum')) {
         disableBatching = true;
@@ -438,6 +525,8 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
             break;
         }
       }
+      stage = 'header subscription';
+      console.log(`[electrum] ${endpoint}: ${stage}`);
       const header = await client.blockchainHeaders_subscribe();
       if (header && header.height) {
         latestBlock = {
@@ -445,18 +534,31 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
           time: Math.floor(+new Date() / 1000),
         };
       }
-      return { ok: true, peer: usingPeer };
+      // Some not-yet-ready servers return one header and immediately close the
+      // socket. Do not briefly publish `connected` until the same client proves
+      // it is still alive after the subscription response.
+      stage = 'post-subscription liveness check';
+      console.log(`[electrum] ${endpoint}: ${stage}`);
+      await client.server_ping();
+      console.log(`[electrum] connection attempt succeeded: ${endpoint}, height=${header?.height ?? 'unknown'}`);
+      return { status: 'connected', peer: usingPeer };
     }
-    return { ok: false, peer: usingPeer };
+    console.warn(`[electrum] connection attempt failed: ${endpoint}; stage=${stage}; server returned no version`);
+    return { status: 'failed', peer: usingPeer };
   } catch (e) {
-    console.log('[electrum] bad connection:', JSON.stringify(usingPeer), e);
+    const errorDescription = describeElectrumError(e).toLowerCase();
+    const status = isElectrumServerSyncingError(e) ? 'syncing' : errorDescription.includes('close connect') ? 'server-not-ready' : 'failed';
+    console.warn(`[electrum] connection attempt ${status}: ${endpoint}; stage=${stage}; error=${describeElectrumError(e)}`);
     if (mainClient) {
       try {
         mainClient.close();
       } catch {}
       mainClient = undefined;
     }
-    return { ok: false, peer: usingPeer };
+    return {
+      status,
+      peer: usingPeer,
+    };
   }
 }
 
@@ -552,7 +654,8 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
         // back to 'disconnected' here.
         if (aborted(`attempt ${i} start`)) return false;
 
-        const { ok, peer } = await attemptConnectOnce();
+        console.log(`[electrum] ensureConnected attempt ${i + 1}/${CONNECT_MAX_ATTEMPTS}`);
+        const { status, peer } = await attemptConnectOnce();
         lastPeer = peer;
 
         if (aborted(`attempt ${i} end`)) {
@@ -564,9 +667,17 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
           }
           return false;
         }
-        if (ok) {
+        if (status === 'connected') {
           setConnectionState('connected');
           return true;
+        }
+        if (status === 'syncing') {
+          setConnectionState('syncing');
+          return false;
+        }
+        if (status === 'server-not-ready') {
+          setConnectionState('server-not-ready');
+          return false;
         }
         if (i < CONNECT_MAX_ATTEMPTS - 1) {
           await new Promise(resolve => setTimeout(resolve, CONNECT_BACKOFF_MS));
@@ -765,6 +876,7 @@ export const getConfig = async function () {
       port: undefined,
       serverName: false as typeof serverName,
       connected: connState === 'connected' ? 1 : 0,
+      connectionState: connState,
     };
   }
   return {
@@ -774,6 +886,7 @@ export const getConfig = async function () {
     // Drive UI "connected" indicator from the single state machine so the settings
     // screen agrees with the wallets-list header pill and with `ensureConnected()`.
     connected: connState === 'connected' ? 1 : 0,
+    connectionState: connState,
   };
 };
 
@@ -1443,33 +1556,81 @@ export const calculateBlockTime = function (height: number): number {
 };
 
 /**
- * @returns {Promise<boolean>} Whether provided host:port is a valid electrum server
+ * A reachable Electrum server can temporarily reject requests while the Bitcoin
+ * node behind it is completing initial block download. It is still a valid
+ * server, but is not usable by a wallet yet.
  */
-export const testConnection = async function (host: string, tcpPort?: number, sslPort?: number): Promise<boolean> {
+export const testConnectionStatus = async function (host: string, tcpPort?: number, sslPort?: number): Promise<TestConnectionStatus> {
   const client = new ElectrumClient(net, tls, sslPort || tcpPort, host, sslPort ? 'tls' : 'tcp');
+  const endpoint = `${host}:${sslPort || tcpPort} (${sslPort ? 'tls' : 'tcp'})`;
+  let stage = 'socket connect';
 
-  client.onError = () => {}; // mute
+  client.onError = (error: unknown) => {
+    console.warn(`[electrum] validation socket error for ${endpoint} during ${stage}: ${describeElectrumError(error)}`);
+  };
   let timeoutId: NodeJS.Timeout | undefined;
   const timeoutMs = host.endsWith('.onion') ? 21_000 : 5_000;
   try {
+    console.log(`[electrum] validating server ${endpoint}: ${stage} (timeout=${timeoutMs}ms)`);
     const rez = await Promise.race([
       new Promise(resolve => {
         timeoutId = setTimeout(() => resolve('timeout'), timeoutMs);
       }),
       client.connect(),
     ]);
-    if (rez === 'timeout') return false;
+    if (rez === 'timeout') {
+      console.warn(`[electrum] validation failed for ${endpoint}: socket connect timed out after ${timeoutMs}ms`);
+      return 'failed';
+    }
 
+    stage = 'version handshake';
+    console.log(`[electrum] validating server ${endpoint}: ${stage}`);
     await client.server_version('2.7.11', '1.4');
+    stage = 'ping';
+    console.log(`[electrum] validating server ${endpoint}: ${stage}`);
     await client.server_ping();
-    return true;
-  } catch (_) {
+    stage = 'header subscription';
+    console.log(`[electrum] validating server ${endpoint}: ${stage}`);
+    await client.blockchainHeaders_subscribe();
+    stage = 'post-subscription liveness check';
+    console.log(`[electrum] validating server ${endpoint}: ${stage}`);
+    await client.server_ping();
+    console.log(`[electrum] validation succeeded for ${endpoint}`);
+    return 'connected';
+  } catch (error) {
+    let status: TestConnectionStatus = isElectrumServerSyncingError(error) ? 'syncing' : 'failed';
+    console.warn(`[electrum] validation ${status} for ${endpoint}; stage=${stage}; error=${describeElectrumError(error)}`);
+    if (stage === 'version handshake' && describeElectrumError(error).toLowerCase().includes('close connect')) {
+      console.log(`[electrum] ${endpoint}: version handshake was closed; probing additional Electrum APIs`);
+      const diagnostics = await probeElectrumServer(host, tcpPort, sslPort);
+      for (const diagnostic of diagnostics) {
+        if (diagnostic.ok) {
+          console.log(`[electrum] diagnostic ${diagnostic.method} succeeded:`, diagnostic.result);
+        } else {
+          console.warn(`[electrum] diagnostic ${diagnostic.method} failed: ${diagnostic.error}`);
+        }
+      }
+      const syncingDiagnostic = diagnostics.some(diagnostic =>
+        isElectrumServerSyncingError(diagnostic.ok ? diagnostic.result : diagnostic.error),
+      );
+      if (syncingDiagnostic) {
+        status = 'syncing';
+        console.log(`[electrum] ${endpoint}: Bitcoin backend syncing was explicitly confirmed by an Electrum RPC response`);
+      } else {
+        status = 'server-not-ready';
+        console.log(`[electrum] ${endpoint}: Electrum endpoint is reachable but Bitcoin backend syncing could not be confirmed`);
+      }
+    }
+    return status;
   } finally {
     if (timeoutId) clearTimeout(timeoutId);
     client.close();
   }
+};
 
-  return false;
+/** @returns Whether provided host:port is a valid Electrum server. */
+export const testConnection = async function (host: string, tcpPort?: number, sslPort?: number): Promise<boolean> {
+  return (await testConnectionStatus(host, tcpPort, sslPort)) !== 'failed';
 };
 
 /**

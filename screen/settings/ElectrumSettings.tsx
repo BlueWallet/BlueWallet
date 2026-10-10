@@ -41,6 +41,13 @@ export interface ElectrumServerItem {
 }
 
 const SET_PREFERRED_PREFIX = 'set_preferred_';
+const SERVER_STATUS_NOTICE_DURATION_MS = 10_000;
+type InformativeServerStatus = Extract<BlueElectrum.TestConnectionStatus, 'syncing' | 'server-not-ready'>;
+type TestedServerResult = {
+  status: BlueElectrum.TestConnectionStatus;
+  host: string;
+  port: number;
+};
 
 const ElectrumSettings: React.FC = () => {
   const { colors } = useTheme();
@@ -49,7 +56,19 @@ const ElectrumSettings: React.FC = () => {
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
   const [serverHistory, setServerHistory] = useState<Set<ElectrumServerItem>>(new Set());
-  const [config, setConfig] = useState<{ connected?: number; host?: string; port?: string }>({});
+  const [config, setConfig] = useState<{
+    connected?: number;
+    host?: string;
+    port?: string;
+    connectionState?: BlueElectrum.ConnectionState;
+  }>({});
+  const [testedServerResult, setTestedServerResult] = useState<TestedServerResult>();
+  const [serverStatusNotice, setServerStatusNotice] = useState<{
+    status: InformativeServerStatus;
+    host?: string;
+    port?: number | string;
+  }>();
+  const serverStatusNoticeTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [host, setHost] = useState<string>('');
   const [port, setPort] = useState<number | undefined>();
   const [sslPort, setSslPort] = useState<number | undefined>(undefined);
@@ -127,11 +146,17 @@ const ElectrumSettings: React.FC = () => {
     containerDisconnected: {
       backgroundColor: colors.redBG,
     },
+    containerPending: {
+      backgroundColor: colors.feeLabel,
+    },
     textConnected: {
       color: colors.feeValue,
     },
     textDisconnected: {
       color: colors.redText,
+    },
+    textPending: {
+      color: colors.feeValue,
     },
     hostname: {
       color: colors.foregroundColor,
@@ -217,6 +242,35 @@ const ElectrumSettings: React.FC = () => {
     }
   }, [config.connected, config.host, config.port, isElectrumDisabled]);
 
+  // Connection retries may move through states quickly. Keep a confirmed,
+  // historical server response visible long enough to read without freezing or
+  // falsifying the live connection badge above it.
+  useEffect(() => {
+    const informativeStatus =
+      testedServerResult?.status === 'syncing' || testedServerResult?.status === 'server-not-ready'
+        ? testedServerResult.status
+        : config.connectionState === 'syncing' || config.connectionState === 'server-not-ready'
+          ? config.connectionState
+          : undefined;
+    if (!informativeStatus) return;
+
+    const noticeEndpoint = testedServerResult?.status === informativeStatus ? testedServerResult : undefined;
+    setServerStatusNotice({
+      status: informativeStatus,
+      host: noticeEndpoint?.host ?? config.host,
+      port: noticeEndpoint?.port ?? config.port,
+    });
+    if (serverStatusNoticeTimerRef.current) clearTimeout(serverStatusNoticeTimerRef.current);
+    serverStatusNoticeTimerRef.current = setTimeout(() => {
+      setServerStatusNotice(undefined);
+      serverStatusNoticeTimerRef.current = null;
+    }, SERVER_STATUS_NOTICE_DURATION_MS);
+
+    return () => {
+      if (serverStatusNoticeTimerRef.current) clearTimeout(serverStatusNoticeTimerRef.current);
+    };
+  }, [config.connectionState, config.host, config.port, testedServerResult]);
+
   useEffect(() => {
     if (server) {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
@@ -249,12 +303,13 @@ const ElectrumSettings: React.FC = () => {
         const serverSslPort = v?.ssl ? v.ssl.toString() : sslPort?.toString() || '';
 
         if (serverHost && (serverPort || serverSslPort)) {
-          const testConnect = await BlueElectrum.testConnection(serverHost, Number(serverPort), Number(serverSslPort));
-          if (!testConnect) {
+          const testConnectionStatus = await BlueElectrum.testConnectionStatus(serverHost, Number(serverPort), Number(serverSslPort));
+          if (testConnectionStatus === 'failed') {
             return presentAlert({
               message: serverHost.endsWith('.onion') ? loc.settings.electrum_error_connect_tor : loc.settings.electrum_error_connect,
             });
           }
+          setTestedServerResult({ status: testConnectionStatus, host: serverHost, port: Number(serverSslPort || serverPort) });
           await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
 
           await DefaultPreference.clear(BlueElectrum.ELECTRUM_HOST);
@@ -482,6 +537,7 @@ const ElectrumSettings: React.FC = () => {
   };
 
   const onBarScanned = (value: string) => {
+    setTestedServerResult(undefined);
     let v = value;
     if (value && DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value)) {
       v = DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value) as string;
@@ -507,6 +563,7 @@ const ElectrumSettings: React.FC = () => {
 
   const onSSLPortChange = (value: boolean) => {
     Keyboard.dismiss();
+    setTestedServerResult(undefined);
     if (value) {
       setSslPort(port);
       setPort(undefined);
@@ -535,24 +592,53 @@ const ElectrumSettings: React.FC = () => {
         (savedServer.ssl !== '' && sslPort?.toString() === savedServer.ssl)));
 
   const renderElectrumSettings = () => {
+    const isSyncing = config.connectionState === 'syncing';
+    const isServerNotReady = config.connectionState === 'server-not-ready';
+    const statusContainerStyle =
+      isSyncing || isServerNotReady
+        ? stylesHook.containerPending
+        : config.connected === 1
+          ? stylesHook.containerConnected
+          : stylesHook.containerDisconnected;
+    const statusTextStyle =
+      isSyncing || isServerNotReady
+        ? stylesHook.textPending
+        : config.connected === 1
+          ? stylesHook.textConnected
+          : stylesHook.textDisconnected;
+    const statusText = isSyncing
+      ? loc.settings.electrum_server_syncing
+      : isServerNotReady
+        ? loc.settings.electrum_server_not_ready
+        : config.connected === 1
+          ? loc.settings.electrum_connected
+          : loc.settings.electrum_connected_not;
+    const displayedServerHost = serverStatusNotice?.host ?? config.host;
+    const displayedServerPort = serverStatusNotice?.port ?? config.port;
+
     return (
       <>
         <SettingsSection title={loc.settings.electrum_status}>
           <View style={settingsCardContent}>
             <View style={styles.connectWrap}>
-              <View style={[styles.container, config.connected === 1 ? stylesHook.containerConnected : stylesHook.containerDisconnected]}>
-                <Text
-                  style={[styles.textConnectionStatus, config.connected === 1 ? stylesHook.textConnected : stylesHook.textDisconnected]}
-                >
-                  {config.connected === 1 ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}
-                </Text>
+              <View style={[styles.container, statusContainerStyle]}>
+                <Text style={[styles.textConnectionStatus, statusTextStyle]}>{statusText}</Text>
               </View>
             </View>
-            <Text style={[styles.hostname, stylesHook.hostname]} onPress={checkServer} selectable>
-              {config.host}:{config.port}
-            </Text>
+            {displayedServerHost && displayedServerPort !== undefined && (
+              <Text style={[styles.hostname, stylesHook.hostname]} onPress={checkServer} selectable>
+                {displayedServerHost}:{displayedServerPort}
+              </Text>
+            )}
 
             {serverBanner.length > 0 && <Text style={[styles.bannerText, stylesHook.bannerText]}>{serverBanner}</Text>}
+            {serverStatusNotice && (
+              <Text style={[styles.syncingText, stylesHook.hostname]}>
+                {serverStatusNotice.status === 'syncing'
+                  ? loc.settings.electrum_server_syncing_notice
+                  : loc.settings.electrum_server_not_ready_notice}
+              </Text>
+            )}
           </View>
         </SettingsSection>
 
@@ -565,7 +651,10 @@ const ElectrumSettings: React.FC = () => {
                 testID="HostInput"
                 placeholder={loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' })}
                 address={host}
-                onChangeText={text => setHost(text.trim())}
+                onChangeText={text => {
+                  setTestedServerResult(undefined);
+                  setHost(text.trim());
+                }}
                 editable={!isLoading}
                 keyboardType="default"
                 onBlur={() => {
@@ -592,6 +681,7 @@ const ElectrumSettings: React.FC = () => {
                   placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
                   value={sslPort?.toString() === '' || sslPort === undefined ? port?.toString() || '' : sslPort?.toString() || ''}
                   onChangeText={text => {
+                    setTestedServerResult(undefined);
                     const parsed = Number(text.trim());
                     if (Number.isNaN(parsed)) {
                       sslPort === undefined ? setPort(undefined) : setSslPort(undefined);
@@ -759,6 +849,11 @@ const styles = StyleSheet.create({
     marginTop: 16,
     alignSelf: 'center',
     fontFamily: 'monospace',
+    marginBottom: 4,
+  },
+  syncingText: {
+    marginTop: 12,
+    textAlign: 'center',
     marginBottom: 4,
   },
 });
