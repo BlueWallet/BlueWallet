@@ -12,7 +12,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 // Jest hoists these above the import above. The factories close over `globalThis`
 // so the test body can swap implementations per-test without re-mocking.
 jest.mock('electrum-client', () => {
-  return jest.fn().mockImplementation(() => (globalThis as any).__createNextFakeClient());
+  return jest.fn().mockImplementation((...args: unknown[]) => (globalThis as any).__createNextFakeClient(...args));
 });
 
 jest.mock('../../components/Alert', () => ({
@@ -83,8 +83,8 @@ function makeFakeClient(host = 'fake.host', port = 50002): FakeClient {
 }
 
 const created: FakeClient[] = [];
-(globalThis as any).__createNextFakeClient = () => {
-  const c = makeFakeClient();
+(globalThis as any).__createNextFakeClient = (_net: unknown, _tls: unknown, port: number, host: string) => {
+  const c = makeFakeClient(host, port);
   created.push(c);
   return c;
 };
@@ -104,6 +104,10 @@ function resolveLastConnect() {
 }
 
 describe('BlueElectrum lifecycle', () => {
+  afterAll(() => {
+    BlueElectrum.forceDisconnect();
+  });
+
   beforeEach(async () => {
     BlueElectrum.forceDisconnect();
     await BlueElectrum.setDisabled(false);
@@ -143,6 +147,24 @@ describe('BlueElectrum lifecycle', () => {
       const result = await p;
       expect(result).toBe(false);
       expect(BlueElectrum.getConnectionState()).toBe('disconnected');
+    });
+  });
+
+  describe('random suggested server selection', () => {
+    it('disconnects and starts from the randomly selected built-in peer', async () => {
+      const random = jest.spyOn(Math, 'random').mockReturnValue(0);
+      try {
+        const connection = BlueElectrum.connectToRandomSuggestedServer();
+        await flush();
+
+        expect(created).toHaveLength(1);
+        expect(created[0].host).toBe(BlueElectrum.suggestedServers[0].host);
+        expect(created[0].port).toBe(BlueElectrum.suggestedServers[0].ssl ?? BlueElectrum.suggestedServers[0].tcp);
+        resolveLastConnect();
+        await expect(connection).resolves.toBe(true);
+      } finally {
+        random.mockRestore();
+      }
     });
   });
 
@@ -192,6 +214,22 @@ describe('BlueElectrum lifecycle', () => {
 
       expect(ok).toBe(false);
       expect(BlueElectrum.getConnectionState()).toBe('disconnected');
+    });
+  });
+
+  describe('connection validation', () => {
+    it('accepts an Electrum endpoint during discovery even when its backend is not ready to answer ping', async () => {
+      const validationPromise = BlueElectrum.validateConnection('syncing.local', 50001, undefined, { requirePing: false });
+      created[0].server_ping.mockRejectedValue(new Error('backend is still syncing'));
+      created[0].initElectrumDeferred.resolve(['Fulcrum 1.10.0', '1.4']);
+      await expect(validationPromise).resolves.toEqual({ success: true });
+
+      expect(created[0].initElectrum).toHaveBeenCalledWith(
+        { client: 'bluewallet', version: '1.4' },
+        expect.objectContaining({ maxRetry: 0 }),
+      );
+      expect(created[0].server_ping).not.toHaveBeenCalled();
+      expect(created[0].close).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -252,7 +290,9 @@ describe('BlueElectrum lifecycle', () => {
     it('returns null for implausible height without caching', async () => {
       const client = await connectAtTip(1000);
 
-      client.blockchainTransaction_get.mockResolvedValue({ confirmations: 2000 });
+      client.blockchainTransaction_get.mockResolvedValue({
+        confirmations: 2000,
+      });
 
       const result = await BlueElectrum.getConfirmedBlockHeight('deadbeef');
       expect(result).toBeNull();

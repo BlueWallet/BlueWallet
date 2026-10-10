@@ -322,7 +322,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         userDefaultsGroup?.setValue(userActivityData, forKey: "onUserActivityOpen")
 
-        if ["io.bluewallet.bluewallet.receiveonchain", "io.bluewallet.bluewallet.xpub", "io.bluewallet.bluewallet.blockexplorer"].contains(activityType) {
+        if ["io.bluewallet.bluewallet.receiveonchain", "io.bluewallet.bluewallet.xpub", "io.bluewallet.bluewallet.blockexplorer", "io.bluewallet.bluewallet.electrumserverhistory"].contains(activityType) {
           EventEmitter.shared()?.sendUserActivity(userActivityData)
             return true
         }
@@ -411,6 +411,10 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ("backToWallets", "Back to Wallets", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view),
             ("copyAddress", "Copy Address", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit),
             ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit),
+            ("addElectrumServer", "Add Electrum Server…", #selector(addElectrumServerMenuAction), "n", .command, .file),
+            ("importElectrumServerHistory", "Import Electrum Server History…", #selector(importElectrumServerHistoryMenuAction), "i", .command, .file),
+            ("exportElectrumServerHistory", "Export Electrum Server History…", #selector(exportElectrumServerHistoryMenuAction), "e", [.command, .alternate], .file),
+            ("discoverElectrumServers", "Discover Electrum Servers…", #selector(discoverElectrumServersMenuAction), "d", [.command, .shift], .file),
             ("keyboardShortcuts", "Keyboard Shortcuts…", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
         ]
         for parent in [UIMenu.Identifier.file, .edit, .view, .help] {
@@ -473,6 +477,22 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     @objc func copyTransactionIdMenuAction(_ keyCommand: UIKeyCommand) {
         MenuElementsController.shared.perform("copyTransactionId")
+    }
+
+    @objc func addElectrumServerMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("addElectrumServer")
+    }
+
+    @objc func importElectrumServerHistoryMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("importElectrumServerHistory")
+    }
+
+    @objc func exportElectrumServerHistoryMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("exportElectrumServerHistory")
+    }
+
+    @objc func discoverElectrumServersMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("discoverElectrumServers")
     }
 
     @objc func keyboardShortcutsMenuAction(_ keyCommand: UIKeyCommand) {

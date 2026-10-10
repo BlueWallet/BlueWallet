@@ -29,6 +29,8 @@ interface AddressInputProps {
     | 'twitter'
     | 'web-search'
     | 'visible-password';
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 const AddressInput = ({
@@ -43,6 +45,8 @@ const AddressInput = ({
   onBlur = () => {},
   keyboardType = 'default',
   style,
+  accessibilityLabel,
+  accessibilityHint,
 }: AddressInputProps) => {
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
@@ -74,6 +78,8 @@ const AddressInput = ({
         autoCorrect={false}
         keyboardType={keyboardType}
         onBlur={onBlur}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
       />
       {editable ? <AddressInputScanButton isLoading={isLoading} onChangeText={onChangeText} /> : null}
     </View>

@@ -13,8 +13,7 @@ const HandOffComponent: React.FC<HandOffComponentProps> = props => {
     console.debug('HandOffComponent: Missing required type or userInfo data');
     return null;
   }
-  const userInfo = JSON.stringify(props.userInfo);
-  console.debug(`HandOffComponent is rendering. Type: ${props.type}, UserInfo: ${userInfo}...`);
+  console.debug(`HandOffComponent is rendering. Type: ${props.type}, UserInfo keys: ${Object.keys(props.userInfo).join(', ')}.`);
   return isHandOffUseEnabled ? <Handoff {...props} /> : null;
 };
 

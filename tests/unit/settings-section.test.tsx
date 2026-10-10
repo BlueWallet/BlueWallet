@@ -19,12 +19,13 @@ jest.mock('../../components/themes', () => ({
 
 describe('SettingsSection', () => {
   it('renders title and children', () => {
-    const { getByText } = render(
+    const { getByRole, getByText } = render(
       <SettingsSection title="Advanced">
         <Text>child row</Text>
       </SettingsSection>,
     );
     expect(getByText('Advanced')).toBeTruthy();
+    expect(getByRole('header', { name: 'Advanced' })).toBeTruthy();
     expect(getByText('child row')).toBeTruthy();
   });
 
@@ -74,6 +75,20 @@ describe('SettingsListItem', () => {
     const { getByText } = render(<SettingsListItem title="Currency" iconName="currency" onPress={onPress} testID="CurrencyItem" />);
     fireEvent.press(getByText('Currency'));
     expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('forwards accessibility actions to the row', () => {
+    const onAccessibilityAction = jest.fn();
+    const { getByTestId } = render(
+      <SettingsListItem
+        title="Server"
+        testID="ServerItem"
+        accessibilityActions={[{ name: 'test', label: 'Test Connection' }]}
+        onAccessibilityAction={onAccessibilityAction}
+      />,
+    );
+    fireEvent(getByTestId('ServerItem'), 'accessibilityAction', { nativeEvent: { actionName: 'test' } });
+    expect(onAccessibilityAction).toHaveBeenCalledWith(expect.objectContaining({ nativeEvent: { actionName: 'test' } }));
   });
 });
 

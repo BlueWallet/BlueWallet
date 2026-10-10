@@ -12,10 +12,11 @@ import type { TaprootWallet as TaprootWalletT } from '../class/wallets/taproot-w
 import presentAlert from '../components/Alert';
 import loc from '../loc';
 import { GROUP_IO_BLUEWALLET } from './currency';
-import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
+import { ElectrumServerItem, hardcodedPeers } from './electrumServer';
 import { triggerWarningHapticFeedback } from './hapticFeedback';
 import { AlertButton } from 'react-native';
 import { uint8ArrayToHex, stringToUint8Array, hexToUint8Array } from './uint8array-extras/index';
+export { hardcodedPeers } from './electrumServer';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
@@ -88,14 +89,6 @@ export const ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
 const ELECTRUM_CONNECTION_DISABLED = 'electrum_disabled';
 const storageKey = 'ELECTRUM_PEERS';
 const defaultPeer = { host: 'electrum1.bluewallet.io', ssl: 443 };
-export const hardcodedPeers: Peer[] = [
-  { host: 'mainnet.foundationdevices.com', ssl: 50002 },
-  { host: 'bitcoin.lu.ke', ssl: 50002 },
-  // { host: 'electrum.jochen-hoenicke.de', ssl: '50006' },
-  { host: 'electrum1.bluewallet.io', ssl: 443 },
-  { host: 'electrum.acinq.co', ssl: 50002 },
-];
-
 export const suggestedServers: Peer[] = hardcodedPeers.map(peer => ({
   ...peer,
 }));
@@ -171,6 +164,18 @@ export const ENSURE_CONNECTED_MAX_WALL_MS =
 let ensureInFlight: Promise<boolean> | null = null;
 /** If any coalesced caller asked for the failure alert, honour it once the in-flight attempt finishes. */
 let ensureInFlightShowAlert = false;
+/** Screens that surface connection state inline suppress the redundant global failure alert while focused. */
+let networkErrorAlertSuppressionCount = 0;
+
+export function suppressNetworkErrorAlerts(): () => void {
+  networkErrorAlertSuppressionCount += 1;
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    networkErrorAlertSuppressionCount = Math.max(0, networkErrorAlertSuppressionCount - 1);
+  };
+}
 
 /**
  * Bumps every time the caller asks us to abandon the current connection
@@ -374,6 +379,7 @@ function scheduleReconnectFromClient(client: typeof ElectrumClient, usingPeer: P
  */
 async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
   const usingPeer = await pickPeer();
+  let connectionTimeout: ReturnType<typeof setTimeout> | undefined;
   console.log('[electrum] Using peer:', JSON.stringify(usingPeer));
 
   // Drop any prior client before allocating a new one. Closing also neutralises
@@ -406,7 +412,9 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
           callback: () => scheduleReconnectFromClient(client, usingPeer, 'socket close'),
         },
       ),
-      new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error('connect timeout')), CONNECT_ATTEMPT_TIMEOUT_MS)),
+      new Promise<never>((_resolve, reject) => {
+        connectionTimeout = setTimeout(() => reject(new Error('connect timeout')), CONNECT_ATTEMPT_TIMEOUT_MS);
+      }),
     ]);
 
     if (mainClient !== client) {
@@ -457,6 +465,8 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
       mainClient = undefined;
     }
     return { ok: false, peer: usingPeer };
+  } finally {
+    if (connectionTimeout) clearTimeout(connectionTimeout);
   }
 }
 
@@ -464,14 +474,19 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
 async function pingWithTimeout(timeoutMs: number = PING_TIMEOUT_MS): Promise<boolean> {
   if (!mainClient) return false;
   const client = mainClient;
+  let pingTimeout: ReturnType<typeof setTimeout> | undefined;
   try {
     await Promise.race([
       client.server_ping(),
-      new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error('ping timeout')), timeoutMs)),
+      new Promise<never>((_resolve, reject) => {
+        pingTimeout = setTimeout(() => reject(new Error('ping timeout')), timeoutMs);
+      }),
     ]);
     return mainClient === client; // server replied AND client wasn't swapped while we waited
   } catch {
     return false;
+  } finally {
+    if (pingTimeout) clearTimeout(pingTimeout);
   }
 }
 
@@ -650,12 +665,14 @@ export async function presentResetToDefaultsAlert(): Promise<boolean> {
 }
 
 async function presentNetworkErrorAlert(usingPeer?: Peer, allowRepeat = false) {
+  if (networkErrorAlertSuppressionCount > 0) return;
   if (await isDisabled()) {
     console.log(
       '[electrum] Electrum connection disabled by user. Perhaps we are attempting to show this network error alert after the user disabled connections.',
     );
     return;
   }
+  if (networkErrorAlertSuppressionCount > 0) return;
 
   presentAlert({
     allowRepeat,
@@ -1445,31 +1462,57 @@ export const calculateBlockTime = function (height: number): number {
 /**
  * @returns {Promise<boolean>} Whether provided host:port is a valid electrum server
  */
-export const testConnection = async function (host: string, tcpPort?: number, sslPort?: number): Promise<boolean> {
+export const validateConnection = async function (
+  host: string,
+  tcpPort?: number,
+  sslPort?: number,
+  options: { requirePing?: boolean } = {},
+): Promise<{ success: boolean; error?: string }> {
   const client = new ElectrumClient(net, tls, sslPort || tcpPort, host, sslPort ? 'tls' : 'tcp');
 
   client.onError = () => {}; // mute
   let timeoutId: NodeJS.Timeout | undefined;
   const timeoutMs = host.endsWith('.onion') ? 21_000 : 5_000;
   try {
-    const rez = await Promise.race([
-      new Promise(resolve => {
-        timeoutId = setTimeout(() => resolve('timeout'), timeoutMs);
+    // Use the same initialization API as BlueWallet's normal connection path.
+    // This covers both the transport connection and Electrum server.version
+    // negotiation without enabling electrum-client's automatic retries.
+    const version = await Promise.race([
+      client.initElectrum({ client: 'bluewallet', version: '1.4' }, { maxRetry: 0, callback: () => {} }),
+      new Promise<never>((_resolve, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('connect timeout')), timeoutMs);
       }),
-      client.connect(),
     ]);
-    if (rez === 'timeout') return false;
+    if (!version || !version[0]) {
+      return {
+        success: false,
+        error: loc.settings.electrum_error_connect,
+      };
+    }
 
-    await client.server_version('2.7.11', '1.4');
-    await client.server_ping();
-    return true;
-  } catch (_) {
+    // Discovery only needs to establish that the endpoint speaks Electrum.
+    // A server whose Bitcoin backend is still syncing can identify itself but
+    // may reject operational requests (including ping) until it is ready.
+    if (options.requirePing !== false) await client.server_ping();
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error instanceof Error && error.message === 'connect timeout'
+          ? String(loc.formatString(loc.settings.electrum_connection_timed_out, { server: `${host}:${sslPort || tcpPort}` }))
+          : error instanceof Error && error.message
+            ? error.message
+            : String(error || loc.settings.electrum_error_connect),
+    };
   } finally {
     if (timeoutId) clearTimeout(timeoutId);
     client.close();
   }
+};
 
-  return false;
+export const testConnection = async function (host: string, tcpPort?: number, sslPort?: number): Promise<boolean> {
+  return (await validateConnection(host, tcpPort, sslPort)).success;
 };
 
 /**
@@ -1486,6 +1529,13 @@ export const forceDisconnect = (): void => {
   }
   setConnectionState('disconnected');
 };
+
+/** Disconnects from a removed favorite and starts the next connection from a random built-in server. */
+export async function connectToRandomSuggestedServer(): Promise<boolean> {
+  currentPeerIndex = Math.floor(Math.random() * hardcodedPeers.length);
+  forceDisconnect();
+  return ensureConnected();
+}
 
 export const setBatchingDisabled = () => {
   disableBatching = true;

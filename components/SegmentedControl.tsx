@@ -7,15 +7,27 @@ interface SegmentedControlProps {
   selectedIndex: number;
   onChange: (index: number) => void;
   testID?: string;
+  enabled?: boolean;
   /** Use the platform control instead of the accent color override. */
   usePlatformStyle?: boolean;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 interface SegmentedControlEvent {
   selectedIndex: number;
 }
 
-const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedIndex, onChange, testID, usePlatformStyle = false }) => {
+const SegmentedControl: React.FC<SegmentedControlProps> = ({
+  values,
+  selectedIndex,
+  onChange,
+  testID,
+  enabled = true,
+  usePlatformStyle = false,
+  accessibilityLabel,
+  accessibilityHint,
+}) => {
   const handleChange = useCallback(
     (event: NativeSyntheticEvent<SegmentedControlEvent>) => {
       if (event?.nativeEvent?.selectedIndex !== undefined) {
@@ -34,7 +46,7 @@ const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedInd
       <NativeSegmentedControl
         values={values}
         selectedIndex={selectedIndex}
-        enabled
+        enabled={enabled}
         backgroundColor={usePlatformStyle ? undefined : 'transparent'}
         tintColor={usePlatformStyle ? undefined : '#007AFF'}
         textColor={usePlatformStyle ? undefined : '#007AFF'}
@@ -42,6 +54,8 @@ const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedInd
         style={styles.segmentedControl}
         onChange={handleChange}
         testID={testID}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
       />
     </View>
   );
