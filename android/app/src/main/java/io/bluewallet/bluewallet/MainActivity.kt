@@ -2,6 +2,9 @@ package io.bluewallet.bluewallet
 
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -11,16 +14,90 @@ import android.view.KeyboardShortcutGroup
 import android.view.KeyboardShortcutInfo
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.Window
-import androidx.appcompat.app.AlertDialog
+import android.widget.ImageView
+import android.widget.TextView
+import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 
 class MainActivity : ReactActivity() {
+
+    companion object {
+        private const val ANDROID_IMAGE_SHARING_HELP = "https://support.google.com/photos/answer/6131416?co=GENIE.Platform%3DAndroid"
+    }
+
+    private fun notifySharedQRCodeAvailable(attempt: Int = 0) {
+        val reactContext = (application as MainApplication).reactHost.currentReactContext
+        if (reactContext != null) {
+            reactContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit(SharedImageStore.EVENT_NAME, null)
+            return
+        }
+        if (attempt < 100) {
+            Handler(Looper.getMainLooper()).postDelayed({ notifySharedQRCodeAvailable(attempt + 1) }, 100)
+        }
+    }
+
+    private fun prepareSharedImageIntent(intent: Intent?) {
+        if (intent?.action != Intent.ACTION_SEND || intent.type?.lowercase()?.startsWith("image/") != true) return
+
+        val sharedImage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(Intent.EXTRA_STREAM) as? Uri
+        } ?: return
+
+        // Consume the share once. The file is copied on a worker thread and
+        // exposed through SharedImageModule for both cold and warm launches.
+        intent.removeExtra(Intent.EXTRA_STREAM)
+        SharedImageStore.importAsync(applicationContext, sharedImage) { value, error ->
+            if (value != null) {
+                runOnUiThread { confirmSharedQRCode(value) }
+            } else {
+                runOnUiThread { showSharedImageError(error ?: SharedImageImportError.UNREADABLE) }
+            }
+        }
+    }
+
+    private fun confirmSharedQRCode(value: String) {
+        if (isFinishing || isDestroyed) return
+        val resultView = layoutInflater.inflate(R.layout.shared_qr_result, null)
+        resultView.findViewById<ImageView>(R.id.shared_qr_preview).apply {
+            val preview = runCatching { SharedQRCodePreview.render(this@MainActivity, value) }.getOrNull()
+            if (preview == null) visibility = View.GONE else setImageBitmap(preview)
+        }
+        resultView.findViewById<TextView>(R.id.shared_qr_content).text = value
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.shared_image_confirm_title)
+            .setView(resultView)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(R.string.shared_image_confirm_button) { _, _ ->
+                SharedImageStore.store(applicationContext, value)
+                notifySharedQRCodeAvailable()
+            }
+            .show()
+    }
+
+    private fun showSharedImageError(error: SharedImageImportError) {
+        if (isFinishing || isDestroyed) return
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.shared_image_error_title)
+            .setMessage(error.messageResource)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNeutralButton(R.string.shared_image_help_button) { _, _ ->
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(ANDROID_IMAGE_SHARING_HELP)))
+            }
+            .show()
+    }
 
     private fun menuModule(): MenuElementsModule? =
         (application as MainApplication).reactHost.currentReactContext
@@ -94,9 +171,16 @@ class MainActivity : ReactActivity() {
         // react-native-screens override
         supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
         super.onCreate(null)
+        prepareSharedImageIntent(intent)
         if (resources.getBoolean(R.bool.portrait_only)) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        prepareSharedImageIntent(intent)
+        super.onNewIntent(intent)
+        setIntent(intent)
     }
 
     override fun onResume() {
@@ -119,7 +203,7 @@ class MainActivity : ReactActivity() {
             
             // Show alert after a short delay to ensure UI is ready
             Handler(Looper.getMainLooper()).postDelayed({
-                AlertDialog.Builder(this)
+                MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.cache_cleared_title)
                     .setMessage(R.string.cache_cleared_message)
                     .setPositiveButton(android.R.string.ok, null)

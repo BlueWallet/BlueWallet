@@ -10,6 +10,49 @@ env:
 on: [pull_request]
 
 jobs:
+  share-extension:
+    runs-on: macos-26
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      with:
+        fetch-depth: 0
+
+    - name: Run tests
+      run: |
+        simulator_id="$(xcrun simctl list devices available --json | ruby -rjson -e '
+          devices = JSON.parse($stdin.read).fetch("devices").values.flatten
+          simulator = devices.find { |device| device.fetch("name", "").start_with?("iPhone") }
+          abort "No available iPhone simulator was found" unless simulator
+          print simulator.fetch("udid")
+        ')"
+
+        xcodebuild test \
+          -project ios/BlueWallet.xcodeproj \
+          -scheme ShareExtension \
+          -destination "platform=iOS Simulator,id=${simulator_id}" \
+          CODE_SIGNING_ALLOWED=NO
+
+    - name: Build extension
+      run: |
+        xcodebuild build \
+          -project ios/BlueWallet.xcodeproj \
+          -target ShareExtension \
+          -sdk iphonesimulator \
+          SYMROOT="${RUNNER_TEMP}/share-extension-ios-products" \
+          OBJROOT="${RUNNER_TEMP}/share-extension-ios-objects" \
+          CODE_SIGNING_ALLOWED=NO
+
+        xcodebuild build \
+          -project ios/BlueWallet.xcodeproj \
+          -target ShareExtension \
+          -sdk macosx \
+          SUPPORTS_MACCATALYST=YES \
+          SDK_VARIANT=iosmac \
+          SYMROOT="${RUNNER_TEMP}/share-extension-catalyst-products" \
+          OBJROOT="${RUNNER_TEMP}/share-extension-catalyst-objects" \
+          CODE_SIGNING_ALLOWED=NO
+
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -44,6 +87,12 @@ jobs:
         node-version: 24
         cache: 'npm'
 
+    - name: Use specific Java version for sdkmanager to work
+      uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
     - name: Install node_modules
       run: npm ci || npm ci
 
@@ -60,6 +109,10 @@ jobs:
         FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
         MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
         MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
+
+    - name: Run native tests
+      working-directory: android
+      run: ./gradlew :app:testDebugUnitTest --tests io.bluewallet.bluewallet.SharedImageImportPolicyTest :app:compileDebugAndroidTestKotlin
 
   integration:
     runs-on: ubuntu-latest

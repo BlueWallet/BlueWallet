@@ -33,4 +33,16 @@
     <string name="cache_cleared_title">Cache Cleared</string>
     <string name="cache_cleared_message">The document, cache, and temp directories have been cleared.</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
+
+    <!-- Shared QR image scanning -->
+    <string name="shared_image_confirm_title">QR code detected</string>
+    <string name="shared_image_confirm_message">The decoded content is ready to open in BlueWallet.</string>
+    <string name="shared_image_confirm_button">Open in BlueWallet</string>
+    <string name="shared_image_qr_preview">Decoded QR code</string>
+    <string name="shared_image_error_title">Couldn’t scan QR code</string>
+    <string name="shared_image_error_unreadable">BlueWallet couldn’t read this file as an image. Open it in Photos, take a screenshot, then share the screenshot to BlueWallet.</string>
+    <string name="shared_image_error_file_too_large">This image is over 10 MB. In Photos, crop it closely around the QR code, save the crop, then share it again.</string>
+    <string name="shared_image_error_dimensions_too_large">This image is over 16 megapixels. Crop it closely around the QR code or take a screenshot, then share the smaller image.</string>
+    <string name="shared_image_error_no_qr">No readable QR code was found. Use a sharp image with one complete QR code, crop away surrounding text and buttons, then share it again.</string>
+    <string name="shared_image_help_button">Google sharing guide</string>
 </resources>
