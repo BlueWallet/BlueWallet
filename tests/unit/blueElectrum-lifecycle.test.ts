@@ -29,6 +29,8 @@ type FakeClient = {
   onError?: (e: { message: string }) => void;
   host: string;
   port: number;
+  connect: jest.Mock;
+  server_version: jest.Mock;
   initElectrum: jest.Mock;
   blockchainHeaders_subscribe: jest.Mock;
   blockchainScripthash_getHistory: jest.Mock;
@@ -63,6 +65,8 @@ function makeFakeClient(host = 'fake.host', port = 50002): FakeClient {
     host,
     port,
   };
+  fc.connect = jest.fn().mockResolvedValue(undefined);
+  fc.server_version = jest.fn().mockResolvedValue(['electrs 0.10.9', '1.4']);
   fc.initElectrum = jest.fn(() => fc.initElectrumDeferred!.promise);
   fc.blockchainHeaders_subscribe = jest.fn(() => fc.headersDeferred!.promise);
   fc.blockchainScripthash_getHistory = jest.fn();
@@ -104,6 +108,57 @@ function resolveLastConnect() {
 }
 
 describe('BlueElectrum lifecycle', () => {
+  describe('syncing server errors', () => {
+    it.each([
+      new Error('server is still syncing'),
+      { code: -32603, message: 'Bitcoin Core is in initial block download' },
+      { error: { message: 'Loading block index…' } },
+    ])('recognizes %p', error => {
+      expect(BlueElectrum.isElectrumServerSyncingError(error)).toBe(true);
+    });
+
+    it('does not mistake an ordinary connection error for syncing', () => {
+      expect(BlueElectrum.isElectrumServerSyncingError(new Error('ECONNREFUSED'))).toBe(false);
+      expect(BlueElectrum.isElectrumServerSyncingError(new Error('close connect'))).toBe(false);
+    });
+
+    it('exposes syncing when the server handshake succeeds but its backend is not ready', async () => {
+      const connection = BlueElectrum.ensureConnected();
+      await flush();
+      const client = created[0];
+      client.initElectrumDeferred.resolve(['electrs 0.10.9', '1.4']);
+      client.headersDeferred.reject(new Error('server is still syncing'));
+
+      await expect(connection).resolves.toBe(false);
+      expect(BlueElectrum.getConnectionState()).toBe('syncing');
+      expect(client.close).toHaveBeenCalled();
+    });
+
+    it('does not publish connected when the server closes immediately after returning a header', async () => {
+      const connection = BlueElectrum.ensureConnected();
+      await flush();
+      const client = created[0];
+      client.server_ping.mockRejectedValue(new Error('close connect'));
+      client.initElectrumDeferred.resolve(['electrs 0.10.9', '1.4']);
+      client.headersDeferred.resolve({ height: 1000 });
+
+      await expect(connection).resolves.toBe(false);
+      expect(BlueElectrum.getConnectionState()).toBe('server-not-ready');
+    });
+
+    it('accepts a syncing endpoint as a valid server during settings validation', async () => {
+      const status = BlueElectrum.testConnectionStatus('syncing.test', undefined, 50002);
+      await flush();
+      created[0].headersDeferred.reject(new Error('waiting for bitcoind to sync'));
+
+      await expect(status).resolves.toBe('syncing');
+      const valid = BlueElectrum.testConnection('syncing.test', undefined, 50002);
+      await flush();
+      created[1].headersDeferred.reject(new Error('waiting for bitcoind to sync'));
+      await expect(valid).resolves.toBeTruthy();
+    });
+  });
+
   beforeEach(async () => {
     BlueElectrum.forceDisconnect();
     await BlueElectrum.setDisabled(false);
