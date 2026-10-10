@@ -39,6 +39,21 @@ beforeEach(() => {
   jest.spyOn(AccessibilityInfo, 'announceForAccessibility').mockImplementation(() => {});
 });
 
+it('records the opt-in before beginning discovery', async () => {
+  nativeDiscover.mockResolvedValue('[]');
+  const onDiscoveryEnabled = jest.fn(async () => {});
+  const hook = renderHook(() => useElectrumServerDiscovery(onDiscoveryEnabled));
+
+  act(() => hook.result.current.discoverServers());
+  const continueDiscovery = jest.mocked(Alert.alert).mock.calls[0][2]?.[1].onPress;
+  await act(async () => {
+    await continueDiscovery?.();
+  });
+
+  expect(onDiscoveryEnabled).toHaveBeenCalledTimes(1);
+  expect(nativeDiscover).toHaveBeenCalledTimes(1);
+});
+
 it('publishes validated event results before the native scan completes', async () => {
   let resolveDiscovery: ((value: string) => void) | undefined;
   nativeDiscover.mockImplementation(
@@ -86,9 +101,9 @@ it('only includes LAN candidates that complete an Electrum handshake', async () 
   });
 
   expect(validateConnection).toHaveBeenCalledTimes(3);
-  expect(validateConnection).toHaveBeenCalledWith('192.168.1.20', 50001, undefined);
-  expect(validateConnection).toHaveBeenCalledWith('192.168.1.30', undefined, 50002);
-  expect(validateConnection).toHaveBeenCalledWith('192.168.1.40', undefined, 443);
+  expect(validateConnection).toHaveBeenCalledWith('192.168.1.20', 50001, undefined, { requirePing: false });
+  expect(validateConnection).toHaveBeenCalledWith('192.168.1.30', undefined, 50002, { requirePing: false });
+  expect(validateConnection).toHaveBeenCalledWith('192.168.1.40', undefined, 443, { requirePing: false });
   expect(hook.result.current.discoveredServers).toEqual([{ host: '192.168.1.20', tcp: 50001 }]);
 });
 

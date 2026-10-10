@@ -80,6 +80,7 @@ const DISCOVER_SERVERS_ACTION_ID = 'discover_electrum_servers';
 const SHOW_SUGGESTED_SERVERS_ACTION_ID = 'show_suggested_electrum_servers';
 const HANDOFF_SERVER_HISTORY_ACTION_ID = 'handoff_electrum_server_history';
 const SHOW_SUGGESTED_SERVERS_STORAGE_KEY = 'electrum_show_suggested_servers';
+const NEARBY_DISCOVERY_ENABLED_STORAGE_KEY = 'electrum_nearby_discovery_enabled';
 const SERVER_LIST_FILE_NAME = 'bluewallet-server-history.electrumservers';
 const IS_IOS_SIMULATOR = (() => {
   if (!__DEV__ || Platform.OS !== 'ios') return false;
@@ -233,10 +234,17 @@ const ElectrumSettings: React.FC = () => {
   const [isSuggestedExpanded, setIsSuggestedExpanded] = useState(false);
   const [isNearbyExpanded, setIsNearbyExpanded] = useState(true);
   const [showSuggestedServers, setShowSuggestedServers] = useState(true);
+  const [isNearbyDiscoveryEnabled, setIsNearbyDiscoveryEnabled] = useState(false);
+  const [hasLoadedNearbyDiscoveryPreference, setHasLoadedNearbyDiscoveryPreference] = useState(false);
   const [isHandoffExportEnabled, setIsHandoffExportEnabled] = useState(false);
   const [testingServerKey, setTestingServerKey] = useState<string>();
   const { setIsElectrumDisabled, isElectrumDisabled, isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage } = useSettings();
-  const { discoveredServers, isDiscoveringServers, hasStartedDiscovery, discoverServers, retryDiscovery } = useElectrumServerDiscovery();
+  const rememberNearbyDiscoveryEnabled = useCallback(async () => {
+    setIsNearbyDiscoveryEnabled(true);
+    await AsyncStorage.setItem(NEARBY_DISCOVERY_ENABLED_STORAGE_KEY, 'true').catch(() => undefined);
+  }, []);
+  const { discoveredServers, isDiscoveringServers, hasStartedDiscovery, discoverServers, retryDiscovery } =
+    useElectrumServerDiscovery(rememberNearbyDiscoveryEnabled);
   const handoffServerHistoryDocument = useMemo(
     () => (serverHistory.size > 0 ? serializeElectrumServerDocument(Array.from(serverHistory)) : ''),
     [serverHistory],
@@ -289,6 +297,10 @@ const ElectrumSettings: React.FC = () => {
   useEffect(() => {
     if (isDiscoveringServers) setIsNearbyExpanded(true);
   }, [isDiscoveringServers]);
+
+  useEffect(() => {
+    if (hasLoadedNearbyDiscoveryPreference && isNearbyDiscoveryEnabled && !hasStartedDiscovery && !isLoading) retryDiscovery();
+  }, [hasLoadedNearbyDiscoveryPreference, hasStartedDiscovery, isLoading, isNearbyDiscoveryEnabled, retryDiscovery]);
 
   useEffect(() => {
     if (shouldDismissAfterSave) navigation.goBack();
@@ -414,6 +426,9 @@ const ElectrumSettings: React.FC = () => {
     const savedSslPort = preferredServer?.ssl ? Number(preferredServer.ssl) : undefined;
     const hasSavedFavorite = Boolean(savedHost && (savedPort || savedSslPort));
     const serverHistoryStr = (await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY)) as string;
+    const nearbyDiscoveryEnabled = (await AsyncStorage.getItem(NEARBY_DISCOVERY_ENABLED_STORAGE_KEY).catch(() => null)) === 'true';
+    setIsNearbyDiscoveryEnabled(nearbyDiscoveryEnabled);
+    setHasLoadedNearbyDiscoveryPreference(true);
 
     if (hasSavedFavorite) {
       setShowSuggestedServers((await AsyncStorage.getItem(SHOW_SUGGESTED_SERVERS_STORAGE_KEY)) !== 'false');
@@ -712,7 +727,9 @@ const ElectrumSettings: React.FC = () => {
             setSslPort(undefined);
             setIsSuggestedExpanded(true);
             setShowSuggestedServers(true);
+            setIsNearbyDiscoveryEnabled(false);
             await AsyncStorage.removeItem(SHOW_SUGGESTED_SERVERS_STORAGE_KEY);
+            await AsyncStorage.removeItem(NEARBY_DISCOVERY_ENABLED_STORAGE_KEY);
             triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
             presentAlert({ message: loc.settings.electrum_saved });
             await fetchData();

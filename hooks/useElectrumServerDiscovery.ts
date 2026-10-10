@@ -87,7 +87,7 @@ export const parseDiscoveredElectrumServers = (json: string): ElectrumServerItem
   return uniqueElectrumServers(servers);
 };
 
-const useElectrumServerDiscovery = () => {
+const useElectrumServerDiscovery = (onDiscoveryEnabled?: () => void | Promise<void>) => {
   const [discoveredServers, setDiscoveredServers] = useState<ElectrumServerItem[]>([]);
   const [isDiscoveringServers, setIsDiscoveringServers] = useState(false);
   const [hasStartedDiscovery, setHasStartedDiscovery] = useState(false);
@@ -152,7 +152,7 @@ const useElectrumServerDiscovery = () => {
         const key = `${candidate.host}:${candidate.tcp ?? ''}:${candidate.ssl ?? ''}`;
         if (candidateKeys.has(key)) return;
         candidateKeys.add(key);
-        const validation = BlueElectrum.validateConnection(candidate.host, candidate.tcp, candidate.ssl)
+        const validation = BlueElectrum.validateConnection(candidate.host, candidate.tcp, candidate.ssl, { requirePing: false })
           .then(result => {
             if (!result.success || !mounted.current) {
               reportDiscoveryDiagnostic('candidate validation failed', {
@@ -222,11 +222,17 @@ const useElectrumServerDiscovery = () => {
         { text: loc._.cancel, style: 'cancel' },
         {
           text: loc.settings.electrum_discovery_continue,
-          onPress: performServerDiscovery,
+          onPress: async () => {
+            try {
+              await onDiscoveryEnabled?.();
+            } finally {
+              await performServerDiscovery();
+            }
+          },
         },
       ],
     );
-  }, [performServerDiscovery]);
+  }, [onDiscoveryEnabled, performServerDiscovery]);
 
   const retryDiscovery = useCallback(() => {
     performServerDiscovery();

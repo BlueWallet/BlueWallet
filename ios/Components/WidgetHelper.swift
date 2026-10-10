@@ -4,7 +4,7 @@ import WidgetKit
 #if canImport(Darwin)
 import Darwin
 #endif
-#if canImport(React_Codegen)
+#if canImport(React)
 import React
 #endif
 
@@ -17,14 +17,11 @@ class WidgetHelper {
     }
 }
 
-#if canImport(React_Codegen)
-@objc(WidgetHelperModule)
-class WidgetHelperModule: NSObject, NativeWidgetHelperSpec {
+#if canImport(React)
+@objc(WidgetHelperImplementation)
+class WidgetHelperImplementation: NSObject {
     private var electrumDiscovery: ElectrumBonjourDiscovery?
     private var localNetworkPermissionRequest: LocalNetworkPermissionRequest?
-    static func moduleName() -> String! { "WidgetHelper" }
-    static func requiresMainQueueSetup() -> Bool { false }
-
     @objc
     func reloadAllWidgets() {
         if #available(iOS 14.0, *) {
@@ -33,14 +30,14 @@ class WidgetHelperModule: NSObject, NativeWidgetHelperSpec {
     }
 
     @objc
-    func requestLocalNetworkPermission(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    func requestLocalNetworkPermission(_ resolve: @escaping RCTPromiseResolveBlock, reject rejecter: @escaping RCTPromiseRejectBlock) {
         DispatchQueue.main.async { [weak self] in
             guard let self else {
-                reject("local_network_permission_unavailable", "Local network permission is unavailable.", nil)
+                rejecter("local_network_permission_unavailable", "Local network permission is unavailable.", nil)
                 return
             }
             guard self.localNetworkPermissionRequest == nil else {
-                reject("local_network_permission_busy", "A local network permission request is already running.", nil)
+                rejecter("local_network_permission_busy", "A local network permission request is already running.", nil)
                 return
             }
 
@@ -54,13 +51,13 @@ class WidgetHelperModule: NSObject, NativeWidgetHelperSpec {
     }
 
     @objc
-    func discoverElectrumServers(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    func discoverElectrumServers(_ resolve: @escaping RCTPromiseResolveBlock, reject rejecter: @escaping RCTPromiseRejectBlock) {
         DispatchQueue.main.async { [weak self] in
             guard let self else {
-                reject("electrum_discovery_unavailable", "Electrum server discovery is unavailable.", nil)
+                rejecter("electrum_discovery_unavailable", "Electrum server discovery is unavailable.", nil)
                 return
             }
-            self.beginElectrumServerDiscovery(resolve, rejecter: reject)
+            self.beginElectrumServerDiscovery(resolve, rejecter: rejecter)
         }
     }
 

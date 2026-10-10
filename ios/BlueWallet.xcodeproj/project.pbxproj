@@ -267,7 +267,6 @@
 		B49038D82B8FBAD300A8164A /* BlueWalletUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITest.swift; sourceTree = "<group>"; };
 		B49A28BA2CD18999006B08E4 /* CompactPriceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactPriceView.swift; sourceTree = "<group>"; };
 		B49A28BD2CD189B0006B08E4 /* FiatUnitEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatUnitEnum.swift; sourceTree = "<group>"; };
-		B49D99932EFE2F3500A718AC /* NativeWidgetHelperSpec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeWidgetHelperSpec.h; sourceTree = "<group>"; };
 		B4AA75232DAA339E00CF5CBE /* MenuElementsEmitter.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MenuElementsEmitter.mm; sourceTree = "<group>"; };
 		B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetHelper.swift; sourceTree = "<group>"; };
 		B4B3EC202D69FF6C00327F3D /* SegmentedControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SegmentedControlView.swift; path = ../blue_modules/Views/SegmentedControl/ios/SegmentedControlView.swift; sourceTree = SOURCE_ROOT; };
@@ -504,7 +503,6 @@
 			isa = PBXGroup;
 			children = (
 				B32900000000000000000006 /* QuickLookPreview */,
-				B49D99932EFE2F3500A718AC /* NativeWidgetHelperSpec.h */,
 				B4F0A4A52FA1BC0000AAAA05 /* NativeEventEmitterSpec.h */,
 				B45010A12C1504E900619044 /* Components */,
 				B44033C82BCC34AC00162242 /* Shared */,

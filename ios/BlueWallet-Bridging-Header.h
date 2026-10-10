@@ -9,4 +9,3 @@
 #import "RNNotifications.h"
 #import "RNQuickActionManager.h"
 #import "NativeEventEmitterSpec.h"
-#import "NativeWidgetHelperSpec.h"

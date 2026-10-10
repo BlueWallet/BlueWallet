@@ -217,6 +217,22 @@ describe('BlueElectrum lifecycle', () => {
     });
   });
 
+  describe('connection validation', () => {
+    it('accepts an Electrum endpoint during discovery even when its backend is not ready to answer ping', async () => {
+      const validationPromise = BlueElectrum.validateConnection('syncing.local', 50001, undefined, { requirePing: false });
+      created[0].server_ping.mockRejectedValue(new Error('backend is still syncing'));
+      created[0].initElectrumDeferred.resolve(['Fulcrum 1.10.0', '1.4']);
+      await expect(validationPromise).resolves.toEqual({ success: true });
+
+      expect(created[0].initElectrum).toHaveBeenCalledWith(
+        { client: 'bluewallet', version: '1.4' },
+        expect.objectContaining({ maxRetry: 0 }),
+      );
+      expect(created[0].server_ping).not.toHaveBeenCalled();
+      expect(created[0].close).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('subscribeConnectionState', () => {
     it('notifies on transitions and stops after unsubscribe', async () => {
       const seen: string[] = [];
@@ -274,7 +290,9 @@ describe('BlueElectrum lifecycle', () => {
     it('returns null for implausible height without caching', async () => {
       const client = await connectAtTip(1000);
 
-      client.blockchainTransaction_get.mockResolvedValue({ confirmations: 2000 });
+      client.blockchainTransaction_get.mockResolvedValue({
+        confirmations: 2000,
+      });
 
       const result = await BlueElectrum.getConfirmedBlockHeight('deadbeef');
       expect(result).toBeNull();

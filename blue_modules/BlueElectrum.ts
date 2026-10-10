@@ -1466,6 +1466,7 @@ export const validateConnection = async function (
   host: string,
   tcpPort?: number,
   sslPort?: number,
+  options: { requirePing?: boolean } = {},
 ): Promise<{ success: boolean; error?: string }> {
   const client = new ElectrumClient(net, tls, sslPort || tcpPort, host, sslPort ? 'tls' : 'tcp');
 
@@ -1473,26 +1474,36 @@ export const validateConnection = async function (
   let timeoutId: NodeJS.Timeout | undefined;
   const timeoutMs = host.endsWith('.onion') ? 21_000 : 5_000;
   try {
-    const rez = await Promise.race([
-      new Promise(resolve => {
-        timeoutId = setTimeout(() => resolve('timeout'), timeoutMs);
+    // Use the same initialization API as BlueWallet's normal connection path.
+    // This covers both the transport connection and Electrum server.version
+    // negotiation without enabling electrum-client's automatic retries.
+    const version = await Promise.race([
+      client.initElectrum({ client: 'bluewallet', version: '1.4' }, { maxRetry: 0, callback: () => {} }),
+      new Promise<never>((_resolve, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('connect timeout')), timeoutMs);
       }),
-      client.connect(),
     ]);
-    if (rez === 'timeout') {
+    if (!version || !version[0]) {
       return {
         success: false,
-        error: loc.formatString(loc.settings.electrum_connection_timed_out, { server: `${host}:${sslPort || tcpPort}` }),
+        error: loc.settings.electrum_error_connect,
       };
     }
 
-    await client.server_version('2.7.11', '1.4');
-    await client.server_ping();
+    // Discovery only needs to establish that the endpoint speaks Electrum.
+    // A server whose Bitcoin backend is still syncing can identify itself but
+    // may reject operational requests (including ping) until it is ready.
+    if (options.requirePing !== false) await client.server_ping();
     return { success: true };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error && error.message ? error.message : String(error || loc.settings.electrum_error_connect),
+      error:
+        error instanceof Error && error.message === 'connect timeout'
+          ? String(loc.formatString(loc.settings.electrum_connection_timed_out, { server: `${host}:${sslPort || tcpPort}` }))
+          : error instanceof Error && error.message
+            ? error.message
+            : String(error || loc.settings.electrum_error_connect),
     };
   } finally {
     if (timeoutId) clearTimeout(timeoutId);
