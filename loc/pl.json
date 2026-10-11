@@ -32,7 +32,7 @@
   },
   "azteco": {
     "codeIs": "Kod twojego vouchera to",
-    "errorBeforeRefeem": "Zanim wykorzystasz kod rabatowy, musisz dodać najpierw portfel Bitcoinowy",
+    "errorBeforeRefeem": "Przed zrealizowaniem kuponu musisz dodać portfel Bitcoin.",
     "errorSomething": "Coś poszło nie tak. Czy kod vouchera jest ciągle ważny?",
     "redeem": "Odbierz do portfela",
     "redeemButton": "Odbierz",
