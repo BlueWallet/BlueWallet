@@ -207,7 +207,7 @@
     "no_tx_signing_in_progress": "Żadna transakcja nie jest obecnie podpisywana.",
     "outdated_rate": "Ostatnia aktualizacja kursu: {date}",
     "psbt_tx_open": "Otwórz podpisaną transakcję",
-    "psbt_tx_scan": "Skanuj Podpisane Transakcje",
+    "psbt_tx_scan": "Zeskanuj podpisaną transakcję",
     "qr_error_no_qrcode": "Nie udało nam się znaleźć prawidłowego kodu QR w wybranym obrazie. Upewnij się, że obraz zawiera tylko kod QR i nie ma dodatkowych elementów, takich jak tekst lub przyciski.",
     "reset_amount": "Resetuj ilość",
     "reset_amount_confirm": "Czy chcesz zresetować ilość?",
