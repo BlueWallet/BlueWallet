@@ -27,6 +27,7 @@ import {
 } from 'react-native';
 import RNFS from 'react-native-fs';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
+import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueText from '../../components/BlueText';
@@ -843,15 +844,17 @@ const SendDetails = () => {
         let cosign = false;
         if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0) {
           cosign = await new Promise<boolean>(resolve => {
-            Alert.alert(
-              loc.multisig.cosign_this_transaction,
-              undefined,
-              [
-                { text: loc._.no, style: 'cancel', onPress: () => resolve(false) },
-                { text: loc._.yes, onPress: () => resolve(true) },
-              ],
-              { cancelable: false },
-            );
+            const buttons: AlertButton[] = [
+              { text: loc._.no, style: 'cancel', onPress: () => resolve(false) },
+              { text: loc._.yes, onPress: () => resolve(true) },
+            ];
+            if (isDesktop) {
+              // On Mac, Alert sits behind the modal. Wait for the scanner or file picker
+              // to close, then use the anchored action sheet.
+              sleep(500).then(() => presentAlert({ message: loc.multisig.cosign_this_transaction, buttons }));
+            } else {
+              Alert.alert(loc.multisig.cosign_this_transaction, undefined, buttons, { cancelable: false });
+            }
           });
         }
         if (cosign) {
