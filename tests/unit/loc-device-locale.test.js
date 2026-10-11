@@ -44,6 +44,10 @@ describe('Device locale → LangCode', () => {
     assert.strictEqual(resolve('kk-KZ'), 'kk@Cyrl');
     assert.strictEqual(resolve('af-ZA'), 'zar_afr');
     assert.strictEqual(resolve('no-NO'), 'nb_no');
+    assert.strictEqual(resolve('da-DK'), 'da_dk');
+    assert.strictEqual(resolve('nl-NL'), 'nl_nl');
+    assert.strictEqual(resolve('fil-PH'), 'fil_PH');
+    assert.strictEqual(resolve('tl-PH'), 'fil_PH');
     assert.strictEqual(resolve('ak-GH'), 'ak');
     assert.strictEqual(resolve('pcm-NG'), 'pcm');
   });
@@ -78,12 +82,12 @@ describe('Device locale → LangCode', () => {
     assert.strictEqual(resolve('sr-RS'), null);
   });
 
-  it('skips locales excluded from CFBundleLocalizations so the next preferred language wins', () => {
-    for (const tag of ['da-DK', 'nl-NL', 'fil-PH', 'tl-PH', 'nn-NO', 'xx-XX']) {
+  it('skips locales without a catalog so the next preferred language wins', () => {
+    for (const tag of ['nn-NO', 'xx-XX']) {
       assert.strictEqual(resolve(tag), null, tag);
     }
     const locales = [
-      { languageCode: 'nl', languageTag: 'nl-NL' },
+      { languageCode: 'nn', languageTag: 'nn-NO' },
       { languageCode: 'fr', languageTag: 'fr-FR' },
     ];
     assert.strictEqual(resolveLangCodeFromRnLocales(locales), 'fr_fr');

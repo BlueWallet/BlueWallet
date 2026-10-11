@@ -8,15 +8,11 @@ export type RnLocale = {
   languageTag?: string;
 };
 
-// Lower-cased Apple locale id -> LangCode, only for locales declared in CFBundleLocalizations,
-// so walking the device preference list stops where UIKit would stop. Partial catalogs
-// (da, nl, fil, ak, pcm) stay in the in-app picker but never win autodetection.
+// Lower-cased Apple locale id -> LangCode for every locale declared in CFBundleLocalizations,
+// so walking the device preference list stops where UIKit would stop.
 const appleToLangCode = new Map<string, LangCode>(CF_BUNDLE_LANG_CODES.map(lang => [langCodeToAppleLocale[lang].toLowerCase(), lang]));
 appleToLangCode.set('no', 'nb_no'); // Norwegian macrolanguage (Android)
-// Not in the plist (coverage < 90%) but neither is an iOS system language, so no UIKit mismatch
-// is possible; keep master's autodetect for Android devices set to them.
-appleToLangCode.set('ak', 'ak');
-appleToLangCode.set('pcm', 'pcm');
+appleToLangCode.set('tl', 'fil_PH'); // Tagalog code some Android builds report for Filipino
 
 // Regions Apple folds into es-419. react-native-localize reports the 419 region itself as `UN`.
 const ES_419_REGIONS = new Set(

@@ -14,6 +14,7 @@
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>af</string>
+		<string>ak</string>
 		<string>am</string>
 		<string>ar</string>
 		<string>az</string>
@@ -24,6 +25,7 @@
 		<string>ca</string>
 		<string>cs</string>
 		<string>cy</string>
+		<string>da</string>
 		<string>de</string>
 		<string>el</string>
 		<string>en</string>
@@ -34,6 +36,7 @@
 		<string>fa</string>
 		<string>ff</string>
 		<string>fi</string>
+		<string>fil</string>
 		<string>fo</string>
 		<string>fr</string>
 		<string>gn</string>
@@ -56,7 +59,9 @@
 		<string>ms</string>
 		<string>nb</string>
 		<string>ne</string>
+		<string>nl</string>
 		<string>pa</string>
+		<string>pcm</string>
 		<string>pl</string>
 		<string>pt-BR</string>
 		<string>pt-PT</string>
