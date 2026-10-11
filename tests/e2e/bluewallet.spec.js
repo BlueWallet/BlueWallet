@@ -17,6 +17,7 @@ import {
   setCustomFeeRate,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
+  tapHeaderMenuItem,
   tapIfTextPresent,
   waitForId,
   waitForKeyboardToClose,
@@ -796,6 +797,120 @@ describe('BlueWallet UI Tests - no wallets', () => {
     assert.strictEqual(transaction.outs.length, 2);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
     assert.strictEqual(transaction.outs[0].value, 5000n);
+
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('multisig can co-sign transaction', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t_cosign_dialog');
+    if (process.env.CI) {
+      if (require('fs').existsSync(lockFile)) {
+        return console.warn('skipping', JSON.stringify('t_cosign_dialog'), 'as it previously passed on Travis');
+      }
+    }
+    if (!process.env.MNEMONICS_COBO) {
+      console.error('process.env.MNEMONICS_COBO not set, skipped');
+      return;
+    }
+
+    // 2-of-2 PSBT for the funded test wallet, signed only by the Keystone cosigner.
+    // Pays 1000 sats to 13HaCAB4jf7FYSZexJxoczyDDnutzZigjS. The other cosigner is xpub-only.
+    const keystoneSignedPsbt =
+      'cHNidP8BAIACAAAAAbbYz7T9Xe3XyMi3MVEljaEK/iHauQFtUO02J8Z1Bl2yAAAAAAAAAACAAugDAAAAAAAAGXapFBkSnVPmMZuvGdugWb6tFm35Crj1iKzXIAAAAAAAACIAIJNt+VL0ds3NBYrGEnjJkBwVFp31Hm1tVRvwTPmgVfoZAAAAAAABAP1dAQIAAAAAAQFxE0VTxd+BzmiqP9/1oqFLUSPxAeHapSqOCILu2lxJrwAAAAAA/////wEdJgAAAAAAACIAIDQ5h7oZ+gQbCoCb0RCkE+EOgvW/ZMZmQ0Z4eWP+e5snBABIMEUCIQDTuWOybjCA63alhMi+9xxuZt2jIb3iT36DwGUwGFvBMwIgYHsF5Wj0e4sCJed3lVlcekupmRZjdVZYbYKAUWJU1j8BRzBEAiA5DiYPhZ/zS5jkRAATckF7vasRX2DkUXwPTP+KQv//qQIgTrm7LVCCEgOB/OAJ81F4g6a1zuTYLh2uWKayNpelpMUBaVIhArF4TVQUDQ8+gt+VQ3SH4F8Y7ZCVfvb40UTKXX2wwIufIQLRyEyysO4jvpj14n2G24qq5CAoZejx0UxR4zfba4AunCEDraywXmVJuJSKOU0fsZN6GMSWE9GkXNeOAG6g/Zgo3gxTrgAAAAABASsdJgAAAAAAACIAIDQ5h7oZ+gQbCoCb0RCkE+EOgvW/ZMZmQ0Z4eWP+e5snIgIDX5ZhfdePUV33GH4OmP5280DHYpoqKSv2ZdXR5iTmJ4dHMEQCIA1BQ6iOpikblzn+6Fpp9H+JpByZuypbK9r5fsamcxkMAiBc+M1UbTtfbdUdWj8yj0HJhP+Q2iVmesOF4D/K6Ly4hwEBBUdSIQNflmF9149RXfcYfg6Y/nbzQMdimiopK/Zl1dHmJOYnhyEDmxWJrUMuM6msEm0JxkdLLfKMNCY0mSnNqnE3QLGxc1tSriIGA1+WYX3Xj1Fd9xh+Dpj+dvNAx2KaKikr9mXV0eYk5ieHHLaK9uQwAACAAAAAgAAAAIACAACAAAAAAAIAAAAiBgObFYmtQy4zqawSbQnGR0st8ow0JjSZKc2qcTdAsbFzWxzTfq2IMAAAgAAAAIAAAACAAgAAgAAAAAACAAAAAAABAUdSIQIeMx1HXKOUWDWh5d4F8cLzBpIiTgvGsFGdxx0kdVXgSyEDGI9PFspCDWSfo7lYOuCB2c3b8gY9mfr3VyQsCH5E/DVSriICAh4zHUdco5RYNaHl3gXxwvMGkiJOC8awUZ3HHSR1VeBLHLaK9uQwAACAAAAAgAAAAIACAACAAQAAAAAAAAAiAgMYj08WykINZJ+juVg64IHZzdvyBj2Z+vdXJCwIfkT8NRzTfq2IMAAAgAAAAIAAAACAAgAAgAEAAAAAAAAAAA==';
+    const keystoneCosigner = JSON.stringify({
+      xfp: 'B68AF6E4',
+      xpub: 'Zpub74w9dfoeurKrKXE3SPRpFquLPTkiCuSwGuhDzBgbE42w5ShB2FxMjmJyjZpSJ6WhLt8y1PeFHQELGgq2GmktviFDH8yFWYRWg4xQiw3v335',
+      path: "m/48'/0'/0'/2'",
+    });
+
+    await device.clearKeychain();
+    await device.launchApp({ delete: true, permissions: { camera: 'YES', notifications: 'YES' } });
+    await waitForId('WalletsList');
+    await waitFor(element(by.id('CreateAWallet')))
+      .toBeVisible()
+      .whileElement(by.id('WalletsList'))
+      .scroll(500, 'right');
+
+    await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'ActivateVaultButton');
+    await element(by.id('ActivateVaultButton')).tap();
+    await element(by.id('Create')).tap();
+    await element(by.id('VaultAdvancedCustomize')).tap();
+    await element(by.id('DecreaseN')).tap();
+    await element(by.id('ModalDoneButton')).tap();
+    await element(by.id('LetsStart')).tap();
+
+    // Key 1: Cobo seed, so this device can co-sign. Key 2: Keystone xpub only.
+    await element(by.id('VaultCosignerImport1')).tap();
+    await waitForId('ScanOrOpenFile');
+    await element(by.id('ScanOrOpenFile')).tap();
+    await scanText(process.env.MNEMONICS_COBO);
+
+    await waitForId('VaultCosignerImport2');
+    await element(by.id('VaultCosignerImport2')).tap();
+    await waitForId('ScanOrOpenFile');
+    await element(by.id('ScanOrOpenFile')).tap();
+    await scanText(keystoneCosigner);
+
+    await waitForId('CreateButton');
+    await element(by.id('CreateButton')).tap();
+    await waitForText('OK', 120_000);
+    await tapIfTextPresent('OK');
+
+    await waitForId('Multisig Vault');
+    await element(by.id('Multisig Vault')).tap();
+    await waitForId('SendButton');
+    await element(by.id('SendButton')).tap();
+    await waitForId('HeaderMenuButton');
+
+    await tapHeaderMenuItem('Sign a transaction', {
+      actionId: 'co_sign_transaction',
+      restoreSynchronization: false,
+    });
+    await scanText(keystoneSignedPsbt);
+
+    const coSignPrompt = 'Co-sign this transaction?';
+    await waitFor(element(by.text(coSignPrompt)))
+      .toBeVisible()
+      .withTimeout(20_000);
+    await sleep(3_000);
+    await expect(element(by.text(coSignPrompt))).toBeVisible();
+    await expect(element(by.text('Yes'))).toBeVisible();
+    await element(by.text('Yes')).tap();
+
+    await waitFor(element(by.id('ItemSigned')).atIndex(0))
+      .toBeVisible()
+      .withTimeout(20_000);
+    await waitFor(element(by.id('ItemSigned')).atIndex(1))
+      .toBeVisible()
+      .withTimeout(10_000);
+    await expect(element(by.id('ItemUnsigned'))).not.toBeVisible();
+    await waitForId('PsbtMultisigConfirmButton');
+    await element(by.id('PsbtMultisigConfirmButton')).tap();
+
+    await waitForId('TransactionValue');
+    await expect(element(by.text('Send now'))).toBeVisible();
+    await element(by.id('TransactionDetailsButton')).tap();
+    await waitForId('TxhexInput');
+
+    const txhex = await extractTextFromElementById('TxhexInput');
+    const transaction = bitcoin.Transaction.fromHex(txhex);
+    const paid = transaction.outs.find(output => {
+      try {
+        return bitcoin.address.fromOutputScript(output.script) === '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS';
+      } catch {
+        return false;
+      }
+    });
+    assert.ok(paid, 'broadcast-ready transaction is missing the destination output');
+    assert.strictEqual(Number(paid.value), 1000);
+    assert.ok(
+      transaction.ins.every(input => input.witness.length >= 4),
+      'transaction is not fully signed',
+    );
+
+    // Leave the Send now button alone.
+    await goBack();
+    await expect(element(by.text('Send now'))).toBeVisible();
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
