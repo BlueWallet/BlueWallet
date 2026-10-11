@@ -607,7 +607,7 @@
     "invalid_cosigner": "Nieprawidłowe dane współsygnatariusza",
     "not_a_multisignature_xpub": "To nie jest XPUB portfela wielopodpisowego",
     "invalid_cosigner_format": "Nieprawidłowy współsygnatariusz: Jest niezgodny z formatem {format}.",
-    "create_new_key": "Otwórz nowy",
+    "create_new_key": "Utwórz nowy",
     "scan_or_open_file": "Skanuj lub otwórz plik",
     "i_have_mnemonics": "Mam seed dla tego klucza.",
     "type_your_mnemonics": "Wprowadź seed, aby zaimportować istniejący klucz do Twojego Skarbca.",
