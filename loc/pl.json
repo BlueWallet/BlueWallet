@@ -466,7 +466,7 @@
     "details_import_notes_no_changes": "Nie było potrzeby importowania żadnych notatek do transakcji z tego pliku.",
     "details_import_notes_review": "Wybierz, które istniejące notatki nadpisać. Notatki do transakcji, które jeszcze ich nie mają, zostaną zaimportowane automatycznie.",
     "details_import_notes_success": "Zaimportowano notatki do {count} transakcji.",
-    "details_master_fingerprint": "Główny odcisk palca",
+    "details_master_fingerprint": "Odcisk klucza głównego",
     "details_master_fingerprint_edit": "Np. 73c5da0a. Eksport lub kopia zapasowa klucza zpub, ypub lub xpub nie zachowa tej informacji.",
     "details_master_fingerprint_invalid": "Nieprawidłowy odcisk klucza głównego. Powinien składać się z 8 znaków szesnastkowych.",
     "details_multisig_type": "multisig",
