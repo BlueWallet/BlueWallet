@@ -9,6 +9,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   AlertButton,
   Dimensions,
   findNodeHandle,
@@ -831,25 +832,6 @@ const SendDetails = () => {
     }
   }, [navigation, presentAlert, setIsLoading, transactionMemo, wallet]);
 
-  const askCosignThisTransaction = useCallback(async () => {
-    return new Promise(resolve => {
-      presentAlert({
-        message: loc.multisig.cosign_this_transaction,
-        buttons: [
-          {
-            text: loc._.no,
-            style: 'cancel',
-            onPress: () => resolve(false),
-          },
-          {
-            text: loc._.yes,
-            onPress: () => resolve(true),
-          },
-        ],
-      });
-    });
-  }, [presentAlert]);
-
   const _importTransactionMultisig = useCallback(
     async (base64arg: string | false) => {
       try {
@@ -857,7 +839,22 @@ const SendDetails = () => {
         if (!base64) return;
         const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
-        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
+        // This wallet can sign the imported PSBT. Ask before adding that signature.
+        let cosign = false;
+        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0) {
+          cosign = await new Promise<boolean>(resolve => {
+            Alert.alert(
+              loc.multisig.cosign_this_transaction,
+              undefined,
+              [
+                { text: loc._.no, style: 'cancel', onPress: () => resolve(false) },
+                { text: loc._.yes, onPress: () => resolve(true) },
+              ],
+              { cancelable: false },
+            );
+          });
+        }
+        if (cosign) {
           setIsLoading(true);
           await sleep(100);
           (wallet as MultisigHDWallet).cosignPsbt(psbt);
@@ -878,7 +875,7 @@ const SendDetails = () => {
       }
       setIsLoading(false);
     },
-    [askCosignThisTransaction, navigation, presentAlert, sleep, transactionMemo, wallet],
+    [navigation, presentAlert, sleep, transactionMemo, wallet],
   );
 
   const importTransactionMultisig = useCallback(() => {
