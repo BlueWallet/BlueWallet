@@ -109,6 +109,15 @@ describe('Electrum server parsing', () => {
     expect(uniqueElectrumServers([first, duplicate, differentTransport])).toEqual([first, differentTransport]);
   });
 
+  it('treats legacy zero ports as absent when identifying servers', () => {
+    expect(electrumServerKey({ host: 'node.example.com', tcp: 0, ssl: 50002 })).toBe(
+      electrumServerKey({ host: 'node.example.com', ssl: 50002 }),
+    );
+    expect(electrumServerKey({ host: 'node.example.com', tcp: 50001, ssl: 0 })).toBe(
+      electrumServerKey({ host: 'node.example.com', tcp: 50001 }),
+    );
+  });
+
   it('removes duplicate servers while parsing and exporting documents', () => {
     const duplicateDocument = JSON.stringify({
       servers: [

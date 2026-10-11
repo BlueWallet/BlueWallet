@@ -129,9 +129,6 @@ private final class LocalNetworkPermissionRequest {
             }
         }
         browser.start(queue: .main)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in
-            self?.finish(with: "unavailable", reason: "permission_probe_timed_out")
-        }
     }
 
     func cancel() {
@@ -189,6 +186,7 @@ private final class ElectrumBonjourDiscovery: NSObject, NetServiceBrowserDelegat
     private var servers: [[String: Any]] = []
     private var finished = false
     private let maximumServiceCount = 1_000
+    private let discoveryDuration: TimeInterval = 15
 
     init(completion: @escaping (Result<[[String: Any]], Error>) -> Void) {
         self.completion = completion
@@ -207,7 +205,7 @@ private final class ElectrumBonjourDiscovery: NSObject, NetServiceBrowserDelegat
             }
             self.lanScanner = scanner
             scanner.start()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 6) { [weak self] in self?.finish() }
+            DispatchQueue.main.asyncAfter(deadline: .now() + self.discoveryDuration) { [weak self] in self?.finish() }
         }
     }
 
@@ -289,6 +287,7 @@ private final class ElectrumLANScanner {
     private var connections: [UUID: NWConnection] = [:]
     private var cancelled = false
     private let concurrencyLimit = 24
+    private let connectionQueue = DispatchQueue(label: "io.bluewallet.electrum-lan-scan", qos: .utility)
 
     init(resultHandler: @escaping (String, Int, Bool) -> Void) {
         self.resultHandler = resultHandler
@@ -299,20 +298,23 @@ private final class ElectrumLANScanner {
         let octets = address.split(separator: ".").compactMap { UInt8($0) }
         guard octets.count == 4 else { return }
         let prefix = "\(octets[0]).\(octets[1]).\(octets[2])"
-        let endpoints: [(UInt16, Bool)] = [(50001, false), (50002, true), (443, true)]
+        let endpoints: [(UInt16, Bool)] = [(50001, false), (50002, true)]
         for lastOctet in UInt8(1)...UInt8(254) where lastOctet != octets[3] {
             for endpoint in endpoints {
                 candidates.append(Candidate(host: "\(prefix).\(lastOctet)", port: endpoint.0, ssl: endpoint.1))
             }
         }
-        startNextConnections()
+        connectionQueue.async { [weak self] in self?.startNextConnections() }
     }
 
     func cancel() {
-        cancelled = true
-        candidates.removeAll()
-        connections.values.forEach { $0.cancel() }
-        connections.removeAll()
+        connectionQueue.async { [weak self] in
+            guard let self else { return }
+            self.cancelled = true
+            self.candidates.removeAll()
+            self.connections.values.forEach { $0.cancel() }
+            self.connections.removeAll()
+        }
     }
 
     private func startNextConnections() {
@@ -341,8 +343,8 @@ private final class ElectrumLANScanner {
                 default: break
                 }
             }
-            connection.start(queue: .main)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { settle(false) }
+            connection.start(queue: connectionQueue)
+            connectionQueue.asyncAfter(deadline: .now() + 0.35) { settle(false) }
         }
     }
 
@@ -356,6 +358,10 @@ private final class ElectrumLANScanner {
             guard let socketAddress = interface.pointee.ifa_addr, socketAddress.pointee.sa_family == UInt8(AF_INET) else { continue }
             let flags = Int32(interface.pointee.ifa_flags)
             guard flags & IFF_UP != 0, flags & IFF_LOOPBACK == 0 else { continue }
+            let name = String(cString: interface.pointee.ifa_name)
+            // Apple uses en* for Wi-Fi and Ethernet. Excluding utun/bridge
+            // avoids sweeping a VPN or virtual interface by accident.
+            guard name.hasPrefix("en") else { continue }
             let address = socketAddress.withMemoryRebound(to: sockaddr_in.self, capacity: 1) { $0.pointee.sin_addr }
             var mutableAddress = address
             var buffer = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))

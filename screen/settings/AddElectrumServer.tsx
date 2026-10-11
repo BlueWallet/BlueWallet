@@ -179,6 +179,8 @@ const AddElectrumServer: React.FC = () => {
         await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, draftServer.host);
         await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, draftServer.tcp?.toString() ?? '');
         await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, draftServer.ssl?.toString() ?? '');
+        BlueElectrum.forceDisconnect();
+        await BlueElectrum.ensureConnected();
       }
 
       const candidates = [...Array.from(serverHistory), ...(currentFavorite ? [currentFavorite] : []), draftServer];

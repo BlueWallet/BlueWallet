@@ -54,10 +54,12 @@ export const parseElectrumServer = (value: string): ElectrumServerItem | undefin
 };
 
 export const formatElectrumServer = (server: ElectrumServerItem): string =>
-  `${server.host}:${server.ssl ?? server.tcp}:${server.ssl !== undefined ? 's' : 't'}`;
+  `${server.host}:${positivePort(server.ssl) ?? positivePort(server.tcp)}:${positivePort(server.ssl) !== undefined ? 's' : 't'}`;
+
+const positivePort = (port?: number): number | undefined => (Number.isInteger(port) && Number(port) > 0 ? port : undefined);
 
 export const electrumServerKey = (server: ElectrumServerItem): string =>
-  `${normalizeElectrumServerText(server.host).toLowerCase()}:${server.tcp ?? ''}:${server.ssl ?? ''}`;
+  `${normalizeElectrumServerText(server.host).toLowerCase()}:${positivePort(server.tcp) ?? ''}:${positivePort(server.ssl) ?? ''}`;
 
 export const uniqueElectrumServers = (servers: ElectrumServerItem[]): ElectrumServerItem[] => {
   const seen = new Set<string>();

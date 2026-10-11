@@ -125,7 +125,7 @@ const useElectrumServerDiscovery = (onDiscoveryEnabled?: () => void | Promise<vo
           },
           permissionDiagnostic.status !== 'granted',
         );
-        if (permissionDiagnostic.status === 'blocked') {
+        if (permissionDiagnostic.status !== 'granted') {
           if (!mounted.current) return;
           Alert.alert(loc.settings.electrum_discovery_permission_denied, loc.settings.electrum_discovery_permission_denied_message, [
             { text: loc._.cancel, style: 'cancel' },
@@ -136,8 +136,6 @@ const useElectrumServerDiscovery = (onDiscoveryEnabled?: () => void | Promise<vo
           ]);
           return;
         }
-        // An indeterminate Network.framework probe does not mean permission is
-        // disabled. Continue and let the real Bonjour/LAN operations decide.
       }
 
       if (!mounted.current) return;

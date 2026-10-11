@@ -482,31 +482,6 @@ const ElectrumSettings: React.FC = () => {
     }
   }, [config.connected, config.host, config.port, isElectrumDisabled]);
 
-  useEffect(() => {
-    if (server) {
-      triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
-      Alert.alert(
-        loc.formatString(loc.settings.set_electrum_server_as_default, {
-          server: (server as ElectrumServerItem).host,
-        }),
-        '',
-        [
-          {
-            text: loc._.ok,
-            onPress: () => {
-              setHost(server.host);
-              setPort(server.tcp);
-              setSslPort(server.ssl);
-            },
-            style: 'default',
-          },
-          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-        ],
-        { cancelable: false },
-      );
-    }
-  }, [server]);
-
   const save = useCallback(
     async (v?: ElectrumServerItem) => {
       Keyboard.dismiss();
@@ -516,8 +491,10 @@ const ElectrumSettings: React.FC = () => {
 
       try {
         const rawHost = v?.host || host;
-        const rawPort = v?.ssl ?? v?.tcp ?? sslPort ?? port;
-        const connectionType = v?.ssl !== undefined || sslPort !== undefined ? 'ssl' : 'tcp';
+        const selectedSslPort = v ? (v.ssl && v.ssl > 0 ? v.ssl : undefined) : sslPort;
+        const selectedTcpPort = v ? (v.tcp && v.tcp > 0 ? v.tcp : undefined) : port;
+        const rawPort = selectedSslPort ?? selectedTcpPort;
+        const connectionType = selectedSslPort !== undefined ? 'ssl' : 'tcp';
         const normalizedServer = rawPort === undefined ? undefined : parseElectrumServer(`${rawHost} ${rawPort} ${connectionType}`);
         const serverHost = normalizedServer?.host ?? '';
         const serverPort = normalizedServer?.tcp?.toString() ?? '';
@@ -547,6 +524,8 @@ const ElectrumSettings: React.FC = () => {
             await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, serverHost);
             await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, serverPort);
             await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, serverSslPort);
+            BlueElectrum.forceDisconnect();
+            await BlueElectrum.ensureConnected();
           }
 
           const nextFavorite: ElectrumServerItem = {
@@ -591,6 +570,27 @@ const ElectrumSettings: React.FC = () => {
     },
     [customOnly, host, port, sslPort, fetchData, savedServer, serverHistory, setNewServerAsFavorite],
   );
+
+  useEffect(() => {
+    if (!server) return;
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
+    Alert.alert(
+      loc.formatString(loc.settings.set_electrum_server_as_default, { server: server.host }),
+      '',
+      [
+        {
+          text: loc._.ok,
+          onPress: () => {
+            navigation.setParams({ server: undefined });
+            save(server).catch(() => undefined);
+          },
+          style: 'default',
+        },
+        { text: loc._.cancel, onPress: () => navigation.setParams({ server: undefined }), style: 'cancel' },
+      ],
+      { cancelable: false },
+    );
+  }, [navigation, save, server]);
 
   const selectServer = useCallback(
     (value: string) => {

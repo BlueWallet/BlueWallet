@@ -166,6 +166,24 @@ describe('BlueElectrum lifecycle', () => {
         random.mockRestore();
       }
     });
+
+    it('waits for an aborted in-flight connection before starting the replacement', async () => {
+      const originalConnection = BlueElectrum.ensureConnected();
+      await flush();
+      expect(created).toHaveLength(1);
+
+      const replacement = BlueElectrum.connectToRandomSuggestedServer();
+      await flush();
+      expect(created).toHaveLength(1);
+
+      resolveLastConnect();
+      await expect(originalConnection).resolves.toBe(false);
+      await flush();
+      expect(created).toHaveLength(2);
+
+      resolveLastConnect();
+      await expect(replacement).resolves.toBe(true);
+    });
   });
 
   describe('setDisabled(true) during in-flight connect', () => {

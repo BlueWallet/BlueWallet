@@ -21,7 +21,7 @@ import java.net.Socket
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
-private const val ELECTRUM_DISCOVERY_DURATION_MS = 6_000L
+private const val ELECTRUM_DISCOVERY_DURATION_MS = 15_000L
 private val ELECTRUM_SERVICE_TYPES = listOf("_electrum._tcp.", "_electrums._tcp.")
 
 @ReactModule(name = WidgetHelperModule.NAME)
@@ -278,7 +278,7 @@ private class ElectrumLanPortScanner(
         if (parts.size != 4) return
         val prefix = parts.take(3).joinToString(".")
         val localSuffix = parts[3].toIntOrNull()
-        val endpoints = listOf(50001 to false, 50002 to true, 443 to true)
+        val endpoints = listOf(50001 to false, 50002 to true)
         for (suffix in 1..254) {
             if (suffix == localSuffix) continue
             val host = "$prefix.$suffix"

@@ -1,6 +1,7 @@
 import QuickLook
 import UIKit
 import Network
+import Security
 
 final class PreviewViewController: UIViewController, QLPreviewingController, UITableViewDataSource, UITableViewDelegate, UISearchResultsUpdating {
     private let titleLabel = UILabel()
@@ -295,7 +296,19 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
         tableView.reloadData()
 
         let usesTLS = components.last == "SSL"
-        let connection = NWConnection(host: NWEndpoint.Host(record.label), port: port, using: usesTLS ? .tls : .tcp)
+        let parameters: NWParameters
+        if usesTLS {
+            let tlsOptions = NWProtocolTLS.Options()
+            sec_protocol_options_set_verify_block(tlsOptions.securityProtocolOptions, { _, _, completion in
+                // Match the app's Electrum client: self-signed certificates are
+                // expected for personal servers on port 50002.
+                completion(true)
+            }, DispatchQueue(label: "io.bluewallet.quicklook.electrum-trust"))
+            parameters = NWParameters(tls: tlsOptions, tcp: NWProtocolTCP.Options())
+        } else {
+            parameters = .tcp
+        }
+        let connection = NWConnection(host: NWEndpoint.Host(record.label), port: port, using: parameters)
         let queue = DispatchQueue(label: "io.bluewallet.quicklook.electrum-test")
         let lock = NSLock()
         var finished = false

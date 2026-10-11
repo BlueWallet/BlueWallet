@@ -1474,26 +1474,19 @@ export const validateConnection = async function (
   let timeoutId: NodeJS.Timeout | undefined;
   const timeoutMs = host.endsWith('.onion') ? 21_000 : 5_000;
   try {
-    // Use the same initialization API as BlueWallet's normal connection path.
-    // This covers both the transport connection and Electrum server.version
-    // negotiation without enabling electrum-client's automatic retries.
-    const version = await Promise.race([
-      client.initElectrum({ client: 'bluewallet', version: '1.4' }, { maxRetry: 0, callback: () => {} }),
+    const handshake = (async () => {
+      const version = await client.initElectrum({ client: 'bluewallet', version: '1.4' }, { maxRetry: 0, callback: () => {} });
+      if (!version || !version[0]) throw new Error(loc.settings.electrum_error_connect);
+      // Discovery only needs a successful server.version negotiation. A server
+      // whose Bitcoin backend is syncing may reject operational requests.
+      if (options.requirePing !== false) await client.server_ping();
+    })();
+    await Promise.race([
+      handshake,
       new Promise<never>((_resolve, reject) => {
         timeoutId = setTimeout(() => reject(new Error('connect timeout')), timeoutMs);
       }),
     ]);
-    if (!version || !version[0]) {
-      return {
-        success: false,
-        error: loc.settings.electrum_error_connect,
-      };
-    }
-
-    // Discovery only needs to establish that the endpoint speaks Electrum.
-    // A server whose Bitcoin backend is still syncing can identify itself but
-    // may reject operational requests (including ping) until it is ready.
-    if (options.requirePing !== false) await client.server_ping();
     return { success: true };
   } catch (error) {
     return {
@@ -1533,7 +1526,9 @@ export const forceDisconnect = (): void => {
 /** Disconnects from a removed favorite and starts the next connection from a random built-in server. */
 export async function connectToRandomSuggestedServer(): Promise<boolean> {
   currentPeerIndex = Math.floor(Math.random() * hardcodedPeers.length);
+  const abortedConnection = ensureInFlight;
   forceDisconnect();
+  if (abortedConnection) await abortedConnection.catch(() => false);
   return ensureConnected();
 }
 

@@ -222,7 +222,7 @@ it('does not start discovery when Apple local-network access is blocked', async 
   expect(hook.result.current.isDiscoveringServers).toBe(false);
 });
 
-it('continues discovery when the Apple permission probe is indeterminate', async () => {
+it('does not start discovery when Apple local-network access cannot be confirmed', async () => {
   requestLocalNetworkPermission.mockResolvedValue(
     JSON.stringify({ status: 'unavailable', reason: 'permission_probe_timed_out', errorDomain: 'dns', errorCode: -65563 }),
   );
@@ -235,9 +235,9 @@ it('continues discovery when the Apple permission probe is indeterminate', async
     await startDiscovery?.();
   });
 
-  expect(nativeDiscover).toHaveBeenCalledTimes(1);
-  expect(Alert.alert).toHaveBeenCalledTimes(1);
-  expect(hook.result.current.hasStartedDiscovery).toBe(true);
+  expect(nativeDiscover).not.toHaveBeenCalled();
+  expect(Alert.alert).toHaveBeenCalledTimes(2);
+  expect(hook.result.current.hasStartedDiscovery).toBe(false);
 });
 
 it('keeps an empty discovered section when native discovery returns malformed JSON', async () => {
