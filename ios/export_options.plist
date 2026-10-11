@@ -28,6 +28,8 @@
           <string>match AppStore io.bluewallet.bluewallet.QuickLookPreview</string>
           <key>io.bluewallet.bluewallet.QuickLookThumbnail</key>
           <string>match AppStore io.bluewallet.bluewallet.QuickLookThumbnail</string>
+          <key>io.bluewallet.bluewallet.ShareExtension</key>
+          <string>match AppStore io.bluewallet.bluewallet.ShareExtension</string>
       </dict>
   </dict>
 </plist>

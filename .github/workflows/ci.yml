@@ -10,6 +10,108 @@ env:
 on: [pull_request]
 
 jobs:
+  android-share-instrumentation:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+
+    - name: Specify node version
+      uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+      with:
+        node-version: 24
+        cache: 'npm'
+
+    - name: Install node_modules
+      run: npm ci || npm ci
+
+    - name: Use Java 17
+      uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Enable KVM group permissions
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+
+    - name: Run Android share tests on an emulator
+      uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+      with:
+        api-level: 36
+        target: default
+        arch: x86_64
+        profile: pixel
+        disable-animations: true
+        script: cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=io.bluewallet.bluewallet.SharedImageImportPolicyInstrumentedTest
+
+  share-extension:
+    runs-on: macos-26
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      with:
+        fetch-depth: 0
+
+    - name: Run tests
+      run: |
+        simulator_id="$(xcrun simctl list devices available --json | ruby -rjson -e '
+          devices = JSON.parse($stdin.read).fetch("devices").values.flatten
+          simulator = devices.find { |device| device.fetch("name", "").start_with?("iPhone") }
+          abort "No available iPhone simulator was found" unless simulator
+          print simulator.fetch("udid")
+        ')"
+
+        xcodebuild test \
+          -project ios/BlueWallet.xcodeproj \
+          -scheme ShareExtension \
+          -destination "platform=iOS Simulator,id=${simulator_id}" \
+          CODE_SIGNING_ALLOWED=NO
+
+        xcodebuild test \
+          -project ios/BlueWallet.xcodeproj \
+          -scheme ShareExtension \
+          -destination "platform=macOS,variant=Mac Catalyst" \
+          CODE_SIGNING_ALLOWED=NO
+
+    - name: Build extension
+      run: |
+        xcodebuild build \
+          -project ios/BlueWallet.xcodeproj \
+          -target ShareExtension \
+          -sdk iphonesimulator \
+          SYMROOT="${RUNNER_TEMP}/share-extension-ios-products" \
+          OBJROOT="${RUNNER_TEMP}/share-extension-ios-objects" \
+          CODE_SIGNING_ALLOWED=NO
+
+        xcodebuild build \
+          -project ios/BlueWallet.xcodeproj \
+          -target ShareExtension \
+          -sdk macosx \
+          SUPPORTS_MACCATALYST=YES \
+          SDK_VARIANT=iosmac \
+          SYMROOT="${RUNNER_TEMP}/share-extension-catalyst-products" \
+          OBJROOT="${RUNNER_TEMP}/share-extension-catalyst-objects" \
+          CODE_SIGNING_ALLOWED=NO
+
+        xcodebuild build \
+          -project ios/BlueWallet.xcodeproj \
+          -target ShareExtension \
+          -sdk xrsimulator \
+          SYMROOT="${RUNNER_TEMP}/share-extension-visionos-products" \
+          OBJROOT="${RUNNER_TEMP}/share-extension-visionos-objects" \
+          CODE_SIGNING_ALLOWED=NO
+
+        xcodebuild build \
+          -project ios/BlueWallet.xcodeproj \
+          -target ShareExtensionTests \
+          -sdk xrsimulator \
+          SYMROOT="${RUNNER_TEMP}/share-extension-visionos-test-products" \
+          OBJROOT="${RUNNER_TEMP}/share-extension-visionos-test-objects" \
+          CODE_SIGNING_ALLOWED=NO
+
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -44,6 +146,12 @@ jobs:
         node-version: 24
         cache: 'npm'
 
+    - name: Use specific Java version for sdkmanager to work
+      uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
     - name: Install node_modules
       run: npm ci || npm ci
 
@@ -60,6 +168,10 @@ jobs:
         FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
         MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
         MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
+
+    - name: Run native tests
+      working-directory: android
+      run: ./gradlew :app:testDebugUnitTest --tests io.bluewallet.bluewallet.SharedImageImportPolicyTest :app:compileDebugAndroidTestKotlin
 
   integration:
     runs-on: ubuntu-latest

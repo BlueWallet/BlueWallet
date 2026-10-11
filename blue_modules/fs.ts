@@ -2,13 +2,13 @@ import { Platform } from 'react-native';
 import { pick, types, keepLocalCopy, errorCodes, saveDocuments } from '@react-native-documents/picker';
 import RNFS from 'react-native-fs';
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
-import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 import Share from 'react-native-share';
 
 import type { TTXMetadata } from '../class/blue-app';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
 import { isDesktop } from './environment';
+import { decodeQRCodeImage } from './incoming-image';
 import { readFile } from './react-native-bw-file-access';
 import { base64ToUint8Array, uint8ArrayToString } from './uint8array-extras/index';
 
@@ -353,7 +353,7 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
     } else if (response.assets) {
       const base64 = response.assets[0].base64;
       if (base64) {
-        const result = await detectQRCodeInImage(base64);
+        const result = await decodeQRCodeImage(base64);
         if (result) return result;
       }
       throw new Error(loc.send.qr_error_no_qrcode);
@@ -401,7 +401,7 @@ const readFileAsBase64 = async (uri: string): Promise<string> => {
 
 const handleImageFile = async (fileCopyUri: string): Promise<{ data: string | false; uri: string | false }> => {
   const base64 = await readFileAsBase64(fileCopyUri);
-  const result = await detectQRCodeInImage(base64);
+  const result = await decodeQRCodeImage(base64);
   if (result) {
     return { data: result, uri: fileCopyUri };
   }

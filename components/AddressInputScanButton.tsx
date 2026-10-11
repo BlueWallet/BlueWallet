@@ -6,10 +6,10 @@ import loc from '../loc';
 import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
 import presentAlert from './Alert';
 import { useTheme } from './themes';
-import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
 import { scanQrHelper } from '../helpers/scan-qr.ts';
+import { decodeQRCodeImage } from '../blue_modules/incoming-image';
 
 interface AddressInputScanButtonProps {
   isLoading?: boolean;
@@ -81,7 +81,7 @@ export const AddressInputScanButton = ({
             if (getImage) {
               try {
                 const base64Data = getImage.replace(/^data:image\/(png|jpeg|jpg);base64,/, '');
-                const result = await detectQRCodeInImage(base64Data);
+                const result = await decodeQRCodeImage(base64Data);
                 if (result) {
                   onChangeText(result);
                 } else {

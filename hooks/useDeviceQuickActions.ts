@@ -1,10 +1,8 @@
 import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions } from '@react-navigation/native';
-import { DeviceEventEmitter, Linking, Platform } from 'react-native';
+import { DeviceEventEmitter, Platform } from 'react-native';
 import QuickActions, { ShortcutItem } from 'react-native-quick-actions';
-import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
-import { TWallet } from '../class/wallets/types';
 import { formatBalance } from '../loc';
 import * as NavigationService from '../NavigationService';
 import { useSettings } from '../hooks/context/useSettings';
@@ -30,7 +28,7 @@ export async function getEnabled(): Promise<boolean> {
 }
 
 const useDeviceQuickActions = () => {
-  const { wallets, walletsInitialized, isStorageEncrypted, addWallet, saveToDisk, setSharedCosigner } = useStorage();
+  const { wallets, walletsInitialized, isStorageEncrypted } = useStorage();
   const { preferredFiatCurrency, isQuickActionsEnabled } = useSettings();
 
   useEffect(() => {
@@ -92,24 +90,10 @@ const useDeviceQuickActions = () => {
             }),
           );
         }
-      } else {
-        const url = await Linking.getInitialURL();
-        if (url && DeeplinkSchemaMatch.hasSchema(url)) {
-          handleOpenURL({ url });
-        }
       }
     } catch (error) {
       console.error('Failed to handle initial quick action/deeplink:', error);
     }
-  };
-
-  const handleOpenURL = (event: { url: string }): void => {
-    DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => NavigationService.navigate(...value), {
-      wallets,
-      addWallet,
-      saveToDisk,
-      setSharedCosigner,
-    });
   };
 
   const walletQuickActions = (data: any): void => {
