@@ -177,6 +177,8 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
 
     const actualFeerate = fee / tx.virtualSize();
     assert.strictEqual(Math.round(actualFeerate), 33);
+    // OP_RETURN output has to be fully paid for
+    assert.ok(actualFeerate >= 33, `feerate ${actualFeerate} is below requested 33 sat/vbyte`);
   });
 
   it('should be able to pay to PC', async () => {
@@ -319,6 +321,8 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
 
     const actualFeerate = fee / tx.virtualSize();
     assert.strictEqual(Math.round(actualFeerate), 6);
+    // SP output is p2tr, it should be accounted for so we pay not less than requested feerate
+    assert.ok(actualFeerate >= 6, `feerate ${actualFeerate} is below requested 6 sat/vbyte`);
   });
 
   it('can unwrap addresses to send & receive', () => {
