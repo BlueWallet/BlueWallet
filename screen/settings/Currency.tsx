@@ -1,4 +1,3 @@
-import { RouteProp, useRoute } from '@react-navigation/native';
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -18,11 +17,9 @@ import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { useHeaderSearch } from '../../hooks/useHeaderSearch';
 
 dayjs.extend(calendar);
-
-type RouteProps = RouteProp<DetailViewStackParamList, 'Currency'>;
 
 const Currency: React.FC = () => {
   const { setPreferredFiatCurrencyStorage } = useSettings();
@@ -32,7 +29,7 @@ const Currency: React.FC = () => {
     LastUpdated: null,
     Rate: null,
   });
-  const { search = '', isSearchFocused = false } = useRoute<RouteProps>().params ?? {};
+  const { search, isSearchFocused } = useHeaderSearch();
   const { colors } = useTheme();
 
   const stylesHook = StyleSheet.create({

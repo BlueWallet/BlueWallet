@@ -1,4 +1,3 @@
-import { RouteProp, useRoute } from '@react-navigation/native';
 import React, { useCallback } from 'react';
 import { Keyboard, StyleSheet } from 'react-native';
 import presentAlert from '../../components/Alert';
@@ -8,13 +7,11 @@ import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import { SettingsListItem, settingsListCard } from '../../components/SettingsSection';
 import { useTheme } from '../../components/themes';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-
-type RouteProps = RouteProp<DetailViewStackParamList, 'Language'>;
+import { useHeaderSearch } from '../../hooks/useHeaderSearch';
 
 const Language = () => {
   const { setLanguageStorage, language } = useSettings();
-  const { search = '' } = useRoute<RouteProps>().params ?? {};
+  const { search } = useHeaderSearch();
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     card: { backgroundColor: colors.cardSectionBackground },

@@ -67,7 +67,10 @@ type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unst
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
 
-const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
+const UpdatingLabel: React.FC<{
+  containerStyle: object;
+  textStyle: object;
+}> = ({ containerStyle, textStyle }) => {
   const opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -492,29 +495,20 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="WalletAddresses"
           component={WalletAddresses}
-          options={navigationStyle({ title: loc.addresses.addresses_title }, (options, { navigation: screenNavigation }) => ({
-            ...options,
-            headerSearchBarOptions: {
-              onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
-            },
-          }))(theme)}
+          options={navigationStyle(
+            { title: loc.addresses.addresses_title },
+            withRouteParamHeaderOptions({ headerSearchBarOptions: true }),
+          )(theme)}
         />
 
         <DetailViewStack.Screen name="Settings" component={Settings} options={settingsScreenOptions(loc.settings.header)} />
         <DetailViewStack.Screen
           name="Currency"
           component={Currency}
-          options={({ navigation: screenNavigation, ...screenProps }) => {
-            const options = settingsScreenOptions(loc.settings.currency);
-            return {
-              ...(typeof options === 'function' ? options({ navigation: screenNavigation, ...screenProps }) : options),
-              headerSearchBarOptions: {
-                onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
-                onFocus: () => screenNavigation.setParams({ isSearchFocused: true }),
-                onBlur: () => screenNavigation.setParams({ isSearchFocused: false }),
-              },
-            };
-          }}
+          options={navigationStyle(
+            getSettingsHeaderOptions(loc.settings.currency, theme),
+            withRouteParamHeaderOptions({ headerSearchBarOptions: true }),
+          )(theme)}
         />
         <DetailViewStack.Screen name="GeneralSettings" component={GeneralSettings} options={settingsScreenOptions(loc.settings.general)} />
         <DetailViewStack.Screen
@@ -553,15 +547,10 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="Language"
           component={Language}
-          options={({ navigation: screenNavigation, ...screenProps }) => {
-            const options = settingsScreenOptions(loc.settings.language);
-            return {
-              ...(typeof options === 'function' ? options({ navigation: screenNavigation, ...screenProps }) : options),
-              headerSearchBarOptions: {
-                onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
-              },
-            };
-          }}
+          options={navigationStyle(
+            getSettingsHeaderOptions(loc.settings.language, theme),
+            withRouteParamHeaderOptions({ headerSearchBarOptions: true }),
+          )(theme)}
         />
         <DetailViewStack.Screen
           name="LightningSettings"

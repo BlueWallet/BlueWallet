@@ -10,6 +10,7 @@ import SegmentedControl from '../../components/SegmentedControl';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useHeaderSearch } from '../../hooks/useHeaderSearch';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 
 export const TABS = {
@@ -107,7 +108,8 @@ const WalletAddresses: React.FC = () => {
   const [{ showAddresses, addresses, currentTab }, dispatch] = useReducer(reducer, initialState);
 
   const { wallets } = useStorage();
-  const { walletID, search = '' } = useRoute<RouteProps>().params;
+  const { walletID } = useRoute<RouteProps>().params;
+  const { search } = useHeaderSearch();
 
   const addressList = useRef<FlatList<Address>>(null);
   const wallet = wallets.find((w: any) => w.getID() === walletID);

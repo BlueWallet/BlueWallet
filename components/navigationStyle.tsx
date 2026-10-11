@@ -34,6 +34,7 @@ type OptionsFormatter = (
 ) => NativeStackNavigationOptions;
 
 type RouteParamHeaderOptions = {
+  headerSearchBarOptions?: boolean;
   headerLeft?: boolean;
   headerRight?: boolean;
   headerBackVisible?: boolean;
@@ -51,6 +52,9 @@ const withRouteParamHeaderOptions =
     const routeParams = route?.params ?? {};
     return {
       ...options,
+      ...(config.headerSearchBarOptions && routeParams.headerSearchBarOptions !== undefined
+        ? { headerSearchBarOptions: routeParams.headerSearchBarOptions }
+        : {}),
       ...(config.headerLeft && routeParams.headerLeft !== undefined ? { headerLeft: routeParams.headerLeft } : {}),
       ...(config.headerRight && routeParams.headerRight !== undefined ? { headerRight: routeParams.headerRight } : {}),
       ...(config.headerBackVisible && routeParams.headerBackVisible !== undefined
