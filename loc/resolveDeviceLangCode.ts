@@ -13,12 +13,14 @@ export type RnLocale = {
 // (da, nl, fil, ak, pcm) stay in the in-app picker but never win autodetection.
 const appleToLangCode = new Map<string, LangCode>(CF_BUNDLE_LANG_CODES.map(lang => [langCodeToAppleLocale[lang].toLowerCase(), lang]));
 appleToLangCode.set('no', 'nb_no'); // Norwegian macrolanguage (Android)
-appleToLangCode.set('iw', 'he'); // legacy Java codes (Android)
-appleToLangCode.set('in', 'id_id');
+// Not in the plist (coverage < 90%) but neither is an iOS system language, so no UIKit mismatch
+// is possible; keep master's autodetect for Android devices set to them.
+appleToLangCode.set('ak', 'ak');
+appleToLangCode.set('pcm', 'pcm');
 
-// Regions Apple folds into es-419.
+// Regions Apple folds into es-419. react-native-localize reports the 419 region itself as `UN`.
 const ES_419_REGIONS = new Set(
-  'ar bo bz cl co cr cu do ec gt gy hn ht jm mx ni pa pe pr py sv tt uy ve bb gd lc vc ag dm kn bs'.split(' '),
+  'un us br jp ar bo bz cl co cr cu do ec gt gy hn ht jm mx ni pa pe pr py sv tt uy ve bb gd lc vc ag dm kn bs'.split(' '),
 );
 
 // Candidate Apple ids for one device locale, most specific first.

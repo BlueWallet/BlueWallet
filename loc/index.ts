@@ -406,7 +406,8 @@ const init = async (): Promise<string> => {
   });
   await saveLanguage(lang);
   if (autodetected) {
-    await AsyncStorage.setItem(AUTODETECTED_LANG_KEY, lang);
+    // Strings are already applied; a failed bookkeeping write must not reject `languageReady`.
+    await AsyncStorage.setItem(AUTODETECTED_LANG_KEY, lang).catch(console.error);
   }
   return lang;
 };

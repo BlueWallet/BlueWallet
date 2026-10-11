@@ -13,12 +13,14 @@ const readPlistLocalizations = () => {
   return [...matches[0][1].matchAll(/<string>([^<]+)<\/string>/g)].map(m => m[1]).sort((a, b) => a.localeCompare(b));
 };
 
-const resolve = (languageTag, extra = {}) =>
-  resolveLangCodeFromRnLocale({
-    languageCode: languageTag.split('-')[0],
-    languageTag,
-    ...extra,
-  });
+// Same shape react-native-localize emits: countryCode always present (device region when the
+// language has none), `419` reported as `UN`, scriptCode when the identifier carries one.
+const resolve = (languageTag, extra = {}) => {
+  const [languageCode, ...rest] = languageTag.split('-');
+  const scriptCode = rest.find(s => s.length === 4);
+  const countryCode = rest.find(s => s.length === 2 || s.length === 3) ?? 'US';
+  return resolveLangCodeFromRnLocale({ languageCode, scriptCode, countryCode, languageTag: `${languageTag}-${countryCode}`, ...extra });
+};
 
 describe('Device locale → LangCode', () => {
   it('matches CFBundleLocalizations in Info.plist (1:1 with declared Apple codes)', () => {
@@ -26,8 +28,9 @@ describe('Device locale → LangCode', () => {
   });
 
   it('covers every CFBundle Apple locale with a reverse mapping', () => {
+    const deviceTag = { es: 'es-ES', 'es-419': 'es-UN' };
     for (const apple of CF_BUNDLE_APPLE_LOCALES) {
-      const resolved = resolve(apple);
+      const resolved = resolve(deviceTag[apple] ?? apple);
       assert.ok(resolved, `expected mapping for Apple locale ${apple}`);
       assert.strictEqual(langCodeToAppleLocale[resolved], apple, `${apple} round-trips through ${resolved}`);
     }
@@ -41,7 +44,8 @@ describe('Device locale → LangCode', () => {
     assert.strictEqual(resolve('kk-KZ'), 'kk@Cyrl');
     assert.strictEqual(resolve('af-ZA'), 'zar_afr');
     assert.strictEqual(resolve('no-NO'), 'nb_no');
-    assert.strictEqual(resolve('iw-IL'), 'he');
+    assert.strictEqual(resolve('ak-GH'), 'ak');
+    assert.strictEqual(resolve('pcm-NG'), 'pcm');
   });
 
   it('resolves script before region for Chinese', () => {
@@ -60,12 +64,11 @@ describe('Device locale → LangCode', () => {
     assert.strictEqual(resolve('pt-BR'), 'pt_br');
     assert.strictEqual(resolve('pt-PT'), 'pt_pt');
     assert.strictEqual(resolve('pt-AO'), 'pt_pt');
-    assert.strictEqual(resolve('pt'), 'pt_br');
-    assert.strictEqual(resolve('es-419'), 'es_419');
+    assert.strictEqual(resolve('es-UN'), 'es_419'); // "Español (Latinoamérica)"
     assert.strictEqual(resolve('es-MX'), 'es_419');
-    assert.strictEqual(resolve('es', { countryCode: 'AR' }), 'es_419');
+    assert.strictEqual(resolve('es-US'), 'es_419');
+    assert.strictEqual(resolve('es-BR'), 'es_419');
     assert.strictEqual(resolve('es-ES'), 'es');
-    assert.strictEqual(resolve('es'), 'es');
   });
 
   it('only takes Latin Serbian, like the plist', () => {
@@ -76,7 +79,7 @@ describe('Device locale → LangCode', () => {
   });
 
   it('skips locales excluded from CFBundleLocalizations so the next preferred language wins', () => {
-    for (const tag of ['da-DK', 'nl-NL', 'fil-PH', 'tl-PH', 'ak-GH', 'pcm-NG', 'nn-NO', 'xx-XX']) {
+    for (const tag of ['da-DK', 'nl-NL', 'fil-PH', 'tl-PH', 'nn-NO', 'xx-XX']) {
       assert.strictEqual(resolve(tag), null, tag);
     }
     const locales = [
