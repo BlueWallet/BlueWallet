@@ -427,7 +427,7 @@
     "add_lightning": "Lightning",
     "add_lightning_explain": "W celu wydawania za pomocą natychmiastowych transakcji",
     "add_lndhub": "Podłącz do swojego LNDhuba",
-    "add_lndhub_error": "Podany adres węzła jest nieprawidłowym węzłem LNDhub.",
+    "add_lndhub_error": "Podany adres nie wskazuje prawidłowego węzła LNDhub.",
     "add_lndhub_placeholder": "Adres twojego węzła",
     "add_placeholder": "mój pierwszy portfel",
     "add_title": "Dodaj portfel",
