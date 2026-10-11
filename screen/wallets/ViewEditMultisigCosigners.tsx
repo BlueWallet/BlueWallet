@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
 import { Alert, findNodeHandle, FlatList, GestureResponderEvent, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
@@ -499,6 +500,8 @@ const ViewEditMultisigCosigners: React.FC = () => {
     route.params.sheetCurrentlyEditingCosignerNum,
     setParams,
   ]);
+
+  useScreenHeaderMenu([{ id: 'file_save', text: loc._.save, disabled: vaultKeyData.isLoading || isSaveButtonDisabled, onPress: onSave }]);
 
   if (isLoading)
     return (

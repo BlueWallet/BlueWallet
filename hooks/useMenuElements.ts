@@ -1,3 +1,4 @@
+import type { HeaderMenuEntry } from '../blue_modules/headerMenuActions';
 import { useCallback } from 'react';
 import type { MenuActionHandlers } from '../blue_modules/menuActions';
 
@@ -8,6 +9,11 @@ const useMenuElements = () => {
       () => {},
     [],
   );
-  return { registerMenuActions, isMenuElementsSupported: false };
+  const registerHeaderMenu = useCallback(
+    (_actions: HeaderMenuEntry[] | HeaderMenuEntry[][], _screenKey: string): (() => void) =>
+      () => {},
+    [],
+  );
+  return { registerHeaderMenu, registerMenuActions, isMenuElementsSupported: false };
 };
 export default useMenuElements;

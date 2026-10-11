@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import { useNavigation } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import React, { useCallback } from 'react';
@@ -80,6 +81,12 @@ const About: React.FC = () => {
 
     Alert.alert(loc.formatString(loc.settings.performance_score, { num }));
   }, []);
+
+  useScreenHeaderMenu([
+    { id: 'help_release_notes', text: loc.settings.about_release_notes, onPress: handleOnReleaseNotesPress },
+    { id: 'help_license', text: loc.settings.about_license, onPress: handleOnLicensingPress },
+    { id: 'help_github', text: loc.settings.about_sm_github, onPress: handleOnGithubPress },
+  ]);
 
   return (
     <SafeAreaScrollView testID="AboutScrollView">

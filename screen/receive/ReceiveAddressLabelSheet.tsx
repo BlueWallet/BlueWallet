@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -48,6 +49,8 @@ const ReceiveAddressLabelSheet = () => {
     }
     navigation.goBack();
   }, [label, address, addressMetadata, saveToDisk, navigation]);
+
+  useScreenHeaderMenu([{ id: 'file_save', text: loc.receive.details_save, onPress: handleSave }]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>

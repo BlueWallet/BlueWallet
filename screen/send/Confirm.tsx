@@ -1,3 +1,4 @@
+import { getHeaderMenuOptions } from '../../components/HeaderMenu';
 import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { PayjoinClient } from 'payjoin-client';
@@ -171,10 +172,16 @@ const Confirm: React.FC = () => {
   }, [recipients]);
 
   useEffect(() => {
-    setOptions({
-      headerRight: renderHeaderRight,
-    });
-  }, [renderHeaderRight, setOptions]);
+    setOptions(
+      getHeaderMenuOptions({ headerRight: renderHeaderRight }, [
+        {
+          id: 'TransactionDetailsButton',
+          text: loc.send.create_details,
+          onPress: handleOpenCreateTransaction,
+        },
+      ]),
+    );
+  }, [renderHeaderRight, setOptions, handleOpenCreateTransaction]);
 
   const getPaymentScript = (): Uint8Array | undefined => {
     if (!(recipients.length > 0) || !recipients[0].address) {

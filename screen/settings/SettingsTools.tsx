@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 
@@ -17,6 +18,12 @@ const SettingsTools: React.FC = () => {
   const navigateToGenerateWord = () => {
     navigation.navigate('GenerateWord');
   };
+
+  useScreenHeaderMenu([
+    { id: 'settings_address_check', text: loc.is_it_my_address.title, onPress: navigateToIsItMyAddress },
+    { id: 'settings_broadcast', text: loc.settings.network_broadcast, onPress: navigateToBroadcast },
+    { id: 'settings_generate_word', text: loc.autofill_word.title, onPress: navigateToGenerateWord },
+  ]);
 
   return (
     <SettingsScrollView>

@@ -64,6 +64,7 @@
     "branch2json": "./scripts/current-branch.sh > current-branch.json",
     "start": "react-native start",
     "android": "react-native run-android",
+    "android:studio": "node --experimental-strip-types scripts/open-android-studio.ts",
     "android:relaunch": "adb shell am force-stop io.bluewallet.bluewallet; adb shell monkey -p io.bluewallet.bluewallet -c android.intent.category.LAUNCHER 1",
     "android:uninstall": "adb uninstall io.bluewallet.bluewallet",
     "adb": "adb reverse tcp:8081 tcp:8081",

@@ -1,3 +1,4 @@
+import { headerMenuScreenLayout } from '../components/HeaderMenu';
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
@@ -12,7 +13,11 @@ const PromptPasswordConfirmationStack = () => {
   const theme = useTheme();
 
   return (
-    <Stack.Navigator screenOptions={{ headerShadowVisible: false }} initialRouteName="PromptPasswordConfirmationSheet">
+    <Stack.Navigator
+      screenLayout={headerMenuScreenLayout}
+      screenOptions={{ headerShadowVisible: false }}
+      initialRouteName="PromptPasswordConfirmationSheet"
+    >
       <Stack.Screen
         name="PromptPasswordConfirmationSheet"
         component={PromptPasswordConfirmationSheet}

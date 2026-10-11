@@ -1,10 +1,4 @@
-export type ScreenMenuAction =
-  | 'reloadTransactions'
-  | 'send'
-  | 'receive'
-  | 'walletDetails'
-  | 'copyAddress'
-  | 'copyTransactionId';
+export type ScreenMenuAction = 'reloadTransactions' | 'send' | 'receive' | 'walletDetails' | 'copyAddress' | 'copyTransactionId';
 export type MenuAction = ScreenMenuAction | 'settings' | 'addWallet' | 'importWallet' | 'backToWallets' | 'keyboardShortcuts';
 export type MenuActionHandlers = Partial<Record<ScreenMenuAction, () => void>>;
 
@@ -16,9 +10,15 @@ const screenActions: Record<string, readonly ScreenMenuAction[]> = {
 };
 const walletDetailScreens = new Set(['WalletTransactions', 'WalletDetails', 'TransactionStatus', 'ReceiveDetails', 'WalletAddresses']);
 
-export function availableMenuActions(screen: string | undefined, registered: readonly ScreenMenuAction[], unlocked: boolean): MenuAction[] {
+export function availableMenuActions(
+  screen: string | undefined,
+  registered: readonly ScreenMenuAction[],
+  unlocked: boolean,
+  platform: string = 'ios',
+): MenuAction[] {
   if (!unlocked || !screen || screen === 'UnlockWithScreen') return [];
-  const actions: MenuAction[] = ['settings', 'keyboardShortcuts'];
+  const actions: MenuAction[] =
+    platform === 'android' && screen !== 'WalletsList' ? ['keyboardShortcuts'] : ['settings', 'keyboardShortcuts'];
   if (screen === 'WalletsList' || screen === 'WalletTransactions') actions.push('addWallet', 'importWallet');
   if (walletDetailScreens.has(screen)) actions.push('backToWallets');
   actions.push(...(screenActions[screen] ?? []).filter(action => registered.includes(action)));
@@ -34,7 +34,7 @@ export const menuShortcuts = [
   { title: 'Receive…', key: 'Shift+R', where: 'Transactions, when this wallet supports receiving' },
   { title: 'Wallet Details…', key: 'D', where: 'Transactions' },
   { title: 'Copy Address', key: 'Shift+C', where: 'Receive screen, when an address is displayed' },
-  { title: 'Copy Transaction ID', key: 'Shift+C', where: 'Transaction details, when an ID is available' },
+  { title: 'Copy Transaction ID', key: 'Shift+T', where: 'Transaction details, when an ID is available' },
   { title: 'Back to Wallets', key: 'Shift+W', where: 'Wallet detail screens' },
   { title: 'Settings', key: ',', where: 'Anywhere after unlocking' },
   { title: 'Keyboard Shortcuts…', key: '/', where: 'Anywhere after unlocking' },

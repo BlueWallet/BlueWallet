@@ -1,3 +1,4 @@
+import { getHeaderMenuOptions, usesHeaderMenu } from '../../components/HeaderMenu';
 import React, { useCallback, FC } from 'react';
 import { StyleSheet, Text, View, Pressable, Platform } from 'react-native';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
@@ -194,12 +195,19 @@ const MultisigAdvanced: React.FC = () => {
   const renderHeaderRight = useCallback(() => SaveButton(), [SaveButton]);
 
   React.useLayoutEffect(() => {
-    if (Platform.OS !== 'android') {
-      navigation.setOptions({
-        headerRight: renderHeaderRight,
-      });
+    if (Platform.OS !== 'android' || usesHeaderMenu) {
+      navigation.setOptions(
+        getHeaderMenuOptions({ headerRight: renderHeaderRight }, [
+          {
+            id: 'ModalDoneButton',
+            text: loc.send.input_done,
+            disabled: !isValidSelection,
+            onPress: handleSave,
+          },
+        ]),
+      );
     }
-  }, [navigation, renderHeaderRight]);
+  }, [navigation, renderHeaderRight, isValidSelection, handleSave]);
 
   return (
     <SafeArea style={stylesHook.root}>
@@ -216,7 +224,9 @@ const MultisigAdvanced: React.FC = () => {
             </Pressable>
             <Text style={[styles.androidHeaderTitle, { color: colors.foregroundColor }]}>{loc.multisig.multisig_vault}</Text>
             <View style={styles.androidSaveButton}>
-              <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!isValidSelection} testID="ModalDoneButton" />
+              {!usesHeaderMenu && (
+                <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!isValidSelection} testID="ModalDoneButton" />
+              )}
             </View>
           </View>
         </View>

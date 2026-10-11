@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo } from 'react';
-import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
 import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop, isIOS26OrHigher } from '../../blue_modules/environment';
@@ -30,6 +30,8 @@ import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scanQrHelper } from '../../helpers/scan-qr';
+import useMenuElements from '../../hooks/useMenuElements';
+import { usesHeaderMenu } from '../../components/HeaderMenu';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 const SECTION_HEADER_BASE_HEIGHT = 56;
@@ -396,6 +398,26 @@ const WalletsList: React.FC = () => {
   const onScanButtonPressed = useCallback(() => {
     scanQrHelper().then(onBarScanned);
   }, [onBarScanned]);
+
+  const { registerHeaderMenu } = useMenuElements();
+  const { key: menuRouteKey } = useRoute();
+  useFocusEffect(
+    useCallback(() => {
+      if (!usesHeaderMenu) return;
+      return registerHeaderMenu(
+        [
+          {
+            id: 'scan_qr',
+            text: loc.send.details_scan,
+            icon: { iconValue: 'qrcode.viewfinder' },
+            disabled: wallets.length === 0,
+            onPress: onScanButtonPressed,
+          },
+        ],
+        menuRouteKey,
+      );
+    }, [registerHeaderMenu, menuRouteKey, wallets.length, onScanButtonPressed]),
+  );
 
   const pasteFromClipboard = useCallback(async () => {
     onBarScanned(await getClipboardContent());

@@ -1,17 +1,24 @@
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React from 'react';
+import { Platform } from 'react-native';
 
 import HeaderMenuButton from './HeaderMenuButton';
-import { mapActionGroupsToNativeHeaderMenuItems, mapActionsToNativeHeaderMenuItems } from './nativeHeaderMenuItems';
+import { keepNativeHeaderRightItems, usesHeaderMenu } from './HeaderMenu';
+import { attachHeaderMenuHandlers, type HeaderMenuOptions as SystemHeaderMenuOptions } from '../blue_modules/headerMenuActions';
+import {
+  getAppleNativeMenuLayout,
+  mapActionGroupsToNativeHeaderMenuItems,
+  mapActionsToNativeHeaderMenuItems,
+} from './nativeHeaderMenuItems';
 import { Action } from './types';
 
 type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 type HeaderItemsGetter = NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>;
 
 type HeaderMenuOptions = {
-  headerRight: HeaderRightRenderer;
-  unstable_headerRightItems: HeaderItemsGetter;
-};
+  headerRight?: HeaderRightRenderer;
+  unstable_headerRightItems?: HeaderItemsGetter;
+} & SystemHeaderMenuOptions;
 
 type HeaderMenuOptionsParams = {
   actions: Action[] | Action[][];
@@ -30,12 +37,21 @@ export const createEllipsisHeaderMenuOptions = ({
   identifier = 'HeaderMenuButton',
   title = '',
 }: HeaderMenuOptionsParams): HeaderMenuOptions => {
+  const headerMenuActions = attachHeaderMenuHandlers(actions, onPressMenuItem, disabled);
+
+  if (usesHeaderMenu && !keepNativeHeaderRightItems) {
+    return {
+      headerMenuActions,
+    };
+  }
+
   const hasGroups = Array.isArray(actions[0]);
   const nativeHeaderMenuItems = hasGroups
     ? mapActionGroupsToNativeHeaderMenuItems(actions as Action[][], onPressMenuItem, preserveGroups)
     : mapActionsToNativeHeaderMenuItems(actions as Action[], onPressMenuItem);
 
   return {
+    headerMenuActions,
     headerRight: () => React.createElement(HeaderMenuButton, { onPressMenuItem, actions, disabled }),
     unstable_headerRightItems: () => [
       {
@@ -46,6 +62,7 @@ export const createEllipsisHeaderMenuOptions = ({
         menu: {
           title,
           items: nativeHeaderMenuItems,
+          ...(Platform.OS === 'ios' ? { layout: getAppleNativeMenuLayout() } : {}),
         },
       },
     ],

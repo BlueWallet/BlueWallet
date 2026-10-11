@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import { useNavigation, RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -115,6 +116,8 @@ const PsbtMultisigQRCode: React.FC = () => {
     setIsLoading(false);
     dynamicQRCode.current?.startAutoMove();
   };
+
+  useScreenHeaderMenu([{ id: 'scan_qr', text: loc.multisig.scan_or_import_file, onPress: openScanner }]);
 
   return (
     <ScrollView

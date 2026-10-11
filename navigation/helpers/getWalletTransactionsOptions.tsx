@@ -10,6 +10,7 @@ import { isDesktop, isIOS26OrHigher } from '../../blue_modules/environment';
 import WalletGradient from '../../class/wallet-gradient';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
+import { getHeaderMenuOptions, usesHeaderMenu } from '../../components/HeaderMenu';
 
 export type WalletTransactionsRouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 
@@ -239,6 +240,20 @@ const getWalletTransactionsOptions = ({
       : {}),
   };
 
+  if (usesHeaderMenu) {
+    return {
+      ...options,
+      ...getHeaderMenuOptions({}, [
+        {
+          id: 'WalletDetails',
+          text: loc.wallets.details_title,
+          disabled: isLoading,
+          onPress: () => navigateToWalletDetails(walletID),
+        },
+      ]),
+    };
+  }
+
   if (usesIos26AnimatedHeader) {
     return {
       ...options,
@@ -249,7 +264,6 @@ const getWalletTransactionsOptions = ({
       }),
     };
   }
-
   return {
     ...options,
     headerRight: createWalletDetailsHeaderRight({

@@ -1,3 +1,4 @@
+import { headerMenuScreenLayout } from '../components/HeaderMenu';
 import React, { lazy } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import navigationStyle from '../components/navigationStyle';
@@ -17,7 +18,7 @@ const AztecoRedeemStackRoot = () => {
   const theme = useTheme();
 
   return (
-    <Stack.Navigator screenOptions={{ headerShadowVisible: false }}>
+    <Stack.Navigator screenLayout={headerMenuScreenLayout} screenOptions={{ headerShadowVisible: false }}>
       <Stack.Screen
         name="AztecoRedeem"
         component={AztecoRedeemComponent}

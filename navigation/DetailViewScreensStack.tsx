@@ -1,3 +1,4 @@
+import { getHeaderMenuOptions, usesHeaderMenu, headerMenuScreenLayout } from '../components/HeaderMenu';
 import { useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
@@ -250,6 +251,11 @@ const DetailViewStackScreensStack = () => {
     (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any; route: any; theme: any }) => ({
       ...options,
       headerLeft: makeManageWalletsHeaderLeft(screenNavigation.goBack, theme.closeImage),
+      ...(usesHeaderMenu
+        ? {
+            headerMenuCloseAction: { id: 'NavigationCloseButton', text: loc._.close, onPress: () => screenNavigation.goBack() },
+          }
+        : {}),
     }),
     [theme.closeImage],
   );
@@ -286,6 +292,46 @@ const DetailViewStackScreensStack = () => {
       }
       return null;
     };
+
+    if (usesHeaderMenu) {
+      return {
+        title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
+        headerLargeTitle: false,
+        headerShadowVisible: false,
+        ...(isIOS26OrHigher
+          ? {
+              headerTransparent: true,
+              unstable_headerLeftItems: (): NativeStackHeaderItem[] => {
+                const element = renderHeaderLeft();
+                return element == null ? [] : [{ type: 'custom', element, hidesSharedBackground: true }];
+              },
+            }
+          : {
+              headerStyle: { backgroundColor: theme.colors.customHeader },
+              headerLeft: renderHeaderLeft,
+            }),
+        ...getHeaderMenuOptions({}, [
+          {
+            id: 'AddWalletButton',
+            text: loc.wallets.add_title,
+            icon: { iconValue: 'plus' },
+            onPress: navigateToAddWallet,
+          },
+          {
+            id: 'ImportWallet',
+            text: loc.wallets.add_import_wallet,
+            icon: { iconValue: 'square.and.arrow.down' },
+            onPress: () => navigation.navigate('AddWalletRoot', { screen: 'ImportWallet' }),
+          },
+          {
+            id: 'SettingsButton',
+            text: loc.settings.default_title,
+            icon: { iconValue: 'gear' },
+            onPress: navigateToSettings,
+          },
+        ]),
+      };
+    }
 
     if (isIOS26OrHigher) {
       // Status pills: `unstable_headerLeftItems` + `hidesSharedBackground` avoids the
@@ -344,6 +390,7 @@ const DetailViewStackScreensStack = () => {
     };
   }, [
     RightBarButtons,
+    navigation,
     sizeClass,
     theme.colors.customHeader,
     theme.colors.headerProminentButtonBackgroundColor,
@@ -366,6 +413,7 @@ const DetailViewStackScreensStack = () => {
   return (
     <ConnectionPollContext.Provider value={connectionPollContextValue}>
       <DetailViewStack.Navigator
+        screenLayout={headerMenuScreenLayout}
         UNSTABLE_router={navigationGuardRouter}
         initialRouteName="WalletsList"
         screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}

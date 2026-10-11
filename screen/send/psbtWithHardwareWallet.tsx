@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation, RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
@@ -243,6 +244,21 @@ const PsbtWithHardwareWallet = () => {
       showFileImportButton: true,
     });
   };
+
+  useScreenHeaderMenu([
+    {
+      id: 'copyToClipboard',
+      text: loc.send.create_copy,
+      disabled: isLoading || (!txHex && !psbt),
+      onPress: () => {
+        if (txHex) copyHexToClipboard();
+        else if (psbt) Clipboard.setString(psbt.toBase64());
+      },
+    },
+    { id: 'view_verify_transaction', text: loc.send.create_verify, disabled: isLoading || !txHex, onPress: handleOnVerifyPressed },
+    { id: 'scan_qr', text: loc.send.psbt_tx_scan, hidden: !!txHex, disabled: isLoading, onPress: openScanner },
+    { id: 'import_file', text: loc.send.psbt_tx_open, hidden: !!txHex, disabled: isLoading, onPress: onOpenSignedTransaction },
+  ]);
 
   if (txHex) return _renderBroadcastHex();
 

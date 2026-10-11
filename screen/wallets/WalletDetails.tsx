@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import {
@@ -662,6 +663,41 @@ const WalletDetails: React.FC = () => {
   if (isMasterFingerPrintVisible) {
     onMasterFingerprintPress = isWatchOnlyHd ? onEditMasterFingerprintPress : undefined;
   }
+
+  useScreenHeaderMenu([
+    { id: 'edit_wallet_name', text: loc.wallets.add_wallet_name, disabled: isLoading, onPress: handleEditWalletName },
+    {
+      id: 'view_addresses',
+      text: loc.wallets.details_show_addresses,
+      hidden: !(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd())),
+      disabled: isLoading,
+      onPress: navigateToAddresses,
+    },
+    { id: 'view_contacts', text: loc.bip47.contacts, hidden: !isContactsVisible, disabled: isLoading, onPress: navigateToContacts },
+    { id: 'view_xpub', text: loc.wallets.details_show_xpub, hidden: !wallet.allowXpub?.(), disabled: isLoading, onPress: navigateToXPub },
+    {
+      id: 'file_sign_verify',
+      text: loc.addresses.sign_title,
+      hidden: !wallet.allowSignVerifyMessage?.(),
+      disabled: isLoading,
+      onPress: navigateToSignVerify,
+    },
+    {
+      id: 'file_export_setup',
+      text: loc.multisig.export_coordination_setup,
+      hidden: wallet.type !== MultisigHDWallet.type,
+      disabled: isLoading,
+      onPress: navigateToMultisigCoordinationSetup,
+    },
+    {
+      id: 'edit_cosigners',
+      text: loc.multisig.view_edit_cosigners,
+      hidden: wallet.type !== MultisigHDWallet.type,
+      disabled: isLoading,
+      onPress: navigateToViewEditCosigners,
+    },
+    { id: 'ExportWallet', text: loc.wallets.details_export_backup, disabled: isLoading, onPress: navigateToWalletExport },
+  ]);
 
   return (
     <SafeAreaScrollView centerContent={isLoading} testID="WalletDetailsScroll">

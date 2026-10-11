@@ -1,3 +1,5 @@
+import { headerMenuScreenLayout, usesHeaderMenu } from '../components/HeaderMenu';
+import { getMultisigStep2Options } from './helpers/getMultisigStep2Options';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
@@ -71,6 +73,7 @@ export type AddWalletStackParamList = {
     headerRight?: HeaderRightRenderer;
   };
   WalletsAddMultisigStep2: {
+    isCreatingWallet?: boolean;
     m: number;
     n: number;
     walletLabel: string;
@@ -238,6 +241,7 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
       ...options,
       headerRight: headerMenuOptions.headerRight,
       ...(isIOS26OrHigher ? { unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems } : {}),
+      ...(headerMenuOptions.headerMenuActions ? { headerMenuActions: headerMenuOptions.headerMenuActions } : {}),
     };
   })(theme);
 
@@ -270,6 +274,12 @@ export const createImportWalletOptions = (theme: ReturnType<typeof useTheme>) =>
       ...options,
       headerRight: headerMenuOptions.headerRight,
       ...(isIOS26OrHigher ? { unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems } : {}),
+      ...(headerMenuOptions.headerMenuActions ? { headerMenuActions: headerMenuOptions.headerMenuActions } : {}),
+      ...(usesHeaderMenu && navigation.getState().index === 0
+        ? {
+            headerMenuCloseAction: { id: 'NavigationCloseButton', text: loc._.close, onPress: () => navigation.goBack() },
+          }
+        : {}),
       headerLeft:
         navigation.getState().index === 0
           ? () =>
@@ -291,7 +301,7 @@ export const createImportWalletOptions = (theme: ReturnType<typeof useTheme>) =>
 const AddWalletStack = () => {
   const theme = useTheme();
   return (
-    <Stack.Navigator initialRouteName="AddWallet" UNSTABLE_router={navigationGuardRouter}>
+    <Stack.Navigator screenLayout={headerMenuScreenLayout} initialRouteName="AddWallet" UNSTABLE_router={navigationGuardRouter}>
       <Stack.Screen name="AddWallet" component={AddComponent} options={createAddWalletOptions(theme)} />
       <Stack.Screen
         name="ImportCustomDerivationPath"
@@ -354,7 +364,11 @@ const AddWalletStack = () => {
       <Stack.Screen
         name="WalletsAddMultisigStep2"
         component={WalletsAddMultisigStep2Component}
-        options={navigationStyle({ title: '', gestureEnabled: false }, withRouteParamHeaderOptions({ headerRight: true }))(theme)}
+        options={navigationStyle({ title: '', gestureEnabled: false }, (options, deps) => ({
+          ...options,
+          ...getMultisigStep2Options({ theme, onPress: () => deps.navigation.navigate('WalletsAddMultisigHelp') }),
+          headerBackVisible: !deps.route.params?.isCreatingWallet,
+        }))(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisigVaultKeySheet"

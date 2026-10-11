@@ -1,3 +1,4 @@
+import { headerMenuScreenLayout } from '../components/HeaderMenu';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
@@ -24,7 +25,11 @@ const LNDCreateInvoiceRoot = () => {
   const theme = useTheme();
 
   return (
-    <Stack.Navigator screenOptions={{ headerShadowVisible: false }} UNSTABLE_router={navigationGuardRouter}>
+    <Stack.Navigator
+      screenLayout={headerMenuScreenLayout}
+      screenOptions={{ headerShadowVisible: false }}
+      UNSTABLE_router={navigationGuardRouter}
+    >
       <Stack.Screen
         name="LNDCreateInvoice"
         component={LNDCreateInvoiceComponent}

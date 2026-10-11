@@ -1,13 +1,21 @@
 import { act, renderHook } from '@testing-library/react-native';
-import useMenuElements from '../../hooks/useMenuElements.native';
+import useMenuElements, { resetRecentScreens } from '../../hooks/useMenuElements.native';
 import MenuElementsEmitter from '../../blue_modules/NativeMenuElementsEmitter';
 import { navigationRef, navigateToWalletsList } from '../../NavigationService';
 import type { MenuActionHandlers } from '../../blue_modules/menuActions';
 
-jest.mock('@react-navigation/native', () => ({ CommonActions: { navigate: (payload: unknown) => ({ type: 'NAVIGATE', payload }) } }));
+jest.mock('@react-navigation/native', () => ({
+  CommonActions: {
+    navigate: (payload: unknown) => ({ type: 'NAVIGATE', payload }),
+  },
+}));
 jest.mock('../../blue_modules/NativeMenuElementsEmitter', () => ({
   __esModule: true,
-  default: { setAvailableActions: jest.fn(), onMenuAction: jest.fn(() => ({ remove: jest.fn() })) },
+  default: {
+    setHeaderMenu: jest.fn(),
+    setAvailableActions: jest.fn(),
+    onMenuAction: jest.fn(() => ({ remove: jest.fn() })),
+  },
 }));
 jest.mock('../../NavigationService', () => ({
   navigationRef: {
@@ -32,6 +40,7 @@ const notifyNavigation = (type: 'ready' | 'state') => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  resetRecentScreens();
   jest.mocked(navigationRef.isReady).mockReturnValue(true);
   jest.mocked(navigationRef.getRootState).mockReturnValue({
     stale: false,
@@ -42,6 +51,15 @@ beforeEach(() => {
     routes: [{ name: 'DrawerRoot', key: 'drawer' }],
   });
   setRoute('WalletTransactions', 'wallet-1');
+});
+
+it('treats missing native header metadata as an empty menu without throwing', () => {
+  const { getHeaderMenuEntries, getHeaderMenuHandlers } =
+    require('../../hooks/useMenuElements.native') as typeof import('../../hooks/useMenuElements.native');
+  expect(getHeaderMenuEntries(undefined)).toEqual([]);
+  expect(getHeaderMenuEntries({} as any)).toEqual([]);
+  expect(getHeaderMenuHandlers(undefined)).toEqual({});
+  expect(getHeaderMenuHandlers({} as any)).toEqual({});
 });
 
 it('shares subscriptions, dispatches only to the current route, and cleans up', () => {
@@ -88,7 +106,10 @@ it('updates on ready, modal navigation, and lock state', () => {
     payload: {
       name: 'DrawerRoot',
       pop: true,
-      params: { screen: 'DetailViewStackScreensStack', params: { screen: 'Settings' } },
+      params: {
+        screen: 'DetailViewStackScreensStack',
+        params: { screen: 'Settings' },
+      },
     },
   });
   emit('keyboardShortcuts');
@@ -147,5 +168,280 @@ it('keeps newer registrations when an older owner cleans up and routes Back to W
   emit('backToWallets');
   expect(navigateToWalletsList).toHaveBeenCalledTimes(1);
   act(removeCurrent);
+  hook.unmount();
+});
+
+it('reopens a screen selected from the actual navigation history', () => {
+  const hook = renderHook(useMenuElements);
+  setRoute('Settings', 'settings');
+  notifyNavigation('state');
+  emit('header:recent:open_recent_wallet-1');
+  expect(navigationRef.dispatch).toHaveBeenCalledWith({
+    type: 'NAVIGATE',
+    payload: {
+      name: 'DrawerRoot',
+      params: { screen: 'WalletTransactions', params: undefined },
+    },
+  });
+  hook.unmount();
+});
+
+it('dispatches dynamic header menus only for the active unlocked route and drops disabled actions', () => {
+  setRoute('CoinControl', 'coin-1');
+  const hook = renderHook(useMenuElements);
+  const sort = jest.fn();
+  const done = jest.fn();
+  let unregister!: () => void;
+  act(() => {
+    unregister = hook.result.current.registerHeaderMenu(
+      [
+        { id: 'sort', text: 'Sort', onPress: sort },
+        { id: 'done', text: 'Done', disabled: true, onPress: done },
+      ],
+      'coin-1',
+    );
+  });
+  expect(
+    JSON.parse(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]).filter(
+      (item: { id: string }) => item.id !== 'category:file',
+    ),
+  ).toHaveLength(2);
+  emit('header:coin-1:sort');
+  emit('header:coin-1:done');
+  expect(sort).toHaveBeenCalledTimes(1);
+  expect(done).not.toHaveBeenCalled();
+  setRoute('CoinControl', 'coin-2');
+  emit('header:coin-1:sort');
+  expect(sort).toHaveBeenCalledTimes(1);
+  notifyNavigation('state');
+  expect(MenuElementsEmitter!.setHeaderMenu).toHaveBeenLastCalledWith('[]');
+  setRoute('UnlockWithScreen');
+  emit('header:coin-1:sort');
+  expect(sort).toHaveBeenCalledTimes(1);
+  act(unregister);
+  hook.unmount();
+});
+
+it('keeps commands already present in the system menu from appearing twice', () => {
+  setRoute('WalletsList', 'wallets');
+  const hook = renderHook(useMenuElements);
+  let unregister!: () => void;
+  act(() => {
+    unregister = hook.result.current.registerHeaderMenu(
+      [
+        { id: 'AddWalletButton', text: 'Add Wallet', onPress: jest.fn() },
+        { id: 'ImportWallet', text: 'Import Wallet', onPress: jest.fn() },
+        { id: 'SettingsButton', text: 'Settings', onPress: jest.fn() },
+        { id: 'custom', text: 'Custom', onPress: jest.fn() },
+      ],
+      'wallets',
+    );
+  });
+  const items = JSON.parse(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]);
+  const wallet = items.find((item: { id: string }) => item.id === 'category:file');
+  expect(wallet.title).toBe('File');
+  expect(wallet.children.map((item: { title: string }) => item.title)).toContain('Custom');
+  act(unregister);
+  hook.unmount();
+});
+
+it('does not duplicate Wallet Details while the stable system command is disabled', () => {
+  setRoute('WalletTransactions', 'wallet');
+  const hook = renderHook(useMenuElements);
+  let unregister!: () => void;
+  act(() => {
+    unregister = hook.result.current.registerHeaderMenu(
+      [
+        {
+          id: 'WalletDetails',
+          text: 'Wallet Details',
+          disabled: true,
+          onPress: jest.fn(),
+        },
+      ],
+      'wallet',
+    );
+  });
+  const items = JSON.parse(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]);
+  expect(items).toHaveLength(0);
+  expect(jest.mocked(MenuElementsEmitter!.setAvailableActions).mock.lastCall![0]).not.toContain('walletDetails');
+  act(unregister);
+  hook.unmount();
+});
+
+it.each(['Drawer', 'DrawerRoot', 'DetailViewStackScreensStack'])('excludes navigation container %s from Open Recent', name => {
+  setRoute(name, 'container');
+  const hook = renderHook(useMenuElements);
+  let unregister!: () => void;
+  act(() => {
+    unregister = hook.result.current.registerHeaderMenu([], 'container');
+  });
+  expect(MenuElementsEmitter!.setHeaderMenu).toHaveBeenLastCalledWith('[]');
+  act(unregister);
+  hook.unmount();
+});
+
+it('combines WalletsList Scan with stack menu entries and scopes its handler to the screen', () => {
+  setRoute('WalletsList', 'wallets');
+  const hook = renderHook(useMenuElements);
+  const scan = jest.fn();
+  let removeStack!: () => void;
+  let removeScan!: () => void;
+  act(() => {
+    removeStack = hook.result.current.registerHeaderMenu([{ id: 'existing', text: 'Existing', onPress: jest.fn() }], 'wallets');
+    removeScan = hook.result.current.registerHeaderMenu([{ id: 'scan_qr', text: 'Scan', onPress: scan }], 'wallets');
+  });
+  const entries = JSON.stringify(JSON.parse(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]));
+  expect(entries).toContain('header:wallets:existing');
+  expect(entries).toContain('header:wallets:scan_qr');
+  emit('header:wallets:scan_qr');
+  expect(scan).toHaveBeenCalledTimes(1);
+  setRoute('Settings', 'settings');
+  emit('header:wallets:scan_qr');
+  expect(scan).toHaveBeenCalledTimes(1);
+  act(() => {
+    removeScan();
+    removeStack();
+  });
+  hook.unmount();
+});
+
+it('hides the current route from Open Recent and retains it when navigating away', () => {
+  setRoute('WalletsList', 'wallets');
+  const hook = renderHook(useMenuElements);
+  let removeWallets!: () => void;
+  let removeSettings!: () => void;
+  act(() => {
+    removeWallets = hook.result.current.registerHeaderMenu([], 'wallets');
+  });
+  expect(MenuElementsEmitter!.setHeaderMenu).toHaveBeenLastCalledWith('[]');
+  setRoute('Settings', 'settings');
+  act(() => {
+    removeSettings = hook.result.current.registerHeaderMenu([], 'settings');
+  });
+  let menu = jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0];
+  expect(menu).toContain('open_recent_wallets');
+  expect(menu).not.toContain('open_recent_settings');
+  setRoute('WalletsList', 'wallets');
+  notifyNavigation('state');
+  menu = jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0];
+  expect(menu).toContain('open_recent_settings');
+  expect(menu).not.toContain('open_recent_wallets');
+  expect(menu).toContain('clear_recent');
+  emit('header:recent:clear_recent');
+  expect(MenuElementsEmitter!.setHeaderMenu).toHaveBeenLastCalledWith('[]');
+  act(() => {
+    removeSettings();
+    removeWallets();
+  });
+  hook.unmount();
+});
+
+it('keeps ScanQRCode file import registered when camera controls replace header options', () => {
+  setRoute('ScanQRCode', 'scan');
+  const hook = renderHook(useMenuElements);
+  const importFile = jest.fn();
+  let removeScreen!: () => void;
+  let removeCamera!: () => void;
+  act(() => {
+    removeScreen = hook.result.current.registerHeaderMenu([{ id: 'import_file', text: 'Import File', onPress: importFile }], 'scan');
+    removeCamera = hook.result.current.registerHeaderMenu([{ id: 'choose_photo', text: 'Choose Photo', onPress: jest.fn() }], 'scan');
+  });
+  expect(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]).toContain('header:scan:import_file');
+  emit('header:scan:import_file');
+  expect(importFile).toHaveBeenCalledTimes(1);
+  act(removeScreen);
+  expect(jest.mocked(MenuElementsEmitter!.setHeaderMenu).mock.lastCall![0]).not.toContain('header:scan:import_file');
+  emit('header:scan:import_file');
+  expect(importFile).toHaveBeenCalledTimes(1);
+  act(removeCamera);
+  hook.unmount();
+});
+
+it.each([
+  'ViewEditMultisigCosignerViewSheet',
+  'ViewEditMultisigProvideMnemonicsSheet',
+  'ViewEditMultisigShareCosignerSheet',
+  'ViewEditMultisigCosigners',
+  'WalletXpub',
+  'WalletExport',
+  'UnknownSecretScreen',
+])('never records sensitive or unapproved destination %s', name => {
+  const hook = renderHook(useMenuElements);
+  jest.mocked(navigationRef.getCurrentRoute).mockReturnValue({ name, key: 'secret', params: { importText: 'secret seed' } });
+  notifyNavigation('state');
+  setRoute('Settings');
+  notifyNavigation('state');
+  emit('header:recent:open_recent_secret');
+  expect(navigationRef.dispatch).not.toHaveBeenCalled();
+  hook.unmount();
+});
+
+it('retains only approved identifiers and drops secret parameters from every route level', () => {
+  const hook = renderHook(useMenuElements);
+  jest.mocked(navigationRef.getRootState).mockReturnValue({
+    stale: false,
+    type: 'stack',
+    key: 'root',
+    index: 0,
+    routeNames: ['DrawerRoot'],
+    routes: [{ name: 'DrawerRoot', key: 'drawer', params: { seed: 'parent secret', params: { passphrase: 'secret' } } }],
+  });
+  jest.mocked(navigationRef.getCurrentRoute).mockReturnValue({
+    name: 'WalletTransactions',
+    key: 'safe-wallet',
+    params: {
+      walletID: 'wallet-id',
+      walletType: 'HD',
+      seed: 'secret seed',
+      wallet: { seed: 'secret object' },
+      onBarScanned: 'secret input',
+    },
+  });
+  notifyNavigation('state');
+  setRoute('Settings');
+  notifyNavigation('state');
+  emit('header:recent:open_recent_safe-wallet');
+  expect(navigationRef.dispatch).toHaveBeenCalledWith({
+    type: 'NAVIGATE',
+    payload: {
+      name: 'DrawerRoot',
+      params: {
+        screen: 'WalletTransactions',
+        params: { walletID: 'wallet-id', walletType: 'HD' },
+      },
+    },
+  });
+  hook.unmount();
+});
+
+it('clears history on lock and rejects stale recent commands after unlocking', () => {
+  const hook = renderHook(useMenuElements);
+  setRoute('Settings');
+  notifyNavigation('state');
+  jest.mocked(navigationRef.getRootState).mockReturnValue({
+    stale: false,
+    type: 'stack',
+    key: 'root',
+    index: 0,
+    routeNames: ['DrawerRoot', 'UnlockWithScreen'],
+    routes: [{ name: 'UnlockWithScreen', key: 'lock' }],
+  });
+  setRoute('UnlockWithScreen');
+  notifyNavigation('state');
+  emit('header:recent:open_recent_wallet-1');
+  expect(navigationRef.dispatch).not.toHaveBeenCalled();
+  jest.mocked(navigationRef.getRootState).mockReturnValue({
+    stale: false,
+    type: 'stack',
+    key: 'root',
+    index: 0,
+    routeNames: ['DrawerRoot'],
+    routes: [{ name: 'DrawerRoot', key: 'drawer' }],
+  });
+  setRoute('Settings');
+  notifyNavigation('state');
+  emit('header:recent:open_recent_wallet-1');
+  expect(navigationRef.dispatch).not.toHaveBeenCalled();
   hook.unmount();
 });

@@ -1,3 +1,4 @@
+import useScreenHeaderMenu from '../../hooks/useScreenHeaderMenu';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -254,6 +255,8 @@ const ImportWallet = () => {
       {Platform.OS === 'ios' && keyboardAccessory}
     </SafeAreaScrollView>
   );
+
+  useScreenHeaderMenu([{ id: 'file_save', text: loc.wallets.import_do_import, disabled: !importText.trim(), onPress: handleImport }]);
 
   return (
     <View style={styles.screen}>
