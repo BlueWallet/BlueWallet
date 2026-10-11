@@ -633,7 +633,7 @@
     "ms_help_title3": "Kopie zapasowe Skarbców",
     "ms_help_3": "W ustawieniach portfela znajdziesz kopię zapasową Twojego Skarbca oraz tylko do odczytu. Ta kopia jest jak mapa do Twojego portfela. Jest niezbędna przy odzyskiwaniu portfela w razie utraty seeda.",
     "ms_help_title4": "Import Skarbców",
-    "ms_help_4": "Aby zaimportować portfel wielopodpisowy, użyj kopii zapasowej i funkcji Importuj. Jeśli masz tylko seedy lub XPUB, możesz użyć przycisku Importuj podczas tworzenia kluczy Skarbca.",
+    "ms_help_4": "Aby zaimportować portfel wielopodpisowy, użyj kopii zapasowej i funkcji Importuj. Jeśli masz tylko frazy odzyskiwania i klucze XPUB, możesz użyć przycisku Importuj podczas tworzenia kluczy skarbca.",
     "ms_help_title5": "Tryb zaawansowany",
     "ms_help_5": "Domyślnie, BlueWallet wygeneruje skarbiec 2-z-3. Aby stworzyć inne kworum lub zmienić typ adresu, włącz Tryb Zaawansowany w Ustawieniach."
   },
