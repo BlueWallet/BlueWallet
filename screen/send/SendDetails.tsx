@@ -849,9 +849,23 @@ const SendDetails = () => {
               { text: loc._.yes, onPress: () => resolve(true) },
             ];
             if (isDesktop) {
-              // On Mac, Alert sits behind the modal. Wait for the scanner or file picker
-              // to close, then use the anchored action sheet.
-              sleep(500).then(() => presentAlert({ message: loc.multisig.cosign_this_transaction, buttons }));
+              // Wait for the scanner or file picker to close, then show an anchored sheet so the prompt stays in front on Mac.
+              sleep(500).then(() => {
+                const anchor = findNodeHandle(scrollView.current);
+                if (anchor === null) {
+                  resolve(false);
+                  return;
+                }
+                ActionSheet.showActionSheetWithOptions(
+                  {
+                    message: loc.multisig.cosign_this_transaction,
+                    options: buttons.map(button => button.text ?? ''),
+                    cancelButtonIndex: 0,
+                    anchor,
+                  },
+                  buttonIndex => buttons[buttonIndex]?.onPress?.(),
+                );
+              });
             } else {
               Alert.alert(loc.multisig.cosign_this_transaction, undefined, buttons, { cancelable: false });
             }
