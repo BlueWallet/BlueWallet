@@ -363,7 +363,7 @@
     "details_inputs": "Wejścia",
     "details_outputs": "Wyjścia",
     "date": "Data",
-    "details_received": "Otrzymano",
+    "details_received": "Odebrano",
     "details_view_in_browser": "Pokaż w przeglądarce",
     "details_title": "Transakcja",
     "incoming_transaction": "Transakcja przychodząca",
@@ -691,7 +691,7 @@
     "sign_placeholder_signature": "Podpis",
     "addresses_title": "Adresy",
     "type_change": "Reszta",
-    "type_receive": "Otrzymaj",
+    "type_receive": "Odbierz",
     "type_used": "Używany",
     "transactions": "Transakcje"
   },
