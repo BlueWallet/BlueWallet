@@ -41,7 +41,5 @@
 	</dict>
 	<key>RCTNewArchEnabled</key>
 	<true/>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>BlueWallet uses your local network to test Electrum servers in this preview.</string>
 </dict>
 </plist>

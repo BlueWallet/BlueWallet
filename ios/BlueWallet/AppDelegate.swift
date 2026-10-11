@@ -414,7 +414,6 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ("addElectrumServer", "Add Electrum Server…", #selector(addElectrumServerMenuAction), "n", .command, .file),
             ("importElectrumServerHistory", "Import Electrum Server History…", #selector(importElectrumServerHistoryMenuAction), "i", .command, .file),
             ("exportElectrumServerHistory", "Export Electrum Server History…", #selector(exportElectrumServerHistoryMenuAction), "e", [.command, .alternate], .file),
-            ("discoverElectrumServers", "Discover Electrum Servers…", #selector(discoverElectrumServersMenuAction), "d", [.command, .shift], .file),
             ("keyboardShortcuts", "Keyboard Shortcuts…", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
         ]
         for parent in [UIMenu.Identifier.file, .edit, .view, .help] {
@@ -489,10 +488,6 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     @objc func exportElectrumServerHistoryMenuAction(_ keyCommand: UIKeyCommand) {
         MenuElementsController.shared.perform("exportElectrumServerHistory")
-    }
-
-    @objc func discoverElectrumServersMenuAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("discoverElectrumServers")
     }
 
     @objc func keyboardShortcutsMenuAction(_ keyCommand: UIKeyCommand) {

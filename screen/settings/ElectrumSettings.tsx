@@ -1,6 +1,5 @@
 import { useFocusEffect, useNavigation, RouteProp, usePreventRemove, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Clipboard from '@react-native-clipboard/clipboard';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -18,7 +17,6 @@ import {
   View,
 } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
-import DeviceInfo from 'react-native-device-info';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -29,7 +27,6 @@ import {
   ElectrumServerItem,
   createElectrumServerHistoryDeepLink,
   electrumServerKey,
-  formatElectrumServer,
   inferElectrumServerSsl,
   parseElectrumServer,
   parseElectrumServerDocumentResult,
@@ -49,7 +46,6 @@ import { SettingsSection, SettingsListItem, SettingsFootnote } from '../../compo
 import { useTheme } from '../../components/themes';
 import { Action, HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
-import useElectrumServerDiscovery from '../../hooks/useElectrumServerDiscovery';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import loc from '../../loc';
@@ -62,7 +58,6 @@ export type { ElectrumServerItem } from '../../blue_modules/electrumServer';
 
 type ServerListEntry =
   | { type: 'header'; id: string; title: string; description?: string }
-  | { type: 'discoveryStatus'; id: string; status: 'scanning' | 'empty' }
   | {
       type: 'server';
       id: string;
@@ -70,27 +65,15 @@ type ServerListEntry =
       isFirst: boolean;
       isLast: boolean;
       isHistory: boolean;
-      isDiscovered?: boolean;
     };
 
 const IMPORT_SERVERS_ACTION_ID = 'import_electrum_servers';
 const EXPORT_SERVERS_ACTION_ID = 'export_electrum_servers';
 const ADD_SERVER_ACTION_ID = 'add_electrum_server';
-const DISCOVER_SERVERS_ACTION_ID = 'discover_electrum_servers';
 const SHOW_SUGGESTED_SERVERS_ACTION_ID = 'show_suggested_electrum_servers';
 const HANDOFF_SERVER_HISTORY_ACTION_ID = 'handoff_electrum_server_history';
 const SHOW_SUGGESTED_SERVERS_STORAGE_KEY = 'electrum_show_suggested_servers';
-const NEARBY_DISCOVERY_ENABLED_STORAGE_KEY = 'electrum_nearby_discovery_enabled';
 const SERVER_LIST_FILE_NAME = 'bluewallet-server-history.electrumservers';
-const IS_IOS_SIMULATOR = (() => {
-  if (!__DEV__ || Platform.OS !== 'ios') return false;
-  try {
-    return DeviceInfo.isEmulatorSync();
-  } catch {
-    return false;
-  }
-})();
-
 const serverKey = electrumServerKey;
 
 const SwipeableServerRow: React.FC<{
@@ -232,19 +215,10 @@ const ElectrumSettings: React.FC = () => {
   const [serverBanner, setServerBanner] = useState<string>('');
   const [setNewServerAsFavorite, setSetNewServerAsFavorite] = useState(true);
   const [isSuggestedExpanded, setIsSuggestedExpanded] = useState(false);
-  const [isNearbyExpanded, setIsNearbyExpanded] = useState(true);
   const [showSuggestedServers, setShowSuggestedServers] = useState(true);
-  const [isNearbyDiscoveryEnabled, setIsNearbyDiscoveryEnabled] = useState(false);
-  const [hasLoadedNearbyDiscoveryPreference, setHasLoadedNearbyDiscoveryPreference] = useState(false);
   const [isHandoffExportEnabled, setIsHandoffExportEnabled] = useState(false);
   const [testingServerKey, setTestingServerKey] = useState<string>();
   const { setIsElectrumDisabled, isElectrumDisabled, isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage } = useSettings();
-  const rememberNearbyDiscoveryEnabled = useCallback(async () => {
-    setIsNearbyDiscoveryEnabled(true);
-    await AsyncStorage.setItem(NEARBY_DISCOVERY_ENABLED_STORAGE_KEY, 'true').catch(() => undefined);
-  }, []);
-  const { discoveredServers, isDiscoveringServers, hasStartedDiscovery, discoverServers, retryDiscovery } =
-    useElectrumServerDiscovery(rememberNearbyDiscoveryEnabled);
   const handoffServerHistoryDocument = useMemo(
     () => (serverHistory.size > 0 ? serializeElectrumServerDocument(Array.from(serverHistory)) : ''),
     [serverHistory],
@@ -293,14 +267,6 @@ const ElectrumSettings: React.FC = () => {
       },
     ]);
   });
-
-  useEffect(() => {
-    if (isDiscoveringServers) setIsNearbyExpanded(true);
-  }, [isDiscoveringServers]);
-
-  useEffect(() => {
-    if (hasLoadedNearbyDiscoveryPreference && isNearbyDiscoveryEnabled && !hasStartedDiscovery && !isLoading) retryDiscovery();
-  }, [hasLoadedNearbyDiscoveryPreference, hasStartedDiscovery, isLoading, isNearbyDiscoveryEnabled, retryDiscovery]);
 
   useEffect(() => {
     if (shouldDismissAfterSave) navigation.goBack();
@@ -426,10 +392,6 @@ const ElectrumSettings: React.FC = () => {
     const savedSslPort = preferredServer?.ssl ? Number(preferredServer.ssl) : undefined;
     const hasSavedFavorite = Boolean(savedHost && (savedPort || savedSslPort));
     const serverHistoryStr = (await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY)) as string;
-    const nearbyDiscoveryEnabled = (await AsyncStorage.getItem(NEARBY_DISCOVERY_ENABLED_STORAGE_KEY).catch(() => null)) === 'true';
-    setIsNearbyDiscoveryEnabled(nearbyDiscoveryEnabled);
-    setHasLoadedNearbyDiscoveryPreference(true);
-
     if (hasSavedFavorite) {
       setShowSuggestedServers((await AsyncStorage.getItem(SHOW_SUGGESTED_SERVERS_STORAGE_KEY)) !== 'false');
     } else {
@@ -698,8 +660,6 @@ const ElectrumSettings: React.FC = () => {
         await importServerList();
       } else if (id === EXPORT_SERVERS_ACTION_ID) {
         await exportServerList();
-      } else if (id === DISCOVER_SERVERS_ACTION_ID) {
-        await discoverServers();
       } else if (id === HANDOFF_SERVER_HISTORY_ACTION_ID) {
         if (isHandOffUseEnabled) {
           setIsHandoffExportEnabled(value => !value);
@@ -727,9 +687,7 @@ const ElectrumSettings: React.FC = () => {
             setSslPort(undefined);
             setIsSuggestedExpanded(true);
             setShowSuggestedServers(true);
-            setIsNearbyDiscoveryEnabled(false);
             await AsyncStorage.removeItem(SHOW_SUGGESTED_SERVERS_STORAGE_KEY);
-            await AsyncStorage.removeItem(NEARBY_DISCOVERY_ENABLED_STORAGE_KEY);
             triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
             presentAlert({ message: loc.settings.electrum_saved });
             await fetchData();
@@ -739,7 +697,6 @@ const ElectrumSettings: React.FC = () => {
       }
     },
     [
-      discoverServers,
       exportServerList,
       fetchData,
       importServerList,
@@ -754,7 +711,6 @@ const ElectrumSettings: React.FC = () => {
     addElectrumServer: () => navigation.navigate('AddElectrumServerRoot'),
     importElectrumServerHistory: importServerList,
     exportElectrumServerHistory: serverHistory.size > 0 ? exportServerList : undefined,
-    discoverElectrumServers: Platform.OS === 'ios' && !isElectrumDisabled && !isDiscoveringServers ? discoverServers : undefined,
   });
 
   const isFavorite = useCallback(
@@ -773,15 +729,6 @@ const ElectrumSettings: React.FC = () => {
           id: ADD_SERVER_ACTION_ID,
           text: loc.settings.electrum_add_server,
           icon: { iconValue: Platform.OS === 'ios' ? 'plus' : 'ic_input_add' },
-        },
-      ],
-      [
-        {
-          id: DISCOVER_SERVERS_ACTION_ID,
-          text: loc.settings.electrum_discover_servers,
-          subtitle: loc.settings.electrum_discover_servers_description,
-          icon: { iconValue: Platform.OS === 'ios' ? 'dot.radiowaves.left.and.right' : 'ic_menu_search' },
-          disabled: isDiscoveringServers || isElectrumDisabled,
         },
       ],
       [
@@ -823,7 +770,7 @@ const ElectrumSettings: React.FC = () => {
           ]
         : []),
     ] as Action[][];
-  }, [host, isDiscoveringServers, isElectrumDisabled, isHandoffExportEnabled, port, serverHistory.size, showSuggestedServers, sslPort]);
+  }, [host, isHandoffExportEnabled, port, serverHistory.size, showSuggestedServers, sslPort]);
 
   const serverList = useMemo<ServerListEntry[]>(() => {
     const hasFavorite = Boolean(host && (port || sslPort));
@@ -889,49 +836,8 @@ const ElectrumSettings: React.FC = () => {
       );
     }
 
-    const visibleDiscoveredServers = discoveredServers.filter(
-      discoveredServer => !favoriteServer || serverKey(discoveredServer) !== serverKey(favoriteServer),
-    );
-    if (hasStartedDiscovery || visibleDiscoveredServers.length > 0) {
-      entries.push({
-        type: 'header',
-        id: 'discovered-header',
-        title: loc.settings.electrum_nearby_servers,
-      });
-      if (isNearbyExpanded) {
-        if (visibleDiscoveredServers.length === 0) {
-          entries.push({ type: 'discoveryStatus', id: 'discovery-status', status: isDiscoveringServers ? 'scanning' : 'empty' });
-        }
-        entries.push(
-          ...visibleDiscoveredServers.map((discoveredServer, index) => ({
-            type: 'server' as const,
-            id: `discovered-${serverKey(discoveredServer)}`,
-            server: discoveredServer,
-            isFirst: index === 0,
-            isLast: index === visibleDiscoveredServers.length - 1,
-            isHistory: false,
-            isDiscovered: true,
-          })),
-        );
-      }
-    }
-
     return entries;
-  }, [
-    config.connected,
-    config.host,
-    config.port,
-    discoveredServers,
-    hasStartedDiscovery,
-    host,
-    isDiscoveringServers,
-    isNearbyExpanded,
-    isSuggestedExpanded,
-    port,
-    serverHistory,
-    showSuggestedServers,
-    sslPort,
-  ]);
+  }, [config.connected, config.host, config.port, host, isSuggestedExpanded, port, serverHistory, showSuggestedServers, sslPort]);
 
   const headerMenuOptions = useMemo(
     () =>
@@ -1379,32 +1285,15 @@ const ElectrumSettings: React.FC = () => {
     ({ item }: ListRenderItemInfo<ServerListEntry>) => {
       if (item.type === 'header') {
         const isSuggestedHeader = item.id === 'suggested-header';
-        const isNearbyHeader = item.id === 'discovered-header';
         const isCollapsible = isSuggestedHeader && Boolean(host && (port || sslPort));
-        const iconName = item.id === 'favorite-header' ? 'favorite' : item.id === 'discovered-header' ? 'search' : 'electrum';
+        const iconName = item.id === 'favorite-header' ? 'favorite' : 'electrum';
         return (
           <SettingsSection
             title={item.title}
             iconName={iconName}
-            onHeaderPress={isNearbyHeader ? () => setIsNearbyExpanded(current => !current) : undefined}
-            headerAccessibilityLabel={
-              isNearbyHeader
-                ? isNearbyExpanded
-                  ? loc.settings.electrum_collapse_nearby_servers
-                  : loc.settings.electrum_expand_nearby_servers
-                : undefined
-            }
-            headerAccessibilityState={isNearbyHeader ? { expanded: isNearbyExpanded } : undefined}
-            containerStyle={[
-              styles.serverSectionHeader,
-              ((isCollapsible && !isSuggestedExpanded) || (isNearbyHeader && !isNearbyExpanded)) && styles.collapsedSectionHeader,
-            ]}
+            containerStyle={[styles.serverSectionHeader, isCollapsible && !isSuggestedExpanded && styles.collapsedSectionHeader]}
             headerRight={
-              isNearbyHeader ? (
-                <View accessible={false} style={styles.disclosureButton}>
-                  <Ionicons name={isNearbyExpanded ? 'chevron-up' : 'chevron-down'} size={20} color={colors.alternativeTextColor} />
-                </View>
-              ) : isCollapsible ? (
+              isCollapsible ? (
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={
@@ -1435,47 +1324,6 @@ const ElectrumSettings: React.FC = () => {
         );
       }
 
-      if (item.type === 'discoveryStatus') {
-        const scanning = item.status === 'scanning';
-        return (
-          <View style={[styles.discoveryStatus, stylesHook.serverRow]} accessibilityLiveRegion="polite">
-            {scanning ? (
-              <View style={styles.discoveryScanningContent}>
-                <View style={styles.discoveryScanningRow}>
-                  <ActivityIndicator accessibilityLabel={loc.settings.electrum_discovery_looking} color={colors.primary} />
-                  <Text style={[styles.discoveryStatusTitle, { color: colors.foregroundColor }]}>
-                    {loc.settings.electrum_discovery_looking}
-                  </Text>
-                </View>
-                {IS_IOS_SIMULATOR ? <SettingsFootnote>{loc.settings.electrum_discovery_simulator_note}</SettingsFootnote> : null}
-              </View>
-            ) : (
-              <View style={styles.discoveryEmptyContent}>
-                <Text accessibilityRole="header" style={[styles.discoveryStatusTitle, { color: colors.foregroundColor }]}>
-                  {loc.settings.electrum_discovery_empty_title}
-                </Text>
-                <SettingsFootnote>{loc.settings.electrum_discovery_empty_message}</SettingsFootnote>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={loc.settings.electrum_discovery_try_again}
-                  onPress={retryDiscovery}
-                  style={({ pressed }) => [
-                    styles.discoveryRetryButton,
-                    { backgroundColor: colors.buttonBackgroundColor },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <Text style={[styles.discoveryRetryText, { color: colors.buttonTextColor }]}>
-                    {loc.settings.electrum_discovery_try_again}
-                  </Text>
-                </Pressable>
-                {IS_IOS_SIMULATOR ? <SettingsFootnote>{loc.settings.electrum_discovery_simulator_note}</SettingsFootnote> : null}
-              </View>
-            )}
-          </View>
-        );
-      }
-
       const serverPort = item.server.ssl ?? item.server.tcp;
       const itemServerKey = serverKey(item.server);
       const favorite = isFavorite(item.server);
@@ -1483,8 +1331,6 @@ const ElectrumSettings: React.FC = () => {
       const isTesting = testingServerKey === itemServerKey;
       const testResult = serverTestResults[itemServerKey];
       const protocol = item.server.ssl ? 'SSL' : 'TCP';
-      const openDiscoveredServer = () =>
-        navigation.navigate('AddElectrumServerRoot', { screen: 'AddElectrumServer', params: { server: item.server } });
       const serverAccessibilityLabel = `${item.server.host}, ${protocol} ${serverPort}${favorite ? `, ${loc.settings.electrum_favorite_server}` : ''}${connected ? `, ${loc.settings.electrum_connected}` : ''}${testResult === true ? `, ${loc.settings.electrum_connection_successful}` : ''}${testResult === false ? `, ${loc.settings.electrum_validation_failed}` : ''}`;
 
       const row = (
@@ -1496,55 +1342,21 @@ const ElectrumSettings: React.FC = () => {
           subtitle={item.server.ssl ? `${loc._.ssl_port}: ${item.server.ssl}` : `${loc._.port}: ${item.server.tcp}`}
           subtitleSelectable={!item.isHistory}
           accessibilityLabel={serverAccessibilityLabel}
-          accessibilityHint={
-            item.isDiscovered
-              ? loc.settings.electrum_discovered_server_hint
-              : favorite
-                ? loc.settings.electrum_favorite_server
-                : loc.settings.electrum_server_row_hint
-          }
+          accessibilityHint={favorite ? loc.settings.electrum_favorite_server : loc.settings.electrum_server_row_hint}
           accessibilityState={{ selected: favorite, disabled: favorite || isLoading, busy: isTesting }}
           accessibilityActions={[
             ...(!isElectrumDisabled && !favorite ? [{ name: 'test', label: loc.settings.electrum_test_connection }] : []),
             ...(item.isHistory ? [{ name: 'delete', label: loc.wallets.details_delete }] : []),
-            ...(item.isDiscovered ? [{ name: 'copy', label: loc.settings.electrum_copy_server }] : []),
           ]}
           onAccessibilityAction={event => {
             if (event.nativeEvent.actionName === 'test' && !isElectrumDisabled && !favorite) {
               testServerConnection(item.server);
             } else if (event.nativeEvent.actionName === 'delete' && item.isHistory) {
               deleteServerFromHistory(item.server);
-            } else if (event.nativeEvent.actionName === 'copy' && item.isDiscovered) {
-              Clipboard.setString(formatElectrumServer(item.server));
             }
           }}
           rightElement={
-            item.isDiscovered ? (
-              <View style={styles.discoveredRowActions}>
-                {isTesting ? (
-                  <ActivityIndicator accessibilityLabel={loc.settings.electrum_testing_server} color={colors.primary} />
-                ) : testResult !== undefined ? (
-                  <Ionicons
-                    accessible={false}
-                    name={testResult ? 'checkmark-circle' : 'close-circle'}
-                    size={20}
-                    color={testResult ? colors.receiveText : colors.redText}
-                  />
-                ) : null}
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={loc.settings.electrum_add_server_result}
-                  onPress={openDiscoveredServer}
-                  style={({ pressed }) => [
-                    styles.discoveryAddButton,
-                    { backgroundColor: colors.buttonBackgroundColor },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <Text style={[styles.discoveryAddText, { color: colors.buttonTextColor }]}>{loc.settings.electrum_add}</Text>
-                </Pressable>
-              </View>
-            ) : isTesting ? (
+            isTesting ? (
               <ActivityIndicator accessibilityLabel={loc.settings.electrum_testing_server} color={colors.primary} />
             ) : testResult !== undefined ? (
               <View importantForAccessibility="no" style={styles.connectedIcon}>
@@ -1569,9 +1381,7 @@ const ElectrumSettings: React.FC = () => {
               />
             ) : undefined
           }
-          onPress={
-            isLoading || favorite ? undefined : item.isDiscovered ? openDiscoveredServer : () => presentSelectServerAlert(item.server)
-          }
+          onPress={isLoading || favorite ? undefined : () => presentSelectServerAlert(item.server)}
           bottomDivider={!item.isLast}
           containerStyle={[
             styles.serverRow,
@@ -1591,7 +1401,6 @@ const ElectrumSettings: React.FC = () => {
           isLast={item.isLast}
           deleteTestID={item.isHistory ? `DeleteElectrumServer-${item.server.host}-${serverPort}` : undefined}
           onDelete={item.isHistory ? () => deleteServerFromHistory(item.server) : undefined}
-          onCopy={item.isDiscovered ? () => Clipboard.setString(formatElectrumServer(item.server)) : undefined}
         >
           {row}
         </SwipeableServerRow>
@@ -1600,9 +1409,6 @@ const ElectrumSettings: React.FC = () => {
     [
       colors.alternativeTextColor,
       colors.alternativeTextColor2,
-      colors.buttonBackgroundColor,
-      colors.buttonTextColor,
-      colors.foregroundColor,
       colors.primary,
       colors.redText,
       colors.receiveText,
@@ -1613,9 +1419,7 @@ const ElectrumSettings: React.FC = () => {
       isLoading,
       isFavorite,
       isElectrumDisabled,
-      isNearbyExpanded,
       isSuggestedExpanded,
-      navigation,
       host,
       port,
       presentSelectServerAlert,
@@ -1624,7 +1428,6 @@ const ElectrumSettings: React.FC = () => {
       stylesHook,
       testServerConnection,
       testingServerKey,
-      retryDiscovery,
     ],
   );
 
@@ -1817,65 +1620,6 @@ const styles = StyleSheet.create({
   },
   connectedIcon: {
     marginLeft: 10,
-  },
-  discoveryStatus: {
-    marginHorizontal: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 18,
-    minHeight: 64,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
-    marginBottom: Platform.select({ ios: 32, default: 24 }),
-  },
-  discoveryStatusTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  discoveryScanningContent: {
-    flex: 1,
-    gap: 10,
-  },
-  discoveryScanningRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  discoveryEmptyContent: {
-    flex: 1,
-    gap: 8,
-  },
-  discoveryRetryButton: {
-    alignSelf: 'flex-start',
-    minHeight: 36,
-    paddingHorizontal: 16,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 4,
-  },
-  discoveryRetryText: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  discoveredRowActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  discoveryAddButton: {
-    minHeight: 34,
-    minWidth: 54,
-    paddingHorizontal: 14,
-    borderRadius: 17,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  discoveryAddText: {
-    fontSize: 15,
-    fontWeight: '600',
   },
   serverRowFirst: {
     borderTopLeftRadius: 0,

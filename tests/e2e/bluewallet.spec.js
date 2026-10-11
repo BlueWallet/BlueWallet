@@ -140,7 +140,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // Add Server is a separate form sheet on Apple platforms and a nested stack screen on Android.
     await element(by.id('HeaderMenuButton')).tap();
-    await expect(element(by.text('Find Servers Nearby'))).toBeVisible();
     if (device.getPlatform() === 'ios') {
       await expect(element(by.text('Export History with Handoff'))).toBeVisible();
     }

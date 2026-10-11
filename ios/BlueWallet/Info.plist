@@ -211,17 +211,10 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSBonjourServices</key>
-	<array>
-		<string>_electrum._tcp</string>
-		<string>_electrums._tcp</string>
-	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>In order to quickly scan the recipient's address, we need your permission to use the camera to scan their QR Code.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>In order to use FaceID for authentication when performing sensitive actions, we need your permission.</string>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>BlueWallet uses your local network to discover Electrum servers you choose to use.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Your authorization is required to save this image.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

@@ -7,8 +7,7 @@ export type ScreenMenuAction =
   | 'copyTransactionId'
   | 'addElectrumServer'
   | 'importElectrumServerHistory'
-  | 'exportElectrumServerHistory'
-  | 'discoverElectrumServers';
+  | 'exportElectrumServerHistory';
 export type MenuAction = ScreenMenuAction | 'settings' | 'addWallet' | 'importWallet' | 'backToWallets' | 'keyboardShortcuts';
 export type MenuActionHandlers = Partial<Record<ScreenMenuAction, () => void>>;
 
@@ -17,7 +16,7 @@ const screenActions: Record<string, readonly ScreenMenuAction[]> = {
   WalletTransactions: ['reloadTransactions', 'send', 'receive', 'walletDetails'],
   ReceiveDetails: ['copyAddress'],
   TransactionStatus: ['copyTransactionId'],
-  ElectrumSettings: ['addElectrumServer', 'importElectrumServerHistory', 'exportElectrumServerHistory', 'discoverElectrumServers'],
+  ElectrumSettings: ['addElectrumServer', 'importElectrumServerHistory', 'exportElectrumServerHistory'],
 };
 const walletDetailScreens = new Set(['WalletTransactions', 'WalletDetails', 'TransactionStatus', 'ReceiveDetails', 'WalletAddresses']);
 
@@ -44,7 +43,6 @@ export const menuShortcuts = [
   { title: 'Add Electrum Server…', key: 'N', where: 'Electrum settings' },
   { title: 'Import Electrum Server History…', key: 'I', where: 'Electrum settings' },
   { title: 'Export Electrum Server History…', key: 'E', where: 'Electrum settings, when history is available' },
-  { title: 'Discover Electrum Servers…', key: 'Shift+D', where: 'Electrum settings, when online' },
   { title: 'Settings', key: ',', where: 'Anywhere after unlocking' },
   { title: 'Keyboard Shortcuts…', key: '/', where: 'Anywhere after unlocking' },
 ] as const;
