@@ -55,8 +55,6 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         self.dependencyProvider = RCTAppDependencyProvider()
         self.initialProps = [:]
 
-        RCTI18nUtil.sharedInstance().allowRTL(true)
-
         RNNotifications.startMonitorNotifications()
         RNNotifications.addNativeDelegate(self)
 

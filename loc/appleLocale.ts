@@ -150,6 +150,6 @@ export const CF_BUNDLE_LANG_CODES = [
 
 export type CfBundleLangCode = (typeof CF_BUNDLE_LANG_CODES)[number];
 
-export const CF_BUNDLE_APPLE_LOCALES: readonly string[] = CF_BUNDLE_LANG_CODES.map(lang => langCodeToAppleLocale[lang]).sort(
-  (a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }),
+export const CF_BUNDLE_APPLE_LOCALES: readonly string[] = CF_BUNDLE_LANG_CODES.map(lang => langCodeToAppleLocale[lang]).sort((a, b) =>
+  a.localeCompare(b, undefined, { sensitivity: 'base' }),
 );

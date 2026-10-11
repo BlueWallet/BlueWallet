@@ -7,43 +7,18 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Localization, { LocalizedStrings } from 'react-localization';
-import { AppState, I18nManager } from 'react-native';
+import { I18nManager } from 'react-native';
 import * as RNLocalize from 'react-native-localize';
 
 import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages, LangCode } from './languages';
-import {
-  DEVICE_LOCALE_FINGERPRINT_KEY,
-  executeLanguageBootstrap,
-  fingerprintFromLocales,
-  LANG_USER_OVERRIDE_KEY,
-  layoutDirectionIsRtl,
-  RTL_FORCE_DIRECTION_KEY,
-  legacyAutodetectLangCode,
-  notifyLanguageChanged,
-  notifyRtlRestartNeeded,
-  resumeShouldReapplyLanguage,
-  shouldNotifyRtlLanguageRestart,
-  STORAGE_KEY,
-} from './languageSync';
+import { resolveLangCodeFromRnLocales, RnLocale } from './resolveDeviceLangCode';
 import enJson from './en.json';
 
-export {
-  DEVICE_LOCALE_FINGERPRINT_KEY,
-  LANGUAGE_CHANGED_EVENT,
-  LANGUAGE_RTL_RESTART_EVENT,
-  LANG_USER_OVERRIDE_KEY,
-  STORAGE_KEY,
-} from './languageSync';
-export {
-  decideLaunchLanguage,
-  executeLanguageBootstrap,
-  fingerprintFromLocales,
-  notifyLanguageChanged,
-  notifyRtlRestartNeeded,
-  shouldNotifyRtlLanguageRestart,
-} from './languageSync';
+export const STORAGE_KEY = 'lang';
+/** LangCode we last picked from the device locale; while `lang` still equals it the device keeps winning. */
+export const AUTODETECTED_LANG_KEY = 'langAutodetected';
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
@@ -389,95 +364,65 @@ const setDateTimeLocale = async () => {
   }
 };
 
-let lastAppliedLangForSideEffects: string | null = null;
-
-const applyLanguageSideEffects = async (lang: string, options?: { userSelected?: boolean }) => {
-  const previousLang = lastAppliedLangForSideEffects;
-  applyLanguage(lang);
-  const foundLang = AvailableLanguages.find(language => language.value === lang);
-  const desiredRtl = foundLang?.isRTL ?? false;
-  if (process.env.JEST_WORKER_ID === undefined) {
-    I18nManager.allowRTL(desiredRtl);
-    I18nManager.forceRTL(desiredRtl);
-    const forcedFlag = await AsyncStorage.getItem(RTL_FORCE_DIRECTION_KEY);
-    const previouslyForcedRtl = forcedFlag === '1' ? true : forcedFlag === '0' ? false : null;
-    if (
-      shouldNotifyRtlLanguageRestart({
-        previousLang,
-        newLang: lang,
-        userSelected: options?.userSelected,
-        currentLayoutRtl: layoutDirectionIsRtl(I18nManager.isRTL),
-        previouslyForcedRtl,
-      })
-    ) {
-      notifyRtlRestartNeeded();
-    }
-    await AsyncStorage.setItem(RTL_FORCE_DIRECTION_KEY, desiredRtl ? '1' : '0');
-  }
-  lastAppliedLangForSideEffects = lang;
-  await setDateTimeLocale();
+/** Autodetect from before AUTODETECTED_LANG_KEY existed: exact `languageCode` match, else `en`. */
+const legacyAutodetectLangCode = (locales: readonly RnLocale[]): string => {
+  const detected = locales[0]?.languageCode;
+  return detected && AvailableLanguages.some(language => language.value === detected) ? detected : 'en';
 };
 
-const syncDeviceLanguageIfNeeded = async () => {
-  const locales = RNLocalize.getLocales();
-  const currentFingerprint = fingerprintFromLocales(locales);
-  const persistedFingerprint = await AsyncStorage.getItem(DEVICE_LOCALE_FINGERPRINT_KEY);
-  const userOverride = (await AsyncStorage.getItem(LANG_USER_OVERRIDE_KEY)) === '1';
-  const stored = await AsyncStorage.getItem(STORAGE_KEY);
-  if (
-    !resumeShouldReapplyLanguage({
-      userOverride,
-      storedLang: stored,
-      persistedFingerprint,
-      currentFingerprint,
-      legacyAutodetect: legacyAutodetectLangCode(locales),
-    })
-  ) {
-    return;
+/**
+ * Device language wins unless the user picked something else in-app, i.e. the stored value
+ * differs from what we last autodetected. Installs predating AUTODETECTED_LANG_KEY compare
+ * against the legacy autodetect result instead.
+ */
+export const pickLaunchLanguage = (params: {
+  stored: string | null;
+  lastAutodetected: string | null;
+  device: string;
+  legacyAutodetect: string;
+}): { lang: string; autodetected: boolean } => {
+  const { stored, lastAutodetected, device, legacyAutodetect } = params;
+  if (!stored || stored === (lastAutodetected ?? legacyAutodetect)) {
+    return { lang: device, autodetected: true };
   }
-  // Same decision as cold start, including a missing fingerprint. Fingerprint is written
-  // only after applyLanguage succeeds inside executeLanguageBootstrap.
-  await executeLanguageBootstrap({
-    getLocales: () => locales,
-    getItem: key => AsyncStorage.getItem(key),
-    setItem: (key, value) => AsyncStorage.setItem(key, value),
-    removeItem: key => AsyncStorage.removeItem(key),
-    applyLanguage: lang => saveLanguage(lang),
-  });
+  return { lang: stored, autodetected: false };
+};
+
+/** `I18nManager.isRTL` is frozen at process start, so an RTL/LTR change only lands after a restart. */
+export const isRtlLayoutStale = (lang: string): boolean => {
+  const desiredRtl = AvailableLanguages.find(language => language.value === lang)?.isRTL ?? false;
+  return desiredRtl !== I18nManager.isRTL;
 };
 
 // Fire-and-forget; `loc` starts as `{en}` until this resolves, so synchronous reads on a cold launch with non-en saved preference render English briefly.
-const init = async () => {
-  await executeLanguageBootstrap({
-    getLocales: () => RNLocalize.getLocales(),
-    getItem: key => AsyncStorage.getItem(key),
-    setItem: (key, value) => AsyncStorage.setItem(key, value),
-    removeItem: key => AsyncStorage.removeItem(key),
-    applyLanguage: lang => saveLanguage(lang),
+const init = async (): Promise<string> => {
+  const locales = RNLocalize.getLocales();
+  const [stored, lastAutodetected] = await Promise.all([AsyncStorage.getItem(STORAGE_KEY), AsyncStorage.getItem(AUTODETECTED_LANG_KEY)]);
+  const { lang, autodetected } = pickLaunchLanguage({
+    stored,
+    lastAutodetected,
+    device: resolveLangCodeFromRnLocales(locales),
+    legacyAutodetect: legacyAutodetectLangCode(locales),
   });
-};
-
-init();
-
-if (process.env.JEST_WORKER_ID === undefined) {
-  AppState.addEventListener('change', nextState => {
-    if (nextState === 'active') {
-      syncDeviceLanguageIfNeeded().catch(console.error);
-    }
-  });
-}
-
-export const saveLanguage = async (lang: string, options?: { userSelected?: boolean }) => {
-  await AsyncStorage.setItem(STORAGE_KEY, lang);
-  if (options?.userSelected) {
-    await AsyncStorage.setItem(LANG_USER_OVERRIDE_KEY, '1');
+  await saveLanguage(lang);
+  if (autodetected) {
+    await AsyncStorage.setItem(AUTODETECTED_LANG_KEY, lang);
   }
-  await applyLanguageSideEffects(lang, options);
-  notifyLanguageChanged(lang);
+  return lang;
 };
+export const languageReady = init();
 
-export { resolveLangCodeFromRnLocale, resolveLangCodeFromRnLocales } from './resolveDeviceLangCode';
-export { CF_BUNDLE_APPLE_LOCALES, CF_BUNDLE_LANG_CODES, langCodeToAppleLocale } from './appleLocale';
+export const saveLanguage = async (lang: string) => {
+  await AsyncStorage.setItem(STORAGE_KEY, lang);
+  applyLanguage(lang);
+  // even tho it makes no effect changing it in this run, it will on the next run, so we are doign it here:
+  if (process.env.JEST_WORKER_ID === undefined) {
+    const foundLang = AvailableLanguages.find(language => language.value === lang);
+    I18nManager.allowRTL(foundLang?.isRTL ?? false);
+    I18nManager.forceRTL(foundLang?.isRTL ?? false);
+  }
+  await setDateTimeLocale();
+};
 
 export const transactionTimeToReadable = (time: number | string) => {
   if (time === -1) {

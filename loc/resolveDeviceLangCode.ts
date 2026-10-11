@@ -3,218 +3,55 @@ import { LangCode } from './languages';
 
 export type RnLocale = {
   languageCode: string;
+  scriptCode?: string;
   countryCode?: string;
   languageTag?: string;
-  scriptCode?: string;
 };
 
-const ES_419_COUNTRY_CODES = new Set([
-  '419',
-  'MX',
-  'AR',
-  'CO',
-  'CL',
-  'PE',
-  'VE',
-  'EC',
-  'GT',
-  'CU',
-  'BO',
-  'DO',
-  'HN',
-  'PY',
-  'SV',
-  'NI',
-  'CR',
-  'PA',
-  'UY',
-  'PR',
-  'BZ',
-  'GY',
-  'HT',
-  'JM',
-  'TT',
-  'BB',
-  'GD',
-  'LC',
-  'VC',
-  'AG',
-  'DM',
-  'KN',
-  'BS',
-]);
+// Lower-cased Apple locale id -> LangCode, only for locales declared in CFBundleLocalizations,
+// so walking the device preference list stops where UIKit would stop. Partial catalogs
+// (da, nl, fil, ak, pcm) stay in the in-app picker but never win autodetection.
+const appleToLangCode = new Map<string, LangCode>(CF_BUNDLE_LANG_CODES.map(lang => [langCodeToAppleLocale[lang].toLowerCase(), lang]));
+appleToLangCode.set('no', 'nb_no'); // Norwegian macrolanguage (Android)
+appleToLangCode.set('iw', 'he'); // legacy Java codes (Android)
+appleToLangCode.set('in', 'id_id');
 
-const appleLocaleToLangCode = (() => {
-  const map = new Map<string, LangCode>();
-  // Only locales declared in CFBundleLocalizations. Partial catalogs (da, nl, fil, ak, pcm)
-  // stay available in the in-app picker but must not win device resolution ahead of UIKit.
-  for (const lang of CF_BUNDLE_LANG_CODES) {
-    map.set(langCodeToAppleLocale[lang].toLowerCase(), lang);
-  }
-  // Legacy / alias tags. `no` is the Norwegian macrolanguage (Android). `nn` is omitted so
-  // Nynorsk falls through to the next preferred language UIKit would actually select.
-  map.set('no', 'nb_no');
-  map.set('iw', 'he');
-  map.set('in', 'id_id');
-  return map;
-})();
+// Regions Apple folds into es-419.
+const ES_419_REGIONS = new Set(
+  'ar bo bz cl co cr cu do ec gt gy hn ht jm mx ni pa pe pr py sv tt uy ve bb gd lc vc ag dm kn bs'.split(' '),
+);
 
-const normalizeTag = (tag: string): string => tag.trim().replace(/_/g, '-');
-
-const lookupTag = (tag: string): LangCode | null => {
-  const normalized = normalizeTag(tag).toLowerCase();
-  const direct = appleLocaleToLangCode.get(normalized);
-  if (direct) {
-    return direct;
-  }
-  const base = normalized.split('-')[0];
-  return appleLocaleToLangCode.get(base) ?? null;
-};
-
-const resolvePortuguese = (locale: RnLocale): LangCode | null => {
-  const tag = locale.languageTag ? normalizeTag(locale.languageTag).toLowerCase() : '';
-  if (tag.startsWith('pt-br') || tag === 'pt-br') {
-    return 'pt_br';
-  }
-  if (tag.startsWith('pt-pt') || tag === 'pt-pt') {
-    return 'pt_pt';
-  }
-  const cc = locale.countryCode?.toUpperCase();
-  if (cc === 'BR') {
-    return 'pt_br';
-  }
-  if (cc === 'PT' || cc === 'AO' || cc === 'MZ' || cc === 'CV' || cc === 'GW' || cc === 'ST' || cc === 'TL') {
-    return 'pt_pt';
-  }
-  if (locale.languageCode.toLowerCase() === 'pt') {
-    return 'pt_pt';
-  }
-  return null;
-};
-
-const resolveChinese = (locale: RnLocale): LangCode | null => {
-  const tag = locale.languageTag ? normalizeTag(locale.languageTag).toLowerCase() : '';
-  const script = locale.scriptCode?.toLowerCase();
-  // Explicit scriptCode, then script in the tag, then region subtags. `zh-Hans-TW` is
-  // Simplified. Subtags are exact so `zh-Mong` is not treated as Macau (`-mo`).
-  if (script === 'hant') {
-    return 'zh_tw';
-  }
-  if (script === 'hans') {
-    return 'zh_cn';
-  }
-  if (tag.includes('hant')) {
-    return 'zh_tw';
-  }
-  if (tag.includes('hans')) {
-    return 'zh_cn';
-  }
-  const subtags = new Set(tag.split('-').filter(Boolean));
-  if (subtags.has('tw') || subtags.has('hk') || subtags.has('mo')) {
-    return 'zh_tw';
-  }
-  if (subtags.has('cn') || subtags.has('sg')) {
-    return 'zh_cn';
-  }
-  const cc = locale.countryCode?.toUpperCase();
-  if (cc === 'TW' || cc === 'HK' || cc === 'MO') {
-    return 'zh_tw';
-  }
-  if (cc === 'CN' || cc === 'SG') {
-    return 'zh_cn';
-  }
-  if (locale.languageCode.toLowerCase() === 'zh') {
-    return 'zh_cn';
-  }
-  return null;
-};
-
-const resolveSpanish = (locale: RnLocale): LangCode | null => {
-  const tag = locale.languageTag ? normalizeTag(locale.languageTag).toLowerCase() : '';
-  if (tag === 'es-419' || tag.startsWith('es-419') || tag.includes('-419')) {
-    return 'es_419';
-  }
-  const cc = locale.countryCode?.toUpperCase();
-  if (cc && ES_419_COUNTRY_CODES.has(cc)) {
-    return 'es_419';
-  }
-  if (cc === 'ES' || tag === 'es-es' || tag.endsWith('-es')) {
-    return 'es';
-  }
-  if (locale.languageCode.toLowerCase() === 'es') {
-    if (cc === 'ES') {
-      return 'es';
-    }
-    // Undifferentiated `es` is common on Latin American devices; prefer es_419 over Spain.
-    return 'es_419';
-  }
-  return null;
-};
-
-const resolveSerbian = (locale: RnLocale): LangCode | null => {
-  const tag = locale.languageTag ? normalizeTag(locale.languageTag).toLowerCase() : '';
-  if (tag.includes('latn') || locale.scriptCode?.toLowerCase() === 'latn') {
-    return 'sr_rs';
-  }
-  if (locale.languageCode.toLowerCase() === 'sr') {
-    return 'sr_rs';
-  }
-  return null;
+// Candidate Apple ids for one device locale, most specific first.
+const candidates = (locale: RnLocale): string[] => {
+  const lang = locale.languageCode.toLowerCase();
+  const subtags = (locale.languageTag ?? lang).toLowerCase().replace(/_/g, '-').split('-').slice(1);
+  const script = locale.scriptCode?.toLowerCase() ?? subtags.find(s => s.length === 4);
+  const region = locale.countryCode?.toLowerCase() ?? subtags.find(s => s.length === 2 || s.length === 3);
+  const out: string[] = [];
+  if (script) out.push(`${lang}-${script}`);
+  if (region) out.push(`${lang}-${region}`);
+  // Apple's own fallbacks for the few languages we split by script or region.
+  if (lang === 'es' && region && ES_419_REGIONS.has(region)) out.push('es-419');
+  if (lang === 'zh' && script !== 'hans' && script !== 'hant')
+    out.push(region === 'tw' || region === 'hk' || region === 'mo' ? 'zh-hant' : 'zh-hans');
+  if (lang === 'pt') out.push(region === 'br' || !region ? 'pt-br' : 'pt-pt');
+  out.push(lang);
+  return out;
 };
 
 export const resolveLangCodeFromRnLocale = (locale: RnLocale): LangCode | null => {
-  const lc = locale.languageCode.toLowerCase();
-  if (lc === 'pt') {
-    const pt = resolvePortuguese(locale);
-    if (pt) {
-      return pt;
-    }
+  for (const id of candidates(locale)) {
+    const hit = appleToLangCode.get(id);
+    if (hit) return hit;
   }
-  if (lc === 'zh') {
-    const zh = resolveChinese(locale);
-    if (zh) {
-      return zh;
-    }
-  }
-  if (lc === 'es') {
-    const es = resolveSpanish(locale);
-    if (es) {
-      return es;
-    }
-  }
-  if (lc === 'sr') {
-    const sr = resolveSerbian(locale);
-    if (sr) {
-      return sr;
-    }
-  }
-
-  if (locale.languageTag) {
-    const fromTag = lookupTag(locale.languageTag);
-    if (fromTag) {
-      return fromTag;
-    }
-  }
-
-  const fromCode = lookupTag(lc);
-  if (fromCode) {
-    return fromCode;
-  }
-
-  if (locale.languageTag) {
-    const tagPrefix = normalizeTag(locale.languageTag).split('-')[0].toLowerCase();
-    return lookupTag(tagPrefix);
-  }
-
   return null;
 };
 
+/** First device locale that maps to a declared catalog, else `en`. */
 export const resolveLangCodeFromRnLocales = (locales: readonly RnLocale[]): LangCode => {
   for (const locale of locales) {
-    const resolved = resolveLangCodeFromRnLocale(locale);
-    if (resolved) {
-      return resolved;
-    }
+    const hit = resolveLangCodeFromRnLocale(locale);
+    if (hit) return hit;
   }
   return 'en';
 };

@@ -4,8 +4,8 @@ import { isReadClipboardAllowed, setReadClipboardAllowed } from '../../blue_modu
 import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon, setPreferredCurrency } from '../../blue_modules/currency';
 import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import { BlueApp } from '../../class/blue-app';
+import loc, { isRtlLayoutStale, languageReady, saveLanguage } from '../../loc';
 import presentAlert from '../Alert';
-import loc, { LANGUAGE_CHANGED_EVENT, LANGUAGE_RTL_RESTART_EVENT, saveLanguage, STORAGE_KEY } from '../../loc';
 import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
 import {
   getEnabled as getIsDeviceQuickActionsEnabled,
@@ -18,8 +18,6 @@ import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../Tot
 import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer, normalizeUrl } from '../../models/blockExplorer';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { DeviceEventEmitter } from 'react-native';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -166,8 +164,12 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         getIsHandOffUseEnabled().then(handOff => {
           setIsHandOffUseEnabledState(handOff);
         }),
-        AsyncStorage.getItem(STORAGE_KEY).then(lang => {
-          setLanguage(lang ?? 'en');
+        languageReady.then(lang => {
+          setLanguage(lang);
+          // Device language changed RTL/LTR behind our back (iOS per-app language, system language).
+          if (isRtlLayoutStale(lang)) {
+            presentAlert({ message: loc.settings.language_isRTL });
+          }
         }),
         isBalanceDisplayAllowed().then(balanceDisplayAllowed => {
           setIsWidgetBalanceDisplayAllowed(balanceDisplayAllowed);
@@ -209,20 +211,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   }, []);
 
   useEffect(() => {
-    const subscription = DeviceEventEmitter.addListener(LANGUAGE_CHANGED_EVENT, (lang: string) => {
-      setLanguage(lang);
-    });
-    return () => subscription.remove();
-  }, []);
-
-  useEffect(() => {
-    const subscription = DeviceEventEmitter.addListener(LANGUAGE_RTL_RESTART_EVENT, () => {
-      presentAlert({ message: loc.settings.language_isRTL, allowRepeat: false });
-    });
-    return () => subscription.remove();
-  }, []);
-
-  useEffect(() => {
     initCurrencyDaemon()
       .then(getPreferredCurrency)
       .then(currency => {
@@ -255,7 +243,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
 
   const setLanguageStorage = useCallback(async (newLanguage: string): Promise<void> => {
     try {
-      await saveLanguage(newLanguage, { userSelected: true });
+      await saveLanguage(newLanguage);
+      setLanguage(newLanguage);
     } catch (e) {
       console.error('Error setting language:', e);
     }
