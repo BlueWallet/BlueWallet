@@ -625,7 +625,7 @@
     "input_path_explain": "Pomiń, aby użyć domyślnej wartości ({default})",
     "ms_help": "Pomoc",
     "ms_help_title": "Jak działa Skarbiec wielopodpisowy: wskazówki i porady",
-    "ms_help_text": "Portfel z wieloma kluczami, dla zwiększonego bezpieczeństwa i współdzielonego nadzoru",
+    "ms_help_text": "Portfel z wieloma kluczami zapewniający większe bezpieczeństwo lub wspólną kontrolę nad środkami",
     "ms_help_title1": "Zalecane jest kilka urządzeń.",
     "ms_help_1": "Ten Skarbiec będzie funkcjonować z innymi aplikacjami BlueWallet i portfelami kompatybilnymi z PSBT, takimi jak Electrum, Specter, Coldcard, Cobo Vault, etc.",
     "ms_help_title2": "Edycja kluczy",
