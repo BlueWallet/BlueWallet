@@ -174,7 +174,7 @@
     "details_total_exceeds_balance": "Wysłanie tej ilości przekracza dostępne saldo.",
     "details_total_exceeds_balance_frozen": "Wysyłana kwota przekracza dostępne saldo. Zwróć uwagę, że zamrożone monety są wyłączone.",
     "details_unrecognized_file_format": "Format nierozpoznany",
-    "details_wallet_before_tx": "Przed stworzeniem transakcji, najpierw utwórz portfel Bitcoin.",
+    "details_wallet_before_tx": "Przed utworzeniem transakcji musisz dodać portfel Bitcoin.",
     "dynamic_init": "Inicjalizuję",
     "dynamic_next": "Dalej",
     "dynamic_prev": "Poprzedni",
