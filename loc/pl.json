@@ -239,7 +239,7 @@
     "biometrics_no_longer_available": "Ustawienia twojego urządzenia zostały zmienione i nie są już zgodne z wybranymi ustawieniami bezpieczeństwa w aplikacji. Proszę ponownie włączyć biometrię lub kod dostępu, a następnie uruchomić ponownie aplikację, aby zastosować te zmiany.",
     "biom_10times": "Próbowałeś podać hasło 10 razy. Czy chcesz zresetować magazyn danych? To usunie wszystkie portfele i odszyfruje dane.",
     "biom_conf_identity": "Proszę potwierdź swoją tożsamość",
-    "biom_no_passcode": "Twoje urządzenie nie ma włączonego kodu dostępu ani biometrii. Aby kontynuować, skonfiguruj kod dostępu lub biometrię w Ustawieniach aplikacji.",
+    "biom_no_passcode": "Na twoim urządzeniu nie włączono kodu dostępu ani biometrii. Aby kontynuować, skonfiguruj je w ustawieniach urządzenia.",
     "biom_remove_decrypt": "Wszystkie twoje portfele zostaną skasowane a magazyn danych odszyfrowany. Czy jesteś pewien?",
     "currency": "Waluta",
     "currency_source": "Kurs pobierany z",
