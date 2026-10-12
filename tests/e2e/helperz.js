@@ -135,10 +135,11 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'ImportWallet');
   await element(by.id('ImportWallet')).tap();
   await waitForId('SpeedBackdoor');
-  // Startup native work (mqt_v_native) can stay busy long enough that Espresso
+  // On a device, startup native work can stay busy long enough that Espresso
   // times out on the backdoor taps even though the button is already on screen.
-  const isAndroid = device.getPlatform() === 'android';
-  if (isAndroid) {
+  // CI keeps synchronization on; the tap retry still covers an index miss.
+  const pauseSync = isPhysicalAndroid();
+  if (pauseSync) {
     await device.disableSynchronization();
   }
   try {
@@ -164,7 +165,7 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
       await element(by.id('SpeedDoImport')).tap(); // sometimes doesnt work the 1st time
     } catch (_) {}
   } finally {
-    if (isAndroid) {
+    if (pauseSync) {
       await device.enableSynchronization();
     }
   }
@@ -181,6 +182,11 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
 
 export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/** Real Android device. CI uses an emulator with a hardware keyboard and should keep Detox sync on. */
+function isPhysicalAndroid() {
+  return device.getPlatform() === 'android' && !process.env.CI;
 }
 
 function isAndroidIndexMiss(err) {
@@ -218,8 +224,8 @@ export async function tapId(id) {
 
 /** Invisible backdoor buttons disappear under Espresso between match and tap. */
 export async function tapIdRepeatedly(id, times) {
-  const isAndroid = device.getPlatform() === 'android';
-  if (isAndroid) {
+  const pauseSync = isPhysicalAndroid();
+  if (pauseSync) {
     await device.disableSynchronization();
   }
   try {
@@ -227,7 +233,7 @@ export async function tapIdRepeatedly(id, times) {
       await retryAndroidIndexMiss(() => element(by.id(id)).tap());
     }
   } finally {
-    if (isAndroid) {
+    if (pauseSync) {
       await device.enableSynchronization();
     }
   }
@@ -235,14 +241,14 @@ export async function tapIdRepeatedly(id, times) {
 
 /** Tap a text row that may re-render during the press (currency list). */
 export async function tapTextWithoutSync(text) {
-  const isAndroid = device.getPlatform() === 'android';
-  if (isAndroid) {
+  const pauseSync = isPhysicalAndroid();
+  if (pauseSync) {
     await device.disableSynchronization();
   }
   try {
     await retryAndroidIndexMiss(() => element(by.text(text)).tap());
   } finally {
-    if (isAndroid) {
+    if (pauseSync) {
       await device.enableSynchronization();
     }
   }
@@ -258,7 +264,7 @@ function isDetoxIdleTimeout(err) {
 let androidSyncHeld = false;
 
 async function holdAndroidSyncOff() {
-  if (device.getPlatform() !== 'android' || androidSyncHeld) return;
+  if (!isPhysicalAndroid() || androidSyncHeld) return;
   await device.disableSynchronization();
   androidSyncHeld = true;
 }
@@ -274,14 +280,14 @@ export async function submitUnlockPassword(password) {
   await waitForId('PasswordInput');
   await element(by.id('PasswordInput')).typeText(password);
   await waitForKeyboardToClose();
-  const isAndroid = device.getPlatform() === 'android';
-  if (isAndroid) {
+  const pauseSync = isPhysicalAndroid();
+  if (pauseSync) {
     await device.disableSynchronization();
   }
   try {
     await retryAndroidIndexMiss(() => element(by.text('Unlock')).tap());
   } finally {
-    if (isAndroid) {
+    if (pauseSync) {
       await device.enableSynchronization();
     }
   }
@@ -294,7 +300,8 @@ export async function tapReturnKeyById(id) {
     try {
       await element(by.id(id)).tapReturnKey();
     } catch (err) {
-      if (!isAndroidIndexMiss(err) && !isDetoxIdleTimeout(err)) throw err;
+      const ignorable = isAndroidIndexMiss(err) || (isPhysicalAndroid() && isDetoxIdleTimeout(err));
+      if (!ignorable) throw err;
     }
     await waitForKeyboardToClose();
   } catch (err) {
@@ -362,7 +369,7 @@ export async function helperCreateWallet(walletName) {
   // Wallet generation blocks the JS/native queue, and iOS 26 glass animations never
   // settle. Disable sync before the taps that start that work. disableSynchronization
   // itself waits for idle, so it has to run while the form is still idle.
-  const pauseSync = device.getPlatform() === 'ios' || device.getPlatform() === 'android';
+  const pauseSync = device.getPlatform() === 'ios' || isPhysicalAndroid();
   if (pauseSync) {
     await device.disableSynchronization();
   }
@@ -525,6 +532,16 @@ export async function dismissAlertByText(text, timeoutMs = 10000) {
  * iOS can fall back between id-based and text-based buttons.
  */
 export async function confirmPasswordDialog() {
+  if (device.getPlatform() === 'android' && process.env.CI) {
+    await retryAndroidIndexMiss(async () => {
+      await waitFor(element(by.text('OK')))
+        .toBeVisible()
+        .withTimeout(5000);
+      await element(by.text('OK')).tap();
+    });
+    return;
+  }
+
   if (device.getPlatform() === 'android') {
     await holdAndroidSyncOff();
     try {
@@ -594,15 +611,16 @@ export async function countElements(testId) {
  * On iOS, disables synchronization for the interaction. Pass
  * `restoreSynchronization: false` for multipart UR scans that must keep sync
  * disabled until the animated scanner/QR UI is gone.
- * On Android the live camera surface makes Espresso drop the backdoor view
- * (`Index -1 out of bounds`). Sync stays off while that surface is open:
- * turning it back on there waits forever on the preview. Callers that pass
- * `restoreSynchronization: false` (multipart UR) re-enable after the scanner closes.
+ * On a physical Android device the live camera surface makes Espresso drop the
+ * backdoor view (`Index -1 out of bounds`). Sync stays off only for that tap
+ * sequence. CI keeps synchronization on and relies on the tap retry.
+ * Callers that pass `restoreSynchronization: false` (multipart UR) re-enable
+ * after `scanUrParts` once the scanner has closed.
  */
 export async function scanText(text, { restoreSynchronization = true } = {}) {
   const isIOS = device.getPlatform() === 'ios';
-  const isAndroid = device.getPlatform() === 'android';
-  if (isIOS || isAndroid) {
+  const pauseAndroid = isPhysicalAndroid();
+  if (isIOS || pauseAndroid) {
     await device.disableSynchronization();
   }
   try {
@@ -614,7 +632,7 @@ export async function scanText(text, { restoreSynchronization = true } = {}) {
     await retryAndroidIndexMiss(() => element(by.id('scanQrBackdoorOkButton')).tap());
     await sleep(300);
   } finally {
-    if ((isIOS || isAndroid) && restoreSynchronization) {
+    if ((isIOS || pauseAndroid) && restoreSynchronization) {
       await device.enableSynchronization();
     }
   }
@@ -627,11 +645,7 @@ export async function waitForQrScannerClosed(timeoutMs = 60_000) {
     .withTimeout(timeoutMs);
 }
 
-/**
- * Multipart UR via backdoor. Sync stays off on Android afterwards: turning it
- * back on while the wallet save still holds the AsyncStorage executor lock
- * deadlocks the main thread inside Detox's storage idling resource.
- */
+/** Multipart UR via backdoor. Device runs re-enable sync once the scanner is gone. */
 export async function scanUrParts(urs) {
   for (const ur of urs.slice(0, -1)) {
     await scanText(ur, { restoreSynchronization: false });
@@ -641,6 +655,12 @@ export async function scanUrParts(urs) {
   }
   await scanText(urs[urs.length - 1], { restoreSynchronization: false });
   await waitForQrScannerClosed();
+  if (isPhysicalAndroid()) {
+    // The wallet save can still hold the AsyncStorage executor. Re-registering
+    // Detox's storage idling resource on the main thread then deadlocks.
+    await sleep(2000);
+    await device.enableSynchronization();
+  }
 }
 
 /** iOS: enable sync only after animated PSBT QR and scanner are hidden. */
@@ -663,10 +683,9 @@ export async function restoreSynchronizationIfAnimatedQrClosed(timeoutMs = 2_000
 }
 
 export async function setCustomFeeRate(feeRate) {
-  // Fee estimation keeps mqt_v_native busy after the send screen is already up.
-  // Espresso then times out before it will tap the fee row.
-  const isAndroid = device.getPlatform() === 'android';
-  if (isAndroid) {
+  // On a device, fee estimation keeps mqt_v_native busy after the send screen is up.
+  const pauseSync = isPhysicalAndroid();
+  if (pauseSync) {
     await device.disableSynchronization();
   }
   try {
@@ -679,7 +698,7 @@ export async function setCustomFeeRate(feeRate) {
     await waitForKeyboardToClose();
     await waitForId('chooseFee');
   } finally {
-    if (isAndroid) {
+    if (pauseSync) {
       await device.enableSynchronization();
     }
   }

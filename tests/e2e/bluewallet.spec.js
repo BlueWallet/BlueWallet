@@ -77,9 +77,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await waitFor(element(by.id('SelfTestOk')))
         .toBeVisible()
         .withTimeout(300 * 1000);
-      // AsyncStorage may still hold its executor lock. Re-registering Detox's
-      // storage idling resource on the main thread then deadlocks.
-      await sleep(5000);
+      // On a device, AsyncStorage may still hold its executor lock. Re-registering
+      // Detox's storage idling resource on the main thread then deadlocks.
+      if (!process.env.CI) {
+        await sleep(5000);
+      }
     } finally {
       await device.enableSynchronization();
     }
@@ -834,16 +836,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.id('Loading'))).not.toBeVisible();
 
     // The discovery list re-renders when loading finishes, so Espresso can lose the row mid-tap.
-    if (device.getPlatform() === 'android') {
-      await device.disableSynchronization();
-    }
-    try {
-      await retryAndroidIndexMiss(() => element(by.id('CustomDerivationPathButton')).tap());
-    } finally {
-      if (device.getPlatform() === 'android') {
-        await device.enableSynchronization();
-      }
-    }
+    await retryAndroidIndexMiss(() => element(by.id('CustomDerivationPathButton')).tap());
     await element(by.id('DerivationPathInput')).clearText();
     await element(by.id('DerivationPathInput')).typeText("m/44'/0'/0'\n");
     await waitForKeyboardToClose();
@@ -946,17 +939,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     );
 
     await waitForId('SelectWalletsList');
-    // Fee/network work keeps mqt_v_native busy after the picker is already on screen.
-    if (device.getPlatform() === 'android') {
-      await device.disableSynchronization();
-    }
-    try {
-      await retryAndroidIndexMiss(() => element(by.text('cr34t3d')).tap());
-    } finally {
-      if (device.getPlatform() === 'android') {
-        await device.enableSynchronization();
-      }
-    }
+    await retryAndroidIndexMiss(() => element(by.text('cr34t3d')).tap());
     await waitForId('AddressInput');
     await expect(element(by.id('AddressInput'))).toHaveText('1DamianM2k8WfNEeJmyqSe2YW1upB7UATx'); // send screen, and ONCHAIN invoice is prefilled!
     await expect(element(by.id('BitcoinAmountInput'))).toHaveText('0.000001');
@@ -1181,12 +1164,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.disableSynchronization();
     await waitForId('ExportMultisigCoordinationSetupView');
     await element(by.id('NavigationCloseButton')).atIndex(0).tap();
-    // The animated QR uses setInterval. Re-enabling sync while that screen is still
-    // mounted deadlocks AsyncStorage's idling resource on Android (main-thread ANR).
-    await waitFor(element(by.id('ExportMultisigCoordinationSetupView')))
-      .not.toBeVisible()
-      .withTimeout(20_000);
-    await sleep(5000);
+    if (!process.env.CI) {
+      // The animated QR uses setInterval. Re-enabling sync while that screen is still
+      // mounted deadlocks AsyncStorage's idling resource on a device.
+      await waitFor(element(by.id('ExportMultisigCoordinationSetupView')))
+        .not.toBeVisible()
+        .withTimeout(20_000);
+      await sleep(5000);
+    }
     await device.enableSynchronization();
 
     // go to receive screen and capture current receive address
