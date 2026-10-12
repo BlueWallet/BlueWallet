@@ -266,6 +266,7 @@ const WalletsList: React.FC = () => {
     return (
       <View style={[styles.listHeaderBack, stylesHook.listHeaderBack]}>
         <Text
+          accessibilityRole="header"
           textBreakStrategy="simple"
           style={[styles.listHeaderText, stylesHook.listHeaderText]}
           numberOfLines={2}
@@ -347,6 +348,7 @@ const WalletsList: React.FC = () => {
           ) : (
             <View style={[styles.listHeaderBack, stylesHook.listHeaderBack]}>
               <Text
+                accessibilityRole="header"
                 textBreakStrategy="simple"
                 style={[styles.listHeaderText, stylesHook.listHeaderText]}
                 numberOfLines={2}

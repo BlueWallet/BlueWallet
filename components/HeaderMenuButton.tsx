@@ -4,22 +4,27 @@ import ToolTipMenu from './TooltipMenu';
 import { useTheme } from './themes';
 import Icon from './Icon';
 import { Action } from './types';
+import loc from '../loc';
 
 interface HeaderMenuButtonProps {
   onPressMenuItem: (id: string) => void;
   actions?: Action[] | Action[][];
   disabled?: boolean;
   title?: string;
+  accessibilityLabel?: string;
 }
 
-const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, actions, disabled, title }) => {
+const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, actions, disabled, title, accessibilityLabel }) => {
   const { colors } = useTheme();
   const styleProps = Platform.OS === 'android' ? { iconStyle: { transform: [{ rotate: '90deg' }] } } : {};
+  const resolvedAccessibilityLabel = accessibilityLabel || title || loc.wallets.more_info;
 
   if (!actions || actions.length === 0) {
     return (
       <Pressable
         testID="HeaderMenuButton"
+        accessibilityRole="button"
+        accessibilityLabel={resolvedAccessibilityLabel}
         disabled={disabled}
         android_ripple={{ color: colors.lightButton }}
         hitSlop={8}
@@ -37,6 +42,8 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
       testID="HeaderMenuButton"
       disabled={disabled}
       isButton
+      accessibilityRole="button"
+      accessibilityLabel={resolvedAccessibilityLabel}
       shouldOpenOnLongPress={false}
       onPressMenuItem={onPressMenuItem}
       actions={menuActions}
