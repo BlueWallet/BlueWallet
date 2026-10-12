@@ -69,7 +69,6 @@ type ServerListEntry =
 
 const ADD_SERVER_ACTION_ID = 'add_electrum_server';
 const SHOW_SUGGESTED_SERVERS_ACTION_ID = 'show_suggested_electrum_servers';
-const HANDOFF_SERVER_HISTORY_ACTION_ID = 'handoff_electrum_server_history';
 const SHOW_SUGGESTED_SERVERS_STORAGE_KEY = 'electrum_show_suggested_servers';
 const serverKey = electrumServerKey;
 
@@ -198,7 +197,6 @@ const ElectrumSettings: React.FC = () => {
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
   const [isValidatingServer, setIsValidatingServer] = useState(false);
-  const [validationError, setValidationError] = useState<string>();
   const [shouldDismissAfterSave, setShouldDismissAfterSave] = useState(false);
   const [serverHistory, setServerHistory] = useState<Set<ElectrumServerItem>>(new Set());
   const [config, setConfig] = useState<{
@@ -213,9 +211,8 @@ const ElectrumSettings: React.FC = () => {
   const [setNewServerAsFavorite, setSetNewServerAsFavorite] = useState(true);
   const [isSuggestedExpanded, setIsSuggestedExpanded] = useState(false);
   const [showSuggestedServers, setShowSuggestedServers] = useState(true);
-  const [isHandoffExportEnabled, setIsHandoffExportEnabled] = useState(false);
   const [testingServerKey, setTestingServerKey] = useState<string>();
-  const { setIsElectrumDisabled, isElectrumDisabled, isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage } = useSettings();
+  const { setIsElectrumDisabled, isElectrumDisabled, isHandOffUseEnabled } = useSettings();
   const handoffServers = useMemo(() => {
     const favoriteServer = host && (port || sslPort) ? { host, ...(sslPort ? { ssl: sslPort } : { tcp: port }) } : undefined;
     return electrumServersForHandoff(Array.from(serverHistory), favoriteServer);
@@ -244,14 +241,6 @@ const ElectrumSettings: React.FC = () => {
       return releaseSuppression;
     }, []),
   );
-
-  const wasHandoffExportEligible = useRef(false);
-  useEffect(() => {
-    const isEligible = Platform.OS === 'ios' && isHandOffUseEnabled && handoffServers.length > 0;
-    if (isEligible && !wasHandoffExportEligible.current) setIsHandoffExportEnabled(true);
-    if (!isEligible) setIsHandoffExportEnabled(false);
-    wasHandoffExportEligible.current = isEligible;
-  }, [handoffServers.length, isHandOffUseEnabled]);
 
   const { height: keyboardHeight, isVisible: isKeyboardVisible } = useKeyboard();
   const androidKeyboardInset = Platform.OS === 'android' && !customOnly && isKeyboardVisible ? keyboardHeight + 24 : 0;
@@ -360,12 +349,6 @@ const ElectrumSettings: React.FC = () => {
     selectedServerRow: {
       backgroundColor: Platform.OS === 'android' ? colors.buttonBackgroundColor : colors.cardSectionBackground,
     },
-    validationErrorContainer: {
-      backgroundColor: colors.redBG,
-    },
-    validationErrorTitle: {
-      color: colors.redText,
-    },
     validationErrorMessage: {
       color: colors.foregroundColor,
     },
@@ -381,10 +364,6 @@ const ElectrumSettings: React.FC = () => {
   });
 
   const configIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    setValidationError(undefined);
-  }, [host, port, sslPort]);
 
   const fetchData = useCallback(async () => {
     const preferredServer = await BlueElectrum.getPreferredServer();
@@ -450,8 +429,6 @@ const ElectrumSettings: React.FC = () => {
       Keyboard.dismiss();
       setIsLoading(true);
       setIsValidatingServer(true);
-      setValidationError(undefined);
-
       try {
         const rawHost = v?.host || host;
         const selectedSslPort = v ? (v.ssl && v.ssl > 0 ? v.ssl : undefined) : sslPort;
@@ -470,11 +447,7 @@ const ElectrumSettings: React.FC = () => {
             const message = serverHost.endsWith('.onion')
               ? `${loc.settings.electrum_error_connect_tor}\n\n${validation.error ?? ''}`.trim()
               : validation.error || loc.settings.electrum_error_connect;
-            if (customOnly) {
-              setValidationError(message);
-            } else {
-              presentAlert({ message });
-            }
+            presentAlert({ title: customOnly ? loc.settings.electrum_validation_failed : undefined, message });
             return;
           }
           await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
@@ -521,11 +494,10 @@ const ElectrumSettings: React.FC = () => {
         }
       } catch (error) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        if (customOnly) {
-          setValidationError((error as Error).message);
-        } else {
-          presentAlert({ message: (error as Error).message });
-        }
+        presentAlert({
+          title: customOnly ? loc.settings.electrum_validation_failed : undefined,
+          message: (error as Error).message,
+        });
       } finally {
         setIsValidatingServer(false);
         setIsLoading(false);
@@ -631,7 +603,14 @@ const ElectrumSettings: React.FC = () => {
 
   const handledServerHistoryImport = useRef<string | undefined>(undefined);
   useEffect(() => {
-    if (Platform.OS !== 'ios' || isLoading || !serverHistoryImport || handledServerHistoryImport.current === serverHistoryImport) return;
+    if (
+      Platform.OS !== 'ios' ||
+      !isHandOffUseEnabled ||
+      isLoading ||
+      !serverHistoryImport ||
+      handledServerHistoryImport.current === serverHistoryImport
+    )
+      return;
     handledServerHistoryImport.current = serverHistoryImport;
     Alert.alert(loc.settings.electrum_handoff_import_title, loc.settings.electrum_handoff_import_description, [
       { text: loc._.cancel, style: 'cancel' },
@@ -640,27 +619,12 @@ const ElectrumSettings: React.FC = () => {
         onPress: () => importServerHistoryData(serverHistoryImport),
       },
     ]);
-  }, [importServerHistoryData, isLoading, serverHistoryImport]);
+  }, [importServerHistoryData, isHandOffUseEnabled, isLoading, serverHistoryImport]);
 
   const onPressMenuItem = useCallback(
     async (id: string) => {
       if (id === ADD_SERVER_ACTION_ID) {
         navigation.navigate('AddElectrumServerRoot');
-      } else if (id === HANDOFF_SERVER_HISTORY_ACTION_ID) {
-        if (isHandOffUseEnabled) {
-          setIsHandoffExportEnabled(value => !value);
-        } else {
-          Alert.alert(loc.settings.electrum_handoff_opt_in_title, loc.settings.electrum_handoff_opt_in_description, [
-            { text: loc._.cancel, style: 'cancel' },
-            {
-              text: loc.settings.electrum_handoff_opt_in_action,
-              onPress: async () => {
-                await setIsHandOffUseEnabledAsyncStorage(true);
-                setIsHandoffExportEnabled(true);
-              },
-            },
-          ]);
-        }
       } else if (id === SHOW_SUGGESTED_SERVERS_ACTION_ID) {
         const nextValue = !showSuggestedServers;
         setShowSuggestedServers(nextValue);
@@ -682,7 +646,7 @@ const ElectrumSettings: React.FC = () => {
         });
       }
     },
-    [fetchData, isHandOffUseEnabled, navigation, setIsHandOffUseEnabledAsyncStorage, showSuggestedServers],
+    [fetchData, navigation, showSuggestedServers],
   );
 
   useScreenMenuActions({ addElectrumServer: () => navigation.navigate('AddElectrumServerRoot') });
@@ -705,20 +669,6 @@ const ElectrumSettings: React.FC = () => {
           icon: { iconValue: Platform.OS === 'ios' ? 'plus' : 'ic_input_add' },
         },
       ],
-      ...(Platform.OS === 'ios'
-        ? [
-            [
-              {
-                id: HANDOFF_SERVER_HISTORY_ACTION_ID,
-                text: loc.settings.electrum_handoff_export,
-                subtitle: loc.settings.electrum_handoff_export_description,
-                image: 'icloud.and.arrow.up',
-                menuState: isHandoffExportEnabled,
-                disabled: handoffServers.length === 0,
-              },
-            ],
-          ]
-        : []),
       [resetToDefaults],
       ...(host && (port || sslPort)
         ? [
@@ -733,7 +683,7 @@ const ElectrumSettings: React.FC = () => {
           ]
         : []),
     ] as Action[][];
-  }, [handoffServers.length, host, isHandoffExportEnabled, port, serverHistory.size, showSuggestedServers, sslPort]);
+  }, [host, port, serverHistory.size, showSuggestedServers, sslPort]);
 
   const serverList = useMemo<ServerListEntry[]>(() => {
     const hasFavorite = Boolean(host && (port || sslPort));
@@ -1044,24 +994,6 @@ const ElectrumSettings: React.FC = () => {
                 <View accessible accessibilityRole="progressbar" style={styles.validationStatus}>
                   <ActivityIndicator color={colors.primary} />
                   <Text style={[styles.validationText, stylesHook.fieldLabel]}>{loc.settings.electrum_validating_server}</Text>
-                </View>
-              ) : null}
-              {validationError ? (
-                <View
-                  accessible
-                  accessibilityRole="alert"
-                  accessibilityLabel={`${loc.settings.electrum_validation_failed}. ${validationError}`}
-                  style={[styles.validationErrorContainer, stylesHook.validationErrorContainer]}
-                >
-                  <Ionicons name="alert-circle" size={24} color={colors.redText} />
-                  <View style={styles.validationErrorContent}>
-                    <Text style={[styles.validationErrorTitle, stylesHook.validationErrorTitle]}>
-                      {loc.settings.electrum_validation_failed}
-                    </Text>
-                    <Text selectable style={[styles.validationErrorMessage, stylesHook.validationErrorMessage]}>
-                      {validationError}
-                    </Text>
-                  </View>
                 </View>
               ) : null}
               {duplicateServerSource ? (
@@ -1396,7 +1328,7 @@ const ElectrumSettings: React.FC = () => {
 
   return (
     <>
-      {Platform.OS === 'ios' && isHandOffUseEnabled && isHandoffExportEnabled && handoffServerHistoryDocument ? (
+      {Platform.OS === 'ios' && isHandOffUseEnabled && handoffServerHistoryDocument ? (
         <HandOffComponent
           title={loc.settings.electrum_handoff_export}
           type={HandOffActivityType.ElectrumServerHistory}
