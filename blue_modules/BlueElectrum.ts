@@ -1459,6 +1459,23 @@ export const calculateBlockTime = function (height: number): number {
   return Math.floor(baseTs + (height - baseHeight) * 9.93 * 60);
 };
 
+const electrumErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') return error.message;
+  return String(error || loc.settings.electrum_error_connect);
+};
+
+export const isElectrumServerSyncingError = (error: unknown): boolean => {
+  const message = electrumErrorMessage(error);
+  return (
+    /\b(?:still|currently)\s+(?:syncing|synchronizing|synchronising)\b/i.test(message) ||
+    /\bnot\s+(?:yet\s+|fully\s+)?sync(?:ed|hronized|hronised)\b/i.test(message) ||
+    /\b(?:sync|synchronization|synchronisation)\s+(?:is\s+)?not\s+(?:complete|finished)\b/i.test(message) ||
+    /\b(?:sync|synchronization|synchronisation)\s+(?:is\s+)?(?:incomplete|unfinished)\b/i.test(message)
+  );
+};
+
 /**
  * @returns {Promise<boolean>} Whether provided host:port is a valid electrum server
  */
@@ -1489,14 +1506,15 @@ export const validateConnection = async function (
     ]);
     return { success: true };
   } catch (error) {
+    const errorMessage = electrumErrorMessage(error);
     return {
       success: false,
       error:
-        error instanceof Error && error.message === 'connect timeout'
+        errorMessage === 'connect timeout'
           ? String(loc.formatString(loc.settings.electrum_connection_timed_out, { server: `${host}:${sslPort || tcpPort}` }))
-          : error instanceof Error && error.message
-            ? error.message
-            : String(error || loc.settings.electrum_error_connect),
+          : isElectrumServerSyncingError(error)
+            ? loc.settings.electrum_server_not_synced
+            : errorMessage,
     };
   } finally {
     if (timeoutId) clearTimeout(timeoutId);

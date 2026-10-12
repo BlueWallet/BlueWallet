@@ -236,6 +236,33 @@ describe('BlueElectrum lifecycle', () => {
   });
 
   describe('connection validation', () => {
+    it('only classifies explicit incomplete-sync errors', () => {
+      expect(BlueElectrum.isElectrumServerSyncingError(new Error('backend is not yet synchronized'))).toBe(true);
+      expect(BlueElectrum.isElectrumServerSyncingError({ message: 'index sync is incomplete' })).toBe(true);
+      expect(BlueElectrum.isElectrumServerSyncingError(new Error('sync is complete'))).toBe(false);
+      expect(BlueElectrum.isElectrumServerSyncingError(new Error('server is busy'))).toBe(false);
+    });
+
+    it('explains when the Electrum server reports that it is still syncing', async () => {
+      const validationPromise = BlueElectrum.validateConnection('syncing.local', 50001);
+      created[0].server_ping.mockRejectedValueOnce({ code: -1, message: 'the server is still syncing' });
+      created[0].initElectrumDeferred.resolve(['Fulcrum 1.10.0', '1.4']);
+
+      await expect(validationPromise).resolves.toEqual({
+        success: false,
+        error: 'This Electrum server has not finished syncing. Wait for it to finish and try again.',
+      });
+      expect(created[0].close).toHaveBeenCalledTimes(1);
+    });
+
+    it('preserves unrelated JSON-RPC error messages from the Electrum client', async () => {
+      const validationPromise = BlueElectrum.validateConnection('broken.local', 50001);
+      created[0].server_ping.mockRejectedValueOnce({ code: -32603, message: 'database unavailable' });
+      created[0].initElectrumDeferred.resolve(['Fulcrum 1.10.0', '1.4']);
+
+      await expect(validationPromise).resolves.toEqual({ success: false, error: 'database unavailable' });
+    });
+
     it('accepts an Electrum endpoint during discovery even when its backend is not ready to answer ping', async () => {
       const validationPromise = BlueElectrum.validateConnection('syncing.local', 50001, undefined, { requirePing: false });
       created[0].server_ping.mockRejectedValue(new Error('backend is still syncing'));

@@ -270,6 +270,7 @@
     "electrum_server_already_added": "Server Already Added",
     "electrum_server_already_in_history": "This server is already in your connected server history.",
     "electrum_server_already_suggested": "This server is already included in BlueWallet’s suggested servers.",
+    "electrum_server_not_synced": "This Electrum server has not finished syncing. Wait for it to finish and try again.",
     "electrum_status": "Status",
     "electrum_status_hint": "Shows information reported by the connected server.",
     "electrum_server_row_hint": "Double tap to set this server as the favorite. Swipe or touch and hold for more actions.",
