@@ -62,7 +62,7 @@ RCT_EXPORT_MODULE(LocalNetworkDiscovery)
   if (self.pendingReject == nil) return;
   RCTPromiseRejectBlock reject = self.pendingReject;
   [self clearScan];
-  reject(@"DISCOVERY_FAILED", @"Local network access was not allowed or discovery could not start.", nil);
+  reject(@"PERMISSION_DENIED", @"Local network access is off.", nil);
 }
 
 - (void)finishWithResults
