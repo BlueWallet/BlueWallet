@@ -92,7 +92,7 @@
   },
   "dependencies": {
     "@arkade-os/boltz-swap": "0.3.67",
-    "@arkade-os/sdk": "0.4.78",
+    "@arkade-os/sdk": "0.4.79",
     "@bugsnag/react-native": "8.9.0",
     "@bugsnag/source-maps": "2.3.3",
     "@keystonehq/bc-ur-registry": "0.8.0",
@@ -192,6 +192,6 @@
     "wif": "2.0.6"
   },
   "overrides": {
-    "@arkade-os/sdk": "0.4.78"
+    "@arkade-os/sdk": "0.4.79"
   }
 }
