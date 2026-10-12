@@ -39,7 +39,12 @@ describe('native menu availability', () => {
       'backToWallets',
       'copyAddress',
     ]);
-    expect(availableMenuActions('TransactionStatus', ['copyTransactionId'], true)).toContain('copyTransactionId');
+    expect(availableMenuActions('TransactionStatus', ['copyTransactionId', 'accelerateTransaction'], true)).toEqual([
+      ...globalActions,
+      'backToWallets',
+      'copyTransactionId',
+      'accelerateTransaction',
+    ]);
     expect(availableMenuActions('WalletsList', [], true)).not.toContain('backToWallets');
   });
 

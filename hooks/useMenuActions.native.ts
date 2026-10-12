@@ -48,6 +48,7 @@ export function getMenuActionTitles(): MenuActionTitles {
     walletDetails: loc.wallets.details_title,
     copyAddress: loc.menu.copy_address,
     copyTransactionId: loc.transactions.details_copy_txid,
+    accelerateTransaction: loc.transactions.status_bump,
     backToWallets: loc.menu.back_to_wallets,
     settings: loc.settings.header,
     tools: loc.settings.tools,

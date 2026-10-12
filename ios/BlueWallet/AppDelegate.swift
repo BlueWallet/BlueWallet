@@ -323,7 +323,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         userDefaultsGroup?.setValue(userActivityData, forKey: "onUserActivityOpen")
 
         if ["io.bluewallet.bluewallet.receiveonchain", "io.bluewallet.bluewallet.xpub", "io.bluewallet.bluewallet.blockexplorer"].contains(activityType) {
-          EventEmitter.shared().sendUserActivity(userActivityData)
+          EventEmitter.shared()?.sendUserActivity(userActivityData)
             return true
         }
 
@@ -401,7 +401,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         builder.remove(menu: .preferences)
 
         let actions = MenuActionsController.shared.availableActions
-        let commands: [(String, String, String, Selector, String, UIKeyModifierFlags, UIMenu.Identifier)] = [
+        let commands: [(String, String, String, Selector, String?, UIKeyModifierFlags, UIMenu.Identifier)] = [
             ("addWallet", "Add Wallet", "plus.rectangle.on.folder", #selector(addWalletAction), "a", [.command, .shift], .file),
             ("importWallet", "Import Wallet", "square.and.arrow.down", #selector(importWalletAction), "i", .command, .file),
             ("send", "Send…", "arrow.up.circle", #selector(sendMenuAction), "s", [.command, .shift], .file),
@@ -411,14 +411,19 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ("backToWallets", "Back to Wallets", "wallet.pass", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view),
             ("copyAddress", "Copy Address", "doc.on.doc", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit),
             ("copyTransactionId", "Copy Transaction ID", "doc.on.doc", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit),
+            ("accelerateTransaction", "Speed up Transaction", "hare", #selector(accelerateTransactionMenuAction), "u", [.command, .shift], .view),
             ("keyboardShortcuts", "Keyboard Shortcuts…", "keyboard", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
         ]
         for parent in [UIMenu.Identifier.file, .edit, .view, .help] {
             let identifier = UIMenu.Identifier("io.bluewallet.commands.\(parent.rawValue)")
             builder.remove(menu: identifier)
-            let children = commands.filter { actions.contains($0.0) && $0.6 == parent }.map {
-                UIKeyCommand(title: MenuActionsController.shared.title(for: $0.0, fallback: $0.1),
-                             image: UIImage(systemName: $0.2), action: $0.3, input: $0.4, modifierFlags: $0.5)
+            let children = commands.filter { actions.contains($0.0) && $0.6 == parent }.map { command -> UICommand in
+                let title = MenuActionsController.shared.title(for: command.0, fallback: command.1)
+                let image = UIImage(systemName: command.2)
+                if let input = command.4 {
+                    return UIKeyCommand(title: title, image: image, action: command.3, input: input, modifierFlags: command.5)
+                }
+                return UICommand(title: title, image: image, action: command.3)
             }
             if !children.isEmpty {
                 builder.insertChild(UIMenu(title: "", identifier: identifier,
@@ -428,23 +433,24 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         let sendDetailsMenuID = UIMenu.Identifier("io.bluewallet.sendDetails")
         builder.remove(menu: sendDetailsMenuID)
-        let sendDetailsCommands: [(String, String, String)] = [
-            ("add_recipient", "Add Recipient", "person.badge.plus"),
-            ("remove_recipient", "Remove Recipient", "person.badge.minus"),
-            ("remove_all_recipients", "Remove All Recipients", "person.2.slash"),
-            ("send_max", "Use Full Balance", "dial.high"),
-            ("allow_rbf", "Allow Fee Bump", "arrowshape.up.circle"),
-            ("import_transaction", "Import Transaction", "square.and.arrow.down"),
-            ("import_transaction_qr", "Import Transaction (QR)", "qrcode.viewfinder"),
-            ("import_transaction_multisig", "Import Multisig Transaction", "square.and.arrow.down.on.square"),
-            ("co_sign_transaction", "Co-sign Transaction", "signature"),
-            ("sign_psbt", "Sign a Transaction", "signature"),
-            ("insert_contact", "Insert Contact", "at.badge.plus"),
-            ("coin_control", "Coin Control", "switch.2")
+        let sendDetailsCommands: [(String, String, String, String, UIKeyModifierFlags)] = [
+            ("add_recipient", "Add Recipient", "person.badge.plus", "a", [.command, .alternate]),
+            ("remove_recipient", "Remove Recipient", "person.badge.minus", "r", [.command, .alternate]),
+            ("remove_all_recipients", "Remove All Recipients", "person.2.slash", "r", [.command, .alternate, .shift]),
+            ("send_max", "Use Full Balance", "dial.high", "m", [.command, .alternate]),
+            ("allow_rbf", "Allow Fee Bump", "arrowshape.up.circle", "b", [.command, .alternate]),
+            ("import_transaction", "Import Transaction", "square.and.arrow.down", "i", [.command, .alternate]),
+            ("import_transaction_qr", "Import Transaction (QR)", "qrcode.viewfinder", "q", [.command, .alternate]),
+            ("import_transaction_multisig", "Import Multisig Transaction", "square.and.arrow.down.on.square", "i", [.command, .alternate, .shift]),
+            ("co_sign_transaction", "Co-sign Transaction", "signature", "c", [.command, .alternate]),
+            ("sign_psbt", "Sign a Transaction", "signature", "s", [.command, .alternate]),
+            ("insert_contact", "Insert Contact", "at.badge.plus", "p", [.command, .alternate]),
+            ("coin_control", "Coin Control", "switch.2", "o", [.command, .alternate])
         ]
         let availableSendCommands = sendDetailsCommands.filter { actions.contains($0.0) }.map {
-            let command = UICommand(title: MenuActionsController.shared.title(for: $0.0, fallback: $0.1),
-                                    image: UIImage(systemName: $0.2), action: #selector(sendDetailsMenuAction), propertyList: $0.0)
+            let command = UIKeyCommand(title: MenuActionsController.shared.title(for: $0.0, fallback: $0.1),
+                                       image: UIImage(systemName: $0.2), action: #selector(sendDetailsMenuAction),
+                                       input: $0.3, modifierFlags: $0.4, propertyList: $0.0)
             if let state = MenuActionsController.shared.actionStates[$0.0] {
                 command.attributes = state.disabled == true ? .disabled : []
                 if let checked = state.checked {
@@ -517,12 +523,15 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
                                          options: .displayInline, children: [command]), afterMenu: .about)
 
             let tools = [
-                UICommand(title: MenuActionsController.shared.title(for: "isItMyAddress", fallback: "Is it my address?"),
-                          image: UIImage(systemName: "magnifyingglass"), action: #selector(isItMyAddressMenuAction)),
-                UICommand(title: MenuActionsController.shared.title(for: "broadcastTransaction", fallback: "Broadcast Transaction"),
-                          image: UIImage(systemName: "antenna.radiowaves.left.and.right"), action: #selector(broadcastTransactionMenuAction)),
-                UICommand(title: MenuActionsController.shared.title(for: "generateWord", fallback: "Seed final word"),
-                          image: UIImage(systemName: "key"), action: #selector(generateWordMenuAction))
+                UIKeyCommand(title: MenuActionsController.shared.title(for: "isItMyAddress", fallback: "Is it my address?"),
+                             image: UIImage(systemName: "magnifyingglass"), action: #selector(isItMyAddressMenuAction),
+                             input: "m", modifierFlags: [.command, .shift]),
+                UIKeyCommand(title: MenuActionsController.shared.title(for: "broadcastTransaction", fallback: "Broadcast Transaction"),
+                             image: UIImage(systemName: "antenna.radiowaves.left.and.right"), action: #selector(broadcastTransactionMenuAction),
+                             input: "b", modifierFlags: [.command, .shift]),
+                UIKeyCommand(title: MenuActionsController.shared.title(for: "generateWord", fallback: "Seed final word"),
+                             image: UIImage(systemName: "key"), action: #selector(generateWordMenuAction),
+                             input: "g", modifierFlags: [.command, .shift])
             ]
             builder.insertSibling(UIMenu(title: MenuActionsController.shared.title(for: "tools", fallback: "Tools"),
                                          image: UIImage(systemName: "wrench.and.screwdriver"),
@@ -532,6 +541,10 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     @objc func openSettings(_ keyCommand: UIKeyCommand) {
         MenuActionsController.shared.perform("settings")
+    }
+
+    @objc func accelerateTransactionMenuAction(_ command: UICommand) {
+        MenuActionsController.shared.perform("accelerateTransaction")
     }
 
     @objc func isItMyAddressMenuAction(_ command: UICommand) {

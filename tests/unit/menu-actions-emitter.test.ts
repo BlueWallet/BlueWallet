@@ -90,6 +90,7 @@ it('sends localized menu titles to the native renderers', () => {
       tools: 'Tools',
       add_recipient: 'Add Recipient',
       copyTransactionId: 'Copy Transaction ID',
+      accelerateTransaction: 'Speed Up',
     }),
   );
   hook.unmount();
@@ -234,6 +235,7 @@ it.each([
   ['WalletTransactions', 'walletDetails'],
   ['ReceiveDetails', 'copyAddress'],
   ['TransactionStatus', 'copyTransactionId'],
+  ['TransactionStatus', 'accelerateTransaction'],
 ] as const)('dispatches %s / %s only while its handler is registered', (screen, action) => {
   setRoute(screen);
   const hook = renderHook(useMenuActions);

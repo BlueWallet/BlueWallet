@@ -1,6 +1,6 @@
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Keyboard, Platform, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Dimensions, Keyboard, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -27,6 +27,7 @@ import {
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useKeyboard } from '../../hooks/useKeyboard';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
@@ -56,6 +57,59 @@ const ElectrumSettings: React.FC = () => {
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
   const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
   const { setIsElectrumDisabled, isElectrumDisabled } = useSettings();
+  const scrollViewRef = useRef<ScrollView>(null);
+  const hostInputRef = useRef<View>(null);
+  const portInputRef = useRef<View>(null);
+  const focusedFieldRef = useRef<'host' | 'port' | null>(null);
+  const scrollYRef = useRef<number>(0);
+
+  const { height: keyboardHeight, isVisible: isKeyboardVisible } = useKeyboard();
+  const androidKeyboardInset = Platform.OS === 'android' && isKeyboardVisible ? keyboardHeight + 24 : 0;
+
+  const scrollFocusedFieldIntoView = useCallback(
+    (field?: 'host' | 'port') => {
+      if (Platform.OS !== 'android') return;
+      if (field) {
+        focusedFieldRef.current = field;
+      }
+      const targetField = focusedFieldRef.current;
+      if (!targetField || keyboardHeight <= 0) return;
+
+      const targetRef = targetField === 'host' ? hostInputRef : portInputRef;
+      if (!targetRef.current) return;
+
+      const onMeasure = (pageY: number, height: number) => {
+        const windowHeight = Dimensions.get('window').height;
+        const keyboardTop = windowHeight - keyboardHeight;
+        const inputBottom = pageY + height;
+        if (inputBottom > keyboardTop) {
+          const overlap = inputBottom - keyboardTop;
+          const targetScrollY = scrollYRef.current + overlap;
+          scrollViewRef.current?.scrollTo({ y: targetScrollY, animated: true });
+        } else if (pageY < 0) {
+          const targetScrollY = Math.max(0, scrollYRef.current + pageY);
+          scrollViewRef.current?.scrollTo({ y: targetScrollY, animated: true });
+        }
+      };
+
+      if (targetRef.current.measureInWindow) {
+        targetRef.current.measureInWindow((_x, y, _width, height) => {
+          onMeasure(y, height);
+        });
+      } else if (targetRef.current.measure) {
+        targetRef.current.measure((_x, _y, _width, height, _pageX, pageY) => {
+          onMeasure(pageY, height);
+        });
+      }
+    },
+    [keyboardHeight],
+  );
+
+  useEffect(() => {
+    if (Platform.OS === 'android' && isKeyboardVisible && keyboardHeight > 0) {
+      scrollFocusedFieldIntoView();
+    }
+  }, [isKeyboardVisible, keyboardHeight, scrollFocusedFieldIntoView]);
   const [savedServer, setSavedServer] = useState<{ host: string; tcp: string; ssl: string }>({
     host: '',
     tcp: '',
@@ -506,7 +560,7 @@ const ElectrumSettings: React.FC = () => {
           <View style={settingsCardContent}>
             <SettingsFootnote>{loc.settings.electrum_preferred_server_description}</SettingsFootnote>
 
-            <View style={styles.inputGroupSpacing}>
+            <View ref={hostInputRef} style={styles.inputGroupSpacing}>
               <AddressInput
                 testID="HostInput"
                 placeholder={loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' })}
@@ -514,15 +568,26 @@ const ElectrumSettings: React.FC = () => {
                 onChangeText={text => setHost(text.trim())}
                 editable={!isLoading}
                 keyboardType="default"
-                onBlur={() => setIsAndroidAddressKeyboardVisible(false)}
-                onFocus={() => setIsAndroidAddressKeyboardVisible(true)}
+                onBlur={() => {
+                  if (focusedFieldRef.current === 'host') {
+                    focusedFieldRef.current = null;
+                  }
+                  setIsAndroidAddressKeyboardVisible(false);
+                }}
+                onFocus={() => {
+                  focusedFieldRef.current = 'host';
+                  setIsAndroidAddressKeyboardVisible(true);
+                  if (Platform.OS === 'android' && isKeyboardVisible && keyboardHeight > 0) {
+                    scrollFocusedFieldIntoView('host');
+                  }
+                }}
                 inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
                 isLoading={isLoading}
               />
             </View>
 
             <View style={styles.portWrap}>
-              <View style={[styles.inputWrap, stylesHook.inputWrap]}>
+              <View ref={portInputRef} style={[styles.inputWrap, stylesHook.inputWrap]}>
                 <TextInput
                   placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
                   value={sslPort?.toString() === '' || sslPort === undefined ? port?.toString() || '' : sslPort?.toString() || ''}
@@ -544,8 +609,19 @@ const ElectrumSettings: React.FC = () => {
                   keyboardType="number-pad"
                   inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
                   testID="PortInput"
-                  onFocus={() => setIsAndroidNumericKeyboardFocused(true)}
-                  onBlur={() => setIsAndroidNumericKeyboardFocused(false)}
+                  onFocus={() => {
+                    focusedFieldRef.current = 'port';
+                    setIsAndroidNumericKeyboardFocused(true);
+                    if (Platform.OS === 'android' && isKeyboardVisible && keyboardHeight > 0) {
+                      scrollFocusedFieldIntoView('port');
+                    }
+                  }}
+                  onBlur={() => {
+                    if (focusedFieldRef.current === 'port') {
+                      focusedFieldRef.current = null;
+                    }
+                    setIsAndroidNumericKeyboardFocused(false);
+                  }}
                 />
               </View>
               <Text style={[styles.usePort, stylesHook.usePort]}>{loc.settings.use_ssl}</Text>
@@ -597,10 +673,16 @@ const ElectrumSettings: React.FC = () => {
 
   return (
     <SettingsScrollView
+      ref={scrollViewRef}
       keyboardShouldPersistTaps="always"
       automaticallyAdjustContentInsets
       contentInsetAdjustmentBehavior="automatic"
-      automaticallyAdjustKeyboardInsets
+      automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+      floatingButtonHeight={androidKeyboardInset}
+      onScroll={event => {
+        scrollYRef.current = event.nativeEvent.contentOffset.y;
+      }}
+      scrollEventThrottle={16}
       testID="ElectrumSettingsScrollView"
     >
       <SettingsSection>
@@ -615,7 +697,6 @@ const ElectrumSettings: React.FC = () => {
           bottomDivider={false}
         />
       </SettingsSection>
-
       {!isElectrumDisabled && renderElectrumSettings()}
     </SettingsScrollView>
   );

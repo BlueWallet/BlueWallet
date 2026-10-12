@@ -21,8 +21,6 @@ import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../model
 
 dayjs.extend(calendar);
 
-const MAX_DISPLAY_ITEMS = 50;
-
 const Currency: React.FC = () => {
   const { setPreferredFiatCurrencyStorage } = useSettings();
   const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState<FiatUnitType | undefined>();
@@ -45,9 +43,10 @@ const Currency: React.FC = () => {
 
   const filteredCurrencies = useMemo(() => {
     const searchLower = search.toLowerCase();
-    return Object.values(FiatUnit)
-      .filter(item => item.endPointKey.toLowerCase().includes(searchLower) || item.country.toLowerCase().includes(searchLower))
-      .slice(0, MAX_DISPLAY_ITEMS);
+    // No cap: FlatList virtualises, and a cap silently hid every currency past the 50th unless the user searched
+    return Object.values(FiatUnit).filter(
+      item => item.endPointKey.toLowerCase().includes(searchLower) || item.country.toLowerCase().includes(searchLower),
+    );
   }, [search]);
 
   const fetchCurrency = useCallback(async () => {
@@ -92,7 +91,8 @@ const Currency: React.FC = () => {
     (props: { item: FiatUnitType; index: number }) => {
       const { item, index } = props;
       const isSelected = selectedCurrency.endPointKey === item.endPointKey;
-      const isDisabled = isSavingNewPreferredCurrency === item || isSelected;
+      // Lock every row while a selection is in flight so two fetches can't race on the stored preference
+      const isDisabled = isSavingNewPreferredCurrency !== undefined || isSelected;
       const isLoading = isSavingNewPreferredCurrency === item;
 
       return (
@@ -108,9 +108,10 @@ const Currency: React.FC = () => {
             Keyboard.dismiss();
             setIsSavingNewPreferredCurrency(item);
             try {
-              await getFiatRate(item.endPointKey);
-              await setPreferredCurrency(item);
-              await initCurrencyDaemon(true);
+              // Fetch once to validate the currency, then hand the rate to the daemon instead of fetching it again
+              const rate = await getFiatRate(item.endPointKey);
+              await setPreferredCurrency(item, rate);
+              await initCurrencyDaemon();
               await fetchCurrency();
               setSelectedCurrency(item);
               setPreferredFiatCurrencyStorage(FiatUnit[item.endPointKey]);
@@ -136,7 +137,7 @@ const Currency: React.FC = () => {
     isSearchFocused || !selectedCurrencyVisible ? null : (
       <View style={[styles.infoHeader, stylesHook.infoHeader]}>
         <Text style={[settingsSectionHeaderText, styles.infoTitle, stylesHook.infoTitle]}>
-          {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
+          {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.Kraken}
         </Text>
         <Text style={[styles.infoSubtitle, stylesHook.infoSubtitle]}>
           {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}

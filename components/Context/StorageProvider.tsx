@@ -238,7 +238,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const setWalletsWithNewOrder = useCallback(
     (wlts: TWallet[]) => {
       BlueApp.wallets = wlts;
-      saveToDisk();
+      saveToDisk().catch((error: unknown) => console.warn('setWalletsWithNewOrder: saveToDisk failed', error));
     },
     [saveToDisk],
   );

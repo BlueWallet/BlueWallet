@@ -4,6 +4,10 @@
     <item name="wallet_menu_open_file" type="id" />
     <item name="wallet_menu_recent" type="id" />
     <item name="wallet_menu_tools" type="id" />
+    <item name="wallet_menu_wallet" type="id" />
+    <item name="wallet_menu_edit" type="id" />
+    <item name="wallet_menu_view" type="id" />
+    <item name="wallet_menu_send_actions" type="id" />
     <item name="wallet_menu_is_it_my_address" type="id" />
     <item name="wallet_menu_broadcast_transaction" type="id" />
     <item name="wallet_menu_generate_word" type="id" />
@@ -31,6 +35,10 @@
     <string name="wallet_menu_open_file">Open…</string>
     <string name="wallet_menu_recent">Open Recent</string>
     <string name="wallet_menu_tools">Tools</string>
+    <string name="wallet_menu_wallet">Wallet</string>
+    <string name="wallet_menu_edit">Edit</string>
+    <string name="wallet_menu_view">View</string>
+    <string name="wallet_menu_send_actions">Send</string>
     <string name="wallet_menu_is_it_my_address">Is it my address?</string>
     <string name="wallet_menu_broadcast_transaction">Broadcast Transaction</string>
     <string name="wallet_menu_generate_word">Seed final word</string>
@@ -57,6 +65,8 @@
     <string name="wallet_menu_copy_address">Copy Address</string>
     <item name="wallet_menu_copy_transaction_id" type="id" />
     <string name="wallet_menu_copy_transaction_id">Copy Transaction ID</string>
+    <item name="wallet_menu_accelerate_transaction" type="id" />
+    <string name="wallet_menu_accelerate_transaction">Speed up Transaction</string>
     <item name="wallet_menu_back" type="id" />
     <string name="wallet_menu_back">Back to Wallets</string>
     <item name="wallet_menu_shortcuts" type="id" />

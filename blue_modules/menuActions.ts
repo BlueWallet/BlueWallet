@@ -5,6 +5,7 @@ export type ScreenMenuAction =
   | 'walletDetails'
   | 'copyAddress'
   | 'copyTransactionId'
+  | 'accelerateTransaction'
   | 'add_recipient'
   | 'remove_recipient'
   | 'remove_all_recipients'
@@ -44,7 +45,7 @@ const screenActions: Record<string, readonly ScreenMenuAction[]> = {
   WalletsList: ['reloadTransactions'],
   WalletTransactions: ['reloadTransactions', 'send', 'receive', 'walletDetails'],
   ReceiveDetails: ['copyAddress'],
-  TransactionStatus: ['copyTransactionId'],
+  TransactionStatus: ['copyTransactionId', 'accelerateTransaction'],
   SendDetails: [
     'add_recipient',
     'remove_recipient',
@@ -87,7 +88,23 @@ export const menuShortcuts = [
   { title: 'Wallet Details…', key: 'D', where: 'Transactions' },
   { title: 'Copy Address', key: 'Shift+C', where: 'Receive screen, when an address is displayed' },
   { title: 'Copy Transaction ID', key: 'Shift+C', where: 'Transaction details, when an ID is available' },
+  { title: 'Speed Up', key: 'Shift+U', where: 'Transaction details, when external acceleration is available' },
   { title: 'Back to Wallets', key: 'Shift+W', where: 'Wallet detail screens' },
+  { title: 'Is it my address?', key: 'Shift+M', where: 'Anywhere after unlocking' },
+  { title: 'Broadcast Transaction', key: 'Shift+B', where: 'Anywhere after unlocking' },
+  { title: 'Seed final word', key: 'Shift+G', where: 'Anywhere after unlocking' },
+  { title: 'Add Recipient', key: 'Alt+A', where: 'Send details' },
+  { title: 'Remove Recipient', key: 'Alt+R', where: 'Send details' },
+  { title: 'Remove All Recipients', key: 'Alt+Shift+R', where: 'Send details' },
+  { title: 'Use Full Balance', key: 'Alt+M', where: 'Send details' },
+  { title: 'Allow Fee Bump', key: 'Alt+B', where: 'Send details' },
+  { title: 'Import Transaction', key: 'Alt+I', where: 'Send details' },
+  { title: 'Import Transaction (QR)', key: 'Alt+Q', where: 'Send details' },
+  { title: 'Import Multisig Transaction', key: 'Alt+Shift+I', where: 'Send details' },
+  { title: 'Co-sign Transaction', key: 'Alt+C', where: 'Send details' },
+  { title: 'Sign a Transaction', key: 'Alt+S', where: 'Send details' },
+  { title: 'Insert Contact', key: 'Alt+P', where: 'Send details' },
+  { title: 'Coin Control', key: 'Alt+O', where: 'Send details' },
   { title: 'Settings', key: ',', where: 'Anywhere after unlocking' },
   { title: 'Keyboard Shortcuts…', key: '/', where: 'Anywhere after unlocking' },
 ] as const;
