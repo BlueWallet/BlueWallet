@@ -71,6 +71,9 @@ export const uniqueElectrumServers = (servers: ElectrumServerItem[]): ElectrumSe
   });
 };
 
+export const electrumServersForHandoff = (history: ElectrumServerItem[], favorite?: ElectrumServerItem): ElectrumServerItem[] =>
+  uniqueElectrumServers([...history, ...(favorite ? [favorite] : [])]);
+
 export interface ElectrumServerDocumentResult {
   servers: ElectrumServerItem[];
   rejectedEntries: number;

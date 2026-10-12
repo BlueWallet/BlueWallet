@@ -284,7 +284,6 @@
     "electrum_add_server_description": "Add a custom Electrum server. It will be saved to History and set as your favorite for Bitcoin activity.",
     "electrum_favorite_server": "Favorite Server",
     "electrum_server_history": "Server History",
-    "electrum_export_server_history": "Export History",
     "electrum_import_server_history": "Import History",
     "electrum_import_success": "Servers imported: {count}.",
     "electrum_import_partial": "Invalid, duplicate, unsupported, or excess entries were safely skipped.",

@@ -33,11 +33,10 @@ describe('native menu availability', () => {
   });
 
   it('offers only registered Electrum settings commands', () => {
-    expect(availableMenuActions('ElectrumSettings', ['addElectrumServer', 'exportElectrumServerHistory'], true)).toEqual([
+    expect(availableMenuActions('ElectrumSettings', ['addElectrumServer'], true)).toEqual([
       'settings',
       'keyboardShortcuts',
       'addElectrumServer',
-      'exportElectrumServerHistory',
     ]);
   });
 });

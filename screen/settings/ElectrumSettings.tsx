@@ -26,6 +26,7 @@ import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import {
   ElectrumServerItem,
   createElectrumServerHistoryDeepLink,
+  electrumServersForHandoff,
   electrumServerKey,
   inferElectrumServerSsl,
   parseElectrumServer,
@@ -33,7 +34,6 @@ import {
   serializeElectrumServerDocument,
   uniqueElectrumServers,
 } from '../../blue_modules/electrumServer';
-import { showFilePickerAndReadFile, writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
@@ -67,13 +67,10 @@ type ServerListEntry =
       isHistory: boolean;
     };
 
-const IMPORT_SERVERS_ACTION_ID = 'import_electrum_servers';
-const EXPORT_SERVERS_ACTION_ID = 'export_electrum_servers';
 const ADD_SERVER_ACTION_ID = 'add_electrum_server';
 const SHOW_SUGGESTED_SERVERS_ACTION_ID = 'show_suggested_electrum_servers';
 const HANDOFF_SERVER_HISTORY_ACTION_ID = 'handoff_electrum_server_history';
 const SHOW_SUGGESTED_SERVERS_STORAGE_KEY = 'electrum_show_suggested_servers';
-const SERVER_LIST_FILE_NAME = 'bluewallet-server-history.electrumservers';
 const serverKey = electrumServerKey;
 
 const SwipeableServerRow: React.FC<{
@@ -219,13 +216,17 @@ const ElectrumSettings: React.FC = () => {
   const [isHandoffExportEnabled, setIsHandoffExportEnabled] = useState(false);
   const [testingServerKey, setTestingServerKey] = useState<string>();
   const { setIsElectrumDisabled, isElectrumDisabled, isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage } = useSettings();
+  const handoffServers = useMemo(() => {
+    const favoriteServer = host && (port || sslPort) ? { host, ...(sslPort ? { ssl: sslPort } : { tcp: port }) } : undefined;
+    return electrumServersForHandoff(Array.from(serverHistory), favoriteServer);
+  }, [host, port, serverHistory, sslPort]);
   const handoffServerHistoryDocument = useMemo(
-    () => (serverHistory.size > 0 ? serializeElectrumServerDocument(Array.from(serverHistory)) : ''),
-    [serverHistory],
+    () => (handoffServers.length > 0 ? serializeElectrumServerDocument(handoffServers) : ''),
+    [handoffServers],
   );
   const handoffServerHistoryDeepLink = useMemo(
-    () => (serverHistory.size > 0 ? createElectrumServerHistoryDeepLink(Array.from(serverHistory)) : ''),
-    [serverHistory],
+    () => (handoffServers.length > 0 ? createElectrumServerHistoryDeepLink(handoffServers) : ''),
+    [handoffServers],
   );
   const [serverTestResults, setServerTestResults] = useState<Record<string, boolean>>({});
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
@@ -246,11 +247,11 @@ const ElectrumSettings: React.FC = () => {
 
   const wasHandoffExportEligible = useRef(false);
   useEffect(() => {
-    const isEligible = Platform.OS === 'ios' && isHandOffUseEnabled && serverHistory.size > 0;
+    const isEligible = Platform.OS === 'ios' && isHandOffUseEnabled && handoffServers.length > 0;
     if (isEligible && !wasHandoffExportEligible.current) setIsHandoffExportEnabled(true);
     if (!isEligible) setIsHandoffExportEnabled(false);
     wasHandoffExportEligible.current = isEligible;
-  }, [isHandOffUseEnabled, serverHistory.size]);
+  }, [handoffServers.length, isHandOffUseEnabled]);
 
   const { height: keyboardHeight, isVisible: isKeyboardVisible } = useKeyboard();
   const androidKeyboardInset = Platform.OS === 'android' && !customOnly && isKeyboardVisible ? keyboardHeight + 24 : 0;
@@ -628,11 +629,6 @@ const ElectrumSettings: React.FC = () => {
     [fetchData, serverHistory],
   );
 
-  const importServerList = useCallback(async () => {
-    const { data } = await showFilePickerAndReadFile();
-    if (typeof data === 'string') await importServerHistoryData(data);
-  }, [importServerHistoryData]);
-
   const handledServerHistoryImport = useRef<string | undefined>(undefined);
   useEffect(() => {
     if (Platform.OS !== 'ios' || isLoading || !serverHistoryImport || handledServerHistoryImport.current === serverHistoryImport) return;
@@ -646,20 +642,10 @@ const ElectrumSettings: React.FC = () => {
     ]);
   }, [importServerHistoryData, isLoading, serverHistoryImport]);
 
-  const exportServerList = useCallback(async () => {
-    if (serverHistory.size === 0) return;
-    const contents = serializeElectrumServerDocument(Array.from(serverHistory));
-    await writeFileAndExport(SERVER_LIST_FILE_NAME, contents, true);
-  }, [serverHistory]);
-
   const onPressMenuItem = useCallback(
     async (id: string) => {
       if (id === ADD_SERVER_ACTION_ID) {
         navigation.navigate('AddElectrumServerRoot');
-      } else if (id === IMPORT_SERVERS_ACTION_ID) {
-        await importServerList();
-      } else if (id === EXPORT_SERVERS_ACTION_ID) {
-        await exportServerList();
       } else if (id === HANDOFF_SERVER_HISTORY_ACTION_ID) {
         if (isHandOffUseEnabled) {
           setIsHandoffExportEnabled(value => !value);
@@ -696,22 +682,10 @@ const ElectrumSettings: React.FC = () => {
         });
       }
     },
-    [
-      exportServerList,
-      fetchData,
-      importServerList,
-      isHandOffUseEnabled,
-      navigation,
-      setIsHandOffUseEnabledAsyncStorage,
-      showSuggestedServers,
-    ],
+    [fetchData, isHandOffUseEnabled, navigation, setIsHandOffUseEnabledAsyncStorage, showSuggestedServers],
   );
 
-  useScreenMenuActions({
-    addElectrumServer: () => navigation.navigate('AddElectrumServerRoot'),
-    importElectrumServerHistory: importServerList,
-    exportElectrumServerHistory: serverHistory.size > 0 ? exportServerList : undefined,
-  });
+  useScreenMenuActions({ addElectrumServer: () => navigation.navigate('AddElectrumServerRoot') });
 
   const isFavorite = useCallback(
     (value: ElectrumServerItem) => {
@@ -731,31 +705,20 @@ const ElectrumSettings: React.FC = () => {
           icon: { iconValue: Platform.OS === 'ios' ? 'plus' : 'ic_input_add' },
         },
       ],
-      [
-        {
-          id: IMPORT_SERVERS_ACTION_ID,
-          text: loc.settings.electrum_import_server_history,
-          icon: CommonToolTipActions.ImportFile.icon,
-        },
-        {
-          id: EXPORT_SERVERS_ACTION_ID,
-          text: loc.settings.electrum_export_server_history,
-          icon: CommonToolTipActions.Share.icon,
-          disabled: serverHistory.size === 0,
-        },
-        ...(Platform.OS === 'ios'
-          ? [
+      ...(Platform.OS === 'ios'
+        ? [
+            [
               {
                 id: HANDOFF_SERVER_HISTORY_ACTION_ID,
                 text: loc.settings.electrum_handoff_export,
                 subtitle: loc.settings.electrum_handoff_export_description,
                 image: 'icloud.and.arrow.up',
                 menuState: isHandoffExportEnabled,
-                disabled: serverHistory.size === 0,
+                disabled: handoffServers.length === 0,
               },
-            ]
-          : []),
-      ],
+            ],
+          ]
+        : []),
       [resetToDefaults],
       ...(host && (port || sslPort)
         ? [
@@ -770,7 +733,7 @@ const ElectrumSettings: React.FC = () => {
           ]
         : []),
     ] as Action[][];
-  }, [host, isHandoffExportEnabled, port, serverHistory.size, showSuggestedServers, sslPort]);
+  }, [handoffServers.length, host, isHandoffExportEnabled, port, serverHistory.size, showSuggestedServers, sslPort]);
 
   const serverList = useMemo<ServerListEntry[]>(() => {
     const hasFavorite = Boolean(host && (port || sslPort));

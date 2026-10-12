@@ -1,5 +1,6 @@
 import {
   createElectrumServerHistoryDeepLink,
+  electrumServersForHandoff,
   formatElectrumServer,
   electrumServerKey,
   parseElectrumServer,
@@ -11,6 +12,15 @@ import {
 } from '../../blue_modules/electrumServer';
 
 describe('Electrum server parsing', () => {
+  it('includes the favorite in Handoff exports without duplicating history', () => {
+    const favorite = { host: 'favorite.example.com', ssl: 50002 };
+    expect(electrumServersForHandoff([{ host: 'history.example.com', tcp: 50001 }], favorite)).toEqual([
+      { host: 'history.example.com', tcp: 50001 },
+      favorite,
+    ]);
+    expect(electrumServersForHandoff([favorite], favorite)).toEqual([favorite]);
+  });
+
   it.each([
     ['hippo.1209k.com\t50002\tssl', { host: 'hippo.1209k.com', ssl: 50002 }],
     ['HIPPO.1209K.COM:50001:tcp', { host: 'hippo.1209k.com', tcp: 50001 }],
