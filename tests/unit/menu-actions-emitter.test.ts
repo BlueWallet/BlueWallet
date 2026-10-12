@@ -180,10 +180,7 @@ it('rebuilds the available commands for each focused screen', () => {
         'wallet',
       ),
       hook.result.current.registerMenuActions({ copyAddress: jest.fn() }, 'receive'),
-      hook.result.current.registerMenuActions(
-        { copyTransactionId: jest.fn(), accelerateTransaction: jest.fn() },
-        'transaction',
-      ),
+      hook.result.current.registerMenuActions({ copyTransactionId: jest.fn(), accelerateTransaction: jest.fn() }, 'transaction'),
       hook.result.current.registerMenuActions({ add_recipient: jest.fn(), coin_control: jest.fn() }, 'send'),
     );
   });
@@ -206,12 +203,7 @@ it('rebuilds the available commands for each focused screen', () => {
     'walletDetails',
   ]);
   expectActionsFor('ReceiveDetails', 'receive', [...globalActions, 'backToWallets', 'copyAddress']);
-  expectActionsFor('TransactionStatus', 'transaction', [
-    ...globalActions,
-    'backToWallets',
-    'copyTransactionId',
-    'accelerateTransaction',
-  ]);
+  expectActionsFor('TransactionStatus', 'transaction', [...globalActions, 'backToWallets', 'copyTransactionId', 'accelerateTransaction']);
   expectActionsFor('SendDetails', 'send', [...globalActions, 'add_recipient', 'coin_control']);
   expectActionsFor('Settings', 'settings', globalActions);
   expectActionsFor('UnlockWithScreen', 'locked', []);
