@@ -869,13 +869,20 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await scanText(keystoneSignedPsbt);
 
     const coSignPrompt = 'Co-sign this transaction?';
-    await waitFor(element(by.text(coSignPrompt)))
-      .toBeVisible()
-      .withTimeout(20_000);
-    await sleep(3_000);
-    await expect(element(by.text(coSignPrompt))).toBeVisible();
-    await expect(element(by.text('Yes'))).toBeVisible();
-    await element(by.text('Yes')).tap();
+    // iOS 26 liquid glass never satisfies toBeVisible() for alert buttons, and sync can hang on the animation.
+    const isiOS = device.getPlatform() === 'ios';
+    if (isiOS) await device.disableSynchronization();
+    try {
+      await waitFor(element(by.text(coSignPrompt)))
+        .toExist()
+        .withTimeout(20_000);
+      await sleep(3_000);
+      await expect(element(by.text(coSignPrompt))).toExist();
+      await expect(element(by.text('Yes'))).toExist();
+      await element(by.text('Yes')).tap();
+    } finally {
+      if (isiOS) await device.enableSynchronization();
+    }
 
     await waitFor(element(by.id('ItemSigned')).atIndex(0))
       .toBeVisible()

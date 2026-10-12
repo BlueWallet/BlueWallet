@@ -92,6 +92,15 @@ const SendDetails = () => {
   const isTransactionReplaceable = route.params?.isTransactionReplaceable;
   const routeParams = route.params;
   const scrollView = useRef<FlatList<IPaymentDestinations>>(null);
+  const sendDetailsMounted = useRef(true);
+  const cancelCosignWait = useRef<(() => void) | null>(null);
+  useEffect(
+    () => () => {
+      sendDetailsMounted.current = false;
+      cancelCosignWait.current?.();
+    },
+    [],
+  );
   const presentAlert = useCallback(
     ({ title, message, buttons = [{ text: loc._.ok }] }: { title?: string; message: string; buttons?: AlertButton[] }) => {
       const anchor = findNodeHandle(scrollView.current);
@@ -843,32 +852,47 @@ const SendDetails = () => {
         // This wallet can sign the imported PSBT. Ask before adding that signature.
         let cosign = false;
         if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0) {
+          // A scan arrives while ScanQRCode is still dismissing. On Mac the anchored sheet is
+          // presented on that controller and disappears with it. File import already awaited the picker.
+          if (isDesktop && base64arg) {
+            await new Promise<void>(resolve => {
+              const unsubscribe = navigation.addListener('transitionEnd', event => {
+                if (event.data.closing) return;
+                cancelCosignWait.current = null;
+                unsubscribe();
+                resolve();
+              });
+              cancelCosignWait.current = unsubscribe;
+            });
+            if (!sendDetailsMounted.current) return;
+          }
+
           cosign = await new Promise<boolean>(resolve => {
             const buttons: AlertButton[] = [
               { text: loc._.no, style: 'cancel', onPress: () => resolve(false) },
               { text: loc._.yes, onPress: () => resolve(true) },
             ];
-            if (isDesktop) {
-              // Wait for the scanner or file picker to close, then show an anchored sheet so the prompt stays in front on Mac.
-              sleep(500).then(() => {
-                const anchor = findNodeHandle(scrollView.current);
-                if (anchor === null) {
-                  resolve(false);
-                  return;
-                }
-                ActionSheet.showActionSheetWithOptions(
-                  {
-                    message: loc.multisig.cosign_this_transaction,
-                    options: buttons.map(button => button.text ?? ''),
-                    cancelButtonIndex: 0,
-                    anchor,
-                  },
-                  buttonIndex => buttons[buttonIndex]?.onPress?.(),
-                );
-              });
-            } else {
+            const showAlert = () => {
               Alert.alert(loc.multisig.cosign_this_transaction, undefined, buttons, { cancelable: false });
+            };
+            const anchor = isDesktop ? findNodeHandle(scrollView.current) : null;
+            if (anchor == null) {
+              showAlert();
+              return;
             }
+            ActionSheet.showActionSheetWithOptions(
+              {
+                message: loc.multisig.cosign_this_transaction,
+                options: buttons.map(button => button.text ?? ''),
+                cancelButtonIndex: 0,
+                anchor,
+              },
+              buttonIndex => {
+                const onPress = buttons[buttonIndex]?.onPress;
+                if (onPress) onPress();
+                else resolve(false);
+              },
+            );
           });
         }
         if (cosign) {
