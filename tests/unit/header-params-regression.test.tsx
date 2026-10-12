@@ -1,12 +1,15 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 
+import { withRouteParamHeaderOptions } from '../../components/navigationStyle';
 import Confirm from '../../screen/send/Confirm';
 import MultisigAdvanced from '../../screen/wallets/MultisigAdvanced';
 
 let routeParams: any = {};
 
-const setParamsMock = jest.fn();
+const setParamsMock = jest.fn(params => {
+  routeParams = { ...routeParams, ...params };
+});
 const navigateMock = jest.fn();
 const goBackMock = jest.fn();
 
@@ -170,6 +173,17 @@ describe('Header options regression guards', () => {
       expect(setParamsMock).toHaveBeenCalledTimes(1);
     });
 
+    const appliedOptions = withRouteParamHeaderOptions({ headerRight: true })(
+      {},
+      {
+        route: { params: routeParams },
+        navigation: navigationMock,
+        theme: {} as any,
+      },
+    );
+    expect(appliedOptions.headerRight).toEqual(expect.any(Function));
+    expect(appliedOptions.headerRight!({ tintColor: '#000', canGoBack: true })).toBeTruthy();
+
     screen.rerender(<Confirm />);
 
     await waitFor(() => {
@@ -190,6 +204,17 @@ describe('Header options regression guards', () => {
     await waitFor(() => {
       expect(setParamsMock).toHaveBeenCalledTimes(1);
     });
+
+    const appliedOptions = withRouteParamHeaderOptions({ headerRight: true })(
+      {},
+      {
+        route: { params: routeParams },
+        navigation: navigationMock,
+        theme: {} as any,
+      },
+    );
+    expect(appliedOptions.headerRight).toEqual(expect.any(Function));
+    expect(appliedOptions.headerRight!({ tintColor: '#000', canGoBack: true })).toBeTruthy();
 
     screen.rerender(<MultisigAdvanced />);
 
