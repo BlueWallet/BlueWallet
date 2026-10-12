@@ -1,5 +1,16 @@
 import React, { forwardRef, ReactNode, useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { Animated, PixelRatio, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View, StyleProp, TextStyle } from 'react-native';
+import {
+  Animated,
+  LayoutChangeEvent,
+  PixelRatio,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+  StyleProp,
+  TextStyle,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from './themes';
@@ -62,11 +73,20 @@ const getFloatButtonBottomOffset = (bottomInset: number): number => (bottomInset
 export const getFloatingButtonReservedHeight = (fontScale = 1, bottomInset = 0): number =>
   getScaledButtonHeight(fontScale) + FLOAT_BUTTON_LIST_CLEARANCE + getFloatButtonBottomOffset(bottomInset) - bottomInset;
 
-const useFloatButtonLayout = (width: number, sizeClass: SizeClass, fontScale: number) => {
+// Prefer the measured parent width: in Catalyst/iPad sheets it is much narrower than the window.
+const getFloatButtonAvailableWidth = (windowWidth: number, sizeClass: SizeClass, parentWidth?: number): number => {
+  if (parentWidth !== undefined && parentWidth > 0) {
+    return Math.max(0, Math.ceil(parentWidth - LAYOUT.CONTAINER_SIDE_MARGIN * 2));
+  }
+  const drawerOffset = sizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
+  return Math.max(0, Math.ceil(windowWidth - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2));
+};
+
+const useFloatButtonLayout = (width: number, availableWidth: number, sizeClass: SizeClass, fontScale: number) => {
   const lastVerticalDecision = useRef(false);
 
   const shouldUseVerticalLayout = useCallback(
-    (totalWidthNeeded: number, availableWidth: number, totalChildren: number) => {
+    (totalWidthNeeded: number, totalChildren: number) => {
       if (sizeClass !== SizeClass.Large || totalChildren <= 1) return false;
 
       const minWidthPerButton = 130;
@@ -90,15 +110,12 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass, fontScale: nu
 
       return lastVerticalDecision.current;
     },
-    [sizeClass],
+    [sizeClass, availableWidth],
   );
 
   const calculateButtonWidth = useCallback(
     (containerWidth: number, totalChildren: number): number => {
       if (containerWidth <= 0) return 0;
-
-      const drawerOffset = sizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
-      const availableWidth = width - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2;
 
       const contentWidth = Math.ceil(containerWidth);
       const buttonWidth = contentWidth + LAYOUT.PADDINGS * 2;
@@ -113,7 +130,7 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass, fontScale: nu
             ? LAYOUT.MIN_BUTTON_WIDTH
             : LAYOUT.MIN_BUTTON_WIDTH * 0.85;
 
-      const shouldBeVertical = shouldUseVerticalLayout(totalWidthNeeded, availableWidth, totalChildren);
+      const shouldBeVertical = shouldUseVerticalLayout(totalWidthNeeded, totalChildren);
 
       let calculatedWidth;
 
@@ -140,26 +157,23 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass, fontScale: nu
 
       return Math.floor(calculatedWidth);
     },
-    [width, sizeClass, shouldUseVerticalLayout],
+    [availableWidth, sizeClass, shouldUseVerticalLayout],
   );
 
   const calculateVisualParameters = useCallback(
     (calculatedWidth: number, totalChildren: number) => {
-      const drawerOffset = sizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
-      const availableWidth = width - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2;
-
       const buttonWidth = Math.max(calculatedWidth, LAYOUT.MIN_BUTTON_WIDTH_LARGE) + LAYOUT.PADDINGS * 2;
       const totalButtonWidth = buttonWidth * totalChildren;
       const totalSpacersWidth = (totalChildren - 1) * LAYOUT.BUTTON_MARGIN;
       const totalWidthNeeded = totalButtonWidth + totalSpacersWidth;
 
-      const shouldBeVertical = shouldUseVerticalLayout(totalWidthNeeded, availableWidth, totalChildren);
+      const shouldBeVertical = shouldUseVerticalLayout(totalWidthNeeded, totalChildren);
 
       const buttonRadius = LAYOUT.PILL_BORDER_RADIUS;
 
       return { buttonRadius, shouldBeVertical };
     },
-    [width, sizeClass, shouldUseVerticalLayout],
+    [shouldUseVerticalLayout],
   );
 
   const calculateContainerHeight = useCallback(
@@ -191,6 +205,16 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass, fontScale: nu
 };
 
 const containerStyles = StyleSheet.create({
+  measureAbsolute: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  measureInline: {
+    alignSelf: 'stretch',
+  },
   root: {
     alignSelf: 'center',
     height: '8%',
@@ -435,14 +459,13 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
 
   const childrenCount = React.Children.toArray(props.children).filter(Boolean).length;
 
-  const initialLayoutWidth = useMemo(() => {
-    const drawerOffset = sizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
-    return Math.max(0, Math.ceil(width - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2));
-  }, [width, sizeClass]);
+  const [parentWidth, setParentWidth] = useState<number | undefined>();
+  const availableWidth = useMemo(() => getFloatButtonAvailableWidth(width, sizeClass, parentWidth), [width, sizeClass, parentWidth]);
 
-  const [layoutReady, setLayoutReady] = useState<boolean>(() => initialLayoutWidth > 0);
+  const [layoutReady, setLayoutReady] = useState<boolean>(() => availableWidth > 0);
   const { calculateButtonWidth, calculateVisualParameters, calculateContainerHeight, buttonFontSize } = useFloatButtonLayout(
     width,
+    availableWidth,
     sizeClass,
     fontScale,
   );
@@ -450,17 +473,17 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   // Compute initial geometry up-front so the slide-in animation starts at the final (computed) size,
   // avoiding a visible "big-to-small" jump during the entrance animation.
   const initialGeometry = useMemo(() => {
-    if (initialLayoutWidth <= 0) {
+    if (availableWidth <= 0) {
       return {
         calculatedWidth: undefined as number | undefined,
         shouldBeVertical: false,
         buttonRadius: LAYOUT.PILL_BORDER_RADIUS,
       };
     }
-    const calculatedWidth = calculateButtonWidth(initialLayoutWidth, childrenCount);
+    const calculatedWidth = calculateButtonWidth(availableWidth, childrenCount);
     const { buttonRadius, shouldBeVertical } = calculateVisualParameters(calculatedWidth, childrenCount);
     return { calculatedWidth, shouldBeVertical, buttonRadius };
-  }, [initialLayoutWidth, calculateButtonWidth, calculateVisualParameters, childrenCount]);
+  }, [availableWidth, calculateButtonWidth, calculateVisualParameters, childrenCount]);
 
   const [newWidth, setNewWidth] = useState<number | undefined>(() => initialGeometry.calculatedWidth);
   const [isVertical, setIsVertical] = useState<boolean>(() => initialGeometry.shouldBeVertical);
@@ -469,7 +492,9 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const latest = useRef({ newWidth, isVertical, buttonBorderRadius });
   latest.current = { newWidth, isVertical, buttonBorderRadius };
 
-  const layoutWidth = useRef<number>(initialLayoutWidth);
+  const layoutWidth = useRef<number>(availableWidth);
+  const availableWidthRef = useRef(availableWidth);
+  availableWidthRef.current = availableWidth;
   // Avoid running the animation on the very first layout calculation.
   // We already set initial geometry, so we can skip this first pass to prevent redundant state churn.
   const isFirstLayoutCalculation = useRef(true);
@@ -493,6 +518,8 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     if (!layoutReady || layoutWidth.current <= 0) return;
 
     scheduleInNextFrame(() => {
+      // Stale frame: available width changed since this pass was scheduled.
+      if (availableWidthRef.current !== availableWidth) return;
       const calculatedWidth = calculateButtonWidth(layoutWidth.current, childrenCount);
       const { buttonRadius, shouldBeVertical } = calculateVisualParameters(calculatedWidth, childrenCount);
 
@@ -521,6 +548,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     });
   }, [
     layoutReady,
+    availableWidth,
     calculateButtonWidth,
     calculateVisualParameters,
     handleBorderRadiusAnimation,
@@ -534,9 +562,30 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
 
   useEffect(() => {
     debouncedCalculateLayout();
+    return () => debouncedCalculateLayout.cancel();
   }, [debouncedCalculateLayout, width, height, childrenCount, sizeClass, fontScale]);
 
-  const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
+  // Re-fit without debounce when the layout inputs change (first measurement, sheet resize, size class, children).
+  const layoutInputs = `${availableWidth}:${sizeClass}:${childrenCount}`;
+  const appliedLayoutInputs = useRef(layoutInputs);
+  useEffect(() => {
+    if (appliedLayoutInputs.current === layoutInputs) return;
+    appliedLayoutInputs.current = layoutInputs;
+    if (availableWidth <= 0) return;
+
+    const calculatedWidth = calculateButtonWidth(availableWidth, childrenCount);
+    const { buttonRadius, shouldBeVertical } = calculateVisualParameters(calculatedWidth, childrenCount);
+    handleBorderRadiusAnimation(buttonRadius, shouldBeVertical, calculatedWidth);
+  }, [layoutInputs, availableWidth, calculateButtonWidth, calculateVisualParameters, handleBorderRadiusAnimation, childrenCount]);
+
+  const onMeasureLayout = (event: LayoutChangeEvent) => {
+    const { width: measured } = event.nativeEvent.layout;
+    if (measured > 0 && Math.abs((parentWidth ?? 0) - measured) > 1) {
+      setParentWidth(measured);
+    }
+  };
+
+  const onLayout = (event: LayoutChangeEvent) => {
     const { width: currentLayoutWidth } = event.nativeEvent.layout;
 
     if (currentLayoutWidth > 0) {
@@ -581,23 +630,31 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   );
 
   const effectiveNewWidth = newWidth ?? layoutWidth.current;
+  const isPositioned = Boolean(effectiveNewWidth) && parentWidth !== undefined;
 
   const combinedStyles = useMemo(
     () => [
       containerStyles.root,
       props.inline ? containerStyles.rootInline : containerStyles.rootAbsolute,
       bottomInsets,
-      effectiveNewWidth ? (isVertical ? containerStyles.rootPostVertical : containerStyles.rootPost) : containerStyles.rootPre,
+      isPositioned ? (isVertical ? containerStyles.rootPostVertical : containerStyles.rootPost) : containerStyles.rootPre,
       isVertical ? containerHeight : { minHeight: scaledButtonHeight },
       { transform: [{ translateY: slideAnimation }] },
     ],
-    [props.inline, bottomInsets, effectiveNewWidth, isVertical, containerHeight, slideAnimation, scaledButtonHeight],
+    [props.inline, bottomInsets, isPositioned, isVertical, containerHeight, slideAnimation, scaledButtonHeight],
   );
 
   return (
-    <Animated.View ref={ref} onLayout={onLayout} style={combinedStyles}>
-      {layoutReady ? React.Children.toArray(props.children).filter(Boolean).map(renderChild) : props.children}
-    </Animated.View>
+    <View
+      style={props.inline ? containerStyles.measureInline : containerStyles.measureAbsolute}
+      pointerEvents="box-none"
+      onLayout={onMeasureLayout}
+      testID="FContainerMeasure"
+    >
+      <Animated.View ref={ref} onLayout={onLayout} style={combinedStyles}>
+        {layoutReady ? React.Children.toArray(props.children).filter(Boolean).map(renderChild) : props.children}
+      </Animated.View>
+    </View>
   );
 });
 
