@@ -100,7 +100,7 @@ const MainRoot = () => {
             component={LazyAddElectrumServerStack}
             options={{
               ...NavigationFormModalOptions,
-              sheetAllowedDetents: [0.9],
+              sheetAllowedDetents: 'fitToContents',
               keyboardHandlingEnabled: true,
             }}
           />

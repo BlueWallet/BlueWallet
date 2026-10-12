@@ -2,14 +2,26 @@ import { useFocusEffect, useNavigation, usePreventRemove, useRoute } from '@reac
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Keyboard, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Keyboard,
+  Linking,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { suggestedServers } from '../../blue_modules/BlueElectrum';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
-import { ElectrumServerItem, inferElectrumServerSsl, parseElectrumServer } from '../../blue_modules/electrumServer';
+import { ElectrumServerItem, inferElectrumServerSsl, isLocalElectrumHost, parseElectrumServer } from '../../blue_modules/electrumServer';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import AddressInput from '../../components/AddressInput';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
@@ -36,8 +48,11 @@ const AddElectrumServer: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState<string>();
+  const [showLocalNetworkSettings, setShowLocalNetworkSettings] = useState(false);
   const [didSave, setDidSave] = useState(false);
   const inferredConnectionType = useRef(false);
+  const hostInput = useRef<TextInput>(null);
+  const portInput = useRef<TextInput>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -48,7 +63,10 @@ const AddElectrumServer: React.FC = () => {
 
   const stylesHook = StyleSheet.create({
     screen: { backgroundColor: colors.background },
-    inputWrap: { borderColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
+    inputWrap: {
+      borderColor: colors.formBorder,
+      backgroundColor: colors.inputBackgroundColor,
+    },
     inputText: { color: colors.foregroundColor },
     fieldLabel: { color: colors.alternativeTextColor },
     validationErrorContainer: { backgroundColor: colors.redBG },
@@ -62,7 +80,11 @@ const AddElectrumServer: React.FC = () => {
   usePreventRemove(hasChanges, ({ data }) => {
     Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
       { text: loc._.cancel, style: 'cancel' },
-      { text: loc._.ok, style: 'destructive', onPress: () => navigation.dispatch(data.action) },
+      {
+        text: loc._.ok,
+        style: 'destructive',
+        onPress: () => navigation.dispatch(data.action),
+      },
     ]);
   });
 
@@ -90,6 +112,7 @@ const AddElectrumServer: React.FC = () => {
 
   useEffect(() => {
     setValidationError(undefined);
+    setShowLocalNetworkSettings(false);
   }, [host, port, sslPort]);
 
   const applyServerText = useCallback((text: string) => {
@@ -162,10 +185,14 @@ const AddElectrumServer: React.FC = () => {
     try {
       const validation = await BlueElectrum.validateConnection(draftServer.host, draftServer.tcp, draftServer.ssl);
       if (!validation.success) {
+        const isLocalNetworkFailure = Platform.OS === 'ios' && isLocalElectrumHost(draftServer.host);
+        setShowLocalNetworkSettings(isLocalNetworkFailure);
         setValidationError(
-          draftServer.host.endsWith('.onion')
-            ? `${loc.settings.electrum_error_connect_tor}\n\n${validation.error ?? ''}`.trim()
-            : validation.error || loc.settings.electrum_error_connect,
+          isLocalNetworkFailure
+            ? loc.settings.electrum_local_network_unavailable
+            : draftServer.host.endsWith('.onion')
+              ? `${loc.settings.electrum_error_connect_tor}\n\n${validation.error ?? ''}`.trim()
+              : validation.error || loc.settings.electrum_error_connect,
         );
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return;
@@ -246,7 +273,10 @@ const AddElectrumServer: React.FC = () => {
   );
 
   useEffect(() => {
-    navigation.setOptions({ headerRight: renderHeaderRight, unstable_headerRightItems: unstableHeaderRightItems });
+    navigation.setOptions({
+      headerRight: renderHeaderRight,
+      unstable_headerRightItems: unstableHeaderRightItems,
+    });
   }, [navigation, renderHeaderRight, unstableHeaderRightItems]);
 
   return (
@@ -259,7 +289,7 @@ const AddElectrumServer: React.FC = () => {
       testID="AddElectrumServerScrollView"
       accessibilityLabel={loc.settings.electrum_add_server}
     >
-      <SettingsSection title={loc.settings.electrum_add_server} containerStyle={styles.section}>
+      <SettingsSection containerStyle={styles.section}>
         {isValidating ? (
           <View
             accessible
@@ -285,6 +315,16 @@ const AddElectrumServer: React.FC = () => {
               <Text selectable style={[styles.noticeMessage, stylesHook.validationErrorMessage]}>
                 {validationError}
               </Text>
+              {showLocalNetworkSettings ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={loc.send.open_settings}
+                  onPress={() => Linking.openSettings().catch(() => undefined)}
+                  style={({ pressed }) => [styles.settingsButton, pressed && styles.pressed]}
+                >
+                  <Text style={[styles.settingsButtonText, { color: colors.primary }]}>{loc.send.open_settings}</Text>
+                </Pressable>
+              ) : null}
             </View>
           </View>
         ) : null}
@@ -314,7 +354,9 @@ const AddElectrumServer: React.FC = () => {
           <Text style={[styles.label, stylesHook.fieldLabel]}>{loc.settings.electrum_server_address}</Text>
           <AddressInput
             testID="HostInput"
-            placeholder={loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' })}
+            placeholder={loc.formatString(loc.settings.electrum_host, {
+              example: '10.20.30.40',
+            })}
             address={host}
             onChangeText={text => {
               if (!applyServerText(text)) setHost(text.trim());
@@ -326,12 +368,18 @@ const AddElectrumServer: React.FC = () => {
             style={styles.nativeInput}
             accessibilityLabel={loc.settings.electrum_server_address}
             accessibilityHint={loc.settings.electrum_server_address_hint}
+            inputRef={hostInput}
+            returnKeyType="next"
+            onSubmitEditing={() => portInput.current?.focus()}
           />
           <Text style={[styles.label, stylesHook.fieldLabel]}>
-            {loc.formatString(loc.settings.electrum_port, { example: sslPort !== undefined ? '50002' : '50001' })}
+            {loc.formatString(loc.settings.electrum_port, {
+              example: sslPort !== undefined ? '50002' : '50001',
+            })}
           </Text>
           <View style={[styles.inputWrap, styles.nativeInput, stylesHook.inputWrap]}>
             <TextInput
+              ref={portInput}
               testID="PortInput"
               placeholder={sslPort !== undefined ? '50002' : '50001'}
               value={(sslPort ?? port)?.toString() ?? ''}
@@ -345,6 +393,8 @@ const AddElectrumServer: React.FC = () => {
               inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
               accessibilityLabel={loc.settings.electrum_port_accessibility_label}
               accessibilityHint={loc.settings.electrum_port_accessibility_hint}
+              returnKeyType="done"
+              onSubmitEditing={Keyboard.dismiss}
             />
           </View>
           <Text style={[styles.label, stylesHook.fieldLabel]}>{loc.settings.electrum_connection_type}</Text>
@@ -402,12 +452,28 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   inputWrap: { flexDirection: 'row', borderWidth: 1, alignItems: 'center' },
-  inputText: { flex: 1, paddingHorizontal: 12, minHeight: Platform.select({ ios: 42, default: 46 }), fontSize: 16 },
+  inputText: {
+    flex: 1,
+    paddingHorizontal: 12,
+    minHeight: Platform.select({ ios: 42, default: 46 }),
+    fontSize: 16,
+  },
   favoriteRow: { minHeight: Platform.select({ ios: 50, default: 56 }) },
-  headerButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  headerButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   disabled: { opacity: 0.5 },
   pressed: { opacity: 0.6 },
-  validationStatus: { minHeight: 44, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  validationStatus: {
+    minHeight: 44,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
   validationText: { fontSize: 15, fontWeight: '500' },
   notice: {
     marginHorizontal: 16,
@@ -421,6 +487,13 @@ const styles = StyleSheet.create({
   noticeText: { flex: 1, gap: 3 },
   noticeTitle: { fontSize: 15, lineHeight: 20, fontWeight: '600' },
   noticeMessage: { fontSize: 14, lineHeight: 20 },
+  settingsButton: {
+    alignSelf: 'flex-start',
+    minHeight: 36,
+    justifyContent: 'center',
+    marginTop: 5,
+  },
+  settingsButtonText: { fontSize: 15, fontWeight: '600' },
 });
 
 export default AddElectrumServer;

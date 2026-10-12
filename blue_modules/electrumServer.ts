@@ -19,9 +19,35 @@ export const normalizeElectrumServerText = (value: string): string =>
     .trim();
 
 export const inferElectrumServerSsl = (port: number): boolean | undefined => {
+  if (port === 50001) return false;
+  if (port === 50002) return true;
   const tcpMatches = hardcodedPeers.filter(peer => peer.tcp === port).length;
   const sslMatches = hardcodedPeers.filter(peer => peer.ssl === port).length;
   return tcpMatches === sslMatches ? undefined : sslMatches > tcpMatches;
+};
+
+export const isLocalElectrumHost = (host: string): boolean => {
+  const normalizedHost = normalizeElectrumServerText(host)
+    .toLowerCase()
+    .replace(/^\[|\]$/g, '');
+  if (normalizedHost === 'localhost' || normalizedHost.endsWith('.local')) return true;
+  if (
+    normalizedHost === '::1' ||
+    normalizedHost.startsWith('fe80:') ||
+    normalizedHost.startsWith('fc') ||
+    normalizedHost.startsWith('fd')
+  ) {
+    return true;
+  }
+  const octets = normalizedHost.split('.').map(Number);
+  if (octets.length !== 4 || octets.some(octet => !Number.isInteger(octet) || octet < 0 || octet > 255)) return false;
+  return (
+    octets[0] === 10 ||
+    octets[0] === 127 ||
+    (octets[0] === 169 && octets[1] === 254) ||
+    (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) ||
+    (octets[0] === 192 && octets[1] === 168)
+  );
 };
 
 export const parseElectrumServer = (value: string): ElectrumServerItem | undefined => {

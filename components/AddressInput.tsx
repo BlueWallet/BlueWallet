@@ -31,6 +31,9 @@ interface AddressInputProps {
     | 'visible-password';
   accessibilityLabel?: string;
   accessibilityHint?: string;
+  inputRef?: React.Ref<TextInput>;
+  returnKeyType?: 'next' | 'done';
+  onSubmitEditing?: () => void;
 }
 
 const AddressInput = ({
@@ -47,6 +50,9 @@ const AddressInput = ({
   style,
   accessibilityLabel,
   accessibilityHint,
+  inputRef,
+  returnKeyType,
+  onSubmitEditing,
 }: AddressInputProps) => {
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
@@ -63,6 +69,7 @@ const AddressInput = ({
   return (
     <View style={[styles.root, stylesHook.root, style]}>
       <TextInput
+        ref={inputRef}
         testID={testID}
         onChangeText={onChangeText}
         placeholder={placeholder}
@@ -80,6 +87,8 @@ const AddressInput = ({
         onBlur={onBlur}
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
+        returnKeyType={returnKeyType}
+        onSubmitEditing={onSubmitEditing}
       />
       {editable ? <AddressInputScanButton isLoading={isLoading} onChangeText={onChangeText} /> : null}
     </View>

@@ -35,6 +35,7 @@ import {
   uniqueElectrumServers,
 } from '../../blue_modules/electrumServer';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
+import { discoverLocalElectrumServers } from '../../blue_modules/localNetworkDiscovery';
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
 import HandOffComponent from '../../components/HandOffComponent';
@@ -197,6 +198,7 @@ const ElectrumSettings: React.FC = () => {
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
   const [isValidatingServer, setIsValidatingServer] = useState(false);
+  const [isDiscoveringServers, setIsDiscoveringServers] = useState(false);
   const [shouldDismissAfterSave, setShouldDismissAfterSave] = useState(false);
   const [serverHistory, setServerHistory] = useState<Set<ElectrumServerItem>>(new Set());
   const [config, setConfig] = useState<{
@@ -281,10 +283,16 @@ const ElectrumSettings: React.FC = () => {
         if (inputBottom > keyboardTop) {
           const overlap = inputBottom - keyboardTop;
           const targetScrollY = scrollYRef.current + overlap;
-          listRef.current?.scrollToOffset({ offset: targetScrollY, animated: true });
+          listRef.current?.scrollToOffset({
+            offset: targetScrollY,
+            animated: true,
+          });
         } else if (pageY < 0) {
           const targetScrollY = Math.max(0, scrollYRef.current + pageY);
-          listRef.current?.scrollToOffset({ offset: targetScrollY, animated: true });
+          listRef.current?.scrollToOffset({
+            offset: targetScrollY,
+            animated: true,
+          });
         }
       };
 
@@ -447,7 +455,10 @@ const ElectrumSettings: React.FC = () => {
             const message = serverHost.endsWith('.onion')
               ? `${loc.settings.electrum_error_connect_tor}\n\n${validation.error ?? ''}`.trim()
               : validation.error || loc.settings.electrum_error_connect;
-            presentAlert({ title: customOnly ? loc.settings.electrum_validation_failed : undefined, message });
+            presentAlert({
+              title: customOnly ? loc.settings.electrum_validation_failed : undefined,
+              message,
+            });
             return;
           }
           await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
@@ -510,7 +521,9 @@ const ElectrumSettings: React.FC = () => {
     if (!server) return;
     triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
     Alert.alert(
-      loc.formatString(loc.settings.set_electrum_server_as_default, { server: server.host }),
+      loc.formatString(loc.settings.set_electrum_server_as_default, {
+        server: server.host,
+      }),
       '',
       [
         {
@@ -521,7 +534,11 @@ const ElectrumSettings: React.FC = () => {
           },
           style: 'default',
         },
-        { text: loc._.cancel, onPress: () => navigation.setParams({ server: undefined }), style: 'cancel' },
+        {
+          text: loc._.cancel,
+          onPress: () => navigation.setParams({ server: undefined }),
+          style: 'cancel',
+        },
       ],
       { cancelable: false },
     );
@@ -569,7 +586,11 @@ const ElectrumSettings: React.FC = () => {
         const result = parseElectrumServerDocumentResult(data);
         if (result.tooLarge) throw new Error(loc.settings.electrum_import_too_large);
         if (result.incompatibleVersion !== undefined) {
-          throw new Error(loc.formatString(loc.settings.electrum_import_incompatible, { version: String(result.incompatibleVersion) }));
+          throw new Error(
+            loc.formatString(loc.settings.electrum_import_incompatible, {
+              version: String(result.incompatibleVersion),
+            }),
+          );
         }
         if (result.servers.length === 0) throw new Error(loc.settings.electrum_import_no_valid_servers);
 
@@ -649,7 +670,9 @@ const ElectrumSettings: React.FC = () => {
     [fetchData, navigation, showSuggestedServers],
   );
 
-  useScreenMenuActions({ addElectrumServer: () => navigation.navigate('AddElectrumServerRoot') });
+  useScreenMenuActions({
+    addElectrumServer: () => navigation.navigate('AddElectrumServerRoot'),
+  });
 
   const isFavorite = useCallback(
     (value: ElectrumServerItem) => {
@@ -694,11 +717,19 @@ const ElectrumSettings: React.FC = () => {
     );
     const entries: ServerListEntry[] = [];
     const favoriteServer: ElectrumServerItem | undefined = hasFavorite
-      ? { host, ...(port ? { tcp: port } : {}), ...(sslPort ? { ssl: sslPort } : {}) }
+      ? {
+          host,
+          ...(port ? { tcp: port } : {}),
+          ...(sslPort ? { ssl: sslPort } : {}),
+        }
       : undefined;
 
     if (favoriteServer) {
-      entries.push({ type: 'header', id: 'favorite-header', title: loc.settings.electrum_favorite_server });
+      entries.push({
+        type: 'header',
+        id: 'favorite-header',
+        title: loc.settings.electrum_favorite_server,
+      });
       entries.push({
         type: 'server',
         id: `favorite-${serverKey(favoriteServer)}`,
@@ -732,11 +763,18 @@ const ElectrumSettings: React.FC = () => {
       }
     }
 
-    const history = Array.from(serverHistory).filter(
-      historyServer => !favoriteServer || serverKey(historyServer) !== serverKey(favoriteServer),
-    );
+    const suggestedServersAreVisible = (!hasFavorite || showSuggestedServers) && (!hasFavorite || isSuggestedExpanded);
+    const visibleSuggestedKeys = new Set(suggestedServersAreVisible ? orderedSuggestedServers.map(serverKey) : []);
+    const history = Array.from(serverHistory).filter(historyServer => {
+      const key = serverKey(historyServer);
+      return (!favoriteServer || key !== serverKey(favoriteServer)) && !visibleSuggestedKeys.has(key);
+    });
     if (history.length > 0) {
-      entries.push({ type: 'header', id: 'history-header', title: loc.settings.electrum_server_history });
+      entries.push({
+        type: 'header',
+        id: 'history-header',
+        title: loc.settings.electrum_server_history,
+      });
       entries.push(
         ...history.map((historyServer, index) => ({
           type: 'server' as const,
@@ -758,7 +796,6 @@ const ElectrumSettings: React.FC = () => {
         actions: generateToolTipActions(),
         onPressMenuItem,
         preserveGroups: true,
-        title: loc.receive.details_more_options,
       }),
     [generateToolTipActions, onPressMenuItem],
   );
@@ -783,6 +820,37 @@ const ElectrumSettings: React.FC = () => {
     }
     setIsLoading(false);
   };
+
+  const discoverServers = useCallback(async () => {
+    setIsDiscoveringServers(true);
+    try {
+      const discovered = await discoverLocalElectrumServers();
+      const previous = Array.from(serverHistory);
+      const merged = uniqueElectrumServers([...previous, ...discovered]);
+      const added = merged.length - previous.length;
+      await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+      await DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(merged));
+      setServerHistory(new Set(merged));
+      triggerHapticFeedback(added > 0 ? HapticFeedbackTypes.NotificationSuccess : HapticFeedbackTypes.NotificationWarning);
+      presentAlert({
+        title: loc.settings.electrum_local_network_scan,
+        message:
+          added > 0
+            ? loc.formatString(loc.settings.electrum_local_network_added, {
+                count: added,
+              })
+            : loc.settings.electrum_local_network_none,
+      });
+    } catch (error) {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({
+        title: loc.settings.electrum_local_network_scan,
+        message: (error as Error).message,
+      });
+    } finally {
+      setIsDiscoveringServers(false);
+    }
+  }, [serverHistory]);
 
   const onBarScanned = (value: string) => {
     const scannedServer = parseElectrumServer(value);
@@ -976,6 +1044,7 @@ const ElectrumSettings: React.FC = () => {
                   <Ionicons name={isConnected ? 'checkmark-circle' : 'alert-circle'} size={22} style={stylesHook.statusIconGlyph} />
                 </View>
               }
+              containerStyle={styles.statusRow}
             />
             {serverBanner.length > 0 && (
               <View style={styles.bannerContainer}>
@@ -989,7 +1058,7 @@ const ElectrumSettings: React.FC = () => {
 
         {includePreferredServerForm && (
           <>
-            <SettingsSection title={loc.settings.electrum_add_server} containerStyle={styles.formSection}>
+            <SettingsSection containerStyle={styles.formSection}>
               {isValidatingServer ? (
                 <View accessible accessibilityRole="progressbar" style={styles.validationStatus}>
                   <ActivityIndicator color={colors.primary} />
@@ -1162,7 +1231,10 @@ const ElectrumSettings: React.FC = () => {
     });
 
     const result = await BlueElectrum.validateConnection(serverToTest.host, serverToTest.tcp, serverToTest.ssl);
-    setServerTestResults(current => ({ ...current, [key]: result.success }));
+    setServerTestResults(current => ({
+      ...current,
+      [key]: result.success,
+    }));
     setTestingServerKey(undefined);
     triggerHapticFeedback(result.success ? HapticFeedbackTypes.NotificationSuccess : HapticFeedbackTypes.NotificationError);
     Alert.alert(
@@ -1233,7 +1305,11 @@ const ElectrumSettings: React.FC = () => {
           subtitleSelectable={!item.isHistory}
           accessibilityLabel={serverAccessibilityLabel}
           accessibilityHint={favorite ? loc.settings.electrum_favorite_server : loc.settings.electrum_server_row_hint}
-          accessibilityState={{ selected: favorite, disabled: favorite || isLoading, busy: isTesting }}
+          accessibilityState={{
+            selected: favorite,
+            disabled: favorite || isLoading,
+            busy: isTesting,
+          }}
           accessibilityActions={[
             ...(!isElectrumDisabled && !favorite ? [{ name: 'test', label: loc.settings.electrum_test_connection }] : []),
             ...(item.isHistory ? [{ name: 'delete', label: loc.wallets.details_delete }] : []),
@@ -1327,7 +1403,10 @@ const ElectrumSettings: React.FC = () => {
         <HandOffComponent
           title={loc.settings.electrum_handoff_export}
           type={HandOffActivityType.ElectrumServerHistory}
-          userInfo={{ serverHistory: handoffServerHistoryDocument, deepLink: handoffServerHistoryDeepLink }}
+          userInfo={{
+            serverHistory: handoffServerHistoryDocument,
+            deepLink: handoffServerHistoryDeepLink,
+          }}
         />
       ) : null}
       <FlatList
@@ -1365,6 +1444,21 @@ const ElectrumSettings: React.FC = () => {
                 />
               </SettingsSection>
               {!isElectrumDisabled && renderElectrumSettings(false, true)}
+              {!isElectrumDisabled && (
+                <SettingsSection title={loc.settings.electrum_local_network_scan} iconName="network">
+                  <View style={styles.serverSectionDescription}>
+                    <SettingsFootnote>{loc.settings.electrum_local_network_description}</SettingsFootnote>
+                  </View>
+                  <SettingsListItem
+                    title={loc.settings.electrum_local_network_allow}
+                    onPress={discoverServers}
+                    disabled={isDiscoveringServers}
+                    isLoading={isDiscoveringServers}
+                    bottomDivider={false}
+                    accessibilityHint={loc.settings.electrum_local_network_description}
+                  />
+                </SettingsSection>
+              )}
             </>
           )
         }
@@ -1383,6 +1477,9 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  statusRow: {
+    minHeight: Platform.select({ ios: 60, default: 64 }),
   },
   inputWrap: {
     flexDirection: 'row',
