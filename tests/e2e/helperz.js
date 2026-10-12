@@ -612,8 +612,11 @@ export async function countElements(testId) {
  * `restoreSynchronization: false` for multipart UR scans that must keep sync
  * disabled until the animated scanner/QR UI is gone.
  * On a physical Android device the live camera surface makes Espresso drop the
- * backdoor view (`Index -1 out of bounds`). Sync stays off only for that tap
- * sequence. CI keeps synchronization on and relies on the tap retry.
+ * backdoor view (`Index -1 out of bounds`). Sync stays off for that tap
+ * sequence. Turning it back on while the scanner is still mounted deadlocks
+ * the main thread in AsyncStorage's idling resource, so a device waits until
+ * the scanner is gone and the import write has finished. CI keeps
+ * synchronization on and relies on the tap retry.
  * Callers that pass `restoreSynchronization: false` (multipart UR) re-enable
  * after `scanUrParts` once the scanner has closed.
  */
@@ -632,7 +635,14 @@ export async function scanText(text, { restoreSynchronization = true } = {}) {
     await retryAndroidIndexMiss(() => element(by.id('scanQrBackdoorOkButton')).tap());
     await sleep(300);
   } finally {
-    if ((isIOS || pauseAndroid) && restoreSynchronization) {
+    if (restoreSynchronization && pauseAndroid) {
+      await waitForQrScannerClosed();
+      // The import can still hold the AsyncStorage executor after the scanner
+      // pops. Re-registering Detox's storage idling resource on the main thread
+      // then deadlocks.
+      await sleep(2000);
+      await device.enableSynchronization();
+    } else if (restoreSynchronization && isIOS) {
       await device.enableSynchronization();
     }
   }
