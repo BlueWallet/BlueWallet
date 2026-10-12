@@ -989,7 +989,7 @@ const ElectrumSettings: React.FC = () => {
 
         {includePreferredServerForm && (
           <>
-            <SettingsSection title={loc.settings.electrum_add_server} iconName="electrum" containerStyle={styles.formSection}>
+            <SettingsSection title={loc.settings.electrum_add_server} containerStyle={styles.formSection}>
               {isValidatingServer ? (
                 <View accessible accessibilityRole="progressbar" style={styles.validationStatus}>
                   <ActivityIndicator color={colors.primary} />
@@ -1020,10 +1020,6 @@ const ElectrumSettings: React.FC = () => {
                   </View>
                 </View>
               ) : null}
-              <View style={styles.formIntro}>
-                <SettingsFootnote>{loc.settings.electrum_add_server_description}</SettingsFootnote>
-              </View>
-
               <View style={styles.fieldsContainer}>
                 <Text style={[styles.fieldLabel, stylesHook.fieldLabel]}>{loc.settings.electrum_server_address}</Text>
                 <View ref={hostInputRef}>
@@ -1090,17 +1086,15 @@ const ElectrumSettings: React.FC = () => {
                     }}
                   />
                 </View>
-              </View>
-            </SettingsSection>
 
-            <SettingsSection title={loc.settings.electrum_connection_type} iconName="network" containerStyle={styles.formSection}>
-              <View style={styles.protocolContainer}>
+                <Text style={[styles.fieldLabel, stylesHook.fieldLabel]}>{loc.settings.electrum_connection_type}</Text>
                 <SegmentedControl
                   testID="SSLPortInput"
                   values={['TCP', 'SSL']}
                   selectedIndex={sslPort === undefined ? 0 : 1}
                   enabled={!isLoading && host !== '' && (port !== undefined || sslPort !== undefined) && !host.endsWith('.onion')}
                   onChange={index => {
+                    triggerSelectionHapticFeedback();
                     hasInferredConnectionTypeRef.current = true;
                     const useSsl = index === 1;
                     if (useSsl !== (sslPort !== undefined)) onSSLPortChange(useSsl);
@@ -1108,19 +1102,20 @@ const ElectrumSettings: React.FC = () => {
                   usePlatformStyle
                 />
               </View>
-            </SettingsSection>
 
-            <SettingsSection title={loc.settings.electrum_favorite_server} iconName="favorite" containerStyle={styles.favoriteSection}>
               <SettingsListItem
                 title={loc.settings.electrum_set_as_favorite}
-                subtitle={loc.settings.electrum_set_as_favorite_description}
                 switch={{
                   testID: 'SetServerAsFavoriteSwitch',
                   value: setNewServerAsFavorite,
-                  onValueChange: setSetNewServerAsFavorite,
+                  onValueChange: value => {
+                    triggerSelectionHapticFeedback();
+                    setSetNewServerAsFavorite(value);
+                  },
                   disabled: isLoading,
                 }}
                 bottomDivider={false}
+                containerStyle={styles.favoriteRow}
               />
             </SettingsSection>
 
@@ -1423,10 +1418,6 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.6,
   },
-  formIntro: {
-    paddingHorizontal: 16,
-    paddingTop: 14,
-  },
   validationStatus: {
     minHeight: Platform.select({ ios: 44, default: 48 }),
     paddingHorizontal: 16,
@@ -1461,24 +1452,20 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   fieldsContainer: {
-    gap: 10,
-    paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 16,
-  },
-  protocolContainer: {
+    gap: 8,
     paddingHorizontal: 16,
     paddingTop: 16,
+    paddingBottom: 16,
   },
   fieldLabel: {
     fontSize: 13,
     fontWeight: '500',
   },
   formSection: {
-    marginBottom: 20,
-  },
-  favoriteSection: {
     marginBottom: 24,
+  },
+  favoriteRow: {
+    minHeight: Platform.select({ ios: 50, default: 56 }),
   },
   bannerContainer: {
     paddingHorizontal: 16,

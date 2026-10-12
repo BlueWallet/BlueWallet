@@ -10,11 +10,11 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { suggestedServers } from '../../blue_modules/BlueElectrum';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import { ElectrumServerItem, inferElectrumServerSsl, parseElectrumServer } from '../../blue_modules/electrumServer';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import AddressInput from '../../components/AddressInput';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import SegmentedControl from '../../components/SegmentedControl';
-import { SettingsFootnote, SettingsListItem, SettingsSection } from '../../components/SettingsSection';
+import { SettingsListItem, SettingsSection } from '../../components/SettingsSection';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { AddElectrumServerStackParamList } from '../../navigation/AddElectrumServerStackParamList';
@@ -259,7 +259,7 @@ const AddElectrumServer: React.FC = () => {
       testID="AddElectrumServerScrollView"
       accessibilityLabel={loc.settings.electrum_add_server}
     >
-      <SettingsSection title={loc.settings.electrum_add_server} iconName="electrum" containerStyle={styles.section}>
+      <SettingsSection title={loc.settings.electrum_add_server} containerStyle={styles.section}>
         {isValidating ? (
           <View
             accessible
@@ -310,9 +310,6 @@ const AddElectrumServer: React.FC = () => {
             </View>
           </View>
         ) : null}
-        <View style={styles.intro}>
-          <SettingsFootnote>{loc.settings.electrum_add_server_description}</SettingsFootnote>
-        </View>
         <View style={styles.fields}>
           <Text style={[styles.label, stylesHook.fieldLabel]}>{loc.settings.electrum_server_address}</Text>
           <AddressInput
@@ -350,17 +347,14 @@ const AddElectrumServer: React.FC = () => {
               accessibilityHint={loc.settings.electrum_port_accessibility_hint}
             />
           </View>
-        </View>
-      </SettingsSection>
-
-      <SettingsSection title={loc.settings.electrum_connection_type} iconName="network" containerStyle={styles.section}>
-        <View style={styles.protocol}>
+          <Text style={[styles.label, stylesHook.fieldLabel]}>{loc.settings.electrum_connection_type}</Text>
           <SegmentedControl
             testID="SSLPortInput"
             values={['TCP', 'SSL']}
             selectedIndex={sslPort === undefined ? 0 : 1}
             enabled={!isLoading && Boolean(draftServer) && !host.endsWith('.onion')}
             onChange={index => {
+              triggerSelectionHapticFeedback();
               inferredConnectionType.current = true;
               if (index === 1 && sslPort === undefined) {
                 setSslPort(port);
@@ -376,14 +370,19 @@ const AddElectrumServer: React.FC = () => {
             accessibilityHint={loc.settings.electrum_connection_type_hint}
           />
         </View>
-      </SettingsSection>
-
-      <SettingsSection title={loc.settings.electrum_favorite_server} iconName="favorite" containerStyle={styles.section}>
         <SettingsListItem
           title={loc.settings.electrum_set_as_favorite}
-          subtitle={loc.settings.electrum_set_as_favorite_description}
-          switch={{ testID: 'SetServerAsFavoriteSwitch', value: setAsFavorite, onValueChange: setSetAsFavorite, disabled: isLoading }}
+          switch={{
+            testID: 'SetServerAsFavoriteSwitch',
+            value: setAsFavorite,
+            onValueChange: value => {
+              triggerSelectionHapticFeedback();
+              setSetAsFavorite(value);
+            },
+            disabled: isLoading,
+          }}
           bottomDivider={false}
+          containerStyle={styles.favoriteRow}
         />
       </SettingsSection>
       {Platform.OS === 'ios' ? <DismissKeyboardInputAccessory /> : null}
@@ -394,8 +393,7 @@ const AddElectrumServer: React.FC = () => {
 const styles = StyleSheet.create({
   content: { paddingTop: Platform.select({ ios: 20, default: 16 }) },
   section: { marginBottom: 20 },
-  intro: { paddingHorizontal: 16, paddingTop: 14 },
-  fields: { gap: 10, paddingHorizontal: 16, paddingTop: 16, paddingBottom: 18 },
+  fields: { gap: 8, paddingHorizontal: 16, paddingTop: 16, paddingBottom: 16 },
   label: { fontSize: 13, fontWeight: '600' },
   nativeInput: {
     minHeight: Platform.select({ ios: 44, default: 48 }),
@@ -405,7 +403,7 @@ const styles = StyleSheet.create({
   },
   inputWrap: { flexDirection: 'row', borderWidth: 1, alignItems: 'center' },
   inputText: { flex: 1, paddingHorizontal: 12, minHeight: Platform.select({ ios: 42, default: 46 }), fontSize: 16 },
-  protocol: { paddingHorizontal: 16, paddingVertical: 14 },
+  favoriteRow: { minHeight: Platform.select({ ios: 50, default: 56 }) },
   headerButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   disabled: { opacity: 0.5 },
   pressed: { opacity: 0.6 },
