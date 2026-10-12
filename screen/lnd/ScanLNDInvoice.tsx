@@ -194,21 +194,21 @@ const ScanLNDInvoice = () => {
     setParams({ uri: data });
   };
 
-  const processLnurlAuth = (data: string): void => {
-    // Close the modal first, then navigate to LnurlAuth in the drawer
-    goBack();
-    setTimeout(() => {
-      navigationRef.dispatch(
-        CommonActions.navigate({
-          name: 'LnurlAuth',
-          params: {
+  const processLnurlAuth = useCallback(
+    (data: string): void => {
+      // Close the modal first, then navigate to LnurlAuth in the drawer
+      goBack();
+      setTimeout(() => {
+        navigationRef.dispatch(
+          CommonActions.navigate('LnurlAuth', {
             lnurl: data,
             walletID: walletID || wallet?.getID(),
-          },
-        }),
-      );
-    }, 100);
-  };
+          }),
+        );
+      }, 100);
+    },
+    [goBack, walletID, wallet],
+  );
 
   const processLnurlPay = (data: string): void => {
     navigate('LnurlPay', {
@@ -365,12 +365,13 @@ const ScanLNDInvoice = () => {
   const onBarScanned = useCallback(
     (value: string): void => {
       if (!value) return;
+      if (Lnurl.isLnurlAuth(value)) return processLnurlAuth(value);
       DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         navigate(...completionValue);
       });
     },
-    [navigate],
+    [navigate, processLnurlAuth],
   );
 
   useEffect(() => {

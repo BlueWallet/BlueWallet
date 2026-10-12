@@ -1,5 +1,5 @@
 import { useNavigation, RouteProp, useLocale, useRoute } from '@react-navigation/native';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../components/Icon';
 import BlueCard from '../../components/BlueCard';
@@ -15,6 +15,7 @@ import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { Chain } from '../../models/bitcoinUnits';
 
 const AuthState = {
   USER_PROMPT: 0,
@@ -24,6 +25,12 @@ const AuthState = {
 };
 
 const LnurlAuth = () => {
+  const { params } = useRoute<RouteProp<DetailViewStackParamList, 'LnurlAuth'>>();
+  // Each challenge starts a fresh prompt, even when navigation reuses this screen.
+  return <LnurlAuthRequest key={params.lnurl} />;
+};
+
+const LnurlAuthRequest = () => {
   const { name, params } = useRoute<RouteProp<DetailViewStackParamList, 'LnurlAuth'>>();
   const { lnurl, walletID } = params;
   const { direction } = useLocale();
@@ -38,9 +45,16 @@ const LnurlAuth = () => {
   }, [lnurl]);
   const authWallets = useMemo(() => wallets.filter(w => w.allowLnurlAuth()), [wallets]);
   // the wallet user came from goes first, so the service sees the same identity as before
-  const wallet = authWallets.find(w => w.getID() === walletID) ?? authWallets[0];
+  const wallet = authWallets.find(w => w.getID() === walletID) ?? authWallets.find(w => w.chain === Chain.OFFCHAIN) ?? authWallets[0];
   const [authState, setAuthState] = useState(AuthState.USER_PROMPT);
   const [errMsg, setErrMsg] = useState('');
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
   const navigation = useNavigation();
   const { setParams } = navigation;
   const { colors } = useTheme();
@@ -61,11 +75,14 @@ const LnurlAuth = () => {
     if (!wallet || !authParams) return;
     setAuthState(AuthState.IN_PROGRESS);
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep to propagate ui, key derivation blocks js thread
+    if (!mounted.current) return;
     try {
       await LN.authenticate(wallet.getLnurlAuthLinkingKey(authParams.domain));
+      if (!mounted.current) return;
       setAuthState(AuthState.SUCCESS);
       setErrMsg('');
     } catch (err: any) {
+      if (!mounted.current) return;
       setAuthState(AuthState.ERROR);
       setErrMsg(err instanceof Error ? err.message : String(err));
     }
