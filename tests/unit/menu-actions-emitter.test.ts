@@ -170,6 +170,56 @@ it('updates on ready, modal navigation, and lock state', () => {
   removers.forEach(remove => expect(remove).toHaveBeenCalledTimes(1));
 });
 
+it('rebuilds the available commands for each focused screen', () => {
+  const hook = renderHook(useMenuActions);
+  const unregister: Array<() => void> = [];
+  act(() => {
+    unregister.push(
+      hook.result.current.registerMenuActions(
+        { reloadTransactions: jest.fn(), send: jest.fn(), receive: jest.fn(), walletDetails: jest.fn() },
+        'wallet',
+      ),
+      hook.result.current.registerMenuActions({ copyAddress: jest.fn() }, 'receive'),
+      hook.result.current.registerMenuActions(
+        { copyTransactionId: jest.fn(), accelerateTransaction: jest.fn() },
+        'transaction',
+      ),
+      hook.result.current.registerMenuActions({ add_recipient: jest.fn(), coin_control: jest.fn() }, 'send'),
+    );
+  });
+
+  const globalActions = ['settings', 'isItMyAddress', 'broadcastTransaction', 'generateWord', 'keyboardShortcuts', 'openFile'];
+  const expectActionsFor = (screen: string, key: string, expected: string[]) => {
+    setRoute(screen, key);
+    notifyNavigation('state');
+    expect(MenuActionsEmitter!.setAvailableActions).toHaveBeenLastCalledWith(expected);
+  };
+
+  expectActionsFor('WalletTransactions', 'wallet', [
+    ...globalActions,
+    'addWallet',
+    'importWallet',
+    'backToWallets',
+    'reloadTransactions',
+    'send',
+    'receive',
+    'walletDetails',
+  ]);
+  expectActionsFor('ReceiveDetails', 'receive', [...globalActions, 'backToWallets', 'copyAddress']);
+  expectActionsFor('TransactionStatus', 'transaction', [
+    ...globalActions,
+    'backToWallets',
+    'copyTransactionId',
+    'accelerateTransaction',
+  ]);
+  expectActionsFor('SendDetails', 'send', [...globalActions, 'add_recipient', 'coin_control']);
+  expectActionsFor('Settings', 'settings', globalActions);
+  expectActionsFor('UnlockWithScreen', 'locked', []);
+
+  act(() => unregister.forEach(remove => remove()));
+  hook.unmount();
+});
+
 it.each([
   ['isItMyAddress', 'IsItMyAddress'],
   ['broadcastTransaction', 'Broadcast'],
