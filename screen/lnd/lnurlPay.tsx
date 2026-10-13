@@ -178,7 +178,7 @@ const LnurlPay: React.FC = () => {
           style={styles.walletSelectTouch}
           onPress={() => navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN })}
         >
-          <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
+          <Text style={styles.walletSelectText}>{loc.wallets.select_wallet}</Text>
           <Icon name={direction === 'rtl' ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
         </TouchableOpacity>
       )}

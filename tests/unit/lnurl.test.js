@@ -3,7 +3,8 @@ import assert from 'assert';
 import { bech32 } from 'bech32';
 
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
-import Lnurl from '../../class/lnurl';
+import Lnurl, { LnurlServerError } from '../../class/lnurl';
+import * as fetchModule from '../../util/fetch';
 
 describe('LNURL', function () {
   it('can findlnurl', () => {
@@ -273,22 +274,27 @@ describe('lightning address', function () {
       'LNURL1DP68GURN8GHJ7MRFVA58GMNFDENKCMM8D9HZUMRFWEJJ7MR0VA5KU0MTXY7NYVFEX93X2DFK8P3KVEFKVSEXZWR98PSNJVRRV5CRGCE3X4JKGE3HXPNXGCMPV5MXXVTZ89NXZENXXCURGCTRV93RVE35XQCXVCFSVSN8GCT884KX7EMFDCDKKXQ0',
     );
 
-    // poor-man's mock:
-    LN._fetchGet = LN.fetchGet;
-    LN.fetchGet = () => {
-      return {
-        reason: 'Invalid signature',
-        status: 'ERROR',
-      };
-    };
+    const linkingKey = Lnurl.legacyLinkingKey('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d', 'lightninglogin.live');
+    const fetchSpy = jest.spyOn(fetchModule, 'fetch');
+    try {
+      // LUD-04 lets the service send the error with HTTP 200 or with an HTTP error status
+      for (const status of [200, 400]) {
+        fetchSpy.mockResolvedValueOnce({ status, json: async () => ({ status: 'ERROR', reason: 'Invalid signature' }) });
+        await assert.rejects(LN.authenticate(linkingKey), err => {
+          assert.ok(err instanceof LnurlServerError, String(status));
+          assert.strictEqual(err.reason, 'Invalid signature');
+          return true;
+        });
+      }
 
-    await assert.rejects(
-      LN.authenticate(Lnurl.legacyLinkingKey('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d', 'lightninglogin.live')),
-      err => {
-        assert.strictEqual(err, 'Invalid signature');
-        return true;
-      },
-    );
+      fetchSpy.mockResolvedValueOnce({ status: 500, json: async () => Promise.reject(new SyntaxError('not json')) });
+      await assert.rejects(LN.authenticate(linkingKey), err => !(err instanceof LnurlServerError) && /Bad response/.test(err.message));
+
+      fetchSpy.mockResolvedValueOnce({ status: 200, json: async () => ({}) });
+      await assert.rejects(LN.authenticate(linkingKey), /Unexpected reply from server/);
+    } finally {
+      fetchSpy.mockRestore();
+    }
   });
 
   it('works', async () => {
