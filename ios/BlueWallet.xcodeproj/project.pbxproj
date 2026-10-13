@@ -76,6 +76,7 @@
 		B44033F92BCC379200162242 /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033F82BCC379200162242 /* WidgetDataStore.swift */; };
 		B44033FB2BCC379200162242 /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033F82BCC379200162242 /* WidgetDataStore.swift */; };
 		B44033FE2BCC37D700162242 /* MarketAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6A254BAB1B007B5B82 /* MarketAPI.swift */; };
+		B44033FF2BCC37D700162243 /* WidgetRateAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B7FB470EA0BFDEB94AC7E60 /* WidgetRateAPIClient.swift */; };
 		B44034002BCC37F800162242 /* Bundle+decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033FF2BCC37F800162242 /* Bundle+decode.swift */; };
 		B44034022BCC37F800162242 /* Bundle+decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033FF2BCC37F800162242 /* Bundle+decode.swift */; };
 		B44034072BCC38A000162242 /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2AA8072568B8F40090B089 /* FiatUnit.swift */; };
@@ -1118,6 +1119,7 @@
 				B48630E82CCEE92400A8425C /* PriceWidget.swift in Sources */,
 				B44033DD2BCC36C300162242 /* LatestTransaction.swift in Sources */,
 				B44033FE2BCC37D700162242 /* MarketAPI.swift in Sources */,
+				B44033FF2BCC37D700162243 /* WidgetRateAPIClient.swift in Sources */,
 				B450109C2C0FCD8A00619044 /* Utilities.swift in Sources */,
 				B48630E52CCEE8B800A8425C /* PriceView.swift in Sources */,
 				B48630E72CCEE91900A8425C /* PriceWidgetProvider.swift in Sources */,
