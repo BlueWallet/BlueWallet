@@ -746,7 +746,7 @@ const SendDetails = () => {
       if (!ret.data) ret = { data: ret };
       if (ret.data.toUpperCase().startsWith('UR')) {
         presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
-      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1) {
         // this looks like NOT base64, so maybe its transaction's hex
         // we dont support it in this flow
       } else {
@@ -831,33 +831,14 @@ const SendDetails = () => {
     }
   }, [navigation, presentAlert, setIsLoading, transactionMemo, wallet]);
 
-  const askCosignThisTransaction = useCallback(async () => {
-    return new Promise(resolve => {
-      presentAlert({
-        message: loc.multisig.cosign_this_transaction,
-        buttons: [
-          {
-            text: loc._.no,
-            style: 'cancel',
-            onPress: () => resolve(false),
-          },
-          {
-            text: loc._.yes,
-            onPress: () => resolve(true),
-          },
-        ],
-      });
-    });
-  }, [presentAlert]);
-
   const _importTransactionMultisig = useCallback(
-    async (base64arg: string | false) => {
+    async (base64arg: string | false, shouldCosign = false) => {
       try {
         const base64 = base64arg || (await fs.openSignedTransaction());
         if (!base64) return;
         const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
-        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
+        if (shouldCosign && (wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0) {
           setIsLoading(true);
           await sleep(100);
           (wallet as MultisigHDWallet).cosignPsbt(psbt);
@@ -878,7 +859,7 @@ const SendDetails = () => {
       }
       setIsLoading(false);
     },
-    [askCosignThisTransaction, navigation, presentAlert, sleep, transactionMemo, wallet],
+    [navigation, presentAlert, sleep, transactionMemo, wallet],
   );
 
   const importTransactionMultisig = useCallback(() => {
@@ -890,7 +871,7 @@ const SendDetails = () => {
       if (!ret.data) ret = { data: ret };
       if (ret.data.toUpperCase().startsWith('UR')) {
         presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
-      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1) {
         // this looks like NOT base64, so maybe its transaction's hex
         // we dont support it in this flow
       } else {
@@ -956,7 +937,7 @@ const SendDetails = () => {
             break;
           case CommonToolTipActions.CoSignTransaction:
           case CommonToolTipActions.ImportTransactionMultsig:
-            _importTransactionMultisig(data);
+            _importTransactionMultisig(data, selectedDataProcessor.current.id === CommonToolTipActions.CoSignTransaction.id);
             break;
           case CommonToolTipActions.ImportTransaction:
             processAddressData(data);

@@ -1,16 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation, RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import { sha256 } from '@noble/hashes/sha256';
-import { SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { findNodeHandle, SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { ContactList } from '../../class/contact-list';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
-import presentAlert from '../../components/Alert';
+import presentAlert, { AlertParams } from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import ToolTipMenu from '../../components/TooltipMenu';
@@ -77,6 +77,11 @@ type PaymentCodesListNavigationProp = NativeStackNavigationProp<DetailViewStackP
 
 export default function PaymentCodesList() {
   const navigation = useNavigation<PaymentCodesListNavigationProp>();
+  const sectionListRef = useRef<SectionList<string, DataSection>>(null);
+  const presentAnchoredAlert = useCallback(
+    (params: AlertParams) => presentAlert({ ...params, anchor: findNodeHandle(sectionListRef.current) }),
+    [],
+  );
   const route = useRoute<PaymentCodeListRouteProp>();
   const { walletID } = route.params;
   const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useStorage();
@@ -120,7 +125,7 @@ export default function PaymentCodesList() {
       setIsLoading(true);
       await _onToolTipPress(id, pc);
     } catch (error: any) {
-      presentAlert({ message: error.message });
+      presentAnchoredAlert({ message: error.message });
     } finally {
       setIsLoading(false);
     }
@@ -158,7 +163,7 @@ export default function PaymentCodesList() {
         }
         if (!notifTx.confirmations) {
           // when we just sent the confirmation tx and it havent confirmed yet
-          presentAlert({ message: loc.bip47.notification_tx_unconfirmed });
+          presentAnchoredAlert({ message: loc.bip47.notification_tx_unconfirmed });
           return;
         }
         _navigateToSend(pc);
@@ -278,7 +283,7 @@ export default function PaymentCodesList() {
     }
 
     if (!cl.isPaymentCodeValid(newPc)) {
-      presentAlert({ message: loc.bip47.invalid_pc });
+      presentAnchoredAlert({ message: loc.bip47.invalid_pc });
       return;
     }
 
@@ -309,7 +314,7 @@ export default function PaymentCodesList() {
 
     if (notificationTx && notificationTxConfirmations === 0) {
       // for a rare case when we just sent the confirmation tx and it havent confirmed yet
-      presentAlert({ message: loc.bip47.notification_tx_unconfirmed });
+      presentAnchoredAlert({ message: loc.bip47.notification_tx_unconfirmed });
       return;
     }
 
@@ -324,13 +329,13 @@ export default function PaymentCodesList() {
     setLoadingText('Crafting notification transaction...');
     if (foundWallet.getUtxo().length === 0) {
       // no balance..?
-      presentAlert({ message: loc.send.details_total_exceeds_balance });
+      presentAnchoredAlert({ message: loc.send.details_total_exceeds_balance });
       return;
     }
     const { tx, fee } = foundWallet.createBip47NotificationTransaction(foundWallet.getUtxo(), newPc, fees.fast, changeAddress);
 
     if (!tx) {
-      presentAlert({ message: loc.bip47.failed_create_notif_tx });
+      presentAnchoredAlert({ message: loc.bip47.failed_create_notif_tx });
       return;
     }
 
@@ -345,7 +350,7 @@ export default function PaymentCodesList() {
       try {
         await foundWallet.broadcastTx(tx.toHex());
         foundWallet.addBIP47Receiver(newPc);
-        presentAlert({ message: loc.bip47.notif_tx_sent });
+        presentAnchoredAlert({ message: loc.bip47.notif_tx_sent });
         txMetadata[tx.getId()] = { memo: loc.bip47.notif_tx };
         setReload(Math.random());
         await new Promise(resolve => setTimeout(resolve, 5000)); // tx propagate on backend so our fetch will actually get the new tx
@@ -372,6 +377,7 @@ export default function PaymentCodesList() {
       ) : (
         <View style={styles.sectionListContainer}>
           <SectionList
+            ref={sectionListRef}
             sections={data}
             keyExtractor={(item, index) => item + index}
             renderItem={({ item, index }) => renderItem(item, index)}

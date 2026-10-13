@@ -2,12 +2,12 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation, RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, findNodeHandle, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
-import presentAlert from '../../components/Alert';
+import presentAlert, { AlertParams } from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SaveFileButton from '../../components/SaveFileButton';
@@ -37,6 +37,11 @@ const PsbtWithHardwareWallet = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [txHex, setTxHex] = useState<string | undefined>(route.params.txhex);
   const openScannerButton = useRef<View | null>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const presentAnchoredAlert = useCallback(
+    (params: AlertParams) => presentAlert({ ...params, anchor: findNodeHandle(scrollViewRef.current) }),
+    [],
+  );
   const dynamicQRCode = useRef<DynamicQRCode | null>(null);
   const isFocused = useIsFocused();
 
@@ -77,7 +82,7 @@ const PsbtWithHardwareWallet = () => {
     (ret: string | { data: string }) => {
       const data = typeof ret === 'string' ? ret : ret.data;
       if (data.toUpperCase().startsWith('UR')) {
-        presentAlert({ message: 'BC-UR not decoded. This should never happen' });
+        presentAnchoredAlert({ message: 'BC-UR not decoded. This should never happen' });
       }
       if (data.indexOf('+') === -1 && data.indexOf('=') === -1 && data.indexOf('=') === -1) {
         // this looks like NOT base64, so maybe its transaction's hex
@@ -98,10 +103,10 @@ const PsbtWithHardwareWallet = () => {
       } catch (Err) {
         console.log('error in _combinePSBT():', Err);
         const message = Err instanceof Error ? Err.message : typeof Err === 'string' ? Err : 'Unknown error';
-        presentAlert({ message });
+        presentAnchoredAlert({ message });
       }
     },
-    [_combinePSBT, launchedBy, navigation, psbt],
+    [_combinePSBT, launchedBy, navigation, presentAnchoredAlert, psbt],
   );
 
   useEffect(() => {
@@ -114,7 +119,7 @@ const PsbtWithHardwareWallet = () => {
 
   useEffect(() => {
     if (!psbt && !route.params.txhex) {
-      presentAlert({ message: loc.send.no_tx_signing_in_progress });
+      presentAnchoredAlert({ message: loc.send.no_tx_signing_in_progress });
     }
 
     if (deepLinkPSBT) {
@@ -127,7 +132,7 @@ const PsbtWithHardwareWallet = () => {
       } catch (Err) {
         console.log('error in wallet.combinePsbt():', Err);
         const message = Err instanceof Error ? Err.message : typeof Err === 'string' ? Err : 'Unknown error';
-        presentAlert({ message });
+        presentAnchoredAlert({ message });
       }
     } else if (routeParamsTXHex) {
       setTxHex(routeParamsTXHex);
@@ -152,7 +157,7 @@ const PsbtWithHardwareWallet = () => {
 
       if (!txHex) {
         setIsLoading(false);
-        presentAlert({ message: 'No transaction hex available' });
+        presentAnchoredAlert({ message: 'No transaction hex available' });
         return;
       }
 
@@ -171,14 +176,14 @@ const PsbtWithHardwareWallet = () => {
       } else {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         setIsLoading(false);
-        presentAlert({ message: loc.errors.broadcast });
+        presentAnchoredAlert({ message: loc.errors.broadcast });
       }
     } catch (error) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
       console.log('error broadcasting:', error);
       const message = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
-      presentAlert({ message });
+      presentAnchoredAlert({ message });
     }
   };
 
@@ -327,6 +332,7 @@ const PsbtWithHardwareWallet = () => {
 
   return (
     <ScrollView
+      ref={scrollViewRef}
       centerContent
       style={stylesHook.scrollViewContent}
       automaticallyAdjustContentInsets

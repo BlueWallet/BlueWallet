@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { ActivityIndicator, findNodeHandle, FlatList, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { PayjoinClient } from 'payjoin-client';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
@@ -8,7 +8,7 @@ import BlueText from '../../components/BlueText';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import presentAlert from '../../components/Alert';
+import presentAlert, { AlertParams } from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -71,6 +71,11 @@ const Confirm: React.FC = () => {
   const { isElectrumDisabled } = useSettings();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useNavigation<ConfirmNavigationProp>();
+  const listRef = useRef<FlatList<CreateTransactionTarget>>(null);
+  const presentAnchoredAlert = useCallback(
+    (params: AlertParams) => presentAlert({ ...params, anchor: findNodeHandle(listRef.current) }),
+    [],
+  );
   const route = useRoute<ConfirmRouteProp>(); // Get the route and its params
   const { recipients, targets, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = route.params; // Destructure params
 
@@ -251,7 +256,7 @@ const Confirm: React.FC = () => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       dispatch({ type: ActionType.SET_LOADING, payload: false });
       dispatch({ type: ActionType.SET_BUTTON_DISABLED, payload: false });
-      presentAlert({ message: error.message });
+      presentAnchoredAlert({ message: error.message });
     }
   };
 
@@ -325,6 +330,7 @@ const Confirm: React.FC = () => {
     <SafeArea style={[styles.root, stylesHook.root]}>
       <View style={styles.cardTop}>
         <FlatList<CreateTransactionTarget>
+          ref={listRef}
           scrollEnabled={recipients.length > 1}
           extraData={recipients}
           data={recipients}
