@@ -4,14 +4,22 @@ import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.isActive
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStream
 import java.net.Socket
+import java.net.InetSocketAddress
 import java.net.SocketTimeoutException
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
@@ -51,7 +59,7 @@ class ElectrumClient {
      */
     fun initialize(context: Context) {
         Log.i(TAG, "Initializing ElectrumClient with context")
-        this.context = context
+        this.context = context.applicationContext
     }
     
     /**
@@ -75,7 +83,9 @@ class ElectrumClient {
      * Check if the device has network connectivity
      */
     private fun isNetworkAvailable(): Boolean {
-        val hasNetwork = context?.let { NetworkUtils.isNetworkAvailable(it) } ?: false
+        // A context is optional for widget/direct callers. In that case the
+        // bounded socket connection itself is the source of truth.
+        val hasNetwork = context?.let { NetworkUtils.isNetworkAvailable(it) } ?: true
         Log.d(TAG, "Network available: $hasNetwork")
         return hasNetwork
     }
@@ -114,7 +124,7 @@ class ElectrumClient {
                     val attemptStartTime = System.currentTimeMillis()
                     
                     withTimeout(connectTimeout) {
-                        if (connect(server, validateCertificates)) {
+                        if (connect(server, validateCertificates, connectTimeout.toInt())) {
                             val attemptDuration = System.currentTimeMillis() - attemptStartTime
                             Log.i(TAG, "Successfully connected to ${server.host}:${server.port} in ${attemptDuration}ms")
                             networkStatusListener?.onConnectionSuccess()
@@ -123,8 +133,10 @@ class ElectrumClient {
                             Log.w(TAG, "Failed to connect to ${server.host}:${server.port} - connect() returned false")
                         }
                     }
+                    if (connected) break
                 } catch (e: TimeoutCancellationException) {
                     lastError = e
+                    close()
                     Log.e(TAG, "Connection to ${server.host}:${server.port} timed out after ${connectTimeout}ms (attempt $attempt)")
                     if (attempt < MAX_RETRIES) {
                         Log.d(TAG, "Retrying after ${RETRY_DELAY_MS}ms delay")
@@ -165,7 +177,8 @@ class ElectrumClient {
      */
     suspend fun connect(
         server: ElectrumServer,
-        validateCertificates: Boolean = true
+        validateCertificates: Boolean = true,
+        connectTimeout: Int = 5000,
     ): Boolean = withContext(Dispatchers.IO) {
         val startTime = System.currentTimeMillis()
         Log.d(TAG, "Attempting direct connection to ${server.host}:${server.port} (SSL: ${server.isSsl})")
@@ -182,16 +195,17 @@ class ElectrumClient {
             close() // Close any existing connection
             Log.d(TAG, "Creating ${if (server.isSsl) "SSL " else ""}socket to ${server.host}:${server.port}")
 
-            socket = if (server.isSsl) {
-                createSslSocket(server.host, server.port, validateCertificates)
+            val newSocket = if (server.isSsl) {
+                createSslSocket(server.host, server.port, validateCertificates, connectTimeout)
             } else {
-                Socket(server.host, server.port)
+                createSocket(server.host, server.port, connectTimeout)
             }
+            socket = newSocket
 
             Log.d(TAG, "Socket created successfully. Setting timeout and getting streams.")
             socket?.soTimeout = 10000 // 10 seconds read timeout
-            outputStream = socket?.getOutputStream()
-            inputReader = BufferedReader(InputStreamReader(socket?.getInputStream()))
+            outputStream = newSocket.getOutputStream()
+            inputReader = BufferedReader(InputStreamReader(newSocket.getInputStream()))
 
             // Testing the connection with simple version request
             val versionRequest = "{\"id\": 0, \"method\": \"server.version\", \"params\": [\"BlueWallet\", \"1.4\"]}\n"
@@ -214,6 +228,7 @@ class ElectrumClient {
             Log.e(TAG, "Error connecting to Electrum server: ${e.javaClass.simpleName} - ${e.message}")
             networkStatusListener?.onConnectionError("Error connecting: ${e.message}")
             close()
+            if (e is CancellationException) throw e
         }
 
         val duration = System.currentTimeMillis() - startTime
@@ -233,17 +248,20 @@ class ElectrumClient {
         if (!isNetworkAvailable()) {
             Log.e(TAG, "Cannot send data: No network connection available")
             networkStatusListener?.onNetworkStatusChanged(false)
+            close()
             return@withContext false
         }
         
         try {
-            outputStream?.write(data)
-            outputStream?.flush()
+            val stream = outputStream ?: return@withContext false
+            stream.write(data)
+            stream.flush()
             Log.d(TAG, "Data sent successfully")
             return@withContext true
         } catch (e: Exception) {
             Log.e(TAG, "Error sending data to Electrum server: ${e.javaClass.simpleName} - ${e.message}")
             networkStatusListener?.onConnectionError("Error sending data: ${e.message}")
+            close()
             return@withContext false
         }
     }
@@ -270,6 +288,7 @@ class ElectrumClient {
             } catch (e: SocketTimeoutException) {
                 Log.e(TAG, "Socket read timed out after ${System.currentTimeMillis() - startTime}ms")
                 networkStatusListener?.onConnectionError("Socket read timed out")
+                close()
             }
             
             val responseData = response.toString().toByteArray()
@@ -286,13 +305,21 @@ class ElectrumClient {
         } catch (e: Exception) {
             Log.e(TAG, "Error receiving data from Electrum server: ${e.javaClass.simpleName} - ${e.message}")
             networkStatusListener?.onConnectionError("Error receiving data: ${e.message}")
+            close()
             return@withContext ByteArray(0)
         }
     }
+
+    /**
+     * Primary receive API. Collection keeps reading newline-delimited Electrum
+     * messages and owns the socket lifetime.
+     */
+    fun messages(): Flow<ByteArray> = electrumMessageFlow(::receive, ::close)
     
     /**
      * Close the connection to the Electrum server
      */
+    @Synchronized
     fun close() {
         try {
             inputReader?.close()
@@ -310,7 +337,7 @@ class ElectrumClient {
     /**
      * Create an SSL socket with optional certificate validation
      */
-    private fun createSslSocket(host: String, port: Int, validateCertificates: Boolean): SSLSocket {
+    private fun createSslSocket(host: String, port: Int, validateCertificates: Boolean, connectTimeout: Int): SSLSocket {
         val sslContext = SSLContext.getInstance("TLS")
         
         if (!validateCertificates) {
@@ -326,7 +353,27 @@ class ElectrumClient {
         }
         
         val factory: SSLSocketFactory = sslContext.socketFactory
-        return factory.createSocket(host, port) as SSLSocket
+        val socket = factory.createSocket() as SSLSocket
+        return try {
+            socket.connect(InetSocketAddress(host, port), connectTimeout)
+            socket.soTimeout = 10000
+            socket.startHandshake()
+            socket
+        } catch (error: Exception) {
+            socket.close()
+            throw error
+        }
+    }
+
+    private fun createSocket(host: String, port: Int, connectTimeout: Int): Socket {
+        val socket = Socket()
+        return try {
+            socket.connect(InetSocketAddress(host, port), connectTimeout)
+            socket
+        } catch (error: Exception) {
+            socket.close()
+            throw error
+        }
     }
 
     private fun getNextPeer(): ElectrumServer {
@@ -346,3 +393,16 @@ class ElectrumClient {
         return null
     }
 }
+
+internal fun electrumMessageFlow(
+    receive: suspend () -> ByteArray,
+    close: () -> Unit,
+): Flow<ByteArray> = flow {
+    while (currentCoroutineContext().isActive) {
+        val message = receive()
+        check(message.isNotEmpty()) { "Electrum connection closed without a message" }
+        emit(message)
+    }
+}.onCompletion {
+    close()
+}.flowOn(Dispatchers.IO)

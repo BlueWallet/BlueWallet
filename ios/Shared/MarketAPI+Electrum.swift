@@ -11,7 +11,6 @@ import Foundation
 struct APIError: LocalizedError {
   var errorDescription: String = "Failed to fetch Electrum data..."
 }
-
 extension MarketAPI {
 
     static func fetchNextBlockFee() async throws -> MarketData {
@@ -40,7 +39,22 @@ extension MarketAPI {
         }
 
         do {
-            let receivedData = try await client.receive()
+            let receivedData: Data
+            if client.shouldUseStreaming(isLowPowerModeEnabled: ProcessInfo.processInfo.isLowPowerModeEnabled) {
+                do {
+                    var messages = client.messages().makeAsyncIterator()
+                    receivedData = try await messages.next() ?? { throw SwiftTCPClientError.noDataReceived }()
+                } catch {
+                    // Compatibility path for servers or OS versions that cannot
+                    // sustain the streaming receive path.
+                    client.close()
+                    guard await client.connectToNextAvailable(validateCertificates: false),
+                          await client.send(data: data) else { throw error }
+                    receivedData = try await client.receive()
+                }
+            } else {
+                receivedData = try await client.receive()
+            }
             print("Received data: \(receivedData)") 
 
             guard let json = try JSONSerialization.jsonObject(with: receivedData, options: .allowFragments) as? [String: AnyObject],
