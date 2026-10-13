@@ -29,13 +29,8 @@ extension MarketAPI {
             throw APIError()
         }
 
-        let message = "{\"id\": 1, \"method\": \"mempool.get_fee_histogram\", \"params\": []}\n"
-        guard let data = message.data(using: .utf8) else {
-            print("Failed to encode message to data.") 
-            throw APIError()
-        }
-
-        print("Sending fee histogram request: \(message)") 
+        let request = ElectrumRequest(id: 1, method: "mempool.get_fee_histogram", params: [String]())
+        let data = try JSONEncoder().encodeElectrumMessage(request)
 
         guard await client.send(data: data) else {
             print("Failed to send fee histogram request.") 
@@ -59,8 +54,6 @@ extension MarketAPI {
             } else {
                 receivedData = try await client.receive()
             }
-            print("Received data: \(receivedData)") 
-
             guard let feeHistogram = try? JSONDecoder().decode(FeeHistogramResponse.self, from: receivedData).result else {
                 print("Invalid JSON structure in response.") 
                 throw APIError()

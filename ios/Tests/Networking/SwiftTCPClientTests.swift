@@ -40,6 +40,20 @@ struct SwiftTCPClientTests {
         #expect(!electrumStreamingAllowed(isLowPowerModeEnabled: false, pathStatus: .unsatisfied, isConstrained: false, isExpensive: false))
     }
 
+    @Test("Encodes a newline-delimited Electrum request")
+    func encodesElectrumRequest() throws {
+        let data = try JSONEncoder().encodeElectrumMessage(
+            ElectrumRequest(id: 0, method: "server.version", params: ["BlueWallet", "1.4"])
+        )
+
+        #expect(data.last == 0x0A)
+        let payload = data.dropLast()
+        let object = try #require(JSONSerialization.jsonObject(with: payload) as? [String: Any])
+        #expect(object["id"] as? Int == 0)
+        #expect(object["method"] as? String == "server.version")
+        #expect(object["params"] as? [String] == ["BlueWallet", "1.4"])
+    }
+
     @Test("Does not retain the client through Network framework callbacks")
     func releasesClient() {
         weak var client: SwiftTCPClient?
@@ -60,7 +74,9 @@ struct SwiftTCPClientTests {
         defer { client.close() }
 
         #expect(await client.connectToNextAvailable(validateCertificates: true))
-        let request = Data("{\"id\":0,\"method\":\"server.version\",\"params\":[\"BlueWallet\",\"1.4\"]}\n".utf8)
+        let request = try JSONEncoder().encodeElectrumMessage(
+            ElectrumRequest(id: 0, method: "server.version", params: ["BlueWallet", "1.4"])
+        )
         #expect(await client.send(data: request))
 
         let response = try await client.receive()
