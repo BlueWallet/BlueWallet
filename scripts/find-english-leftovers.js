@@ -82,7 +82,6 @@ const KEY_EXCEPTIONS = new Set([
   '_.port',                              // "Port"
   '_.ssl_port',                          // "SSL Port"
   '_.clipboard',                         // "Clipboard"
-  '_.no',                                // "No" — Romance cognate
   'settings.electrum_status',            // "Status"
   'cc.sort_status',                      // "Status"
   'settings.widgets',                    // "Widgets"
