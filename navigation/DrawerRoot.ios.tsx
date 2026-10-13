@@ -9,7 +9,21 @@ const DrawerRoot = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   useCompanionListeners();
   return (
-    <Split.Host onCollapse={() => setIsExpanded(false)} onExpand={() => setIsExpanded(true)} topColumnForCollapsing="secondary">
+    <Split.Host
+      columnMetrics={{
+        minimumPrimaryColumnWidth: 280,
+        preferredPrimaryColumnWidthOrFraction: 320,
+        maximumPrimaryColumnWidth: 400,
+      }}
+      displayModeButtonVisibility="automatic"
+      onCollapse={() => setIsExpanded(false)}
+      onExpand={() => setIsExpanded(true)}
+      preferredDisplayMode="oneBesideSecondary"
+      preferredSplitBehavior="tile"
+      primaryBackgroundStyle="sidebar"
+      showSecondaryToggleButton
+      topColumnForCollapsing="secondary"
+    >
       <Split.Column>
         <SplitLayoutProvider isExpanded={isExpanded} column="primary">
           <WalletsListSidebar />
