@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
 import { Alert, findNodeHandle, FlatList, GestureResponderEvent, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
 import Badge from '../../components/Badge';
-import { isDesktop } from '../../blue_modules/environment';
+import { isMacCatalyst } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 import BlueCard from '../../components/BlueCard';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
@@ -10,10 +10,7 @@ import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-walle
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import MultipleStepsListItem, {
-  MultipleStepsListItemButtonType,
-  MultipleStepsListItemDashType,
-} from '../../components/MultipleStepsListItem';
+import MultipleStepsListItem, { MultipleStepsListItemButtonType, MultipleStepsListItemDashType } from '../../components/MultipleStepsListItem';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
@@ -42,7 +39,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { dispatch, navigate, setParams, goBack } = useNavigation<NavigationProp>();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
-  const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
+  const w = useRef(wallets.find((wallet) => wallet.getID() === walletID));
   const tempWallet = useRef(new MultisigHDWallet());
   const [wallet, setWallet] = useState<MultisigHDWallet>();
   const [isLoading, setIsLoading] = useState(true);
@@ -76,7 +73,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   });
 
   usePreventRemove(!isSaveButtonDisabled, ({ data }) => {
-    if (isDesktop) {
+    if (isMacCatalyst) {
       if (!discardChangesRef.current) return dispatch(data.action);
       const anchor = findNodeHandle(discardChangesRef.current);
       if (!anchor) return dispatch(data.action);
@@ -88,7 +85,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
           message: loc._.discard_changes_explain,
           anchor,
         },
-        buttonIndex => {
+        (buttonIndex) => {
           if (buttonIndex === 1) {
             dispatch(data.action);
           }
@@ -126,7 +123,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     setTimeout(async () => {
       try {
         // eslint-disable-next-line prefer-const
-        let newWallets = wallets.filter(newWallet => {
+        let newWallets = wallets.filter((newWallet) => {
           return newWallet.getID() !== walletID;
         }) as MultisigHDWallet[];
         if (!isElectrumDisabled) {
@@ -416,8 +413,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
       const hd = new HDSegwitBech32Wallet();
       hd.setSecret(mnemonic);
-      if (!hd.validateMnemonic() && !MultisigHDWallet.isValidElectrumSeed(hd.getSecret()))
-        return presentAlert({ message: loc.multisig.invalid_mnemonics });
+      if (!hd.validateMnemonic() && !MultisigHDWallet.isValidElectrumSeed(hd.getSecret())) return presentAlert({ message: loc.multisig.invalid_mnemonics });
       try {
         wallet.replaceCosignerXpubWithSeed(cosignerNum, hd.getSecret(), passphrase);
       } catch (e: any) {
@@ -508,11 +504,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     );
 
   const howMany = (
-    <Badge
-      value={wallet?.getM() ?? 0}
-      badgeStyle={[styles.tipLabel, stylesHook.tipLabel]}
-      textStyle={[styles.tipLabelText, stylesHook.tipLabelText]}
-    />
+    <Badge value={wallet?.getM() ?? 0} badgeStyle={[styles.tipLabel, stylesHook.tipLabel]} textStyle={[styles.tipLabelText, stylesHook.tipLabelText]} />
   );
 
   const andHere = (
@@ -537,9 +529,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     );
   };
 
-  const footer = (
-    <Button testID="VaultCosignersSave" disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />
-  );
+  const footer = <Button testID="VaultCosignersSave" disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
 
   return (
     <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>

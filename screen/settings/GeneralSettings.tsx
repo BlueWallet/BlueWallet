@@ -5,7 +5,7 @@ import A from '../../blue_modules/analytics';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
-import { isDesktop } from '../../blue_modules/environment';
+import { isMacCatalyst } from '../../blue_modules/environment';
 import { SettingsSection, SettingsListItem, SettingsScrollView } from '../../components/SettingsSection';
 
 enum SettingsPrivacySection {
@@ -163,7 +163,7 @@ const GeneralSettings: React.FC = () => {
           }}
           switchTestID="TotalBalanceSwitch"
         />
-        {!isDesktop && (
+        {!isMacCatalyst && (
           <SettingsListItem
             title={loc.settings.privacy_temporary_screenshots}
             subtitle={loc.settings.privacy_temporary_screenshots_instructions}

@@ -2,7 +2,7 @@ import React, { memo, useCallback, useContext, useEffect, useReducer, useRef, us
 import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
-import { isDesktop, isIOS26OrHigher } from '../../blue_modules/environment';
+import { isIOS26OrHigher, isMacCatalyst } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -515,7 +515,7 @@ const WalletsList: React.FC = () => {
     return txKey || `${item}${index}`;
   }, []);
 
-  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
+  const refreshProps = isMacCatalyst || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
 
   const sections: SectionData[] = useMemo(() => {
     // On large screens, only show transactions section

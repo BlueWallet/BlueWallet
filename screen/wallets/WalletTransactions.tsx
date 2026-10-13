@@ -21,7 +21,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../components/Icon';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { isDesktop } from '../../blue_modules/environment';
+import { isMacCatalyst } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
@@ -57,9 +57,7 @@ import { HandOffActivityType } from '../../components/types';
 import WalletGradient from '../../class/wallet-gradient';
 
 const buttonFontSize =
-  PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
-    ? 22
-    : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
+  PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22 ? 22 : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 
@@ -187,7 +185,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   const loadMoreTransactions = useCallback(() => {
     if (getTransactions(Infinity).length > limit) {
-      setLimit(prev => prev + pageSize);
+      setLimit((prev) => prev + pageSize);
     }
   }, [getTransactions, limit, pageSize]);
 
@@ -237,7 +235,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         setLastFetchTimestamp(newTimestamp);
       } catch (err: any) {
         const errorMessage: string = err.message;
-        setFetchFailures(prev => {
+        setFetchFailures((prev) => {
           const newFailures = prev + 1;
           // Only show error on final attempt for automatic refresh
           if ((isManualRefresh || newFailures === MAX_FAILURES) && newFailures >= MAX_FAILURES) {
@@ -251,7 +249,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       } finally {
         if (smthChanged) {
           await saveToDisk();
-          setLimit(prev => prev + pageSize);
+          setLimit((prev) => prev + pageSize);
         }
         setIsLoading(false);
       }
@@ -329,7 +327,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const onManageFundsPressed = useCallback(
     (id?: string) => {
       if (id === actionKeys.Refill) {
-        const availableWallets = wallets.filter(item => item.chain === Chain.ONCHAIN && item.allowSend());
+        const availableWallets = wallets.filter((item) => item.chain === Chain.ONCHAIN && item.allowSend());
         if (availableWallets.length === 0) {
           presentAlert({ message: loc.lnd.refill_create });
         } else {
@@ -364,24 +362,19 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       // back to `txid` prevents multiple Ark rows from sharing
       // `key={undefined}`, which made React reuse stale memoized renders
       // across rows.
-      <TransactionListItem
-        key={item.hash ?? (item as { txid?: string }).txid}
-        item={item}
-        itemPriceUnit={displayUnit}
-        walletID={walletID}
-      />
+      <TransactionListItem key={item.hash ?? (item as { txid?: string }).txid} item={item} itemPriceUnit={displayUnit} walletID={walletID} />
     ),
     [displayUnit, walletID],
   );
 
   const choosePhoto = () => {
     fs.showImagePickerAndReadImage()
-      .then(data => {
+      .then((data) => {
         if (data) {
           onBarCodeRead({ data });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ title: loc.errors.error, message: error.message });
@@ -444,7 +437,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         cancelButtonIndex,
         anchor,
       },
-      async buttonIndex => {
+      async (buttonIndex) => {
         switch (buttonIndex) {
           case 0:
             break;
@@ -542,15 +535,15 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const listHeader = (
     <View
       ref={headerRef}
-      onLayout={event => {
+      onLayout={(event) => {
         const nextHeight = Math.round(event.nativeEvent.layout.height);
-        setListHeaderHeight(prev => (prev === nextHeight ? prev : nextHeight));
+        setListHeaderHeight((prev) => (prev === nextHeight ? prev : nextHeight));
       }}
     >
       <TransactionsNavigationHeader
         headerOverlayHeight={headerOverlayHeight}
         wallet={wallet}
-        onWalletUnitChange={async selectedUnit => {
+        onWalletUnitChange={async (selectedUnit) => {
           setIsUnitSwitching(true);
           setDisplayUnit(selectedUnit);
           if ('setPreferredBalanceUnit' in wallet) {
@@ -565,7 +558,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         }}
         unit={displayUnit}
         unitSwitching={isUnitSwitching}
-        onWalletBalanceVisibilityChange={async shouldHideBalance => {
+        onWalletBalanceVisibilityChange={async (shouldHideBalance) => {
           try {
             const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
             if (wallet.hideBalance && !shouldHideBalance && isBiometricsEnabled) {
@@ -579,7 +572,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             console.error('Failed to toggle balance visibility:', error);
           }
         }}
-        onManageFundsPressed={id => {
+        onManageFundsPressed={(id) => {
           if (wallet.type === MultisigHDWallet.type) {
             navigateToViewEditCosigners();
           } else if (wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) {
@@ -677,7 +670,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           )
         }
         refreshControl={
-          !isDesktop && !isElectrumDisabled ? (
+          !isMacCatalyst && !isElectrumDisabled ? (
             <RefreshControl
               refreshing={isLoading}
               onRefresh={() => refreshTransactions(true)}
@@ -706,13 +699,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             onPress={receiveButtonPress}
             icon={
               <View style={styles.iconContainer}>
-                <Icon
-                  name="arrow-down"
-                  size={buttonFontSize}
-                  type="font-awesome"
-                  color={colors.buttonAlternativeTextColor}
-                  style={stylesHook.receiveIcon}
-                />
+                <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} style={stylesHook.receiveIcon} />
               </View>
             }
           />
@@ -725,24 +712,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             testID="SendButton"
             icon={
               <View style={styles.iconContainer}>
-                <Icon
-                  name="arrow-down"
-                  size={buttonFontSize}
-                  type="font-awesome"
-                  color={colors.buttonAlternativeTextColor}
-                  style={stylesHook.sendIcon}
-                />
+                <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} style={stylesHook.sendIcon} />
               </View>
             }
           />
         )}
       </FContainer>
       {wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && wallet.getXpub && wallet.getXpub() ? (
-        <HandOffComponent
-          title={wallet.getLabel()}
-          type={HandOffActivityType.Xpub}
-          url={`https://www.blockonomics.co/#/search?q=${wallet.getXpub()}`}
-        />
+        <HandOffComponent title={wallet.getLabel()} type={HandOffActivityType.Xpub} url={`https://www.blockonomics.co/#/search?q=${wallet.getXpub()}`} />
       ) : null}
     </View>
   );

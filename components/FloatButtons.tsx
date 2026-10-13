@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from './themes';
 import { useSplitLayout } from './Context/SplitLayoutContext';
-import { isDesktop } from '../blue_modules/environment';
+import { isMacCatalyst } from '../blue_modules/environment';
 import debounce from '../blue_modules/debounce';
 import { withAlpha } from './color';
 
@@ -34,10 +34,10 @@ const BUTTON_SCALE_PRESSED = 0.96;
 const BUTTON_SCALE_ANIMATION_DURATION_MS = 110;
 
 const useFloatButtonAnimation = (initialHeight: number) => {
-  const slideAnimation = useRef(new Animated.Value(isDesktop ? 0 : initialHeight)).current;
+  const slideAnimation = useRef(new Animated.Value(isMacCatalyst ? 0 : initialHeight)).current;
 
   useEffect(() => {
-    if (isDesktop) return;
+    if (isMacCatalyst) return;
     Animated.spring(slideAnimation, {
       toValue: 0,
       friction: 7,

@@ -8,7 +8,7 @@ import Share from 'react-native-share';
 import type { TTXMetadata } from '../class/blue-app';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
-import { isDesktop } from './environment';
+import { isMacCatalyst } from './environment';
 import { readFile } from './react-native-bw-file-access';
 import { base64ToUint8Array, uint8ArrayToString } from './uint8array-extras/index';
 
@@ -23,7 +23,7 @@ export const isCancel = (err: any): boolean => {
 
 export const encodeCsvRow = (values: Array<string | number>): string =>
   values
-    .map(value => {
+    .map((value) => {
       const stringValue = String(value);
       return /[",\r\n]/.test(stringValue) ? `"${stringValue.replace(/"/g, '""')}"` : stringValue;
     })
@@ -78,8 +78,8 @@ const parseCsv = (contents: string): string[][] => {
 const parseBip329TransactionNotes = (contents: string): Array<{ transactionId: string; memo: string }> =>
   contents
     .split(/\r?\n/)
-    .filter(line => line.trim().length > 0)
-    .flatMap(line => {
+    .filter((line) => line.trim().length > 0)
+    .flatMap((line) => {
       const record: unknown = JSON.parse(line);
       if (!record || typeof record !== 'object' || Array.isArray(record)) throw new Error('Invalid BIP-329 record');
 
@@ -103,7 +103,7 @@ export const parseWalletHistoryNotes = (contents: string): Array<{ transactionId
   const rows = parseCsv(normalizedContents);
   if (rows.length === 0 || rows[0].length < 4) throw new Error('Invalid wallet history CSV');
 
-  return rows.slice(1).flatMap(row => {
+  return rows.slice(1).flatMap((row) => {
     if (row.length < 4) return [];
 
     const transactionId = row[1].trim();
@@ -127,7 +127,7 @@ export const planWalletHistoryNoteImport = (
     }
   }
 
-  const overwriteCount = [...updates.keys()].filter(metadataKey => Boolean(metadata[metadataKey]?.memo?.trim())).length;
+  const overwriteCount = [...updates.keys()].filter((metadataKey) => Boolean(metadata[metadataKey]?.memo?.trim())).length;
   return { updates, overwriteCount };
 };
 
@@ -135,15 +135,14 @@ export const selectWalletHistoryNoteUpdates = (
   updates: ReadonlyMap<string, string>,
   metadata: TTXMetadata,
   selectedOverwrites: ReadonlySet<string>,
-): Map<string, string> =>
-  new Map([...updates].filter(([metadataKey]) => !metadata[metadataKey]?.memo?.trim() || selectedOverwrites.has(metadataKey)));
+): Map<string, string> => new Map([...updates].filter(([metadataKey]) => !metadata[metadataKey]?.memo?.trim() || selectedOverwrites.has(metadataKey)));
 
 export const applyWalletHistoryNoteUpdates = async (
   metadata: TTXMetadata,
   updates: ReadonlyMap<string, string>,
   persist: () => Promise<void>,
 ): Promise<void> => {
-  const previousMetadata = new Map([...updates.keys()].map(metadataKey => [metadataKey, metadata[metadataKey]]));
+  const previousMetadata = new Map([...updates.keys()].map((metadataKey) => [metadataKey, metadata[metadataKey]]));
   for (const [metadataKey, memo] of updates) metadata[metadataKey] = { memo };
 
   try {
@@ -250,7 +249,7 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
   try {
     await Share.open({
       url: 'file://' + filePath,
-      saveToFiles: isDesktop || !showShareDialog,
+      saveToFiles: isMacCatalyst || !showShareDialog,
       failOnCancel: false,
     });
   } catch (error: any) {

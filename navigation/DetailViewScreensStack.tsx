@@ -53,7 +53,7 @@ import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmatio
 import { useSplitLayout } from '../components/Context/SplitLayoutContext';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { createSettingsScreenOptions, getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
-import { isDesktop, isIOS26OrHigher } from '../blue_modules/environment';
+import { isIOS26OrHigher, isMacCatalyst } from '../blue_modules/environment';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
@@ -307,7 +307,7 @@ const DetailViewStackScreensStack = () => {
           return [{ type: 'custom', element, hidesSharedBackground: true }];
         },
         unstable_headerRightItems: () => {
-          if (isDesktop) {
+          if (isMacCatalyst) {
             return [];
           }
           const items: HeaderRightItem[] = [
@@ -345,7 +345,7 @@ const DetailViewStackScreensStack = () => {
         backgroundColor: theme.colors.customHeader,
       },
       headerLeft: renderHeaderLeft,
-      headerRight: () => (isDesktop ? undefined : RightBarButtons),
+      headerRight: () => (isMacCatalyst ? undefined : RightBarButtons),
     };
   }, [
     RightBarButtons,

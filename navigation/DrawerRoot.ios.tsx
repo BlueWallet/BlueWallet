@@ -1,7 +1,7 @@
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import React, { useState } from 'react';
-import { Platform } from 'react-native';
 import { Split } from 'react-native-screens/experimental';
+import { isMacCatalyst } from '../blue_modules/environment';
 import { SplitLayoutProvider } from '../components/Context/SplitLayoutContext';
 import useCompanionListeners from '../hooks/useCompanionListeners';
 import { WalletsListSidebar } from '../screen/wallets/WalletsList';
@@ -33,7 +33,7 @@ const DrawerRoot = () => {
 
   // react-native-screens Split currently crashes while Fabric creates its
   // native host on Mac Catalyst. Keep the established permanent drawer there.
-  if (Platform.OS === 'ios' && Platform.isMacCatalyst) return <CatalystDrawerRoot />;
+  if (isMacCatalyst) return <CatalystDrawerRoot />;
 
   return (
     <Split.Host
