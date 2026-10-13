@@ -19,30 +19,95 @@ enum SwiftTCPClientError: Error, LocalizedError {
 
 actor HostManager {
     typealias Host = (host: String, port: UInt16, useSSL: Bool)
-    private var hosts: [Host]
-    private var failureCounts: [String: Int] = [:]
-    let maxRetriesPerHost: Int
+    private struct Health: Codable {
+        var failureCount = 0
+        var retryAfter = Date.distantPast
+        var lastSuccess: Date?
+    }
 
-    init(hosts: [Host], maxRetriesPerHost: Int) {
+    private let hosts: [Host]
+    private let defaults: UserDefaults?
+    private let persistenceKey: String
+    private let now: () -> Date
+    private let jitter: () -> Double
+    private var health: [String: Health]
+    private var cursor = 0
+
+    init(
+        hosts: [Host],
+        maxRetriesPerHost _: Int = 1,
+        defaults: UserDefaults? = .standard,
+        persistenceKey: String = "io.bluewallet.electrum-endpoint-health",
+        now: @escaping () -> Date = Date.init,
+        jitter: @escaping () -> Double = { Double.random(in: -0.2...0.2) }
+    ) {
         self.hosts = hosts
-        self.maxRetriesPerHost = max(1, maxRetriesPerHost)
+        self.defaults = defaults
+        self.persistenceKey = persistenceKey
+        self.now = now
+        self.jitter = jitter
+        if let data = defaults?.data(forKey: persistenceKey),
+           let saved = try? JSONDecoder().decode([String: Health].self, from: data) {
+            health = saved
+        } else {
+            health = [:]
+        }
     }
 
-    var count: Int { hosts.count }
-
-    func nextHost() -> Host? {
-        guard !hosts.isEmpty else { return nil }
-        let host = hosts.removeFirst()
-        hosts.append(host)
-        return host
+    nonisolated static func key(for host: Host) -> String {
+        "\(host.host.lowercased()):\(host.port):\(host.useSSL ? "tls" : "tcp")"
     }
 
-    func shouldSkip(_ host: String) -> Bool {
-        failureCounts[host, default: 0] >= maxRetriesPerHost
+    func candidates(excluding excludedKeys: Set<String> = []) -> [Host] {
+        let candidates = hosts.filter { !excludedKeys.contains(Self.key(for: $0)) }
+        guard !candidates.isEmpty else { return [] }
+
+        let currentDate = now()
+        let healthy = candidates.filter { health[Self.key(for: $0), default: Health()].retryAfter <= currentDate }
+        if healthy.isEmpty {
+            // When every endpoint is cooling down, probe only the one closest
+            // to recovery rather than sweeping the complete failed list.
+            return candidates.min {
+                health[Self.key(for: $0), default: Health()].retryAfter
+                    < health[Self.key(for: $1), default: Health()].retryAfter
+            }.map { [$0] } ?? []
+        }
+
+        if let preferred = healthy.max(by: {
+            (health[Self.key(for: $0)]?.lastSuccess ?? .distantPast)
+                < (health[Self.key(for: $1)]?.lastSuccess ?? .distantPast)
+        }), health[Self.key(for: preferred)]?.lastSuccess != nil {
+            return [preferred] + healthy.filter { Self.key(for: $0) != Self.key(for: preferred) }
+        }
+
+        let offset = cursor % healthy.count
+        cursor = (cursor + 1) % healthy.count
+        return Array(healthy[offset...]) + Array(healthy[..<offset])
     }
 
-    func recordSuccess(for host: String) { failureCounts[host] = 0 }
-    func recordFailure(for host: String) { failureCounts[host, default: 0] += 1 }
+    func recordSuccess(for host: Host) {
+        health[Self.key(for: host)] = Health(failureCount: 0, retryAfter: .distantPast, lastSuccess: now())
+        persist()
+    }
+
+    func recordFailure(for host: Host, permanent: Bool = false) {
+        let key = Self.key(for: host)
+        var state = health[key, default: Health()]
+        state.failureCount = permanent ? max(4, state.failureCount + 1) : state.failureCount + 1
+        let delays: [TimeInterval] = [30, 120, 600, 1_800]
+        let baseDelay = delays[min(state.failureCount - 1, delays.count - 1)]
+        state.retryAfter = now().addingTimeInterval(baseDelay * max(0.8, min(1.2, 1 + jitter())))
+        health[key] = state
+        persist()
+    }
+
+    func retryAfter(for host: Host) -> Date? { health[Self.key(for: host)]?.retryAfter }
+    func failureCount(for host: Host) -> Int { health[Self.key(for: host)]?.failureCount ?? 0 }
+
+    private func persist() {
+        guard let defaults, let data = try? JSONEncoder().encode(health) else { return }
+        defaults.set(data, forKey: persistenceKey)
+    }
 }
 
 final class SwiftTCPClient {
@@ -64,9 +129,9 @@ final class SwiftTCPClient {
     private let queue = DispatchQueue(label: "io.bluewallet.swift-tcp-client", qos: .userInitiated)
     private let queueKey = DispatchSpecificKey<Void>()
     private let readTimeout: TimeInterval
-    private let maxRetries: Int
     private let hostManager: HostManager
     private var connection: NWConnection?
+    private var currentEndpoint: HostManager.Host?
     private var state: State = .disconnected
     private var pathStatus: NWPath.Status?
     private var pathIsConstrained = false
@@ -74,9 +139,8 @@ final class SwiftTCPClient {
     private var pathMonitor: NWPathMonitor?
     private var receiveBuffer = Data()
 
-    init(hosts: [HostManager.Host] = [], maxRetriesPerHost: Int = 3, maxRetries: Int = 3, readTimeout: TimeInterval = 5) {
+    init(hosts: [HostManager.Host] = [], maxRetriesPerHost: Int = 1, maxRetries _: Int = 1, readTimeout: TimeInterval = 5) {
         hostManager = HostManager(hosts: hosts, maxRetriesPerHost: maxRetriesPerHost)
-        self.maxRetries = max(1, maxRetries)
         self.readTimeout = readTimeout
         queue.setSpecific(key: queueKey, value: ())
         startPathMonitor()
@@ -88,29 +152,31 @@ final class SwiftTCPClient {
     }
 
     func connect(to host: String, port: UInt16, useSSL: Bool = false, validateCertificates: Bool = true, retries: Int = 0) async -> Bool {
-        guard !(await hostManager.shouldSkip(host)) else { return false }
-
-        for attempt in max(0, retries)..<maxRetries {
-            do {
-                try await connectOnce(to: host, port: port, useSSL: useSSL, validateCertificates: validateCertificates)
-                await hostManager.recordSuccess(for: host)
-                return true
-            } catch {
-                await hostManager.recordFailure(for: host)
-                print("Connection to \(host):\(port) failed: \(error.localizedDescription)")
-                guard attempt + 1 < maxRetries, !isConnectionRefused(error) else { break }
-                try? await Task.sleep(nanoseconds: 500_000_000)
+        _ = retries // Retained for source compatibility; endpoints are attempted once.
+        let endpoint: HostManager.Host = (host, port, useSSL)
+        do {
+            try Task.checkCancellation()
+            try await connectOnce(to: host, port: port, useSSL: useSSL, validateCertificates: validateCertificates)
+            queue.sync { currentEndpoint = endpoint }
+            return true
+        } catch is CancellationError {
+            close()
+            return false
+        } catch {
+            if !isNetworkUnavailable(error) {
+                await hostManager.recordFailure(for: endpoint, permanent: isPermanentConnectionFailure(error))
             }
+            print("Connection to \(host):\(port) failed: \(error.localizedDescription)")
         }
         close()
         return false
     }
 
-    func connectToNextAvailable(validateCertificates: Bool = true) async -> Bool {
-        let count = await hostManager.count
-        for _ in 0..<count {
-            guard let candidate = await hostManager.nextHost() else { return false }
-            guard !(await hostManager.shouldSkip(candidate.host)) else { continue }
+    func connectToNextAvailable(validateCertificates: Bool = true, excluding excludedKeys: Set<String> = []) async -> Bool {
+        let candidates = await hostManager.candidates(excluding: excludedKeys)
+        for candidate in candidates {
+            guard !Task.isCancelled else { return false }
+            guard queue.sync(execute: { pathStatus != .unsatisfied }) else { return false }
             if await connect(to: candidate.host, port: candidate.port, useSSL: candidate.useSSL, validateCertificates: validateCertificates) {
                 return true
             }
@@ -138,6 +204,7 @@ final class SwiftTCPClient {
 
     func send(data: Data) async -> Bool {
         guard let connection = readyConnection() else { return false }
+        let endpoint = queue.sync { currentEndpoint }
         do {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
                 connection.send(content: data, completion: .contentProcessed { error in
@@ -147,24 +214,35 @@ final class SwiftTCPClient {
             }
             return true
         } catch {
+            if let endpoint { await hostManager.recordFailure(for: endpoint) }
             close()
             return false
         }
     }
 
     func receive() async throws -> Data {
-        while true {
-            if let message = queue.sync(execute: nextBufferedMessage) {
-                return message
-            }
+        let endpoint = queue.sync { currentEndpoint }
+        do {
+            while true {
+                if let message = queue.sync(execute: nextBufferedMessage) {
+                    if let endpoint { await hostManager.recordSuccess(for: endpoint) }
+                    return message
+                }
 
-            let chunk = try await receiveChunk()
-            queue.sync { receiveBuffer.append(chunk) }
+                let chunk = try await receiveChunk()
+                queue.sync { receiveBuffer.append(chunk) }
 
-            guard queue.sync(execute: { receiveBuffer.count <= 1_048_576 }) else {
-                close()
-                throw SwiftTCPClientError.noDataReceived
+                guard queue.sync(execute: { receiveBuffer.count <= 1_048_576 }) else {
+                    throw SwiftTCPClientError.noDataReceived
+                }
             }
+        } catch is CancellationError {
+            close()
+            throw CancellationError()
+        } catch {
+            if let endpoint { await hostManager.recordFailure(for: endpoint) }
+            close()
+            throw error
         }
     }
 
@@ -223,6 +301,7 @@ final class SwiftTCPClient {
     private func closeOnQueue() {
         let connection = connection
         self.connection = nil
+        currentEndpoint = nil
         receiveBuffer.removeAll(keepingCapacity: false)
         state = .disconnected
         connection?.stateUpdateHandler = nil
@@ -306,8 +385,8 @@ final class SwiftTCPClient {
         parameters.expiredDNSBehavior = .allow
         parameters.multipathServiceType = .handover
         guard let tcp = parameters.defaultProtocolStack.internetProtocol as? NWProtocolTCP.Options else { return }
-        tcp.enableFastOpen = false; tcp.noDelay = true; tcp.enableKeepalive = true
-        tcp.keepaliveCount = 5; tcp.keepaliveIdle = 60; tcp.keepaliveInterval = 5; tcp.connectionTimeout = 10
+        tcp.enableFastOpen = false; tcp.noDelay = true; tcp.enableKeepalive = false
+        tcp.connectionTimeout = 10
     }
 
     private func tlsOptions(validateCertificates: Bool) -> NWProtocolTLS.Options {
@@ -318,10 +397,17 @@ final class SwiftTCPClient {
         return options
     }
 
-    private func isConnectionRefused(_ error: Error) -> Bool {
+    private func isPermanentConnectionFailure(_ error: Error) -> Bool {
         let underlying: Error
         if case SwiftTCPClientError.unknown(let wrapped) = error { underlying = wrapped } else { underlying = error }
-        return (underlying as NSError).code == Int(ECONNREFUSED)
+        if case NWError.tls(_) = underlying { return true }
+        return false
+    }
+
+    private func isNetworkUnavailable(_ error: Error) -> Bool {
+        let underlying: Error
+        if case SwiftTCPClientError.unknown(let wrapped) = error { underlying = wrapped } else { underlying = error }
+        return (underlying as NSError).code == Int(ENETDOWN)
     }
 }
 

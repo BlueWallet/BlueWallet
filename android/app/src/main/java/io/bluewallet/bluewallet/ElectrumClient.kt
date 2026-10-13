@@ -1,11 +1,12 @@
 package io.bluewallet.bluewallet
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.currentCoroutineContext
@@ -24,6 +25,7 @@ import java.net.SocketTimeoutException
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLHandshakeException
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManager
@@ -32,8 +34,7 @@ import javax.net.ssl.X509TrustManager
 class ElectrumClient {
     companion object {
         private const val TAG = "ElectrumClient"
-        private const val MAX_RETRIES = 3
-        private const val RETRY_DELAY_MS = 1000L // 1 second delay between retries
+        private const val HEALTH_PREFERENCES = "electrum_endpoint_health"
         
         // Default list of Electrum servers to try
         val hardcodedPeers = listOf(
@@ -51,6 +52,8 @@ class ElectrumClient {
     private var inputReader: BufferedReader? = null
     private var context: Context? = null
     private var networkStatusListener: NetworkStatusListener? = null
+    private var circuitBreaker = EndpointCircuitBreaker()
+    private var currentEndpoint: ElectrumServer? = null
     
     data class ElectrumServer(val host: String, val port: Int, val isSsl: Boolean)
     
@@ -60,6 +63,11 @@ class ElectrumClient {
     fun initialize(context: Context) {
         Log.i(TAG, "Initializing ElectrumClient with context")
         this.context = context.applicationContext
+        circuitBreaker = EndpointCircuitBreaker(
+            SharedPreferencesEndpointHealthStore(
+                this.context!!.getSharedPreferences(HEALTH_PREFERENCES, Context.MODE_PRIVATE),
+            ),
+        )
     }
     
     /**
@@ -96,7 +104,8 @@ class ElectrumClient {
     suspend fun connectToNextAvailable(
         servers: List<ElectrumServer> = hardcodedPeers,
         validateCertificates: Boolean = true,
-        connectTimeout: Long = 5000 // 5 seconds
+        connectTimeout: Long = 5000,
+        excluding: Set<String> = emptySet(),
     ): Boolean = withContext(Dispatchers.IO) {
         val startTime = System.currentTimeMillis()
         Log.i(TAG, "Starting connection attempt to Electrum server. Server count: ${servers.size}")
@@ -108,61 +117,29 @@ class ElectrumClient {
             return@withContext false
         }
         
-        var connected = false
-        var lastError: Exception? = null
-        
-        for (serverIndex in servers.indices) {
-            val server = servers[serverIndex]
-            if (connected) break
-            
-            Log.d(TAG, "Trying server ${serverIndex+1}/${servers.size}: ${server.host}:${server.port} (SSL: ${server.isSsl})")
-            
-            // Try up to MAX_RETRIES times per server
-            for (attempt in 1..MAX_RETRIES) {
-                try {
-                    Log.d(TAG, "Connection attempt $attempt/$MAX_RETRIES to ${server.host}:${server.port} (SSL: ${server.isSsl})")
-                    val attemptStartTime = System.currentTimeMillis()
-                    
-                    withTimeout(connectTimeout) {
-                        if (connect(server, validateCertificates, connectTimeout.toInt())) {
-                            val attemptDuration = System.currentTimeMillis() - attemptStartTime
-                            Log.i(TAG, "Successfully connected to ${server.host}:${server.port} in ${attemptDuration}ms")
-                            networkStatusListener?.onConnectionSuccess()
-                            connected = true
-                        } else {
-                            Log.w(TAG, "Failed to connect to ${server.host}:${server.port} - connect() returned false")
-                        }
-                    }
-                    if (connected) break
-                } catch (e: TimeoutCancellationException) {
-                    lastError = e
-                    close()
-                    Log.e(TAG, "Connection to ${server.host}:${server.port} timed out after ${connectTimeout}ms (attempt $attempt)")
-                    if (attempt < MAX_RETRIES) {
-                        Log.d(TAG, "Retrying after ${RETRY_DELAY_MS}ms delay")
-                        delay(RETRY_DELAY_MS)
-                    }
-                } catch (e: Exception) {
-                    lastError = e
-                    Log.e(TAG, "Error connecting to ${server.host}:${server.port} (attempt $attempt): ${e.message}")
-                    if (attempt < MAX_RETRIES) {
-                        Log.d(TAG, "Retrying after ${RETRY_DELAY_MS}ms delay")
-                        delay(RETRY_DELAY_MS)
-                    }
+        val candidates = circuitBreaker.candidates(servers, excluding)
+        for ((serverIndex, server) in candidates.withIndex()) {
+            currentCoroutineContext().ensureActive()
+            Log.d(TAG, "Trying server ${serverIndex + 1}/${candidates.size}: ${server.host}:${server.port} (SSL: ${server.isSsl})")
+            try {
+                if (withTimeout(connectTimeout) { connect(server, validateCertificates, connectTimeout.toInt()) }) {
+                    networkStatusListener?.onConnectionSuccess()
+                    Log.i(TAG, "Successfully connected to ${server.host}:${server.port}")
+                    return@withContext true
                 }
+                if (!isNetworkAvailable()) return@withContext false
+            } catch (error: TimeoutCancellationException) {
+                circuitBreaker.recordFailure(server)
+                close()
+                Log.e(TAG, "Connection to ${server.host}:${server.port} timed out after ${connectTimeout}ms")
             }
         }
         
         val totalDuration = System.currentTimeMillis() - startTime
         
-        if (!connected) {
-            Log.e(TAG, "Failed to connect to any Electrum server after ${totalDuration}ms. Last error: ${lastError?.message}")
-            networkStatusListener?.onConnectionError("Failed to connect to any Electrum server: ${lastError?.message}")
-        } else {
-            Log.i(TAG, "Successfully connected to an Electrum server in ${totalDuration}ms")
-        }
-        
-        connected
+        Log.e(TAG, "Failed to connect to an eligible Electrum server after ${totalDuration}ms")
+        networkStatusListener?.onConnectionError("Failed to connect to an eligible Electrum server")
+        false
     }
     
     /**
@@ -193,6 +170,7 @@ class ElectrumClient {
 
         try {
             close() // Close any existing connection
+            currentEndpoint = server
             Log.d(TAG, "Creating ${if (server.isSsl) "SSL " else ""}socket to ${server.host}:${server.port}")
 
             val newSocket = if (server.isSsl) {
@@ -210,7 +188,7 @@ class ElectrumClient {
             // Testing the connection with simple version request
             val versionRequest = "{\"id\": 0, \"method\": \"server.version\", \"params\": [\"BlueWallet\", \"1.4\"]}\n"
             Log.d(TAG, "Sending version request to verify connection")
-            send(versionRequest.toByteArray())
+            if (!send(versionRequest.toByteArray())) return@withContext false
 
             val response = receive()
             if (response.isNotEmpty()) {
@@ -218,6 +196,7 @@ class ElectrumClient {
                 Log.d(TAG, "Received server version response: $responseStr")
                 networkStatusListener?.onNetworkStatusChanged(true)
                 logServerDetails(server) // Log server details here
+                circuitBreaker.recordSuccess(server)
                 result = true
             } else {
                 Log.w(TAG, "Empty response from server when verifying connection")
@@ -227,6 +206,9 @@ class ElectrumClient {
         } catch (e: Exception) {
             Log.e(TAG, "Error connecting to Electrum server: ${e.javaClass.simpleName} - ${e.message}")
             networkStatusListener?.onConnectionError("Error connecting: ${e.message}")
+            if (e !is CancellationException) {
+                circuitBreaker.recordFailure(server, permanent = e is SSLHandshakeException)
+            }
             close()
             if (e is CancellationException) throw e
         }
@@ -261,6 +243,7 @@ class ElectrumClient {
         } catch (e: Exception) {
             Log.e(TAG, "Error sending data to Electrum server: ${e.javaClass.simpleName} - ${e.message}")
             networkStatusListener?.onConnectionError("Error sending data: ${e.message}")
+            currentEndpoint?.let(circuitBreaker::recordFailure)
             close()
             return@withContext false
         }
@@ -279,6 +262,7 @@ class ElectrumClient {
             } catch (e: SocketTimeoutException) {
                 Log.e(TAG, "Socket read timed out after ${System.currentTimeMillis() - startTime}ms")
                 networkStatusListener?.onConnectionError("Socket read timed out")
+                currentEndpoint?.let(circuitBreaker::recordFailure)
                 close()
                 ""
             }
@@ -291,12 +275,15 @@ class ElectrumClient {
                 Log.d(TAG, "Received data (${responseData.size} bytes) in ${duration}ms: $responsePreview")
             } else {
                 Log.w(TAG, "Received empty response from Electrum server")
+                currentEndpoint?.let(circuitBreaker::recordFailure)
+                close()
             }
             
             return@withContext responseData
         } catch (e: Exception) {
             Log.e(TAG, "Error receiving data from Electrum server: ${e.javaClass.simpleName} - ${e.message}")
             networkStatusListener?.onConnectionError("Error receiving data: ${e.message}")
+            currentEndpoint?.let(circuitBreaker::recordFailure)
             close()
             return@withContext ByteArray(0)
         }
@@ -323,6 +310,7 @@ class ElectrumClient {
             inputReader = null
             outputStream = null
             socket = null
+            currentEndpoint = null
         }
     }
     
@@ -398,3 +386,111 @@ internal fun electrumMessageFlow(
 }.onCompletion {
     close()
 }.flowOn(Dispatchers.IO)
+
+internal data class EndpointHealth(
+    val failureCount: Int = 0,
+    val retryAfterMillis: Long = 0,
+    val lastSuccessMillis: Long? = null,
+)
+
+internal interface EndpointHealthStore {
+    fun load(): Map<String, EndpointHealth>
+    fun save(health: Map<String, EndpointHealth>)
+}
+
+internal class InMemoryEndpointHealthStore : EndpointHealthStore {
+    private var health = emptyMap<String, EndpointHealth>()
+    override fun load(): Map<String, EndpointHealth> = health
+    override fun save(health: Map<String, EndpointHealth>) { this.health = health.toMap() }
+}
+
+internal class SharedPreferencesEndpointHealthStore(
+    private val preferences: SharedPreferences,
+) : EndpointHealthStore {
+    override fun load(): Map<String, EndpointHealth> {
+        val root = runCatching { JSONObject(preferences.getString(KEY, "{}") ?: "{}") }.getOrElse { return emptyMap() }
+        return root.keys().asSequence().associateWith { key ->
+            val value = root.getJSONObject(key)
+            EndpointHealth(
+                failureCount = value.optInt("failureCount"),
+                retryAfterMillis = value.optLong("retryAfterMillis"),
+                lastSuccessMillis = value.optLong("lastSuccessMillis").takeIf { value.has("lastSuccessMillis") },
+            )
+        }
+    }
+
+    override fun save(health: Map<String, EndpointHealth>) {
+        val root = JSONObject()
+        health.forEach { (key, value) ->
+            root.put(key, JSONObject().apply {
+                put("failureCount", value.failureCount)
+                put("retryAfterMillis", value.retryAfterMillis)
+                value.lastSuccessMillis?.let { put("lastSuccessMillis", it) }
+            })
+        }
+        preferences.edit().putString(KEY, root.toString()).apply()
+    }
+
+    private companion object { const val KEY = "health" }
+}
+
+internal class EndpointCircuitBreaker(
+    private val store: EndpointHealthStore = InMemoryEndpointHealthStore(),
+    private val nowMillis: () -> Long = System::currentTimeMillis,
+    private val jitter: () -> Double = { kotlin.random.Random.nextDouble(-0.2, 0.2) },
+) {
+    private val health = store.load().toMutableMap()
+    private var cursor = 0
+
+    @Synchronized
+    fun candidates(
+        servers: List<ElectrumClient.ElectrumServer>,
+        excludedKeys: Set<String> = emptySet(),
+    ): List<ElectrumClient.ElectrumServer> {
+        val candidates = servers.filterNot { key(it) in excludedKeys }
+        if (candidates.isEmpty()) return emptyList()
+
+        val now = nowMillis()
+        val healthy = candidates.filter { (health[key(it)]?.retryAfterMillis ?: 0) <= now }
+        if (healthy.isEmpty()) {
+            return listOf(candidates.minBy { health[key(it)]?.retryAfterMillis ?: 0 })
+        }
+
+        val preferred = healthy.maxByOrNull { health[key(it)]?.lastSuccessMillis ?: Long.MIN_VALUE }
+        if (preferred != null && health[key(preferred)]?.lastSuccessMillis != null) {
+            return listOf(preferred) + healthy.filterNot { key(it) == key(preferred) }
+        }
+
+        val offset = cursor % healthy.size
+        cursor = (cursor + 1) % healthy.size
+        return healthy.drop(offset) + healthy.take(offset)
+    }
+
+    @Synchronized
+    fun recordSuccess(server: ElectrumClient.ElectrumServer) {
+        health[key(server)] = EndpointHealth(lastSuccessMillis = nowMillis())
+        store.save(health)
+    }
+
+    @Synchronized
+    fun recordFailure(server: ElectrumClient.ElectrumServer, permanent: Boolean = false) {
+        val endpointKey = key(server)
+        val previous = health[endpointKey] ?: EndpointHealth()
+        val failureCount = if (permanent) maxOf(4, previous.failureCount + 1) else previous.failureCount + 1
+        val delays = longArrayOf(30_000, 120_000, 600_000, 1_800_000)
+        val baseDelay = delays[minOf(failureCount - 1, delays.lastIndex)]
+        val multiplier = (1 + jitter()).coerceIn(0.8, 1.2)
+        health[endpointKey] = previous.copy(
+            failureCount = failureCount,
+            retryAfterMillis = nowMillis() + (baseDelay * multiplier).toLong(),
+        )
+        store.save(health)
+    }
+
+    @Synchronized fun health(server: ElectrumClient.ElectrumServer): EndpointHealth = health[key(server)] ?: EndpointHealth()
+
+    companion object {
+        fun key(server: ElectrumClient.ElectrumServer): String =
+            "${server.host.lowercase()}:${server.port}:${if (server.isSsl) "tls" else "tcp"}"
+    }
+}

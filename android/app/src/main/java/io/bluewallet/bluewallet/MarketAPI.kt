@@ -6,7 +6,6 @@ import android.net.ConnectivityManager
 import android.util.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -273,24 +272,13 @@ object MarketAPI {
             
             // First try connecting directly for fee histogram
             Log.d(TAG, "Attempting to connect directly to Electrum server for fee")
-            var success = electrumClient.connectToNextAvailable(validateCertificates = false)
+            val success = electrumClient.connectToNextAvailable(validateCertificates = false)
 
             if (success) {
                 Log.i(TAG, "Connected to Electrum server: ${ElectrumClient.hardcodedPeers}")
             } else {
-                Log.e(TAG, "Failed to connect to any Electrum server on first attempt. Retrying once more.")
-            }
-            
-            if (!success) {
-                Log.e(TAG, "Failed to connect to any Electrum server on first attempt. Retrying once more.")
-                // Short delay before retry
-                delay(1000)
-                success = electrumClient.connectToNextAvailable(validateCertificates = false)
-                
-                if (!success) {
-                    Log.e(TAG, "Failed to connect to any Electrum server after retry. Fee unavailable.")
-                    return ERROR_INDICATOR
-                }
+                Log.e(TAG, "Failed to connect to an eligible Electrum server. Fee unavailable.")
+                return ERROR_INDICATOR
             }
             
             Log.d(TAG, "Successfully connected to Electrum server. Sending fee histogram request")
