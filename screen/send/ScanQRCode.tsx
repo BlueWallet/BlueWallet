@@ -133,7 +133,7 @@ const ScanQRCode = () => {
       deliver();
     });
     pending.timer = setTimeout(deliver, 1500);
-    navigation.dispatch(StackActions.popTo(launchedBy));
+    navigation.dispatch(StackActions.popTo(launchedBy, undefined, { merge: true }));
   };
 
   const _onReadUniformResourceV2 = (part: string) => {
