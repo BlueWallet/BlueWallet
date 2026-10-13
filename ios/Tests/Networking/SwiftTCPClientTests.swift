@@ -4,6 +4,8 @@ import Testing
 
 @Suite("Swift TCP client")
 struct SwiftTCPClientTests {
+    private enum StubError: Error { case streamFailed }
+
     private let hosts: [HostManager.Host] = [
         (host: "electrum1.bluewallet.io", port: 443, useSSL: true),
         (host: "electrum2.bluewallet.io", port: 443, useSSL: true),
@@ -52,6 +54,116 @@ struct SwiftTCPClientTests {
         #expect(object["id"] as? Int == 0)
         #expect(object["method"] as? String == "server.version")
         #expect(object["params"] as? [String] == ["BlueWallet", "1.4"])
+    }
+
+    @Test("Uses the streaming response without invoking fallback")
+    func usesStreamingResponse() async throws {
+        var oneShotCalls = 0
+        var fallbackCalls = 0
+        var closeCalls = 0
+        let expected = Data("streamed".utf8)
+
+        let actual = try await receiveElectrumResponse(
+            useStreaming: true,
+            stream: {
+                electrumMessageStream(
+                    receive: { expected },
+                    close: { closeCalls += 1 }
+                )
+            },
+            oneShot: { oneShotCalls += 1; return Data() },
+            fallback: { _ in fallbackCalls += 1; return Data() }
+        )
+
+        #expect(actual == expected)
+        #expect(oneShotCalls == 0)
+        #expect(fallbackCalls == 0)
+        await Task.yield()
+        #expect(closeCalls == 1)
+    }
+
+    @Test("Falls back to one-shot after the stream fails")
+    func fallsBackAfterStreamFailure() async throws {
+        var fallbackCalls = 0
+        let expected = Data("fallback".utf8)
+
+        let actual = try await receiveElectrumResponse(
+            useStreaming: true,
+            stream: {
+                AsyncThrowingStream { continuation in
+                    continuation.finish(throwing: StubError.streamFailed)
+                }
+            },
+            oneShot: { Data() },
+            fallback: { error in
+                #expect(error is StubError)
+                fallbackCalls += 1
+                return expected
+            }
+        )
+
+        #expect(actual == expected)
+        #expect(fallbackCalls == 1)
+    }
+
+    @Test("Uses one-shot directly when streaming is disabled")
+    func usesOneShotWhenStreamingIsDisabled() async throws {
+        var streamCalls = 0
+        var fallbackCalls = 0
+        let expected = Data("one-shot".utf8)
+
+        let actual = try await receiveElectrumResponse(
+            useStreaming: false,
+            stream: {
+                streamCalls += 1
+                return AsyncThrowingStream { $0.finish() }
+            },
+            oneShot: { expected },
+            fallback: { _ in fallbackCalls += 1; return Data() }
+        )
+
+        #expect(actual == expected)
+        #expect(streamCalls == 0)
+        #expect(fallbackCalls == 0)
+    }
+
+    @Test("Cancellation does not trigger fallback")
+    func cancellationDoesNotFallback() async {
+        var fallbackCalls = 0
+
+        do {
+            _ = try await receiveElectrumResponse(
+                useStreaming: true,
+                stream: {
+                    AsyncThrowingStream { $0.finish(throwing: CancellationError()) }
+                },
+                oneShot: { Data() },
+                fallback: { _ in fallbackCalls += 1; return Data() }
+            )
+            Issue.record("Expected cancellation")
+        } catch {
+            #expect(error is CancellationError)
+        }
+
+        #expect(fallbackCalls == 0)
+    }
+
+    @Test("A failed stream closes its connection exactly once")
+    func failedStreamClosesConnection() async {
+        var closeCalls = 0
+        let stream = electrumMessageStream(
+            receive: { throw StubError.streamFailed },
+            close: { closeCalls += 1 }
+        )
+
+        do {
+            for try await _ in stream {}
+            Issue.record("Expected the stream to fail")
+        } catch {
+            #expect(error is StubError)
+        }
+        await Task.yield()
+        #expect(closeCalls == 1)
     }
 
     @Test("Does not retain the client through Network framework callbacks")

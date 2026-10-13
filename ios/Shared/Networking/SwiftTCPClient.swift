@@ -206,28 +206,13 @@ final class SwiftTCPClient {
     /// connection closes. The stream owns the connection and always tears it
     /// down when iteration ends.
     func messages() -> AsyncThrowingStream<Data, Error> {
-        AsyncThrowingStream { continuation in
-            let task = Task { [weak self] in
-                guard let self else {
-                    continuation.finish(throwing: SwiftTCPClientError.connectionNil)
-                    return
-                }
-
-                do {
-                    while !Task.isCancelled {
-                        continuation.yield(try await receive())
-                    }
-                    continuation.finish()
-                } catch {
-                    continuation.finish(throwing: error)
-                }
-            }
-
-            continuation.onTermination = { [weak self] _ in
-                task.cancel()
-                self?.close()
-            }
-        }
+        electrumMessageStream(
+            receive: { [weak self] in
+                guard let self else { throw SwiftTCPClientError.connectionNil }
+                return try await self.receive()
+            },
+            close: { [weak self] in self?.close() }
+        )
     }
 
     func close() {
@@ -348,4 +333,48 @@ func electrumStreamingAllowed(
 ) -> Bool {
     let hasUsablePath = pathStatus == nil || pathStatus == .satisfied
     return hasUsablePath && !isLowPowerModeEnabled && !isConstrained && !isExpensive
+}
+
+func electrumMessageStream(
+    receive: @escaping () async throws -> Data,
+    close: @escaping () -> Void
+) -> AsyncThrowingStream<Data, Error> {
+    AsyncThrowingStream { continuation in
+        let task = Task {
+            do {
+                while !Task.isCancelled {
+                    continuation.yield(try await receive())
+                }
+                continuation.finish()
+            } catch {
+                continuation.finish(throwing: error)
+            }
+        }
+
+        continuation.onTermination = { _ in
+            task.cancel()
+            close()
+        }
+    }
+}
+
+func receiveElectrumResponse(
+    useStreaming: Bool,
+    stream: () -> AsyncThrowingStream<Data, Error>,
+    oneShot: () async throws -> Data,
+    fallback: (Error) async throws -> Data
+) async throws -> Data {
+    guard useStreaming else { return try await oneShot() }
+
+    do {
+        var messages = stream().makeAsyncIterator()
+        guard let message = try await messages.next() else {
+            throw SwiftTCPClientError.noDataReceived
+        }
+        return message
+    } catch is CancellationError {
+        throw CancellationError()
+    } catch {
+        return try await fallback(error)
+    }
 }

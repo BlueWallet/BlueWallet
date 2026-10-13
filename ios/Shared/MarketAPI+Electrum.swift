@@ -38,22 +38,17 @@ extension MarketAPI {
         }
 
         do {
-            let receivedData: Data
-            if client.shouldUseStreaming(isLowPowerModeEnabled: ProcessInfo.processInfo.isLowPowerModeEnabled) {
-                do {
-                    var messages = client.messages().makeAsyncIterator()
-                    receivedData = try await messages.next() ?? { throw SwiftTCPClientError.noDataReceived }()
-                } catch {
-                    // Compatibility path for servers or OS versions that cannot
-                    // sustain the streaming receive path.
+            let receivedData = try await receiveElectrumResponse(
+                useStreaming: client.shouldUseStreaming(isLowPowerModeEnabled: ProcessInfo.processInfo.isLowPowerModeEnabled),
+                stream: client.messages,
+                oneShot: client.receive,
+                fallback: { streamError in
                     client.close()
                     guard await client.connectToNextAvailable(validateCertificates: false),
-                          await client.send(data: data) else { throw error }
-                    receivedData = try await client.receive()
+                          await client.send(data: data) else { throw streamError }
+                    return try await client.receive()
                 }
-            } else {
-                receivedData = try await client.receive()
-            }
+            )
             guard let feeHistogram = try? JSONDecoder().decode(FeeHistogramResponse.self, from: receivedData).result else {
                 print("Invalid JSON structure in response.") 
                 throw APIError()
