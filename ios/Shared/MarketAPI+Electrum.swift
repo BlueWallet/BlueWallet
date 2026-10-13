@@ -11,6 +11,10 @@ import Foundation
 struct APIError: LocalizedError {
   var errorDescription: String = "Failed to fetch Electrum data..."
 }
+
+private struct FeeHistogramResponse: Decodable {
+    let result: [[Double]]
+}
 extension MarketAPI {
 
     static func fetchNextBlockFee() async throws -> MarketData {
@@ -57,8 +61,7 @@ extension MarketAPI {
             }
             print("Received data: \(receivedData)") 
 
-            guard let json = try JSONSerialization.jsonObject(with: receivedData, options: .allowFragments) as? [String: AnyObject],
-                  let feeHistogram = json["result"] as? [[Double]] else {
+            guard let feeHistogram = try? JSONDecoder().decode(FeeHistogramResponse.self, from: receivedData).result else {
                 print("Invalid JSON structure in response.") 
                 throw APIError()
             }

@@ -274,25 +274,17 @@ class ElectrumClient {
         val startTime = System.currentTimeMillis()
         
         try {
-            val response = StringBuilder()
-            var line: String? = null
-            
-            try {
-                while (inputReader?.readLine()?.also { line = it } != null) {
-                    response.append(line)
-                    // Break after receiving a complete JSON object
-                    if (line?.contains("}") == true) {
-                        break
-                    }
-                }
+            val response = try {
+                inputReader?.readLine().orEmpty()
             } catch (e: SocketTimeoutException) {
                 Log.e(TAG, "Socket read timed out after ${System.currentTimeMillis() - startTime}ms")
                 networkStatusListener?.onConnectionError("Socket read timed out")
                 close()
+                ""
             }
-            
-            val responseData = response.toString().toByteArray()
-            val responsePreview = if (response.length > 100) response.substring(0, 100) + "..." else response.toString()
+
+            val responseData = response.toByteArray()
+            val responsePreview = if (response.length > 100) response.take(100) + "..." else response
             
             if (responseData.isNotEmpty()) {
                 val duration = System.currentTimeMillis() - startTime

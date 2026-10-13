@@ -72,6 +72,7 @@ final class SwiftTCPClient {
     private var pathIsConstrained = false
     private var pathIsExpensive = false
     private var pathMonitor: NWPathMonitor?
+    private var receiveBuffer = Data()
 
     init(hosts: [HostManager.Host] = [], maxRetriesPerHost: Int = 3, maxRetries: Int = 3, readTimeout: TimeInterval = 5) {
         hostManager = HostManager(hosts: hosts, maxRetriesPerHost: maxRetriesPerHost)
@@ -128,6 +129,7 @@ final class SwiftTCPClient {
         queue.sync {
             electrumStreamingAllowed(
                 isLowPowerModeEnabled: isLowPowerModeEnabled,
+                pathStatus: pathStatus,
                 isConstrained: pathIsConstrained,
                 isExpensive: pathIsExpensive
             )
@@ -151,6 +153,22 @@ final class SwiftTCPClient {
     }
 
     func receive() async throws -> Data {
+        while true {
+            if let message = queue.sync(execute: nextBufferedMessage) {
+                return message
+            }
+
+            let chunk = try await receiveChunk()
+            queue.sync { receiveBuffer.append(chunk) }
+
+            guard queue.sync(execute: { receiveBuffer.count <= 1_048_576 }) else {
+                close()
+                throw SwiftTCPClientError.noDataReceived
+            }
+        }
+    }
+
+    private func receiveChunk() async throws -> Data {
         guard let connection = readyConnection() else { throw SwiftTCPClientError.connectionNil }
         return try await withCheckedThrowingContinuation { continuation in
             let lock = NSLock()
@@ -220,6 +238,7 @@ final class SwiftTCPClient {
     private func closeOnQueue() {
         let connection = connection
         self.connection = nil
+        receiveBuffer.removeAll(keepingCapacity: false)
         state = .disconnected
         connection?.stateUpdateHandler = nil
         connection?.cancel()
@@ -230,6 +249,13 @@ final class SwiftTCPClient {
             guard case .connected = state else { return nil }
             return connection
         }
+    }
+
+    private func nextBufferedMessage() -> Data? {
+        guard let newline = receiveBuffer.firstIndex(of: 0x0A) else { return nil }
+        let message = receiveBuffer[..<newline]
+        receiveBuffer.removeSubrange(...newline)
+        return message.isEmpty ? nextBufferedMessage() : Data(message)
     }
 
     private func connectOnce(to host: String, port: UInt16, useSSL: Bool, validateCertificates: Bool) async throws {
@@ -314,6 +340,12 @@ final class SwiftTCPClient {
     }
 }
 
-func electrumStreamingAllowed(isLowPowerModeEnabled: Bool, isConstrained: Bool, isExpensive: Bool) -> Bool {
-    !isLowPowerModeEnabled && !isConstrained && !isExpensive
+func electrumStreamingAllowed(
+    isLowPowerModeEnabled: Bool,
+    pathStatus: NWPath.Status?,
+    isConstrained: Bool,
+    isExpensive: Bool
+) -> Bool {
+    let hasUsablePath = pathStatus == nil || pathStatus == .satisfied
+    return hasUsablePath && !isLowPowerModeEnabled && !isConstrained && !isExpensive
 }
