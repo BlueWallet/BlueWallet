@@ -136,7 +136,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // With no favorite, Suggested Servers is expanded by default.
     await element(by.id('ElectrumSettings')).tap();
     await waitForId('ElectrumSettingsScrollView');
-    await expect(element(by.id('ElectrumServer-mainnet.foundationdevices.com-50002'))).toExist();
+    await waitFor(element(by.id('ElectrumServer-mainnet.foundationdevices.com-50002')))
+      .toExist()
+      .whileElement(by.id('ElectrumSettingsScrollView'))
+      .scroll(500, 'down');
 
     // Add Server is a separate form sheet on Apple platforms and a nested stack screen on Android.
     await element(by.id('HeaderMenuButton')).tap();
@@ -175,7 +178,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await waitForText('OK');
       await element(by.text('OK')).tap();
       await expect(element(by.id('FavoriteElectrumServer-electrum.blockstream.info-50001'))).not.toExist();
-      await expect(element(by.id('ElectrumServer-mainnet.foundationdevices.com-50002'))).toBeVisible();
+      await waitFor(element(by.id('ElectrumServer-mainnet.foundationdevices.com-50002')))
+        .toBeVisible()
+        .whileElement(by.id('ElectrumSettingsScrollView'))
+        .scroll(500, 'down');
 
       await element(by.id('HeaderMenuButton')).tap();
       await element(by.text('Add Server')).tap();
