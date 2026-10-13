@@ -14,7 +14,6 @@ import {
   Dimensions,
   findNodeHandle,
   FlatList,
-  InteractionManager,
   Keyboard,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -28,7 +27,6 @@ import {
 } from 'react-native';
 import RNFS from 'react-native-fs';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
-import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueText from '../../components/BlueText';
@@ -93,7 +91,6 @@ const SendDetails = () => {
   const isTransactionReplaceable = route.params?.isTransactionReplaceable;
   const routeParams = route.params;
   const scrollView = useRef<FlatList<IPaymentDestinations>>(null);
-  const [pendingCosignPsbt, setPendingCosignPsbt] = useState<bitcoin.Psbt | null>(null);
   const presentAlert = useCallback(
     ({ title, message, buttons = [{ text: loc._.ok }] }: { title?: string; message: string; buttons?: AlertButton[] }) => {
       const anchor = findNodeHandle(scrollView.current);
@@ -835,39 +832,35 @@ const SendDetails = () => {
     }
   }, [navigation, presentAlert, setIsLoading, transactionMemo, wallet]);
 
+  // A normal alert has its own window. The Mac action sheet is a popover whose anchor React
+  // Native only applies for iPad, so on Mac that sheet never calls back. The scanner sets
+  // onBarScanned only after it has disappeared, and a file import already awaited the picker.
   const askCosignThisTransaction = useCallback((): Promise<boolean> => {
     return new Promise(resolve => {
-      const buttons: AlertButton[] = [
-        { text: loc._.no, style: 'cancel', onPress: () => resolve(false) },
-        { text: loc._.yes, onPress: () => resolve(true) },
-      ];
-      const showAlert = () => {
-        Alert.alert(loc.multisig.cosign_this_transaction, undefined, buttons, { cancelable: false });
-      };
-      const anchor = isDesktop ? findNodeHandle(scrollView.current) : null;
-      if (anchor == null) {
-        showAlert();
-        return;
-      }
-      ActionSheet.showActionSheetWithOptions(
-        {
-          message: loc.multisig.cosign_this_transaction,
-          options: buttons.map(button => button.text ?? ''),
-          cancelButtonIndex: 0,
-          anchor,
-        },
-        buttonIndex => {
-          const onPress = buttons[buttonIndex]?.onPress;
-          if (onPress) onPress();
-          else resolve(false);
-        },
+      Alert.alert(
+        loc.multisig.cosign_this_transaction,
+        undefined,
+        [
+          { text: loc._.no, style: 'cancel', onPress: () => resolve(false) },
+          { text: loc._.yes, onPress: () => resolve(true) },
+        ],
+        { cancelable: false },
       );
     });
   }, []);
 
-  const finishMultisigImport = useCallback(
-    async (psbt: bitcoin.Psbt, cosign: boolean) => {
+  const _importTransactionMultisig = useCallback(
+    async (base64arg: string | false) => {
       try {
+        const base64 = base64arg || (await fs.openSignedTransaction());
+        if (!base64) return;
+        const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
+
+        // This wallet can sign the imported PSBT. Ask before adding that signature.
+        let cosign = false;
+        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0) {
+          cosign = await askCosignThisTransaction();
+        }
         if (cosign) {
           setIsLoading(true);
           await sleep(100);
@@ -889,47 +882,7 @@ const SendDetails = () => {
       }
       setIsLoading(false);
     },
-    [navigation, presentAlert, sleep, transactionMemo, wallet],
-  );
-
-  // Ask after this screen is focused and interactions have finished. A scanned PSBT arrives while
-  // ScanQRCode is still dismissing; on Mac the anchored sheet would otherwise be presented on that
-  // controller and disappear with it.
-  useFocusEffect(
-    useCallback(() => {
-      if (!pendingCosignPsbt) return;
-
-      const task = InteractionManager.runAfterInteractions(() => {
-        const psbt = pendingCosignPsbt;
-        setPendingCosignPsbt(null);
-        askCosignThisTransaction().then(cosign => finishMultisigImport(psbt, cosign));
-      });
-
-      return () => task.cancel();
-    }, [askCosignThisTransaction, finishMultisigImport, pendingCosignPsbt]),
-  );
-
-  const _importTransactionMultisig = useCallback(
-    async (base64arg: string | false) => {
-      try {
-        const base64 = base64arg || (await fs.openSignedTransaction());
-        if (!base64) return;
-        const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
-
-        // This wallet can sign the imported PSBT. Ask before adding that signature.
-        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0) {
-          setPendingCosignPsbt(psbt);
-          return;
-        }
-
-        await finishMultisigImport(psbt, false);
-      } catch (error: any) {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
-        setIsLoading(false);
-      }
-    },
-    [finishMultisigImport, presentAlert, wallet],
+    [askCosignThisTransaction, navigation, presentAlert, sleep, transactionMemo, wallet],
   );
 
   const importTransactionMultisig = useCallback(() => {

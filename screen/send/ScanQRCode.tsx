@@ -1,4 +1,4 @@
-import { useNavigation, RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
+import { CommonActions, RouteProp, StackActions, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import { sha256 } from '@noble/hashes/sha256';
 import React, { useEffect, useRef, useState } from 'react';
@@ -96,6 +96,46 @@ const ScanQRCode = () => {
     return uint8ArrayToHex(sha256(s));
   };
 
+  // popTo delivers onBarScanned while this full-screen modal is still dismissing. Presenting
+  // an alert or sheet on that controller drops it with the modal. Hand the payload to the
+  // caller only after this screen's own disappear transition, with a short fallback if that
+  // event does not arrive.
+  const deliverScannedData = (data: string) => {
+    if (onBarScanned) {
+      onBarScanned(data, useBBQRRef.current);
+      navigation.goBack();
+      return;
+    }
+    if (!launchedBy) return;
+
+    const routeKey = route.key;
+    const parentKey = navigation.getState()?.routes?.find(candidate => candidate.name === launchedBy)?.key;
+    let delivered = false;
+    let unsubscribe = () => {};
+    const pending = { timer: undefined as undefined | ReturnType<typeof setTimeout> };
+    const deliver = () => {
+      if (delivered) return;
+      delivered = true;
+      unsubscribe();
+      if (pending.timer) clearTimeout(pending.timer);
+      if (!parentKey) return;
+      navigation.dispatch({
+        ...CommonActions.setParams({ onBarScanned: data }),
+        source: parentKey,
+      });
+    };
+    const listenForTransitionEnd = navigation.addListener as unknown as (
+      type: 'transitionEnd',
+      callback: (event: { target?: string; data?: { closing?: boolean } }) => void,
+    ) => () => void;
+    unsubscribe = listenForTransitionEnd('transitionEnd', event => {
+      if (event.target !== routeKey || event.data?.closing !== true) return;
+      deliver();
+    });
+    pending.timer = setTimeout(deliver, 1500);
+    navigation.dispatch(StackActions.popTo(launchedBy));
+  };
+
   const _onReadUniformResourceV2 = (part: string) => {
     if (!decoder) decoder = new BlueURDecoder();
     try {
@@ -103,12 +143,7 @@ const ScanQRCode = () => {
       if (decoder.isComplete()) {
         const data = decoder.toString();
         decoder = undefined; // nullify for future use (?)
-        if (onBarScanned) {
-          onBarScanned(data, useBBQRRef.current);
-          navigation.goBack();
-        } else if (launchedBy) {
-          navigation.dispatch(StackActions.popTo(launchedBy, { onBarScanned: data }, { merge: true }));
-        }
+        deliverScannedData(data);
       } else {
         setUrTotal(100);
         setUrHave(Math.floor(decoder.estimatedPercentComplete() * 100));
@@ -140,12 +175,7 @@ const ScanQRCode = () => {
           // its something else. probably plain text is expected
           data = uint8ArrayToString(hexToUint8Array(String(payload)));
         }
-        if (onBarScanned) {
-          onBarScanned(data, useBBQRRef.current);
-          navigation.goBack();
-        } else if (launchedBy) {
-          navigation.dispatch(StackActions.popTo(launchedBy, { onBarScanned: data }, { merge: true }));
-        }
+        deliverScannedData(data);
       } else {
         setAnimatedQRCodeData(animatedQRCodeData);
       }
@@ -204,23 +234,13 @@ const ScanQRCode = () => {
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
       const data = uint8ArrayToBase64(hexToUint8Array(hex));
 
-      if (onBarScanned) {
-        onBarScanned(data, useBBQRRef.current);
-        navigation.goBack();
-      } else if (launchedBy) {
-        navigation.dispatch(StackActions.popTo(launchedBy, { onBarScanned: data }, { merge: true }));
-      }
+      deliverScannedData(data);
       return;
     } catch (_) {
       if (!isLoading) {
         setIsLoading(true);
         try {
-          if (onBarScanned) {
-            onBarScanned(ret.data, useBBQRRef.current);
-            navigation.goBack();
-          } else if (launchedBy) {
-            navigation.dispatch(StackActions.popTo(launchedBy, { onBarScanned: ret.data }, { merge: true }));
-          }
+          deliverScannedData(ret.data);
         } catch (e) {
           console.log(e);
         }

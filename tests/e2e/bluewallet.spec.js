@@ -14,6 +14,7 @@ import {
   restoreSynchronizationIfAnimatedQrClosed,
   scanText,
   scanUrParts,
+  waitForQrScannerClosed,
   setCustomFeeRate,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
@@ -840,16 +841,29 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('LetsStart')).tap();
 
     // Key 1: Cobo seed, so this device can co-sign. Key 2: Keystone xpub only.
+    // Leave sync off until the scanner is gone. Turning it on while that modal or an
+    // import alert is still up makes Create unhittable on iOS.
+    const scanCosigner = async text => {
+      await scanText(text, { restoreSynchronization: false });
+      await waitForQrScannerClosed();
+      if (device.getPlatform() === 'ios') {
+        try {
+          await element(by.text('OK')).tap();
+        } catch (_) {}
+        await device.enableSynchronization();
+      }
+    };
+
     await element(by.id('VaultCosignerImport1')).tap();
     await waitForId('ScanOrOpenFile');
     await element(by.id('ScanOrOpenFile')).tap();
-    await scanText(process.env.MNEMONICS_COBO);
+    await scanCosigner(process.env.MNEMONICS_COBO);
 
     await waitForId('VaultCosignerImport2');
     await element(by.id('VaultCosignerImport2')).tap();
     await waitForId('ScanOrOpenFile');
     await element(by.id('ScanOrOpenFile')).tap();
-    await scanText(keystoneCosigner);
+    await scanCosigner(keystoneCosigner);
 
     await waitForId('CreateButton');
     await element(by.id('CreateButton')).tap();
@@ -866,12 +880,13 @@ describe('BlueWallet UI Tests - no wallets', () => {
       actionId: 'co_sign_transaction',
       restoreSynchronization: false,
     });
-    await scanText(keystoneSignedPsbt);
+    // scanText's default turns synchronization back on while the scanner is leaving and
+    // the co-sign alert is arriving, which hangs the runner before Yes can be tapped.
+    await scanText(keystoneSignedPsbt, { restoreSynchronization: false });
 
     const coSignPrompt = 'Co-sign this transaction?';
     // iOS 26 liquid glass never satisfies toBeVisible() for alert buttons, and sync can hang on the animation.
     const isiOS = device.getPlatform() === 'ios';
-    if (isiOS) await device.disableSynchronization();
     try {
       await waitFor(element(by.text(coSignPrompt)))
         .toExist()
