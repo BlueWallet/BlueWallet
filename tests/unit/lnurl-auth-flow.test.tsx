@@ -2,7 +2,7 @@ import React from 'react';
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { bech32 } from 'bech32';
 
-import Lnurl from '../../class/lnurl';
+import Lnurl, { LnurlServerError } from '../../class/lnurl';
 import LnurlAuth from '../../screen/lnd/lnurlAuth';
 import ScanLNDInvoice from '../../screen/lnd/ScanLNDInvoice';
 import loc from '../../loc';
@@ -105,6 +105,39 @@ describe('LNURL-auth request and identity', () => {
     expect(Lnurl.prototype.authenticate).toHaveBeenCalledWith(new Uint8Array(32).fill(2));
   });
 
+  it('shows the domain between the parts of the translated question', () => {
+    const screen = render(<LnurlAuth />);
+    const [start, end] = loc.lnurl_auth.login_question.split('{hostname}').map(part => part.trim());
+    expect(start).toBeTruthy();
+    expect(end).toBeTruthy();
+    expect(screen.getByText(start)).toBeTruthy();
+    expect(screen.getByText('first.example')).toBeTruthy();
+    expect(screen.getByText(end)).toBeTruthy();
+  });
+
+  it('shows only the translated message for an invalid request', () => {
+    mockRouteParams = { lnurl: encode('https://first.example/login?tag=login&k1=abcd') };
+    const screen = render(<LnurlAuth />);
+    expect(screen.getByText(loc.lnurl_auth.invalid_request)).toBeTruthy();
+    expect(screen.queryByText(/k1/)).toBeNull();
+    expect(screen.queryByText(loc.lnurl_auth.authenticate)).toBeNull();
+  });
+
+  it('shows the reason from the service, but not untranslated app errors', async () => {
+    jest.mocked(Lnurl.prototype.authenticate).mockRejectedValueOnce(new LnurlServerError('Expired challenge'));
+    let screen = render(<LnurlAuth />);
+    await startAuthentication(screen);
+    expect(screen.getByText(String(loc.formatString(loc.lnurl_auth.could_not_auth, { hostname: 'first.example' })))).toBeTruthy();
+    expect(screen.getByText('Expired challenge')).toBeTruthy();
+    screen.unmount();
+
+    jest.mocked(Lnurl.prototype.authenticate).mockRejectedValueOnce(new TypeError('Network request failed'));
+    screen = render(<LnurlAuth />);
+    await startAuthentication(screen);
+    expect(screen.getByText(String(loc.formatString(loc.lnurl_auth.could_not_auth, { hostname: 'first.example' })))).toBeTruthy();
+    expect(screen.queryByText('Network request failed')).toBeNull();
+  });
+
   it('uses an explicitly selected Bitcoin wallet', () => {
     mockRouteParams.walletID = 'bitcoin';
     const screen = render(<LnurlAuth />);
@@ -131,7 +164,7 @@ describe('LNURL-auth request and identity', () => {
   });
 
   it('clears an error when a new request arrives', async () => {
-    jest.mocked(Lnurl.prototype.authenticate).mockRejectedValueOnce(new Error('Expired challenge'));
+    jest.mocked(Lnurl.prototype.authenticate).mockRejectedValueOnce(new LnurlServerError('Expired challenge'));
     const screen = render(<LnurlAuth />);
     await startAuthentication(screen);
     expect(screen.getByText('Expired challenge')).toBeTruthy();

@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import Icon from '../../components/Icon';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
-import Lnurl, { LnurlAuthParams } from '../../class/lnurl';
+import Lnurl, { LnurlServerError } from '../../class/lnurl';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
@@ -36,11 +36,12 @@ const LnurlAuthRequest = () => {
   const { direction } = useLocale();
   const { wallets } = useStorage();
   const LN = useMemo(() => new Lnurl(lnurl), [lnurl]);
-  const [authParams, parseError] = useMemo<[LnurlAuthParams | undefined, string]>(() => {
+  const authParams = useMemo(() => {
     try {
-      return [Lnurl.parseAuthUrl(lnurl), ''];
-    } catch (e: any) {
-      return [undefined, e.message];
+      return Lnurl.parseAuthUrl(lnurl);
+    } catch (e) {
+      console.log('invalid lnurl-auth request:', e);
+      return undefined;
     }
   }, [lnurl]);
   const authWallets = useMemo(() => wallets.filter(w => w.allowLnurlAuth()), [wallets]);
@@ -81,10 +82,12 @@ const LnurlAuthRequest = () => {
       if (!mounted.current) return;
       setAuthState(AuthState.SUCCESS);
       setErrMsg('');
-    } catch (err: any) {
+    } catch (err) {
       if (!mounted.current) return;
+      console.log('lnurl-auth failed:', err);
       setAuthState(AuthState.ERROR);
-      setErrMsg(err instanceof Error ? err.message : String(err));
+      // other error messages are not translated, so only the reason from the service is shown
+      setErrMsg(err instanceof LnurlServerError ? err.reason : '');
     }
   }, [wallet, authParams, LN]);
 
@@ -92,8 +95,7 @@ const LnurlAuthRequest = () => {
     return (
       <SafeArea style={styles.root}>
         <BlueCard>
-          <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth.invalid_request}</BlueText>
-          <BlueText style={styles.alignSelfCenter}>{parseError}</BlueText>
+          <BlueText style={styles.centeredText}>{loc.lnurl_auth.invalid_request}</BlueText>
         </BlueCard>
       </SafeArea>
     );
@@ -104,7 +106,7 @@ const LnurlAuthRequest = () => {
       <SafeArea style={styles.root}>
         <BlueCard>
           <BlueText style={styles.domainName}>{authParams.domain}</BlueText>
-          <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth.no_wallet}</BlueText>
+          <BlueText style={styles.centeredText}>{loc.lnurl_auth.no_wallet}</BlueText>
         </BlueCard>
       </SafeArea>
     );
@@ -120,7 +122,7 @@ const LnurlAuthRequest = () => {
   const renderWalletSelectionButton = authState === AuthState.USER_PROMPT && (
     <View style={styles.walletSelectRoot}>
       <TouchableOpacity accessibilityRole="button" style={styles.walletSelectTouch} onPress={showSelectWalletScreen}>
-        <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
+        <Text style={styles.walletSelectText}>{loc.wallets.select_wallet}</Text>
         <Icon name={direction === 'rtl' ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
       </TouchableOpacity>
       <View style={styles.walletWrap}>
@@ -131,15 +133,20 @@ const LnurlAuthRequest = () => {
     </View>
   );
 
+  // one sentence for translators, so they can put {hostname} where their grammar needs it; domain is shown big between the parts
+  const [questionStart = '', questionEnd = ''] = loc.lnurl_auth[`${authParams.action}_question` as const]
+    .split('{hostname}')
+    .map(part => part.trim());
+
   return (
     <SafeArea style={styles.root}>
       {authState === AuthState.USER_PROMPT && (
         <>
           <ScrollView>
             <BlueCard>
-              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[`${authParams.action}_question_part_1` as const]}</BlueText>
+              {questionStart ? <BlueText style={styles.centeredText}>{questionStart}</BlueText> : null}
               <BlueText style={styles.domainName}>{authParams.domain}</BlueText>
-              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[`${authParams.action}_question_part_2` as const]}</BlueText>
+              {questionEnd ? <BlueText style={styles.centeredText}>{questionEnd}</BlueText> : null}
               <BlueSpacing40 />
               <Button title={loc.lnurl_auth.authenticate} onPress={authenticate} />
               <BlueSpacing40 />
@@ -162,10 +169,10 @@ const LnurlAuthRequest = () => {
       {authState === AuthState.ERROR && (
         <BlueCard>
           <BlueSpacing20 />
-          <BlueText style={styles.alignSelfCenter}>
+          <BlueText style={styles.centeredText}>
             {loc.formatString(loc.lnurl_auth.could_not_auth, { hostname: authParams.domain })}
           </BlueText>
-          <BlueText style={styles.alignSelfCenter}>{errMsg}</BlueText>
+          {errMsg ? <BlueText style={styles.centeredText}>{errMsg}</BlueText> : null}
           <BlueSpacing20 />
         </BlueCard>
       )}
@@ -176,15 +183,18 @@ const LnurlAuthRequest = () => {
 export default LnurlAuth;
 
 const styles = StyleSheet.create({
-  alignSelfCenter: {
+  centeredText: {
     alignSelf: 'center',
+    textAlign: 'center',
   },
   successText: {
     alignSelf: 'center',
     textAlign: 'center',
+    paddingHorizontal: 20,
   },
   domainName: {
     alignSelf: 'center',
+    textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 25,
     paddingVertical: 10,

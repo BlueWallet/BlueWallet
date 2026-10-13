@@ -47,6 +47,19 @@ export interface LnurlAuthParams {
   action: LnurlAuthAction;
 }
 
+/**
+ * `{"status": "ERROR", "reason": "..."}` reply from LNURL service. `reason` is text from the service, so it can be shown to the user
+ */
+export class LnurlServerError extends Error {
+  reason: string;
+
+  constructor(reason: string) {
+    super('Reply from server: ' + reason);
+    this.name = 'LnurlServerError';
+    this.reason = reason;
+  }
+}
+
 interface DecodedInvoice {
   destination: string;
   num_satoshis: string;
@@ -126,11 +139,16 @@ export default class Lnurl {
   async fetchGet(url: string): Promise<any> {
     const resp = await fetch(url, { method: 'GET' });
     if (resp.status >= 300) {
+      // some services send the error reason with an HTTP error status
+      const errorReply = await resp.json().catch(() => undefined);
+      if (typeof errorReply?.reason === 'string') {
+        throw new LnurlServerError(errorReply.reason);
+      }
       throw new Error('Bad response from server');
     }
     const reply = await resp.json();
     if (reply.status === 'ERROR') {
-      throw new Error('Reply from server: ' + reply.reason);
+      throw new LnurlServerError(String(reply.reason ?? ''));
     }
     return reply;
   }
@@ -465,10 +483,8 @@ export default class Lnurl {
     const signature = ecc.signDER(hexToUint8Array(k1), linkingKey);
 
     const reply = await this.fetchGet(`${href}&sig=${uint8ArrayToHex(signature)}&key=${uint8ArrayToHex(publicKey)}`);
-    if (reply.status === 'OK') {
-      // Authentication successful
-    } else {
-      throw reply.reason;
+    if (reply?.status !== 'OK') {
+      throw new Error('Unexpected reply from server');
     }
   }
 

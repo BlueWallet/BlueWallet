@@ -695,21 +695,17 @@
     "transactions": "Transactions"
   },
   "lnurl_auth": {
-    "register_question_part_1": "Would you like to register an account at",
-    "register_question_part_2": "using this wallet?",
+    "register_question": "Would you like to register an account at {hostname} using this wallet?",
     "register_answer": "You have successfully registered an account at {hostname}!",
-    "login_question_part_1": "Would you like to log in at",
-    "login_question_part_2": "using this wallet?",
+    "login_question": "Would you like to log in at {hostname} using this wallet?",
     "login_answer": "You have successfully logged in at {hostname}!",
-    "link_question_part_1": "Would you like to link your account at",
-    "link_question_part_2": "to this wallet?",
+    "link_question": "Would you like to link your account at {hostname} to this wallet?",
     "link_answer": "Your wallet was successfully linked to your account at {hostname}!",
-    "auth_question_part_1": "Would you like to be authenticated at",
-    "auth_question_part_2": "using this wallet?",
+    "auth_question": "Would you like to be authenticated at {hostname} using this wallet?",
     "auth_answer": "You have successfully authenticated at {hostname}!",
     "could_not_auth": "We couldn’t authenticate you to {hostname}.",
-    "invalid_request": "This login request is not valid.",
-    "no_wallet": "None of your wallets can be used to log in. Add a wallet with a recovery phrase and try again.",
+    "invalid_request": "This authentication request is not valid.",
+    "no_wallet": "None of your wallets can sign this request. Add a wallet with a recovery phrase and try again.",
     "authenticate": "Authenticate"
   },
   "bip47": {
