@@ -17,11 +17,6 @@ jest.mock('react-native-linear-gradient', () => {
   return { __esModule: true, default: RNView };
 });
 
-jest.mock('../../blue_modules/sizeClass', () => {
-  const actual = jest.requireActual('../../blue_modules/sizeClass');
-  return { ...actual, useSizeClass: () => ({ sizeClass: actual.SizeClass.Large }) };
-});
-
 jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({
   __esModule: true,
   default: () => ({ width: 1600, height: 1000, fontScale: 1, scale: 2 }),
@@ -42,15 +37,16 @@ const buttons = (count: number) => (
 
 const renderButtons = (count: number) => render(buttons(count));
 
-const buttonWidths = (result: ReturnType<typeof renderButtons>) => result.UNSAFE_getAllByType(FButton).map(b => b.props.width as number);
+const buttonWidths = (result: ReturnType<typeof renderButtons>) => result.UNSAFE_getAllByType(FButton).map((b) => b.props.width as number);
 
 const measureParent = (result: ReturnType<typeof renderButtons>, width: number) =>
   act(() => {
-    result.getByTestId('FContainerMeasure').props.onLayout({ nativeEvent: { layout: { x: 0, y: 0, width, height: 800 } } });
+    result.getByTestId('FContainerMeasure').props.onLayout({
+      nativeEvent: { layout: { x: 0, y: 0, width, height: 800 } },
+    });
   });
 
-const expectedWidth = (parentWidth: number, count: number) =>
-  Math.floor((parentWidth - SIDE_MARGIN * 2 - BUTTON_MARGIN * (count - 1)) / count) - PADDINGS * 2;
+const expectedWidth = (parentWidth: number, count: number) => Math.floor((parentWidth - SIDE_MARGIN * 2 - BUTTON_MARGIN * (count - 1)) / count) - PADDINGS * 2;
 
 describe('FContainer', () => {
   beforeEach(() => jest.useFakeTimers());

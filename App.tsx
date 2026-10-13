@@ -2,7 +2,6 @@ import { CommonActions, NavigationAction, NavigationContainer, NavigationContain
 import React, { useCallback } from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { SizeClassProvider } from './components/Context/SizeClassProvider';
 import { SettingsProvider } from './components/Context/SettingsProvider';
 import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
 import MasterView from './navigation/MasterView';
@@ -13,13 +12,7 @@ import { useStorage } from './hooks/context/useStorage';
 import { unlockWithBiometrics, useBiometrics } from './hooks/useBiometrics';
 import { presentWalletExportReminder } from './helpers/presentWalletExportReminder';
 import { requestCameraAuthorization } from './helpers/scan-qr';
-import {
-  findNavigatorKeyForRoute,
-  getGuardedRoute,
-  GuardedRoute,
-  GuardedNavigationAction,
-  validateGuardedRoute,
-} from './navigation/navigationGuard';
+import { findNavigatorKeyForRoute, getGuardedRoute, GuardedRoute, GuardedNavigationAction, validateGuardedRoute } from './navigation/navigationGuard';
 
 const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorScheme> }) => {
   const { wallets, saveToDisk } = useStorage();
@@ -47,20 +40,16 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
         return;
       }
 
-      const actionRouteName =
-        action.payload && 'name' in action.payload && typeof action.payload.name === 'string' ? action.payload.name : undefined;
-      const navigatorKey =
-        actionRouteName === guardedRoute.name ? findNavigatorKeyForRoute(navigationRef.getRootState(), guardedRoute.name) : undefined;
+      const actionRouteName = action.payload && 'name' in action.payload && typeof action.payload.name === 'string' ? action.payload.name : undefined;
+      const navigatorKey = actionRouteName === guardedRoute.name ? findNavigatorKeyForRoute(navigationRef.getRootState(), guardedRoute.name) : undefined;
 
       validateNavigation(guardedRoute)
-        .then(result => {
+        .then((result) => {
           if (!result.allowed && !result.redirect) return;
 
           const nextAction = result.redirect ? CommonActions.navigate(result.redirect.name, result.redirect.params) : action;
           const targetRouteName = result.redirect?.name ?? guardedRoute.name;
-          const targetNavigatorKey = result.redirect
-            ? findNavigatorKeyForRoute(navigationRef.getRootState(), targetRouteName)
-            : navigatorKey;
+          const targetNavigatorKey = result.redirect ? findNavigatorKeyForRoute(navigationRef.getRootState(), targetRouteName) : navigatorKey;
 
           navigationRef.dispatch({
             ...nextAction,
@@ -68,7 +57,7 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
             navigationGuardValidated: true,
           } as GuardedNavigationAction);
         })
-        .catch(error => console.error('Navigation validation failed', error));
+        .catch((error) => console.error('Navigation validation failed', error));
     },
     [validateNavigation],
   );
@@ -76,11 +65,7 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
   useLogger(navigationRef as unknown as React.RefObject<NavigationContainerRef<ParamListBase>>);
 
   return (
-    <NavigationContainer
-      ref={navigationRef}
-      theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}
-      onUnhandledAction={handleUnhandledAction}
-    >
+    <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme} onUnhandledAction={handleUnhandledAction}>
       <MasterView />
     </NavigationContainer>
   );
@@ -90,15 +75,13 @@ const App = () => {
   const colorScheme = useColorScheme();
 
   return (
-    <SizeClassProvider>
-      <SafeAreaProvider>
-        <StorageProvider>
-          <SettingsProvider>
-            <Navigation colorScheme={colorScheme} />
-          </SettingsProvider>
-        </StorageProvider>
-      </SafeAreaProvider>
-    </SizeClassProvider>
+    <SafeAreaProvider>
+      <StorageProvider>
+        <SettingsProvider>
+          <Navigation colorScheme={colorScheme} />
+        </SettingsProvider>
+      </StorageProvider>
+    </SafeAreaProvider>
   );
 };
 

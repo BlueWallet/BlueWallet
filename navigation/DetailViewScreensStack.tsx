@@ -50,7 +50,7 @@ import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import SettingsTools from '../screen/settings/SettingsTools';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
-import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
+import { useSplitLayout } from '../components/Context/SplitLayoutContext';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { createSettingsScreenOptions, getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
 import { isDesktop, isIOS26OrHigher } from '../blue_modules/environment';
@@ -67,7 +67,10 @@ type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unst
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
 
-const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
+const UpdatingLabel: React.FC<{
+  containerStyle: object;
+  textStyle: object;
+}> = ({ containerStyle, textStyle }) => {
   const opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -147,10 +150,7 @@ type UpdatingPillProps = {
 };
 
 const UpdatingPill: React.FC<UpdatingPillProps> = ({ backgroundColor, textColor }) => (
-  <UpdatingLabel
-    containerStyle={[styles.updatingLabelContainer, { backgroundColor }]}
-    textStyle={[styles.updatingLabelText, { color: textColor }]}
-  />
+  <UpdatingLabel containerStyle={[styles.updatingLabelContainer, { backgroundColor }]} textStyle={[styles.updatingLabelText, { color: textColor }]} />
 );
 
 const DetailViewStackScreensStack = () => {
@@ -158,7 +158,7 @@ const DetailViewStackScreensStack = () => {
   const navigation = useNavigation();
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
-  const { sizeClass } = useSizeClass();
+  const { isExpanded } = useSplitLayout();
   const { width: windowWidth } = useWindowDimensions();
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
@@ -190,7 +190,7 @@ const DetailViewStackScreensStack = () => {
   // could surface a false alert after iOS suspend/resume.
   useEffect(() => {
     if (isElectrumDisabled) return;
-    const subscription = AppState.addEventListener('change', nextState => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'active') {
         BlueElectrum.ensureConnected().catch(() => {});
       }
@@ -225,7 +225,7 @@ const DetailViewStackScreensStack = () => {
 
   const RightBarButtons = useMemo(
     () =>
-      sizeClass === SizeClass.Large ? (
+      isExpanded ? (
         <AddWalletButton onPress={navigateToAddWallet} />
       ) : (
         <>
@@ -234,7 +234,7 @@ const DetailViewStackScreensStack = () => {
           <SettingsButton />
         </>
       ),
-    [sizeClass, navigateToAddWallet],
+    [isExpanded, navigateToAddWallet],
   );
 
   const navigateToElectrumSettings = useCallback(() => {
@@ -242,7 +242,9 @@ const DetailViewStackScreensStack = () => {
     if (routeNames?.includes('ElectrumSettings')) {
       navigation.navigate('ElectrumSettings');
     } else {
-      navigation.navigate('DetailViewStackScreensStack', { screen: 'ElectrumSettings' });
+      navigation.navigate('DetailViewStackScreensStack', {
+        screen: 'ElectrumSettings',
+      });
     }
   }, [navigation]);
 
@@ -265,7 +267,10 @@ const DetailViewStackScreensStack = () => {
     const renderHeaderLeft = () => {
       if (showOffline) {
         const offlineBg = theme.dark ? theme.colors.darkGray : '#000000';
-        return React.createElement(OfflineModePill, { onPress: navigateToElectrumSettings, backgroundColor: offlineBg });
+        return React.createElement(OfflineModePill, {
+          onPress: navigateToElectrumSettings,
+          backgroundColor: offlineBg,
+        });
       }
       if (showNotConnected) {
         return React.createElement(NotConnectedPill, {
@@ -291,7 +296,7 @@ const DetailViewStackScreensStack = () => {
       // Status pills: `unstable_headerLeftItems` + `hidesSharedBackground` avoids the
       // navigation bar's shared liquid-glass chrome on the pill (solid colors only).
       return {
-        title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
+        title: isExpanded ? loc.wallets.list_title : '',
         headerLargeTitle: false,
         headerTransparent: true,
         unstable_headerLeftItems: (): NativeStackHeaderItem[] => {
@@ -317,7 +322,7 @@ const DetailViewStackScreensStack = () => {
               onPress: navigateToAddWallet,
             },
           ];
-          if (sizeClass !== SizeClass.Large) {
+          if (!isExpanded) {
             items.push({
               type: 'button',
               label: loc.settings.default_title,
@@ -333,7 +338,7 @@ const DetailViewStackScreensStack = () => {
     }
 
     return {
-      title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
+      title: isExpanded ? loc.wallets.list_title : '',
       headerLargeTitle: false,
       headerShadowVisible: false,
       headerStyle: {
@@ -344,7 +349,7 @@ const DetailViewStackScreensStack = () => {
     };
   }, [
     RightBarButtons,
-    sizeClass,
+    isExpanded,
     theme.colors.customHeader,
     theme.colors.headerProminentButtonBackgroundColor,
     theme.colors.foregroundColor,
@@ -368,7 +373,10 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Navigator
         UNSTABLE_router={navigationGuardRouter}
         initialRouteName="WalletsList"
-        screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
+        screenOptions={{
+          headerShadowVisible: false,
+          animationTypeForReplace: 'push',
+        }}
       >
         <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
         <DetailViewStack.Screen
@@ -410,21 +418,9 @@ const DetailViewStackScreensStack = () => {
           })(theme)}
         />
         <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
-        <DetailViewStack.Screen
-          name="RBFBumpFee"
-          component={RBFBumpFee}
-          options={navigationStyle({ title: loc.transactions.rbf_title })(theme)}
-        />
-        <DetailViewStack.Screen
-          name="RBFCancel"
-          component={RBFCancel}
-          options={navigationStyle({ title: loc.transactions.cancel_title })(theme)}
-        />
-        <DetailViewStack.Screen
-          name="SelectWallet"
-          component={SelectWallet}
-          options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
-        />
+        <DetailViewStack.Screen name="RBFBumpFee" component={RBFBumpFee} options={navigationStyle({ title: loc.transactions.rbf_title })(theme)} />
+        <DetailViewStack.Screen name="RBFCancel" component={RBFCancel} options={navigationStyle({ title: loc.transactions.cancel_title })(theme)} />
+        <DetailViewStack.Screen name="SelectWallet" component={SelectWallet} options={navigationStyle({ title: loc.wallets.select_wallet })(theme)} />
         <DetailViewStack.Screen
           name="LNDViewInvoice"
           component={LNDViewInvoice}
@@ -439,7 +435,9 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="LNDViewAdditionalInvoicePreImage"
           component={LNDViewAdditionalInvoicePreImage}
-          options={navigationStyle({ title: loc.lndViewInvoice.additional_info })(theme)}
+          options={navigationStyle({
+            title: loc.lndViewInvoice.additional_info,
+          })(theme)}
         />
 
         <DetailViewStack.Screen name="Broadcast" component={Broadcast} options={settingsScreenOptions(loc.send.create_broadcast)} />
@@ -458,11 +456,7 @@ const DetailViewStackScreensStack = () => {
             closeButtonPosition: CloseButtonPosition.Right,
           })(theme)}
         />
-        <DetailViewStack.Screen
-          name="PaymentCodeList"
-          component={PaymentCodesListComponent}
-          options={navigationStyle({ title: loc.bip47.contacts })(theme)}
-        />
+        <DetailViewStack.Screen name="PaymentCodeList" component={PaymentCodesListComponent} options={navigationStyle({ title: loc.bip47.contacts })(theme)} />
 
         <DetailViewStack.Screen
           name="LnurlPaySuccess"
@@ -483,27 +477,15 @@ const DetailViewStackScreensStack = () => {
             gestureEnabled: false,
           }}
         />
-        <DetailViewStack.Screen
-          name="WalletAddresses"
-          component={WalletAddresses}
-          options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
-        />
+        <DetailViewStack.Screen name="WalletAddresses" component={WalletAddresses} options={navigationStyle({ title: loc.addresses.addresses_title })(theme)} />
 
         <DetailViewStack.Screen name="Settings" component={Settings} options={settingsScreenOptions(loc.settings.header)} />
         <DetailViewStack.Screen name="Currency" component={Currency} options={settingsScreenOptions(loc.settings.currency)} />
         <DetailViewStack.Screen name="GeneralSettings" component={GeneralSettings} options={settingsScreenOptions(loc.settings.general)} />
-        <DetailViewStack.Screen
-          name="PlausibleDeniability"
-          component={PlausibleDeniability}
-          options={settingsScreenOptions(loc.plausibledeniability.title)}
-        />
+        <DetailViewStack.Screen name="PlausibleDeniability" component={PlausibleDeniability} options={settingsScreenOptions(loc.plausibledeniability.title)} />
         <DetailViewStack.Screen name="Licensing" component={Licensing} options={settingsScreenOptions(loc.settings.license)} />
         <DetailViewStack.Screen name="NetworkSettings" component={NetworkSettings} options={settingsScreenOptions(loc.settings.network)} />
-        <DetailViewStack.Screen
-          name="SettingsBlockExplorer"
-          component={SettingsBlockExplorer}
-          options={settingsScreenOptions(loc.settings.block_explorer)}
-        />
+        <DetailViewStack.Screen name="SettingsBlockExplorer" component={SettingsBlockExplorer} options={settingsScreenOptions(loc.settings.block_explorer)} />
 
         <DetailViewStack.Screen name="About" component={About} options={settingsScreenOptions(loc.settings.about)} />
         {/* <DetailViewStack.Screen
@@ -520,28 +502,12 @@ const DetailViewStackScreensStack = () => {
           )(theme)}
           initialParams={{ server: undefined }}
         />
-        <DetailViewStack.Screen
-          name="EncryptStorage"
-          component={EncryptStorage}
-          options={settingsScreenOptions(loc.settings.encrypt_title)}
-        />
+        <DetailViewStack.Screen name="EncryptStorage" component={EncryptStorage} options={settingsScreenOptions(loc.settings.encrypt_title)} />
         <DetailViewStack.Screen name="Language" component={Language} options={settingsScreenOptions(loc.settings.language)} />
-        <DetailViewStack.Screen
-          name="LightningSettings"
-          component={LightningSettings}
-          options={settingsScreenOptions(loc.settings.lightning_settings)}
-        />
-        <DetailViewStack.Screen
-          name="NotificationSettings"
-          component={NotificationSettings}
-          options={settingsScreenOptions(loc.settings.notifications)}
-        />
+        <DetailViewStack.Screen name="LightningSettings" component={LightningSettings} options={settingsScreenOptions(loc.settings.lightning_settings)} />
+        <DetailViewStack.Screen name="NotificationSettings" component={NotificationSettings} options={settingsScreenOptions(loc.settings.notifications)} />
         <DetailViewStack.Screen name="SelfTest" component={SelfTest} options={settingsScreenOptions(loc.settings.selfTest)} />
-        <DetailViewStack.Screen
-          name="ReleaseNotes"
-          component={ReleaseNotes}
-          options={settingsScreenOptions(loc.settings.about_release_notes)}
-        />
+        <DetailViewStack.Screen name="ReleaseNotes" component={ReleaseNotes} options={settingsScreenOptions(loc.settings.about_release_notes)} />
         <DetailViewStack.Screen name="SettingsTools" component={SettingsTools} options={settingsScreenOptions(loc.settings.tools)} />
         <DetailViewStack.Screen
           name="PromptPasswordConfirmationSheet"
