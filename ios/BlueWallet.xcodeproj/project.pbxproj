@@ -121,12 +121,13 @@
 		B5C000000000000000000001 /* SharedImageImportPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C000000000000000000002 /* SharedImageImportPolicy.swift */; };
 		B5C000000000000000000003 /* SharedImageImportPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C000000000000000000002 /* SharedImageImportPolicy.swift */; };
 		B5C000000000000000000004 /* SharedImageImportPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C000000000000000000005 /* SharedImageImportPolicyTests.swift */; };
+		B5C000000000000000000013 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B5A000000000000000000012 /* Localizable.xcstrings */; };
+		B5D000000000000000000001 /* qr-code.png in Resources */ = {isa = PBXBuildFile; fileRef = B5D000000000000000000002 /* qr-code.png */; };
 		B5E000000000000000000001 /* ShareExtensionSwiftUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E000000000000000000002 /* ShareExtensionSwiftUITests.swift */; };
 		B5E000000000000000000003 /* ShareRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A000000000000000000001 /* ShareRequestHandler.swift */; };
 		B5E000000000000000000004 /* QRCodeImageDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B000000000000000000007 /* QRCodeImageDecoder.swift */; };
-		B5F000000000000000000001 /* BitcoinAddressDeckVisualTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F000000000000000000002 /* BitcoinAddressDeckVisualTests.swift */; };
-		B5C000000000000000000013 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B5A000000000000000000012 /* Localizable.xcstrings */; };
-		B5D000000000000000000001 /* qr-code.png in Resources */ = {isa = PBXBuildFile; fileRef = B5D000000000000000000002 /* qr-code.png */; };
+		B60000000000000000000001 /* ShareExtensionSystemUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60000000000000000000002 /* ShareExtensionSystemUITests.swift */; };
+		B60000000000000000000003 /* ShareExtensionUITestHostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60000000000000000000004 /* ShareExtensionUITestHostViewController.swift */; };
 		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		F106AA234C086C6B795EE267 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2162D22139056EC332C84D92 /* Foundation.framework */; };
 		F7A1B2C3D4E5F60718293A4D /* ScriptDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A1B2C3D4E5F60718293A4E /* ScriptDescription.swift */; };
@@ -167,6 +168,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = B5A00000000000000000000B;
 			remoteInfo = ShareExtension;
+		};
+		B60000000000000000000005 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
+			remoteInfo = BlueWallet;
 		};
 		F7A1B2C3D4E5F60718293A4B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -314,10 +322,12 @@
 		B5B000000000000000000007 /* QRCodeImageDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeImageDecoder.swift; sourceTree = "<group>"; };
 		B5C000000000000000000002 /* SharedImageImportPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedImageImportPolicy.swift; sourceTree = "<group>"; };
 		B5C000000000000000000005 /* SharedImageImportPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedImageImportPolicyTests.swift; sourceTree = "<group>"; };
-		B5E000000000000000000002 /* ShareExtensionSwiftUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtensionSwiftUITests.swift; sourceTree = "<group>"; };
-		B5F000000000000000000002 /* BitcoinAddressDeckVisualTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinAddressDeckVisualTests.swift; sourceTree = "<group>"; };
 		B5C000000000000000000006 /* ShareExtensionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShareExtensionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B5D000000000000000000002 /* qr-code.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = qr-code.png; path = ../../../img/qr-code.png; sourceTree = "<group>"; };
+		B5D000000000000000000002 /* qr-code.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "qr-code.png"; path = "../../../img/qr-code.png"; sourceTree = "<group>"; };
+		B5E000000000000000000002 /* ShareExtensionSwiftUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtensionSwiftUITests.swift; sourceTree = "<group>"; };
+		B60000000000000000000002 /* ShareExtensionSystemUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtensionSystemUITests.swift; sourceTree = "<group>"; };
+		B60000000000000000000004 /* ShareExtensionUITestHostViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtensionUITestHostViewController.swift; sourceTree = "<group>"; };
+		B60000000000000000000006 /* ShareExtensionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShareExtensionUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTQRCodeLocalImage.a; sourceTree = "<group>"; };
 		B9D9B3A7B2CB4255876B67AF /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		BBA99996E6FA4B49ACE0BEFA /* libRNRate.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNRate.a; sourceTree = "<group>"; };
@@ -386,6 +396,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B5C000000000000000000007 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B60000000000000000000007 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -582,6 +599,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				B60000000000000000000006 /* ShareExtensionUITests.xctest */,
 				B5C000000000000000000006 /* ShareExtensionTests.xctest */,
 				B5A000000000000000000004 /* ShareExtension.appex */,
 				B32900000000000000000005 /* QuickLookPreview.appex */,
@@ -638,6 +656,7 @@
 				8448882949434D41A054C0B2 /* ToolTipMenuTests.xctest */,
 				FC63C7054F1C4FDFB7A830E5 /* libRCTPrivacySnapshot.a */,
 				B4D3235A177F4580BA52F2F9 /* libRNCSlider.a */,
+				B32900000000000000000011 /* QuickLook.framework */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -716,6 +735,16 @@
 			path = ShareExtension;
 			sourceTree = "<group>";
 		};
+		B5C000000000000000000008 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				B5F000000000000000000013 /* Unit */,
+				B5F000000000000000000014 /* SwiftUI */,
+				B60000000000000000000008 /* UI */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 		B5F000000000000000000010 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
@@ -743,15 +772,6 @@
 			path = Configuration;
 			sourceTree = "<group>";
 		};
-		B5C000000000000000000008 /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				B5F000000000000000000013 /* Unit */,
-				B5F000000000000000000014 /* SwiftUI */,
-			);
-			path = Tests;
-			sourceTree = "<group>";
-		};
 		B5F000000000000000000013 /* Unit */ = {
 			isa = PBXGroup;
 			children = (
@@ -764,9 +784,25 @@
 			isa = PBXGroup;
 			children = (
 				B5E000000000000000000002 /* ShareExtensionSwiftUITests.swift */,
-				B5F000000000000000000002 /* BitcoinAddressDeckVisualTests.swift */,
 			);
 			path = SwiftUI;
+			sourceTree = "<group>";
+		};
+		B60000000000000000000008 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				B60000000000000000000002 /* ShareExtensionSystemUITests.swift */,
+				B60000000000000000000009 /* Support */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		B60000000000000000000009 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				B60000000000000000000004 /* ShareExtensionUITestHostViewController.swift */,
+			);
+			path = Support;
 			sourceTree = "<group>";
 		};
 		DBE02524057AE76C1508FC5C /* QuickLookThumbnail */ = {
@@ -775,7 +811,6 @@
 				57019CDAE87B27F6F6D28C4A /* Info.plist */,
 				E745397267AD62B80F3CA6C3 /* ThumbnailProvider.swift */,
 			);
-			name = QuickLookThumbnail;
 			path = QuickLookThumbnail;
 			sourceTree = "<group>";
 		};
@@ -923,6 +958,24 @@
 			productReference = B5C000000000000000000006 /* ShareExtensionTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		B6000000000000000000000A /* ShareExtensionUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B6000000000000000000000B /* Build configuration list for PBXNativeTarget "ShareExtensionUITests" */;
+			buildPhases = (
+				B6000000000000000000000C /* Sources */,
+				B60000000000000000000007 /* Frameworks */,
+				B6000000000000000000000D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B6000000000000000000000E /* PBXTargetDependency */,
+			);
+			name = ShareExtensionUITests;
+			productName = ShareExtensionUITests;
+			productReference = B60000000000000000000006 /* ShareExtensionUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -956,6 +1009,10 @@
 					};
 					B5C000000000000000000009 = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					B6000000000000000000000A = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 				};
 			};
@@ -997,6 +1054,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				B6000000000000000000000A /* ShareExtensionUITests */,
 				B5C000000000000000000009 /* ShareExtensionTests */,
 				B5A00000000000000000000B /* ShareExtension */,
 				B3290000000000000000000B /* QuickLookPreview */,
@@ -1063,6 +1121,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5C000000000000000000013 /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6000000000000000000000D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1217,6 +1282,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B60000000000000000000003 /* ShareExtensionUITestHostViewController.swift in Sources */,
 				B44033CA2BCC350A00162242 /* Currency.swift in Sources */,
 				B44033EE2BCC374500162242 /* Numeric+abbreviated.swift in Sources */,
 				B48630E82CCEE92400A8425C /* PriceWidget.swift in Sources */,
@@ -1340,12 +1406,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B5F000000000000000000001 /* BitcoinAddressDeckVisualTests.swift in Sources */,
 				B5E000000000000000000004 /* QRCodeImageDecoder.swift in Sources */,
 				B5E000000000000000000003 /* ShareRequestHandler.swift in Sources */,
 				B5C000000000000000000003 /* SharedImageImportPolicy.swift in Sources */,
 				B5C000000000000000000004 /* SharedImageImportPolicyTests.swift in Sources */,
 				B5E000000000000000000001 /* ShareExtensionSwiftUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6000000000000000000000C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B60000000000000000000001 /* ShareExtensionSystemUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1377,6 +1450,11 @@
 			isa = PBXTargetDependency;
 			target = B5A00000000000000000000B /* ShareExtension */;
 			targetProxy = B5A00000000000000000000C /* PBXContainerItemProxy */;
+		};
+		B6000000000000000000000E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 13B07F861A680F5B00A75B9A /* BlueWallet */;
+			targetProxy = B60000000000000000000005 /* PBXContainerItemProxy */;
 		};
 		F7A1B2C3D4E5F60718293A4C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1436,7 +1514,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore io.bluewallet.bluewallet";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "match Development io.bluewallet.bluewallet catalyst";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
 				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
@@ -1944,7 +2022,7 @@
 				REACT_NATIVE_PATH = "$(SRCROOT)/../node_modules/react-native";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -1987,7 +2065,7 @@
 				REACT_NATIVE_PATH = "$(SRCROOT)/../node_modules/react-native";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -2002,11 +2080,13 @@
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/Configuration/ShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1903279999;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7W54YZ4WU;
 				INFOPLIST_FILE = ShareExtension/Configuration/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2025,6 +2105,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.bluewallet.bluewallet.ShareExtension";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "match Development io.bluewallet.bluewallet.ShareExtension catalyst";
 				REACT_NATIVE_PATH = "$(SRCROOT)/../node_modules/react-native";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
@@ -2045,12 +2126,14 @@
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/Configuration/ShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1903279999;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7W54YZ4WU;
 				INFOPLIST_FILE = ShareExtension/Configuration/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2069,6 +2152,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore io.bluewallet.bluewallet.ShareExtension";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "match Development io.bluewallet.bluewallet.ShareExtension catalyst";
 				REACT_NATIVE_PATH = "$(SRCROOT)/../node_modules/react-native";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
@@ -2099,7 +2183,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -2126,10 +2211,69 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,6,7";
+				XROS_DEPLOYMENT_TARGET = 1.0;
+			};
+			name = Release;
+		};
+		B6000000000000000000000F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LIBRARY_SEARCH_PATHS = (
+					"$(SDKROOT)/usr/lib/swift",
+					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
+					"$(inherited)",
+				);
+				MARKETING_VERSION = 1.0;
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.ShareExtensionUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,6,7";
+				TEST_TARGET_NAME = BlueWallet;
+				XROS_DEPLOYMENT_TARGET = 1.0;
+			};
+			name = Debug;
+		};
+		B60000000000000000000010 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LIBRARY_SEARCH_PATHS = (
+					"$(SDKROOT)/usr/lib/swift",
+					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
+					"$(inherited)",
+				);
+				MARKETING_VERSION = 1.0;
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.ShareExtensionUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,6,7";
+				TEST_TARGET_NAME = BlueWallet;
 				XROS_DEPLOYMENT_TARGET = 1.0;
 			};
 			name = Release;
@@ -2196,6 +2340,15 @@
 			buildConfigurations = (
 				B5C00000000000000000000C /* Debug */,
 				B5C00000000000000000000D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B6000000000000000000000B /* Build configuration list for PBXNativeTarget "ShareExtensionUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B6000000000000000000000F /* Debug */,
+				B60000000000000000000010 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

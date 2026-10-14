@@ -1,4 +1,5 @@
 import Foundation
+import CoreImage
 import ImageIO
 import Vision
 
@@ -40,9 +41,30 @@ enum QRCodeImageDecoder {
                 execute: cancellation
             )
             defer { cancellation.cancel() }
-            try VNImageRequestHandler(cgImage: image, options: [:]).perform([request])
-            return request.results?.compactMap(\.payloadStringValue).first
+            do {
+                try VNImageRequestHandler(cgImage: image, options: [:]).perform([request])
+                if let value = request.results?.compactMap(\.payloadStringValue).first {
+                    return value
+                }
+            } catch {
+                // Vision can fail to create its inference context in Simulator
+                // and constrained extension processes. Continue with Apple's
+                // lightweight Core Image detector instead of rejecting the QR.
+            }
+
+            return decodeWithCoreImage(image)
         }
+    }
+
+    private static func decodeWithCoreImage(_ image: CGImage) -> String? {
+        guard let detector = CIDetector(
+            ofType: CIDetectorTypeQRCode,
+            context: CIContext(options: [.cacheIntermediates: false]),
+            options: [CIDetectorAccuracy: CIDetectorAccuracyHigh]
+        ) else { return nil }
+        return detector.features(in: CIImage(cgImage: image))
+            .compactMap { ($0 as? CIQRCodeFeature)?.messageString }
+            .first
     }
 
     private enum DecodeError: Error {

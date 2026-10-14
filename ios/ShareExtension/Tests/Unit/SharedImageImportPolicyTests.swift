@@ -1,4 +1,5 @@
 import Foundation
+import CoreImage
 import Testing
 import UIKit
 import UniformTypeIdentifiers
@@ -151,3 +152,18 @@ private func brandingFixtures() throws -> [(branded: Bool, value: String)] {
 }
 
 private final class ShareExtensionTestBundleToken {}
+
+@Suite("QR image decoder")
+struct QRCodeImageDecoderTests {
+    @Test("Decodes a generated Bitcoin QR image")
+    func decodesGeneratedBitcoinQRCode() throws {
+        let expected = "bitcoin:1BoatSLRHtKNngkdXEeobR76b53LETtpyT"
+        let filter = try #require(CIFilter(name: "CIQRCodeGenerator"))
+        filter.setValue(try #require(expected.data(using: .utf8)), forKey: "inputMessage")
+        let output = try #require(filter.outputImage).transformed(by: CGAffineTransform(scaleX: 12, y: 12))
+        let image = try #require(CIContext().createCGImage(output, from: output.extent))
+        let data = try #require(UIImage(cgImage: image).pngData())
+
+        #expect(try QRCodeImageDecoder.decode(data: data) == expected)
+    }
+}

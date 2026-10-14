@@ -460,6 +460,7 @@ struct ShareView: View {
                                 title: localizedShareString("share_ui_processing_title", comment: "Processing title"),
                                 message: localizedShareString("share_ui_processing_message", comment: "Processing explanation")
                             )
+                            .accessibilityIdentifier("share-extension.processing")
                         case .decision:
                             Image(systemName: "qrcode.viewfinder")
                                 .font(.system(size: 34))
@@ -475,6 +476,7 @@ struct ShareView: View {
                                     comment: "QR code result explanation"
                                 )
                             )
+                            .accessibilityIdentifier("share-extension.decision")
                         case let .failure(error):
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .font(.system(size: 34))
@@ -484,6 +486,7 @@ struct ShareView: View {
                                 title: localizedShareString("share_ui_failure_title", comment: "QR scan failure title"),
                                 message: error.errorDescription
                             )
+                            .accessibilityIdentifier("share-extension.failure")
                             if let recovery = error.recoverySuggestion {
                                 Text(recovery)
                                     .font(.subheadline)
@@ -492,6 +495,7 @@ struct ShareView: View {
                             }
                             if let anchor = error.helpAnchor, let url = URL(string: anchor) {
                                 Link(localizedShareString("share_ui_help", comment: "Apple help button"), destination: url)
+                                    .accessibilityIdentifier("share-extension.help")
                             }
                         }
                     }
@@ -512,6 +516,7 @@ struct ShareView: View {
                         model.cancel()
                     }
                     .accessibilityHint(localizedShareString("share_ui_close_hint", comment: "Close button accessibility hint"))
+                    .accessibilityIdentifier("share-extension.close")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     if model.openDestination != nil, case .decision = model.phase {
@@ -520,6 +525,7 @@ struct ShareView: View {
                         }
                             .buttonStyle(.borderedProminent)
                             .accessibilityHint(localizedShareString("share_ui_open_hint", comment: "Open button accessibility hint"))
+                            .accessibilityIdentifier("share-extension.open")
                     }
                 }
                 ToolbarItem(placement: .principal) {
@@ -546,6 +552,7 @@ struct ShareView: View {
                     .shadow(color: Color.black.opacity(0.12), radius: 12, y: 4)
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel(previewAccessibilityLabel)
+                    .accessibilityIdentifier("share-extension.qr-preview")
                     .accessibilityAddTraits(.isImage)
                     .accessibilityIgnoresInvertColors(true)
             } else {
@@ -610,10 +617,13 @@ struct ShareView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("\(index + 1). \(value)")
+                .accessibilityIdentifier("share-extension.selection-choice")
                 .accessibilityAddTraits(model.decodedValue == value ? .isSelected : [])
             }
         }
         .frame(maxWidth: ShareUILayout.maximumPreviewWidth)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("share-extension.selection")
     }
 
     private func styledDecodedPayload(_ value: String) -> AttributedString {
@@ -701,9 +711,12 @@ struct BitcoinAddressDeck: View {
                         value: isPresented
                     )
                     .accessibilityLabel(address)
+                    .accessibilityIdentifier("share-extension.address-card")
             }
         }
         .frame(maxWidth: ShareUILayout.maximumPreviewWidth, minHeight: 58 + CGFloat(max(0, addresses.count - 1)) * 14)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("share-extension.address-deck")
         .onAppear {
             if automaticallyPresents {
                 isPresented = true
