@@ -190,9 +190,9 @@ jobs:
           echo -e "\033[1;34m======================================================\033[0m"
 
       - name: Set Up Ruby
-        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
-          ruby-version: 3.4.10
+          ruby-version: 3.4.11
 
       - name: System Debug Information
         run: |
@@ -475,9 +475,9 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Set Up Ruby
-        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
-          ruby-version: 3.4.10
+          ruby-version: 3.4.11
 
       - name: Install Dependencies with Bundler
         run: |
