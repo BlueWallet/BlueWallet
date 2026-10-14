@@ -9,7 +9,6 @@ import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  AlertButton,
   Dimensions,
   findNodeHandle,
   FlatList,
@@ -37,6 +36,7 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../../class/wallets/types';
 import AddressInput from '../../components/AddressInput';
+import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
@@ -90,26 +90,6 @@ const SendDetails = () => {
   const isTransactionReplaceable = route.params?.isTransactionReplaceable;
   const routeParams = route.params;
   const scrollView = useRef<FlatList<IPaymentDestinations>>(null);
-  const presentAlert = useCallback(
-    ({ title, message, buttons = [{ text: loc._.ok }] }: { title?: string; message: string; buttons?: AlertButton[] }) => {
-      const anchor = findNodeHandle(scrollView.current);
-      if (anchor === null) return;
-      const cancelButtonIndex = buttons.findIndex(button => button.style === 'cancel');
-      const destructiveButtonIndex = buttons.findIndex(button => button.style === 'destructive');
-      ActionSheet.showActionSheetWithOptions(
-        {
-          title,
-          message,
-          options: buttons.map(button => button.text ?? ''),
-          cancelButtonIndex: cancelButtonIndex >= 0 ? cancelButtonIndex : undefined,
-          destructiveButtonIndex: destructiveButtonIndex >= 0 ? destructiveButtonIndex : undefined,
-          anchor,
-        },
-        buttonIndex => buttons[buttonIndex]?.onPress?.(),
-      );
-    },
-    [],
-  );
   const scrollIndex = useRef(0);
   /** Used so we only clear coin-selection (utxos) when the user switches wallet, not on first mount (e.g. Send opened from wallet details with pre-selected UTXOs). */
   const prevWalletIdForCoinResetRef = useRef<string | null>(null);
@@ -519,7 +499,7 @@ const SendDetails = () => {
 
       setIsLoading(false);
     },
-    [presentAlert, setParams, wallet],
+    [setParams, wallet],
   );
 
   const createTransaction = async () => {
@@ -738,7 +718,7 @@ const SendDetails = () => {
     }
 
     navigateToQRCodeScanner();
-  }, [navigateToQRCodeScanner, presentAlert, wallet?.type]);
+  }, [navigateToQRCodeScanner, wallet?.type]);
 
   const importQrTransactionOnBarScanned = useCallback(
     (ret: any) => {
@@ -765,7 +745,7 @@ const SendDetails = () => {
         setIsLoading(false);
       }
     },
-    [navigation, presentAlert, transactionMemo, wallet],
+    [navigation, transactionMemo, wallet],
   );
 
   /**
@@ -829,7 +809,7 @@ const SendDetails = () => {
         presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });
       }
     }
-  }, [navigation, presentAlert, setIsLoading, transactionMemo, wallet]);
+  }, [navigation, setIsLoading, transactionMemo, wallet]);
 
   const askCosignThisTransaction = useCallback(async () => {
     return new Promise(resolve => {
@@ -848,7 +828,7 @@ const SendDetails = () => {
         ],
       });
     });
-  }, [presentAlert]);
+  }, []);
 
   const _importTransactionMultisig = useCallback(
     async (base64arg: string | false) => {
@@ -878,7 +858,7 @@ const SendDetails = () => {
       }
       setIsLoading(false);
     },
-    [askCosignThisTransaction, navigation, presentAlert, sleep, transactionMemo, wallet],
+    [askCosignThisTransaction, navigation, sleep, transactionMemo, wallet],
   );
 
   const importTransactionMultisig = useCallback(() => {
@@ -898,7 +878,7 @@ const SendDetails = () => {
         return _importTransactionMultisig(ret.data);
       }
     },
-    [_importTransactionMultisig, presentAlert],
+    [_importTransactionMultisig],
   );
 
   const handlePsbtSign = useCallback(
@@ -939,7 +919,7 @@ const SendDetails = () => {
         psbt,
       });
     },
-    [navigation, presentAlert, wallet],
+    [navigation, wallet],
   );
 
   useEffect(() => {
@@ -1002,7 +982,7 @@ const SendDetails = () => {
         animated: true,
       });
     }, 0);
-  }, [addresses, amountUnit, presentAlert]);
+  }, [addresses, amountUnit]);
 
   const onRemoveAllRecipientsConfirmed = useCallback(() => {
     scrollIndex.current = 0;
@@ -1028,7 +1008,7 @@ const SendDetails = () => {
         },
       ],
     });
-  }, [onRemoveAllRecipientsConfirmed, presentAlert]);
+  }, [onRemoveAllRecipientsConfirmed]);
 
   const handleRemoveRecipient = useCallback(() => {
     if (addresses.length > 1) {
