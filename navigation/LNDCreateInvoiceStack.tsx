@@ -5,8 +5,9 @@ import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { navigationGuardRouter } from './navigationGuard';
+import { LNDCreateInvoiceStackParamList } from './LNDStackParamsList';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<LNDCreateInvoiceStackParamList>();
 
 const LNDCreateInvoice = lazy(() => import('../screen/lnd/lndCreateInvoice'));
 const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
