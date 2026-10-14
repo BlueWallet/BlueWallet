@@ -500,11 +500,11 @@ const WalletDetails: React.FC = () => {
       walletID,
     });
   };
-  const navigateToXPub = () =>
-    navigate('WalletXpub', {
-      walletID,
-      xpub: wallet.getXpub(),
-    });
+  const navigateToXPub = () => {
+    const xpub = wallet.getXpub();
+    if (!xpub) return;
+    navigate('WalletXpub', { walletID, xpub });
+  };
 
   const navigateToSignVerify = () =>
     navigate('SignVerifyRoot', {

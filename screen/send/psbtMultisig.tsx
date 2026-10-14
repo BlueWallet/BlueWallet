@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import {
@@ -32,7 +32,8 @@ import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackPara
 
 const PsbtMultisig = () => {
   const { wallets } = useStorage();
-  const { navigate, setParams } = useNavigation();
+  const navigation = useNavigation();
+  const { navigate, setParams } = navigation;
   const { colors } = useTheme();
   const [flatListHeight, setFlatListHeight] = useState(0);
   const { walletID, psbtBase64, memo, receivedPSBTBase64, txhex, launchedBy } =
@@ -59,7 +60,7 @@ const PsbtMultisig = () => {
   }, [receivedPSBTBase64]);
 
   useEffect(() => {
-    if (txhex) {
+    if (txhex && psbt) {
       // we have finalized txhex, lets  calculate some stuff and navigate to Confirm scren
       const tx = bitcoin.Transaction.fromHex(txhex);
 
@@ -72,6 +73,7 @@ const PsbtMultisig = () => {
           tx: txhex,
           recipients: targets,
           satoshiPerByte,
+          psbt,
         });
       } catch (error: any) {
         presentAlert({ message: error });
@@ -134,7 +136,7 @@ const PsbtMultisig = () => {
         if (useFilter && wallet.weOwnAddress(output.address)) continue;
         totalSat += Number(output.value);
         addresses.push(output.address);
-        targets.push({ address: output.address, value: output.value });
+        targets.push({ address: output.address, value: Number(output.value) });
       }
     }
     return { addresses, totalSat, targets };
@@ -233,7 +235,7 @@ const PsbtMultisig = () => {
     if (launchedBy) {
       // we must navigate back to the screen who requested psbt (instead of broadcasting it ourselves)
       // most likely for LN channel opening
-      navigate(launchedBy, { psbt });
+      navigation.dispatch(CommonActions.navigate({ name: launchedBy, params: { psbt } }));
       return;
     }
 
@@ -247,6 +249,7 @@ const PsbtMultisig = () => {
         tx,
         recipients: targets,
         satoshiPerByte,
+        psbt,
       });
     } catch (error: any) {
       presentAlert({ message: error });

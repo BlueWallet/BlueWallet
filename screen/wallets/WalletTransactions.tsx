@@ -454,7 +454,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           }
           case 2: {
             navigate('ScanQRCode', {
-              showImportFileButton: true,
+              showFileImportButton: true,
             });
             break;
           }

@@ -1,8 +1,8 @@
-import type { ParamListBase } from '@react-navigation/native';
+import type { RootParamList as AppRootParamList } from '../navigation/RootParamList';
 
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends ParamListBase {}
+    interface RootParamList extends AppRootParamList {}
   }
 }
 
