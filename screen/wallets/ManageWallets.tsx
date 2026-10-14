@@ -21,26 +21,11 @@ import { TTXMetadata } from '../../class/blue-app';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import useBounceAnimation from '../../hooks/useBounceAnimation';
 import DraggableFlatList, { RenderItemParams, DragEndParams } from 'react-native-draggable-flatlist';
-import { ItemType, AddressItemData } from '../../models/itemTypes';
+import { ItemType, AddressItem, TransactionItem, WalletItem } from '../../models/itemTypes';
 import ManageWalletsListItem, { WalletGroupComponent } from '../../components/ManageWalletsListItem';
 import HighlightedText from '../../components/HighlightedText';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import DragIcon from '../../img/Search/drag';
-
-interface WalletItem {
-  type: ItemType.WalletSection;
-  data: TWallet;
-}
-
-interface TransactionItem {
-  type: ItemType.TransactionSection;
-  data: ExtendedTransaction & LightningTransaction;
-}
-
-interface AddressItem {
-  type: ItemType.AddressSection;
-  data: Omit<AddressItemData, 'label'>;
-}
 
 interface WalletGroupItem {
   type: ItemType.WalletGroupSection;
