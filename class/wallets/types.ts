@@ -20,22 +20,25 @@ import { TaprootWallet } from './taproot-wallet.ts';
 import { HDTaprootWallet } from './hd-taproot-wallet.ts';
 import { LightningArkWallet } from './lightning-ark-wallet.ts';
 
+/**
+ * An unspent output as the wallet stores it (`_utxo`, `getUtxo()`, CoinControl).
+ * BlueElectrum.multiGetUtxoByAddress builds it from the raw electrum listunspent row; the wallet then adds
+ * txhex (legacy inputs), confirmations and wif.
+ */
 export type Utxo = {
-  // Returned by BlueElectrum
   height: number;
   address: string;
   txid: string;
   vout: number;
   value: number;
 
-  // Others
   txhex?: string;
   confirmations?: number;
   wif?: string | false;
 };
 
 /**
- * same as coinselect.d.ts/CoinSelectUtxo
+ * What createTransaction / coinselect need from a utxo. A stored `Utxo` satisfies it.
  */
 export interface CreateTransactionUtxo extends CoinSelectUtxo {}
 
