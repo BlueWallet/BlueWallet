@@ -49,7 +49,7 @@ export type DetailViewStackParamList = {
   WalletTransactions: {
     isLoading?: boolean;
     walletID: string;
-    walletType: string;
+    walletType?: string;
     onBarScanned?: string;
     headerIsScrolled?: boolean;
     headerWalletLabel?: string;
@@ -92,22 +92,23 @@ export type DetailViewStackParamList = {
   NetworkSettings: undefined;
   About: undefined;
   // DefaultView: undefined; // Commented out - not accessible from UI
-  ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string; headerRight?: HeaderRightRenderer | null };
+  ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string; headerRight?: HeaderRightRenderer | null } | undefined;
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;
   Language: undefined;
-  LightningSettings: {
-    url?: string;
-    onBarScanned?: string;
-  };
+  LightningSettings:
+    | {
+        url?: string;
+        onBarScanned?: string;
+      }
+    | undefined;
   NotificationSettings: undefined;
   SelfTest: undefined;
   ReleaseNotes: undefined;
   SettingsTools: undefined;
   ViewEditMultisigCosigners: {
     walletID: string;
-    cosigners: string[];
     headerRight?: HeaderRightRenderer | null;
     sheetAction?: string;
     sheetImportText?: string;

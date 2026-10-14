@@ -31,9 +31,9 @@ const useHandoffListener = () => {
       const modifiedUserInfo = { ...(userInfo || {}), type: activityType };
       try {
         if (activityType === HandOffActivityType.ReceiveOnchain && modifiedUserInfo.address) {
-          navigate('ReceiveDetails', { address: modifiedUserInfo.address, type: activityType });
+          navigate('ReceiveDetails', { address: modifiedUserInfo.address });
         } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub) {
-          navigate('WalletXpub', { xpub: modifiedUserInfo.xpub, type: activityType });
+          navigate('WalletXpub', { xpub: modifiedUserInfo.xpub });
         } else {
           console.debug(`Unhandled or incomplete activity type/data: ${activityType}`, modifiedUserInfo);
         }

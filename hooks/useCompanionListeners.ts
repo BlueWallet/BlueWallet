@@ -89,10 +89,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
           const arkWallet = wallets.find(w => w.getID() === payload.walletID);
           if (!arkWallet || !(arkWallet instanceof LightningArkWallet)) {
             if (wasTapped) {
-              navigation.navigate('WalletTransactions', {
-                walletID: payload.walletID,
-                walletType: arkWallet?.type,
-              });
+              navigation.navigate('WalletTransactions', { walletID: payload.walletID });
               return true;
             }
             continue;
