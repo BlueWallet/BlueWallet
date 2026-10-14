@@ -838,10 +838,12 @@ const SendDetails = () => {
         if (!base64) return;
         const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
-        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0) {
+        const multisig = wallet as MultisigHDWallet;
+        // sign only when quorum is not reached yet: extra signature or already finalized inputs break finalization
+        if (multisig?.howManySignaturesCanWeMake() > 0 && multisig.calculateHowManySignaturesWeHaveFromPsbt(psbt) < multisig.getM()) {
           setIsLoading(true);
           await sleep(100);
-          (wallet as MultisigHDWallet).cosignPsbt(psbt);
+          multisig.cosignPsbt(psbt);
           setIsLoading(false);
           await sleep(100);
         }
