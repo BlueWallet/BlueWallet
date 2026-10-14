@@ -211,7 +211,13 @@ const Confirm: React.FC = () => {
           throw new Error('Invalid payment script');
         }
         const payjoinClient = payJoinWallet.createClient(paymentScript, payjoinUrl as string);
-        await payjoinClient.run();
+        try {
+          await payjoinClient.run();
+        } catch (error: any) {
+          // the client already broadcast the plain (non-payjoin) tx: payment went through, just not as payjoin
+          if (!payJoinWallet.wasOriginalBroadcast()) throw error;
+          console.warn('payjoin failed, original transaction broadcast instead:', error.message);
+        }
         const payjoinPsbt = payJoinWallet.getPayjoinPsbt();
         if (payjoinPsbt) {
           const txToWatch = payjoinPsbt.extractTransaction();

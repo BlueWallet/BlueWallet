@@ -1,43 +1,41 @@
 import * as bitcoin from 'bitcoinjs-lib';
-import { PayjoinClient, type IPayjoinClientWallet } from 'payjoin-client';
 import { ECPairFactory } from 'ecpair';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import ecc from '../blue_modules/noble_ecc';
+import { IPayjoinClientWallet, PayjoinClient } from '../blue_modules/payjoin-client';
 import presentAlert from '../components/Alert';
 import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
 import assert from 'assert';
-import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 const ECPair = ECPairFactory(ecc);
 
 const delay = (milliseconds: number) => new Promise(resolve => setTimeout(resolve, milliseconds));
 
-// Implements IPayjoinClientWallet
-// https://github.com/bitcoinjs/payjoin-client/blob/master/ts_src/wallet.ts
-export default class PayjoinTransaction {
+export default class PayjoinTransaction implements IPayjoinClientWallet {
   private _psbt: bitcoin.Psbt;
   private _broadcast: (txhex: string) => Promise<true | undefined>;
   private _wallet: HDSegwitBech32Wallet;
-  private _payjoinPsbt: any;
+  private _payjoinPsbt: bitcoin.Psbt | false;
+  private _signedProposal: bitcoin.Psbt | false;
+  private _originalTxid: string;
+  private _originalBroadcast: boolean;
 
   constructor(psbt: bitcoin.Psbt, broadcast: (txhex: string) => Promise<true | undefined>, wallet: HDSegwitBech32Wallet) {
     this._psbt = psbt;
     this._broadcast = broadcast;
     this._wallet = wallet;
     this._payjoinPsbt = false;
+    this._signedProposal = false;
+    this._originalTxid = psbt.extractTransaction().getId();
+    this._originalBroadcast = false;
   }
 
   createClient(paymentScript: Uint8Array, payjoinUrl: string): PayjoinClient {
-    return new PayjoinClient({
-      paymentScript: Buffer.from(uint8ArrayToHex(paymentScript), 'hex'),
-      // payjoin-client uses bitcoinjs-lib v5 types while this wallet uses v7.
-      wallet: this as unknown as IPayjoinClientWallet,
-      payjoinUrl,
-    });
+    return new PayjoinClient({ paymentScript, wallet: this, payjoinUrl });
   }
 
   async getPsbt() {
-    // Nasty hack to get this working for now
+    // wallet.createTransaction() hands us a finalized psbt; the client needs it signed but not finalized
     const unfinalized = this._psbt.clone();
     for (const [index, input] of unfinalized.data.inputs.entries()) {
       delete input.finalScriptWitness;
@@ -45,57 +43,37 @@ export default class PayjoinTransaction {
       assert(input.witnessUtxo, 'Internal error: input.witnessUtxo is not set');
       const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
       const wif = this._wallet._getWifForAddress(address);
-      const keyPair = ECPair.fromWIF(wif);
-
-      unfinalized.signInput(index, keyPair);
+      unfinalized.signInput(index, ECPair.fromWIF(wif));
     }
-
-    // now, since payjoin lib expects an older version of Psbt object (from bitcoinjs-lib v6),
-    // it expects `script` to be Buffer, and in v7 its actually uint8 array.
-    // lets monkey patch the cloned PSBT so it returns buffers, as expected:
-    const origclone = unfinalized.clone;
-    unfinalized.clone = () => {
-      const newPsbt = origclone.apply(unfinalized);
-      const original = newPsbt.txOutputs;
-
-      Object.defineProperty(newPsbt, 'txOutputs', {
-        get() {
-          return original.map(o => ({
-            ...o,
-            script: Buffer.from(uint8ArrayToHex(o.script), 'hex'),
-          }));
-        },
-      });
-
-      return newPsbt;
-    };
-
     return unfinalized;
   }
 
   /**
-   * Doesnt conform to spec but needed for user-facing wallet software to find out txid of payjoined transaction
-   *
-   * @returns {Psbt}
+   * Doesnt conform to spec but needed for user-facing wallet software to find out txid of payjoined transaction.
+   * Set only once the payjoin tx was actually broadcast.
    */
   getPayjoinPsbt() {
     return this._payjoinPsbt;
   }
 
-  async signPsbt(payjoinPsbt: bitcoin.Psbt) {
-    // Do this without relying on private methods
+  /**
+   * True when the client fell back to broadcasting the original (non-payjoin) transaction, i.e. the payment
+   * went through even though `run()` rejected.
+   */
+  wasOriginalBroadcast() {
+    return this._originalBroadcast;
+  }
 
+  async signPsbt(payjoinPsbt: bitcoin.Psbt) {
     for (const [index, input] of payjoinPsbt.data.inputs.entries()) {
+      if (input.finalScriptWitness || input.finalScriptSig) continue; // receiver's input, already finalized
       assert(input.witnessUtxo, 'Internal error: input.witnessUtxo is not set');
       const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
-      try {
-        const wif = this._wallet._getWifForAddress(address);
-        const keyPair = ECPair.fromWIF(wif);
-        payjoinPsbt.signInput(index, keyPair).finalizeInput(index);
-      } catch (e) {}
+      const wif = this._wallet._getWifForAddress(address);
+      payjoinPsbt.signInput(index, ECPair.fromWIF(wif)).finalizeInput(index);
     }
-    this._payjoinPsbt = payjoinPsbt;
-    return this._payjoinPsbt;
+    this._signedProposal = payjoinPsbt;
+    return payjoinPsbt;
   }
 
   async broadcastTx(txHex: string) {
@@ -103,6 +81,11 @@ export default class PayjoinTransaction {
       const result = await this._broadcast(txHex);
       if (!result) {
         throw new Error(`Broadcast failed`);
+      }
+      if (bitcoin.Transaction.fromHex(txHex).getId() === this._originalTxid) {
+        this._originalBroadcast = true;
+      } else {
+        this._payjoinPsbt = this._signedProposal;
       }
       return '';
     } catch (e: any) {
