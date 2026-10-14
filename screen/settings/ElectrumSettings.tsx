@@ -221,13 +221,13 @@ const ElectrumSettings: React.FC = () => {
     if (server) {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
       Alert.alert(
-        loc.formatString(loc.settings.set_electrum_server_as_default, { server: (server as ElectrumServerItem).host }),
+        loc.formatString(loc.settings.set_electrum_server_as_default, { server }),
         '',
         [
           {
             text: loc._.ok,
             onPress: () => {
-              onBarScanned(JSON.stringify(server));
+              onBarScanned(server);
             },
             style: 'default',
           },

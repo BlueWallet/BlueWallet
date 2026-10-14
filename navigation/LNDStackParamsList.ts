@@ -12,7 +12,7 @@ export type LNDStackParamsList = {
   ScanQRCode: ScanQRCodeParamList;
   SelectWallet: SelectWalletParams;
   Success: SuccessParams;
-  LNDCreateInvoice: { walletID: string; uri?: string };
+  LNDCreateInvoice: { walletID?: string; uri?: string };
   LNDViewInvoice: DetailViewStackParamList['LNDViewInvoice'];
   LNDViewAdditionalInvoicePreImage: DetailViewStackParamList['LNDViewAdditionalInvoicePreImage'];
 };

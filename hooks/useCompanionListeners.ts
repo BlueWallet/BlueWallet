@@ -292,14 +292,14 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             throw new Error(loc.send.qr_error_no_qrcode);
           }
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          DeeplinkSchemaMatch.navigationRouteFor({ url: qrValue }, (value: [string, any]) => navigationRef.navigate(...value), {
+          DeeplinkSchemaMatch.navigationRouteFor({ url: qrValue }, value => navigationRef.navigate(...value), {
             wallets,
             addWallet,
             saveToDisk,
             setSharedCosigner,
           });
         } else {
-          DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
+          DeeplinkSchemaMatch.navigationRouteFor(event, value => navigationRef.navigate(...value), {
             wallets,
             addWallet,
             saveToDisk,

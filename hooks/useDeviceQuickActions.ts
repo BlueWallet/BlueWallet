@@ -103,7 +103,7 @@ const useDeviceQuickActions = () => {
   };
 
   const handleOpenURL = (event: { url: string }): void => {
-    DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => NavigationService.navigate(...value), {
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigationRef.navigate(...value), {
       wallets,
       addWallet,
       saveToDisk,
