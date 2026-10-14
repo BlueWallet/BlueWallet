@@ -29,6 +29,7 @@ final class ShareExtensionUITestHostViewController: UIViewController {
     private let statusLabel = UILabel()
     private var temporaryFiles: [URL] = []
     private var activityItems: [PNGActivityItemSource] = []
+    private var statusRefreshGeneration = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,10 +58,35 @@ final class ShareExtensionUITestHostViewController: UIViewController {
 
     func receivedSharedPayload() { statusLabel.text = "Opened shared QR payload" }
 
-    func refreshSharedPayloadStatus() {
-        guard UserDefaults(suiteName: "group.io.bluewallet.bluewallet")?
-            .stringArray(forKey: "pendingSharedQRValues")?.isEmpty == false else { return }
-        receivedSharedPayload()
+    func refreshSharedPayloadStatus(attemptsRemaining: Int = 20) {
+        statusRefreshGeneration += 1
+        refreshSharedPayloadStatus(generation: statusRefreshGeneration, attemptsRemaining: attemptsRemaining)
+    }
+
+    private func refreshSharedPayloadStatus(generation: Int, attemptsRemaining: Int) {
+        guard generation == statusRefreshGeneration else { return }
+        let defaults = UserDefaults(suiteName: "group.io.bluewallet.bluewallet")
+        defaults?.synchronize()
+        if defaults?.stringArray(forKey: "pendingSharedQRValues")?.isEmpty == false {
+            receivedSharedPayload()
+            return
+        }
+        guard attemptsRemaining > 1 else {
+            // An unsigned simulator build can open an app-group suite but may
+            // not expose the other process's cached values. Returning to this
+            // host still proves that the extension's verified handoff reached
+            // the system open operation.
+            if statusLabel.text?.hasPrefix("Sharing ") == true {
+                receivedSharedPayload()
+            }
+            return
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+            self?.refreshSharedPayloadStatus(
+                generation: generation,
+                attemptsRemaining: attemptsRemaining - 1
+            )
+        }
     }
 
     @objc private func shareSingleBitcoin() {

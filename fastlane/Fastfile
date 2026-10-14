@@ -1574,8 +1574,8 @@ end
           export_options: export_options_path,
           output_directory: ipa_directory,
           output_name: ipa_name,
-          buildlog_path: File.join(project_root, "ios", "build_logs")
-          # Removed explicit destination - let Xcode determine the best destination for release builds
+          buildlog_path: File.join(project_root, "ios", "build_logs"),
+          destination: "generic/platform=iOS"
         )
         
         UI.success("\033[1;32miOS release build completed successfully!\033[0m")

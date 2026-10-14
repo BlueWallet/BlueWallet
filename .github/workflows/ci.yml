@@ -55,6 +55,38 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Specify node version
+      uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+      with:
+        node-version: 24
+        cache: 'npm'
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+      with:
+        ruby-version: "3.4.11"
+        bundler-cache: true
+
+    - name: Install node_modules
+      run: npm ci || npm ci
+
+    - name: Cache CocoaPods
+      uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+      with:
+        path: |
+          ios/Pods
+          ~/Library/Caches/CocoaPods
+          ~/.cocoapods/repos
+        key: ${{ runner.os }}-pods-share-extension-${{ hashFiles('ios/Podfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pods-share-extension-
+
+    - name: Install CocoaPods dependencies
+      env:
+        RCT_USE_RN_DEP: "1"
+        RCT_USE_PREBUILT_RNCORE: "1"
+      run: bundle exec fastlane ios install_pods || bundle exec fastlane ios install_pods
+
     - name: Run tests
       run: |
         simulator_id="$(xcrun simctl list devices available --json | ruby -rjson -e '
@@ -65,13 +97,13 @@ jobs:
         ')"
 
         xcodebuild test \
-          -project ios/BlueWallet.xcodeproj \
+          -workspace ios/BlueWallet.xcworkspace \
           -scheme ShareExtension \
           -destination "platform=iOS Simulator,id=${simulator_id}" \
           CODE_SIGNING_ALLOWED=NO
 
         xcodebuild test \
-          -project ios/BlueWallet.xcodeproj \
+          -workspace ios/BlueWallet.xcworkspace \
           -scheme ShareExtension \
           -destination "platform=macOS,variant=Mac Catalyst" \
           CODE_SIGNING_ALLOWED=NO
