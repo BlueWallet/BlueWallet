@@ -407,47 +407,47 @@ export class BlueApp {
         let unserializedWallet: TWallet;
         switch (tempObj.type) {
           case SegwitBech32Wallet.type:
-            unserializedWallet = SegwitBech32Wallet.fromJson(key) as unknown as SegwitBech32Wallet;
+            unserializedWallet = SegwitBech32Wallet.fromJson(key);
             break;
           case SegwitP2SHWallet.type:
-            unserializedWallet = SegwitP2SHWallet.fromJson(key) as unknown as SegwitP2SHWallet;
+            unserializedWallet = SegwitP2SHWallet.fromJson(key);
             break;
           case WatchOnlyWallet.type:
-            unserializedWallet = WatchOnlyWallet.fromJson(key) as unknown as WatchOnlyWallet;
+            unserializedWallet = WatchOnlyWallet.fromJson(key);
             unserializedWallet.init();
             if (unserializedWallet.isHd() && !unserializedWallet.isXpubValid()) {
               continue;
             }
             break;
           case HDLegacyP2PKHWallet.type:
-            unserializedWallet = HDLegacyP2PKHWallet.fromJson(key) as unknown as HDLegacyP2PKHWallet;
+            unserializedWallet = HDLegacyP2PKHWallet.fromJson(key);
             break;
           case HDSegwitP2SHWallet.type:
-            unserializedWallet = HDSegwitP2SHWallet.fromJson(key) as unknown as HDSegwitP2SHWallet;
+            unserializedWallet = HDSegwitP2SHWallet.fromJson(key);
             break;
           case HDSegwitBech32Wallet.type:
-            unserializedWallet = HDSegwitBech32Wallet.fromJson(key) as unknown as HDSegwitBech32Wallet;
+            unserializedWallet = HDSegwitBech32Wallet.fromJson(key);
             break;
           case HDTaprootWallet.type:
-            unserializedWallet = HDTaprootWallet.fromJson(key) as unknown as HDTaprootWallet;
+            unserializedWallet = HDTaprootWallet.fromJson(key);
             break;
           case TaprootWallet.type:
-            unserializedWallet = TaprootWallet.fromJson(key) as unknown as TaprootWallet;
+            unserializedWallet = TaprootWallet.fromJson(key);
             break;
           case HDLegacyBreadwalletWallet.type:
-            unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key) as unknown as HDLegacyBreadwalletWallet;
+            unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key);
             break;
           case HDLegacyElectrumSeedP2PKHWallet.type:
-            unserializedWallet = HDLegacyElectrumSeedP2PKHWallet.fromJson(key) as unknown as HDLegacyElectrumSeedP2PKHWallet;
+            unserializedWallet = HDLegacyElectrumSeedP2PKHWallet.fromJson(key);
             break;
           case HDSegwitElectrumSeedP2WPKHWallet.type:
-            unserializedWallet = HDSegwitElectrumSeedP2WPKHWallet.fromJson(key) as unknown as HDSegwitElectrumSeedP2WPKHWallet;
+            unserializedWallet = HDSegwitElectrumSeedP2WPKHWallet.fromJson(key);
             break;
           case MultisigHDWallet.type:
-            unserializedWallet = MultisigHDWallet.fromJson(key) as unknown as MultisigHDWallet;
+            unserializedWallet = MultisigHDWallet.fromJson(key);
             break;
           case HDAezeedWallet.type:
-            unserializedWallet = HDAezeedWallet.fromJson(key) as unknown as HDAezeedWallet;
+            unserializedWallet = HDAezeedWallet.fromJson(key);
             // migrate password to this.passphrase field
             // remove this code somewhere in year 2022
             if (unserializedWallet.secret.includes(':')) {
@@ -458,19 +458,19 @@ export class BlueApp {
 
             break;
           case SLIP39SegwitP2SHWallet.type:
-            unserializedWallet = SLIP39SegwitP2SHWallet.fromJson(key) as unknown as SLIP39SegwitP2SHWallet;
+            unserializedWallet = SLIP39SegwitP2SHWallet.fromJson(key);
             break;
           case SLIP39LegacyP2PKHWallet.type:
-            unserializedWallet = SLIP39LegacyP2PKHWallet.fromJson(key) as unknown as SLIP39LegacyP2PKHWallet;
+            unserializedWallet = SLIP39LegacyP2PKHWallet.fromJson(key);
             break;
           case SLIP39SegwitBech32Wallet.type:
-            unserializedWallet = SLIP39SegwitBech32Wallet.fromJson(key) as unknown as SLIP39SegwitBech32Wallet;
+            unserializedWallet = SLIP39SegwitBech32Wallet.fromJson(key);
             break;
           case LightningArkWallet.type:
-            unserializedWallet = LightningArkWallet.fromJson(key) as unknown as LightningArkWallet;
+            unserializedWallet = LightningArkWallet.fromJson(key);
             break;
           case LightningCustodianWallet.type: {
-            unserializedWallet = LightningCustodianWallet.fromJson(key) as unknown as LightningCustodianWallet;
+            unserializedWallet = LightningCustodianWallet.fromJson(key);
             let lndhub: false | any = false;
             try {
               lndhub = await getLNDHub();
@@ -497,7 +497,7 @@ export class BlueApp {
             break;
           case LegacyWallet.type:
           default:
-            unserializedWallet = LegacyWallet.fromJson(key) as unknown as LegacyWallet;
+            unserializedWallet = LegacyWallet.fromJson(key);
             break;
         }
 
@@ -650,11 +650,9 @@ export class BlueApp {
       for (const key of this.wallets) {
         if (typeof key === 'boolean') continue;
         key.prepareForSerialization();
-        // @ts-ignore wtf is wallet.current? Does it even exist?
-        delete key.current;
         const keyCloned = Object.assign({}, key); // stripped-down version of a wallet to save to secure keystore
         if ('_hdWalletInstance' in key) {
-          const k = keyCloned as any & WatchOnlyWallet;
+          const k = keyCloned as WatchOnlyWallet;
           k._hdWalletInstance = Object.assign({}, key._hdWalletInstance);
           k._hdWalletInstance._txs_by_external_index = {};
           k._hdWalletInstance._txs_by_internal_index = {};
