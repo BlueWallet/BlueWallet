@@ -20,6 +20,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { LNDStackParamsList } from '../../navigation/LNDStackParamsList';
+import { RootParamList } from '../../navigation/RootParamList';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { DecodedInvoice, TWallet } from '../../class/wallets/types';
@@ -28,7 +29,7 @@ import { BlueLoading } from '../../components/BlueLoading';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 
 type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
-type NavigationProps = NativeStackNavigationProp<LNDStackParamsList, 'ScanLNDInvoice'>;
+type NavigationProps = NativeStackNavigationProp<RootParamList, 'ScanLNDInvoice'>;
 
 const ScanLNDInvoice = () => {
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
@@ -351,7 +352,7 @@ const ScanLNDInvoice = () => {
   const onBarScanned = useCallback(
     (value: string): void => {
       if (!value) return;
-      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, (completionValue: any) => {
+      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         navigate(...completionValue);
       });
