@@ -24,14 +24,10 @@ import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import presentAlert from '../../components/Alert';
 import { isReverseSuccessStatus } from '@arkade-os/boltz-swap';
 import type { BoltzSubmarineSwap } from '@arkade-os/boltz-swap';
-
-type LNDViewInvoiceRouteParams = {
-  walletID: string;
-  invoice: LightningTransaction | string; // its first passed as string and then decoded and turned into object
-};
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 const LNDViewInvoice = () => {
-  const { invoice, walletID } = useRoute<RouteProp<{ params: LNDViewInvoiceRouteParams }, 'params'>>().params;
+  const { invoice, walletID } = useRoute<RouteProp<DetailViewStackParamList, 'LNDViewInvoice'>>().params;
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
   const { colors } = useTheme();
   const { direction } = useLocale();

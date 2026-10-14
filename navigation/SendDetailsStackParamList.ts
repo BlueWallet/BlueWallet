@@ -1,7 +1,7 @@
 import { Psbt } from 'bitcoinjs-lib';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet, Utxo } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
-import { HeaderRightRenderer, ScanQRCodeParamList } from './DetailViewStackParamList';
+import { DetailViewStackParamList, HeaderRightRenderer, ScanQRCodeParamList } from './DetailViewStackParamList';
 import { IFee } from '../screen/send/SendDetails';
 import { NetworkTransactionFeeType } from '../models/networkTransactionFees';
 
@@ -136,6 +136,8 @@ export type SendDetailsStackParamList = {
     psbtBase64: string;
     walletID: string;
     launchedBy?: string;
+    receivedPSBTBase64?: string;
+    txhex?: string;
   };
   PsbtMultisigQRCode: {
     memo?: string;
@@ -153,9 +155,6 @@ export type SendDetailsStackParamList = {
     sortType?: CoinControlSortType;
     hasUtxos?: boolean;
   };
-  PaymentCodeList: {
-    walletID: string;
-    merge?: boolean;
-  };
+  PaymentCodeList: DetailViewStackParamList['PaymentCodeList'];
   ScanQRCode: ScanQRCodeParamList;
 };

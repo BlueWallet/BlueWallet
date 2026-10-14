@@ -1,10 +1,10 @@
 import { AztecoVoucher } from '../class/azteco';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { LightningTransaction, TWallet } from '../class/wallets/types';
-import { BitcoinUnit } from '../models/bitcoinUnits';
+import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
-import { SelectWalletParams, SendDetailsParams } from './SendDetailsStackParamList';
+import { SelectWalletParams, SendDetailsParams, SuccessParams } from './SendDetailsStackParamList';
+import { ReceiveDetailsStackParamList } from './ReceiveDetailsStackParamList';
 import { ClipboardPaymentKind } from '../blue_modules/clipboardPayment';
 
 export type ScanQRCodeParamList = {
@@ -18,7 +18,6 @@ export type ScanQRCodeParamList = {
   showFileImportButton?: boolean;
   backdoorVisible?: boolean;
   orientation?: 'portrait';
-  animatedQRCodeData?: Record<string, any>;
 };
 
 type VaultKeyData = {
@@ -51,8 +50,7 @@ export type DetailViewStackParamList = {
     headerWalletBalance?: string;
   };
   WalletDetails: { walletID: string };
-  // TODO: type tx properly once Transaction and ElectrumTransaction are unified
-  TransactionStatus: { hash: string; walletID: string; tx?: any };
+  TransactionStatus: { hash: string; walletID: string; tx?: Transaction };
   CPFP: {
     wallet: TWallet | null;
     txid: string;
@@ -60,20 +58,19 @@ export type DetailViewStackParamList = {
   RBFBumpFee: { txid: string; wallet: TWallet | null };
   RBFCancel: { txid: string; wallet: TWallet | null };
   SelectWallet: SelectWalletParams;
-  LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
-  LNDViewAdditionalInvoiceInformation: { invoiceId: string };
-  LNDViewAdditionalInvoicePreImage: { invoiceId: string };
-  Broadcast: object;
-  IsItMyAddress: object;
+  LNDViewInvoice: { invoice: LightningTransaction | string; walletID: string };
+  LNDViewAdditionalInvoicePreImage: { preImageData: string };
+  Broadcast: undefined;
+  IsItMyAddress: undefined;
   GenerateWord: undefined;
-  LnurlPay: undefined;
+  LnurlPay: { lnurl: string; walletID: string };
   LnurlPaySuccess: {
     paymentHash: string;
     justPaid: boolean;
     fromWalletID: string;
   };
-  LnurlAuth: undefined;
-  Success: undefined;
+  LnurlAuth: { lnurl: string; walletID: string };
+  Success: SuccessParams;
   WalletAddresses: { walletID: string };
   AddWalletRoot: undefined;
   SendDetailsRoot: SendDetailsParams;
@@ -93,7 +90,7 @@ export type DetailViewStackParamList = {
     };
   };
   AztecoRedeem: { aztecoVoucher: AztecoVoucher };
-  WalletExport: undefined;
+  WalletExport: { walletID: string };
   ExportMultisigCoordinationSetupRoot: undefined;
   Settings: undefined;
   Currency: undefined;
@@ -137,7 +134,7 @@ export type DetailViewStackParamList = {
     cosignerXpubURv2: string;
     exportFilename: string;
   };
-  WalletXpub: { walletID: string; xpub: string };
+  WalletXpub: { walletID?: string; xpub: string };
   SignVerifyRoot: {
     screen: 'SignVerify';
     params: {
@@ -145,38 +142,12 @@ export type DetailViewStackParamList = {
       address: string;
     };
   };
-  ReceiveDetails: {
-    walletID?: string;
-    address: string;
-    allowBIP47?: boolean;
-    isBIP47Enabled?: boolean;
-    toggleBIP47RequestedAt?: number;
-    headerLeft?: HeaderLeftRenderer;
-    headerRight?: HeaderRightRenderer;
-    headerBackVisible?: boolean;
-  };
-  ReceiveCustomAmount: {
-    address: string;
-    currentLabel?: string;
-    currentAmount?: string;
-    currentUnit?: BitcoinUnit;
-    preferredUnit?: BitcoinUnit;
-  };
-  ReceiveMoreOptions: {
-    address: string;
-    currentLabel?: string;
-    currentAmount?: string;
-    currentUnit?: BitcoinUnit;
-    preferredUnit?: BitcoinUnit;
-  };
-  ReceiveAddressLabel: {
-    address: string;
-  };
+  ReceiveDetails: ReceiveDetailsStackParamList['ReceiveDetails'];
+  ReceiveCustomAmount: ReceiveDetailsStackParamList['ReceiveCustomAmount'];
+  ReceiveMoreOptions: ReceiveDetailsStackParamList['ReceiveMoreOptions'];
+  ReceiveAddressLabel: ReceiveDetailsStackParamList['ReceiveAddressLabel'];
   ScanQRCode: ScanQRCodeParamList;
-  PaymentCodeList: {
-    paymentCode: string;
-    walletID: string;
-  };
+  PaymentCodeList: { walletID: string };
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
   ManageWallets: undefined;
   ClipboardDetected: {
