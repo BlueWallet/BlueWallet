@@ -319,7 +319,8 @@ const ScanQRCode = () => {
             selectTextOnFocus={false}
             keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
             value={backdoorText}
-            onChangeText={setBackdoorText}
+            // iOS smart punctuation turns straight quotes into curly ones, which breaks JSON payloads
+            onChangeText={text => setBackdoorText(text.replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'"))}
           />
           <Button title="OK" testID="scanQrBackdoorOkButton" onPress={handleBackdoorOkPress} />
         </View>
