@@ -1037,9 +1037,17 @@ export const multiGetBalanceByAddress = async (addresses: string[], batchsize: n
   return ret;
 };
 
+/** raw row of blockchain.scripthash.listunspent */
+type ElectrumUnspent = {
+  tx_hash: string;
+  tx_pos: number;
+  height: number;
+  value: number;
+};
+
 export const multiGetUtxoByAddress = async function (addresses: string[], batchsize: number = 100): Promise<Record<string, Utxo[]>> {
   if (!mainClient) throw new Error('Electrum client is not connected');
-  const ret: Record<string, any> = {};
+  const ret: Record<string, Utxo[]> = {};
 
   const chunks = splitIntoChunks(addresses, batchsize);
   for (const chunk of chunks) {
@@ -1053,7 +1061,7 @@ export const multiGetUtxoByAddress = async function (addresses: string[], batchs
       scripthash2addr[reversedHash] = addr;
     }
 
-    let results = [];
+    let results: { param: string; result: ElectrumUnspent[] }[] = [];
 
     if (disableBatching) {
       // ElectrumPersonalServer doesnt support `blockchain.scripthash.listunspent`
@@ -1064,14 +1072,14 @@ export const multiGetUtxoByAddress = async function (addresses: string[], batchs
     }
 
     for (const utxos of results) {
-      ret[scripthash2addr[utxos.param]] = utxos.result;
-      for (const utxo of ret[scripthash2addr[utxos.param]]) {
-        utxo.address = scripthash2addr[utxos.param];
-        utxo.txid = utxo.tx_hash;
-        utxo.vout = utxo.tx_pos;
-        delete utxo.tx_pos;
-        delete utxo.tx_hash;
-      }
+      const address = scripthash2addr[utxos.param];
+      ret[address] = utxos.result.map(u => ({
+        address,
+        txid: u.tx_hash,
+        vout: u.tx_pos,
+        height: u.height,
+        value: u.value,
+      }));
     }
   }
 

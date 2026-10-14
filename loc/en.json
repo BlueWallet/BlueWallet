@@ -213,6 +213,7 @@
     "reset_amount_confirm": "Would you like to reset the amount?",
     "success_done": "Done",
     "cant_send_to_silentpayment_adress": "This wallet cannot send to SilentPayment addresses",
+    "silentpayment_no_wif": "Internal error: no WIF for silent payment input",
     "cant_send_to_bip47": "This wallet cannot send to BIP47 payment codes",
     "cant_find_bip47_notification": "Add this Payment Code to contacts first",
     "problem_with_psbt": "Problem with PSBT"
