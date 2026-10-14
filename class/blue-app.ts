@@ -8,6 +8,7 @@ import Realm from 'realm';
 
 import * as encryption from '../blue_modules/encryption';
 import presentAlert from '../components/Alert';
+import loc from '../loc';
 import { randomBytes } from './rng';
 import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
 import { HDLegacyBreadwalletWallet } from './wallets/hd-legacy-breadwallet-wallet';
@@ -29,6 +30,7 @@ import { LightningArkWallet } from './wallets/lightning-ark-wallet.ts';
 import { hexToUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
 import { TaprootWallet } from './wallets/taproot-wallet';
+import { errorMessage } from '../blue_modules/errorMessage';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -134,7 +136,7 @@ export class BlueApp {
    * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
    * used for cli/tests
    */
-  setItem = (key: string, value: any): Promise<any> => {
+  setItem = (key: string, value: string): Promise<void> => {
     if (isReactNative) {
       return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
     } else {
@@ -146,7 +148,7 @@ export class BlueApp {
    * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
    * used for cli/tests
    */
-  getItem = (key: string): Promise<any> => {
+  getItem = (key: string): Promise<string | null> => {
     if (isReactNative) {
       return RNSecureKeyStore.get(key);
     } else {
@@ -154,12 +156,12 @@ export class BlueApp {
     }
   };
 
-  getItemWithFallbackToRealm = async (key: string): Promise<any | null> => {
+  getItemWithFallbackToRealm = async (key: string): Promise<string | null> => {
     let value;
     try {
       return await this.getItem(key);
-    } catch (error: any) {
-      console.warn('error reading', key, error.message);
+    } catch (error) {
+      console.warn('error reading', key, errorMessage(error));
       console.warn('fallback to realm');
       const realmKeyValue = await this.openRealmKeyValue();
       const obj = realmKeyValue.objectForPrimaryKey<{ key: string; value: string }>('KeyValue', key);
@@ -177,8 +179,8 @@ export class BlueApp {
     let data;
     try {
       data = await this.getItemWithFallbackToRealm(BlueApp.FLAG_ENCRYPTED);
-    } catch (error: any) {
-      console.warn('error reading `' + BlueApp.FLAG_ENCRYPTED + '` key:', error.message);
+    } catch (error) {
+      console.warn('error reading `' + BlueApp.FLAG_ENCRYPTED + '` key:', errorMessage(error));
       return false;
     }
 
@@ -187,9 +189,8 @@ export class BlueApp {
 
   isPasswordInUse = async (password: string) => {
     try {
-      let data = await this.getItem('data');
-      data = this.decryptData(data, password);
-      return Boolean(data);
+      const data = await this.getItem('data');
+      return Boolean(data && this.decryptData(data, password));
     } catch (_e) {
       return false;
     }
@@ -199,7 +200,7 @@ export class BlueApp {
    * Iterates through all values of `data` trying to
    * decrypt each one, and returns first one successfully decrypted
    */
-  decryptData(data: string, password: string): boolean | string {
+  decryptData(data: string, password: string): false | string {
     data = JSON.parse(data);
     let decrypted;
     let num = 0;
@@ -233,15 +234,13 @@ export class BlueApp {
   encryptStorage = async (password: string): Promise<void> => {
     // assuming the storage is not yet encrypted
     await this.saveToDisk();
-    let data = await this.getItem('data');
+    const data = await this.getItem('data');
     // TODO: refactor ^^^ (should not save & load to fetch data)
+    if (data === null) throw new Error(loc.settings.encrypt_storage_empty);
 
     const encrypted = encryption.encrypt(data, password);
-    data = [];
-    data.push(encrypted); // putting in array as we might have many buckets with storages
-    data = JSON.stringify(data);
     this.cachedPassword = password;
-    await this.setItem('data', data);
+    await this.setItem('data', JSON.stringify([encrypted])); // array as we might have many buckets with storages
     await this.setItem(BlueApp.FLAG_ENCRYPTED, '1');
   };
 
@@ -263,8 +262,7 @@ export class BlueApp {
       address_metadata: {},
     };
 
-    let buckets = await this.getItem('data');
-    buckets = JSON.parse(buckets);
+    const buckets: string[] = JSON.parse(String(await this.getItem('data')));
     buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
     this.cachedPassword = fakePassword;
     const bucketsString = JSON.stringify(buckets);
@@ -351,7 +349,7 @@ export class BlueApp {
     });
   }
 
-  saveToRealmKeyValue(realmkeyValue: Realm, key: string, value: any) {
+  saveToRealmKeyValue(realmkeyValue: Realm, key: string, value: string) {
     realmkeyValue.write(() => {
       realmkeyValue.create(
         'KeyValue',
@@ -375,23 +373,23 @@ export class BlueApp {
     // Wrap inside a try so if anything goes wrong it wont block loadFromDisk from continuing
     try {
       await this.moveRealmFilesToCacheDirectory();
-    } catch (error: any) {
-      console.warn('moveRealmFilesToCacheDirectory error:', error.message);
+    } catch (error) {
+      console.warn('moveRealmFilesToCacheDirectory error:', errorMessage(error));
     }
-    let dataRaw = await this.getItemWithFallbackToRealm('data');
-    if (password) {
+    let dataRaw: string | false | null = await this.getItemWithFallbackToRealm('data');
+    if (password && dataRaw !== null) {
       dataRaw = this.decryptData(dataRaw, password);
       if (dataRaw) {
         // password is good, cache it
         this.cachedPassword = password;
       }
     }
-    if (dataRaw !== null) {
+    if (dataRaw !== null && dataRaw !== false) {
       let realm;
       try {
         realm = await this.getRealmForTransactions();
-      } catch (error: any) {
-        presentAlert({ message: error.message });
+      } catch (error) {
+        presentAlert({ message: errorMessage(error) });
       }
       const data: TBucketStorage = JSON.parse(dataRaw);
       if (!data.wallets) return false;
@@ -503,8 +501,8 @@ export class BlueApp {
 
         try {
           if (realm) this.inflateWalletFromRealm(realm, unserializedWallet);
-        } catch (error: any) {
-          presentAlert({ message: error.message });
+        } catch (error) {
+          presentAlert({ message: errorMessage(error) });
         }
 
         // done
@@ -644,8 +642,8 @@ export class BlueApp {
       let realm;
       try {
         realm = await this.getRealmForTransactions();
-      } catch (error: any) {
-        presentAlert({ message: error.message });
+      } catch (error) {
+        presentAlert({ message: errorMessage(error) });
       }
       for (const key of this.wallets) {
         if (typeof key === 'boolean') continue;
@@ -681,8 +679,7 @@ export class BlueApp {
 
       if (this.cachedPassword) {
         // should find the correct bucket, encrypt and then save
-        let buckets = await this.getItemWithFallbackToRealm('data');
-        buckets = JSON.parse(buckets);
+        const buckets: string[] = JSON.parse(String(await this.getItemWithFallbackToRealm('data')));
         const newData: string[] = []; // serialized buckets
         let num = 0;
         for (const bucket of buckets) {
@@ -719,9 +716,9 @@ export class BlueApp {
 
       // Realm copy is a backup of what was just committed to secure storage.
       await this.backupToRealmKeyValue(JSON.stringify(data));
-    } catch (error: any) {
-      console.error('save to disk exception:', error.message);
-      presentAlert({ message: 'save to disk exception: ' + error.message });
+    } catch (error) {
+      console.error('save to disk exception:', errorMessage(error));
+      presentAlert({ message: 'save to disk exception: ' + errorMessage(error) });
       if (!primaryStorageCommitted) throw error;
     } finally {
       savingInProgress = 0;
@@ -955,7 +952,7 @@ export class BlueApp {
 
     try {
       write(await this.openRealmKeyValue());
-    } catch (error: any) {
+    } catch (error) {
       if (!isRealmDecryptionError(error)) throw error;
       console.warn('keyvalue realm decryption failed; recreating backup');
       await this.purgeRealmKeyValueFile();
@@ -969,8 +966,8 @@ export class BlueApp {
       if (Realm.exists({ path })) {
         Realm.deleteFile({ path });
       }
-    } catch (error: any) {
-      console.warn('Realm.deleteFile failed for keyvalue realm:', error?.message ?? error);
+    } catch (error) {
+      console.warn('Realm.deleteFile failed for keyvalue realm:', errorMessage(error));
     }
 
     // Realm.deleteFile removes the .realm, .lock, .fresh.lock, .note, and .management siblings,
@@ -978,8 +975,8 @@ export class BlueApp {
     for (const sibling of [path, `${path}.lock`, `${path}.fresh.lock`, `${path}.note`, `${path}.management`]) {
       try {
         if (await RNFS.exists(sibling)) await RNFS.unlink(sibling);
-      } catch (error: any) {
-        console.warn('failed to delete', sibling, error?.message ?? error);
+      } catch (error) {
+        console.warn('failed to delete', sibling, errorMessage(error));
       }
     }
   }

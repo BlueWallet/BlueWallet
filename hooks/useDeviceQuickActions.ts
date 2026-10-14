@@ -71,12 +71,12 @@ const useDeviceQuickActions = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isQuickActionsEnabled, walletsInitialized]);
 
-  const popInitialShortcutAction = async (): Promise<any> => {
+  const popInitialShortcutAction = async (): Promise<ShortcutItem | null> => {
     const data = await QuickActions.popInitialAction();
     return data;
   };
 
-  const popInitialAction = async (data: any): Promise<void> => {
+  const popInitialAction = async (data: ShortcutItem | null): Promise<void> => {
     try {
       if (data) {
         const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
@@ -111,7 +111,7 @@ const useDeviceQuickActions = () => {
     });
   };
 
-  const walletQuickActions = (data: any): void => {
+  const walletQuickActions = (data: ShortcutItem): void => {
     const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
     if (wallet) {
       NavigationService.dispatch(
@@ -137,7 +137,7 @@ const useDeviceQuickActions = () => {
 
   const setQuickActions = async (): Promise<void> => {
     if (await getEnabled()) {
-      QuickActions.isSupported((error: null, _supported: any) => {
+      QuickActions.isSupported((error: Error | null) => {
         if (error === null) {
           const shortcutItems: ShortcutItem[] = wallets.slice(0, 4).map((wallet, index) => ({
             type: 'Wallets',
