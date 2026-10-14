@@ -1,8 +1,8 @@
 import { useNavigation, RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View, TouchableOpacity } from 'react-native';
-import presentAlert from '../../components/Alert';
+import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View, TouchableOpacity } from 'react-native';
+import presentAlert, { AlertParams } from '../../components/Alert';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SquareButton } from '../../components/SquareButton';
@@ -23,6 +23,11 @@ const PsbtMultisigQRCode: React.FC = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
   const openScannerButton = useRef<React.ElementRef<typeof TouchableOpacity>>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const presentAnchoredAlert = useCallback(
+    (params: AlertParams) => presentAlert({ ...params, anchor: findNodeHandle(scrollViewRef.current) }),
+    [],
+  );
   const { params } = useRoute<RouteParams>();
   const { psbtBase64, isShowOpenScanner, walletID } = params;
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -57,7 +62,7 @@ const PsbtMultisigQRCode: React.FC = () => {
       const data = result.data || '';
 
       if (data.toUpperCase().startsWith('UR')) {
-        presentAlert({ message: 'BC-UR not decoded. This should never happen' });
+        presentAnchoredAlert({ message: 'BC-UR not decoded. This should never happen' });
       } else if (isHexString(data)) {
         // psbt hex or tx hex?
         try {
@@ -79,9 +84,9 @@ const PsbtMultisigQRCode: React.FC = () => {
         } catch (_) {}
 
         // unknown:
-        presentAlert({ message: loc.wallets.import_error });
+        presentAnchoredAlert({ message: loc.wallets.import_error });
       } else if (data.indexOf('+') === -1 && data.indexOf('=') === -1) {
-        presentAlert({ message: loc.wallets.import_error });
+        presentAnchoredAlert({ message: loc.wallets.import_error });
         // this looks like NOT base64, dunno what it is
       } else {
         // psbt base64?
@@ -89,7 +94,7 @@ const PsbtMultisigQRCode: React.FC = () => {
         navigation.dispatch(popToAction);
       }
     },
-    [navigation, params],
+    [navigation, params, presentAnchoredAlert],
   );
 
   useEffect(() => {
@@ -118,6 +123,7 @@ const PsbtMultisigQRCode: React.FC = () => {
 
   return (
     <ScrollView
+      ref={scrollViewRef}
       centerContent
       testID="PsbtMultisigQRCodeScrollView"
       automaticallyAdjustContentInsets

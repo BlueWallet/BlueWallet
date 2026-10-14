@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
@@ -12,13 +12,14 @@ import {
   NativeSyntheticEvent,
   LayoutRectangle,
   NodeHandle,
+  findNodeHandle,
 } from 'react-native';
 import Icon from '../../components/Icon';
 
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
-import presentAlert from '../../components/Alert';
+import presentAlert, { AlertParams } from '../../components/Alert';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
@@ -45,6 +46,11 @@ const PsbtMultisig = () => {
   const { navigate, setParams } = useNavigation();
   const { colors } = useTheme();
   const [flatListHeight, setFlatListHeight] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
+  const presentAnchoredAlert = useCallback(
+    (params: AlertParams) => presentAlert({ ...params, anchor: findNodeHandle(flatListRef.current) }),
+    [],
+  );
   const { walletID, psbtBase64, memo, receivedPSBTBase64, txhex, launchedBy } = useRoute<RouteProp<RouteParams>>().params;
   const wallet = wallets.find(w => w.getID() === walletID) as MultisigHDWallet;
   assert(wallet, 'Internal error: MultisigHDWallet not found');
@@ -55,7 +61,7 @@ const PsbtMultisig = () => {
       return initial;
     } catch (error) {
       console.error('Error loading initial PSBT:', error);
-      presentAlert({ message: loc.send.invalid_psbt });
+      presentAnchoredAlert({ message: loc.send.invalid_psbt });
       return null;
     }
   });
@@ -83,7 +89,7 @@ const PsbtMultisig = () => {
           satoshiPerByte,
         });
       } catch (error: any) {
-        presentAlert({ message: error });
+        presentAnchoredAlert({ message: error });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -227,7 +233,7 @@ const PsbtMultisig = () => {
         setParams({ receivedPSBTBase64: undefined });
       } catch (error: any) {
         console.error('Error during PSBT combination:', error);
-        presentAlert({ message: error.message });
+        presentAnchoredAlert({ message: error.message });
       }
     }
   };
@@ -258,7 +264,7 @@ const PsbtMultisig = () => {
         satoshiPerByte,
       });
     } catch (error: any) {
-      presentAlert({ message: error });
+      presentAnchoredAlert({ message: error });
     }
   };
 
@@ -346,6 +352,7 @@ const PsbtMultisig = () => {
               <View style={styles.msright}>
                 <BlueCard>
                   <FlatList
+                    ref={flatListRef}
                     data={data}
                     renderItem={_renderItem}
                     keyExtractor={(_item, index) => `${index}`}
