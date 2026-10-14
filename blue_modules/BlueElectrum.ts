@@ -9,6 +9,7 @@ import type { LegacyWallet as LegacyWalletT } from '../class/wallets/legacy-wall
 import type { SegwitBech32Wallet as SegwitBech32WalletT } from '../class/wallets/segwit-bech32-wallet';
 import type { SegwitP2SHWallet as SegwitP2SHWalletT } from '../class/wallets/segwit-p2sh-wallet';
 import type { TaprootWallet as TaprootWalletT } from '../class/wallets/taproot-wallet';
+import type { Utxo } from '../class/wallets/types';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
 import { GROUP_IO_BLUEWALLET } from './currency';
@@ -21,15 +22,6 @@ const ElectrumClient = require('electrum-client');
 const net = require('net');
 const tls = require('tls');
 
-type Utxo = {
-  height: number;
-  value: number;
-  address: string;
-  txid: string;
-  vout: number;
-  wif?: string;
-};
-
 export type ElectrumTransaction = {
   txid: string;
   hash: string;
@@ -38,6 +30,7 @@ export type ElectrumTransaction = {
   vsize: number;
   weight: number;
   locktime: number;
+  fee?: number;
   vin: {
     txid: string;
     vout: number;

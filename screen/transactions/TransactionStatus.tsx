@@ -19,6 +19,7 @@ import dayjs from 'dayjs';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import type { ElectrumTransaction } from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
@@ -50,9 +51,9 @@ import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
 dayjs.extend(relativeTime);
 
 /** Mutates Electrum `vin` entries with `value` from previous outputs so fee = sum(inputs) − sum(outputs) works. */
-async function populateVinValuesFromPrevTxs(fetchedTx: any): Promise<void> {
+async function populateVinValuesFromPrevTxs(fetchedTx: ElectrumTransaction): Promise<void> {
   if (!fetchedTx?.vin?.length) return;
-  const vinTxids = fetchedTx.vin.map((vin: any) => vin.txid).filter((tid: string) => !!tid);
+  const vinTxids = fetchedTx.vin.map(vin => vin.txid).filter(tid => !!tid);
   if (vinTxids.length === 0) return;
   try {
     const prevTransactions = await BlueElectrum.multiGetTransactionByTxid(vinTxids, true, 10);
@@ -247,7 +248,7 @@ const TransactionStatus: React.FC = () => {
   const [isLoadingHex, setIsLoadingHex] = useState(false);
   const [from, setFrom] = useState<string[]>([]);
   const [to, setTo] = useState<string[]>([]);
-  const [txFromElectrum, setTxFromElectrum] = useState<any>(null);
+  const [txFromElectrum, setTxFromElectrum] = useState<ElectrumTransaction | null>(null);
   const [mempoolFee, setMempoolFee] = useState<number | null>(null);
   const [counterpartyLabel, setCounterpartyLabel] = useState<string | null>(null);
   const [paymentCode, setPaymentCode] = useState<string | null>(null);
@@ -519,7 +520,7 @@ const TransactionStatus: React.FC = () => {
 
           // Populate vin.value for fee calculation when transaction becomes confirmed
           if (fetchedTx.vin && fetchedTx.vin.length > 0) {
-            const vinTxids = fetchedTx.vin.map((vin: any) => vin.txid).filter((tid: string) => !!tid);
+            const vinTxids = fetchedTx.vin.map(vin => vin.txid).filter(tid => !!tid);
             if (vinTxids.length > 0) {
               try {
                 const prevTxs = await BlueElectrum.multiGetTransactionByTxid(vinTxids, true, 10);

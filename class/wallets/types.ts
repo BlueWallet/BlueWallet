@@ -86,14 +86,14 @@ export interface DecodedInvoice {
   destination: string;
   payment_hash: string;
   num_satoshis: number;
+  num_millisatoshis: number;
   timestamp: number;
   expiry: number;
   description: string;
   description_hash: string;
   fallback_addr: string;
   cltv_expiry: string;
-  route_hints: any[];
-  [key: string]: any;
+  route_hints: unknown[];
 }
 
 export type LightningTransaction = {
