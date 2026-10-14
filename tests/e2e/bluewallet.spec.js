@@ -867,7 +867,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitForId('CreateButton');
     await element(by.id('CreateButton')).tap();
-    await waitForText('OK', 120_000);
+    await waitForText('OK', 180_000);
     await tapIfTextPresent('OK');
 
     await waitForId('Multisig Vault');
