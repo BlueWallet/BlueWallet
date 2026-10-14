@@ -34,6 +34,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import assert from 'assert';
 import { scanQrHelper } from '../../helpers/scan-qr.ts';
 import { LNDStackParamsList } from '../../navigation/LNDStackParamsList';
+import type { TWallet } from '../../class/wallets/types';
 
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk } = useStorage();
@@ -197,8 +198,9 @@ const LNDCreateInvoice = () => {
 
   useFocusEffect(
     useCallback(() => {
-      if (wallet.current) {
-        if (wallet.current.getUserHasSavedExport()) {
+      const currentWallet = wallet.current;
+      if (currentWallet) {
+        if (currentWallet.getUserHasSavedExport()) {
           renderReceiveDetails();
         } else {
           presentWalletExportReminder()
@@ -208,7 +210,7 @@ const LNDCreateInvoice = () => {
             .catch(() => {
               pop();
               navigate('WalletExport', {
-                walletID: wallet.current?.getID(),
+                walletID: currentWallet.getID(),
               });
             });
         }
@@ -306,7 +308,7 @@ const LNDCreateInvoice = () => {
 
       navigate('LNDViewInvoice', {
         invoice: invoiceRequest,
-        walletID: wallet.current?.getID(),
+        walletID: wallet.current.getID(),
       });
     } catch (Err: any) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -377,7 +379,7 @@ const LNDCreateInvoice = () => {
     );
   };
 
-  const onWalletSelect = (selectedWallet: LightningCustodianWallet | LightningArkWallet) => {
+  const onWalletSelect = (selectedWallet: TWallet) => {
     setParams({ walletID: selectedWallet.getID() });
     pop();
   };
