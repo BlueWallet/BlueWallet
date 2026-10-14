@@ -28,24 +28,15 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { combinePSBTs } from '../../util/combinePSBTs.ts';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import assert from 'assert';
-
-type RouteParams = {
-  params: {
-    walletID: string;
-    psbtBase64: string;
-    memo: string;
-    receivedPSBTBase64: string;
-    txhex: string;
-    launchedBy: string;
-  };
-};
+import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 
 const PsbtMultisig = () => {
   const { wallets } = useStorage();
   const { navigate, setParams } = useNavigation();
   const { colors } = useTheme();
   const [flatListHeight, setFlatListHeight] = useState(0);
-  const { walletID, psbtBase64, memo, receivedPSBTBase64, txhex, launchedBy } = useRoute<RouteProp<RouteParams>>().params;
+  const { walletID, psbtBase64, memo, receivedPSBTBase64, txhex, launchedBy } =
+    useRoute<RouteProp<SendDetailsStackParamList, 'PsbtMultisig'>>().params;
   const wallet = wallets.find(w => w.getID() === walletID) as MultisigHDWallet;
   assert(wallet, 'Internal error: MultisigHDWallet not found');
 

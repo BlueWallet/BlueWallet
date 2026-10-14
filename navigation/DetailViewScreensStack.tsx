@@ -446,7 +446,6 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="IsItMyAddress"
           component={IsItMyAddress}
-          initialParams={{ address: undefined }}
           options={settingsScreenOptions(loc.is_it_my_address.title)}
         />
         <DetailViewStack.Screen name="GenerateWord" component={GenerateWord} options={settingsScreenOptions(loc.autofill_word.title)} />

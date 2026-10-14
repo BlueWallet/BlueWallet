@@ -182,13 +182,18 @@ export default function PaymentCodesList() {
     const previousRoute = state.routes[state.routes.length - 2];
 
     if (previousRoute.name === ('SendDetails' as string)) {
-      const popToAction = StackActions.popTo('SendDetails', {
-        walletID,
-        addRecipientParams: {
-          address: pc,
+      const popToAction = StackActions.popTo(
+        'SendDetails',
+        {
+          walletID,
+          uri: undefined,
+          address: undefined,
+          addRecipientParams: {
+            address: pc,
+          },
         },
-        merge: true,
-      });
+        { merge: true },
+      );
       navigation.dispatch(popToAction);
     } else {
       navigation.navigate('SendDetailsRoot', {
