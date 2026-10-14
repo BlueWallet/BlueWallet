@@ -361,7 +361,6 @@
     "onchain": "Onchain",
     "details_to": "Utdata",
     "enable_offline_signing": "Den här plånboken används inte i samband med en offlinesignering. Skulle du vilja aktivera det nu?",
-    "list_conf": "Bekräftade: {number}",
     "pending": "Väntande",
     "pending_with_amount": "Väntande {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

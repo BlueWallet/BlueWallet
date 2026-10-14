@@ -1960,6 +1960,16 @@ describe('multisig-wallet (native segwit)', () => {
 
     assert.strictEqual(psbt.data.inputs.length, 1);
     assert.strictEqual(psbt.data.outputs.length, 1);
+
+    // now with p2wsh change output, checking that we pay at least requested feerate:
+    const { tx: tx2, fee: fee2 } = w.createTransaction(
+      utxos,
+      [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS', value: 50000 }],
+      1,
+      w._getInternalAddressByIndex(0),
+    );
+    assert.strictEqual(tx2.outs.length, 2);
+    assert.ok(fee2 >= tx2.virtualSize(), `fee ${fee2} is below 1 sat/vbyte for ${tx2.virtualSize()} vbytes`);
   });
 
   it('can sign multiple inputs', async () => {
@@ -2020,6 +2030,38 @@ describe('multisig-wallet (native segwit)', () => {
 
     assert.strictEqual(psbt.data.inputs.length, 2);
     assert.strictEqual(psbt.data.outputs.length, 1);
+  });
+
+  it('pays requested feerate for legacy p2sh multisig with big scriptSig', () => {
+    const w = new MultisigHDWallet();
+    w.setSecret(
+      'Name: Multisig Vault\n' +
+        'Policy: 2 of 3\n' +
+        "Derivation: m/45'\n" +
+        'Format: P2SH\n' +
+        '\n' +
+        'seed: start local figure rose pony artist voice agent pyramid still spot walk\n' +
+        'seed: empty fall vanish sheriff vibrant diary route lock purity noodle ripple clutch\n' +
+        'seed: else heart suggest proof travel announce reason priority trick bargain author duty',
+    );
+    assert.ok(w.isLegacy());
+
+    const utxos = [0, 1, 2].map(i => {
+      const address = w._getExternalAddressByIndex(i);
+      const prevTx = new bitcoin.Transaction();
+      prevTx.addInput(new Uint8Array(32).fill(i + 1), 0);
+      prevTx.addOutput(bitcoin.address.toOutputScript(address), BigInt(100000));
+      return { height: 1, value: 100000, address, vout: 0, txid: prevTx.getId(), txhex: prevTx.toHex(), wif: false, confirmations: 1 };
+    });
+
+    // 2-of-3 scriptSig is around 252 bytes, above that its length takes 3 bytes. also redeem script is pushed with OP_PUSHDATA1
+    const { tx, fee } = w.createTransaction(utxos, [{ address: '3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2' }], 1, w._getInternalAddressByIndex(0));
+    assert.ok(tx);
+    assert.strictEqual(tx.ins.length, 3);
+    const vsize = tx.virtualSize();
+    assert.ok(fee >= vsize, `fee ${fee} is below 1 sat/vbyte for ${vsize} vbytes`);
+    // estimation assumes the biggest possible signatures, so allowing some slack per input
+    assert.ok(fee <= vsize + 3 * 5, `fee ${fee} overpays for ${vsize} vbytes`);
   });
 
   it('can generate proper addresses for wallets with passphrases. Export and import such wallet', () => {

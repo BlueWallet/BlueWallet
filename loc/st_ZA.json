@@ -361,7 +361,6 @@
     "onchain": "Onchain",
     "details_to": "Tse Tswang",
     "enable_offline_signing": "Sepache sena ha se sebediswe hammoho le ho saena ho sa keneng inthaneteng. Na o ka rata ho ho nolofatsa hona jwale?",
-    "list_conf": "Netefatso: {number}",
     "pending": "E emetse",
     "pending_with_amount": "E emetse {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

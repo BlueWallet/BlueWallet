@@ -54,6 +54,12 @@ const SendDetailsStack = () => {
     {
       title: loc.cc.header,
       closeButtonIfFirstInStack: CloseButtonPosition.Left,
+      headerStyle: {
+        backgroundColor: theme.colors.background,
+      },
+      contentStyle: {
+        backgroundColor: theme.colors.background,
+      },
     },
     (options, { navigation, route }) => {
       const sortDirection = route.params?.sortDirection ?? CoinControlSortDirection.ASC;

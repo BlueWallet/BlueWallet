@@ -361,7 +361,6 @@
     "onchain": "Onchain",
     "details_to": "Para",
     "enable_offline_signing": "Esta carteira não está a ser utilizada em conjunto com uma assinatura offline. Deseja ativá-la agora?",
-    "list_conf": "Conf: {number}",
     "pending": "Pendente",
     "pending_with_amount": "Pendente {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

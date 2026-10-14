@@ -361,7 +361,6 @@
     "onchain": "Он-чэйн",
     "details_to": "Выхад",
     "enable_offline_signing": "Гэты кашалёк не выкарыстоўваецца ў сувязі з афлайнавым падпісаньнем. Жадаеце ўключыць яго зараз?",
-    "list_conf": "Пацьв.: {number}",
     "pending": "У чаканьні",
     "pending_with_amount": "У чаканьні {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

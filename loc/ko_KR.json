@@ -367,7 +367,6 @@
     "onchain": "온체인",
     "details_to": "출력",
     "enable_offline_signing": "이 지갑은 오프라인 서명과 함께 쓸수 없습니다. 지금 가능하도록 할까요?",
-    "list_conf": "확정 횟수: {number}",
     "pending": "보류중",
     "pending_with_amount": "보류중 {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

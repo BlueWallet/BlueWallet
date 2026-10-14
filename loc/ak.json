@@ -361,7 +361,6 @@
     "onchain": "Chain so",
     "details_to": "Deɛ ɛfiri adi",
     "enable_offline_signing": "Wɔmfa saa sika kotokuo yi nni dwuma nka offline signing ho. Wopɛ sɛ woma kwan seesei anaa?",
-    "list_conf": "Ahosie: {number}",
     "pending": "Ɛretwɛn",
     "pending_with_amount": "Ɛretwɛn {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

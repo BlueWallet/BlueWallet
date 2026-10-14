@@ -361,7 +361,6 @@
     "onchain": "Onchain",
     "details_to": "Ausgang",
     "enable_offline_signing": "Diese Wallet wird ohne Offline-Signierung genutzt. Soll diese jetzt aktiviert werden?",
-    "list_conf": "Bestätigungen: {number}",
     "pending": "Ausstehend",
     "pending_with_amount": "Ausstehend {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

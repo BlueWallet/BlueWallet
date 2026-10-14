@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -159,6 +159,7 @@ const DetailViewStackScreensStack = () => {
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { sizeClass } = useSizeClass();
+  const { width: windowWidth } = useWindowDimensions();
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
   // Probe connection health from the UI (e.g. WalletsList focus / 30s timer).
@@ -370,7 +371,18 @@ const DetailViewStackScreensStack = () => {
         screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
       >
         <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
-        <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
+        <DetailViewStack.Screen
+          name="WalletTransactions"
+          component={WalletTransactions}
+          options={({ route }) =>
+            getWalletTransactionsOptions({
+              route,
+              screenWidth: windowWidth,
+              headerTintColor: theme.colors.foregroundColor,
+              dark: theme.dark,
+            })
+          }
+        />
         <DetailViewStack.Screen
           name="WalletDetails"
           component={WalletDetails}

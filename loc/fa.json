@@ -361,7 +361,6 @@
     "onchain": "روی زنجیره",
     "details_to": "خروجی",
     "enable_offline_signing": "این کیف پول در کنار امضای آفلاین استفاده نمی‌شود. آیا مایل به فعال‌کردن این امکان هستید؟",
-    "list_conf": "تأییدها: {number}",
     "pending": "در انتظار ثبت",
     "pending_with_amount": "{amt1} ({amt2}) در انتظار ثبت",
     "received_with_amount": "+{amt1} ({amt2})",

@@ -361,7 +361,6 @@
     "onchain": "օն-չեյն",
     "details_to": "ելք",
     "enable_offline_signing": "Այս դրամապանակը չի օգտագործվում օֆլայն ստորագրման հետ համատեղ։ Ցանկանո՞ւմ եք միացնել այն հիմա։",
-    "list_conf": "Հաստ.՝ {number}",
     "pending": "սպասման մեջ",
     "pending_with_amount": "Սպասման մեջ {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

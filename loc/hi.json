@@ -361,7 +361,6 @@
     "onchain": "ऑन-चेन",
     "details_to": "आउटपुट",
     "enable_offline_signing": "इस वॉलेट का उपयोग ऑफ़लाइन हस्ताक्षर के साथ नहीं किया जा रहा है। क्या आप इसे अभी सक्षम करना चाहेंगे?",
-    "list_conf": "पुष्टि: {number}",
     "pending": "लंबित",
     "pending_with_amount": "लंबित {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

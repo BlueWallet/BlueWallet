@@ -361,7 +361,6 @@
     "onchain": "ಆನ್-ಚೈನ್",
     "details_to": "ಔಟ್‌ಪುಟ್",
     "enable_offline_signing": "ಈ ವ್ಯಾಲೆಟ್ ಆಫ್‌ಲೈನ್ ಸಹಿಯೊಂದಿಗೆ ಬಳಸಲಾಗುತ್ತಿಲ್ಲ. ಈಗ ಸಕ್ರಿಯಗೊಳಿಸಲು ಬಯಸುತ್ತೀರಾ?",
-    "list_conf": "ದೃಢೀಕರಣಗಳು: {number}",
     "pending": "ಬಾಕಿ ಇದೆ",
     "pending_with_amount": "ಬಾಕಿಯಿದೆ {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

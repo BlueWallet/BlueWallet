@@ -361,7 +361,6 @@
     "onchain": "On-chain",
     "details_to": "Izlaz",
     "enable_offline_signing": "Ovaj novčanik se ne koristi u kombinaciji sa potpisivanjem van mreže. Da li želite da to omogućite sada?",
-    "list_conf": "Potvrde: {number}",
     "pending": "Na čekanju",
     "pending_with_amount": "Na čekanju {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

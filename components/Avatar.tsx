@@ -8,9 +8,11 @@ export interface AvatarProps {
   containerStyle: StyleProp<ViewStyle>;
   icon?: Pick<IconProps, 'name' | 'type' | 'color' | 'size'>;
   onPress?: () => void;
+  onPressIn?: () => void;
+  onPressOut?: () => void;
 }
 
-const Avatar: React.FC<AvatarProps> = ({ rounded, size, containerStyle, icon, onPress }) => {
+const Avatar: React.FC<AvatarProps> = ({ rounded, size, containerStyle, icon, onPress, onPressIn, onPressOut }) => {
   const dimensionStyle = { width: size, height: size, borderRadius: rounded ? size / 2 : 0 } as ViewStyle;
   const content = (
     <View style={[styles.container, dimensionStyle, containerStyle]}>
@@ -20,7 +22,7 @@ const Avatar: React.FC<AvatarProps> = ({ rounded, size, containerStyle, icon, on
 
   if (onPress) {
     return (
-      <Pressable accessibilityRole="button" onPress={onPress} style={styles.pressable}>
+      <Pressable accessibilityRole="button" onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut} style={styles.pressable}>
         {content}
       </Pressable>
     );

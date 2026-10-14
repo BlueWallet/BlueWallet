@@ -361,7 +361,6 @@
     "onchain": "Onchain",
     "details_to": "Output",
     "enable_offline_signing": "This wallet no dey use with offline signing. You go like enable am now?",
-    "list_conf": "Conf na: {number}",
     "pending": "Pend",
     "pending_with_amount": "Pend {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

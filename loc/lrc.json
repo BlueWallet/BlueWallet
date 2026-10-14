@@ -361,7 +361,6 @@
     "onchain": "آنچین",
     "details_to": "خروجی",
     "enable_offline_signing": "اؽ کیف پیلٛ هومرا وا امزا کردن آفلاین و کار نمؽره. مۊخوای ایسه فعال شه؟",
-    "list_conf": "تایید: {number}",
     "pending": "د انتظار",
     "pending_with_amount": "د انتظار {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

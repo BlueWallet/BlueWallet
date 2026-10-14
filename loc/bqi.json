@@ -361,7 +361,6 @@
     "onchain": "آنچین",
     "details_to": "خروجی",
     "enable_offline_signing": "ای کیف پیل وا امزای آفلاین ب کار نری ابۊ. اخۊی ایسا هونه فعال کۊنی؟",
-    "list_conf": "تاییڌ: {number}",
     "pending": "مندیر سی زفت",
     "pending_with_amount": "مندیر سی زفت {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

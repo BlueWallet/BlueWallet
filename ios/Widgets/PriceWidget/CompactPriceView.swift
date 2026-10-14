@@ -39,7 +39,7 @@ struct CompactPriceView_Previews: PreviewProvider {
                 price: "$50,000",
                 lastUpdated: "Oct 10, 2023 at 10:00 AM",
                 code: "USD",
-                dataSource: "CoinDesk"
+                dataSource: "Kraken"
             )
             .previewDisplayName("Market rate")
 

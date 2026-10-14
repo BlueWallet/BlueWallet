@@ -361,7 +361,6 @@
     "onchain": "Он-чейн",
     "details_to": "Изход",
     "enable_offline_signing": "Този портфейл не се използва във връзка с офлайн подписване. Желаете ли да го активирате сега?",
-    "list_conf": "Потв.: {number}",
     "pending": "Чакаща",
     "pending_with_amount": "В очакване {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

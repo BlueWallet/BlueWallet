@@ -38,7 +38,6 @@ const LANG_EXCEPTIONS = new Set([
 const KEY_EXCEPTIONS = new Set([
   // --- Pure format strings (placeholders + punctuation only) ---
   'transactions.received_with_amount',   // "+{amt1} ({amt2})"
-  'transactions.list_conf',              // "Conf: {number}"
   'transactions.details_inputs_count',   // "Inputs ({count})"
   'transactions.details_outputs_count',  // "Outputs ({count})"
   'transactions.confirmations_lowercase',// "{confirmations} confirmations"

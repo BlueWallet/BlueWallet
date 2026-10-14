@@ -374,7 +374,6 @@
     "onchain": "鏈上",
     "details_to": "至",
     "enable_offline_signing": "此錢包未與線下簽名結合使用。您想立即啟用它嗎？",
-    "list_conf": "確認數：{number}",
     "pending": "等待中",
     "pending_with_amount": "待處理 {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
@@ -723,7 +722,7 @@
     "notification_tx_unconfirmed": "通知交易尚未確認，請稍候",
     "failed_create_notif_tx": "無法建立鏈上交易",
     "onchain_tx_needed": "需要鏈上交易",
-    "notif_tx_sent" : "通知交易已送出，請等待確認",
+    "notif_tx_sent": "通知交易已送出，請等待確認",
     "notif_tx": "通知交易",
     "not_found": "找不到支付代碼"
   }

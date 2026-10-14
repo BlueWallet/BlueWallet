@@ -361,7 +361,6 @@
     "onchain": "on-chain",
     "details_to": "Izhod",
     "enable_offline_signing": "Ta denarnica se ne uporablja skupaj s podpisovanjem brez povezave (offline). Ali ga želite omogočiti?",
-    "list_conf": "Potrd: {number}",
     "pending": "V teku",
     "pending_with_amount": "V teku {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

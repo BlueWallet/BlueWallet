@@ -361,7 +361,6 @@
     "onchain": "अन-चेन",
     "details_to": "आउटपुट",
     "enable_offline_signing": "यो वालेट अफलाइन हस्ताक्षरसँग संयोजनमा प्रयोग भइरहेको छैन। के तपाईं यसलाई अहिले सक्षम गर्न चाहनुहुन्छ?",
-    "list_conf": "पुष्टि: {number}",
     "pending": "विचाराधीन",
     "pending_with_amount": "विचाराधीन {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
