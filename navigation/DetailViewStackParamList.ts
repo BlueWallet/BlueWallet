@@ -1,10 +1,16 @@
-import { AztecoVoucher } from '../class/azteco';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import type { NavigatorScreenParams } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
-import { SelectWalletParams, SendDetailsParams, SuccessParams } from './SendDetailsStackParamList';
+import { SelectWalletParams, SendDetailsParams, SendDetailsStackParamList, SuccessParams } from './SendDetailsStackParamList';
 import { ReceiveDetailsStackParamList } from './ReceiveDetailsStackParamList';
+import type { AddWalletStackParamList } from './AddWalletStack';
+import type { AztecoRedeemStackParamList } from './AztecoRedeemStack';
+import type { DrawerParamList } from './DrawerParamList';
+import type { ExportMultisigCoordinationSetupStackRootParamList } from './ExportMultisigCoordinationSetupStack';
+import type { LNDCreateInvoiceStackParamList, ScanLNDInvoiceStackParamList } from './LNDStackParamsList';
+import type { SignVerifyStackParamList } from './SignVerifyStack';
 import { ClipboardPaymentKind } from '../blue_modules/clipboardPayment';
 
 export type ScanQRCodeParamList = {
@@ -36,7 +42,7 @@ export type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['heade
 export type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 
 export type DetailViewStackParamList = {
-  DrawerRoot: undefined;
+  DrawerRoot: NavigatorScreenParams<DrawerParamList> | undefined;
   UnlockWithScreen: undefined;
   KeyboardShortcuts: undefined;
   WalletsList: { onBarScanned?: string };
@@ -72,25 +78,13 @@ export type DetailViewStackParamList = {
   LnurlAuth: { lnurl: string; walletID: string };
   Success: SuccessParams;
   WalletAddresses: { walletID: string };
-  AddWalletRoot: undefined;
-  SendDetailsRoot: SendDetailsParams;
-  LNDCreateInvoiceRoot: undefined;
-  ScanLNDInvoiceRoot: {
-    screen: string;
-    params: {
-      paymentHash: string;
-      fromWalletID: string;
-      justPaid: boolean;
-    };
-  };
-  AztecoRedeemRoot: {
-    screen: string;
-    params: {
-      aztecoVoucher: AztecoVoucher;
-    };
-  };
+  AddWalletRoot: NavigatorScreenParams<AddWalletStackParamList> | undefined;
+  SendDetailsRoot: NavigatorScreenParams<SendDetailsStackParamList> | SendDetailsParams;
+  LNDCreateInvoiceRoot: NavigatorScreenParams<LNDCreateInvoiceStackParamList>;
+  ScanLNDInvoiceRoot: NavigatorScreenParams<ScanLNDInvoiceStackParamList>;
+  AztecoRedeemRoot: NavigatorScreenParams<AztecoRedeemStackParamList>;
   WalletExport: { walletID: string };
-  ExportMultisigCoordinationSetupRoot: undefined;
+  ExportMultisigCoordinationSetupRoot: NavigatorScreenParams<ExportMultisigCoordinationSetupStackRootParamList>;
   Settings: undefined;
   Currency: undefined;
   GeneralSettings: undefined;
@@ -134,13 +128,7 @@ export type DetailViewStackParamList = {
     exportFilename: string;
   };
   WalletXpub: { walletID?: string; xpub: string };
-  SignVerifyRoot: {
-    screen: 'SignVerify';
-    params: {
-      walletID: string;
-      address: string;
-    };
-  };
+  SignVerifyRoot: NavigatorScreenParams<SignVerifyStackParamList>;
   ReceiveDetails: ReceiveDetailsStackParamList['ReceiveDetails'];
   ReceiveCustomAmount: ReceiveDetailsStackParamList['ReceiveCustomAmount'];
   ReceiveMoreOptions: ReceiveDetailsStackParamList['ReceiveMoreOptions'];
