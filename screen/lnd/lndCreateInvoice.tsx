@@ -33,15 +33,11 @@ import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import assert from 'assert';
 import { scanQrHelper } from '../../helpers/scan-qr.ts';
-
-type LNDCreateInvoiceRouteParams = {
-  walletID: string;
-  uri: string;
-};
+import { LNDStackParamsList } from '../../navigation/LNDStackParamsList';
 
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk } = useStorage();
-  const { uri, walletID } = useRoute<RouteProp<{ params: LNDCreateInvoiceRouteParams }, 'params'>>().params;
+  const { uri, walletID } = useRoute<RouteProp<LNDStackParamsList, 'LNDCreateInvoice'>>().params;
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
   const { colors } = useTheme();
   const { navigate, goBack, setParams } = useNavigation();
