@@ -12,6 +12,7 @@ import type { BoltzReverseSwap } from '@arkade-os/boltz-swap';
 import loc from '../loc';
 import { arkadePaymentPushUri, groundControlUri } from './constants';
 import { fetch } from '../util/fetch';
+import { errorMessage } from '../helpers/errorMessage';
 
 const PUSH_TOKEN = 'PUSH_TOKEN';
 const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
@@ -42,7 +43,10 @@ type TPayload = {
   txid: string;
   type: number;
   hash: string;
-  [key: string]: any;
+  walletID?: string;
+  swapId?: string;
+  pr?: string;
+  data?: Record<string, unknown>;
 };
 
 function deepClone<T>(obj: T): T {
@@ -112,9 +116,10 @@ const markNotificationHandled = (key: string) => {
 
 const normalizeNotificationPayload = (notification: RNNotification, status: Pick<TPayload, 'foreground' | 'userInteraction'>): TPayload => {
   const rawPayload =
-    notification.payload && typeof notification.payload === 'object' ? (deepClone(notification.payload) as Record<string, any>) : {};
-  const nestedPayload = rawPayload.data && typeof rawPayload.data === 'object' ? rawPayload.data : {};
-  const nestedData = nestedPayload.data && typeof nestedPayload.data === 'object' ? nestedPayload.data : {};
+    notification.payload && typeof notification.payload === 'object' ? (deepClone(notification.payload) as Record<string, unknown>) : {};
+  const asRecord = (v: unknown): Record<string, unknown> => (v && typeof v === 'object' ? (v as Record<string, unknown>) : {});
+  const nestedPayload = asRecord(rawPayload.data);
+  const nestedData = asRecord(nestedPayload.data);
 
   const payload: TPayload = {
     ...rawPayload,
@@ -384,8 +389,8 @@ export const registerArkPaymentPush = async (paymentHash: string, label: string,
       throw new Error(`status ${response.status}`);
     }
     console.log('[ARK] payment push registration ok');
-  } catch (e: any) {
-    console.log('[ARK] payment push registration failed:', e?.message ?? e);
+  } catch (e) {
+    console.log('[ARK] payment push registration failed:', errorMessage(e));
   }
 };
 
@@ -723,7 +728,7 @@ export const clearStoredNotifications = async () => {
   } catch (_) {}
 };
 
-export const getDeliveredNotifications: () => Promise<Record<string, any>[]> = () => {
+export const getDeliveredNotifications: () => Promise<TPayload[]> = () => {
   try {
     if (Platform.OS !== 'ios') {
       return Promise.resolve([]);

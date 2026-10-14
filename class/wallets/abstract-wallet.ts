@@ -377,7 +377,7 @@ export class AbstractWallet {
    * TODO: be more precise on the type
    */
 
-  createTx(): any {
+  createTx(): never {
     throw Error('not implemented');
   }
 

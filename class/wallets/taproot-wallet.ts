@@ -7,6 +7,7 @@ import { SegwitBech32Wallet } from './segwit-bech32-wallet';
 import { CreateTransactionResult, CreateTransactionUtxo } from './types.ts';
 import { CoinSelectTarget } from 'coinselect';
 import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
+import { errorMessage } from '../../helpers/errorMessage';
 const ECPair = ECPairFactory(ecc);
 
 export class TaprootWallet extends SegwitBech32Wallet {
@@ -67,8 +68,8 @@ export class TaprootWallet extends SegwitBech32Wallet {
       address = bitcoin.payments.p2tr({
         internalPubkey: xOnlyPubkey,
       }).address;
-    } catch (err: any) {
-      console.log(err.message);
+    } catch (err) {
+      console.log(errorMessage(err));
       return false;
     }
     this._address = address ?? false;

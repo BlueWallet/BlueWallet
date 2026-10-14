@@ -5,6 +5,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import ecc from '../../blue_modules/noble_ecc';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+import { errorMessage } from '../../helpers/errorMessage';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -79,8 +80,8 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     try {
       const cipherSeed1 = await CipherSeed.fromMnemonic(this.secret, passphrase);
       this._entropyHex = cipherSeed1.entropy.toString('hex'); // save cache
-    } catch (error: any) {
-      return error.message === 'Invalid Password';
+    } catch (error) {
+      return errorMessage(error) === 'Invalid Password';
     }
     return false;
   }
