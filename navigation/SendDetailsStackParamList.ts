@@ -1,12 +1,9 @@
 import { Psbt } from 'bitcoinjs-lib';
-import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet, Utxo } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
-import { ScanQRCodeParamList } from './DetailViewStackParamList';
+import { HeaderRightRenderer, ScanQRCodeParamList } from './DetailViewStackParamList';
 import { IFee } from '../screen/send/SendDetails';
 import { NetworkTransactionFeeType } from '../models/networkTransactionFees';
-
-type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 
 export const CoinControlSortDirection = {
   ASC: 'asc',
@@ -57,6 +54,25 @@ export type TNavigation = {
 
 export type TNavigationWrapper = {
   navigation: TNavigation;
+};
+
+export type SelectWalletParams = {
+  chainType?: Chain;
+  onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
+  availableWallets?: TWallet[];
+  noWalletExplanationText?: string;
+  onChainRequireSend?: boolean;
+  selectedWalletID?: string; // scroll to this wallet
+};
+
+export type SuccessParams = {
+  fee?: number;
+  amount?: number;
+  amountUnit?: BitcoinUnit;
+  txid?: string;
+  invoiceDescription?: string;
+  walletID?: string;
+  walletType?: string;
 };
 
 export type SendDetailsStackParamList = {
@@ -129,23 +145,8 @@ export type SendDetailsStackParamList = {
     isShowOpenScanner?: boolean;
     onBarScanned?: string;
   };
-  Success: {
-    fee?: number;
-    amount: number;
-    amountUnit?: BitcoinUnit;
-    txid?: string;
-    invoiceDescription?: string;
-    walletID?: string;
-    walletType?: string;
-  };
-  SelectWallet: {
-    chainType?: Chain;
-    onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
-    availableWallets?: TWallet[];
-    noWalletExplanationText?: string;
-    onChainRequireSend?: boolean;
-    selectedWalletID?: string; // Add this parameter to scroll to a specific wallet
-  };
+  Success: SuccessParams;
+  SelectWallet: SelectWalletParams;
   CoinControl: {
     walletID: string;
     sortDirection?: CoinControlSortDirection;
