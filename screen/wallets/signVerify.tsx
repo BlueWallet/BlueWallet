@@ -30,11 +30,7 @@ import {
 import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
 import ActionSheet from '../ActionSheet.ts';
-
-type SignVerifyRouteParams = {
-  walletID: string;
-  address: string;
-};
+import { SignVerifyStackParamList } from '../../navigation/SignVerifyStack';
 
 const SignVerify = () => {
   const { colors } = useTheme();
@@ -42,7 +38,7 @@ const SignVerify = () => {
   const { sleep } = useStorage();
   const scrollViewRef = React.useRef<ScrollView>(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const { address: _address, walletID } = useRoute<RouteProp<{ params: SignVerifyRouteParams }, 'params'>>().params;
+  const { address: _address, walletID } = useRoute<RouteProp<SignVerifyStackParamList, 'SignVerify'>>().params;
 
   const [address, setAddress] = useState(_address);
   const [message, setMessage] = useState('');

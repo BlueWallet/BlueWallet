@@ -89,7 +89,6 @@ export type DetailViewStackParamList = {
       aztecoVoucher: AztecoVoucher;
     };
   };
-  AztecoRedeem: { aztecoVoucher: AztecoVoucher };
   WalletExport: { walletID: string };
   ExportMultisigCoordinationSetupRoot: undefined;
   Settings: undefined;
