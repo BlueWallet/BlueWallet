@@ -19,12 +19,11 @@ export class TaprootWallet extends SegwitBech32Wallet {
   // @ts-ignore: override
   public readonly segwitType = 'p2tr';
 
-  static fromJson(obj: string): TaprootWallet {
-    const wallet = super.fromJson(obj) as unknown as TaprootWallet;
+  static fromJson<T extends TaprootWallet>(this: new () => T, obj: string): T {
+    const wallet = Object.assign(new this(), JSON.parse(obj) as Record<string, unknown>);
     // older versions serialized this wallet with segwitType 'p2wpkh', which made coinselect overestimate input size
     // this override can be removed in 2028, by then all stored wallets should be re-saved with the correct value
-    // @ts-ignore: override readonly
-    wallet.segwitType = 'p2tr';
+    (wallet as { segwitType: string }).segwitType = 'p2tr';
     return wallet;
   }
 
