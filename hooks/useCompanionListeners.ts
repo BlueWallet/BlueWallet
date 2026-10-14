@@ -27,6 +27,7 @@ import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
 import useClipboardDetection from './useClipboardDetection';
+import { errorMessage } from '../blue_modules/errorMessage';
 
 /**
  * Hook that initializes all companion listeners and functionality without rendering a component
@@ -88,7 +89,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         if (+payload.type === 100) {
           const arkWallet = wallets.find(w => w.getID() === payload.walletID);
           if (!arkWallet || !(arkWallet instanceof LightningArkWallet)) {
-            if (wasTapped) {
+            if (wasTapped && payload.walletID) {
               navigation.navigate('WalletTransactions', { walletID: payload.walletID });
               return true;
             }
@@ -102,8 +103,8 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
           try {
             await arkWallet.fetchTransactions();
             await saveToDisk();
-          } catch (e: any) {
-            console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', e?.message ?? e);
+          } catch (e) {
+            console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', errorMessage(e));
           }
 
           if (wasTapped) {
@@ -177,8 +178,8 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             try {
               await arkWallet.fetchTransactions();
               await saveToDisk();
-            } catch (e: any) {
-              console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', e?.message ?? e);
+            } catch (e) {
+              console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', errorMessage(e));
             }
 
             if (wasTapped) {
@@ -306,10 +307,10 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             setSharedCosigner,
           });
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error('Error in handleOpenURL:', err);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: err.message || loc.send.qr_error_no_qrcode });
+        presentAlert({ message: errorMessage(err) || loc.send.qr_error_no_qrcode });
       }
     },
     [wallets, addWallet, saveToDisk, setSharedCosigner, shouldActivateListeners],

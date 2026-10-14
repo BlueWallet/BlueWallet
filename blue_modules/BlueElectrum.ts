@@ -17,6 +17,7 @@ import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { triggerWarningHapticFeedback } from './hapticFeedback';
 import { AlertButton } from 'react-native';
 import { uint8ArrayToHex, stringToUint8Array, hexToUint8Array } from './uint8array-extras/index';
+import { errorMessage } from './errorMessage';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
@@ -923,15 +924,15 @@ export const getTransactionsFullByAddress = async (address: string): Promise<Ele
     let full;
     try {
       full = await mainClient.blockchainTransaction_get(tx.tx_hash, true);
-    } catch (error: any) {
-      if (String(error?.message ?? error).startsWith('verbose transactions are currently unsupported')) {
+    } catch (error) {
+      if (errorMessage(error).startsWith('verbose transactions are currently unsupported')) {
         // apparently, stupid esplora instead of returning txhex when it cant return verbose tx started
         // throwing a proper exception. lets fetch txhex manually and decode on our end
         const txhex = await mainClient.blockchainTransaction_get(tx.tx_hash, false);
         full = txhexToElectrumTransaction(txhex);
       } else {
         // nope, its something else
-        throw new Error(String(error?.message ?? error));
+        throw new Error(errorMessage(error));
       }
     }
     full.address = address;
@@ -940,15 +941,15 @@ export const getTransactionsFullByAddress = async (address: string): Promise<Ele
       let prevTxForVin;
       try {
         prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
-      } catch (error: any) {
-        if (String(error?.message ?? error).startsWith('verbose transactions are currently unsupported')) {
+      } catch (error) {
+        if (errorMessage(error).startsWith('verbose transactions are currently unsupported')) {
           // apparently, stupid esplora instead of returning txhex when it cant return verbose tx started
           // throwing a proper exception. lets fetch txhex manually and decode on our end
           const txhex = await mainClient.blockchainTransaction_get(input.txid, false);
           prevTxForVin = txhexToElectrumTransaction(txhex);
         } else {
           // nope, its something else
-          throw new Error(String(error?.message ?? error));
+          throw new Error(errorMessage(error));
         }
       }
       if (prevTxForVin && prevTxForVin.vout && prevTxForVin.vout[input.vout]) {
@@ -1209,8 +1210,8 @@ export async function multiGetTransactionByTxid<T extends boolean>(
           const txid = index2txid[resultIndex];
           results.push({ result: tx, param: txid });
         }
-      } catch (error: any) {
-        if (String(error?.message ?? error).startsWith('verbose transactions are currently unsupported')) {
+      } catch (error) {
+        if (errorMessage(error).startsWith('verbose transactions are currently unsupported')) {
           // electrs-esplora. cant use verbose, so fetching txs one by one and decoding locally
           for (const txid of chunk) {
             try {
@@ -1415,9 +1416,9 @@ export const broadcastV2 = async function (hex: string): Promise<string> {
   if (!mainClient) throw new Error('Electrum client is not connected');
   try {
     return await mainClient.blockchainTransaction_broadcast(hex);
-  } catch (error: any) {
+  } catch (error) {
     // electrum-client rejects JSON-RPC errors as `{ code, message }`, not Error
-    throw new Error(error?.message || String(error));
+    throw new Error(errorMessage(error) || String(error));
   }
 };
 
@@ -1631,8 +1632,8 @@ export async function getBlockTimestamps(heights: number[]): Promise<Record<numb
   return result;
 }
 
-const splitIntoChunks = function (arr: any[], chunkSize: number) {
-  const groups = [];
+const splitIntoChunks = function <T>(arr: T[], chunkSize: number): T[][] {
+  const groups: T[][] = [];
   let i;
   for (i = 0; i < arr.length; i += chunkSize) {
     groups.push(arr.slice(i, i + chunkSize));
