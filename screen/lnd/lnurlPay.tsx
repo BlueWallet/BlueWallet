@@ -24,18 +24,14 @@ import { TWallet } from '../../class/wallets/types';
 import { pop } from '../../NavigationService';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
-
-type RouteParams = {
-  walletID: string;
-  lnurl: string;
-};
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 const _cacheFiatToSat: Record<string, string> = {};
 
 const LnurlPay: React.FC = () => {
   const { wallets } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
-  const route = useRoute<RouteProp<Record<string, RouteParams>, string>>();
+  const route = useRoute<RouteProp<DetailViewStackParamList, 'LnurlPay'>>();
   const { walletID, lnurl } = route.params;
   const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet;
   const [unit, setUnit] = useState<BitcoinUnit>(wallet?.getPreferredBalanceUnit() ?? BitcoinUnit.BTC);

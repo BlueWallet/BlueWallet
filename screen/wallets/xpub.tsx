@@ -1,4 +1,5 @@
-import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import Share from 'react-native-share';
@@ -17,14 +18,9 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { WalletDescriptor } from '../../class/wallet-descriptor.ts';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
-type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
-export type RootStackParamList = {
-  WalletXpub: {
-    walletID: string;
-    xpub: string;
-  };
-};
+type WalletXpubRouteProp = RouteProp<DetailViewStackParamList, 'WalletXpub'>;
 
 const WalletXpub: React.FC = () => {
   const { wallets } = useStorage();
@@ -35,7 +31,7 @@ const WalletXpub: React.FC = () => {
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [xPubText, setXPubText] = useState<string | undefined>(undefined);
-  const navigation = useNavigation<NavigationProp<RootStackParamList, 'WalletXpub'>>();
+  const navigation = useNavigation<NativeStackNavigationProp<DetailViewStackParamList, 'WalletXpub'>>();
   const stylesHook = useDynamicStyles(); // This now includes the theme implicitly
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
   const lastWalletIdRef = useRef<string | undefined>(undefined);

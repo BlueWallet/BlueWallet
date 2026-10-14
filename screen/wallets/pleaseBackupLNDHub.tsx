@@ -12,13 +12,10 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
-
-type PleaseBackupLNDHubRouteParams = {
-  walletID: string;
-};
+import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 
 const PleaseBackupLNDHub = () => {
-  const { walletID } = useRoute<RouteProp<{ params: PleaseBackupLNDHubRouteParams }, 'params'>>().params;
+  const { walletID } = useRoute<RouteProp<AddWalletStackParamList, 'PleaseBackupLNDHub'>>().params;
   const wallet = useWalletSubscribe(walletID);
   const navigation = useNavigation();
   const { colors } = useTheme();

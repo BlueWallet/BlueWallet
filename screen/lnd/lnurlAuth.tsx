@@ -19,6 +19,7 @@ import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
 import assert from 'assert';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 const AuthState = {
   USER_PROMPT: 0,
@@ -27,15 +28,10 @@ const AuthState = {
   ERROR: 3,
 };
 
-type LnurlAuthRouteParams = {
-  walletID: string;
-  lnurl: string;
-};
-
 const LnurlAuth = () => {
   const { name } = useRoute();
   const { direction } = useLocale();
-  const { lnurl, walletID } = useRoute<RouteProp<{ params: LnurlAuthRouteParams }, 'params'>>().params;
+  const { lnurl, walletID } = useRoute<RouteProp<DetailViewStackParamList, 'LnurlAuth'>>().params;
   const wallet = useWalletSubscribe(walletID);
   const LN = useMemo(() => new Lnurl(lnurl), [lnurl]);
   const parsedLnurl = useMemo(
