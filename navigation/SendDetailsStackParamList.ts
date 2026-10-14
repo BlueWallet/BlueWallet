@@ -1,4 +1,6 @@
 import { Psbt } from 'bitcoinjs-lib';
+import type { NavigationProp } from '@react-navigation/native';
+import type { RootParamList } from './RootParamList';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet, Utxo } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { DetailViewStackParamList, HeaderRightRenderer, ScanQRCodeParamList } from './DetailViewStackParamList';
@@ -49,7 +51,7 @@ export type SendDetailsParams = {
 
 export type TNavigation = {
   pop: () => void;
-  navigate: () => void;
+  navigate: NavigationProp<RootParamList>['navigate'];
 };
 
 export type TNavigationWrapper = {
