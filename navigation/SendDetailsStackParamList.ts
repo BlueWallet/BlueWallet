@@ -36,7 +36,7 @@ export type SendDetailsParams = {
   onBarScanned?: string;
   unit?: BitcoinUnit;
   noRbf?: boolean;
-  walletID: string;
+  walletID?: string;
   launchedBy?: string;
   utxos?: CreateTransactionUtxo[] | null;
   isEditable?: boolean;
@@ -115,7 +115,7 @@ export type SendDetailsStackParamList = {
   };
   PsbtWithHardwareWallet: {
     memo?: string;
-    walletID: string;
+    walletID?: string;
     launchedBy?: string;
     psbt?: Psbt;
     txhex?: string;

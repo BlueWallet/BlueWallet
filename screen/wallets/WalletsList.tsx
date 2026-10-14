@@ -22,7 +22,7 @@ import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ConnectionPollContext } from '../../navigation/ConnectionPollContext';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { RootParamList } from '../../navigation/RootParamList';
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -100,7 +100,7 @@ function reducer(state: WalletListState, action: WalletListAction) {
   }
 }
 
-type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'WalletsList'>;
+type NavigationProps = NativeStackNavigationProp<RootParamList, 'WalletsList'>;
 
 const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -216,7 +216,6 @@ const WalletsList: React.FC = () => {
       try {
         DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          // @ts-ignore: for now
           navigation.navigate(...completionValue);
         });
       } catch (e: any) {

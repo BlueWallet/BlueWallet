@@ -98,7 +98,7 @@ const ClipboardDetected = () => {
     if (contentHash) setLastSeenClipboardHash(contentHash).catch(() => {});
     navigation.goBack();
     InteractionManager.runAfterInteractions(() => {
-      DeeplinkSchemaMatch.navigationRouteFor({ url: payload }, (value: [string, any]) => navigationRef.navigate(...value), {
+      DeeplinkSchemaMatch.navigationRouteFor({ url: payload }, value => navigationRef.navigate(...value), {
         wallets,
         addWallet,
         saveToDisk,
