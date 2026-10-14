@@ -1,4 +1,3 @@
-
 export const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
 
 export const setEnabled = (): void => {};
@@ -8,10 +7,8 @@ export const getEnabled = async (): Promise<boolean> => {
 };
 
 const useDeviceQuickActions = () => {
-
   const popInitialAction = (): void => {};
   return { popInitialAction };
 };
-
 
 export default useDeviceQuickActions;
