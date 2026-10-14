@@ -5,8 +5,8 @@ import HeaderMenuButton from './HeaderMenuButton';
 import { mapActionGroupsToNativeHeaderMenuItems, mapActionsToNativeHeaderMenuItems } from './nativeHeaderMenuItems';
 import { Action } from './types';
 import loc from '../loc';
+import { HeaderRightRenderer } from '../navigation/DetailViewStackParamList';
 
-type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 type HeaderItemsGetter = NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>;
 
 type HeaderMenuOptions = {

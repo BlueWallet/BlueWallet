@@ -1,7 +1,5 @@
-import { TWallet } from '../class/wallets/types';
-import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { ScanQRCodeParamList } from './DetailViewStackParamList';
-import { TNavigationWrapper } from './SendDetailsStackParamList';
+import { SelectWalletParams, SuccessParams } from './SendDetailsStackParamList';
 
 export type LNDStackParamsList = {
   ScanLNDInvoice: {
@@ -15,18 +13,6 @@ export type LNDStackParamsList = {
   };
   LnurlPaySuccess: undefined;
   ScanQRCode: ScanQRCodeParamList;
-  SelectWallet: {
-    chainType?: Chain;
-    onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
-    availableWallets?: TWallet[];
-    noWalletExplanationText?: string;
-    onChainRequireSend?: boolean;
-  };
-  Success: {
-    amount?: number;
-    fee?: number;
-    invoiceDescription?: string;
-    amountUnit: BitcoinUnit;
-    txid?: string;
-  };
+  SelectWallet: SelectWalletParams;
+  Success: SuccessParams;
 };
