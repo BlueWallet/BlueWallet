@@ -1,10 +1,10 @@
 import { AztecoVoucher } from '../class/azteco';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { LightningTransaction, TWallet } from '../class/wallets/types';
-import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
-import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
+import { SelectWalletParams, SendDetailsParams } from './SendDetailsStackParamList';
 import { ClipboardPaymentKind } from '../blue_modules/clipboardPayment';
 
 export type ScanQRCodeParamList = {
@@ -33,8 +33,8 @@ type VaultKeyData = {
   exportString?: string;
 };
 
-type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']>;
-type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
+export type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']>;
+export type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 
 export type DetailViewStackParamList = {
   DrawerRoot: undefined;
@@ -59,14 +59,7 @@ export type DetailViewStackParamList = {
   };
   RBFBumpFee: { txid: string; wallet: TWallet | null };
   RBFCancel: { txid: string; wallet: TWallet | null };
-  SelectWallet: {
-    chainType?: Chain;
-    onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
-    availableWallets?: TWallet[];
-    noWalletExplanationText?: string;
-    onChainRequireSend?: boolean;
-    selectedWalletID?: string; // Add this parameter to scroll to a specific wallet
-  };
+  SelectWallet: SelectWalletParams;
   LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };
   LNDViewAdditionalInvoicePreImage: { invoiceId: string };
