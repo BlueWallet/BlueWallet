@@ -246,8 +246,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // SDK's own reconciliation API so a fresh app launch self-heals
         // without the user's help. Not awaited: this is a best-effort
         // background reconciliation, not a gate on wallet startup.
-        this._recoverStrandedSubmarineFunds(arkadeSwaps).catch((e: any) => {
-          console.log('[ARK] stranded-funds recovery failed:', e?.message ?? e);
+        this._recoverStrandedSubmarineFunds(arkadeSwaps).catch((e: unknown) => {
+          console.log('[ARK] stranded-funds recovery failed:', errorMessage(e));
         });
 
         return { wallet, arkadeSwaps };
@@ -796,7 +796,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
     return this._swapHistory.some(
       swap =>
         swap.type === 'reverse' &&
-        ((swap.request as any)?.invoice === paymentRequest || (swap.response as any)?.invoice === paymentRequest),
+        (('invoice' in swap.request && swap.request.invoice === paymentRequest) ||
+          ('invoice' in swap.response && swap.response.invoice === paymentRequest)),
     );
   }
 

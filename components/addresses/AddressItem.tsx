@@ -19,6 +19,7 @@ import ToolTipMenu from '../TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import HighlightedText from '../HighlightedText';
 import { useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import { errorMessage } from '../../helpers/errorMessage';
 
 interface AddressItemProps {
   item: { key?: string; index: number; address: string; isInternal: boolean; balance?: number; transactions?: number };
@@ -144,8 +145,8 @@ const AddressItem = ({
       }
       triggerHapticFeedback(HapticFeedbackTypes.Selection);
       Clipboard.setString(wif);
-    } catch (error: any) {
-      presentAlert({ message: error.message });
+    } catch (error) {
+      presentAlert({ message: errorMessage(error) });
     }
   }, [wallets, walletID, item.address]);
 
