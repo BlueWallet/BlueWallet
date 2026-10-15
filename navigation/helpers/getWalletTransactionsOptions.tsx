@@ -6,7 +6,6 @@ import Icon from '../../components/Icon';
 import { DetailViewStackParamList } from '../DetailViewStackParamList';
 import { navigationRef } from '../../NavigationService';
 import { RouteProp } from '@react-navigation/native';
-import { isDesktop, isIOS26OrHigher } from '../../blue_modules/environment';
 import WalletGradient from '../../class/wallet-gradient';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -16,8 +15,8 @@ export type WalletTransactionsRouteProps = RouteProp<DetailViewStackParamList, '
 const HERO_HEADER_ICON_COLOR = '#FFFFFF';
 const SCROLLED_HEADER_FADE_IN_MS = 180;
 const SCROLLED_HEADER_FADE_OUT_MS = 150;
-/** iOS 26 glass header (native right items, fading title, no blur). Catalyst reports iOS version but keeps the classic header. */
-const usesIos26AnimatedHeader = Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop;
+/** iOS glass header (native right items, fading title, no blur). */
+const usesIosAnimatedHeader = Platform.OS === 'ios';
 
 type WalletTransactionsScrolledHeaderOptions = NativeStackNavigationOptions & {
   headerTitleContainerStyle?: StyleProp<ViewStyle>;
@@ -30,8 +29,8 @@ type WalletTransactionsScrolledHeaderTitleProps = {
 };
 
 const getScrolledHeaderTitleLayout = (screenWidth: number) => {
-  const titleInsetLeft = Platform.OS === 'ios' ? (isIOS26OrHigher ? 40 : 56) : 72;
-  const titleInsetRight = Platform.OS === 'ios' ? (isIOS26OrHigher ? 96 : 84) : 84;
+  const titleInsetLeft = Platform.OS === 'ios' ? 40 : 72;
+  const titleInsetRight = Platform.OS === 'ios' ? 96 : 84;
   return {
     maxWidth: Math.max(0, screenWidth - titleInsetLeft - titleInsetRight),
     titleInsetLeft,
@@ -39,7 +38,7 @@ const getScrolledHeaderTitleLayout = (screenWidth: number) => {
   };
 };
 
-const buildIos26HeaderTitleLayoutOptions = (
+const buildIosHeaderTitleLayoutOptions = (
   screenWidth: number,
 ): Pick<WalletTransactionsScrolledHeaderOptions, 'headerTitleAlign' | 'headerTitleContainerStyle'> => ({
   headerTitleAlign: 'left',
@@ -64,11 +63,11 @@ const WalletTransactionsScrolledHeaderTitle: React.FC<WalletTransactionsScrolled
   const { maxWidth, titleInsetLeft, titleInsetRight } = getScrolledHeaderTitleLayout(screenWidth);
   const opacity = useSharedValue(0);
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: usesIos26AnimatedHeader ? opacity.value : 1,
+    opacity: usesIosAnimatedHeader ? opacity.value : 1,
   }));
 
   useEffect(() => {
-    if (!usesIos26AnimatedHeader) return;
+    if (!usesIosAnimatedHeader) return;
     opacity.value = withTiming(isScrolled ? 1 : 0, {
       duration: isScrolled ? SCROLLED_HEADER_FADE_IN_MS : SCROLLED_HEADER_FADE_OUT_MS,
     });
@@ -99,7 +98,7 @@ const WalletTransactionsScrolledHeaderTitle: React.FC<WalletTransactionsScrolled
       <View style={[styles.container, { maxWidth }]}>{titleContent}</View>
     );
 
-  if (usesIos26AnimatedHeader) {
+  if (usesIosAnimatedHeader) {
     return (
       <Animated.View style={[styles.animatedTitleWrapper, { width: screenWidth }, animatedStyle]} pointerEvents="box-none">
         {headerContent}
@@ -119,7 +118,7 @@ const navigateToWalletDetails = (walletID: string) => {
   });
 };
 
-/** Material "more" button for WalletTransactions header (pre–iOS 26 and Android). */
+/** Material "more" button for WalletTransactions header on Android. */
 export const createWalletDetailsHeaderRight = ({
   walletID,
   isLoading = false,
@@ -143,7 +142,7 @@ export const createWalletDetailsHeaderRight = ({
   );
 };
 
-/** Native toolbar ellipsis for WalletTransactions on iOS 26+. */
+/** Native toolbar ellipsis for WalletTransactions on iOS. */
 export const createWalletDetailsHeaderRightItems = ({
   isLoading = false,
   walletID,
@@ -195,7 +194,7 @@ const getWalletTransactionsOptions = ({
   const isScrolled = route.params.headerIsScrolled ?? false;
   const base = getWalletTransactionsBaseOptions();
   const { titleInsetRight } = getScrolledHeaderTitleLayout(screenWidth);
-  const showScrolledTitle = isScrolled || usesIos26AnimatedHeader;
+  const showScrolledTitle = isScrolled || usesIosAnimatedHeader;
   const options: WalletTransactionsScrolledHeaderOptions = {
     ...base,
     headerTitle: showScrolledTitle
@@ -206,7 +205,7 @@ const getWalletTransactionsOptions = ({
         })
       : '',
     ...(Platform.OS === 'ios' && showScrolledTitle
-      ? buildIos26HeaderTitleLayoutOptions(screenWidth)
+      ? buildIosHeaderTitleLayoutOptions(screenWidth)
       : isScrolled
         ? {
             headerTitleAlign: 'left' as const,
@@ -230,7 +229,7 @@ const getWalletTransactionsOptions = ({
       ? {
           headerTintColor,
           statusBarStyle: 'light' as const,
-          ...(usesIos26AnimatedHeader
+          ...(usesIosAnimatedHeader
             ? {}
             : {
                 headerBlurEffect: dark ? ('dark' as const) : ('light' as const),
@@ -239,7 +238,7 @@ const getWalletTransactionsOptions = ({
       : {}),
   };
 
-  if (usesIos26AnimatedHeader) {
+  if (usesIosAnimatedHeader) {
     return {
       ...options,
       headerRight: undefined,
