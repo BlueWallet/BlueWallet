@@ -4,7 +4,13 @@ export type ScreenMenuAction =
   | 'receive'
   | 'walletDetails'
   | 'copyAddress'
-  | 'copyTransactionId';
+  | 'copyTransactionId'
+  | 'manageWalletSearch'
+  | 'manageWalletSave'
+  | 'manageWalletClose'
+  | 'manageWalletOpen'
+  | 'manageWalletMoveUp'
+  | 'manageWalletMoveDown';
 export type MenuAction = ScreenMenuAction | 'settings' | 'addWallet' | 'importWallet' | 'backToWallets' | 'keyboardShortcuts';
 export type MenuActionHandlers = Partial<Record<ScreenMenuAction, () => void>>;
 
@@ -13,6 +19,14 @@ const screenActions: Record<string, readonly ScreenMenuAction[]> = {
   WalletTransactions: ['reloadTransactions', 'send', 'receive', 'walletDetails'],
   ReceiveDetails: ['copyAddress'],
   TransactionStatus: ['copyTransactionId'],
+  ManageWallets: [
+    'manageWalletSearch',
+    'manageWalletSave',
+    'manageWalletClose',
+    'manageWalletOpen',
+    'manageWalletMoveUp',
+    'manageWalletMoveDown',
+  ],
 };
 const walletDetailScreens = new Set(['WalletTransactions', 'WalletDetails', 'TransactionStatus', 'ReceiveDetails', 'WalletAddresses']);
 
@@ -36,6 +50,12 @@ export const menuShortcuts = [
   { title: 'Copy Address', key: 'Shift+C', where: 'Receive screen, when an address is displayed' },
   { title: 'Copy Transaction ID', key: 'Shift+C', where: 'Transaction details, when an ID is available' },
   { title: 'Back to Wallets', key: 'Shift+W', where: 'Wallet detail screens' },
+  { title: 'Search Wallets', key: 'F', where: 'Manage Wallets', appleOnly: true },
+  { title: 'Save Wallet Changes', key: 'S', where: 'Manage Wallets, when changes exist', appleOnly: true },
+  { title: 'Open Focused Wallet', key: 'Return', where: 'Manage Wallets', appleOnly: true, usesCommand: false },
+  { title: 'Move Focused Wallet Up', key: '⌥↑', where: 'Manage Wallets', appleOnly: true, usesCommand: false },
+  { title: 'Move Focused Wallet Down', key: '⌥↓', where: 'Manage Wallets', appleOnly: true, usesCommand: false },
+  { title: 'Close or Cancel Search', key: 'Esc', where: 'Manage Wallets', appleOnly: true, usesCommand: false },
   { title: 'Settings', key: ',', where: 'Anywhere after unlocking' },
   { title: 'Keyboard Shortcuts…', key: '/', where: 'Anywhere after unlocking' },
 ] as const;

@@ -1,11 +1,18 @@
-import { useEffect, useRef } from 'react';
-import { Animated } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, Animated } from 'react-native';
 
 const useBounceAnimation = (query: string) => {
   const bounceAnim = useRef(new Animated.Value(1.0)).current;
+  const [reduceMotionEnabled, setReduceMotionEnabled] = useState(false);
 
   useEffect(() => {
-    if (query) {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotionEnabled);
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotionEnabled);
+    return () => subscription.remove();
+  }, []);
+
+  useEffect(() => {
+    if (query && !reduceMotionEnabled) {
       Animated.timing(bounceAnim, {
         toValue: 1.08, // Reduced from 1.2 to 1.08 for more subtle animation
         duration: 150,
@@ -18,7 +25,7 @@ const useBounceAnimation = (query: string) => {
         }).start();
       });
     }
-  }, [bounceAnim, query]);
+  }, [bounceAnim, query, reduceMotionEnabled]);
 
   return bounceAnim;
 };

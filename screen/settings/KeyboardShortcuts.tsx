@@ -6,10 +6,11 @@ import { menuShortcuts } from '../../blue_modules/menuActions';
 export default function KeyboardShortcuts() {
   const { colors } = useTheme();
   const modifier = Platform.OS === 'ios' ? '⌘' : 'Ctrl+';
-  const shortcuts =
+  const shortcuts = (
     Platform.OS === 'android'
       ? [...menuShortcuts, { title: 'Open wallet menu', key: 'M', where: 'Anywhere after unlocking' }]
-      : menuShortcuts;
+      : menuShortcuts
+  ).filter(item => Platform.OS === 'ios' || !('appleOnly' in item && item.appleOnly));
   return (
     <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={styles.content} testID="KeyboardShortcuts">
       <Text style={[styles.description, { color: colors.foregroundColor }]}>
@@ -22,7 +23,7 @@ export default function KeyboardShortcuts() {
             <Text style={{ color: colors.alternativeTextColor }}>{item.where}</Text>
           </View>
           <Text style={[styles.shortcut, { color: colors.foregroundColor }]}>
-            {modifier}
+            {(!('usesCommand' in item) || item.usesCommand !== false) && modifier}
             {item.key}
           </Text>
         </View>

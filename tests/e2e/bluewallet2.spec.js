@@ -601,13 +601,13 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await goBack();
     await goBack();
 
-    // ManageWallets — open via long-press, verify header + drag hint render
+    // ManageWallets — open via long-press and verify the header renders.
     await waitForId('WalletsList');
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).longPress();
-    await waitForId('NavigationCloseButton');
+    await waitFor(element(by.id('ManageWalletsConfirmButton')))
+      .toExist()
+      .withTimeout(15000);
     await expect(element(by.id('Imported HD SegWit (BIP84 Bech32 Native)'))).toBeVisible();
-    await element(by.id('NavigationCloseButton')).tap();
-    await waitForId('WalletsList');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });

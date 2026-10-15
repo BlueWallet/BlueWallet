@@ -31,4 +31,14 @@ describe('native menu availability', () => {
     expect(availableMenuActions('TransactionStatus', ['copyTransactionId'], true)).toContain('copyTransactionId');
     expect(availableMenuActions('WalletsList', [], true)).not.toContain('backToWallets');
   });
+
+  it('offers only currently valid Manage Wallets commands', () => {
+    expect(availableMenuActions('ManageWallets', ['manageWalletSearch', 'manageWalletClose', 'manageWalletSave'], true)).toEqual([
+      'settings',
+      'keyboardShortcuts',
+      'manageWalletSearch',
+      'manageWalletSave',
+      'manageWalletClose',
+    ]);
+  });
 });

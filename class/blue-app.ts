@@ -629,15 +629,30 @@ export class BlueApp {
    *
    * @returns {Promise} Result of storage save
    */
-  async saveToDisk(): Promise<void> {
+  async saveToDisk(walletEdits?: TWallet[]): Promise<void> {
     if (savingInProgress) {
       console.warn('saveToDisk is in progress');
       if (++savingInProgress > 10) presentAlert({ message: 'Critical error. Last actions were not saved' }); // should never happen
       await new Promise(resolve => setTimeout(resolve, 1000 * savingInProgress)); // sleep
-      return this.saveToDisk();
+      return this.saveToDisk(walletEdits);
     }
     savingInProgress = 1;
     let primaryStorageCommitted = false;
+    const previousWallets = this.wallets;
+    const previousHideBalance = new Map(previousWallets.map(wallet => [wallet.getID(), wallet.hideBalance]));
+
+    if (walletEdits) {
+      const currentById = new Map(previousWallets.map(wallet => [wallet.getID(), wallet]));
+      const orderedWallets = walletEdits
+        .map(edit => {
+          const currentWallet = currentById.get(edit.getID());
+          if (currentWallet) currentWallet.hideBalance = edit.hideBalance;
+          return currentWallet;
+        })
+        .filter((wallet): wallet is TWallet => wallet !== undefined);
+      const orderedIds = new Set(orderedWallets.map(wallet => wallet.getID()));
+      this.wallets = [...orderedWallets, ...previousWallets.filter(wallet => !orderedIds.has(wallet.getID()))];
+    }
 
     try {
       const walletsToSave: string[] = []; // serialized wallets
@@ -724,7 +739,11 @@ export class BlueApp {
     } catch (error: any) {
       console.error('save to disk exception:', error.message);
       presentAlert({ message: 'save to disk exception: ' + error.message });
-      if (!primaryStorageCommitted) throw error;
+      if (!primaryStorageCommitted) {
+        this.wallets = previousWallets;
+        for (const wallet of previousWallets) wallet.hideBalance = previousHideBalance.get(wallet.getID()) ?? false;
+        throw error;
+      }
     } finally {
       savingInProgress = 0;
     }

@@ -1,7 +1,9 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
-import { StyleSheet, ViewStyle, ActivityIndicator, Platform, Animated, View, Text, Pressable } from 'react-native';
+import { AccessibilityInfo, StyleSheet, ViewStyle, Platform, Animated, View, Text, Pressable } from 'react-native';
 import { useLocale } from '@react-navigation/native';
 import { Swipeable } from 'react-native-gesture-handler';
+import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
+import type { NativeSyntheticEvent } from 'react-native';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import loc from '../loc';
 import { TransactionListItem } from './TransactionListItem';
@@ -16,6 +18,7 @@ import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
 import { AbstractHDElectrumWallet } from '../class/wallets/abstract-hd-electrum-wallet';
 import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import WalletListItem from './WalletListItem';
+import { isDesktop } from '../blue_modules/environment';
 
 const getHdElectrumWallet = (wallet: TWallet): AbstractHDElectrumWallet | undefined => {
   const w: unknown = wallet;
@@ -59,23 +62,29 @@ type Item = WalletItem | TransactionItem | AddressItem;
 interface ManageWalletsListItemProps {
   item: Item;
   isDraggingDisabled: boolean;
+  isSwipeEnabled: boolean;
   handleToggleHideBalance: (wallet: TWallet) => void;
+  moveWallet: (wallet: TWallet, offset: -1 | 1) => void;
   state: { wallets: TWallet[]; searchQuery: string; isSearchFocused?: boolean };
   navigateToWallet: (wallet: TWallet) => void;
   navigateToAddress: (address: string, walletID: string) => void;
   renderHighlightedText: (text: string, query: string) => React.ReactElement;
   isActive: boolean;
-  globalDragActive: boolean;
+  openSwipeableRef: React.MutableRefObject<Swipeable | null>;
   drag?: () => void;
   isPlaceHolder?: boolean;
   onPressIn?: () => void;
   onPressOut?: () => void;
   style?: ViewStyle;
+  walletPosition?: number;
+  walletCount?: number;
+  onWalletFocus: (wallet: TWallet) => void;
 }
 
 const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   item,
   isDraggingDisabled,
+  isSwipeEnabled,
   drag,
   state,
   isPlaceHolder = false,
@@ -85,20 +94,22 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   onPressIn,
   onPressOut,
   handleToggleHideBalance,
+  moveWallet,
   isActive,
-  globalDragActive,
+  openSwipeableRef,
   style,
+  walletPosition,
+  walletCount,
+  onWalletFocus,
 }) => {
   const { colors, dark } = useTheme();
   const { direction } = useLocale();
-  const [isLoading, setIsLoading] = useState(false);
-
   const prevIsActive = useRef(isActive);
   const swipeableRef = useRef<Swipeable | null>(null);
   const swipeInProgressRef = useRef(false);
 
   useEffect(() => {
-    if (isActive !== prevIsActive.current) {
+    if (isActive && isActive !== prevIsActive.current) {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
     }
     prevIsActive.current = isActive;
@@ -107,9 +118,8 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   const onPress = useCallback(() => {
     if (swipeInProgressRef.current) return;
     if (item.type === ItemType.WalletSection) {
-      setIsLoading(true);
+      triggerHapticFeedback(HapticFeedbackTypes.Selection);
       navigateToWallet(item.data);
-      setIsLoading(false);
     } else if (item.type === ItemType.AddressSection) {
       navigateToAddress(item.data.address, item.data.walletID);
     }
@@ -120,79 +130,168 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       swipeableRef.current?.close?.();
       return;
     }
-    triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
     if (drag) {
       drag();
     }
   }, [drag]);
 
-  if (isLoading) {
-    return <ActivityIndicator size="large" color={colors.brandingColor} />;
-  }
-
   if (item.type === ItemType.WalletSection) {
     const wallet = item.data;
-    const titleColor = dark ? colors.foregroundColor : colors.darkGray;
+    const titleColor = colors.foregroundColor;
+    const balanceColor = dark ? colors.alternativeTextColor : colors.secondButtonTextColor;
     const iconImage = getWalletIconImage(wallet.type, direction);
 
-    const canSwipe = !isActive && !globalDragActive;
+    const canSwipe = isSwipeEnabled && !isActive;
     const isHidden = !!wallet.hideBalance;
 
     const onToggle = () => {
+      triggerHapticFeedback(HapticFeedbackTypes.Selection);
       handleToggleHideBalance(wallet);
       swipeableRef.current?.close?.();
+      AccessibilityInfo.announceForAccessibility(
+        `${wallet.getLabel()}, ${isHidden ? loc.wallets.balance_shown : loc.wallets.balance_hidden}`,
+      );
     };
 
+    const balanceActionLabel = isHidden ? loc.wallets.swipe_balance_show : loc.wallets.swipe_balance_hide;
+    const canMoveUp = !isDraggingDisabled && walletPosition !== undefined && walletPosition > 0;
+    const canMoveDown =
+      !isDraggingDisabled && walletPosition !== undefined && walletCount !== undefined && walletPosition < walletCount - 1;
+    const walletPositionLabel =
+      walletPosition !== undefined && walletCount !== undefined
+        ? String(
+            loc.formatString(loc.wallets.wallet_position, {
+              position: walletPosition + 1,
+              total: walletCount,
+            }),
+          )
+        : undefined;
+    const accessibilityHint = [
+      loc.wallets.open_wallet_transactions,
+      !isDraggingDisabled ? loc.wallets.drag_to_reorder : undefined,
+      isSwipeEnabled ? balanceActionLabel : undefined,
+    ]
+      .filter(Boolean)
+      .join('. ');
+    const accessibilityActions = [
+      ...(isSwipeEnabled ? [{ name: 'toggleBalance', label: balanceActionLabel }] : []),
+      ...(canMoveUp ? [{ name: 'moveUp', label: loc.wallets.move_up }] : []),
+      ...(canMoveDown ? [{ name: 'moveDown', label: loc.wallets.move_down }] : []),
+    ];
     const renderRightActions = () => (
       <View style={styles.rightActionsContainer}>
         <Pressable
           style={({ pressed }) => [
-            styles.rightAction,
+            styles.swipeAction,
             { backgroundColor: colors.buttonBackgroundColor },
-            pressed && styles.rightActionPressed,
+            pressed && styles.swipeActionPressed,
           ]}
           onPress={onToggle}
           accessibilityRole="button"
+          accessibilityLabel={`${wallet.getLabel()}, ${balanceActionLabel}`}
+          accessibilityHint={balanceActionLabel}
           testID={isHidden ? 'SwipeShowBalance' : 'SwipeHideBalance'}
         >
-          <Text style={[styles.rightActionText, { color: colors.buttonTextColor }]}>
+          <Text style={[styles.swipeActionText, { color: colors.buttonTextColor }]}>
             {isHidden ? loc.wallets.swipe_balance_show : loc.wallets.swipe_balance_hide}
           </Text>
         </Pressable>
       </View>
     );
 
+    const contextMenuActions = [
+      { title: loc.wallets.open_wallet_transactions, systemIcon: 'wallet.pass' },
+      { title: balanceActionLabel, systemIcon: isHidden ? 'eye' : 'eye.slash' },
+      { title: loc.wallets.move_up, systemIcon: 'arrow.up', disabled: !canMoveUp },
+      { title: loc.wallets.move_down, systemIcon: 'arrow.down', disabled: !canMoveDown },
+    ];
+
+    const onContextMenuPress = (event: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
+      switch (event.nativeEvent.index) {
+        case 0:
+          onPress();
+          break;
+        case 1:
+          onToggle();
+          break;
+        case 2:
+          moveWallet(wallet, -1);
+          break;
+        case 3:
+          moveWallet(wallet, 1);
+          break;
+      }
+    };
+
     const content = (
       <WalletListItem
         wallet={wallet}
         iconImage={iconImage}
         onPress={onPress}
-        onLongPress={isDraggingDisabled ? undefined : startDrag}
-        delayLongPress={500}
+        onLongPressDrag={isDraggingDisabled ? undefined : startDrag}
         onPressIn={onPressIn}
         onPressOut={onPressOut}
+        onFocus={() => onWalletFocus(wallet)}
         searchQuery={state.searchQuery || ''}
         isActive={isActive}
         borderBottomColor={colors.lightBorder}
         backgroundColor={colors.background}
         titleColor={titleColor}
+        balanceColor={balanceColor}
+        accessibilityLabel={[wallet.getLabel(), walletPositionLabel].filter(Boolean).join(', ')}
+        accessibilityValue={isHidden ? loc.wallets.balance_hidden : undefined}
+        accessibilityHint={accessibilityHint || undefined}
+        accessibilityActions={accessibilityActions}
+        onAccessibilityAction={event => {
+          switch (event.nativeEvent.actionName) {
+            case 'toggleBalance':
+              onToggle();
+              break;
+            case 'moveUp':
+              moveWallet(wallet, -1);
+              break;
+            case 'moveDown':
+              moveWallet(wallet, 1);
+              break;
+          }
+        }}
       />
     );
 
-    if (!canSwipe) return content;
+    const menuContent = isDesktop ? (
+      <ContextMenu
+        title={wallet.getLabel()}
+        actions={contextMenuActions}
+        onPress={onContextMenuPress}
+        previewBackgroundColor="transparent"
+        style={styles.contextMenu}
+      >
+        {content}
+      </ContextMenu>
+    ) : (
+      content
+    );
 
     return (
       <Swipeable
+        enabled={canSwipe}
         ref={r => {
           swipeableRef.current = r;
         }}
         onSwipeableWillOpen={() => {
+          if (openSwipeableRef.current !== swipeableRef.current) {
+            openSwipeableRef.current?.close();
+          }
+          openSwipeableRef.current = swipeableRef.current;
           swipeInProgressRef.current = true;
         }}
         onSwipeableWillClose={() => {
           swipeInProgressRef.current = false;
         }}
         onSwipeableClose={() => {
+          if (openSwipeableRef.current === swipeableRef.current) {
+            openSwipeableRef.current = null;
+          }
           swipeInProgressRef.current = false;
         }}
         renderRightActions={renderRightActions}
@@ -200,7 +299,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
         rightThreshold={40}
         overshootRight={false}
       >
-        {content}
+        {menuContent}
       </Swipeable>
     );
   } else if (item.type === ItemType.TransactionSection && item.data) {
@@ -280,16 +379,29 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
   const { colors, dark } = useTheme();
   const { direction } = useLocale();
   const [expanded] = useState(true);
+  const [reduceMotionEnabled, setReduceMotionEnabled] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const hdElectrum = getHdElectrumWallet(wallet);
 
   useEffect(() => {
+    let mounted = true;
+    AccessibilityInfo.isReduceMotionEnabled().then(enabled => {
+      if (mounted) setReduceMotionEnabled(enabled);
+    });
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotionEnabled);
+    return () => {
+      mounted = false;
+      subscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 300,
+      duration: reduceMotionEnabled ? 0 : 300,
       useNativeDriver: true,
     }).start();
-  }, [fadeAnim]);
+  }, [fadeAnim, reduceMotionEnabled]);
 
   const cardRadius = 16;
   const cardShadowStyle: ViewStyle = {
@@ -332,15 +444,23 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
   const dividerStyle = [styles.itemDivider, { backgroundColor: cardBorderColor }];
 
   const onWalletPress = useCallback(() => {
+    triggerHapticFeedback(HapticFeedbackTypes.Selection);
     navigateToWallet(wallet);
   }, [navigateToWallet, wallet]);
 
-  const titleColor = dark ? colors.foregroundColor : colors.darkGray;
+  const titleColor = colors.foregroundColor;
+  const balanceColor = dark ? colors.alternativeTextColor : colors.secondButtonTextColor;
   const iconImage = getWalletIconImage(wallet.type, direction);
 
   const renderAddress = (address: AddressItem, index: number) => {
-    const computedBalance = hdElectrum?.getBalanceForExternalIndex(address.data.index) ?? 0;
-    const computedTransactions = hdElectrum?.getTransactionCountForExternalIndex(address.data.index) ?? 0;
+    let computedBalance = 0;
+    let computedTransactions = 0;
+    try {
+      computedBalance = hdElectrum?.getBalanceForExternalIndex(address.data.index) ?? 0;
+      computedTransactions = hdElectrum?.getTransactionCountForExternalIndex(address.data.index) ?? 0;
+    } catch {
+      // Keep search results usable if a wallet cannot derive data for this address index.
+    }
 
     return (
       <View key={`addr-${index}`}>
@@ -379,6 +499,9 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
             borderBottomColor={cardBorderColor}
             backgroundColor={walletHeaderBackgroundColor}
             titleColor={titleColor}
+            balanceColor={balanceColor}
+            accessibilityHint={loc.wallets.open_wallet_transactions}
+            accessibilityValue={wallet.hideBalance ? loc.wallets.balance_hidden : undefined}
           />
 
           {expanded && (
@@ -416,20 +539,25 @@ const styles = StyleSheet.create({
     height: 1,
     width: '100%',
   },
+  contextMenu: {
+    flex: 1,
+  },
   rightActionsContainer: {
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
-  rightAction: {
+  swipeAction: {
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 18,
     height: '100%',
+    minWidth: 64,
+    cursor: 'pointer',
   },
-  rightActionPressed: {
+  swipeActionPressed: {
     opacity: 0.85,
   },
-  rightActionText: {
+  swipeActionText: {
     fontSize: 15,
     fontWeight: '600',
   },

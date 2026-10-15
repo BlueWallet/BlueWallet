@@ -1,5 +1,18 @@
-import React, { useMemo } from 'react';
-import { ImageBackground, ImageSourcePropType, StyleSheet, Text, View, ViewStyle, TextStyle, Pressable } from 'react-native';
+import React, { ReactNode, useMemo, useState } from 'react';
+import {
+  AccessibilityActionEvent,
+  AccessibilityActionInfo,
+  ImageBackground,
+  ImageSourcePropType,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
+  TextStyle,
+  Pressable,
+  PixelRatio,
+  useWindowDimensions,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useLocale } from '@react-navigation/native';
 import { useTheme } from './themes';
@@ -16,23 +29,29 @@ type Props = {
   borderBottomColor: string;
   backgroundColor: string;
   titleColor: string;
-  onLongPress?: () => void;
-  delayLongPress?: number;
+  onLongPressDrag?: () => void;
   onPressIn?: () => void;
   onPressOut?: () => void;
+  onFocus?: () => void;
   isActive?: boolean;
   containerStyle?: ViewStyle;
   balanceColor?: string;
+  accessibilityHint?: string;
+  accessibilityLabel?: string;
+  accessibilityValue?: string;
+  accessibilityActions?: readonly AccessibilityActionInfo[];
+  onAccessibilityAction?: (event: AccessibilityActionEvent) => void;
+  trailingAccessory?: ReactNode;
 };
 
 const WalletListItem: React.FC<Props> = ({
   wallet,
   iconImage,
   onPress,
-  onLongPress,
-  delayLongPress = 120,
+  onLongPressDrag,
   onPressIn,
   onPressOut,
+  onFocus,
   searchQuery,
   isActive,
   containerStyle,
@@ -40,17 +59,39 @@ const WalletListItem: React.FC<Props> = ({
   backgroundColor,
   titleColor,
   balanceColor,
+  accessibilityHint,
+  accessibilityLabel,
+  accessibilityValue,
+  accessibilityActions,
+  onAccessibilityAction,
+  trailingAccessory,
 }) => {
   const { colors, dark } = useTheme();
   const { direction } = useLocale();
+  const { width, fontScale } = useWindowDimensions();
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const walletLabel = wallet.getLabel();
   const gradientColors = WalletGradient.gradientsFor(wallet.type);
 
-  const resolvedTitleColor = titleColor ?? (dark ? colors.foregroundColor : colors.darkGray);
-  const resolvedBalanceColor = balanceColor ?? colors.alternativeTextColor;
+  const resolvedTitleColor = titleColor ?? colors.foregroundColor;
+  const resolvedBalanceColor = balanceColor ?? (dark ? colors.alternativeTextColor : colors.secondButtonTextColor);
   const resolvedBorderBottomColor = borderBottomColor ?? colors.lightBorder;
   const resolvedBackgroundColor = backgroundColor ?? colors.background;
+  const rowMetrics = useMemo(() => {
+    const isRoomyLayout = width >= 700;
+    const accessibilityPadding = Math.max(0, Math.min(fontScale, 1.5) - 1) * 4;
+    const round = PixelRatio.roundToNearestPixel;
+
+    return {
+      horizontalPadding: round(isRoomyLayout ? 20 : 16),
+      verticalPadding: round((isRoomyLayout ? 14 : 12) + accessibilityPadding),
+      iconSize: round(isRoomyLayout ? 50 : 46),
+      iconRadius: round(isRoomyLayout ? 11 : 10),
+      contentGap: round(isRoomyLayout ? 16 : 14),
+    };
+  }, [fontScale, width]);
 
   const titleTextStyle = useMemo(
     () => [styles.listItemLabel, { color: resolvedTitleColor, writingDirection: direction }] as TextStyle[],
@@ -63,7 +104,13 @@ const WalletListItem: React.FC<Props> = ({
 
   const balance = useMemo(() => {
     if (wallet.hideBalance) return '';
-    return formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true);
+    try {
+      const value = Number(wallet.getBalance());
+      if (!Number.isFinite(value)) return '';
+      return formatBalance(value, wallet.getPreferredBalanceUnit(), true);
+    } catch {
+      return '';
+    }
   }, [wallet]);
 
   const highlightStyle = useMemo(() => {
@@ -76,74 +123,113 @@ const WalletListItem: React.FC<Props> = ({
   }, [dark, resolvedTitleColor]);
 
   return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.listItem,
+    <View
+      style={[
+        styles.listItemContainer,
         {
           backgroundColor: isActive ? colors.lightButton : resolvedBackgroundColor,
           borderBottomColor: resolvedBorderBottomColor,
         },
-        pressed && styles.pressed,
         containerStyle,
       ]}
-      onPress={onPress}
-      onLongPress={onLongPress}
-      delayLongPress={onLongPress ? delayLongPress : undefined}
-      onPressIn={onPressIn}
-      onPressOut={onPressOut}
-      accessibilityRole="button"
-      testID={walletLabel}
     >
-      <LinearGradient colors={gradientColors} style={styles.iconBox}>
-        <ImageBackground source={iconImage} style={styles.iconImage} />
-      </LinearGradient>
-      <View style={styles.listItemContent}>
-        {searchQuery ? (
-          <HighlightedText text={walletLabel} query={searchQuery} style={titleTextStyle} highlightStyle={highlightStyle} />
-        ) : (
-          <Text numberOfLines={1} style={titleTextStyle}>
-            {walletLabel}
-          </Text>
-        )}
+      <Pressable
+        style={({ pressed }) => [
+          styles.listItem,
+          {
+            paddingHorizontal: rowMetrics.horizontalPadding,
+            paddingVertical: rowMetrics.verticalPadding,
+          },
+          (isHovered || isFocused) && { backgroundColor: colors.lightButton },
+          pressed && styles.pressed,
+        ]}
+        onPress={onPress}
+        onLongPress={onLongPressDrag}
+        delayLongPress={onLongPressDrag ? 500 : undefined}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        onHoverIn={() => setIsHovered(true)}
+        onHoverOut={() => setIsHovered(false)}
+        onFocus={() => {
+          setIsFocused(true);
+          onFocus?.();
+        }}
+        onBlur={() => setIsFocused(false)}
+        focusable
+        tabIndex={0}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel ?? walletLabel}
+        accessibilityHint={accessibilityHint}
+        accessibilityValue={accessibilityValue || balance ? { text: accessibilityValue ?? balance } : undefined}
+        accessibilityActions={accessibilityActions}
+        onAccessibilityAction={onAccessibilityAction}
+        accessibilityState={{ busy: isActive }}
+        testID={walletLabel}
+      >
+        <LinearGradient
+          colors={gradientColors}
+          style={[
+            styles.iconBox,
+            {
+              width: rowMetrics.iconSize,
+              height: rowMetrics.iconSize,
+              borderRadius: rowMetrics.iconRadius,
+            },
+          ]}
+          accessible={false}
+          importantForAccessibility="no-hide-descendants"
+        >
+          <ImageBackground
+            source={iconImage}
+            style={{ width: rowMetrics.iconSize, height: rowMetrics.iconSize }}
+            resizeMode="center"
+            accessible={false}
+          />
+        </LinearGradient>
+        <View style={[styles.listItemContent, { marginLeft: rowMetrics.contentGap }]}>
+          {searchQuery ? (
+            <HighlightedText text={walletLabel} query={searchQuery} style={titleTextStyle} highlightStyle={highlightStyle} />
+          ) : (
+            <Text numberOfLines={1} style={titleTextStyle}>
+              {walletLabel}
+            </Text>
+          )}
 
-        {wallet.hideBalance ? (
-          <View style={styles.hiddenBalance} testID="HiddenBalance">
-            <View style={styles.hiddenBalanceBar} />
-          </View>
-        ) : (
-          <Text numberOfLines={1} style={balanceTextStyle}>
-            {balance}
-          </Text>
-        )}
-      </View>
-    </Pressable>
+          {wallet.hideBalance ? (
+            <View style={styles.hiddenBalance} testID="HiddenBalance">
+              <View style={styles.hiddenBalanceBar} />
+            </View>
+          ) : (
+            <Text numberOfLines={1} style={balanceTextStyle}>
+              {balance}
+            </Text>
+          )}
+        </View>
+      </Pressable>
+      {trailingAccessory}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  listItem: {
+  listItemContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    alignItems: 'stretch',
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
+  listItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    cursor: 'pointer',
+  },
   iconBox: {
-    width: 46,
-    height: 46,
-    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
   },
-  iconImage: {
-    width: 46,
-    height: 46,
-    resizeMode: 'center',
-  },
   listItemContent: {
     flex: 1,
-    marginLeft: 14,
     justifyContent: 'center',
   },
   listItemLabel: {

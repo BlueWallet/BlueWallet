@@ -316,27 +316,39 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.launchApp({ newInstance: true });
     await waitForId('WalletsList');
     await element(by.id('cr34t3d')).longPress();
-    await waitForId('NavigationCloseButton');
+    await waitFor(element(by.label('Confirm')).atIndex(0))
+      .toExist()
+      .withTimeout(15000);
     await expect(element(by.id('cr34t3d'))).toBeVisible();
 
     // swipe wallet row left to reveal Hide action; tap it
     await element(by.id('cr34t3d')).swipe('left', 'slow', 0.6);
     await waitForId('SwipeHideBalance');
     await element(by.id('SwipeHideBalance')).tap();
-    await element(by.id('NavigationCloseButton')).tap();
+    await element(by.label('Close')).atIndex(0).tap();
+    await waitForText('Discard changes?');
+    await element(by.text('Cancel')).tap();
+    await expect(element(by.id('cr34t3d'))).toBeVisible();
+    await element(by.label('Confirm')).atIndex(0).tap();
+    await waitForText('Save wallet changes?');
+    await element(by.text('Yes')).tap();
     await waitForId('WalletsList');
 
     // restart app — hide state must persist; swipe-left now exposes "Show" (hideBalance persisted as true)
     await device.launchApp({ newInstance: true });
     await waitForId('WalletsList');
     await element(by.id('cr34t3d')).longPress();
-    await waitForId('NavigationCloseButton');
+    await waitFor(element(by.label('Confirm')).atIndex(0))
+      .toExist()
+      .withTimeout(15000);
     await element(by.id('cr34t3d')).swipe('left', 'slow', 0.6);
     await waitForId('SwipeShowBalance');
 
     // restore visible state so subsequent tests are clean
     await element(by.id('SwipeShowBalance')).tap();
-    await element(by.id('NavigationCloseButton')).tap();
+    await element(by.label('Confirm')).atIndex(0).tap();
+    await waitForText('Save wallet changes?');
+    await element(by.text('Yes')).tap();
     await waitForId('WalletsList');
 
     // address label persisted, reopen receive and verify it's still there
@@ -348,6 +360,47 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await goBack();
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can search managed wallets and exit search', async () => {
+    const walletName = `Searchable wallet ${Date.now()}`;
+    await device.clearKeychain();
+    await device.launchApp({ newInstance: true });
+    await waitForId('WalletsList');
+    await helperCreateWallet(walletName);
+
+    await element(by.id(walletName)).longPress();
+    await waitFor(element(by.id('ManageWalletsConfirmButton')))
+      .toExist()
+      .withTimeout(15000);
+
+    let searchField;
+    if (device.getPlatform() === 'android') {
+      await element(by.label('Search')).tap();
+      searchField = element(by.type('android.widget.EditText'));
+      await searchField.tap();
+    } else {
+      try {
+        await element(by.label('Search')).tap();
+      } catch (_) {}
+      searchField = element(by.type('UISearchTextField'));
+      await searchField.tap({ x: 8, y: 8 });
+    }
+
+    await searchField.replaceText('Searchable');
+    await expect(element(by.id(walletName))).toBeVisible();
+
+    await searchField.replaceText('wallet-that-does-not-exist');
+    await waitForText('No results found.');
+    await expect(element(by.id(walletName))).not.toBeVisible();
+
+    await element(by.id('ManageWalletsClearSearchButton')).tap();
+    await waitForId(walletName);
+    await waitFor(element(by.id('NavigationCloseButton')))
+      .toExist()
+      .withTimeout(15000);
+    await element(by.id('NavigationCloseButton')).tap();
+    await waitForId('WalletsList');
   });
 
   it('can encrypt storage, with plausible deniabilityl decrypt fake storage', async () => {

@@ -411,6 +411,12 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ("backToWallets", "Back to Wallets", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view),
             ("copyAddress", "Copy Address", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit),
             ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit),
+            ("manageWalletSearch", "Search Wallets", #selector(manageWalletSearchAction), "f", .command, .edit),
+            ("manageWalletSave", "Save Wallet Changes", #selector(manageWalletSaveAction), "s", .command, .file),
+            ("manageWalletClose", "Close or Cancel Search", #selector(manageWalletCloseAction), UIKeyCommand.inputEscape, [], .file),
+            ("manageWalletOpen", "Open Focused Wallet", #selector(manageWalletOpenAction), "\r", [], .view),
+            ("manageWalletMoveUp", "Move Focused Wallet Up", #selector(manageWalletMoveUpAction), UIKeyCommand.inputUpArrow, .alternate, .edit),
+            ("manageWalletMoveDown", "Move Focused Wallet Down", #selector(manageWalletMoveDownAction), UIKeyCommand.inputDownArrow, .alternate, .edit),
             ("keyboardShortcuts", "Keyboard Shortcuts…", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
         ]
         for parent in [UIMenu.Identifier.file, .edit, .view, .help] {
@@ -473,6 +479,30 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     @objc func copyTransactionIdMenuAction(_ keyCommand: UIKeyCommand) {
         MenuElementsController.shared.perform("copyTransactionId")
+    }
+
+    @objc func manageWalletSearchAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWalletSearch")
+    }
+
+    @objc func manageWalletSaveAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWalletSave")
+    }
+
+    @objc func manageWalletCloseAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWalletClose")
+    }
+
+    @objc func manageWalletOpenAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWalletOpen")
+    }
+
+    @objc func manageWalletMoveUpAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWalletMoveUp")
+    }
+
+    @objc func manageWalletMoveDownAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWalletMoveDown")
     }
 
     @objc func keyboardShortcutsMenuAction(_ keyCommand: UIKeyCommand) {

@@ -114,6 +114,12 @@ it.each([
   ['WalletTransactions', 'walletDetails'],
   ['ReceiveDetails', 'copyAddress'],
   ['TransactionStatus', 'copyTransactionId'],
+  ['ManageWallets', 'manageWalletSearch'],
+  ['ManageWallets', 'manageWalletSave'],
+  ['ManageWallets', 'manageWalletClose'],
+  ['ManageWallets', 'manageWalletOpen'],
+  ['ManageWallets', 'manageWalletMoveUp'],
+  ['ManageWallets', 'manageWalletMoveDown'],
 ] as const)('dispatches %s / %s only while its handler is registered', (screen, action) => {
   setRoute(screen);
   const hook = renderHook(useMenuElements);
