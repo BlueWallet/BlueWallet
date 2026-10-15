@@ -10,6 +10,7 @@ import {
   View,
   StyleProp,
   TextStyle,
+  ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
@@ -333,15 +334,12 @@ const ButtonContent = ({ icon, text, textStyle, buttonHeight }: ButtonContentPro
   if (React.isValidElement(icon)) {
     const iconElement = icon as React.ReactElement;
 
-    scaledIcon = React.cloneElement(
-      iconElement as React.ReactElement<any>,
-      {
-        ...(iconElement.props as Record<string, unknown>),
-        size: iconSize,
-        width: iconSize,
-        height: iconSize,
-      } as any,
-    );
+    scaledIcon = React.cloneElement(iconElement as React.ReactElement<Record<string, unknown>>, {
+      ...(iconElement.props as Record<string, unknown>),
+      size: iconSize,
+      width: iconSize,
+      height: iconSize,
+    });
   } else {
     scaledIcon = icon;
   }
@@ -410,7 +408,7 @@ export const FButton = ({
     };
   }, [colors, fontSize, buttonHeight]);
 
-  const style: Record<string, any> = {};
+  const style: ViewStyle = {};
   const additionalStyles = !last ? (isVertical ? customButtonStyles.marginBottom : customButtonStyles.marginRight) : {};
 
   if (width) {
@@ -612,7 +610,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
 
     const isSingleChild = array.length === 1;
 
-    return React.cloneElement(child as React.ReactElement<any>, {
+    return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, {
       width: effectiveNewWidth,
       key: index,
       last: index === array.length - 1,

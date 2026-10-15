@@ -102,7 +102,7 @@ export interface DecodedInvoice {
 export type LightningTransaction = {
   memo?: string;
   type?: 'user_invoice' | 'payment_request' | 'bitcoind_tx' | 'paid_invoice';
-  payment_hash?: string | { data: string };
+  payment_hash?: string | { data: number[] }; // lndhub serializes a Buffer
   category?: 'receive';
   timestamp: number; // seconds, not milliseconds
   expire_time?: number;
