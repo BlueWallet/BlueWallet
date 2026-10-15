@@ -278,15 +278,7 @@ const ManageWallets: React.FC = () => {
 
                 for (let i = 0; i < addressLimit; i++) {
                   const address = addresses[i];
-                  const addressValue =
-                    typeof address === 'string'
-                      ? address
-                      : address &&
-                          typeof address === 'object' &&
-                          'address' in (address as any) &&
-                          typeof (address as any).address === 'string'
-                        ? ((address as any).address as string)
-                        : '';
+                  const addressValue = typeof address === 'string' ? address : '';
 
                   if (addressValue.toLowerCase().includes(lowerQuery)) {
                     if (!walletsWithMatches.has(walletID)) {
@@ -393,7 +385,7 @@ const ManageWallets: React.FC = () => {
   useLayoutEffect(() => {
     const searchBarOptions = {
       hideWhenScrolling: false,
-      onChangeText: (event: { nativeEvent: { text: any } }) => debouncedSearch(event.nativeEvent.text),
+      onChangeText: (event: { nativeEvent: { text: string } }) => debouncedSearch(event.nativeEvent.text),
       onClear: () => debouncedSearch(''),
       onFocus: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: true }),
       onBlur: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false }),

@@ -31,6 +31,7 @@ import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/Bl
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
 import ActionSheet from '../ActionSheet.ts';
 import { SignVerifyStackParamList } from '../../navigation/SignVerifyStack';
+import { errorMessage } from '../../blue_modules/errorMessage';
 
 const SignVerify = () => {
   const { colors } = useTheme();
@@ -110,9 +111,9 @@ const SignVerify = () => {
       newSignature = wallet.signMessage(message, address);
       setSignature(newSignature);
       setIsShareVisible(true);
-    } catch (e: any) {
+    } catch (e) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ title: loc.errors.error, alertMessage: e.message });
+      presentAlert({ title: loc.errors.error, alertMessage: errorMessage(e) });
     }
 
     setLoading(false);
@@ -130,9 +131,9 @@ const SignVerify = () => {
       if (res) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       }
-    } catch (e: any) {
+    } catch (e) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ title: loc.errors.error, alertMessage: e.message });
+      presentAlert({ title: loc.errors.error, alertMessage: errorMessage(e) });
     }
     setLoading(false);
   };

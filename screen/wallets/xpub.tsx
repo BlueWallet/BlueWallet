@@ -1,7 +1,7 @@
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, LayoutChangeEvent } from 'react-native';
 import Share from 'react-native-share';
 import BlueText from '../../components/BlueText';
 import Button from '../../components/Button';
@@ -78,7 +78,7 @@ const WalletXpub: React.FC = () => {
     })();
   }, [wallet, xpub]);
 
-  const onLayout = (e: { nativeEvent: { layout: { width: any; height?: any } } }) => {
+  const onLayout = (e: LayoutChangeEvent) => {
     const { height, width } = e.nativeEvent.layout;
 
     const isPortrait = height > width;
