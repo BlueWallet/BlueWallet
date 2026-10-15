@@ -1,11 +1,17 @@
 import assert from 'assert';
+import BIP32Factory from 'bip32';
+import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
+
+import ecc from '../../blue_modules/noble_ecc';
 
 import Base43 from '../../blue_modules/base43';
 import { BlueURDecoder, decodeUR, encodeUR } from '../../blue_modules/ur';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+
+const bip32 = BIP32Factory(ecc);
 
 const fp1cobo = 'D37EAD88';
 const Zpub1 = 'Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ';
@@ -2203,6 +2209,194 @@ describe('multisig-wallet (native segwit)', () => {
     );
 
     assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1q4taqq6q6l8fvguva6ftvrz3qgdjy6p3w2s0ds0nl6qrjw7t0hfhqgrqcwd');
+  });
+});
+
+describe('cosignPsbt with more local keys than quorum', () => {
+  const seeds = [
+    'certain cruise forum ladder reveal frame company book sausage flat wasp mouse',
+    'sting tumble brave remember sadness embrace increase under year joke drum skate',
+    'daughter parade neck suit brick wife horror inquiry leopard exhibit body mobile',
+  ];
+  const utxos = [
+    {
+      address: 'bc1qzwt595g0q0xauxzr4h56kw4zavfrnq3r4zkx42relm8rvwuuxyvsqndmgl',
+      confirmations: 33,
+      height: 668483,
+      txhex:
+        '020000000001019e590dee7124728b988e32c1daad3a550663327b3478c4f9ee15eeaf740b898f0100000017160014018958ab9e2b29b7313a39c1a62189affeac94a8ffffffff014808000000000000220020139742d10f03cdde1843ade9ab3aa2eb12398223a8ac6aa879fece363b9c311902483045022100f431ad4d213265531f600ebf242cabd3adcb7b5c27464ad080a34ce4fb4a5e5702206fad42768d29ee1121e19dc4489366d0c02a412e9d60431cac59d49642868c7b0121037a24a1d8a4e86946e89478f352bda9d6b40843e01b86af5c94b99634cbb0c6b200000000',
+      txid: '43b2ac418539b61610c3ae2e216052d634b9b20fcece05940b5662fe5cf3f3b5',
+      value: 2120,
+      vout: 0,
+      wif: false,
+    },
+    {
+      address: 'bc1qn0j7y5hau6s8tdcpnxyyumck256lfet78ehpxdkytv5nt570dr4qxl9s3p',
+      confirmations: 1,
+      height: 668515,
+      txhex:
+        '02000000000101a1fba4a09a1a7ed090c64f15024de4b9008b6ec4ee5e336f0f0fc43f78022dfa01000000171600142f78bf055b26feb8f2f6b3caa5956b991c507e49ffffffff0210270000000000002200209be5e252fde6a075b70199884e6f165535f4e57e3e6e1336c45b2935d3cf68ea9a8705000000000017a91484d55f28fc28676c5f195ce649851428ec5010a3870248304502210098a970398bc40a34423d5661ecc499240bb0edb6e6bea74a752269f92e588b1b022031fcdf66c4ed8378f352a5a096c438e7a8c1415c47c119a4c69ef787e1cdf5d9012102ade0a25d66406f67dc3e4a6c8bedd989dd3ceed7a623fb4c2839a84b5262ca0900000000',
+      txid: '3a2753147121c2ab312a419f0788cb534232d3c0bd4838de718487aca495ac7a',
+      value: 10000,
+      vout: 0,
+      wif: false,
+    },
+  ];
+
+  // 2-of-3 vault with all 3 seeds on device
+  const makeWallet = () => {
+    const w = new MultisigHDWallet();
+    w.setSecret(
+      '# BlueWallet Multisig setup file\n' +
+        'Name: Multisig Vault\n' +
+        'Policy: 2 of 3\n' +
+        "Derivation: m/48'/0'/0'/2'\n" +
+        'Format: P2WSH\n' +
+        '\n' +
+        seeds.map(seed => `seed: ${seed}\n`).join('\n'),
+    );
+    assert.strictEqual(w.howManySignaturesCanWeMake(), 3);
+    return w;
+  };
+
+  const makeUnsignedPsbt = w =>
+    w.createTransaction(utxos, [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS' }], 6, w._getInternalAddressByIndex(0), false, true).psbt;
+
+  const signWithSeed = (psbt, inputIndex, seed) => psbt.signInputHD(inputIndex, bip32.fromSeed(bip39.mnemonicToSeedSync(seed)));
+
+  const assertWitnessSigs = (tx, inputIndex, sigs) => {
+    // OP_0, M signatures, witness script
+    assert.strictEqual(tx.ins[inputIndex].witness.length, sigs + 2);
+  };
+
+  it('signs only up to quorum', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 0);
+
+    const { tx } = w.cosignPsbt(psbt);
+
+    assert.ok(tx);
+    assertWitnessSigs(tx, 0, 2);
+    assertWitnessSigs(tx, 1, 2);
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
+  });
+
+  it('tops up unequally signed inputs', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    signWithSeed(psbt, 0, seeds[2]);
+    assert.strictEqual(psbt.data.inputs[0].partialSig.length, 1);
+    assert.strictEqual(psbt.data.inputs[1].partialSig, undefined);
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 0); // least signed input decides
+
+    const { tx } = w.cosignPsbt(psbt);
+
+    assert.ok(tx);
+    assertWitnessSigs(tx, 0, 2);
+    assertWitnessSigs(tx, 1, 2);
+  });
+
+  it('does nothing when quorum is already reached', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    signWithSeed(psbt, 0, seeds[1]);
+    signWithSeed(psbt, 0, seeds[2]);
+    signWithSeed(psbt, 1, seeds[1]);
+    signWithSeed(psbt, 1, seeds[2]);
+    const before = psbt.toBase64();
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
+
+    const { tx } = w.cosignPsbt(psbt);
+
+    assert.ok(tx);
+    assertWitnessSigs(tx, 0, 2);
+    assertWitnessSigs(tx, 1, 2);
+    assert.strictEqual(bitcoin.Psbt.fromBase64(before).finalizeAllInputs().extractTransaction().toHex(), tx.toHex());
+  });
+
+  it('skips finalized inputs', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    signWithSeed(psbt, 0, seeds[0]);
+    signWithSeed(psbt, 0, seeds[1]);
+    psbt.finalizeInput(0);
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 0);
+
+    const { tx } = w.cosignPsbt(psbt);
+
+    assert.ok(tx);
+    assertWitnessSigs(tx, 0, 2);
+    assertWitnessSigs(tx, 1, 2);
+
+    // fully finalized psbt is left as is
+    const { tx: tx2 } = w.cosignPsbt(psbt);
+    assert.strictEqual(tx2.toHex(), tx.toHex());
+  });
+
+  // 2-of-3 vault with only some of the seeds on device, the rest as xpubs
+  const makeWalletWithSeeds = localSeeds => {
+    const w = new MultisigHDWallet();
+    for (const seed of seeds) {
+      if (localSeeds.includes(seed)) {
+        w.addCosigner(seed);
+      } else {
+        w.addCosigner(MultisigHDWallet.seedToXpub(seed, "m/48'/0'/0'/2'"), MultisigHDWallet.mnemonicToFingerprint(seed));
+      }
+    }
+    w.setDerivationPath("m/48'/0'/0'/2'");
+    w.setM(2);
+    w.setNativeSegwit();
+    assert.strictEqual(w.howManySignaturesCanWeMake(), localSeeds.length);
+    return w;
+  };
+
+  it('adds only the missing signature next to an external one', () => {
+    const w = makeWalletWithSeeds([seeds[0], seeds[1]]);
+    const psbt = makeUnsignedPsbt(w);
+    signWithSeed(psbt, 0, seeds[2]);
+    signWithSeed(psbt, 1, seeds[2]);
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 1);
+
+    const { tx } = w.cosignPsbt(psbt);
+
+    assert.ok(tx);
+    assertWitnessSigs(tx, 0, 2);
+    assertWitnessSigs(tx, 1, 2);
+  });
+
+  it('stops short of quorum with a single local key', () => {
+    const w = makeWalletWithSeeds([seeds[0]]);
+    const psbt = makeUnsignedPsbt(w);
+
+    assert.strictEqual(w.cosignPsbt(psbt).tx, false);
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 1);
+    assert.strictEqual(psbt.data.inputs[0].partialSig.length, 1);
+    assert.strictEqual(psbt.data.inputs[1].partialSig.length, 1);
+
+    const before = psbt.toBase64();
+    assert.strictEqual(w.cosignPsbt(psbt).tx, false);
+    assert.strictEqual(psbt.toBase64(), before);
+  });
+
+  it('ignores a signature by a key that is not in the script', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    // real signature, but attributed to a key from outside the vault
+    const strayPubkey = bip32.fromSeed(
+      bip39.mnemonicToSeedSync('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'),
+    ).publicKey;
+    const signed = psbt.clone();
+    signWithSeed(signed, 0, seeds[2]);
+    psbt.updateInput(0, { partialSig: [{ pubkey: strayPubkey, signature: signed.data.inputs[0].partialSig[0].signature }] });
+    assert.strictEqual(psbt.data.inputs[0].partialSig.length, 1);
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 0);
+
+    const { tx } = w.cosignPsbt(psbt);
+
+    assert.ok(tx);
+    assertWitnessSigs(tx, 0, 2);
+    assertWitnessSigs(tx, 1, 2);
   });
 });
 
