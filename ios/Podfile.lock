@@ -29,7 +29,7 @@ PODS:
     - hermes-engine/Pre-built (= 250829098.0.10)
   - hermes-engine/Pre-built (250829098.0.10)
   - lottie-ios (4.6.0)
-  - lottie-react-native (7.4.0):
+  - lottie-react-native (7.5.0):
     - hermes-engine
     - lottie-ios (= 4.6.0)
     - RCTRequired
@@ -1529,7 +1529,7 @@ PODS:
     - Yoga
   - react-native-notifications (5.2.2):
     - React-Core
-  - react-native-safe-area-context (5.8.1):
+  - react-native-safe-area-context (5.10.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1541,8 +1541,8 @@ PODS:
     - React-graphics
     - React-ImageManager
     - React-jsi
-    - react-native-safe-area-context/common (= 5.8.1)
-    - react-native-safe-area-context/fabric (= 5.8.1)
+    - react-native-safe-area-context/common (= 5.10.1)
+    - react-native-safe-area-context/fabric (= 5.10.1)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1553,7 +1553,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-safe-area-context/common (5.8.1):
+  - react-native-safe-area-context/common (5.10.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1575,7 +1575,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-safe-area-context/fabric (5.8.1):
+  - react-native-safe-area-context/fabric (5.10.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1600,15 +1600,15 @@ PODS:
     - Yoga
   - react-native-secure-key-store (2.0.10):
     - React-Core
-  - react-native-tcp-socket (6.4.2):
+  - react-native-tcp-socket (6.4.3):
     - CocoaAsyncSocket
     - React-Core
-  - react-native-vector-icons-entypo (13.1.2)
-  - react-native-vector-icons-fontawesome (13.1.2)
-  - react-native-vector-icons-fontawesome6 (13.1.2)
-  - react-native-vector-icons-ionicons (13.1.2)
-  - react-native-vector-icons-material-design-icons (13.1.2)
-  - react-native-vector-icons-material-icons (13.1.2)
+  - react-native-vector-icons-entypo (13.1.4)
+  - react-native-vector-icons-fontawesome (13.1.4)
+  - react-native-vector-icons-fontawesome6 (13.1.4)
+  - react-native-vector-icons-ionicons (13.1.4)
+  - react-native-vector-icons-material-design-icons (13.1.4)
+  - react-native-vector-icons-material-icons (13.1.4)
   - React-NativeModulesApple (0.85.3):
     - hermes-engine
     - React-callinvoker
@@ -2090,7 +2090,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.32.0):
+  - RNGestureHandler (2.33.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2136,7 +2136,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNLocalize (3.7.0):
+  - RNLocalize (3.7.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2158,7 +2158,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNPermissions (5.6.1):
+  - RNPermissions (5.6.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2853,7 +2853,7 @@ SPEC CHECKSUMS:
   FBLazyVector: 24e62c765683b8d89006a88a2c8f5cf019f0074d
   hermes-engine: 86cdbf283775c54dc008895c3eacd24a1f2a40b4
   lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
-  lottie-react-native: f1ba9e6ea9a6053700eb60dbb9c45bfa5779c11f
+  lottie-react-native: 15890be59c58bf4fbdac4c93fa5759c84ee79f7f
   RCTDeprecation: a4c521821fab57cbb125b36effe84d897d0dfa12
   RCTRequired: 9f3a7e5645d4bc3f551593de7550bb66ab6e42bc
   RCTSwiftUI: 239ed2eb9e73de5a6f518810630f0c95e01c8702
@@ -2900,15 +2900,15 @@ SPEC CHECKSUMS:
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
   react-native-image-picker: 23540feacc79c63c60857f318fdfa8477c26e70a
   react-native-notifications: e2d3c022d6077de7e420ba5c01b4bd9464f3941d
-  react-native-safe-area-context: c4a6d0fbf9c77ee28dab7e4d4c369df7753f20d4
+  react-native-safe-area-context: 3d2fac6d8e7405ec6d9325ff13b4c9145fa466c4
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
-  react-native-tcp-socket: 83a30b5da1deed4c720ee25595737ee851c23339
-  react-native-vector-icons-entypo: bd991a0d2dc9cf40b7fe8a83be44a072a6c60faa
-  react-native-vector-icons-fontawesome: 9a819e97393c0e60e3ae9defbe28248002a8957c
-  react-native-vector-icons-fontawesome6: 9014730aa0e219382da1f109d47d1a378215cbf8
-  react-native-vector-icons-ionicons: 6831196cf1486bfd26b715d749c5c9a7d67bc0eb
-  react-native-vector-icons-material-design-icons: a4b6ec02814573c09203a725ee3767a7e8d5eb77
-  react-native-vector-icons-material-icons: bc2d8d3847160ef62b3f66c671bcdcd50d362474
+  react-native-tcp-socket: e502f7c50922acc808015ce3fe54bb96fae75bf8
+  react-native-vector-icons-entypo: ace53756c06b6c366e5a09f286dd6d5dc0c5ea88
+  react-native-vector-icons-fontawesome: b19a84b13d42875ae4e70c2aa0c5db81672378b8
+  react-native-vector-icons-fontawesome6: d8c281ba59f4f14003b01a8788cd3cc52c5435e9
+  react-native-vector-icons-ionicons: cc4bfc451b5d5c61d3c91e05f5a65c097dd0e5cb
+  react-native-vector-icons-material-design-icons: 9e98e87947156bfe95135fb523b62821486044e3
+  react-native-vector-icons-material-icons: 6d1d8ea28261609bbb975b1e9c51fe54eedfafe6
   React-NativeModulesApple: deba264b03bd79c6bd61014fa30e40321b5e443a
   React-networking: 35e6070b084f435429f85c5db40b4d5b38652fe9
   React-oscompat: 64a0c7ef5441855dc6e2a6afe8ba8f92aa05075e
@@ -2951,11 +2951,11 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3
   RNDeviceInfo: bcce8752b5043a623fe3c26789679b473f705d3c
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
-  RNGestureHandler: 1a13430fe6d4ba08ee545f53a245a2b8eaa0042d
+  RNGestureHandler: 1bf4c478a9d979260b96913eac39301c45c3c197
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: 6778b35b5bd067c322f8479526ac09b1d61f31d0
-  RNLocalize: f370284ea42c48f29f0d8dd3a7bcc28a04f82155
-  RNPermissions: 24b15d87f8b0a4dfd3397b698bb38e37e9f0d51b
+  RNLocalize: 74d0d3383e04991641b20342353d0776ce49a563
+  RNPermissions: 707b7784b786caaa241af60099ac3db2bee49a31
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNReactNativeHapticFeedback: 576e23c1ad2d800ded4502be3f66b767308b63a1
   RNReanimated: fcf6a8cdd698fb09a811a8d6c5bcfe36575d965d
