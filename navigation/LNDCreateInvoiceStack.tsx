@@ -1,4 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { ParamListBase } from '@react-navigation/native';
 import React, { lazy } from 'react';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -47,7 +49,7 @@ const LNDCreateInvoiceRoot = () => {
         options={navigationStyle({
           headerTitle: loc.lndViewInvoice.lightning_invoice,
           closeButtonPosition: CloseButtonPosition.Right,
-          onCloseButtonPressed: ({ navigation }) => navigation.getParent()?.pop(),
+          onCloseButtonPressed: ({ navigation }) => navigation.getParent<NativeStackNavigationProp<ParamListBase>>()?.pop(),
           headerBackVisible: false,
           gestureEnabled: false,
           headerStyle: {
