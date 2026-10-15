@@ -35,6 +35,7 @@ import assert from 'assert';
 import { scanQrHelper } from '../../helpers/scan-qr.ts';
 import { LNDStackParamsList } from '../../navigation/LNDStackParamsList';
 import type { TWallet } from '../../class/wallets/types';
+import { errorMessage } from '../../blue_modules/errorMessage';
 
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk } = useStorage();
@@ -48,7 +49,7 @@ const LNDCreateInvoice = () => {
   const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [description, setDescription] = useState('');
-  const [lnurlParams, setLNURLParams] = useState<{ k1: any; callback: any; fixed: boolean; min: number; max: number }>();
+  const [lnurlParams, setLNURLParams] = useState<{ k1: string; callback: string; fixed: boolean; min: number; max: number }>();
 
   const styleHooks = StyleSheet.create({
     scanRoot: {
@@ -164,11 +165,11 @@ const LNDCreateInvoice = () => {
         setAmount(newAmount);
         setDescription(reply.defaultDescription);
         setIsLoading(false);
-      } catch (Err: any) {
+      } catch (Err) {
         Keyboard.dismiss();
         setIsLoading(false);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: Err.message });
+        presentAlert({ message: errorMessage(Err) });
       }
     },
     [goBack, navigate, unit, walletID],
@@ -310,10 +311,10 @@ const LNDCreateInvoice = () => {
         invoice: invoiceRequest,
         walletID: wallet.current.getID(),
       });
-    } catch (Err: any) {
+    } catch (Err) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
-      presentAlert({ message: Err.message });
+      presentAlert({ message: errorMessage(Err) });
     }
   };
 

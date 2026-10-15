@@ -10,7 +10,7 @@ import { base64ToUint8Array, hexToUint8Array, uint8ArrayToHex, uint8ArrayToStrin
 
 const ONION_REGEX = /^(http:\/\/[^/:@]+\.onion(?::\d{1,5})?)(\/.*)?$/; // regex for onion URL
 
-interface LnurlPayServicePayload {
+export interface LnurlPayServicePayload {
   callback: string;
   fixed: boolean;
   min: number;
