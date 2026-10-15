@@ -339,7 +339,7 @@ const SendDetails = () => {
       { key: 'fastestFee', fee: fees.fastestFee },
     ] as const;
 
-    const newFeePrecalc: /* Record<string, any> */ IFee = { ...feePrecalc };
+    const newFeePrecalc: IFee = { ...feePrecalc };
 
     let targets = [];
     for (const transaction of addresses) {
