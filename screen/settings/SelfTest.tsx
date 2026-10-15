@@ -4,8 +4,7 @@ import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { Component } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
-// @ts-ignore theres no type declaration for this
-import BlueCrypto from 'react-native-blue-crypto';
+import * as BlueCrypto from 'react-native-blue-crypto';
 import wif from 'wif';
 
 import * as encryption from '../../blue_modules/encryption';
@@ -57,7 +56,7 @@ const styles = StyleSheet.create({
 export default class SelfTest extends Component {
   state: TState;
 
-  constructor(props: any) {
+  constructor(props: object) {
     super(props);
     this.state = {
       started: false,

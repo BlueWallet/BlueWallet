@@ -16,6 +16,7 @@ import { SettingsSection, SettingsListItem } from '../../components/SettingsSect
 import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
+import { errorMessage } from '../../blue_modules/errorMessage';
 
 const branch = require('../../current-branch.json');
 
@@ -59,8 +60,8 @@ const About: React.FC = () => {
       } else {
         await Linking.openURL('https://play.google.com/store/apps/details?id=io.bluewallet.bluewallet');
       }
-    } catch (error: any) {
-      console.error('Rate app failed:', error.message);
+    } catch (error) {
+      console.error('Rate app failed:', errorMessage(error));
     }
   }, []);
 
