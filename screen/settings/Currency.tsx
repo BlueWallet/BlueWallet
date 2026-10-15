@@ -18,6 +18,7 @@ import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, TFiatUnit, getFiatRate } from '../../models/fiatUnit';
+import { errorMessage } from '../../helpers/errorMessage';
 
 dayjs.extend(calendar);
 
@@ -115,10 +116,12 @@ const Currency: React.FC = () => {
               await fetchCurrency();
               setSelectedCurrency(item);
               setPreferredFiatCurrencyStorage(FiatUnit[item.endPointKey]);
-            } catch (error: any) {
+            } catch (error) {
               console.log(error);
               presentAlert({
-                message: error.message ? `${loc.settings.currency_fetch_error}: ${error.message}` : loc.settings.currency_fetch_error,
+                message: errorMessage(error)
+                  ? `${loc.settings.currency_fetch_error}: ${errorMessage(error)}`
+                  : loc.settings.currency_fetch_error,
               });
             } finally {
               setIsSavingNewPreferredCurrency(undefined);
