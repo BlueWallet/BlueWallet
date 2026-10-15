@@ -17,6 +17,15 @@ RCT_EXPORT_MODULE(LocalNetworkDiscovery)
 - (void)discoverElectrumServers:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
   dispatch_async(dispatch_get_main_queue(), ^{
+    // Detox injects this launch argument into UI-test processes. Browsing for
+    // Bonjour services would otherwise present iOS's Local Network privacy
+    // sheet, which system automation cannot grant and which blocks the suite.
+    // This does not affect production launches or their authorization flow.
+    if ([[NSProcessInfo processInfo].arguments containsObject:@"-detoxServer"]) {
+      resolve(@[]);
+      return;
+    }
+
     if (self.pendingResolve != nil) {
       reject(@"SCAN_IN_PROGRESS", @"A local network scan is already in progress.", nil);
       return;
