@@ -15,6 +15,7 @@ import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueBigCheckmark } from '../../components/BlueBigCheckmark';
+import { errorMessage } from '../../blue_modules/errorMessage';
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
@@ -67,8 +68,8 @@ const Broadcast: React.FC = () => {
           setBroadcastResult(BROADCAST_RESULT.error);
         }
       }
-    } catch (error: any) {
-      presentAlert({ title: loc.errors.error, message: error.message });
+    } catch (error) {
+      presentAlert({ title: loc.errors.error, message: errorMessage(error) });
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setBroadcastResult(BROADCAST_RESULT.error);
     }

@@ -8,6 +8,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
 import Lnurl from '../../class/lnurl';
+import type { LnurlPayServicePayload } from '../../class/lnurl';
 import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
@@ -38,7 +39,7 @@ const LnurlPay: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [_LN, setLN] = useState<Lnurl | undefined>();
   const [payButtonDisabled, setPayButtonDisabled] = useState<boolean>(true);
-  const [payload, setPayload] = useState<any>();
+  const [payload, setPayload] = useState<LnurlPayServicePayload | undefined>();
   const { setParams, navigate } = useNavigation();
   const [amount, setAmount] = useState<string | undefined>();
   const { colors } = useTheme();
@@ -211,8 +212,8 @@ const LnurlPay: React.FC = () => {
             <DismissKeyboardInputAccessory />
             <BlueText style={styles.alignSelfCenter}>
               {loc.formatString(loc.lndViewInvoice.please_pay_between_and, {
-                min: formatBalance(payload?.min, unit),
-                max: formatBalance(payload?.max, unit),
+                min: formatBalance(payload?.min ?? 0, unit),
+                max: formatBalance(payload?.max ?? 0, unit),
               })}
             </BlueText>
             <BlueSpacing20 />

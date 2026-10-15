@@ -18,8 +18,13 @@ import { BlueLoading } from '../../components/BlueLoading';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
 import assert from 'assert';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { errorMessage } from '../../blue_modules/errorMessage';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+
+const LNURL_AUTH_ACTIONS = ['auth', 'register', 'login', 'link'] as const;
+type LnurlAuthAction = (typeof LNURL_AUTH_ACTIONS)[number];
+const isLnurlAuthAction = (s: string): s is LnurlAuthAction => (LNURL_AUTH_ACTIONS as readonly string[]).includes(s);
 
 const AuthState = {
   USER_PROMPT: 0,
@@ -35,9 +40,11 @@ const LnurlAuth = () => {
   const wallet = useWalletSubscribe(walletID);
   const LN = useMemo(() => new Lnurl(lnurl), [lnurl]);
   const parsedLnurl = useMemo(
-    () => (lnurl ? URL.parse(String(Lnurl.getUrlFromLnurl(lnurl)), true) : ({} as any)), // eslint-disable-line n/no-deprecated-api
+    () => URL.parse(String(Lnurl.getUrlFromLnurl(lnurl)), true), // eslint-disable-line n/no-deprecated-api
     [lnurl],
   );
+  const queryAction = parsedLnurl.query.action;
+  const action: LnurlAuthAction = typeof queryAction === 'string' && isLnurlAuthAction(queryAction) ? queryAction : 'auth';
   const [authState, setAuthState] = useState(AuthState.USER_PROMPT);
   const [errMsg, setErrMsg] = useState('');
   const navigation = useNavigation();
@@ -57,7 +64,6 @@ const LnurlAuth = () => {
   }, [navigation, name, setParams]);
 
   const authenticate = useCallback(() => {
-    // @ts-ignore ffokc uf
     assert(wallet instanceof LightningCustodianWallet || wallet instanceof LightningArkWallet);
     wallet
       .authenticate(LN)
@@ -65,9 +71,9 @@ const LnurlAuth = () => {
         setAuthState(AuthState.SUCCESS);
         setErrMsg('');
       })
-      .catch((err: any) => {
+      .catch((err: unknown) => {
         setAuthState(AuthState.ERROR);
-        setErrMsg(err);
+        setErrMsg(errorMessage(err));
       });
   }, [wallet, LN]);
 
@@ -100,11 +106,9 @@ const LnurlAuth = () => {
         <>
           <ScrollView>
             <BlueCard>
-              {/* @ts-ignore this key exists */}
-              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[`${parsedLnurl.query.action || 'auth'}_question_part_1`]}</BlueText>
+              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[`${action}_question_part_1`]}</BlueText>
               <BlueText style={styles.domainName}>{parsedLnurl.hostname}</BlueText>
-              {/* @ts-ignore this key exists */}
-              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[`${parsedLnurl.query.action || 'auth'}_question_part_2`]}</BlueText>
+              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[`${action}_question_part_2`]}</BlueText>
               <BlueSpacing40 />
               <Button title={loc.lnurl_auth.authenticate} onPress={authenticate} />
               <BlueSpacing40 />
@@ -119,8 +123,7 @@ const LnurlAuth = () => {
           <SuccessView />
           <BlueSpacing20 />
           <BlueText style={styles.alignSelfCenter}>
-            {/* @ts-ignore this key exists */}
-            {loc.formatString(loc.lnurl_auth[`${parsedLnurl.query.action || 'auth'}_answer`], { hostname: parsedLnurl.hostname })}
+            {loc.formatString(loc.lnurl_auth[`${action}_answer`], { hostname: parsedLnurl.hostname })}
           </BlueText>
           <BlueSpacing20 />
         </>
