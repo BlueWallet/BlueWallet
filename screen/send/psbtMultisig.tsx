@@ -29,6 +29,7 @@ import { combinePSBTs } from '../../util/combinePSBTs.ts';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import assert from 'assert';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
+import { errorMessage } from '../../helpers/errorMessage';
 
 const PsbtMultisig = () => {
   const { wallets } = useStorage();
@@ -75,14 +76,14 @@ const PsbtMultisig = () => {
           satoshiPerByte,
           psbt,
         });
-      } catch (error: any) {
-        presentAlert({ message: error });
+      } catch (error) {
+        presentAlert({ message: errorMessage(error) });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txhex]);
 
-  const data = new Array(wallet.getM());
+  const data: undefined[] = new Array(wallet.getM()); // one row per required signature, rendered by index
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -155,7 +156,7 @@ const PsbtMultisig = () => {
     return wallet.calculateFeeFromPsbt(psbt);
   };
 
-  const _renderItem = (el: ListRenderItemInfo<any>) => {
+  const _renderItem = (el: ListRenderItemInfo<undefined>) => {
     if (el.index >= howManySignaturesWeHave) return _renderItemUnsigned(el);
     else return _renderItemSigned(el);
   };
@@ -164,7 +165,7 @@ const PsbtMultisig = () => {
     navigate('PsbtMultisigQRCode', { walletID, psbtBase64: psbt.toBase64(), isShowOpenScanner: isConfirmEnabled() });
   };
 
-  const _renderItemUnsigned = (el: ListRenderItemInfo<any>) => {
+  const _renderItemUnsigned = (el: ListRenderItemInfo<undefined>) => {
     const renderProvideSignature = el.index === howManySignaturesWeHave;
     return (
       <View testID="ItemUnsigned">
@@ -197,7 +198,7 @@ const PsbtMultisig = () => {
     );
   };
 
-  const _renderItemSigned = (el: ListRenderItemInfo<any>) => {
+  const _renderItemSigned = (el: ListRenderItemInfo<undefined>) => {
     return (
       <View style={styles.flexDirectionRow} testID="ItemSigned">
         <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
@@ -218,9 +219,9 @@ const PsbtMultisig = () => {
         const combined = combinePSBTs({ psbtBase64: psbt.toBase64(), newPSBTBase64: receivedPSBTBase64 });
         setPsbt(combined);
         setParams({ receivedPSBTBase64: undefined });
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error during PSBT combination:', error);
-        presentAlert({ message: error.message });
+        presentAlert({ message: errorMessage(error) });
       }
     }
   };
@@ -251,8 +252,8 @@ const PsbtMultisig = () => {
         satoshiPerByte,
         psbt,
       });
-    } catch (error: any) {
-      presentAlert({ message: error });
+    } catch (error) {
+      presentAlert({ message: errorMessage(error) });
     }
   };
 

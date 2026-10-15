@@ -138,6 +138,8 @@ export type Transaction = {
   blocktime?: number;
   timestamp: number; // seconds, not milliseconds
   value?: number;
+  /** only when the row came straight from an electrum server that reports it */
+  fee?: number;
 
   /**
    * if known, who is on the other end of the transaction (BIP47 payment code)

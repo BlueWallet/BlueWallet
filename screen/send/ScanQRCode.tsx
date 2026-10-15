@@ -13,11 +13,13 @@ import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import CameraScreen from '../../components/CameraScreen';
+import type { OnReadCodeData } from 'react-native-camera-kit-no-google/dist/CameraProps';
 import SafeArea from '../../components/SafeArea';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading.tsx';
 import { hexToUint8Array, uint8ArrayToBase64, uint8ArrayToHex, uint8ArrayToString } from '../../blue_modules/uint8array-extras/index.js';
+import { errorMessage } from '../../helpers/errorMessage';
 
 let decoder: BlueURDecoder | undefined;
 
@@ -113,8 +115,8 @@ const ScanQRCode = () => {
         setUrTotal(100);
         setUrHave(Math.floor(decoder.estimatedPercentComplete() * 100));
       }
-    } catch (error: any) {
-      console.log('Invalid animated qr code fragment: ' + error.message + ' (continuing scanning)');
+    } catch (error) {
+      console.log('Invalid animated qr code fragment: ' + errorMessage(error) + ' (continuing scanning)');
       decoder = undefined;
     }
   };
@@ -149,8 +151,8 @@ const ScanQRCode = () => {
       } else {
         setAnimatedQRCodeData(animatedQRCodeData);
       }
-    } catch (error: any) {
-      console.log('Invalid animated qr code fragment: ' + error.message + ' (continuing scanning)');
+    } catch (error) {
+      console.log('Invalid animated qr code fragment: ' + errorMessage(error) + ' (continuing scanning)');
     }
   };
 
@@ -251,7 +253,7 @@ const ScanQRCode = () => {
     navigation.goBack();
   };
 
-  const handleReadCode = (event: any) => {
+  const handleReadCode = (event: OnReadCodeData) => {
     onBarCodeRead({ data: event?.nativeEvent?.codeStringValue });
   };
 
