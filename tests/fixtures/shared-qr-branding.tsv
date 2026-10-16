@@ -1,0 +1,10 @@
+# branded<TAB>decoded QR content
+true	bitcoin:bc1qexample?amount=0.01
+true	1BoatSLRHtKNngkdXEeobR76b53LETtpyT
+true	bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
+true	lndhub://login:password
+true	blitzhub://login:password
+false	1BoatSLRHtKNngkdXEeobR76b53LETtpyU
+false	bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wli
+false	https://example.com
+false	plain text

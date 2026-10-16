@@ -119,6 +119,13 @@ android {
         includeInBundle = false
     }
 
+    sourceSets {
+        main.res.srcDir("$buildDir/generated/res/sharedQr")
+    }
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }
 
 task copyFiatUnits(type: Copy) {
@@ -126,7 +133,13 @@ task copyFiatUnits(type: Copy) {
     into 'src/main/assets'
 }
 
-preBuild.dependsOn(copyFiatUnits)
+task copySharedQrLogo(type: Copy) {
+    from '../../img/qr-code.png'
+    into "$buildDir/generated/res/sharedQr/drawable"
+    rename 'qr-code.png', 'shared_qr_logo.png'
+}
+
+preBuild.dependsOn(copyFiatUnits, copySharedQrLogo)
 
 // Ensure fiat units are available before codegen scans JS sources
 tasks.configureEach { task ->
@@ -136,12 +149,19 @@ tasks.configureEach { task ->
 }
 
 dependencies {
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     androidTestImplementation('com.wix:detox:20.51.4')
+    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
+    androidTestImplementation 'androidx.test:runner:1.7.0'
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation 'androidx.core:core-ktx:1.18.0'
     implementation 'androidx.work:work-runtime-ktx:2.12.0'
     implementation 'com.google.android.material:material:1.12.0'
+    implementation 'io.nayuki:qrcodegen:1.8.0'
     implementation 'androidx.compose.ui:ui:1.10.6'
     implementation 'androidx.compose.material3:material3:1.3.2'
     implementation 'androidx.preference:preference-ktx:1.2.1'
