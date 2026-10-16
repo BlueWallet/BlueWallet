@@ -34,9 +34,13 @@ type OptionsFormatter = (
 ) => NativeStackNavigationOptions;
 
 type RouteParamHeaderOptions = {
+  headerSearchBarOptions?: boolean;
   headerLeft?: boolean;
   headerRight?: boolean;
   headerBackVisible?: boolean;
+  headerTitle?: boolean;
+  headerTitleAlign?: boolean;
+  headerTitleContainerStyle?: boolean;
   statusBarStyle?: boolean;
 };
 
@@ -48,10 +52,18 @@ const withRouteParamHeaderOptions =
     const routeParams = route?.params ?? {};
     return {
       ...options,
+      ...(config.headerSearchBarOptions && routeParams.headerSearchBarOptions !== undefined
+        ? { headerSearchBarOptions: routeParams.headerSearchBarOptions }
+        : {}),
       ...(config.headerLeft && routeParams.headerLeft !== undefined ? { headerLeft: routeParams.headerLeft } : {}),
       ...(config.headerRight && routeParams.headerRight !== undefined ? { headerRight: routeParams.headerRight } : {}),
       ...(config.headerBackVisible && routeParams.headerBackVisible !== undefined
         ? { headerBackVisible: routeParams.headerBackVisible }
+        : {}),
+      ...(config.headerTitle && routeParams.headerTitle !== undefined ? { headerTitle: routeParams.headerTitle } : {}),
+      ...(config.headerTitleAlign && routeParams.headerTitleAlign !== undefined ? { headerTitleAlign: routeParams.headerTitleAlign } : {}),
+      ...(config.headerTitleContainerStyle && routeParams.headerTitleContainerStyle !== undefined
+        ? { headerTitleContainerStyle: routeParams.headerTitleContainerStyle }
         : {}),
       ...(config.statusBarStyle && routeParams.statusBarStyle !== undefined ? { statusBarStyle: routeParams.statusBarStyle } : {}),
     };

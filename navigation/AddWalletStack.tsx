@@ -80,6 +80,7 @@ export type AddWalletStackParamList = {
     sheetImportText?: string;
     sheetAskPassphrase?: boolean;
     headerRight?: HeaderRightRenderer;
+    headerBackVisible?: boolean;
   };
   WalletsAddMultisigVaultKeySheet: {
     keyIndex: number;
@@ -354,7 +355,10 @@ const AddWalletStack = () => {
       <Stack.Screen
         name="WalletsAddMultisigStep2"
         component={WalletsAddMultisigStep2Component}
-        options={navigationStyle({ title: '', gestureEnabled: false }, withRouteParamHeaderOptions({ headerRight: true }))(theme)}
+        options={navigationStyle(
+          { title: '', gestureEnabled: false },
+          withRouteParamHeaderOptions({ headerRight: true, headerBackVisible: true }),
+        )(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisigVaultKeySheet"

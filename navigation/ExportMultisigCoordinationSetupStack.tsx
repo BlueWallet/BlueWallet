@@ -8,6 +8,7 @@ import { withLazySuspense } from './LazyLoadingIndicator';
 export type ExportMultisigCoordinationSetupStackRootParamList = {
   ExportMultisigCoordinationSetup: {
     walletID: string;
+    closeButtonState?: 'Enabled';
   };
 };
 
@@ -24,12 +25,18 @@ const ExportMultisigCoordinationSetupStack = () => {
       <Stack.Screen
         name="ExportMultisigCoordinationSetup"
         component={ExportMultisigCoordinationSetupComponent}
-        options={navigationStyle({
-          headerBackVisible: false,
-          closeButtonPosition: CloseButtonPosition.Right,
-          statusBarStyle: 'light',
-          title: loc.multisig.export_coordination_setup,
-        })(theme)}
+        options={navigationStyle(
+          {
+            headerBackVisible: false,
+            closeButtonPosition: CloseButtonPosition.Right,
+            statusBarStyle: 'light',
+            title: loc.multisig.export_coordination_setup,
+          },
+          (options, { route }) => ({
+            ...options,
+            ...(route.params?.closeButtonState ? { closeButtonState: route.params.closeButtonState } : {}),
+          }),
+        )(theme)}
       />
     </Stack.Navigator>
   );

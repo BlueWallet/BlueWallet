@@ -145,6 +145,8 @@ export type SendDetailsStackParamList = {
     noWalletExplanationText?: string;
     onChainRequireSend?: boolean;
     selectedWalletID?: string; // Add this parameter to scroll to a specific wallet
+    statusBarStyle?: NativeStackNavigationOptions['statusBarStyle'];
+    headerBackVisible?: boolean;
   };
   CoinControl: {
     walletID: string;
