@@ -112,7 +112,9 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
         style={[styles.scroll, stylesHook.scroll]}
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="always"
-        automaticallyAdjustKeyboardInsets
+        // No automaticallyAdjustKeyboardInsets: inside an iOS form sheet it applies keyboard insets in the wrong
+        // coordinate space and leaves the form pushed to the bottom of the sheet. The sheet itself moves with the keyboard.
+        contentInsetAdjustmentBehavior="never"
       >
         <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
         <BlueSpacing20 />
