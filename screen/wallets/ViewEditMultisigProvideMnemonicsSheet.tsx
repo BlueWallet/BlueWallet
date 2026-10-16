@@ -94,16 +94,16 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
           </TouchableOpacity>
         </View>
       )}
+      {/* Keep a non-scrolling view first: react-native-screens forces automatic content insets on a ScrollView that is
+          the first descendant of a screen, and the form sheet's huge insets push the form to the bottom of the sheet. */}
+      <View style={styles.prompt}>
+        <BlueTextCentered>{loc.multisig.type_seed_for_existing_key}</BlueTextCentered>
+      </View>
       <ScrollView
         style={[styles.scroll, stylesHook.scroll]}
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="always"
-        // No automaticallyAdjustKeyboardInsets: inside an iOS form sheet it applies keyboard insets in the wrong
-        // coordinate space and leaves the form pushed to the bottom of the sheet. The sheet itself moves with the keyboard.
-        contentInsetAdjustmentBehavior="never"
       >
-        <BlueTextCentered>{loc.multisig.type_seed_for_existing_key}</BlueTextCentered>
-        <BlueSpacing20 />
         <BlueFormMultiInput
           value={importText}
           onChangeText={setImportText}
@@ -167,6 +167,11 @@ const styles = StyleSheet.create({
   scroll: {
     // ScrollView defaults to flexGrow:1, which makes fitToContents full height
     flexGrow: 0,
+  },
+  prompt: {
+    paddingHorizontal: 24,
+    paddingTop: 8,
+    paddingBottom: 12,
   },
   contentContainer: {
     paddingHorizontal: 24,
