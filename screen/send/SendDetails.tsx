@@ -831,25 +831,6 @@ const SendDetails = () => {
     }
   }, [navigation, presentAlert, setIsLoading, transactionMemo, wallet]);
 
-  const askCosignThisTransaction = useCallback(async () => {
-    return new Promise(resolve => {
-      presentAlert({
-        message: loc.multisig.cosign_this_transaction,
-        buttons: [
-          {
-            text: loc._.no,
-            style: 'cancel',
-            onPress: () => resolve(false),
-          },
-          {
-            text: loc._.yes,
-            onPress: () => resolve(true),
-          },
-        ],
-      });
-    });
-  }, [presentAlert]);
-
   const _importTransactionMultisig = useCallback(
     async (base64arg: string | false) => {
       try {
@@ -857,7 +838,7 @@ const SendDetails = () => {
         if (!base64) return;
         const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
-        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
+        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0) {
           setIsLoading(true);
           await sleep(100);
           (wallet as MultisigHDWallet).cosignPsbt(psbt);
@@ -878,7 +859,7 @@ const SendDetails = () => {
       }
       setIsLoading(false);
     },
-    [askCosignThisTransaction, navigation, presentAlert, sleep, transactionMemo, wallet],
+    [navigation, presentAlert, sleep, transactionMemo, wallet],
   );
 
   const importTransactionMultisig = useCallback(() => {

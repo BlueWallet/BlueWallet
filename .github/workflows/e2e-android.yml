@@ -83,6 +83,7 @@ jobs:
     env:
       HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
       HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+      MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
 
     steps:
     - name: Checkout
