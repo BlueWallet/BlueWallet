@@ -565,7 +565,7 @@ const WalletsAddMultisigStep2 = () => {
     const renderProvideKeyButtons = el.index === cosigners.length;
     const isChecked = el.index < cosigners.length;
     return (
-      <Animated.View layout={KEY_LAYOUT_TRANSITION}>
+      <Animated.View key={String(el.index)} layout={KEY_LAYOUT_TRANSITION} collapsable={false}>
         <MultipleStepsListItem
           circledText={String(el.index + 1)}
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
@@ -580,7 +580,12 @@ const WalletsAddMultisigStep2 = () => {
           }}
         />
         {renderProvideKeyButtons ? (
-          <Animated.View key={`provide-buttons-${el.index}`} exiting={provideButtonsCollapseOut} style={styles.provideButtons}>
+          <Animated.View
+            key={`provide-buttons-${el.index}`}
+            exiting={provideButtonsCollapseOut}
+            style={styles.provideButtons}
+            collapsable={false}
+          >
             <MultipleStepsListItem
               button={{
                 testID: 'VaultKeyGenerate',
@@ -625,15 +630,9 @@ const WalletsAddMultisigStep2 = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]}>
-      <View style={styles.wrapBox}>
-        <Animated.FlatList
-          data={data.current}
-          renderItem={_renderKeyItem}
-          keyExtractor={(_item, index) => `${index}`}
-          extraData={cosigners}
-          itemLayoutAnimation={KEY_LAYOUT_TRANSITION}
-        />
-      </View>
+      <Animated.ScrollView style={styles.wrapBox} keyboardShouldPersistTaps="handled">
+        {data.current.map((_, index) => _renderKeyItem({ index }))}
+      </Animated.ScrollView>
       {footer}
       <BlueSpacing20 />
     </View>
