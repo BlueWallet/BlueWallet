@@ -461,7 +461,7 @@ describe('LightningArkWallet — quote/accept orchestration', () => {
       ...client,
     };
     (w as any)._swapRepository = {
-      getAllSwapRecords: async () => [],
+      getSwapRecordsPage: async () => ({ items: [] }),
       getSwapRecord: async () => undefined,
       ...repository,
     };
@@ -582,7 +582,7 @@ describe('LightningArkWallet — deletion guard', () => {
 
   const seedGuard = (records: any[], swaps: any[]): void => {
     (w as any)._swapClient = { swaps: async () => swaps };
-    (w as any)._swapRepository = { getAllSwapRecords: async () => records };
+    (w as any)._swapRepository = { getSwapRecordsPage: async () => ({ items: records }) };
     (w as any)._wallet = { getArkadeReader: async () => ({ getVtxos: async () => [], getVirtualTxs: async () => [] }) };
   };
 
@@ -646,7 +646,7 @@ describe('LightningArkWallet — recovery gating', () => {
     w.setSecret('arkade://' + TEST_MNEMONIC);
     const recover = jest.fn().mockResolvedValue({ recovered: false, txid: 'txid-1' });
     (w as any)._swapClient = { swaps: async () => [], recover };
-    (w as any)._swapRepository = { getAllSwapRecords: async () => [] };
+    (w as any)._swapRepository = { getSwapRecordsPage: async () => ({ items: [] }) };
     (w as any)._wallet = {};
 
     const result = await w.recoverSwap('rfq:quote-1');
@@ -664,7 +664,7 @@ describe('LightningArkWallet — recovery gating', () => {
       swaps: async () => [],
       recover: jest.fn().mockRejectedValue(refusal),
     };
-    (w as any)._swapRepository = { getAllSwapRecords: async () => [] };
+    (w as any)._swapRepository = { getSwapRecordsPage: async () => ({ items: [] }) };
     (w as any)._wallet = {};
 
     await assert.rejects(w.recoverSwap('rfq:quote-1'), /nothing to recover yet/);
@@ -691,10 +691,17 @@ describe('LightningArkWallet — full init pipeline (offline)', () => {
     await w.init();
 
     // Registry unreachable (fetch stubbed) → bundled bootstrap, not a throw.
-    assert.deepStrictEqual(w.getSendLimits(), { min: 500, max: 50000 });
-    assert.deepStrictEqual(w.getReceiveLimits(), { min: 500, max: 50000 });
+    assert.deepStrictEqual(w.getSendLimits(), { min: 500, max: 100000 });
+    assert.deepStrictEqual(w.getReceiveLimits(), { min: 500, max: 100000 });
     assert.strictEqual(w.getSubmarineFeeEstimate(10000), 30);
 
-    await w.onDelete();
+    // Offline, the SDK's wallet.dispose() drains its background loops on
+    // timers, so the fake clock must advance for onDelete() to settle.
+    const deletion = { done: false };
+    const deleting = w.onDelete().finally(() => {
+      deletion.done = true;
+    });
+    for (let i = 0; i < 100 && !deletion.done; i++) await jest.advanceTimersByTimeAsync(250);
+    await deleting;
   });
 });
