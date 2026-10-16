@@ -234,9 +234,9 @@ const PsbtMultisig = () => {
 
   const onConfirm = () => {
     try {
-      psbt.finalizeAllInputs();
+      MultisigHDWallet.finalizeUnfinalizedInputs(psbt);
     } catch (err) {
-      console.warn('Finalize error (ignored if already finalized):', err);
+      console.warn('Finalize error:', err);
     }
 
     if (launchedBy) {
