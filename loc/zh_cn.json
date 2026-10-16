@@ -492,7 +492,7 @@
     "import_passphrase_message": "如果您使用过密码短语，请输入。",
     "import_error": "导入失败。请确保提供的数据有效。",
     "import_explanation": "请输入您的助记词、公钥、钱包导入格式或任何可用信息。BlueWallet 会尽力识别正确格式并导入您的钱包。",
-    "import_imported": "已导入",
+    "import_imported": "导入的",
     "import_scan_qr": "扫描或导入文件",
     "import_success": "您的钱包已成功导入。",
     "import_success_watchonly": "您的钱包已成功导入。警告：这是一个“观察钱包”，您无法从中支出资金。",
