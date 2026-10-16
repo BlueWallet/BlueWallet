@@ -2385,6 +2385,55 @@ describe('cosignPsbt with more local keys than quorum', () => {
     assert.strictEqual(exported.extractTransaction().toHex(), tx.toHex());
   });
 
+  it('tryFinalizeUnfinalizedInputs finalizes a copy when quorum is met', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    signWithSeed(psbt, 0, seeds[0]);
+    signWithSeed(psbt, 0, seeds[1]);
+    signWithSeed(psbt, 1, seeds[0]);
+    signWithSeed(psbt, 1, seeds[1]);
+    const before = psbt.toBase64();
+
+    const finalized = MultisigHDWallet.tryFinalizeUnfinalizedInputs(psbt);
+
+    assert.notStrictEqual(finalized, psbt);
+    assert.strictEqual(psbt.toBase64(), before); // original untouched
+    const tx = finalized.extractTransaction();
+    assertWitnessSigs(tx, 0, 2);
+    assertWitnessSigs(tx, 1, 2);
+  });
+
+  it('tryFinalizeUnfinalizedInputs keeps an over-signed PSBT reviewable instead of throwing', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    for (const seed of seeds) {
+      signWithSeed(psbt, 0, seed);
+      signWithSeed(psbt, 1, seed);
+    }
+    assert.strictEqual(psbt.data.inputs[0].partialSig.length, 3);
+    assert.ok(w.calculateHowManySignaturesWeHaveFromPsbt(psbt) >= w.getM());
+    const before = psbt.toBase64();
+    assert.throws(() => MultisigHDWallet.finalizeUnfinalizedInputs(bitcoin.Psbt.fromBase64(before)), /Too many signatures/);
+
+    const result = MultisigHDWallet.tryFinalizeUnfinalizedInputs(psbt);
+
+    assert.strictEqual(result, psbt);
+    assert.strictEqual(result.toBase64(), before);
+  });
+
+  it('cosignPsbt does not throw when another input is already over-signed', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    for (const seed of seeds) signWithSeed(psbt, 0, seed);
+    signWithSeed(psbt, 1, seeds[0]);
+
+    const { tx } = w.cosignPsbt(psbt);
+
+    assert.strictEqual(tx, false);
+    assert.strictEqual(psbt.data.inputs[1].partialSig.length, 2); // our signature was kept
+    assert.strictEqual(psbt.data.inputs[0].partialSig.length, 3);
+  });
+
   it('skips finalized inputs', () => {
     const w = makeWallet();
     const psbt = makeUnsignedPsbt(w);

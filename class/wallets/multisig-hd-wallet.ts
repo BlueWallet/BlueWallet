@@ -1211,6 +1211,21 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   /**
+   * Finalizes a copy of the PSBT and returns it. If finalization throws (e.g. "Too many signatures" when an input
+   * carries more partial signatures than the quorum), returns the original PSBT untouched so it can still be
+   * reviewed or exported instead of aborting the import
+   */
+  static tryFinalizeUnfinalizedInputs(psbt: Psbt): Psbt {
+    const copy = psbt.clone();
+    try {
+      MultisigHDWallet.finalizeUnfinalizedInputs(copy);
+      return copy;
+    } catch (_) {
+      return psbt;
+    }
+  }
+
+  /**
    * Number of signatures that every input has, i.e. the least signed input decides
    */
   calculateHowManySignaturesWeHaveFromPsbt(psbt: Psbt) {
@@ -1292,6 +1307,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
 
     if (this.calculateHowManySignaturesWeHaveFromPsbt(psbt) >= this.getM()) {
+      // an input that arrived with more signatures than M cannot be finalized ("Too many signatures").
+      // keep our new signatures and leave the PSBT unfinalized instead of throwing
+      if (MultisigHDWallet.tryFinalizeUnfinalizedInputs(psbt) === psbt) return { tx: false };
       MultisigHDWallet.finalizeUnfinalizedInputs(psbt);
       return { tx: psbt.extractTransaction() };
     }
