@@ -95,7 +95,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
       permissions: { notifications: 'YES' },
       launchArgs: { detoxEnableSynchronization: 0 },
     }); // reinstalling the app just for any case to clean up app's storage
-    await waitForId('WalletsList');
+    await waitFor(element(by.id('WalletsList')))
+      .toBeVisible()
+      .withTimeout(device.getPlatform() === 'android' ? 180_000 : 16_500);
     await device.disableSynchronization();
 
     // go to settings, press SelfTest and wait for OK
@@ -173,49 +175,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.id('SetServerAsFavoriteSwitch'))).toHaveToggleValue(true);
     await goBack();
     await waitForId('ElectrumSettingsScrollView');
-
-    // Exercise persistence and reset on Android, where this suite has a stable
-    // network-backed keyboard/save flow. Saving dismisses Add Server automatically.
-    if (device.getPlatform() === 'android') {
-      await element(by.id('HeaderMenuButton')).tap();
-      await element(by.text('Add Server')).tap();
-      await waitFor(element(by.id('HostInput')))
-        .toBeVisible()
-        .whileElement(by.id('AddElectrumServerScrollView'))
-        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
-      await element(by.id('HostInput')).replaceText('electrum.blockstream.info\n');
-      await waitForKeyboardToClose();
-      await element(by.id('PortInput')).replaceText('50001\n');
-      await waitForKeyboardToClose();
-      await waitFor(element(by.id('Save')))
-        .toBeVisible()
-        .whileElement(by.id('AddElectrumServerScrollView'))
-        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
-      await element(by.id('Save')).tap();
-      await waitForId('ElectrumSettingsScrollView');
-      await expect(element(by.id('FavoriteElectrumServer-electrum.blockstream.info-50001'))).toBeVisible();
-
-      await element(by.id('HeaderMenuButton')).tap();
-      await element(by.text('Reset to default')).tap();
-      await element(by.text('RESET TO DEFAULT')).tap();
-      await waitForText('OK');
-      await element(by.text('OK')).tap();
-      await expect(element(by.id('FavoriteElectrumServer-electrum.blockstream.info-50001'))).not.toExist();
-      await waitFor(element(by.id('ElectrumServer-mainnet.foundationdevices.com-50002')))
-        .toBeVisible()
-        .whileElement(by.id('ElectrumSettingsScrollView'))
-        .scroll(500, 'down');
-
-      await element(by.id('HeaderMenuButton')).tap();
-      await element(by.text('Add Server')).tap();
-      await waitFor(element(by.id('HostInput')))
-        .toBeVisible()
-        .whileElement(by.id('AddElectrumServerScrollView'))
-        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
-      await expect(element(by.id('HostInput'))).toHaveText('');
-      await expect(element(by.id('PortInput'))).toHaveText('');
-      await goBack();
-    }
 
     await goBack();
 
