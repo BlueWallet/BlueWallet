@@ -93,3 +93,49 @@ jobs:
         MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
         MNEMONICS_KEYSTONE: ${{ secrets.MNEMONICS_KEYSTONE }}
         RETRY: 1
+
+  networking-ios:
+    runs-on: macos-26
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+
+    - name: Run Swift networking tests
+      run: |
+        set -eo pipefail
+        DEVICE_ID=$(xcrun simctl list devices available -j | jq -r '[.devices[] | .[] | select(.name | startswith("iPhone"))][0].udid')
+        if [ -z "$DEVICE_ID" ] || [ "$DEVICE_ID" = "null" ]; then
+          echo "No available iPhone simulator found"
+          exit 1
+        fi
+        xcodebuild \
+          -project ios/BlueWallet.xcodeproj \
+          -scheme NetworkingTests \
+          -destination "platform=iOS Simulator,id=$DEVICE_ID" \
+          test
+
+  networking-android:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+
+    - name: Specify node version
+      uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+      with:
+        node-version: 24
+        cache: 'npm'
+
+    - name: Specify Java version
+      uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        cache: 'gradle'
+
+    - name: Install node_modules
+      run: npm ci || npm ci
+
+    - name: Run Kotlin networking tests
+      working-directory: android
+      run: ./gradlew :app:testDebugUnitTest --tests io.bluewallet.bluewallet.ElectrumClientTest --console=plain
