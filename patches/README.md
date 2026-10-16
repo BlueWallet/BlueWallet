@@ -7,6 +7,30 @@ When upstream ships an equivalent fix, drop the patch here and bump the dependen
 
 ---
 
+## `appium-mac2-driver++shell-quote+1.10.0.dev.patch`
+
+**What:** replaces the bundled `shell-quote` 1.10.0 `quote.js` implementation
+with the upstream 1.11.0 implementation. Development dependency only.
+
+**Why:** `appium-mac2-driver` 4.3.5 ships a bundled dependency tree containing
+`shell-quote` 1.10.0. The root npm override installs 1.11.0 for normal
+dependencies but does not replace this bundled copy. The patch fixes
+command injection when a string after a comment token contains a line
+terminator.
+
+**Upstream:** fixed in `shell-quote` 1.11.0;
+[GHSA-pqg4-j6r4-53mv](https://github.com/advisories/GHSA-pqg4-j6r4-53mv).
+
+Added in BlueWallet PR https://github.com/BlueWallet/BlueWallet/pull/8940.
+`tests/unit/catalyst-shell-quote.test.ts` checks both installed copies.
+The bundled package version remains 1.10.0, so version-only audits can still
+report it despite the patched implementation.
+
+Remove when Mac2 bundles a fixed version or stops bundling this dependency
+and the npm override takes effect. Verify both copies after a clean install.
+
+---
+
 ## `react-native-background-fetch+4.4.2.patch`
 
 Uses the package's bundled `TSBackgroundFetch.xcframework`, which includes

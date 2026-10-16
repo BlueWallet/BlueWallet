@@ -1,0 +1,102 @@
+# Mac Catalyst end-to-end tests
+
+The suite uses Appium Mac2/XCTest against a Release Catalyst app. It ports mobile Detox flows where desktop UI supports them and adds native menu and keyboard shortcut coverage. There are 42 active cases and 11 explicit TODO skips; the parity map below distinguishes active coverage from deferred scanner/alert flows.
+
+Camera capture, biometrics, hardware wallets, widgets, App Store installation and external Lightning services are outside this suite. Scanner input uses the same backdoor as Detox. The sandboxed E2E app deliberately omits the camera entitlement; scanner cases exercise text payload handling without hardware access. Transaction cases use a local TCP Electrum fixture with a public test mnemonic and synthetic UTXOs; broadcasting is rejected. No private mnemonic environment variables are required. This checks real wallet transaction construction and signing, not public-server interoperability. The deferred multisig hardware flow is designed to import the historical PSBT fixture through the macOS file picker, then combine its multipart UR signatures; transaction construction is tested separately with synthetic coins. The deferred fiat transaction case seeds a fresh USD rate cache with the native `defaults` tool in the E2E sandbox while the app is stopped. Settings can still fetch external exchange rates.
+
+## Detox parity map
+
+The source scenarios live in `tests/e2e/bluewallet.spec.js`, `bluewallet2.spec.js` and `bluewallet3.spec.js`. Desktop cases are independent instead of relying on the wallet state left by a previous test.
+
+| Mobile flow | Catalyst coverage |
+| --- | --- |
+| Self-test and settings screens | `settings` |
+| Create/restart/receive amount and labels/delete | `wallets` |
+| Encrypt/decrypt and plausible deniability | `security` |
+| Individual multisig cosigners and wrapped SegWit | TODO: two `creation` cases skipped while scanner input is blocked |
+| Multipart multisig setup and hardware signatures | TODO: `multisig` is skipped while scanner input is blocked, including its dependent file-picker flow |
+| Account discovery and custom path | `discovery` |
+| Home scan to on-chain send | TODO: `wallets` scanner case skipped |
+| Coin/dice entropy | TODO: `creation` case temporarily skipped; Save requires a blocking native alert |
+| Vault export and forgetting/restoring a cosigner seed | `creation` |
+| Payment, batch, full balance, BIP21 and deep link | `transactions`: batch, full balance and deep link active; direct payment and scanner cases TODO/skipped |
+| BTC/sats/fiat conversion through scanning | TODO: `transactions` scanner cases skipped |
+| PSBT cosigning | TODO: `transactions` PSBT scanner case skipped |
+| Payment codes and contacts | `contacts`; live notification transactions are not broadcast |
+| Wallet details, seed/xpub export and Manage Wallets | `wallets` |
+| UTXO notes and freezing | `transactions` |
+| Purge/refetch while running and after restart | `transactions` |
+| Watch-only zpub and unsigned/signed PSBT | `watch-only` zpub active; PSBT scanner flow TODO/skipped |
+| macOS menus and keyboard shortcuts | `menus`; navigation, context-dependent commands and clipboard contents |
+
+Mixed on-chain/Lightning routing that requires an external LNDHub, push-notification registration, Azteco redemption, and physical camera/hardware interaction are not claimed as covered by this isolated suite. macOS menu/shortcut and file-picker cases supplement the mobile scenarios.
+
+## Local run
+
+Install the repository's Node, Ruby and CocoaPods dependencies. Xcode, an enabled ABC or US keyboard input source, and Accessibility permission for Xcode Helper are required. Mac2 controls the foreground app, so avoid using the mouse/keyboard during a run. The suite temporarily selects an ASCII keyboard source for shortcuts and restores the previous source on normal teardown. Most text fields use native Edit-menu paste and verify the resulting value, restoring the previous clipboard. Scanner backdoor fields use ordinary typing and verify the exact value: contextual Paste inside the original full-screen scanner aborts in UIKit on Intel CI (run 38635192455), tracked as a TODO in `scanText`. Both XCTest key events and typeText have left Catalyst fields empty in local runs even with ABC active; the helper retains an explicit type mode for diagnosing other environments.
+
+macOS can separately ask to enable UI automation when XCTest starts. Approve that system prompt locally. `automationmodetool` without arguments reports the current state without changing it. A timeout saying “Timed out while enabling automation mode” occurs before test execution; see [Mac2 device preparation](https://appium.github.io/appium-mac2-driver/v4/getting-started/#device-preparation). The workflow enables unattended automation on its disposable CI runner; local test scripts do not change that security preference.
+
+Use an Apple Development identity in your login keychain and a team which can provision a dedicated Catalyst bundle identifier ending in `.e2e`:
+
+```sh
+export CATALYST_BUNDLE_ID=your.registered.identifier.e2e
+export CATALYST_TEAM_ID=YOUR_TEAM_ID
+export CATALYST_SIGNING_IDENTITY='Apple Development'
+bundle exec npm run e2e:catalyst:build
+npm run e2e:catalyst:test
+```
+
+The build uses automatic provisioning unless `CATALYST_PROVISIONING_PROFILE` is set. Xcode may request access to the signing key during **builds**. Tests reuse the built app; rebuilding is unnecessary when only test code changes. Run a single flow with:
+
+```sh
+npm run e2e:catalyst:test -- --runTestsByPath tests/e2e-appium/wallets.spec.ts -t 'creates a wallet'
+```
+
+`CATALYST_APP_PATH` overrides the built app path. It must point to an E2E build with the matching `CATALYST_BUNDLE_ID`. Do not use an installed production wallet.
+
+## Isolation and Keychain
+
+The build creates a disposable Xcode project and workspace alongside the originals, excludes extensions, and uses a dedicated `.e2e` bundle identifier, sandbox and keychain access group locally. On disposable GitHub-hosted runners it reuses `io.bluewallet.bluewallet` and its existing development profile. The build and test harness reject that ID outside GitHub-hosted CI; the native E2E app also requires the CI launch marker before initializing or resetting storage. Xcode bundles and compiles the test JavaScript before signing with its resolved entitlements. The production project and production Metro configuration do not load E2E overrides.
+
+The `CATALYST_E2E` compile flag enables launch-time reset of the test app's own generic-password keychain items, files and preferences. A Metro adapter routes native shared preferences to the test app's domain. Wallet persistence and Keychain APIs use their real native implementations; they are not mocked. Each case starts from reset storage, while restart assertions relaunch without resetting it.
+
+Catalyst uses the data-protection Keychain. Ad-hoc signing cannot authorize the required keychain access group, so unsigned builds cannot validate these wallet/security flows. See [Apple TN3137](https://developer.apple.com/documentation/technotes/tn3137-on-mac-keychains).
+
+## CI signing setup
+
+`e2e-catalyst.yml` reuses `CATALYST_TEAM_ID`, `GIT_URL`, `GIT_ACCESS_TOKEN` and `KEYCHAIN_PASSWORD` from the existing Catalyst build setup, plus `MATCH_PASSWORD` (already used by the iOS release workflow) to decrypt Match storage without an interactive prompt. The developer team falls back to `TEAM_ID` and then `ITC_TEAM_ID`; the iOS signing lane already uses the latter for `DEVELOPMENT_TEAM`. The workflow checks the team ID format without printing its value. The signing lane converts a raw GitHub token to Match's Basic Auth encoding using the existing Fastlane helper; already encoded credentials are preserved.
+
+CI reuses the existing Catalyst development certificate/private key and profile for `io.bluewallet.bluewallet` from Match. No new bundle identifier or E2E profile is required. The profile must include the Intel hosted runner UDID `4203018E-580F-C1B5-9525-B745CECA79EB` and the lane checks this before building. If absent, a team administrator must register that runner and regenerate the existing development profile in Match. [GitHub documents this stable Intel UDID](https://docs.github.com/en/actions/reference/runners/github-hosted-runners#limitations-for-arm64-macos-runners); arm64 hosted runners do not have one.
+
+CI fetches the development profile read-only, takes the actual profile name from Match's output, signs with `Apple Development`, and deletes the temporary keychain afterwards. An App Store distribution identity from the release workflow is not a substitute for development provisioning of the directly launched UI-test app. Missing credentials/profile fail the job; there is no silent fallback to mocked storage.
+
+Signing secrets are never made available to fork PR code. The signed job runs on same-repository PRs or a reviewed repository branch selected through `workflow_dispatch`. Fork PRs therefore do not run this signed suite automatically; they retain the regular lint/unit jobs, including the new fixture tests which require no secrets. There is no `pull_request_target` checkout of untrusted code.
+
+CI has separate build and test jobs. The build job signs or restores the app once and uploads a tar archive that preserves bundle permissions and symlinks. One test job downloads the artifact, verifies its signature and bundle ID, and runs all suites sequentially on one Mac (`maxWorkers: 1`). Signing credentials are used only in the build job. New pushes cancel the previous run for the same PR.
+
+The signed app is cached immediately after a successful build, even if the subsequent UI test fails. Test-only changes, including harness unit tests and test selection, can reuse it. Changes to application sources, dependencies, E2E build inputs, build configuration, toolchain or provisioning profile invalidate the cache. Cache invalidation has a standalone regression check. Only the app bundle is cached, never wallet data or the signing keychain.
+
+## Failures and retries
+
+Keep the application's original native modal presentation. Record Catalyst alert limitations as TODOs in tests rather than changing production presentation for automation. Informational import confirmations are dismissed when available; if absent, the test logs a TODO and still verifies the imported wallet and persistence after restart. An absent operation result, failed click or transport error remains a failure. Blocking input/confirmation subflows are explicitly deferred when they cannot continue.
+
+The payment case “creates and signs a payment with the requested amount, recipient and fee” is temporarily skipped while investigating the Intel hosted runner's Metal/RenderBox crash ([diagnostic run](https://github.com/BlueWallet/BlueWallet/actions/runs/38456922450)). The current selection is 42 runnable cases and eleven explicit skips (payment, entropy and nine scanner-dependent cases). The entropy case is temporarily skipped with a TODO because Save requires a native alert callback. Discovery continues through account selection and custom-path import, while its passphrase prompt/cancel subflow is deferred with a TODO. These omissions are not claimed as coverage.
+
+Cases are independent. CI allows up to three attempts per failed case (`E2E_RETRIES=2`, `E2E_FAIL_FAST=0`). Successful cases are not repeated. Jest reports the errors before retrying, and each start/pass log includes its attempt number. A case that fails all three attempts fails the job; retries never convert an unexecuted test into a pass. The custom fail-fast environment is disabled in this mode so it cannot skip a failed case's retries.
+
+Local runs default to a single attempt and fail-fast. For the same retry policy as CI, use `E2E_RETRIES=2 E2E_FAIL_FAST=0 npm run e2e:catalyst:test`. To diagnose only the initial failure, use `E2E_RETRIES=0 E2E_FAIL_FAST=1`: cleanup and diagnostics still run, remaining cases are reported as not run, and Jest bail prevents subsequent files from starting.
+
+Each attempt resets app state. Failed attempts discard their WebDriver session before the next case or retry. Teardown hooks also collect diagnostics for Jest timeouts; a late completion cannot mark a later attempt as passed. There are no persisted pass markers. The ten-minute transport timeout applies only to initial session creation; subsequent requests have a one-minute timeout and are not automatically replayed.
+
+Hosted Intel's virtual GPU can abort in RenderBox when loading a Metal shader archive. The harness passes `RB_USE_BINARY_ARCHIVE=0` only to the app on hosted CI; recheck this workaround when the runner image changes. Long compound cases have individual twenty-minute budgets, while element and command waits stay bounded. The build has a two-hour ceiling; the sequential test job has six hours, including retries and diagnostics. Commands from a timed-out test body are rejected before reaching WebDriver, while teardown can still save diagnostics.
+
+Failures save accessibility XML, Appium logs, app-window screenshots and video under `artifacts/`. Videos from successful attempts are discarded. CI uploads diagnostics only if the test job fails; successful jobs upload none, including when a retry recovered. Local screenshots are disabled because XCTest captures overlapping windows, even when asked for an app-window image. These artifacts can contain the disposable test wallet's recovery words. Video captures the display, so it is enabled by default only on CI or with `E2E_RECORD_VIDEO=1`. Global teardown restores clipboard text even if the last WebDriver session crashed.
+
+CI failures also collect native logs and available BlueWallet crash reports.
+
+If a run is forcibly killed before teardown, select your previous keyboard input source manually. Normal completion and setup failures restore it automatically.
+
+## Test dependency security
+
+Mac2's bundled `shell-quote` needs a security patch in addition to the npm override. See [patch details and removal criteria](../../patches/README.md). `tests/unit/catalyst-shell-quote.test.ts` checks both installed copies.
