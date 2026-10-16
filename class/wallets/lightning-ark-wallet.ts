@@ -15,7 +15,7 @@ import {
 import { readLockupFate } from '@arkade-os/swap/protocol';
 import { RealmAssetSwapRepository } from '@arkade-os/swap/repositories/realm';
 import { sideLimits, type DiscoveredMarket } from '@arkade-os/solver-discovery';
-import { RestDelegateProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction, TxType } from '@arkade-os/sdk';
+import { RestDelegateProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction, TxType, collectPages } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
 import { RealmContractRepository, RealmWalletRepository } from '@arkade-os/sdk/repositories/realm';
 
@@ -425,8 +425,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (this._recordsRefreshInFlight) return this._recordsRefreshInFlight;
     this._recordsRefreshInFlight = (async () => {
       try {
-        const records = await this._swapRepository!.getAllSwapRecords();
-        this._swapRecords = (records as SwapRecord[]).filter(r => r.family === 'rfq') as CorridorSwapRecord[];
+        const repository = this._swapRepository!;
+        const records = await collectPages<SwapRecord, string>(page => repository.getSwapRecordsPage(page));
+        this._swapRecords = records.filter(r => r.family === 'rfq') as CorridorSwapRecord[];
       } catch (e: any) {
         console.log('[ARK] refreshSwapRecords failed:', e?.message ?? e);
       } finally {
