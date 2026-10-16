@@ -18,10 +18,12 @@ describe('AnimatedCollapsible', () => {
     assert.strictEqual(render(renderItem(false)).queryByText('button') === null, true);
   });
 
-  it('always ends expanded with the live content, whatever happened during the animation', () => {
+  it('waits for the previous step, fades the content in, then settles open', () => {
     const screen = render(renderItem(false));
     screen.rerender(renderItem(true));
-    assert.strictEqual(screen.queryByTestId('LiveButton') !== null, true); // live while opening
+    assert.strictEqual(screen.queryByText('button') === null, true); // previous step still finishing
+    act(() => jest.advanceTimersByTime(650));
+    assert.strictEqual(screen.queryByTestId('LiveButton') !== null, true); // fading in, already tappable
     act(() => jest.advanceTimersByTime(1000));
     assert.strictEqual(screen.queryByTestId('LiveButton') !== null, true);
   });

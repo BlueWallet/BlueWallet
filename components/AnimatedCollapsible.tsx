@@ -2,10 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
-const DURATION = 600;
-const EASING = Easing.out(Easing.cubic);
+/** Collapse of the finished step; matches the checkmark transition in MultipleStepsListItem. */
+const COLLAPSE_DURATION = 600;
+/** The next step's content waits until the previous step has collapsed and checked off. */
+const FADE_IN_DELAY = COLLAPSE_DURATION;
+const FADE_IN_DURATION = 350;
 
-type Phase = 'open' | 'opening' | 'closing' | 'closed';
+type Phase = 'open' | 'waiting' | 'fadingIn' | 'closing' | 'closed';
 
 interface AnimatedCollapsibleProps {
   expanded: boolean;
@@ -14,65 +17,94 @@ interface AnimatedCollapsibleProps {
 }
 
 /**
- * Expands and collapses its content by animating a real `height`.
+ * Collapses content out by animating a real `height`, and fades content in once the previous step is done.
  *
  * Reanimated layout transitions (`layout` / `exiting`) only move native frames on Android: Yoga, the ScrollView
  * and Detox keep the pre-animation layout, so rows overlap and the next row's buttons stay clipped.
  *
- * The animation only runs during a transition. At rest the content is either rendered with its natural layout
- * (no animated style, no measured height) or not rendered at all, so a missed measurement or a dropped animation
- * callback can never leave the content stuck at height 0.
+ * Animated styles only exist during a transition. At rest the content is either a plain view sized by its content
+ * or not rendered at all, and phases settle on JS timers, so a missed measurement or a dropped animation callback
+ * can never leave the content invisible.
  */
 const AnimatedCollapsible: React.FC<AnimatedCollapsibleProps> = ({ expanded, children }) => {
   const [phase, setPhase] = useState<Phase>(expanded ? 'open' : 'closed');
-  const progress = useSharedValue(expanded ? 1 : 0);
+  const collapse = useSharedValue(1);
+  const fade = useSharedValue(1);
   const measuredHeight = useSharedValue(0);
   const previousExpanded = useRef(expanded);
-  const settleTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const clearTimers = () => {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+  };
 
   useEffect(() => {
     if (previousExpanded.current === expanded) return;
     previousExpanded.current = expanded;
+    // Only the next transition replaces these timers, never an unrelated effect re-run
+    clearTimers();
 
-    setPhase(expanded ? 'opening' : 'closing');
-    progress.value = withTiming(expanded ? 1 : 0, { duration: DURATION, easing: EASING });
-    // Settle on the JS side instead of in the animation callback, so the resting state does not depend on it.
-    // The timer is only replaced by the next transition, never by an unrelated effect re-run.
-    clearTimeout(settleTimer.current);
-    settleTimer.current = setTimeout(() => setPhase(expanded ? 'open' : 'closed'), DURATION);
-  }, [expanded, progress]);
+    if (expanded) {
+      fade.value = 0;
+      setPhase('waiting');
+      timers.current.push(
+        setTimeout(() => {
+          setPhase('fadingIn');
+          fade.value = withTiming(1, { duration: FADE_IN_DURATION, easing: Easing.out(Easing.quad) });
+        }, FADE_IN_DELAY),
+        setTimeout(() => setPhase('open'), FADE_IN_DELAY + FADE_IN_DURATION),
+      );
+    } else {
+      collapse.value = 1;
+      setPhase('closing');
+      collapse.value = withTiming(0, { duration: COLLAPSE_DURATION, easing: Easing.out(Easing.cubic) });
+      timers.current.push(setTimeout(() => setPhase('closed'), COLLAPSE_DURATION));
+    }
+  }, [expanded, collapse, fade]);
 
-  useEffect(() => () => clearTimeout(settleTimer.current), []);
+  useEffect(() => clearTimers, []);
 
   const onContentLayout = (event: LayoutChangeEvent) => {
     measuredHeight.value = event.nativeEvent.layout.height;
   };
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    height: measuredHeight.value * progress.value,
-    opacity: interpolate(progress.value, [0, 0.7], [0, 1], 'clamp'),
-    transform: [{ translateY: interpolate(progress.value, [0, 1], [-8, 0]) }],
+  const collapseStyle = useAnimatedStyle(() => ({
+    height: measuredHeight.value * collapse.value,
+    opacity: interpolate(collapse.value, [0, 0.7], [0, 1], 'clamp'),
+    transform: [{ translateY: interpolate(collapse.value, [0, 1], [-8, 0]) }],
   }));
 
-  if (phase === 'closed') return null;
+  const fadeStyle = useAnimatedStyle(() => ({
+    opacity: fade.value,
+    transform: [{ translateY: interpolate(fade.value, [0, 1], [6, 0]) }],
+  }));
 
-  if (phase === 'open') {
-    // Plain view: a fresh native view without animated props, sized by its content
-    return (
-      <View key="open" onLayout={onContentLayout}>
-        {children(true)}
-      </View>
-    );
+  switch (phase) {
+    case 'closed':
+    case 'waiting':
+      return null;
+    case 'open':
+      // Plain view: a fresh native view without animated props, sized by its content
+      return (
+        <View key="open" onLayout={onContentLayout}>
+          {children(true)}
+        </View>
+      );
+    case 'fadingIn':
+      // Natural height from the first frame, only the opacity animates
+      return (
+        <Animated.View key="fadingIn" style={fadeStyle} onLayout={onContentLayout}>
+          {children(true)}
+        </Animated.View>
+      );
+    case 'closing':
+      return (
+        <Animated.View key="closing" style={[styles.clip, collapseStyle]} pointerEvents="none">
+          {children(false)}
+        </Animated.View>
+      );
   }
-
-  return (
-    <Animated.View key="animating" style={[styles.clip, animatedStyle]} pointerEvents={phase === 'opening' ? 'auto' : 'none'}>
-      {/* Not constrained by the animated height (flexShrink 0), so this reports the content's natural height */}
-      <View onLayout={onContentLayout} collapsable={false}>
-        {children(phase === 'opening')}
-      </View>
-    </Animated.View>
-  );
 };
 
 const styles = StyleSheet.create({
