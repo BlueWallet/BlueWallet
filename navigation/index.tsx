@@ -15,6 +15,7 @@ import ViewEditMultisigCosignerViewSheet from '../screen/wallets/ViewEditMultisi
 import ViewEditMultisigProvideMnemonicsSheet from '../screen/wallets/ViewEditMultisigProvideMnemonicsSheet';
 import ViewEditMultisigShareCosignerSheet from '../screen/wallets/ViewEditMultisigShareCosignerSheet';
 import ClipboardDetected from '../screen/ClipboardDetected';
+import AddElectrumServerStack from './AddElectrumServerStack';
 import { navigationGuardRouter } from './navigationGuard';
 
 // Lazy load all components except UnlockWith
@@ -26,7 +27,6 @@ const ScanLNDInvoiceRoot = lazy(() => import('./ScanLNDInvoiceStack'));
 const AztecoRedeemStackRoot = lazy(() => import('./AztecoRedeemStack'));
 const ExportMultisigCoordinationSetupStack = lazy(() => import('./ExportMultisigCoordinationSetupStack'));
 const SignVerifyStackRoot = lazy(() => import('./SignVerifyStack'));
-const AddElectrumServerStack = lazy(() => import('./AddElectrumServerStack'));
 const ScanQRCode = lazy(() => import('../screen/send/ScanQRCode'));
 const ViewEditMultisigCosigners = lazy(() => import('../screen/wallets/ViewEditMultisigCosigners'));
 
@@ -61,7 +61,6 @@ const LazyAztecoRedeemStackRoot = withLazySuspense(AztecoRedeemStackRoot);
 const LazyExportMultisigCoordinationSetupStack = withLazySuspense(ExportMultisigCoordinationSetupStack);
 const LazyViewEditMultisigCosigners = withLazySuspense(ViewEditMultisigCosigners);
 const LazySignVerifyStackRoot = withLazySuspense(SignVerifyStackRoot);
-const LazyAddElectrumServerStack = withLazySuspense(AddElectrumServerStack);
 const LazyScanQRCodeComponent = withLazySuspense(ScanQRCode);
 const multisigSheetAllowedDetents = Platform.OS === 'ios' ? 'fitToContents' : [0.9];
 
@@ -97,10 +96,10 @@ const MainRoot = () => {
           <DetailViewStack.Screen name="AztecoRedeemRoot" component={LazyAztecoRedeemStackRoot} options={NavigationDefaultOptions} />
           <DetailViewStack.Screen
             name="AddElectrumServerRoot"
-            component={LazyAddElectrumServerStack}
+            component={AddElectrumServerStack}
             options={{
               ...NavigationFormModalOptions,
-              sheetAllowedDetents: 'fitToContents',
+              sheetAllowedDetents: [0.9],
               keyboardHandlingEnabled: true,
             }}
           />

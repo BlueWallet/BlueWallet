@@ -603,7 +603,7 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
   return ensureInFlight;
 }
 
-export async function presentResetToDefaultsAlert(): Promise<boolean> {
+export async function presentResetToDefaultsAlert(alertPresenter: typeof presentAlert = presentAlert): Promise<boolean> {
   const hasPreferredServer = await getPreferredServer();
   const serverHistoryStr = await DefaultPreference.get(ELECTRUM_SERVER_HISTORY);
   const serverHistory = typeof serverHistoryStr === 'string' ? JSON.parse(serverHistoryStr) : [];
@@ -655,7 +655,7 @@ export async function presentResetToDefaultsAlert(): Promise<boolean> {
       style: 'cancel',
     });
 
-    presentAlert({
+    alertPresenter({
       title: loc.settings.electrum_reset,
       message: loc.settings.electrum_reset_to_default,
       buttons,

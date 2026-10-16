@@ -4,7 +4,8 @@ import Ionicons from '@react-native-vector-icons/ionicons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
+  AlertButton,
+  findNodeHandle,
   Keyboard,
   Linking,
   Platform,
@@ -30,6 +31,8 @@ import { SettingsListItem, SettingsSection } from '../../components/SettingsSect
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { AddElectrumServerStackParamList } from '../../navigation/AddElectrumServerStackParamList';
+import useScreenMenuActions from '../../hooks/useScreenMenuActions';
+import ActionSheet from '../ActionSheet';
 
 const serverKey = (server: ElectrumServerItem) => `${server.host}:${server.tcp ?? ''}:${server.ssl ?? ''}`;
 
@@ -53,6 +56,26 @@ const AddElectrumServer: React.FC = () => {
   const inferredConnectionType = useRef(false);
   const hostInput = useRef<TextInput>(null);
   const portInput = useRef<TextInput>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [focusedField, setFocusedField] = useState<'host' | 'port'>('host');
+
+  const presentAlert = useCallback((title: string, message: string, buttons: AlertButton[]) => {
+    const anchor = findNodeHandle(scrollViewRef.current);
+    if (anchor === null) return;
+    const cancelButtonIndex = buttons.findIndex(button => button.style === 'cancel');
+    const destructiveButtonIndex = buttons.findIndex(button => button.style === 'destructive');
+    ActionSheet.showActionSheetWithOptions(
+      {
+        anchor,
+        title,
+        message,
+        options: buttons.map(button => button.text ?? ''),
+        cancelButtonIndex: cancelButtonIndex >= 0 ? cancelButtonIndex : undefined,
+        destructiveButtonIndex: destructiveButtonIndex >= 0 ? destructiveButtonIndex : undefined,
+      },
+      buttonIndex => buttons[buttonIndex]?.onPress?.(),
+    );
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -78,7 +101,7 @@ const AddElectrumServer: React.FC = () => {
 
   const hasChanges = !didSave && (host !== '' || port !== undefined || sslPort !== undefined || !setAsFavorite);
   usePreventRemove(hasChanges, ({ data }) => {
-    Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
+    presentAlert(loc._.discard_changes, loc._.discard_changes_explain, [
       { text: loc._.cancel, style: 'cancel' },
       {
         text: loc._.ok,
@@ -272,6 +295,10 @@ const AddElectrumServer: React.FC = () => {
     [colors.primary, isValidating, save, saveDisabled],
   );
 
+  useScreenMenuActions({
+    saveElectrumServer: saveDisabled ? undefined : save,
+  });
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: renderHeaderRight,
@@ -281,6 +308,7 @@ const AddElectrumServer: React.FC = () => {
 
   return (
     <ScrollView
+      ref={scrollViewRef}
       style={stylesHook.screen}
       contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
       contentInsetAdjustmentBehavior="automatic"
@@ -370,6 +398,7 @@ const AddElectrumServer: React.FC = () => {
             accessibilityHint={loc.settings.electrum_server_address_hint}
             inputRef={hostInput}
             returnKeyType="next"
+            onFocus={() => setFocusedField('host')}
             onSubmitEditing={() => portInput.current?.focus()}
           />
           <Text style={[styles.label, stylesHook.fieldLabel]}>
@@ -394,6 +423,7 @@ const AddElectrumServer: React.FC = () => {
               accessibilityLabel={loc.settings.electrum_port_accessibility_label}
               accessibilityHint={loc.settings.electrum_port_accessibility_hint}
               returnKeyType="done"
+              onFocus={() => setFocusedField('port')}
               onSubmitEditing={Keyboard.dismiss}
             />
           </View>
@@ -435,7 +465,14 @@ const AddElectrumServer: React.FC = () => {
           containerStyle={styles.favoriteRow}
         />
       </SettingsSection>
-      {Platform.OS === 'ios' ? <DismissKeyboardInputAccessory /> : null}
+      {Platform.OS === 'ios' ? (
+        <DismissKeyboardInputAccessory
+          onPrevious={() => hostInput.current?.focus()}
+          onNext={() => portInput.current?.focus()}
+          previousDisabled={focusedField === 'host'}
+          nextDisabled={focusedField === 'port'}
+        />
+      ) : null}
     </ScrollView>
   );
 };
