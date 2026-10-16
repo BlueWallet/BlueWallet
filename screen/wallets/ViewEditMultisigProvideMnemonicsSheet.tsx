@@ -14,6 +14,7 @@ import {
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
+import SheetKeyboardForm from '../../components/SheetKeyboardForm';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -88,7 +89,7 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
           </TouchableOpacity>
         </View>
       )}
-      <View style={styles.contentContainer}>
+      <SheetKeyboardForm style={styles.contentContainer}>
         <BlueTextCentered>{loc.multisig.type_seed_for_existing_key}</BlueTextCentered>
         <BlueSpacing20 />
         <BlueFormMultiInput
@@ -125,7 +126,7 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
             handleImport(text);
           }}
         />
-      </View>
+      </SheetKeyboardForm>
     </View>
   );
 };

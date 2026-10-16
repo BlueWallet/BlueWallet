@@ -14,6 +14,7 @@ import {
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
+import SheetKeyboardForm from '../../components/SheetKeyboardForm';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
@@ -102,7 +103,7 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
           </TouchableOpacity>
         </View>
       )}
-      <View style={styles.contentContainer}>
+      <SheetKeyboardForm style={styles.contentContainer}>
         <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
         <BlueSpacing20 />
         <BlueFormMultiInput
@@ -139,7 +140,7 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
             handleScanResult(text);
           }}
         />
-      </View>
+      </SheetKeyboardForm>
     </View>
   );
 };
