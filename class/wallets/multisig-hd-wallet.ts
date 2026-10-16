@@ -1216,13 +1216,22 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
    * reviewed or exported instead of aborting the import
    */
   static tryFinalizeUnfinalizedInputs(psbt: Psbt): Psbt {
-    const copy = psbt.clone();
     try {
-      MultisigHDWallet.finalizeUnfinalizedInputs(copy);
-      return copy;
+      return MultisigHDWallet.finalizedCopy(psbt);
     } catch (_) {
       return psbt;
     }
+  }
+
+  /**
+   * Returns a finalized copy and leaves the passed PSBT untouched. Throws when an input cannot be finalized.
+   * Finalizing in place is not safe: bitcoinjs finalizes input by input, so a throw on a later input leaves the
+   * earlier ones finalized with their `partialSig` already deleted
+   */
+  static finalizedCopy(psbt: Psbt): Psbt {
+    const copy = psbt.clone();
+    MultisigHDWallet.finalizeUnfinalizedInputs(copy);
+    return copy;
   }
 
   /**

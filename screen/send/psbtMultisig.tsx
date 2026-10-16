@@ -198,7 +198,7 @@ const PsbtMultisig = () => {
         satoshiPerByte,
       });
     } catch (error: any) {
-      presentAlert({ message: error });
+      presentAlert({ message: error?.message ?? String(error) });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txhex]);
@@ -239,19 +239,24 @@ const PsbtMultisig = () => {
   };
 
   const onConfirm = () => {
+    if (!psbt) return;
+    // Finalize a copy: a failure (e.g. an input with more signatures than the quorum) must not leave the PSBT in state
+    // half-finalized, or Export would share inputs that already lost their partial signatures.
+    let finalized: bitcoin.Psbt;
     try {
-      MultisigHDWallet.finalizeUnfinalizedInputs(psbt);
-    } catch (err) {
-      console.warn('Finalize error:', err);
+      finalized = MultisigHDWallet.finalizedCopy(psbt);
+    } catch (err: any) {
+      presentAlert({ message: err?.message ?? String(err) });
+      return;
     }
 
     if (launchedBy) {
-      navigate(launchedBy, { psbt });
+      navigate(launchedBy, { psbt: finalized });
       return;
     }
 
     try {
-      const extracted = psbt.extractTransaction();
+      const extracted = finalized.extractTransaction();
       const tx = extracted.toHex();
       const fee = getFee();
       const satoshiPerByte = Math.round(fee / extracted.virtualSize());
@@ -264,7 +269,7 @@ const PsbtMultisig = () => {
         satoshiPerByte,
       });
     } catch (error: any) {
-      presentAlert({ message: error });
+      presentAlert({ message: error?.message ?? String(error) });
     }
   };
 

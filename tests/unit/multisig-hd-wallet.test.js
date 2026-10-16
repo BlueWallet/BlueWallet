@@ -2421,6 +2421,39 @@ describe('cosignPsbt with more local keys than quorum', () => {
     assert.strictEqual(result.toBase64(), before);
   });
 
+  it('finalizedCopy throws on an over-signed input and leaves every input of the original intact', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    // input 0 is finalizable, input 1 has more signatures than the quorum
+    signWithSeed(psbt, 0, seeds[0]);
+    signWithSeed(psbt, 0, seeds[1]);
+    for (const seed of seeds) signWithSeed(psbt, 1, seed);
+    const before = psbt.toBase64();
+
+    assert.throws(() => MultisigHDWallet.finalizedCopy(psbt), /Too many signatures/);
+
+    // finalizing in place would have finalized input 0 and deleted its partialSig before throwing on input 1
+    assert.strictEqual(psbt.toBase64(), before);
+    assert.strictEqual(psbt.data.inputs[0].partialSig.length, 2);
+    assert.strictEqual(psbt.data.inputs[0].finalScriptWitness, undefined);
+  });
+
+  it('finalizedCopy returns a broadcastable copy when every input meets the quorum', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    for (const i of [0, 1]) {
+      signWithSeed(psbt, i, seeds[0]);
+      signWithSeed(psbt, i, seeds[2]);
+    }
+    const before = psbt.toBase64();
+
+    const tx = MultisigHDWallet.finalizedCopy(psbt).extractTransaction();
+
+    assertWitnessSigs(tx, 0, 2);
+    assertWitnessSigs(tx, 1, 2);
+    assert.strictEqual(psbt.toBase64(), before);
+  });
+
   it('cosignPsbt does not throw when another input is already over-signed', () => {
     const w = makeWallet();
     const psbt = makeUnsignedPsbt(w);
