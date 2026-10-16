@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
-import Animated, { Easing, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 const DURATION = 600;
 const EASING = Easing.out(Easing.cubic);
 
+type Phase = 'open' | 'opening' | 'closing' | 'closed';
+
 interface AnimatedCollapsibleProps {
   expanded: boolean;
-  /** Receives whether the content is the live (expanded) copy, so a collapsing copy can drop testIDs and taps. */
+  /** Receives whether the content is the live (expanded) copy, so a collapsing copy can drop testIDs. */
   children: (isLive: boolean) => React.ReactNode;
 }
 
@@ -16,27 +18,34 @@ interface AnimatedCollapsibleProps {
  *
  * Reanimated layout transitions (`layout` / `exiting`) only move native frames on Android: Yoga, the ScrollView
  * and Detox keep the pre-animation layout, so rows overlap and the next row's buttons stay clipped.
- * Animating `height` goes through layout every frame, so siblings reflow and the final layout is the real one.
+ *
+ * The animation only runs during a transition. At rest the content is either rendered with its natural layout
+ * (no animated style, no measured height) or not rendered at all, so a missed measurement or a dropped animation
+ * callback can never leave the content stuck at height 0.
  */
 const AnimatedCollapsible: React.FC<AnimatedCollapsibleProps> = ({ expanded, children }) => {
-  const [contentHeight, setContentHeight] = useState<number | null>(null);
-  const [mounted, setMounted] = useState(expanded);
-  const initiallyExpanded = useRef(expanded);
+  const [phase, setPhase] = useState<Phase>(expanded ? 'open' : 'closed');
   const progress = useSharedValue(expanded ? 1 : 0);
-  // The measured height lives in a shared value: a JS value captured by the worklet can go stale, leaving height at 0
   const measuredHeight = useSharedValue(0);
+  const previousExpanded = useRef(expanded);
+  const settleTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
-    if (expanded) setMounted(true);
-    progress.value = withTiming(expanded ? 1 : 0, { duration: DURATION, easing: EASING }, finished => {
-      if (finished && !expanded) runOnJS(setMounted)(false);
-    });
+    if (previousExpanded.current === expanded) return;
+    previousExpanded.current = expanded;
+
+    setPhase(expanded ? 'opening' : 'closing');
+    progress.value = withTiming(expanded ? 1 : 0, { duration: DURATION, easing: EASING });
+    // Settle on the JS side instead of in the animation callback, so the resting state does not depend on it.
+    // The timer is only replaced by the next transition, never by an unrelated effect re-run.
+    clearTimeout(settleTimer.current);
+    settleTimer.current = setTimeout(() => setPhase(expanded ? 'open' : 'closed'), DURATION);
   }, [expanded, progress]);
 
+  useEffect(() => () => clearTimeout(settleTimer.current), []);
+
   const onContentLayout = (event: LayoutChangeEvent) => {
-    const next = event.nativeEvent.layout.height;
-    measuredHeight.value = next;
-    setContentHeight(current => (current === next ? current : next));
+    measuredHeight.value = event.nativeEvent.layout.height;
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -45,17 +54,23 @@ const AnimatedCollapsible: React.FC<AnimatedCollapsibleProps> = ({ expanded, chi
     transform: [{ translateY: interpolate(progress.value, [0, 1], [-8, 0]) }],
   }));
 
-  // Until the content is measured: keep the natural height if it started expanded, otherwise stay closed
-  // so a newly expanded section grows from 0 instead of flashing at full height.
-  const sizeStyle = contentHeight === null ? (initiallyExpanded.current ? null : styles.closed) : animatedStyle;
+  if (phase === 'closed') return null;
+
+  if (phase === 'open') {
+    // Plain view: a fresh native view without animated props, sized by its content
+    return (
+      <View key="open" onLayout={onContentLayout}>
+        {children(true)}
+      </View>
+    );
+  }
 
   return (
-    <Animated.View style={[styles.clip, sizeStyle]} pointerEvents={expanded ? 'auto' : 'none'}>
-      {mounted ? (
-        <View onLayout={onContentLayout} collapsable={false}>
-          {children(expanded)}
-        </View>
-      ) : null}
+    <Animated.View key="animating" style={[styles.clip, animatedStyle]} pointerEvents={phase === 'opening' ? 'auto' : 'none'}>
+      {/* Not constrained by the animated height (flexShrink 0), so this reports the content's natural height */}
+      <View onLayout={onContentLayout} collapsable={false}>
+        {children(phase === 'opening')}
+      </View>
     </Animated.View>
   );
 };
@@ -63,10 +78,6 @@ const AnimatedCollapsible: React.FC<AnimatedCollapsibleProps> = ({ expanded, chi
 const styles = StyleSheet.create({
   clip: {
     overflow: 'hidden',
-  },
-  closed: {
-    height: 0,
-    opacity: 0,
   },
 });
 
