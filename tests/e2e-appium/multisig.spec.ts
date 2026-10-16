@@ -32,10 +32,7 @@ const scanParts = async (driver: Driver, parts: string[]) => {
 };
 
 catalystSuite('Multisig UR signing and macOS file import', test => {
-  // TODO(Catalyst scanner input): shared scanQrBackdoorInput cannot be filled
-  // with ordinary typing (38647288308); contextual Paste aborts UIKit
-  // (38635192455). Restore this flow without changing native presentation.
-  test.skip('imports multipart setup, opens a PSBT file and combines two hardware signatures for review', async driver => {
+  test('imports multipart setup, opens a PSBT file and combines two hardware signatures for review', async driver => {
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'bluewallet-catalyst-psbt-'));
     const filename = path.join(directory, 'unsigned.psbt');
     const unsigned = Psbt.fromBase64(fixture.unsignedPsbt);

@@ -110,10 +110,7 @@ catalystSuite('Transactions with local Electrum fixtures', test => {
     assert.ok(tx.outs.some(output => address.fromOutputScript(output.script) === recipient && output.value === 10000n));
     assert.ok(tx.outs.some(output => address.fromOutputScript(output.script) === recipient2 && output.value === 20000n));
   });
-  // TODO(Catalyst scanner input): shared scanQrBackdoorInput cannot be filled
-  // with ordinary typing (38647288308); contextual Paste aborts UIKit
-  // (38635192455). Restore this flow without changing native presentation.
-  test.skip('BIP21 scan sets the amount and address before signing', async driver => {
+  test('BIP21 scan sets the amount and address before signing', async driver => {
     await fund(driver);
     await tapId(driver, 'SendButton');
     await tapId(driver, 'BlueAddressInputScanQrButton');
@@ -127,10 +124,7 @@ catalystSuite('Transactions with local Electrum fixtures', test => {
     assert.strictEqual(address.fromOutputScript(tx.outs[0].script), recipient);
     assert.strictEqual(tx.outs[0].value, 15000n);
   });
-  // TODO(Catalyst scanner input): shared scanQrBackdoorInput cannot be filled
-  // with ordinary typing (38647288308); contextual Paste aborts UIKit
-  // (38635192455). Restore this flow without changing native presentation.
-  test.skip('converts BTC to sats and preserves the amount when scanning a bare address', async driver => {
+  test('converts BTC to sats and preserves the amount when scanning a bare address', async driver => {
     await fund(driver);
     await tapId(driver, 'SendButton');
     await replaceAmount(driver, '0.0005');
@@ -155,10 +149,7 @@ catalystSuite('Transactions with local Electrum fixtures', test => {
     assert.strictEqual(address.fromOutputScript(tx.outs[0].script), recipient);
     assert.strictEqual(tx.outs[0].value, 10000n);
   });
-  // TODO(Catalyst scanner input): shared scanQrBackdoorInput cannot be filled
-  // with ordinary typing (38647288308); contextual Paste aborts UIKit
-  // (38635192455). Restore this flow without changing native presentation.
-  test.skip('keeps fiat units when scanning a bare address and signs the converted amount', async driver => {
+  test('keeps fiat units when scanning a bare address and signs the converted amount', async driver => {
     // Seed a fresh cache in the E2E sandbox's real native preferences.
     // This is a synthetic USD rate, not a live quote.
     await relaunch(driver, {
@@ -191,10 +182,7 @@ catalystSuite('Transactions with local Electrum fixtures', test => {
     assert.strictEqual(address.fromOutputScript(tx.outs[0].script), recipient);
     assert.strictEqual(tx.outs[0].value, 11000n);
   });
-  // TODO(Catalyst scanner input): shared scanQrBackdoorInput cannot be filled
-  // with ordinary typing (38647288308); contextual Paste aborts UIKit
-  // (38635192455). Restore this flow without changing native presentation.
-  test.skip('cosigns an imported PSBT with the wallet key', async driver => {
+  test('cosigns an imported PSBT with the wallet key', async driver => {
     await fund(driver);
     // Public BIP84 vector m/84'/0'/0'/0/0, matching the synthetic funding output.
     const psbt = new Psbt()

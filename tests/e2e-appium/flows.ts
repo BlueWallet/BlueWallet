@@ -68,12 +68,12 @@ export const importWallet = async (driver: Driver, secret: string, type: string,
 
 // Exercises the scanner's decode/navigation path with the same input backdoor used by Detox.
 // Camera hardware and permission prompts are not prerequisites for these flows.
+// The scanner is pushed inside the focused stack (helpers/scan-qr.ts) and nested stacks
+// show it as a regular modal on desktop (nestedScannerPresentation), so its multiline field
+// takes the same contextual Paste as every other Catalyst TextView.
 export const scanText = async (driver: Driver, value: string) => {
   await tapRepeatedly(driver, 'ScanQrBackdoorButton', 6);
-  // TODO(Catalyst editing menus): native full-screen scanner presentation can
-  // abort in UIKit's rehostedVC assertion when opening contextual Paste
-  // (CI run 38635192455). Use ordinary input; replaceId still verifies its value.
-  await replaceId(driver, 'scanQrBackdoorInput', value, 'type');
+  await replaceId(driver, 'scanQrBackdoorInput', value);
   await tapId(driver, 'scanQrBackdoorOkButton');
 };
 

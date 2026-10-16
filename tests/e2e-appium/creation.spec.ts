@@ -132,9 +132,7 @@ catalystSuite('Wallet creation and import', test => {
     20 * 60_000,
   ); // Intel CI needed 9.5 minutes through forgetting; restoring and verifying still follow.
   for (const wrapped of [false, true]) {
-    // TODO(Catalyst scanner input): both variants use the blocked shared input;
-    // see CI 38647288308 (typing) and 38635192455 (contextual Paste crash).
-    test.skip(`imports individual cosigners into a 2-of-2 ${wrapped ? 'wrapped' : 'native'} SegWit vault`, async driver => {
+    test(`imports individual cosigners into a 2-of-2 ${wrapped ? 'wrapped' : 'native'} SegWit vault`, async driver => {
       await selectMenuItem(driver, 'File', 'Add Wallet');
       await tapId(driver, 'ActivateVaultButton');
       await tapId(driver, 'Create');

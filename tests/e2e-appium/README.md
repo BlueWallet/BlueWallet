@@ -1,8 +1,8 @@
 # Mac Catalyst end-to-end tests
 
-The suite uses Appium Mac2/XCTest against a Release Catalyst app. It ports mobile Detox flows where desktop UI supports them and adds native menu and keyboard shortcut coverage. There are 42 active cases and 11 explicit TODO skips; the parity map below distinguishes active coverage from deferred scanner/alert flows.
+The suite uses Appium Mac2/XCTest against a Release Catalyst app. It ports mobile Detox flows where desktop UI supports them and adds native menu and keyboard shortcut coverage. There are 51 active cases and 2 explicit TODO skips (direct payment, entropy); the parity map below distinguishes active coverage from deferred flows.
 
-Camera capture, biometrics, hardware wallets, widgets, App Store installation and external Lightning services are outside this suite. Scanner input uses the same backdoor as Detox. The sandboxed E2E app deliberately omits the camera entitlement; scanner cases exercise text payload handling without hardware access. Transaction cases use a local TCP Electrum fixture with a public test mnemonic and synthetic UTXOs; broadcasting is rejected. No private mnemonic environment variables are required. This checks real wallet transaction construction and signing, not public-server interoperability. The deferred multisig hardware flow is designed to import the historical PSBT fixture through the macOS file picker, then combine its multipart UR signatures; transaction construction is tested separately with synthetic coins. The deferred fiat transaction case seeds a fresh USD rate cache with the native `defaults` tool in the E2E sandbox while the app is stopped. Settings can still fetch external exchange rates.
+Camera capture, biometrics, hardware wallets, widgets, App Store installation and external Lightning services are outside this suite. Scanner input uses the same backdoor as Detox. The sandboxed E2E app deliberately omits the camera entitlement; scanner cases exercise text payload handling without hardware access. Transaction cases use a local TCP Electrum fixture with a public test mnemonic and synthetic UTXOs; broadcasting is rejected. No private mnemonic environment variables are required. This checks real wallet transaction construction and signing, not public-server interoperability. The multisig hardware flow imports the historical PSBT fixture through the macOS file picker, then combines its multipart UR signatures; transaction construction is tested separately with synthetic coins. The fiat transaction case seeds a fresh USD rate cache with the native `defaults` tool in the E2E sandbox while the app is stopped. Settings can still fetch external exchange rates.
 
 ## Detox parity map
 
@@ -13,27 +13,27 @@ The source scenarios live in `tests/e2e/bluewallet.spec.js`, `bluewallet2.spec.j
 | Self-test and settings screens | `settings` |
 | Create/restart/receive amount and labels/delete | `wallets` |
 | Encrypt/decrypt and plausible deniability | `security` |
-| Individual multisig cosigners and wrapped SegWit | TODO: two `creation` cases skipped while scanner input is blocked |
-| Multipart multisig setup and hardware signatures | TODO: `multisig` is skipped while scanner input is blocked, including its dependent file-picker flow |
+| Individual multisig cosigners and wrapped SegWit | `creation`; native and wrapped 2-of-2 vaults from scanned cosigners |
+| Multipart multisig setup and hardware signatures | `multisig`; UR setup parts, macOS file picker PSBT import and two UR signatures |
 | Account discovery and custom path | `discovery` |
-| Home scan to on-chain send | TODO: `wallets` scanner case skipped |
+| Home scan to on-chain send | `wallets` |
 | Coin/dice entropy | TODO: `creation` case temporarily skipped; Save requires a blocking native alert |
 | Vault export and forgetting/restoring a cosigner seed | `creation` |
-| Payment, batch, full balance, BIP21 and deep link | `transactions`: batch, full balance and deep link active; direct payment and scanner cases TODO/skipped |
-| BTC/sats/fiat conversion through scanning | TODO: `transactions` scanner cases skipped |
-| PSBT cosigning | TODO: `transactions` PSBT scanner case skipped |
+| Payment, batch, full balance, BIP21 and deep link | `transactions`: batch, full balance, BIP21 scan and deep link active; direct payment TODO/skipped |
+| BTC/sats/fiat conversion through scanning | `transactions` |
+| PSBT cosigning | `transactions` |
 | Payment codes and contacts | `contacts`; live notification transactions are not broadcast |
 | Wallet details, seed/xpub export and Manage Wallets | `wallets` |
 | UTXO notes and freezing | `transactions` |
 | Purge/refetch while running and after restart | `transactions` |
-| Watch-only zpub and unsigned/signed PSBT | `watch-only` zpub active; PSBT scanner flow TODO/skipped |
+| Watch-only zpub and unsigned/signed PSBT | `watch-only` |
 | macOS menus and keyboard shortcuts | `menus`; navigation, context-dependent commands and clipboard contents |
 
 Mixed on-chain/Lightning routing that requires an external LNDHub, push-notification registration, Azteco redemption, and physical camera/hardware interaction are not claimed as covered by this isolated suite. macOS menu/shortcut and file-picker cases supplement the mobile scenarios.
 
 ## Local run
 
-Install the repository's Node, Ruby and CocoaPods dependencies. Xcode, an enabled ABC or US keyboard input source, and Accessibility permission for Xcode Helper are required. Mac2 controls the foreground app, so avoid using the mouse/keyboard during a run. The suite temporarily selects an ASCII keyboard source for shortcuts and restores the previous source on normal teardown. Most text fields use native Edit-menu paste and verify the resulting value, restoring the previous clipboard. Scanner backdoor fields use ordinary typing and verify the exact value: contextual Paste inside the original full-screen scanner aborts in UIKit on Intel CI (run 38635192455), tracked as a TODO in `scanText`. Both XCTest key events and typeText have left Catalyst fields empty in local runs even with ABC active; the helper retains an explicit type mode for diagnosing other environments.
+Install the repository's Node, Ruby and CocoaPods dependencies. Xcode, an enabled ABC or US keyboard input source, and Accessibility permission for Xcode Helper are required. Mac2 controls the foreground app, so avoid using the mouse/keyboard during a run. The suite temporarily selects an ASCII keyboard source for shortcuts and restores the previous source on normal teardown. Most text fields use native Edit-menu paste and verify the resulting value, restoring the previous clipboard. Scanner backdoor fields are filled the same way, which needs two app-side arrangements. `scanQrHelper` pushes the scanner inside the focused navigator (see `helpers/scan-qr.ts`): presenting the root stack's scanner over an already presented modal made UIKit on the Intel runner rehost it without keyboard focus or Edit-menu actions (run 38647288308). Nested stacks also present the scanner as a regular modal on desktop (`nestedScannerPresentation` in `components/navigationStyle.tsx`): a full-screen modal inside a Catalyst sheet is rehosted into its own window, and validating a contextual menu then terminates the app with `rehostedVC should be in a UIWindow` (run 38635192455, reproducible locally). A pushed card would avoid that too, but it ends up behind form-sheet routes such as the cosigner import sheet. The helper retains an explicit type mode for diagnosing other environments.
 
 macOS can separately ask to enable UI automation when XCTest starts. Approve that system prompt locally. `automationmodetool` without arguments reports the current state without changing it. A timeout saying “Timed out while enabling automation mode” occurs before test execution; see [Mac2 device preparation](https://appium.github.io/appium-mac2-driver/v4/getting-started/#device-preparation). The workflow enables unattended automation on its disposable CI runner; local test scripts do not change that security preference.
 
@@ -81,7 +81,7 @@ The signed app is cached immediately after a successful build, even if the subse
 
 Keep the application's original native modal presentation. Record Catalyst alert limitations as TODOs in tests rather than changing production presentation for automation. Informational import confirmations are dismissed when available; if absent, the test logs a TODO and still verifies the imported wallet and persistence after restart. An absent operation result, failed click or transport error remains a failure. Blocking input/confirmation subflows are explicitly deferred when they cannot continue.
 
-The payment case “creates and signs a payment with the requested amount, recipient and fee” is temporarily skipped while investigating the Intel hosted runner's Metal/RenderBox crash ([diagnostic run](https://github.com/BlueWallet/BlueWallet/actions/runs/38456922450)). The current selection is 42 runnable cases and eleven explicit skips (payment, entropy and nine scanner-dependent cases). The entropy case is temporarily skipped with a TODO because Save requires a native alert callback. Discovery continues through account selection and custom-path import, while its passphrase prompt/cancel subflow is deferred with a TODO. These omissions are not claimed as coverage.
+The payment case “creates and signs a payment with the requested amount, recipient and fee” is temporarily skipped while investigating the Intel hosted runner's Metal/RenderBox crash ([diagnostic run](https://github.com/BlueWallet/BlueWallet/actions/runs/38456922450)). The current selection is 51 runnable cases and two explicit skips (payment and entropy). The entropy case is temporarily skipped with a TODO because Save requires a native alert callback. Discovery continues through account selection and custom-path import, while its passphrase prompt/cancel subflow is deferred with a TODO. These omissions are not claimed as coverage.
 
 Cases are independent. CI allows up to three attempts per failed case (`E2E_RETRIES=2`, `E2E_FAIL_FAST=0`). Successful cases are not repeated. Jest reports the errors before retrying, and each start/pass log includes its attempt number. A case that fails all three attempts fails the job; retries never convert an unexecuted test into a pass. The custom fail-fast environment is disabled in this mode so it cannot skip a failed case's retries.
 

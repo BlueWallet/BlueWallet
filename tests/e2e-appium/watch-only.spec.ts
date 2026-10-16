@@ -25,10 +25,7 @@ catalystSuite('Watch-only and hardware signing', test => {
     await tapId(driver, 'WalletDetails');
     await expectText(driver, 'WalletNameDisplay', 'Imported Watch-only');
   });
-  // TODO(Catalyst scanner input): shared scanQrBackdoorInput cannot be filled
-  // with ordinary typing (38647288308); contextual Paste aborts UIKit
-  // (38635192455). Restore this flow without changing native presentation.
-  test.skip('imports unsigned UR PSBT and accepts a hardware-signed PSBT for review', async driver => {
+  test('imports unsigned UR PSBT and accepts a hardware-signed PSBT for review', async driver => {
     await importWallet(driver, fixture.zpub, 'watchOnly', 'Imported Watch-only');
     await tapId(driver, 'SendButton');
     await tapButtonWithLabel(driver, 'OK');

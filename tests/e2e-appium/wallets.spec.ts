@@ -80,10 +80,7 @@ catalystSuite('Wallet lifecycle', test => {
     assert.strictEqual(await receiveRequest(driver), address);
     assert.ok((await getText(driver, 'ReceiveAddressLabel')).includes('Persistent address label'));
   });
-  // TODO(Catalyst scanner input): shared scanQrBackdoorInput cannot be filled
-  // with ordinary typing (38647288308); contextual Paste aborts UIKit
-  // (38635192455). Restore this flow without changing native presentation.
-  test.skip('home scanner routes a Bitcoin URI to the selected wallet send form', async driver => {
+  test('home scanner routes a Bitcoin URI to the selected wallet send form', async driver => {
     await createWallet(driver);
     await openWallet(driver);
     await selectMenuItem(driver, 'View', 'Back to Wallets');
