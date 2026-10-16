@@ -3,9 +3,17 @@ import { ECPairFactory } from 'ecpair';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import ecc from '../blue_modules/noble_ecc';
-import { IPayjoinClientWallet, PayjoinClient } from '../blue_modules/payjoin-client';
+import { areUint8ArraysEqual } from '../blue_modules/uint8array-extras';
+import {
+  getVirtualSize,
+  IPayjoinClientWallet,
+  PayjoinClient,
+  PayjoinClientOptionalParameters,
+  ScriptPubKeyType,
+} from '../blue_modules/payjoin-client';
 import presentAlert from '../components/Alert';
 import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
+import { CreateTransactionTarget } from './wallets/types';
 import assert from 'assert';
 const ECPair = ECPairFactory(ecc);
 
@@ -30,8 +38,59 @@ export default class PayjoinTransaction implements IPayjoinClientWallet {
     this._originalBroadcast = false;
   }
 
-  createClient(paymentScript: Uint8Array, payjoinUrl: string): PayjoinClient {
-    return new PayjoinClient({ paymentScript, wallet: this, payjoinUrl });
+  createClient(paymentScript: Uint8Array, payjoinUrl: string, payjoinParameters?: PayjoinClientOptionalParameters): PayjoinClient {
+    return new PayjoinClient({ paymentScript, wallet: this, payjoinUrl, payjoinParameters });
+  }
+
+  /**
+   * Output script of the recipient the BIP21 `pj=` came with. Batched sends may carry other recipients, and the
+   * address may have been edited after the BIP21 was pasted; only that exact recipient may be substituted by the receiver.
+   */
+  static paymentScriptFor(recipients: CreateTransactionTarget[], payjoinAddress?: string): Uint8Array | undefined {
+    if (!payjoinAddress) return undefined;
+    let wanted: Uint8Array;
+    try {
+      wanted = bitcoin.address.toOutputScript(payjoinAddress);
+    } catch {
+      return undefined;
+    }
+    for (const recipient of recipients) {
+      if (!recipient.address) continue;
+      try {
+        const script = bitcoin.address.toOutputScript(recipient.address);
+        if (areUint8ArraysEqual(script, wanted)) return script;
+      } catch {}
+    }
+    return undefined;
+  }
+
+  /**
+   * BIP78 sender parameters: the receiver must keep our fee rate, and may take the fee for one extra p2wpkh input
+   * from our change (the "fee output"). Without a fee output BTCPay cannot pay for its input and refuses to payjoin.
+   */
+  payjoinParameters(feeRate: number): PayjoinClientOptionalParameters {
+    const params: PayjoinClientOptionalParameters = { minimumFeeRate: feeRate };
+    const changeIndex = this.getChangeOutputIndex();
+    if (changeIndex !== undefined) {
+      params.additionalFeeOutputIndex = changeIndex;
+      params.maxAdditionalFeeContribution = Math.ceil(feeRate * getVirtualSize(ScriptPubKeyType.Segwit));
+    }
+    return params;
+  }
+
+  private getChangeOutputIndex(): number | undefined {
+    const change = new Set<string>();
+    for (let c = 0; c < this._wallet.next_free_change_address_index + this._wallet.gap_limit; c++) {
+      change.add(this._wallet._getInternalAddressByIndex(c));
+    }
+    const index = this._psbt.txOutputs.findIndex(o => !!o.address && change.has(o.address));
+    return index === -1 ? undefined : index;
+  }
+
+  /** Transaction that actually went out: the payjoin one if it was broadcast, otherwise the original. */
+  getSentTransaction(): { txid: string; fee: bigint } {
+    const psbt = this._payjoinPsbt || this._psbt;
+    return { txid: psbt.extractTransaction().getId(), fee: psbt.getFee() };
   }
 
   async getPsbt() {
