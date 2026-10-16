@@ -138,7 +138,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.text('Afrikaans (AFR)')).tap();
     await goBack();
     await waitForText('Taal');
-    await element(by.id('Language')).tap();
+    await element(by.text('Taal')).tap();
     await waitForText('English');
     await element(by.text('English')).tap();
     await goBack();
