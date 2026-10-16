@@ -18,7 +18,8 @@ import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
+import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
+import KeyboardAccessoryDone from '../../components/KeyboardAccessoryDone';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { TWallet } from '../../class/wallets/types';
 import { pop } from '../../NavigationService';
@@ -45,6 +46,7 @@ const LnurlPay: React.FC = () => {
   const [payload, setPayload] = useState<any>();
   const { setParams, navigate } = useNavigation();
   const [amount, setAmount] = useState<string | undefined>();
+  const [keyboardAccessoryActive, setKeyboardAccessoryActive] = useState(false);
   const { colors } = useTheme();
   const { direction } = useLocale();
   const stylesHook = StyleSheet.create({
@@ -200,41 +202,43 @@ const LnurlPay: React.FC = () => {
 
   const renderGotPayload = () => {
     return (
-      <SafeArea>
-        <ScrollView contentContainerStyle={styles.scrollviewContainer}>
-          <BlueCard>
-            <AmountInput.AmountInput
-              isLoading={isLoading}
-              amount={amount}
-              onAmountUnitChange={setUnit}
-              onChangeText={setAmount}
-              disabled={payload?.fixed}
-              unit={unit}
-              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
-            />
-            <DismissKeyboardInputAccessory />
-            <BlueText style={styles.alignSelfCenter}>
-              {loc.formatString(loc.lndViewInvoice.please_pay_between_and, {
-                min: formatBalance(payload?.min, unit),
-                max: formatBalance(payload?.max, unit),
-              })}
-            </BlueText>
-            <BlueSpacing20 />
-            {payload?.image && (
-              <>
-                <Image style={styles.img} source={{ uri: payload?.image }} />
-                <BlueSpacing20 />
-              </>
-            )}
-            <BlueText style={styles.alignSelfCenter}>{payload?.description}</BlueText>
-            <BlueText style={styles.alignSelfCenter}>{payload?.domain}</BlueText>
-            <BlueSpacing20 />
-            {payButtonDisabled ? <BlueLoading /> : <Button title={loc.lnd.payButton} onPress={pay} />}
-            <BlueSpacing20 />
-          </BlueCard>
-        </ScrollView>
-        {renderWalletSelectionButton}
-      </SafeArea>
+      <KeyboardAccessoryDock active={keyboardAccessoryActive} accessory={<KeyboardAccessoryDone />}>
+        <SafeArea>
+          <ScrollView contentContainerStyle={styles.scrollviewContainer} automaticallyAdjustKeyboardInsets={false}>
+            <BlueCard>
+              <AmountInput.AmountInput
+                isLoading={isLoading}
+                amount={amount}
+                onAmountUnitChange={setUnit}
+                onChangeText={setAmount}
+                disabled={payload?.fixed}
+                unit={unit}
+                onFocus={() => setKeyboardAccessoryActive(true)}
+                onBlur={() => setKeyboardAccessoryActive(false)}
+              />
+              <BlueText style={styles.alignSelfCenter}>
+                {loc.formatString(loc.lndViewInvoice.please_pay_between_and, {
+                  min: formatBalance(payload?.min, unit),
+                  max: formatBalance(payload?.max, unit),
+                })}
+              </BlueText>
+              <BlueSpacing20 />
+              {payload?.image && (
+                <>
+                  <Image style={styles.img} source={{ uri: payload?.image }} />
+                  <BlueSpacing20 />
+                </>
+              )}
+              <BlueText style={styles.alignSelfCenter}>{payload?.description}</BlueText>
+              <BlueText style={styles.alignSelfCenter}>{payload?.domain}</BlueText>
+              <BlueSpacing20 />
+              {payButtonDisabled ? <BlueLoading /> : <Button title={loc.lnd.payButton} onPress={pay} />}
+              <BlueSpacing20 />
+            </BlueCard>
+          </ScrollView>
+          {renderWalletSelectionButton}
+        </SafeArea>
+      </KeyboardAccessoryDock>
     );
   };
 

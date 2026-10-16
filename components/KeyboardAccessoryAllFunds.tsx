@@ -1,23 +1,23 @@
 import React from 'react';
-import { InputAccessoryView, Keyboard, Platform, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, StyleSheet, Text, View } from 'react-native';
+
 import BlueButtonLink from './BlueButtonLink';
+import { KEYBOARD_ACCESSORY_BAR_HEIGHT } from './keyboardAccessory';
+import { useTheme } from './themes';
 import loc from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import { useTheme } from './themes';
 
-interface InputAccessoryAllFundsProps {
+interface KeyboardAccessoryAllFundsProps {
   balance: string;
   canUseAll: boolean;
   onUseAllPressed: () => void;
 }
 
-const InputAccessoryAllFunds: React.FC<InputAccessoryAllFundsProps> = ({ balance, canUseAll, onUseAllPressed }) => {
+/** Pure Total / All Funds + Done bar content for KeyboardAccessoryDock (chrome lives on the dock). */
+const KeyboardAccessoryAllFunds: React.FC<KeyboardAccessoryAllFundsProps> = ({ balance, canUseAll, onUseAllPressed }) => {
   const { colors } = useTheme();
 
   const stylesHook = StyleSheet.create({
-    root: {
-      backgroundColor: colors.inputBackgroundColor,
-    },
     totalLabel: {
       color: colors.alternativeTextColor,
     },
@@ -26,8 +26,8 @@ const InputAccessoryAllFunds: React.FC<InputAccessoryAllFundsProps> = ({ balance
     },
   });
 
-  const inputView = (
-    <View style={[styles.root, stylesHook.root]}>
+  return (
+    <View style={styles.root}>
       <View style={styles.left}>
         <Text style={[styles.totalLabel, stylesHook.totalLabel]}>{loc.send.input_total}</Text>
         {canUseAll ? (
@@ -43,27 +43,13 @@ const InputAccessoryAllFunds: React.FC<InputAccessoryAllFundsProps> = ({ balance
       </View>
     </View>
   );
-
-  if (Platform.OS === 'ios') {
-    return <InputAccessoryView nativeID={InputAccessoryAllFundsAccessoryViewID}>{inputView}</InputAccessoryView>;
-  }
-
-  // androidPlaceholder View is needed to force shrink screen (KeyboardAvoidingView) where this component is used
-  return (
-    <>
-      <View style={styles.androidPlaceholder} />
-      <View style={styles.androidAbsolute}>{inputView}</View>
-    </>
-  );
 };
-
-export const InputAccessoryAllFundsAccessoryViewID = 'useMaxInputAccessoryViewID';
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
     flexDirection: 'row',
-    maxHeight: 44,
+    height: KEYBOARD_ACCESSORY_BAR_HEIGHT,
     justifyContent: 'space-between',
     alignItems: 'center',
   },
@@ -108,16 +94,6 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 12,
   },
-  androidPlaceholder: {
-    height: 44,
-  },
-  androidAbsolute: {
-    height: 44,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
 });
 
-export default InputAccessoryAllFunds;
+export default KeyboardAccessoryAllFunds;

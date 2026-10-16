@@ -1,7 +1,9 @@
 import React, { useMemo, forwardRef } from 'react';
 import { StyleSheet, ScrollView, ScrollViewProps } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useKeyboardDockActive } from './keyboardAccessory';
 import { useTheme } from './themes';
 
 interface SafeAreaScrollViewProps extends ScrollViewProps {
@@ -17,10 +19,16 @@ const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((prop
     floatingButtonHeight = 0,
     headerHeight = 0,
     disableDefaultTopPadding = false,
+    automaticallyAdjustKeyboardInsets,
     ...otherProps
   } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const isFocused = useIsFocused();
+  // The dock already lifts content above the IME, which covers the home indicator.
+  const bottomInset = useKeyboardDockActive() ? 0 : insets.bottom;
+  // Only adjust while focused — RN also applies keyboard insets to covered stack screens.
+  const shouldAdjustKeyboardInsets = Boolean(automaticallyAdjustKeyboardInsets) && isFocused;
 
   const componentStyle = useMemo(() => {
     return StyleSheet.compose({ flex: 1, backgroundColor: colors.background }, style);
@@ -34,7 +42,7 @@ const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((prop
       paddingLeft?: number;
       paddingRight?: number;
     } = {
-      paddingBottom: insets.bottom + floatingButtonHeight, // Add extra padding for the floating button
+      paddingBottom: bottomInset + floatingButtonHeight, // Add extra padding for the floating button
       paddingTop: (() => {
         // If explicit headerHeight is provided, use it
         if (headerHeight > 0) {
@@ -59,7 +67,7 @@ const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((prop
 
     // Now compose with contentContainerStyle to ensure passed styles override defaults
     return StyleSheet.compose(basePadding, contentContainerStyle);
-  }, [insets, contentContainerStyle, floatingButtonHeight, headerHeight, disableDefaultTopPadding]);
+  }, [insets, bottomInset, contentContainerStyle, floatingButtonHeight, headerHeight, disableDefaultTopPadding]);
 
   return (
     <ScrollView
@@ -75,6 +83,7 @@ const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((prop
       contentInsetAdjustmentBehavior="automatic"
       scrollToOverflowEnabled
       automaticallyAdjustsScrollIndicatorInsets
+      automaticallyAdjustKeyboardInsets={shouldAdjustKeyboardInsets}
       contentContainerStyle={contentStyle}
       {...otherProps}
     />
