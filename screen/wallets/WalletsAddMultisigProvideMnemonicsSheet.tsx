@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Image, Platform, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Image, Platform, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -23,7 +23,6 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
   const route = useRoute<RouteProp<AddWalletStackParamList, 'WalletsAddMultisigProvideMnemonicsSheet'>>();
   const { colors, closeImage } = useTheme();
   const insets = useSafeAreaInsets();
-  const { height: windowHeight } = useWindowDimensions();
   const { importText: initialImportText = '', askPassphrase: initialAskPassphrase = false } = route.params;
 
   const [importText, setImportText] = useState(initialImportText);
@@ -77,11 +76,6 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
       // Android form sheets often report insets.bottom as 0. iOS form sheets often report a huge one.
       paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom, 24) + 16 : 16,
     },
-    // Bounded so fitToContents can still size the sheet, but the form scrolls once it is taller than the screen
-    // (keyboard up, landscape, large text) and Import stays reachable.
-    scroll: {
-      maxHeight: windowHeight * 0.8,
-    },
     headerTitle: {
       color: colors.foregroundColor,
     },
@@ -108,14 +102,7 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
           </TouchableOpacity>
         </View>
       )}
-      {/* react-native-screens switches the first-descendant ScrollView of a screen to automatic content insets, and
-          the form sheet's huge insets push the form to the bottom. This empty view keeps the ScrollView off that chain. */}
-      <View collapsable={false} style={styles.scrollInsetGuard} />
-      <ScrollView
-        style={[styles.scroll, stylesHook.scroll]}
-        contentContainerStyle={styles.contentContainer}
-        keyboardShouldPersistTaps="always"
-      >
+      <View style={styles.contentContainer}>
         <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
         <BlueSpacing20 />
         <BlueFormMultiInput
@@ -152,7 +139,7 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
             handleScanResult(text);
           }}
         />
-      </ScrollView>
+      </View>
     </View>
   );
 };
@@ -177,13 +164,6 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-  },
-  scroll: {
-    // ScrollView defaults to flexGrow:1, which makes fitToContents full height
-    flexGrow: 0,
-  },
-  scrollInsetGuard: {
-    height: 0,
   },
   contentContainer: {
     paddingHorizontal: 24,
