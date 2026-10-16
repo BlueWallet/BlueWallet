@@ -348,7 +348,8 @@ const AddWalletStack = () => {
           // Content must not use flex:1 or Android fitToContents expands to full height.
           sheetAllowedDetents: 'fitToContents',
           sheetGrabberVisible: true,
-          headerShown: true,
+          // Android formSheet does not support native headers — title/close are rendered in-content.
+          headerShown: Platform.OS === 'ios',
           headerTitle: loc.multisig.vault_advanced_customize,
           headerBackVisible: false,
           closeButtonPosition: CloseButtonPosition.Right,

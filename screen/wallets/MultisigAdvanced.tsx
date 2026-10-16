@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState, FC } from 'react';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { Image, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import Icon from '../../components/Icon';
@@ -184,8 +184,9 @@ const FormatSelector: FC<FormatSelectorProps> = ({ format, onFormatChange }) => 
 };
 
 const MultisigAdvanced: React.FC = () => {
-  const { colors } = useTheme();
+  const { colors, closeImage } = useTheme();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const route = useRoute<RouteProps>();
   const { m, n, format, onSave } = route.params;
 
@@ -197,14 +198,21 @@ const MultisigAdvanced: React.FC = () => {
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
-      // Form sheets on Android often report insets.bottom as 0; keep a comfortable floor.
-      paddingBottom: Math.max(insets.bottom, 24) + 16,
+      // Android form sheets often report insets.bottom as 0. iOS form sheets often report a huge one,
+      // and fitToContents would grow to include it.
+      paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom, 24) + 16 : 16,
     },
     textHeader: {
       color: colors.outputValue,
     },
     textSubtitle: {
       color: colors.alternativeTextColor,
+    },
+    headerTitle: {
+      color: colors.foregroundColor,
+    },
+    closeButton: {
+      backgroundColor: colors.lightButton,
     },
   });
 
@@ -234,6 +242,22 @@ const MultisigAdvanced: React.FC = () => {
 
   return (
     <View style={stylesHook.root}>
+      {Platform.OS === 'android' && (
+        <View style={styles.androidHeader}>
+          <Text style={[styles.headerTitle, stylesHook.headerTitle]} accessibilityRole="header">
+            {loc.multisig.vault_advanced_customize}
+          </Text>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={loc._.close}
+            style={[styles.androidCloseButton, stylesHook.closeButton]}
+            onPress={() => navigation.goBack()}
+            testID="NavigationCloseButton"
+          >
+            <Image source={closeImage} />
+          </TouchableOpacity>
+        </View>
+      )}
       <View style={styles.container}>
         <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
         <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>
@@ -262,6 +286,26 @@ const MultisigAdvanced: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  androidHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    flex: 1,
+  },
+  androidCloseButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
   container: {
     paddingTop: 20,
   },

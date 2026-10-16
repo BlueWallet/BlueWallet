@@ -839,13 +839,22 @@ const SendDetails = () => {
         const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
         const multisig = wallet as MultisigHDWallet;
-        // sign only when quorum is not reached yet: extra signature or already finalized inputs break finalization
-        if (multisig?.howManySignaturesCanWeMake() > 0 && multisig.calculateHowManySignaturesWeHaveFromPsbt(psbt) < multisig.getM()) {
-          setIsLoading(true);
-          await sleep(100);
-          multisig.cosignPsbt(psbt);
-          setIsLoading(false);
-          await sleep(100);
+        if (multisig) {
+          const signatures = multisig.calculateHowManySignaturesWeHaveFromPsbt(psbt);
+          const quorumReached = signatures >= multisig.getM();
+          // Below quorum, add our signature. At quorum, only finalize: another signature breaks finalization,
+          // and skipping finalize leaves Export sharing a PSBT the next cosigner cannot broadcast.
+          if (multisig.howManySignaturesCanWeMake() > 0 || quorumReached) {
+            setIsLoading(true);
+            await sleep(100);
+            if (quorumReached) {
+              MultisigHDWallet.finalizeUnfinalizedInputs(psbt);
+            } else {
+              multisig.cosignPsbt(psbt);
+            }
+            setIsLoading(false);
+            await sleep(100);
+          }
         }
 
         if (wallet) {
