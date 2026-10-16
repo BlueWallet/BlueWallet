@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { Easing, EntryExitAnimationFunction, LinearTransition, withTiming } from 'react-native-reanimated';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, { Easing, ExitAnimationsValues, LinearTransition, withTiming } from 'react-native-reanimated';
 import Icon from '../../components/Icon';
 import { isIOS26OrHigher } from '../../blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -40,12 +40,10 @@ type StaticCache = Record<string, string>;
 
 const staticCache: StaticCache = {};
 
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
-
 const KEY_LAYOUT_TRANSITION = LinearTransition.duration(620).easing(Easing.out(Easing.cubic));
 
 /** Fade + collapse the Create/Import block so the row height animates with the checkmark. */
-const provideButtonsCollapseOut: EntryExitAnimationFunction = values => {
+const provideButtonsCollapseOut = (values: ExitAnimationsValues) => {
   'worklet';
   const duration = 600;
   const easing = Easing.out(Easing.cubic);
@@ -628,7 +626,7 @@ const WalletsAddMultisigStep2 = () => {
   return (
     <View style={[styles.root, stylesHook.root]}>
       <View style={styles.wrapBox}>
-        <AnimatedFlatList
+        <Animated.FlatList
           data={data.current}
           renderItem={_renderKeyItem}
           keyExtractor={(_item, index) => `${index}`}
