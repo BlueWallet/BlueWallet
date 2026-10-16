@@ -75,7 +75,6 @@ class MainApplication : Application(), ReactApplication {
                     add(SettingsPackage())
                     add(MenuElementsPackage())
                     add(WidgetHelperPackage())
-                    add(LocalNetworkDiscoveryPackage())
                 }
 
             override fun getUseDeveloperSupport() = BuildConfig.DEBUG

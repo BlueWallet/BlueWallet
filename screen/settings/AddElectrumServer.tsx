@@ -212,7 +212,7 @@ const AddElectrumServer: React.FC = () => {
         setShowLocalNetworkSettings(isLocalNetworkFailure);
         setValidationError(
           isLocalNetworkFailure
-            ? loc.settings.electrum_local_network_unavailable
+            ? loc.settings.electrum_local_server_unavailable
             : draftServer.host.endsWith('.onion')
               ? `${loc.settings.electrum_error_connect_tor}\n\n${validation.error ?? ''}`.trim()
               : validation.error || loc.settings.electrum_error_connect,
