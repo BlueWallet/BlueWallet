@@ -255,12 +255,26 @@ describe('BlueElectrum lifecycle', () => {
       expect(created[0].close).toHaveBeenCalledTimes(1);
     });
 
-    it('preserves unrelated JSON-RPC error messages from the Electrum client', async () => {
+    it('adds actionable context to JSON-RPC errors from the Electrum client', async () => {
       const validationPromise = BlueElectrum.validateConnection('broken.local', 50001);
       created[0].server_ping.mockRejectedValueOnce({ code: -32603, message: 'database unavailable' });
       created[0].initElectrumDeferred.resolve(['Fulcrum 1.10.0', '1.4']);
 
-      await expect(validationPromise).resolves.toEqual({ success: false, error: 'database unavailable' });
+      await expect(validationPromise).resolves.toEqual({
+        success: false,
+        error: 'The server at broken.local:50001 returned an error: database unavailable\n\nCheck the server’s status and try again.',
+      });
+    });
+
+    it.each([
+      ['getaddrinfo ENOTFOUND missing.example', 'could not be found'],
+      ['connect ECONNREFUSED', 'refused the connection'],
+      ['certificate has expired', 'secure connection'],
+      ['ENETUNREACH', 'could not reach'],
+      ['read ECONNRESET', 'closed the connection'],
+      ['invalid JSON response', 'compatible Electrum response'],
+    ])('turns %s into useful connection guidance', (message, expected) => {
+      expect(BlueElectrum.formatElectrumConnectionError(new Error(message), 'example.com', undefined, 50002)).toContain(expected);
     });
 
     it('accepts an Electrum endpoint during discovery even when its backend is not ready to answer ping', async () => {

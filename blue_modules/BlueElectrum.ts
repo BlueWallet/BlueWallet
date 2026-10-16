@@ -1476,6 +1476,40 @@ export const isElectrumServerSyncingError = (error: unknown): boolean => {
   );
 };
 
+export const formatElectrumConnectionError = (error: unknown, host: string, tcpPort?: number, sslPort?: number): string => {
+  const message = electrumErrorMessage(error).trim();
+  const endpoint = `${host}:${sslPort || tcpPort}`;
+  const format = (template: string, details?: string) =>
+    String(loc.formatString(template, details === undefined ? { server: endpoint } : { server: endpoint, details }));
+
+  if (isElectrumServerSyncingError(error)) return loc.settings.electrum_server_not_synced;
+  if (/connect timeout|timed?\s*out|etimedout/i.test(message)) {
+    return format(loc.settings.electrum_connection_timed_out_help);
+  }
+  if (/enotfound|eai_again|name or service not known|nodename nor servname|dns/i.test(message)) {
+    return format(loc.settings.electrum_connection_dns_error);
+  }
+  if (/econnrefused|connection refused/i.test(message)) {
+    return format(loc.settings.electrum_connection_refused);
+  }
+  if (/certificate|self[- ]signed|ssl|tls|wrong version number|handshake/i.test(message)) {
+    return format(loc.settings.electrum_connection_tls_error);
+  }
+  if (/enetunreach|ehostunreach|network is unreachable|network request failed|not connected to internet/i.test(message)) {
+    return format(loc.settings.electrum_connection_network_error);
+  }
+  if (/econnreset|connection reset|socket hang up|connection closed|unexpected eof|broken pipe/i.test(message)) {
+    return format(loc.settings.electrum_connection_closed);
+  }
+  if (/unexpected token|invalid (?:json|response)|protocol|server\.version|unsupported version/i.test(message)) {
+    return format(loc.settings.electrum_connection_protocol_error);
+  }
+  if (!message || message === loc.settings.electrum_error_connect) {
+    return format(loc.settings.electrum_connection_protocol_error);
+  }
+  return format(loc.settings.electrum_connection_server_error, message);
+};
+
 /**
  * @returns {Promise<boolean>} Whether provided host:port is a valid electrum server
  */
@@ -1506,15 +1540,9 @@ export const validateConnection = async function (
     ]);
     return { success: true };
   } catch (error) {
-    const errorMessage = electrumErrorMessage(error);
     return {
       success: false,
-      error:
-        errorMessage === 'connect timeout'
-          ? String(loc.formatString(loc.settings.electrum_connection_timed_out, { server: `${host}:${sslPort || tcpPort}` }))
-          : isElectrumServerSyncingError(error)
-            ? loc.settings.electrum_server_not_synced
-            : errorMessage,
+      error: formatElectrumConnectionError(error, host, tcpPort, sslPort),
     };
   } finally {
     if (timeoutId) clearTimeout(timeoutId);

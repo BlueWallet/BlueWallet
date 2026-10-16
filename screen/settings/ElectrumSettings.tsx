@@ -11,6 +11,7 @@ import {
   FlatList,
   findNodeHandle,
   Keyboard,
+  Linking,
   ListRenderItemInfo,
   Platform,
   Pressable,
@@ -778,7 +779,12 @@ const ElectrumSettings: React.FC = () => {
       });
     }
 
-    entries.push({ type: 'header', id: 'nearby-header', title: loc.settings.electrum_local_network_scan });
+    entries.push({
+      type: 'header',
+      id: 'nearby-header',
+      title: loc.settings.electrum_local_network_scan,
+      description: loc.settings.electrum_local_network_description,
+    });
     if (discoveryStatus === 'scanning' || discoveryStatus === 'idle') {
       entries.push({ type: 'discoveryStatus', id: 'nearby-status', status: 'scanning' });
     } else if (discoveryStatus === 'denied') {
@@ -884,13 +890,14 @@ const ElectrumSettings: React.FC = () => {
             onPress={() => onPressMenuItem(actionId)}
             style={({ pressed }) => [styles.directHeaderAction, pressed && styles.pressed]}
           >
-            <Text style={[styles.directHeaderActionText, { color: colors.primary }]}>{action.text}</Text>
+            <Ionicons accessible={false} name="add" size={26} color={colors.primary} />
           </Pressable>
         ),
         unstable_headerRightItems: () => [
           {
             type: 'button' as const,
             label: action.text,
+            ...(Platform.OS === 'ios' ? { icon: { type: 'sfSymbol' as const, name: 'plus' as const } } : {}),
             identifier: actionId,
             accessibilityLabel: action.text,
             disabled: Boolean(action.disabled),
@@ -1414,10 +1421,22 @@ const ElectrumSettings: React.FC = () => {
               : item.status === 'denied'
                 ? loc.settings.electrum_local_network_denied
                 : loc.settings.electrum_local_network_unavailable;
+        const canOpenSettings = item.status === 'denied' || (item.status === 'unavailable' && Platform.OS === 'ios');
         return (
           <View style={[styles.discoveryStatus, stylesHook.serverRow]} accessibilityLiveRegion="polite">
             {item.status === 'scanning' ? <ActivityIndicator accessibilityLabel={message} color={colors.primary} /> : null}
             <Text style={[styles.discoveryStatusText, { color: colors.alternativeTextColor }]}>{message}</Text>
+            {canOpenSettings ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={loc.send.open_settings}
+                accessibilityHint={message}
+                onPress={() => Linking.openSettings().catch(() => undefined)}
+                style={({ pressed }) => [styles.discoverySettingsButton, pressed && styles.pressed]}
+              >
+                <Text style={[styles.discoverySettingsButtonText, { color: colors.primary }]}>{loc.send.open_settings}</Text>
+              </Pressable>
+            ) : null}
           </View>
         );
       }
@@ -1658,10 +1677,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  directHeaderActionText: {
-    fontSize: 17,
-    fontWeight: '600',
-  },
   disabled: {
     opacity: 0.5,
   },
@@ -1744,7 +1759,8 @@ const styles = StyleSheet.create({
   },
   serverSectionDescription: {
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingTop: 2,
+    paddingBottom: 16,
   },
   serverRow: {
     marginHorizontal: 16,
@@ -1760,14 +1776,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     gap: 12,
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
   },
   discoveryStatusText: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
+    minWidth: 180,
     fontSize: 15,
     lineHeight: 20,
+  },
+  discoverySettingsButton: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  discoverySettingsButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
   },
   discoveryAddButton: {
     minHeight: 36,
