@@ -23,6 +23,8 @@ const AnimatedCollapsible: React.FC<AnimatedCollapsibleProps> = ({ expanded, chi
   const [mounted, setMounted] = useState(expanded);
   const initiallyExpanded = useRef(expanded);
   const progress = useSharedValue(expanded ? 1 : 0);
+  // The measured height lives in a shared value: a JS value captured by the worklet can go stale, leaving height at 0
+  const measuredHeight = useSharedValue(0);
 
   useEffect(() => {
     if (expanded) setMounted(true);
@@ -33,11 +35,12 @@ const AnimatedCollapsible: React.FC<AnimatedCollapsibleProps> = ({ expanded, chi
 
   const onContentLayout = (event: LayoutChangeEvent) => {
     const next = event.nativeEvent.layout.height;
+    measuredHeight.value = next;
     setContentHeight(current => (current === next ? current : next));
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
-    height: (contentHeight ?? 0) * progress.value,
+    height: measuredHeight.value * progress.value,
     opacity: interpolate(progress.value, [0, 0.7], [0, 1], 'clamp'),
     transform: [{ translateY: interpolate(progress.value, [0, 1], [-8, 0]) }],
   }));
