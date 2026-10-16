@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Switch, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image, Platform, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -21,7 +21,8 @@ import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 const WalletsAddMultisigProvideMnemonicsSheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<AddWalletStackParamList, 'WalletsAddMultisigProvideMnemonicsSheet'>>();
   const route = useRoute<RouteProp<AddWalletStackParamList, 'WalletsAddMultisigProvideMnemonicsSheet'>>();
-  const { colors } = useTheme();
+  const { colors, closeImage } = useTheme();
+  const insets = useSafeAreaInsets();
   const { importText: initialImportText = '', askPassphrase: initialAskPassphrase = false } = route.params;
 
   const [importText, setImportText] = useState(initialImportText);
@@ -68,9 +69,40 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
     [navigation],
   );
 
+  const stylesHook = StyleSheet.create({
+    root: {
+      backgroundColor: colors.elevated,
+      // No flex:1 — fitToContents treats it as full height and the form lands at the bottom of the sheet.
+      // Android form sheets often report insets.bottom as 0. iOS form sheets often report a huge one.
+      paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom, 24) + 16 : 16,
+    },
+    headerTitle: {
+      color: colors.foregroundColor,
+    },
+    closeButton: {
+      backgroundColor: colors.lightButton,
+    },
+  });
+
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.elevated }]} edges={['bottom', 'left', 'right']}>
-      <ScrollView contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="always">
+    <View style={stylesHook.root}>
+      {Platform.OS === 'android' && (
+        <View style={styles.androidHeader}>
+          <Text style={[styles.headerTitle, stylesHook.headerTitle]} accessibilityRole="header">
+            {loc.wallets.import_title}
+          </Text>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={loc._.close}
+            style={[styles.androidCloseButton, stylesHook.closeButton]}
+            onPress={() => navigation.goBack()}
+            testID="NavigationCloseButton"
+          >
+            <Image source={closeImage} />
+          </TouchableOpacity>
+        </View>
+      )}
+      <View style={styles.contentContainer}>
         <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
         <BlueSpacing20 />
         <BlueFormMultiInput
@@ -107,18 +139,36 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
             handleScanResult(text);
           }}
         />
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  androidHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '600',
     flex: 1,
   },
+  androidCloseButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
   contentContainer: {
-    flexGrow: 1,
     paddingHorizontal: 24,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
   toggleRow: {
     flexDirection: 'row',

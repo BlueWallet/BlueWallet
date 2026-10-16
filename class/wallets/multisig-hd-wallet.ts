@@ -134,6 +134,26 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return this._cosigners.length;
   }
 
+  /**
+   * Editable copy of the already-parsed cosigners.
+   * Round-tripping through getSecret()/setSecret() re-runs BIP39 for every seed.
+   */
+  cloneCosigners(): MultisigHDWallet {
+    const clone = new MultisigHDWallet();
+    const label = this.getLabel();
+    if (label) clone.setLabel(label);
+    clone.setM(this.getM());
+    clone._derivationPath = this._derivationPath;
+    clone._isNativeSegwit = this._isNativeSegwit;
+    clone._isWrappedSegwit = this._isWrappedSegwit;
+    clone._isLegacy = this._isLegacy;
+    clone._cosigners = this._cosigners.slice();
+    clone._cosignersFingerprints = this._cosignersFingerprints.slice();
+    clone._cosignersCustomPaths = this._cosignersCustomPaths.slice();
+    clone._cosignersPassphrases = this._cosignersPassphrases.slice();
+    return clone;
+  }
+
   setDerivationPath(path: string) {
     this._derivationPath = path;
     switch (this._derivationPath) {

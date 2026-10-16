@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, { Easing, EntryExitAnimationFunction, LinearTransition, withTiming } from 'react-native-reanimated';
 import Icon from '../../components/Icon';
+import { isIOS26OrHigher } from '../../blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
@@ -40,6 +41,27 @@ type StaticCache = Record<string, string>;
 const staticCache: StaticCache = {};
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+
+const KEY_LAYOUT_TRANSITION = LinearTransition.duration(620).easing(Easing.out(Easing.cubic));
+
+/** Fade + collapse the Create/Import block so the row height animates with the checkmark. */
+const provideButtonsCollapseOut: EntryExitAnimationFunction = values => {
+  'worklet';
+  const duration = 600;
+  const easing = Easing.out(Easing.cubic);
+  return {
+    initialValues: {
+      opacity: 1,
+      height: values.currentHeight,
+      transform: [{ translateY: 0 }],
+    },
+    animations: {
+      opacity: withTiming(0, { duration: duration * 0.7, easing: Easing.out(Easing.quad) }),
+      height: withTiming(0, { duration, easing }),
+      transform: [{ translateY: withTiming(-8, { duration, easing }) }],
+    },
+  };
+};
 
 const WalletsAddMultisigStep2 = () => {
   const { addAndSaveWallet, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
@@ -96,12 +118,12 @@ const WalletsAddMultisigStep2 = () => {
         accessibilityRole="button"
         style={({ pressed }) => [
           styles.helpButton,
-          { backgroundColor: colors.buttonDisabledBackgroundColor },
+          !isIOS26OrHigher && { backgroundColor: colors.buttonDisabledBackgroundColor },
           pressed && styles.helpButtonPressed,
         ]}
         onPress={handleOnHelpPress}
       >
-        <Icon size={20} name="help-outline" type="material" color={colors.foregroundColor} />
+        <Icon size={18} name="help-outline" type="material" color={colors.foregroundColor} />
         <Text style={[styles.helpButtonText, { color: colors.foregroundColor }]}>{loc.multisig.ms_help}</Text>
       </Pressable>
     ),
@@ -223,26 +245,33 @@ const WalletsAddMultisigStep2 = () => {
     [setFpCacheForMnemonics],
   );
 
-  const generateNewKey = useCallback(() => {
-    const w = new HDSegwitBech32Wallet();
-    w.generate().then(() => {
+  const generateNewKey = useCallback(async () => {
+    try {
+      const w = new HDSegwitBech32Wallet();
+      // Keep the Create New button in a loading state long enough to feel responsive
+      await Promise.all([w.generate(), sleep(450)]);
+
       const cosignersCopy = [...cosigners];
       cosignersCopy.push([w.getSecret(), false, false]);
+      const keyIndex = cosignersCopy.length;
+      const seed = w.getSecret();
+      const xpub = w.getXpub();
+
       setCosigners(cosignersCopy);
-      setVaultKeyData({ keyIndex: cosignersCopy.length, seed: w.getSecret(), xpub: w.getXpub(), isLoading: false });
-      setIsLoading(true);
+      setVaultKeyData({ keyIndex, seed, xpub, isLoading: false });
       navigation.navigate('WalletsAddMultisigVaultKeySheet', {
-        keyIndex: cosignersCopy.length,
-        seed: w.getSecret(),
+        keyIndex,
+        seed,
       });
-      setTimeout(() => {
-        // filling cache
-        setXpubCacheForMnemonics(w.getSecret());
-        setFpCacheForMnemonics(w.getSecret());
-        setIsLoading(false);
-      }, 500);
-    });
-  }, [cosigners, navigation, setFpCacheForMnemonics, setXpubCacheForMnemonics]);
+
+      setXpubCacheForMnemonics(seed);
+      setFpCacheForMnemonics(seed);
+    } catch (e) {
+      setVaultKeyData(current => ({ ...current, isLoading: false }));
+      const message = e instanceof Error ? e.message : String(e);
+      presentAlert({ message });
+    }
+  }, [cosigners, navigation, setFpCacheForMnemonics, setXpubCacheForMnemonics, sleep]);
 
   const viewKey = useCallback(
     (cosigner: CosignerTuple) => {
@@ -538,7 +567,7 @@ const WalletsAddMultisigStep2 = () => {
     const renderProvideKeyButtons = el.index === cosigners.length;
     const isChecked = el.index < cosigners.length;
     return (
-      <View>
+      <Animated.View layout={KEY_LAYOUT_TRANSITION}>
         <MultipleStepsListItem
           circledText={String(el.index + 1)}
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
@@ -552,10 +581,9 @@ const WalletsAddMultisigStep2 = () => {
             },
           }}
         />
-        {renderProvideKeyButtons && (
-          <>
+        {renderProvideKeyButtons ? (
+          <Animated.View key={`provide-buttons-${el.index}`} exiting={provideButtonsCollapseOut} style={styles.provideButtons}>
             <MultipleStepsListItem
-              showActivityIndicator={vaultKeyData.keyIndex === el.index && vaultKeyData.isLoading}
               button={{
                 testID: 'VaultKeyGenerate',
                 buttonType: MultipleStepsListItemButtonType.Full,
@@ -565,6 +593,7 @@ const WalletsAddMultisigStep2 = () => {
                 },
                 text: loc.multisig.create_new_key,
                 disabled: vaultKeyData.isLoading,
+                showActivityIndicator: vaultKeyData.isLoading,
               }}
               dashes={MultipleStepsListItemDashType.TopAndBottom}
               checked={isChecked}
@@ -580,9 +609,9 @@ const WalletsAddMultisigStep2 = () => {
               dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
               checked={isChecked}
             />
-          </>
-        )}
-      </View>
+          </Animated.View>
+        ) : null}
+      </Animated.View>
     );
   };
 
@@ -604,6 +633,7 @@ const WalletsAddMultisigStep2 = () => {
           renderItem={_renderKeyItem}
           keyExtractor={(_item, index) => `${index}`}
           extraData={cosigners}
+          itemLayoutAnimation={KEY_LAYOUT_TRANSITION}
         />
       </View>
       {footer}
@@ -621,6 +651,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginVertical: 24,
   },
+  provideButtons: {
+    overflow: 'hidden',
+  },
   buttonBottom: {
     marginHorizontal: 20,
     flex: 0.12,
@@ -628,16 +661,17 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   helpButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 50,
+    height: 34,
+    paddingHorizontal: 12,
+    borderRadius: 17,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   helpButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 8,
+    fontSize: 15,
+    fontWeight: '600',
+    marginLeft: 6,
   },
   helpButtonPressed: {
     opacity: 0.75,

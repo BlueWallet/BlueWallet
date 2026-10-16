@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
 import { Alert, findNodeHandle, FlatList, GestureResponderEvent, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Badge from '../../components/Badge';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
-import BlueCard from '../../components/BlueCard';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
@@ -25,7 +25,6 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import { navigateToWalletsList } from '../../NavigationService';
 
@@ -35,6 +34,7 @@ type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'ViewE
 const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { wallets, setWalletsWithNewOrder } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
@@ -72,6 +72,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
     },
     tipLabelText: {
       color: colors.buttonTextColor,
+    },
+    footer: {
+      paddingBottom: Math.max(insets.bottom, 16),
     },
   });
 
@@ -161,9 +164,12 @@ const ViewEditMultisigCosigners: React.FC = () => {
             w.current.setNativeSegwit();
           } else {
             try {
-              tempWallet.current.setSecret(w.current.getSecret());
+              if (!(w.current instanceof MultisigHDWallet)) {
+                throw new Error('Not a multisig wallet');
+              }
+              tempWallet.current = w.current.cloneCosigners();
               if (!cancelled) {
-                setWalletData(new Array(tempWallet.current.getN()));
+                setWalletData(Array.from({ length: tempWallet.current.getN() }));
                 setWallet(tempWallet.current);
               }
             } catch (_) {
@@ -224,6 +230,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       <View>
         <MultipleStepsListItem
           checked
+          circledText={String(el.index + 1)}
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
           dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Bottom : MultipleStepsListItemDashType.TopAndBottom}
         />
@@ -235,6 +242,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                 button={{
                   testID: 'VaultCosignerView' + String(el.index + 1),
                   buttonType: MultipleStepsListItemButtonType.Partial,
+                  leadingIcon: 'eye',
                   leftText,
                   text: loc.multisig.view,
                   showActivityIndicator: isVaultKeyIndexDataLoading === el.index + 1,
@@ -315,6 +323,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                   disabled: vaultKeyData.isLoading,
                   showActivityIndicator: isVaultKeyIndexDataLoading === el.index + 1,
                   buttonType: MultipleStepsListItemButtonType.Partial,
+                  leadingIcon: 'signature',
                   onPress: () => {
                     setIsVaultKeyIndexDataLoading(el.index + 1);
                     setTimeout(() => {
@@ -507,32 +516,30 @@ const ViewEditMultisigCosigners: React.FC = () => {
       </View>
     );
 
-  const howMany = (
-    <Badge
-      value={wallet?.getM() ?? 0}
-      badgeStyle={[styles.tipLabel, stylesHook.tipLabel]}
-      textStyle={[styles.tipLabelText, stylesHook.tipLabelText]}
-    />
-  );
-
-  const andHere = (
-    <Badge
-      value={wallet?.howManySignaturesCanWeMake() ?? 0}
-      badgeStyle={[styles.tipLabel, stylesHook.tipLabel]}
-      textStyle={[styles.tipLabelText, stylesHook.tipLabelText]}
-    />
-  );
+  const renderCountPhrase = (template: string, value: number) => {
+    const [before = '', after = ''] = template.split('{number}');
+    const leading = before.trim();
+    const trailing = after.trim();
+    return (
+      <View style={styles.tipPhrase}>
+        {leading.length > 0 ? <Text style={[styles.tipKeys, stylesHook.tipKeys]}>{leading}</Text> : null}
+        <Badge
+          value={value}
+          badgeStyle={[styles.tipLabel, stylesHook.tipLabel]}
+          textStyle={[styles.tipLabelText, stylesHook.tipLabelText]}
+        />
+        {trailing.length > 0 ? <Text style={[styles.tipKeys, stylesHook.tipKeys]}>{trailing}</Text> : null}
+      </View>
+    );
+  };
 
   const tipKeys = () => {
     return (
-      <View>
-        <BlueSpacing20 />
-        <Text style={[styles.tipKeys, stylesHook.tipKeys]}>
-          {loc.formatString(loc.multisig.signatures_required_to_spend, { number: howMany })}
-          {loc.formatString(loc.multisig.signatures_we_can_make, { number: andHere })}
-        </Text>
-        <BlueSpacing10 />
-        <BlueSpacing20 />
+      <View style={styles.tipKeysContainer}>
+        <View style={styles.tipKeysRow}>
+          {renderCountPhrase(loc.multisig.signatures_required_to_spend, wallet?.getM() ?? 0)}
+          {renderCountPhrase(loc.multisig.signatures_we_can_make, wallet?.howManySignaturesCanWeMake() ?? 0)}
+        </View>
       </View>
     );
   };
@@ -550,14 +557,13 @@ const ViewEditMultisigCosigners: React.FC = () => {
         extraData={vaultKeyData}
         renderItem={_renderKeyItem}
         automaticallyAdjustKeyboardInsets
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
+        automaticallyAdjustContentInsets={false}
         scrollToOverflowEnabled
-        automaticallyAdjustContentInsets
         keyExtractor={(_item, index) => `${index}`}
         contentContainerStyle={styles.contentContainerStyle}
       />
-      <BlueCard>{footer}</BlueCard>
-      <BlueSpacing20 />
+      <View style={[styles.footer, stylesHook.footer]}>{footer}</View>
     </View>
   );
 };
@@ -565,24 +571,53 @@ const ViewEditMultisigCosigners: React.FC = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    justifyContent: 'space-between',
   },
   contentContainerStyle: {
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 16,
+  },
+  tipKeysContainer: {
+    paddingTop: 16,
+    paddingBottom: 28,
+  },
+  footer: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+  },
+  tipKeysRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    columnGap: 10,
+    rowGap: 8,
+  },
+  tipPhrase: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   tipKeys: {
     fontSize: 15,
     fontWeight: '600',
-    flex: 1,
+    lineHeight: 20,
+    includeFontPadding: false,
   },
   tipLabel: {
-    width: 30,
-    marginRight: 6,
-    position: 'relative',
-    bottom: -3,
+    width: 28,
+    height: 28,
+    minWidth: 28,
+    minHeight: 28,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    borderRadius: 14,
   },
   tipLabelText: {
-    fontWeight: '500',
+    fontSize: 15,
+    fontWeight: '600',
+    lineHeight: 18,
+    textAlign: 'center',
+    includeFontPadding: false,
   },
 });
 
