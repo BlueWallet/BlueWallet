@@ -94,16 +94,16 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
           </TouchableOpacity>
         </View>
       )}
-      {/* Keep a non-scrolling view first: react-native-screens forces automatic content insets on a ScrollView that is
-          the first descendant of a screen, and the form sheet's huge insets push the form to the bottom of the sheet. */}
-      <View style={styles.prompt}>
-        <BlueTextCentered>{loc.multisig.type_seed_for_existing_key}</BlueTextCentered>
-      </View>
+      {/* react-native-screens switches the first-descendant ScrollView of a screen to automatic content insets, and
+          the form sheet's huge insets push the form to the bottom. This empty view keeps the ScrollView off that chain. */}
+      <View collapsable={false} style={styles.scrollInsetGuard} />
       <ScrollView
         style={[styles.scroll, stylesHook.scroll]}
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="always"
       >
+        <BlueTextCentered>{loc.multisig.type_seed_for_existing_key}</BlueTextCentered>
+        <BlueSpacing20 />
         <BlueFormMultiInput
           value={importText}
           onChangeText={setImportText}
@@ -168,10 +168,8 @@ const styles = StyleSheet.create({
     // ScrollView defaults to flexGrow:1, which makes fitToContents full height
     flexGrow: 0,
   },
-  prompt: {
-    paddingHorizontal: 24,
-    paddingTop: 8,
-    paddingBottom: 12,
+  scrollInsetGuard: {
+    height: 0,
   },
   contentContainer: {
     paddingHorizontal: 24,
