@@ -371,10 +371,11 @@ const AddWalletStack = () => {
             // Fixed detent so Done can pin to the bottom and the seed grid can center in the middle.
             sheetAllowedDetents: [0.55],
             sheetGrabberVisible: true,
-            // Android formSheet does not support native headers — title is rendered in-content.
+            // Android formSheet does not support native headers — title/close are rendered in-content.
             headerShown: Platform.OS === 'ios',
             headerBackVisible: false,
-            closeButtonPosition: CloseButtonPosition.None,
+            // Close on the right like the other creation sheets. Done stays the primary action.
+            closeButtonPosition: CloseButtonPosition.Right,
             headerStyle: { backgroundColor: theme.colors.elevated },
             contentStyle: { backgroundColor: theme.colors.elevated },
           },

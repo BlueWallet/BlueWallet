@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Image, Platform, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -23,6 +23,7 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
   const route = useRoute<RouteProp<DetailViewStackParamList, 'ViewEditMultisigProvideMnemonicsSheet'>>();
   const { colors, closeImage } = useTheme();
   const insets = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
   const {
     importText: initialImportText = '',
     askPassphrase: initialAskPassphrase = false,
@@ -62,6 +63,11 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
       // Android form sheets often report insets.bottom as 0. iOS form sheets often report a huge one.
       paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom, 24) + 16 : 16,
     },
+    // Bounded so fitToContents can still size the sheet, but the form scrolls once it is taller than the screen
+    // (keyboard up, landscape, large text) and Import stays reachable.
+    scroll: {
+      maxHeight: windowHeight * 0.8,
+    },
     headerTitle: {
       color: colors.foregroundColor,
     },
@@ -88,7 +94,12 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
           </TouchableOpacity>
         </View>
       )}
-      <View style={styles.contentContainer}>
+      <ScrollView
+        style={[styles.scroll, stylesHook.scroll]}
+        contentContainerStyle={styles.contentContainer}
+        keyboardShouldPersistTaps="always"
+        automaticallyAdjustKeyboardInsets
+      >
         <BlueTextCentered>{loc.multisig.type_seed_for_existing_key}</BlueTextCentered>
         <BlueSpacing20 />
         <BlueFormMultiInput
@@ -125,7 +136,7 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
             handleImport(text);
           }}
         />
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -150,6 +161,10 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
+  },
+  scroll: {
+    // ScrollView defaults to flexGrow:1, which makes fitToContents full height
+    flexGrow: 0,
   },
   contentContainer: {
     paddingHorizontal: 24,
