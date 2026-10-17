@@ -134,5 +134,13 @@ class MainActivity : ReactActivity() {
      */
 
     override fun createReactActivityDelegate(): ReactActivityDelegate =
-        DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
+        object : DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled) {
+            override fun getLaunchOptions(): Bundle = Bundle().apply {
+                val launchArgs = this@MainActivity.intent?.getBundleExtra("launchArgs")
+                putBoolean(
+                    "isDetox",
+                    launchArgs?.containsKey("detoxServer") == true && launchArgs.containsKey("detoxSessionId")
+                )
+            }
+        }
 }

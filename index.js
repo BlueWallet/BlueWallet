@@ -3,12 +3,14 @@ import './gesture-handler';
 import 'react-native-get-random-values';
 import './shim.js';
 
+import PropTypes from 'prop-types';
 import React, { useEffect } from 'react';
 import { AppRegistry, LogBox } from 'react-native';
 import BackgroundFetch from 'react-native-background-fetch';
 
 import App from './App';
 import { restoreSavedPreferredFiatCurrencyAndExchangeFromStorage } from './blue_modules/currency';
+import { configureLogBoxForDetox } from './blue_modules/disableLogBoxForDetox';
 import { runArkBackgroundTask } from './blue_modules/arkade-background';
 
 // Android headless execution boots a bare JS runtime without the React tree.
@@ -35,7 +37,9 @@ LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
 ]);
 
-const BlueAppComponent = () => {
+const BlueAppComponent = ({ isDetox = false }) => {
+  configureLogBoxForDetox(isDetox);
+
   useEffect(() => {
     restoreSavedPreferredFiatCurrencyAndExchangeFromStorage().catch(error => {
       console.error('Failed to restore preferred currency and exchange rates on startup:', error);
@@ -43,6 +47,10 @@ const BlueAppComponent = () => {
   }, []);
 
   return <App />;
+};
+
+BlueAppComponent.propTypes = {
+  isDetox: PropTypes.bool,
 };
 
 AppRegistry.registerComponent('BlueWallet', () => BlueAppComponent);
