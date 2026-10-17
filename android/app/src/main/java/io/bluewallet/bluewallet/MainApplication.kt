@@ -16,7 +16,6 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.react.modules.fresco.FrescoModule
-import com.facebook.react.modules.i18nmanager.I18nUtil
 import io.bluewallet.bluewallet.components.segmentedcontrol.SegmentedControlPackage
 
 class MainApplication : Application(), ReactApplication {
@@ -98,8 +97,6 @@ class MainApplication : Application(), ReactApplication {
         // Register the theme change receiver
         registerReceiver(themeChangeReceiver, IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED))
         
-        val sharedI18nUtilInstance = I18nUtil.getInstance()
-        sharedI18nUtilInstance.allowRTL(applicationContext, true)
 
         // Initialize Fresco before RN mounts views. FrescoModule init can lag behind the first
         // frame (e.g. UnlockWith logo) when OkHttp/SSL warms up network security config.
