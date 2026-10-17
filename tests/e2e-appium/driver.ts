@@ -2,17 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { execFileSync } from 'child_process';
-import { AsyncLocalStorage } from 'async_hooks';
 import { remote } from 'webdriverio';
 
 import { APP_PATH, APPIUM_HOST, APPIUM_PORT, ARTIFACTS_DIR, BUNDLE_ID, HOSTED_CI } from './config';
 import { redactSecrets, secretValues } from './redact';
 
 export type Driver = Awaited<ReturnType<typeof remote>>;
-
-// Jest cannot cancel a timed-out async body. Its async context survives into
-// late continuations, allowing the transport to reject commands from that body.
-export const attemptContext = new AsyncLocalStorage<{ closed: boolean }>();
 
 const APP_ARGUMENTS = ['-AppleLanguages', '(en)']; // tests rely on English labels, e.g. 'Close'
 const appEnvironment = {
@@ -46,10 +41,6 @@ export const launch = async (): Promise<Driver> => {
     // Replaying a timed-out click/type command can duplicate a user action.
     // The suite retries whole cases from a clean app instead.
     connectionRetryCount: 0,
-    transformRequest: request => {
-      if (attemptContext.getStore()?.closed) throw new Error('Catalyst test attempt has already ended');
-      return request;
-    },
     capabilities,
   });
   driver.options.connectionRetryTimeout = 60_000;
