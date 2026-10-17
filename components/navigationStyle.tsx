@@ -2,6 +2,7 @@ import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React from 'react';
 import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
+import { isIOS26OrHigher } from '../blue_modules/environment';
 import loc from '../loc';
 import { Theme } from './themes';
 
@@ -18,7 +19,9 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    marginLeft: 22,
+  },
+  buttonFormSheetLeft: {
+    marginLeft: 16,
   },
 });
 
@@ -102,8 +105,8 @@ const navigationStyle = (
   return theme =>
     ({ navigation, route }) => {
       const isFirstRouteInStack = navigation.getState().index === 0;
-      const isModal = route.params?.presentation === 'modal' || route.params?.presentation === 'transparentModal';
-      const isFormSheet = route.params?.presentation === 'formSheet';
+      const isModal = opts.presentation === 'modal' || opts.presentation === 'transparentModal';
+      const isFormSheet = opts.presentation === 'formSheet';
 
       const closeButton =
         closeButtonIfFirstInStack && isFirstRouteInStack
@@ -122,7 +125,15 @@ const navigationStyle = (
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel={loc._.close}
-          style={isFormSheet ? [styles.buttonFormSheet, { backgroundColor: theme.colors.lightButton }] : styles.button}
+          style={
+            isFormSheet
+              ? [
+                  styles.buttonFormSheet,
+                  closeButton === CloseButtonPosition.Left && styles.buttonFormSheetLeft,
+                  { backgroundColor: theme.colors.lightButton },
+                ]
+              : styles.button
+          }
           onPress={handleClose}
           testID="NavigationCloseButton"
         >
@@ -143,10 +154,14 @@ const navigationStyle = (
 
       if (closeButton === CloseButtonPosition.Right) {
         headerRight = renderCloseButtonElement;
-        unstable_headerRightItems = buildUnstableCloseButtonItems;
+        if (isIOS26OrHigher) {
+          unstable_headerRightItems = buildUnstableCloseButtonItems;
+        }
       } else if (closeButton === CloseButtonPosition.Left) {
         headerLeft = renderCloseButtonElement;
-        unstable_headerLeftItems = buildUnstableCloseButtonItems;
+        if (isIOS26OrHigher) {
+          unstable_headerLeftItems = buildUnstableCloseButtonItems;
+        }
       }
       const baseHeaderStyle = {
         headerShadowVisible: false,

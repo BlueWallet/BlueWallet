@@ -2212,6 +2212,55 @@ describe('multisig-wallet (native segwit)', () => {
   });
 });
 
+describe('cloneCosigners', () => {
+  it('keeps passphrase, path, fingerprint and script type, and edits stay on the copy', () => {
+    const derivation = "m/48'/0'/0'/1'";
+    const customPath = "m/48'/0'/0'/2'";
+    const seed = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+    const passphrase = 'secret-pass';
+
+    const w = new MultisigHDWallet();
+    w.setLabel('vault');
+    w.setM(2);
+    w.setDerivationPath(derivation);
+    w.addCosigner(seed, undefined, customPath, passphrase);
+    w.addCosigner(Zpub1, fp1cobo, derivation);
+
+    const clone = w.cloneCosigners();
+
+    assert.strictEqual(clone.getLabel(), w.getLabel());
+    assert.strictEqual(clone.getM(), w.getM());
+    assert.strictEqual(clone.getN(), w.getN());
+    assert.strictEqual(clone.getDerivationPath(), derivation);
+    assert.strictEqual(clone.getFormat(), MultisigHDWallet.FORMAT_P2SH_P2WSH);
+    assert.strictEqual(clone.isWrappedSegwit(), true);
+    assert.strictEqual(clone.isNativeSegwit(), false);
+    assert.strictEqual(clone.isLegacy(), false);
+    assert.strictEqual(clone.getCosigner(1), seed);
+    assert.strictEqual(clone.getCosignerPassphrase(1), passphrase);
+    assert.strictEqual(clone.getCustomDerivationPathForCosigner(1), customPath);
+    assert.strictEqual(clone.getFingerprint(1), w.getFingerprint(1));
+    assert.strictEqual(clone.getCosigner(2), Zpub1);
+    assert.strictEqual(clone.getFingerprint(2), fp1cobo);
+
+    clone.setLabel('edited');
+    clone.setM(3);
+    clone.setLegacy();
+    clone._cosigners[0] = 'zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong';
+    clone._cosignersPassphrases[0] = 'other-pass';
+    clone._cosignersCustomPaths[0] = "m/45'";
+    clone._cosignersFingerprints[1] = 'DEADBEEF';
+
+    assert.strictEqual(w.getLabel(), 'vault');
+    assert.strictEqual(w.getM(), 2);
+    assert.strictEqual(w.getFormat(), MultisigHDWallet.FORMAT_P2SH_P2WSH);
+    assert.strictEqual(w.getCosigner(1), seed);
+    assert.strictEqual(w.getCosignerPassphrase(1), passphrase);
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(1), customPath);
+    assert.strictEqual(w.getFingerprint(2), fp1cobo);
+  });
+});
+
 describe('cosignPsbt with more local keys than quorum', () => {
   const seeds = [
     'certain cruise forum ladder reveal frame company book sausage flat wasp mouse',
@@ -2313,6 +2362,124 @@ describe('cosignPsbt with more local keys than quorum', () => {
     assertWitnessSigs(tx, 0, 2);
     assertWitnessSigs(tx, 1, 2);
     assert.strictEqual(bitcoin.Psbt.fromBase64(before).finalizeAllInputs().extractTransaction().toHex(), tx.toHex());
+  });
+
+  it('finalizes a PSBT that already has quorum without adding a signature', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    signWithSeed(psbt, 0, seeds[1]);
+    signWithSeed(psbt, 0, seeds[2]);
+    signWithSeed(psbt, 1, seeds[1]);
+    signWithSeed(psbt, 1, seeds[2]);
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
+    assert.strictEqual(psbt.data.inputs[0].partialSig.length, 2);
+
+    MultisigHDWallet.finalizeUnfinalizedInputs(psbt);
+
+    const tx = psbt.extractTransaction();
+    assertWitnessSigs(tx, 0, 2);
+    assertWitnessSigs(tx, 1, 2);
+    assert.strictEqual(psbt.data.inputs[0].partialSig, undefined);
+    const exported = bitcoin.Psbt.fromBase64(psbt.toBase64());
+    assert.throws(() => exported.finalizeAllInputs());
+    assert.strictEqual(exported.extractTransaction().toHex(), tx.toHex());
+  });
+
+  it('tryFinalizeUnfinalizedInputs finalizes a copy when quorum is met', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    signWithSeed(psbt, 0, seeds[0]);
+    signWithSeed(psbt, 0, seeds[1]);
+    signWithSeed(psbt, 1, seeds[0]);
+    signWithSeed(psbt, 1, seeds[1]);
+    const before = psbt.toBase64();
+
+    const finalized = MultisigHDWallet.tryFinalizeUnfinalizedInputs(psbt);
+
+    assert.notStrictEqual(finalized, psbt);
+    assert.strictEqual(psbt.toBase64(), before); // original untouched
+    const tx = finalized.extractTransaction();
+    assertWitnessSigs(tx, 0, 2);
+    assertWitnessSigs(tx, 1, 2);
+  });
+
+  it('tryFinalizeUnfinalizedInputs keeps an over-signed PSBT reviewable instead of throwing', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    for (const seed of seeds) {
+      signWithSeed(psbt, 0, seed);
+      signWithSeed(psbt, 1, seed);
+    }
+    assert.strictEqual(psbt.data.inputs[0].partialSig.length, 3);
+    assert.ok(w.calculateHowManySignaturesWeHaveFromPsbt(psbt) >= w.getM());
+    const before = psbt.toBase64();
+    assert.throws(() => MultisigHDWallet.finalizeUnfinalizedInputs(bitcoin.Psbt.fromBase64(before)), /Too many signatures/);
+
+    const result = MultisigHDWallet.tryFinalizeUnfinalizedInputs(psbt);
+
+    assert.strictEqual(result, psbt);
+    assert.strictEqual(result.toBase64(), before);
+  });
+
+  it('finalizedCopy throws on an over-signed input and leaves every input of the original intact', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    // input 0 is finalizable, input 1 has more signatures than the quorum
+    signWithSeed(psbt, 0, seeds[0]);
+    signWithSeed(psbt, 0, seeds[1]);
+    for (const seed of seeds) signWithSeed(psbt, 1, seed);
+    const before = psbt.toBase64();
+
+    assert.throws(() => MultisigHDWallet.finalizedCopy(psbt), /Too many signatures/);
+
+    // finalizing in place would have finalized input 0 and deleted its partialSig before throwing on input 1
+    assert.strictEqual(psbt.toBase64(), before);
+    assert.strictEqual(psbt.data.inputs[0].partialSig.length, 2);
+    assert.strictEqual(psbt.data.inputs[0].finalScriptWitness, undefined);
+  });
+
+  it('finalizedCopy returns a broadcastable copy when every input meets the quorum', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    for (const i of [0, 1]) {
+      signWithSeed(psbt, i, seeds[0]);
+      signWithSeed(psbt, i, seeds[2]);
+    }
+    const before = psbt.toBase64();
+
+    const tx = MultisigHDWallet.finalizedCopy(psbt).extractTransaction();
+
+    assertWitnessSigs(tx, 0, 2);
+    assertWitnessSigs(tx, 1, 2);
+    assert.strictEqual(psbt.toBase64(), before);
+  });
+
+  it('tryFinalizeUnfinalizedInputs rethrows finalize errors other than too many signatures', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    for (const i of [0, 1]) {
+      signWithSeed(psbt, i, seeds[0]);
+      signWithSeed(psbt, i, seeds[1]);
+    }
+    // quorum is reached, but input 0 lost the script it needs to be finalized
+    delete psbt.data.inputs[0].witnessScript;
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
+
+    assert.throws(() => MultisigHDWallet.tryFinalizeUnfinalizedInputs(psbt));
+    assert.throws(() => w.cosignPsbt(psbt)); // cosign surfaces it too instead of answering { tx: false }
+  });
+
+  it('cosignPsbt does not throw when another input is already over-signed', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    for (const seed of seeds) signWithSeed(psbt, 0, seed);
+    signWithSeed(psbt, 1, seeds[0]);
+
+    const { tx } = w.cosignPsbt(psbt);
+
+    assert.strictEqual(tx, false);
+    assert.strictEqual(psbt.data.inputs[1].partialSig.length, 2); // our signature was kept
+    assert.strictEqual(psbt.data.inputs[0].partialSig.length, 3);
   });
 
   it('skips finalized inputs', () => {

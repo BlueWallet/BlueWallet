@@ -134,6 +134,26 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return this._cosigners.length;
   }
 
+  /**
+   * Editable copy of the already-parsed cosigners.
+   * Round-tripping through getSecret()/setSecret() re-runs BIP39 for every seed.
+   */
+  cloneCosigners(): MultisigHDWallet {
+    const clone = new MultisigHDWallet();
+    const label = this.getLabel();
+    if (label) clone.setLabel(label);
+    clone.setM(this.getM());
+    clone._derivationPath = this._derivationPath;
+    clone._isNativeSegwit = this._isNativeSegwit;
+    clone._isWrappedSegwit = this._isWrappedSegwit;
+    clone._isLegacy = this._isLegacy;
+    clone._cosigners = this._cosigners.slice();
+    clone._cosignersFingerprints = this._cosignersFingerprints.slice();
+    clone._cosignersCustomPaths = this._cosignersCustomPaths.slice();
+    clone._cosignersPassphrases = this._cosignersPassphrases.slice();
+    return clone;
+  }
+
   setDerivationPath(path: string) {
     this._derivationPath = path;
     switch (this._derivationPath) {
@@ -1191,6 +1211,37 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   /**
+   * Finalizes a copy of the PSBT and returns it. If finalization throws (e.g. "Too many signatures" when an input
+   * carries more partial signatures than the quorum), returns the original PSBT untouched so it can still be
+   * reviewed or exported instead of aborting the import
+   */
+  static tryFinalizeUnfinalizedInputs(psbt: Psbt): Psbt {
+    try {
+      return MultisigHDWallet.finalizedCopy(psbt);
+    } catch (error: any) {
+      // Only an over-signed input is kept quiet. Anything else (missing witness script or UTXO, ...) is a PSBT that
+      // cannot be finalized at all, so it must surface instead of being presented as merely short of signatures.
+      if (MultisigHDWallet.isTooManySignaturesError(error)) return psbt;
+      throw error;
+    }
+  }
+
+  static isTooManySignaturesError(error: unknown): boolean {
+    return error instanceof Error && /Too many signatures/i.test(error.message);
+  }
+
+  /**
+   * Returns a finalized copy and leaves the passed PSBT untouched. Throws when an input cannot be finalized.
+   * Finalizing in place is not safe: bitcoinjs finalizes input by input, so a throw on a later input leaves the
+   * earlier ones finalized with their `partialSig` already deleted
+   */
+  static finalizedCopy(psbt: Psbt): Psbt {
+    const copy = psbt.clone();
+    MultisigHDWallet.finalizeUnfinalizedInputs(copy);
+    return copy;
+  }
+
+  /**
    * Number of signatures that every input has, i.e. the least signed input decides
    */
   calculateHowManySignaturesWeHaveFromPsbt(psbt: Psbt) {
@@ -1272,6 +1323,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
 
     if (this.calculateHowManySignaturesWeHaveFromPsbt(psbt) >= this.getM()) {
+      // an input that arrived with more signatures than M cannot be finalized ("Too many signatures").
+      // keep our new signatures and leave the PSBT unfinalized instead of throwing
+      if (MultisigHDWallet.tryFinalizeUnfinalizedInputs(psbt) === psbt) return { tx: false };
       MultisigHDWallet.finalizeUnfinalizedInputs(psbt);
       return { tx: psbt.extractTransaction() };
     }

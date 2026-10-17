@@ -836,14 +836,24 @@ const SendDetails = () => {
       try {
         const base64 = base64arg || (await fs.openSignedTransaction());
         if (!base64) return;
-        const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
+        let psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
-        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0) {
-          setIsLoading(true);
-          await sleep(100);
-          (wallet as MultisigHDWallet).cosignPsbt(psbt);
-          setIsLoading(false);
-          await sleep(100);
+        const multisig = wallet as MultisigHDWallet;
+        if (multisig) {
+          const signatures = multisig.calculateHowManySignaturesWeHaveFromPsbt(psbt);
+          const quorumReached = signatures >= multisig.getM();
+          if (quorumReached) {
+            // At quorum, only finalize: another signature breaks finalization, and skipping finalize leaves Export
+            // sharing a PSBT the next cosigner cannot broadcast. An input with more signatures than M cannot be
+            // finalized; then the original PSBT is kept to review or export. Any other finalize error throws and alerts.
+            psbt = MultisigHDWallet.tryFinalizeUnfinalizedInputs(psbt);
+          } else if (multisig.howManySignaturesCanWeMake() > 0) {
+            setIsLoading(true);
+            await sleep(100);
+            multisig.cosignPsbt(psbt);
+            setIsLoading(false);
+            await sleep(100);
+          }
         }
 
         if (wallet) {

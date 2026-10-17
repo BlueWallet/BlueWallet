@@ -150,7 +150,7 @@ export const AddressInputScanButton = ({
       onPress={toolTipOnPress}
       testID={type === 'default' || type === 'compact' ? testID : undefined}
       buttonStyle={menuButtonStyle}
-      style={type === 'compact' ? styles.compactWrapper : undefined}
+      style={type === 'compact' ? styles.compactWrapper : type === 'link' ? styles.linkWrapper : undefined}
       accessibilityLabel={loc.send.details_scan}
       accessibilityHint={loc.send.details_scan_hint}
     >
@@ -235,6 +235,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexShrink: 0,
   },
+  linkWrapper: {
+    alignSelf: 'center',
+  },
   linkText: {
     textAlign: 'center',
     fontSize: 16,
@@ -245,6 +248,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
+    alignSelf: 'center',
   },
 });
