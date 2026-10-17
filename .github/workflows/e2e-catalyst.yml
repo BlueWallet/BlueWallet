@@ -216,7 +216,6 @@ jobs:
       - name: Run Appium tests
         env:
           E2E_RETRIES: '2'
-          E2E_FAIL_FAST: '0'
         run: npm run e2e:catalyst:test -- --runTestsByPath tests/e2e-appium/${{ matrix.spec }}.spec.ts
 
       - name: Collect Catalyst crash diagnostics

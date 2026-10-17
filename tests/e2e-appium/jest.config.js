@@ -2,9 +2,6 @@ module.exports = {
   maxWorkers: 1,
   testTimeout: 600_000, // first session builds WebDriverAgentMac, which takes a while
   verbose: true,
-  bail: process.env.E2E_FAIL_FAST === '0' ? 0 : 1,
-  testEnvironment: '<rootDir>/e2e-appium/environment.js',
-  testEnvironmentOptions: { failFast: process.env.E2E_FAIL_FAST !== '0' },
   globalSetup: '<rootDir>/e2e-appium/globalSetup.ts',
   globalTeardown: '<rootDir>/e2e-appium/globalTeardown.ts',
   rootDir: '..',

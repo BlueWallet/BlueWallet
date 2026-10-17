@@ -78,11 +78,11 @@ The signed app is cached immediately after a successful build, even if the subse
 
 Keep the application's original native modal presentation. Record Catalyst alert limitations as TODOs in tests rather than changing production presentation for automation. Informational import confirmations are dismissed when available; if absent, the test logs a TODO and still verifies the imported wallet and persistence after restart. An absent operation result, failed click or transport error remains a failure. Blocking input/confirmation subflows are explicitly deferred when they cannot continue.
 
-Cases are independent. CI allows up to three attempts per failed case (`E2E_RETRIES=2`, `E2E_FAIL_FAST=0`). Successful cases are not repeated. Jest reports the errors before retrying, and each start/pass log includes its attempt number. A case that fails all three attempts fails the job; retries never convert an unexecuted test into a pass. The custom fail-fast environment is disabled in this mode so it cannot skip a failed case's retries.
+Cases are independent. CI allows up to three attempts per failed case (`E2E_RETRIES=2`). Successful cases are not repeated. Jest reports the errors before retrying, and each start/pass log includes its attempt number. A case that fails all three attempts fails the job; retries never convert an unexecuted test into a pass.
 
 An Appium server already listening on port 4723 is reused, including its WebDriverAgent runner. Restart that runner (the `xcodebuild … WebDriverAgentMac` process) after rebuilding the app or after terminating the app outside WebDriver, for example with `kill`: the runner then fails every launch with `Not authorized for performing UI testing actions`.
 
-Local runs default to a single attempt and fail-fast. For the same retry policy as CI, use `E2E_RETRIES=2 E2E_FAIL_FAST=0 npm run e2e:catalyst:test`. To diagnose only the initial failure, use `E2E_RETRIES=0 E2E_FAIL_FAST=1`: cleanup and diagnostics still run, remaining cases are reported as not run, and Jest bail prevents subsequent files from starting.
+Local runs default to a single attempt and run every case even after a failure. For the same retry policy as CI, use `E2E_RETRIES=2 npm run e2e:catalyst:test`; to run one case, use `-t 'regex'`.
 
 Each attempt resets app state. Failed attempts discard their WebDriver session before the next case or retry. Teardown hooks also collect diagnostics for Jest timeouts; a late completion cannot mark a later attempt as passed. There are no persisted pass markers. The ten-minute transport timeout applies only to initial session creation; subsequent requests have a one-minute timeout and are not automatically replayed.
 

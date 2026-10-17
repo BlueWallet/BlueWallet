@@ -32,9 +32,6 @@ export function catalystSuite(name: string, define: (test: CatalystTest) => void
     const record = !!process.env.CI || process.env.E2E_RECORD_VIDEO === '1';
     const retries = Number(process.env.E2E_RETRIES ?? 0);
     if (!Number.isInteger(retries) || retries < 0) throw new Error('E2E_RETRIES must be a non-negative integer');
-    if (retries > 0 && process.env.E2E_FAIL_FAST !== '0') {
-      throw new Error('Automatic retries require E2E_FAIL_FAST=0; fail-fast must preserve the initial failure');
-    }
     jest.retryTimes(retries, { logErrorsBeforeRetry: true });
 
     beforeEach(async () => {

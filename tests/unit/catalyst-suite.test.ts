@@ -68,7 +68,6 @@ exports.saveArtifacts = async driver => event('artifacts', driver);
       path.join(directory, 'lifecycle.spec.js'),
       `process.env.CI = 'true';
 process.env.E2E_RETRIES = '2';
-process.env.E2E_FAIL_FAST = '0';
 const { catalystSuite } = require('./suite');
 const { event } = require('./driver');
 let flaky = 0, timed = 0;
@@ -99,8 +98,6 @@ catalystSuite('Harness lifecycle', test => {
         '--config',
         JSON.stringify({
           rootDir: directory,
-          testEnvironment: path.join(__dirname, '../e2e-appium/environment.js'),
-          testEnvironmentOptions: { failFast: false },
           testMatch: ['**/*.spec.js'],
           testTimeout: 2000,
           watchman: false,
