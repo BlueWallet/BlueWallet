@@ -17,9 +17,9 @@ describe('Catalyst E2E preference isolation', () => {
         setName: { value: setName },
       },
     );
-    let preferences: typeof import('../e2e-appium/fixtures/preferences').default;
+    let preferences: typeof import('../e2e-appium/preferences').default;
     jest.isolateModules(() => {
-      preferences = require('../e2e-appium/fixtures/preferences').default;
+      preferences = require('../e2e-appium/preferences').default;
     });
     await preferences!.setName();
     expect(setName).not.toHaveBeenCalled();
@@ -32,6 +32,6 @@ describe('Catalyst E2E preference isolation', () => {
 
   it('refuses to load for an unrelated bundle', () => {
     jest.mocked(DeviceInfo.getBundleId).mockReturnValue('io.bluewallet.unrelated');
-    expect(() => jest.isolateModules(() => require('../e2e-appium/fixtures/preferences'))).toThrow('unrelated app');
+    expect(() => jest.isolateModules(() => require('../e2e-appium/preferences'))).toThrow('unrelated app');
   });
 });

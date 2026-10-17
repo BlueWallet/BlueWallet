@@ -5,7 +5,7 @@ workflow = YAML.load_file(File.expand_path('../../.github/workflows/e2e-catalyst
 entries = [
   "100644 application-v1 0\tscreen/wallets/add.tsx",
   "100644 dependencies-v1 0\tpackage-lock.json",
-  "100644 adapter-v1 0\ttests/e2e-appium/fixtures/preferences.ts",
+  "100644 adapter-v1 0\ttests/e2e-appium/preferences.ts",
   "100644 helper-v1 0\ttests/e2e-appium/driver.ts",
   "100644 case-v1 0\ttests/e2e-appium/bluewallet.spec.ts",
   "100644 unit-v1 0\ttests/unit/catalyst-secrets.test.ts"

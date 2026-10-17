@@ -12,7 +12,7 @@ module.exports = mergeConfig(base, {
       if (aliases[name])
         return {
           type: 'sourceFile',
-          filePath: path.join(__dirname, 'fixtures', aliases[name]),
+          filePath: path.join(__dirname, aliases[name]),
         };
       return base.resolver.resolveRequest(context, name, platform);
     },

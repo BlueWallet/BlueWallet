@@ -13,7 +13,14 @@ import {
   waitForId,
   waitForIdGone,
 } from './driver';
-import fixture from './fixtures/watch-only.json';
+
+// MNEMONICS_KEYSTONE
+const zpub = 'zpub6s2EvLxwvDpaHNVP5vfordTyi8cH1fR8usmEjz7RsSQjfTTGU2qA5VEcEyYYBxpZAyBarJoTraB4VRJKVz97Au9jRNYfLAeeHC5UnRZbz8Y';
+const address = 'bc1qgrhr5xc5774maph97d73ydrjlqqmg2v6jjlr29';
+const unsignedPsbt =
+  'UR:CRYPTO-PSBT/HDRNJOJKIDJYZMADAEGOAOAEAEAEADLFIAYKFPTOTIHSMNDLJTLFTYPAHTFHZESOAODIBNADFDCPFZZEKSSTTOJYKPRLJOAEAEAEAEAEZMZMZMZMADNBDSAEAEAEAEAEAECFKOPTBBCFBGNTGUVAEHNDPECFUYNBHKRNPMCMJNYTBKROYKLOPSAEAEAEAEAEADADCTBEDIAEAEAEAEAEAECMAEBBFTZSECYTJZTEKGOEKECAVOGHMTVWGYIAMHCSKOSWCPAMAXENRDWMCPOTZMHKGMFPNTHLMNDMCETOHLOXTANDAMEOTSURLFHHPLTSDPCSJTWSGACSRPLEYNVEGHAEAELAAEAEAELAAEAEAELAAEAEAEAEAEAEAEAEAEAEGETNJYFN';
+const signedPsbt =
+  'UR:CRYPTO-PSBT/HDWTJOJKIDJYZMADAEGOAOAEAEAEADLFIAYKFPTOTIHSMNDLJTLFTYPAHTFHZESOAODIBNADFDCPFZZEKSSTTOJYKPRLJOAEAEAEAEAEZMZMZMZMADNBDSAEAEAEAEAEAECFKOPTBBCFBGNTGUVAEHNDPECFUYNBHKRNPMCMJNYTBKROYKLOPSAEAEAEAEAEADADCTBEDIAEAEAEAEAEAECMAEBBFTZSECYTJZTEKGOEKECAVOGHMTVWGYIAMHCSKOSWADAYJEAOFLDYFYAOCXGEUTDNBDTNMKTOQDLASKMTTSCLCSHPOLGDBEHDBBZMNERLRFSFIDLTMHTLMTLYWKAOCXFRBWHGOSGYRLYKTSSSSSIEWDZOVOSTFNISKTBYCLLRLRHSHFCMSGTTVDRHURNSOLADCLAXENRDWMCPOTZMHKGMFPNTHLMNDMCETOHLOXTANDAMEOTSURLFHHPLTSDPCSJTWSGAAEAEDLFPLTSW';
 
 /**
  * test plan:
@@ -28,11 +35,10 @@ catalystSuite('BlueWallet UI Tests - import Watch-only wallet (zpub)', test => {
   test(
     'can import zpub as watch-only, import psbt, and then scan signed psbt',
     async driver => {
-      // MNEMONICS_KEYSTONE
-      await importWallet(driver, fixture.zpub, 'watchOnly', 'Imported Watch-only', '0.0001');
+      await importWallet(driver, zpub, 'watchOnly', 'Imported Watch-only', '0.0001');
 
       await receive(driver);
-      assert.strictEqual(await receiveRequest(driver), fixture.address);
+      assert.strictEqual(await receiveRequest(driver), address);
       await tapId(driver, 'ReceiveMoreOptionsButton');
       await tapId(driver, 'ReceiveWithAmountOption');
       await replaceAmount(driver, '1');
@@ -40,7 +46,7 @@ catalystSuite('BlueWallet UI Tests - import Watch-only wallet (zpub)', test => {
       await tapId(driver, 'CustomAmountSaveButton');
       // BitcoinAmountText and CustomAmountDescriptionText live inside the accessible ReceiveCard,
       // which Catalyst exposes as one Copy button; the copied BIP21 request carries both values.
-      assert.strictEqual((await receiveRequest(driver)).toLowerCase(), `bitcoin:${fixture.address}?amount=1&label=test`);
+      assert.strictEqual((await receiveRequest(driver)).toLowerCase(), `bitcoin:${address}?amount=1&label=test`);
       await backToWallets(driver);
 
       await openWallet(driver, 'Imported Watch-only');
@@ -49,12 +55,12 @@ catalystSuite('BlueWallet UI Tests - import Watch-only wallet (zpub)', test => {
       await tapButtonWithLabel(driver, 'OK');
       await waitForId(driver, 'AddressInput');
       await tapHeaderMenuItem(driver, 'Import Transaction (QR)');
-      await scanText(driver, fixture.unsignedPsbt);
+      await scanText(driver, unsignedPsbt);
 
       // scanning back the signed UR PSBT leads straight to the broadcast dialog
       await scrollDownToId(driver, 'PsbtWithHardwareScrollView', 'PsbtTxScanButton');
       await tapId(driver, 'PsbtTxScanButton');
-      await scanText(driver, fixture.signedPsbt);
+      await scanText(driver, signedPsbt);
       await waitForIdGone(driver, 'ScanQrBackdoorButton');
       await waitForId(driver, 'PsbtWithHardwareWalletBroadcastTransactionButton');
 

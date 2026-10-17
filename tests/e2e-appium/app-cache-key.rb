@@ -8,7 +8,6 @@ module CatalystAppCache
   RUNTIME_FILES = %w[
     config.ts driver.ts suite.ts flows.ts redact.ts globalSetup.ts globalTeardown.ts
     jest.config.js environment.js keyboard.swift README.md
-    fixtures/multisig.json fixtures/watch-only.json
   ].map { |file| "tests/e2e-appium/#{file}" }.freeze
   BUILD_STEPS = [
     'Setup Node.js', 'Setup Xcode', 'Set up Ruby', 'Install Node modules',
