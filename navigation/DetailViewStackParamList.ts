@@ -185,7 +185,7 @@ export type DetailViewStackParamList = {
     walletID: string;
   };
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
-  ManageWallets: undefined;
+  ManageWallets: { searchQuery?: string; isSearchFocused?: boolean } | undefined;
   ClipboardDetected: {
     payload: string;
     kind: ClipboardPaymentKind;

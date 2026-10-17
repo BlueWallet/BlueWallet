@@ -580,7 +580,8 @@ export async function typeTextIntoAlertInput(text) {
 }
 
 /**
- * Opens the send-screen header menu and taps a menu item.
+ * Opens a native menu and taps a menu item. Defaults to the screen header menu,
+ * but accepts another Detox matcher for row-level menus.
  * On iOS, action-sheet labels often fail Detox's visibility check (liquid glass
  * / partial opacity), same class of issue as native alerts — disable sync for
  * the interaction.
@@ -589,10 +590,13 @@ export async function typeTextIntoAlertInput(text) {
  * re-enabling there can hang on pending layer animations. A following `scanText()`
  * (default) restores synchronization after the backdoor scan.
  */
-export async function tapHeaderMenuItem(menuItemText, { actionId, restoreSynchronization = true } = {}) {
+export async function tapHeaderMenuItem(
+  menuItemText,
+  { actionId, restoreSynchronization = true, menuButtonMatcher = by.id('HeaderMenuButton') } = {},
+) {
   const isIOS = device.getPlatform() === 'ios';
   if (!isIOS) {
-    await element(by.id('HeaderMenuButton')).tap();
+    await element(menuButtonMatcher).tap();
     await element(by.text(menuItemText)).tap();
     return;
   }
@@ -600,14 +604,12 @@ export async function tapHeaderMenuItem(menuItemText, { actionId, restoreSynchro
   let succeeded = false;
   await device.disableSynchronization();
   try {
-    await waitFor(element(by.id('HeaderMenuButton')))
-      .toExist()
-      .withTimeout(15_000);
+    await waitFor(element(menuButtonMatcher)).toExist().withTimeout(15_000);
 
     let lastError;
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        await element(by.id('HeaderMenuButton')).tap();
+        await element(menuButtonMatcher).tap();
         // iOS 26 action sheets use magic-morph transforms that fail Detox's
         // visibility check until the presentation animation settles.
         await sleep(1500);

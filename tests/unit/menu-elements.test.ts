@@ -114,6 +114,15 @@ it.each([
   ['WalletTransactions', 'walletDetails'],
   ['ReceiveDetails', 'copyAddress'],
   ['TransactionStatus', 'copyTransactionId'],
+  ['ManageWallets', 'manageWalletSearch'],
+  ['ManageWallets', 'manageWalletSave'],
+  ['ManageWallets', 'manageWalletClose'],
+  ['ManageWallets', 'manageWalletOpen'],
+  ['ManageWallets', 'manageWalletSelectUp'],
+  ['ManageWallets', 'manageWalletSelectDown'],
+  ['ManageWallets', 'manageWalletSelectionMode'],
+  ['ManageWallets', 'manageWalletMoveUp'],
+  ['ManageWallets', 'manageWalletMoveDown'],
 ] as const)('dispatches %s / %s only while its handler is registered', (screen, action) => {
   setRoute(screen);
   const hook = renderHook(useMenuElements);
@@ -127,6 +136,30 @@ it.each([
   act(unregister);
   emit(action);
   expect(handler).toHaveBeenCalledTimes(1);
+  hook.unmount();
+});
+
+it('sends localized menu titles without changing the native method signature', () => {
+  setRoute('WalletsList');
+  const hook = renderHook(useMenuElements);
+  const actions = jest.mocked(MenuElementsEmitter!.setAvailableActions).mock.lastCall![0];
+  expect(actions).toContain('manageWallets');
+  expect(actions).toContain('__menu_title__{"action":"manageWallets","title":"Manage Wallets…"}');
+  hook.unmount();
+});
+
+it.each(['WalletsList', 'AddWallet', 'ImportWallet'])('opens Manage Wallets from %s', screen => {
+  setRoute(screen);
+  const hook = renderHook(useMenuElements);
+  emit('manageWallets');
+  expect(navigationRef.dispatch).toHaveBeenCalledWith({
+    type: 'NAVIGATE',
+    payload: {
+      name: 'DrawerRoot',
+      pop: true,
+      params: { screen: 'DetailViewStackScreensStack', params: { screen: 'ManageWallets' } },
+    },
+  });
   hook.unmount();
 });
 

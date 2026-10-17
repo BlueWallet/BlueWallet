@@ -29,6 +29,7 @@ import { LightningArkWallet } from './wallets/lightning-ark-wallet.ts';
 import { hexToUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
 import { TaprootWallet } from './wallets/taproot-wallet';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -629,15 +630,34 @@ export class BlueApp {
    *
    * @returns {Promise} Result of storage save
    */
-  async saveToDisk(): Promise<void> {
+  async saveToDisk(walletEdits?: TWallet[]): Promise<void> {
     if (savingInProgress) {
       console.warn('saveToDisk is in progress');
       if (++savingInProgress > 10) presentAlert({ message: 'Critical error. Last actions were not saved' }); // should never happen
       await new Promise(resolve => setTimeout(resolve, 1000 * savingInProgress)); // sleep
-      return this.saveToDisk();
+      return this.saveToDisk(walletEdits);
     }
     savingInProgress = 1;
     let primaryStorageCommitted = false;
+    const previousWallets = this.wallets;
+    const previousHideBalance = new Map(previousWallets.map(wallet => [wallet.getID(), wallet.hideBalance]));
+    const previousBalanceUnits = new Map(previousWallets.map(wallet => [wallet.getID(), wallet.getPreferredBalanceUnit()]));
+
+    if (walletEdits) {
+      const currentById = new Map(previousWallets.map(wallet => [wallet.getID(), wallet]));
+      const orderedWallets = walletEdits
+        .map(edit => {
+          const currentWallet = currentById.get(edit.getID());
+          if (currentWallet) {
+            currentWallet.hideBalance = edit.hideBalance;
+            currentWallet.setPreferredBalanceUnit(edit.getPreferredBalanceUnit());
+          }
+          return currentWallet;
+        })
+        .filter((wallet): wallet is TWallet => wallet !== undefined);
+      const orderedIds = new Set(orderedWallets.map(wallet => wallet.getID()));
+      this.wallets = [...orderedWallets, ...previousWallets.filter(wallet => !orderedIds.has(wallet.getID()))];
+    }
 
     try {
       const walletsToSave: string[] = []; // serialized wallets
@@ -724,7 +744,14 @@ export class BlueApp {
     } catch (error: any) {
       console.error('save to disk exception:', error.message);
       presentAlert({ message: 'save to disk exception: ' + error.message });
-      if (!primaryStorageCommitted) throw error;
+      if (!primaryStorageCommitted) {
+        this.wallets = previousWallets;
+        for (const wallet of previousWallets) {
+          wallet.hideBalance = previousHideBalance.get(wallet.getID()) ?? false;
+          wallet.setPreferredBalanceUnit(previousBalanceUnits.get(wallet.getID()) ?? BitcoinUnit.BTC);
+        }
+        throw error;
+      }
     } finally {
       savingInProgress = 0;
     }
