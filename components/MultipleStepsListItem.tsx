@@ -239,7 +239,9 @@ const MultipleStepsListItem = (props: MultipleStepsListItemProps) => {
             {!showActivityIndicator && leftText.length > 0 && (
               <View style={styles.vaultKeyTextWrapper}>
                 {circledText ? (
-                  <View style={styles.titleRow}>
+                  // One accessible element named "Vault Key N": the number pill is a separate Text, so screen readers
+                  // and e2e tests (by.label) would otherwise only see the pieces
+                  <View style={styles.titleRow} accessible accessibilityRole="header" accessibilityLabel={leftText}>
                     {titleParts.before ? (
                       <Animated.Text style={[styles.vaultKeyText, vaultKeyTitleStyle]}>{titleParts.before}</Animated.Text>
                     ) : null}
