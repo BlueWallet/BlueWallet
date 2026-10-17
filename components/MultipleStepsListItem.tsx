@@ -45,9 +45,18 @@ interface TimelineCircleProps {
   borderColor: string;
   activeColor: string;
   checkColor: string;
+  /** Resting state. While the check animation runs this is undefined and the animated styles drive the circle. */
+  settledChecked?: boolean;
 }
 
-const TimelineCircle: React.FC<TimelineCircleProps> = ({ progress, viewBackgroundColor, borderColor, activeColor, checkColor }) => {
+const TimelineCircle: React.FC<TimelineCircleProps> = ({
+  progress,
+  viewBackgroundColor,
+  borderColor,
+  activeColor,
+  checkColor,
+  settledChecked,
+}) => {
   const emptyStyle = useAnimatedStyle(() => ({
     opacity: interpolate(progress.value, [0, 0.4], [1, 0], Extrapolation.CLAMP),
     transform: [{ scale: interpolate(progress.value, [0, 0.45, 1], [1, 1.12, 1], Extrapolation.CLAMP) }],
@@ -59,10 +68,13 @@ const TimelineCircle: React.FC<TimelineCircleProps> = ({ progress, viewBackgroun
   }));
 
   const radius = (CIRCLE_SIZE - CIRCLE_STROKE) / 2;
+  const isSettled = settledChecked !== undefined;
+  const emptyLayerStyle = isSettled ? (settledChecked ? styles.hiddenLayer : styles.shownLayer) : emptyStyle;
+  const checkLayerStyle = isSettled ? (settledChecked ? styles.shownLayer : styles.hiddenLayer) : checkStyle;
 
   return (
     <View style={styles.vaultKeyCircleHost}>
-      <Animated.View style={[styles.circleLayer, emptyStyle]} pointerEvents="none">
+      <Animated.View style={[styles.circleLayer, emptyLayerStyle]} pointerEvents="none">
         <Svg width={CIRCLE_SIZE} height={CIRCLE_SIZE}>
           <Circle
             cx={CIRCLE_SIZE / 2}
@@ -76,7 +88,7 @@ const TimelineCircle: React.FC<TimelineCircleProps> = ({ progress, viewBackgroun
         </Svg>
       </Animated.View>
       <Animated.View
-        style={[styles.circleLayer, styles.checkedCircle, { backgroundColor: activeColor, borderColor: activeColor }, checkStyle]}
+        style={[styles.circleLayer, styles.checkedCircle, { backgroundColor: activeColor, borderColor: activeColor }, checkLayerStyle]}
         pointerEvents="none"
       >
         <Icon size={24} name="checkmark" type="ionicons" color={checkColor} />
@@ -167,15 +179,25 @@ const MultipleStepsListItem = (props: MultipleStepsListItemProps) => {
   const showTimelineCircle = checked || circledText.length > 0;
   const checkedProgress = useSharedValue(checked ? 1 : 0);
   const wasChecked = useRef(checked);
+  // Animated styles only drive the check while it animates. At rest the row uses plain styles, so the checked look
+  // does not depend on animated props surviving later re-renders (on Fabric they can be dropped, leaving the circle
+  // empty and the pill grey while the title is already green).
+  const [isCheckAnimating, setIsCheckAnimating] = useState(false);
+  const settleTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     if (checked !== wasChecked.current) {
+      setIsCheckAnimating(true);
       checkedProgress.value = withTiming(checked ? 1 : 0, CHECKED_TRANSITION);
+      clearTimeout(settleTimer.current);
+      settleTimer.current = setTimeout(() => setIsCheckAnimating(false), CHECKED_TRANSITION.duration);
     } else {
       checkedProgress.value = checked ? 1 : 0;
     }
     wasChecked.current = checked;
   }, [checked, checkedProgress]);
+
+  useEffect(() => () => clearTimeout(settleTimer.current), []);
 
   const vaultKeyTitleStyle = useAnimatedStyle(() => ({
     color: interpolateColor(checkedProgress.value, [0, 1], [colors.alternativeTextColor, colors.msSuccessBG]),
@@ -188,6 +210,15 @@ const MultipleStepsListItem = (props: MultipleStepsListItemProps) => {
   const numberPillTextStyle = useAnimatedStyle(() => ({
     color: interpolateColor(checkedProgress.value, [0, 1], [colors.alternativeTextColor, colors.msSuccessCheck]),
   }));
+
+  const restingStyles = StyleSheet.create({
+    title: { color: checked ? colors.msSuccessBG : colors.alternativeTextColor },
+    pill: { backgroundColor: checked ? colors.msSuccessBG : colors.buttonDisabledBackgroundColor },
+    pillText: { color: checked ? colors.msSuccessCheck : colors.alternativeTextColor },
+  });
+  const titleStyle = isCheckAnimating ? vaultKeyTitleStyle : restingStyles.title;
+  const pillStyle = isCheckAnimating ? numberPillStyle : restingStyles.pill;
+  const pillTextStyle = isCheckAnimating ? numberPillTextStyle : restingStyles.pillText;
 
   const titleParts = useMemo(() => {
     if (!circledText) {
@@ -234,6 +265,7 @@ const MultipleStepsListItem = (props: MultipleStepsListItemProps) => {
                 borderColor={colors.buttonDisabledBackgroundColor}
                 activeColor={colors.msSuccessBG}
                 checkColor={colors.msSuccessCheck}
+                settledChecked={isCheckAnimating ? undefined : checked}
               />
             ) : null}
             {!showActivityIndicator && leftText.length > 0 && (
@@ -243,17 +275,15 @@ const MultipleStepsListItem = (props: MultipleStepsListItemProps) => {
                   // and e2e tests (by.label) would otherwise only see the pieces
                   <View style={styles.titleRow} accessible accessibilityRole="header" accessibilityLabel={leftText}>
                     {titleParts.before ? (
-                      <Animated.Text style={[styles.vaultKeyText, vaultKeyTitleStyle]}>{titleParts.before}</Animated.Text>
+                      <Animated.Text style={[styles.vaultKeyText, titleStyle]}>{titleParts.before}</Animated.Text>
                     ) : null}
-                    <Animated.View style={[styles.numberPill, stylesHook.numberPill, numberPillStyle]}>
-                      <Animated.Text style={[styles.numberPillText, numberPillTextStyle]}>{circledText}</Animated.Text>
+                    <Animated.View style={[styles.numberPill, stylesHook.numberPill, pillStyle]}>
+                      <Animated.Text style={[styles.numberPillText, pillTextStyle]}>{circledText}</Animated.Text>
                     </Animated.View>
-                    {titleParts.after ? (
-                      <Animated.Text style={[styles.vaultKeyText, vaultKeyTitleStyle]}>{titleParts.after}</Animated.Text>
-                    ) : null}
+                    {titleParts.after ? <Animated.Text style={[styles.vaultKeyText, titleStyle]}>{titleParts.after}</Animated.Text> : null}
                   </View>
                 ) : (
-                  <Animated.Text style={[styles.vaultKeyText, vaultKeyTitleStyle]}>{leftText}</Animated.Text>
+                  <Animated.Text style={[styles.vaultKeyText, titleStyle]}>{leftText}</Animated.Text>
                 )}
               </View>
             )}
@@ -344,6 +374,12 @@ const MultipleStepsListItem = (props: MultipleStepsListItemProps) => {
 };
 
 const styles = StyleSheet.create({
+  shownLayer: {
+    opacity: 1,
+  },
+  hiddenLayer: {
+    opacity: 0,
+  },
   itemSpacing: {
     marginBottom: ITEM_SPACING,
   },
