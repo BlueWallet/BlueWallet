@@ -9,9 +9,20 @@ export type ScreenMenuAction =
   | 'manageWalletSave'
   | 'manageWalletClose'
   | 'manageWalletOpen'
+  | 'manageWalletSelectUp'
+  | 'manageWalletSelectDown'
+  | 'manageWalletSelectionMode'
+  | 'manageWalletSelectionModeSelected'
   | 'manageWalletMoveUp'
   | 'manageWalletMoveDown';
-export type MenuAction = ScreenMenuAction | 'settings' | 'addWallet' | 'importWallet' | 'backToWallets' | 'keyboardShortcuts';
+export type MenuAction =
+  | ScreenMenuAction
+  | 'settings'
+  | 'addWallet'
+  | 'importWallet'
+  | 'manageWallets'
+  | 'backToWallets'
+  | 'keyboardShortcuts';
 export type MenuActionHandlers = Partial<Record<ScreenMenuAction, () => void>>;
 
 const screenActions: Record<string, readonly ScreenMenuAction[]> = {
@@ -24,6 +35,10 @@ const screenActions: Record<string, readonly ScreenMenuAction[]> = {
     'manageWalletSave',
     'manageWalletClose',
     'manageWalletOpen',
+    'manageWalletSelectUp',
+    'manageWalletSelectDown',
+    'manageWalletSelectionMode',
+    'manageWalletSelectionModeSelected',
     'manageWalletMoveUp',
     'manageWalletMoveDown',
   ],
@@ -34,6 +49,7 @@ export function availableMenuActions(screen: string | undefined, registered: rea
   if (!unlocked || !screen || screen === 'UnlockWithScreen') return [];
   const actions: MenuAction[] = ['settings', 'keyboardShortcuts'];
   if (screen === 'WalletsList' || screen === 'WalletTransactions') actions.push('addWallet', 'importWallet');
+  if (screen === 'WalletsList' || screen === 'AddWallet' || screen === 'ImportWallet') actions.push('manageWallets');
   if (walletDetailScreens.has(screen)) actions.push('backToWallets');
   actions.push(...(screenActions[screen] ?? []).filter(action => registered.includes(action)));
   return actions;
@@ -50,9 +66,12 @@ export const menuShortcuts = [
   { title: 'Copy Address', key: 'Shift+C', where: 'Receive screen, when an address is displayed' },
   { title: 'Copy Transaction ID', key: 'Shift+C', where: 'Transaction details, when an ID is available' },
   { title: 'Back to Wallets', key: 'Shift+W', where: 'Wallet detail screens' },
+  { action: 'manageWallets', title: '', key: 'Shift+M', where: '', appleOnly: true },
   { title: 'Search Wallets', key: 'F', where: 'Manage Wallets', appleOnly: true },
   { title: 'Save Wallet Changes', key: 'S', where: 'Manage Wallets, when changes exist', appleOnly: true },
   { title: 'Open Focused Wallet', key: 'Return', where: 'Manage Wallets', appleOnly: true, usesCommand: false },
+  { title: 'Select Previous Wallet', key: '↑', where: 'Manage Wallets', appleOnly: true, usesCommand: false },
+  { title: 'Select Next Wallet', key: '↓', where: 'Manage Wallets', appleOnly: true, usesCommand: false },
   { title: 'Move Focused Wallet Up', key: '⌥↑', where: 'Manage Wallets', appleOnly: true, usesCommand: false },
   { title: 'Move Focused Wallet Down', key: '⌥↓', where: 'Manage Wallets', appleOnly: true, usesCommand: false },
   { title: 'Close or Cancel Search', key: 'Esc', where: 'Manage Wallets', appleOnly: true, usesCommand: false },

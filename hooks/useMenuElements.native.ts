@@ -3,6 +3,7 @@ import { CommonActions } from '@react-navigation/native';
 import MenuElementsEmitter from '../blue_modules/NativeMenuElementsEmitter';
 import { availableMenuActions, MenuActionHandlers, ScreenMenuAction } from '../blue_modules/menuActions';
 import { navigationRef, navigateToWalletsList } from '../NavigationService';
+import loc from '../loc';
 
 const handlerRegistry = new Map<string, Map<symbol, MenuActionHandlers>>();
 let consumers = 0;
@@ -19,7 +20,16 @@ function currentContext() {
 }
 
 function syncMenu() {
-  MenuElementsEmitter?.setAvailableActions(currentContext().actions);
+  const { actions } = currentContext();
+  const localizedTitles: Array<{ action: string; title: string }> = [];
+  if (actions.includes('manageWallets')) {
+    localizedTitles.push({ action: 'manageWallets', title: `${loc.wallets.manage_title}…` });
+  }
+  if (actions.includes('manageWalletSelectionMode')) {
+    localizedTitles.push({ action: 'manageWalletSelectionMode', title: loc.wallets.wallet_selection_mode });
+  }
+  const titleMetadata = localizedTitles.map(({ action, title }) => `__menu_title__${JSON.stringify({ action, title })}`);
+  MenuElementsEmitter?.setAvailableActions([...actions, ...titleMetadata]);
 }
 
 function subscribe() {
@@ -48,6 +58,15 @@ function subscribe() {
         break;
       case 'importWallet':
         navigationRef.navigate('AddWalletRoot', { screen: 'ImportWallet' });
+        break;
+      case 'manageWallets':
+        navigationRef.dispatch(
+          CommonActions.navigate({
+            name: 'DrawerRoot',
+            params: { screen: 'DetailViewStackScreensStack', params: { screen: 'ManageWallets' } },
+            pop: true,
+          }),
+        );
         break;
       default:
         handlers[action as ScreenMenuAction]?.();

@@ -29,6 +29,7 @@ import { LightningArkWallet } from './wallets/lightning-ark-wallet.ts';
 import { hexToUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
 import { TaprootWallet } from './wallets/taproot-wallet';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -640,13 +641,17 @@ export class BlueApp {
     let primaryStorageCommitted = false;
     const previousWallets = this.wallets;
     const previousHideBalance = new Map(previousWallets.map(wallet => [wallet.getID(), wallet.hideBalance]));
+    const previousBalanceUnits = new Map(previousWallets.map(wallet => [wallet.getID(), wallet.getPreferredBalanceUnit()]));
 
     if (walletEdits) {
       const currentById = new Map(previousWallets.map(wallet => [wallet.getID(), wallet]));
       const orderedWallets = walletEdits
         .map(edit => {
           const currentWallet = currentById.get(edit.getID());
-          if (currentWallet) currentWallet.hideBalance = edit.hideBalance;
+          if (currentWallet) {
+            currentWallet.hideBalance = edit.hideBalance;
+            currentWallet.setPreferredBalanceUnit(edit.getPreferredBalanceUnit());
+          }
           return currentWallet;
         })
         .filter((wallet): wallet is TWallet => wallet !== undefined);
@@ -741,7 +746,10 @@ export class BlueApp {
       presentAlert({ message: 'save to disk exception: ' + error.message });
       if (!primaryStorageCommitted) {
         this.wallets = previousWallets;
-        for (const wallet of previousWallets) wallet.hideBalance = previousHideBalance.get(wallet.getID()) ?? false;
+        for (const wallet of previousWallets) {
+          wallet.hideBalance = previousHideBalance.get(wallet.getID()) ?? false;
+          wallet.setPreferredBalanceUnit(previousBalanceUnits.get(wallet.getID()) ?? BitcoinUnit.BTC);
+        }
         throw error;
       }
     } finally {

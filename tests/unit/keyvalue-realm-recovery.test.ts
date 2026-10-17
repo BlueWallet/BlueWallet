@@ -2,6 +2,7 @@ import assert from 'assert';
 import presentAlert from '../../components/Alert';
 import { BlueApp } from '../../class/blue-app';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 // Jest hoists this above the imports above.
 jest.mock('../../components/Alert', () => ({
@@ -106,6 +107,7 @@ describe('keyvalue realm backup recovery', () => {
     firstEdit.balance = 1;
     secondEdit.balance = 2;
     secondEdit.hideBalance = true;
+    secondEdit.setPreferredBalanceUnit(BitcoinUnit.SATS);
 
     await storage.saveToDisk([secondEdit, firstEdit]);
 
@@ -114,9 +116,10 @@ describe('keyvalue realm backup recovery', () => {
     assert.strictEqual(second.balance, 200, 'live wallet data updated after the draft was created is preserved');
     assert.strictEqual(first.balance, 100);
     assert.strictEqual(second.hideBalance, true);
+    assert.strictEqual(second.getPreferredBalanceUnit(), BitcoinUnit.SATS);
   });
 
-  it('rolls back wallet order and balance visibility when an edit save fails', async () => {
+  it('rolls back wallet order, balance visibility, and display units when an edit save fails', async () => {
     const storage = new BlueApp();
     const first = new LegacyWallet();
     const second = new LegacyWallet();
@@ -128,12 +131,14 @@ describe('keyvalue realm backup recovery', () => {
     const firstEdit = Object.assign(Object.create(Object.getPrototypeOf(first)), first);
     const secondEdit = Object.assign(Object.create(Object.getPrototypeOf(second)), second);
     secondEdit.hideBalance = true;
+    secondEdit.setPreferredBalanceUnit(BitcoinUnit.SATS);
 
     await assert.rejects(() => storage.saveToDisk([secondEdit, firstEdit]), /edit save failed/);
 
     assert.deepStrictEqual(storage.wallets, [first, second]);
     assert.strictEqual(first.hideBalance, false);
     assert.strictEqual(second.hideBalance, false);
+    assert.strictEqual(second.getPreferredBalanceUnit(), BitcoinUnit.BTC);
   });
 
   it('closes the backup Realm when a write throws', async () => {

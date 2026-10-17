@@ -10,10 +10,11 @@ import {
   Platform,
   AccessibilityInfo,
   findNodeHandle,
+  useWindowDimensions,
 } from 'react-native';
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { RouteProp, useNavigation, useLocale, usePreventRemove, useRoute } from '@react-navigation/native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { RouteProp, StackActions, useNavigation, useLocale, usePreventRemove, useRoute } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -30,6 +31,8 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import ActionSheet from '../ActionSheet';
 import presentAlert from '../../components/Alert';
 import useScreenMenuActions from '../../hooks/useScreenMenuActions';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { isDesktop } from '../../blue_modules/environment';
 
 interface WalletItem {
   type: ItemType.WalletSection;
@@ -62,6 +65,7 @@ const dragScaleSpring = {
   overshootClamping: false,
   restDisplacementThreshold: 0.0001,
 };
+const activeDragScale = 1.065;
 
 const DragScaleDecorator: React.FC<React.PropsWithChildren<{ reduceMotionEnabled: boolean }>> = ({ children, reduceMotionEnabled }) => {
   const { onActiveAnim } = useOnCellActiveAnimation({
@@ -71,7 +75,7 @@ const DragScaleDecorator: React.FC<React.PropsWithChildren<{ reduceMotionEnabled
     () => ({
       transform: [
         {
-          scale: reduceMotionEnabled ? 1 : interpolate(onActiveAnim.value, [0, 1], [1, 1.065]),
+          scale: reduceMotionEnabled ? 1 : interpolate(onActiveAnim.value, [0, 1], [1, activeDragScale]),
         },
       ],
     }),
@@ -135,7 +139,11 @@ const hasWalletChanges = (wallets: TWallet[], baselineWallets: TWallet[]): boole
 
   return wallets.some((wallet, index) => {
     const baselineWallet = baselineWallets[index];
-    return wallet.getID() !== baselineWallet.getID() || Boolean(wallet.hideBalance) !== Boolean(baselineWallet.hideBalance);
+    return (
+      wallet.getID() !== baselineWallet.getID() ||
+      Boolean(wallet.hideBalance) !== Boolean(baselineWallet.hideBalance) ||
+      wallet.getPreferredBalanceUnit() !== baselineWallet.getPreferredBalanceUnit()
+    );
   });
 };
 
@@ -152,6 +160,9 @@ const reconcileWallets = (wallets: TWallet[], baselineWallets: TWallet[], persis
     const baselineWallet = baselineById.get(persistedWallet.getID());
     if (localWallet && baselineWallet && Boolean(localWallet.hideBalance) !== Boolean(baselineWallet.hideBalance)) {
       persistedWallet.hideBalance = localWallet.hideBalance;
+    }
+    if (localWallet && baselineWallet && localWallet.getPreferredBalanceUnit() !== baselineWallet.getPreferredBalanceUnit()) {
+      persistedWallet.setPreferredBalanceUnit(localWallet.getPreferredBalanceUnit());
     }
   }
 
@@ -208,8 +219,10 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
   onUnsavedChangesChange,
 }) => {
   const { colors, dark } = useTheme();
+  const { width } = useWindowDimensions();
+  const safeAreaInsets = useSafeAreaInsets();
   const { wallets: persistedWallets, saveToDisk, txMetadata } = useStorage();
-  const { navigate, goBack, setParams, dispatch: dispatchNavigation } = useNavigation();
+  const { goBack, setParams, dispatch: dispatchNavigation } = useNavigation();
   const { params } = useRoute<RouteProp<DetailViewStackParamList, 'ManageWallets'>>();
   const { direction } = useLocale();
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -229,12 +242,12 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
   const openSwipeableRef = useRef<Swipeable | null>(null);
   const discardChangesAnchorRef = useRef<View>(null);
   const pendingRemovalActionRef = useRef<() => void>(goBack);
-  const actionAfterRemovalRef = useRef<(() => void) | null>(null);
   const isSavingRef = useRef(false);
   const walletsCopyRef = useRef(state.walletsCopy);
   walletsCopyRef.current = state.walletsCopy;
   const [allowRemoval, setAllowRemoval] = useState(false);
   const [focusedWalletID, setFocusedWalletID] = useState<string | null>(null);
+  const [rowClickMode, setRowClickMode] = useState<'navigate' | 'select'>('navigate');
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debouncedSearch = useCallback((text: string) => {
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
@@ -277,9 +290,11 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
 
   const confirmChanges = useCallback(() => {
     if (!hasUnsavedChanges) return;
+    const anchor = findNodeHandle(discardChangesAnchorRef.current) ?? undefined;
     presentAlert({
       title: loc.wallets.manage_wallets_confirm_title,
       message: loc.wallets.manage_wallets_confirm_message,
+      anchor,
       hapticFeedback: HapticFeedbackTypes.NotificationWarning,
       buttons: [
         {
@@ -323,15 +338,9 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
         message: loc._.discard_changes_explain,
       },
       buttonIndex => {
-        if (buttonIndex !== 1) {
-          actionAfterRemovalRef.current = null;
-          return;
-        }
-        const actionAfterRemoval = actionAfterRemovalRef.current;
-        actionAfterRemovalRef.current = null;
+        if (buttonIndex !== 1) return;
         pendingRemovalActionRef.current = () => {
           dispatchNavigation(data.action);
-          if (actionAfterRemoval) setTimeout(actionAfterRemoval, 0);
         };
         setAllowRemoval(true);
       },
@@ -636,35 +645,22 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
   const navigateToWallet = useCallback(
     (wallet: TWallet) => {
       Keyboard.dismiss();
-      const walletID = wallet.getID();
-      const navigateToTransactions = () => {
-        navigate('WalletTransactions', {
-          walletID,
+      dispatchNavigation(
+        StackActions.replace('WalletTransactions', {
+          walletID: wallet.getID(),
           walletType: wallet.type,
-        });
-      };
-
-      if (hasUnsavedChanges) {
-        actionAfterRemovalRef.current = navigateToTransactions;
-        goBack();
-        return;
-      }
-
-      goBack();
-      setTimeout(navigateToTransactions, 0);
+        }),
+      );
     },
-    [goBack, hasUnsavedChanges, navigate],
+    [dispatchNavigation],
   );
 
   const navigateToAddress = useCallback(
     (address: string) => {
       Keyboard.dismiss();
-
-      navigate('ReceiveDetails', {
-        address,
-      });
+      dispatchNavigation(StackActions.replace('ReceiveDetails', { address }));
     },
-    [navigate],
+    [dispatchNavigation],
   );
 
   const handleToggleHideBalance = useCallback(
@@ -677,6 +673,18 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
         return w;
       });
 
+      dispatch({ type: SAVE_CHANGES, payload: updatedWallets });
+    },
+    [state.walletsCopy],
+  );
+
+  const handleSetBalanceUnit = useCallback(
+    (wallet: TWallet, unit: BitcoinUnit) => {
+      const walletID = wallet.getID();
+      const updatedWallets = deepCopyWallets(state.walletsCopy).map(w => {
+        if (w.getID() === walletID) w.setPreferredBalanceUnit(unit);
+        return w;
+      });
       dispatch({ type: SAVE_CHANGES, payload: updatedWallets });
     },
     [state.walletsCopy],
@@ -713,6 +721,32 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
   const focusedWalletPosition = focusedWallet ? state.walletsCopy.findIndex(wallet => wallet.getID() === focusedWallet.getID()) : -1;
   const canMoveFocusedWallet = !state.searchQuery && !state.isSearchFocused;
 
+  useEffect(() => {
+    if (!isDesktop || state.walletsCopy.length === 0) return;
+    if (!focusedWallet) setFocusedWalletID(state.walletsCopy[0].getID());
+  }, [focusedWallet, state.walletsCopy]);
+
+  const selectFocusedWallet = useCallback(
+    (offset: -1 | 1) => {
+      if (state.walletsCopy.length === 0) return;
+      const currentPosition = focusedWalletPosition >= 0 ? focusedWalletPosition : 0;
+      const nextPosition = Math.max(0, Math.min(state.walletsCopy.length - 1, currentPosition + offset));
+      const nextWallet = state.walletsCopy[nextPosition];
+      if (!nextWallet || nextPosition === currentPosition) return;
+      setFocusedWalletID(nextWallet.getID());
+      triggerHapticFeedback(HapticFeedbackTypes.Selection);
+      AccessibilityInfo.announceForAccessibility(
+        `${nextWallet.getLabel()}, ${String(
+          loc.formatString(loc.wallets.wallet_position, {
+            position: nextPosition + 1,
+            total: state.walletsCopy.length,
+          }),
+        )}`,
+      );
+    },
+    [focusedWalletPosition, state.walletsCopy],
+  );
+
   const cancelSearchOrClose = useCallback(() => {
     if (state.searchQuery || state.isSearchFocused) {
       clearSearch();
@@ -729,6 +763,13 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
     manageWalletSave: hasUnsavedChanges ? confirmChanges : undefined,
     manageWalletClose: cancelSearchOrClose,
     manageWalletOpen: focusedWallet ? () => navigateToWallet(focusedWallet) : undefined,
+    manageWalletSelectUp: focusedWallet && canMoveFocusedWallet && focusedWalletPosition > 0 ? () => selectFocusedWallet(-1) : undefined,
+    manageWalletSelectDown:
+      focusedWallet && canMoveFocusedWallet && focusedWalletPosition < state.walletsCopy.length - 1
+        ? () => selectFocusedWallet(1)
+        : undefined,
+    manageWalletSelectionMode: () => setRowClickMode(mode => (mode === 'navigate' ? 'select' : 'navigate')),
+    manageWalletSelectionModeSelected: rowClickMode === 'select' ? () => {} : undefined,
     manageWalletMoveUp:
       focusedWallet && canMoveFocusedWallet && focusedWalletPosition > 0 ? () => moveWallet(focusedWallet, -1) : undefined,
     manageWalletMoveDown:
@@ -765,12 +806,15 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
           isDraggingDisabled={isDragDisabled}
           isSwipeEnabled={state.searchQuery.length === 0 && !state.isSearchFocused}
           handleToggleHideBalance={handleToggleHideBalance}
+          handleSetBalanceUnit={handleSetBalanceUnit}
           moveWallet={moveWallet}
           state={compatibleState}
           navigateToWallet={navigateToWallet}
           navigateToAddress={navigateToAddress}
           renderHighlightedText={renderHighlightedText}
           isActive={isActive}
+          isFocusedWallet={isDesktop && focusedWalletID === (item.type === ItemType.WalletSection ? item.data.getID() : undefined)}
+          rowClickMode={rowClickMode}
           drag={isDragDisabled ? undefined : drag}
           openSwipeableRef={openSwipeableRef}
           walletPosition={
@@ -783,6 +827,7 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
     },
     [
       handleToggleHideBalance,
+      handleSetBalanceUnit,
       moveWallet,
       state.walletsCopy,
       state.searchQuery,
@@ -791,6 +836,8 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
       navigateToAddress,
       renderHighlightedText,
       isDragDisabled,
+      focusedWalletID,
+      rowClickMode,
       setFocusedWalletID,
     ],
   );
@@ -823,7 +870,10 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
     return index.toString();
   }, []);
 
-  const listContentStyle = useMemo(() => [styles.listContentContainer], []);
+  const dragScaleInset = reduceMotionEnabled
+    ? 0
+    : Math.ceil((Math.max(0, width - safeAreaInsets.left - safeAreaInsets.right) * (activeDragScale - 1)) / 2);
+  const listContentStyle = useMemo(() => [styles.listContentContainer, { paddingHorizontal: dragScaleInset }], [dragScaleInset]);
   const listExtraData = useMemo(
     () => ({
       searchQuery: state.searchQuery,
@@ -886,7 +936,7 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
 
   return (
     <View ref={discardChangesAnchorRef} style={styles.root} collapsable={false}>
-      <SafeAreaView style={[{ backgroundColor: colors.background }, styles.root]} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={[{ backgroundColor: colors.background }, styles.root]} edges={['top', 'bottom', 'left', 'right']}>
         <KeyboardAvoidingView style={styles.gestureRoot} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <GestureHandlerRootView style={styles.gestureRoot}>
             <DraggableFlatList<Item>
@@ -917,7 +967,7 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
               activationDistance={8}
               autoscrollThreshold={32}
               autoscrollSpeed={16}
-              dragItemOverflow
+              dragItemOverflow={false}
               animationConfig={{
                 damping: 28,
                 mass: 0.45,

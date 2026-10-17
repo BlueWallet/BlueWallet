@@ -19,6 +19,9 @@ import { AbstractHDElectrumWallet } from '../class/wallets/abstract-hd-electrum-
 import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import WalletListItem from './WalletListItem';
 import { isDesktop } from '../blue_modules/environment';
+import { useSettings } from '../hooks/context/useSettings';
+
+const balanceUnits: BitcoinUnit[] = [BitcoinUnit.BTC, BitcoinUnit.SATS, BitcoinUnit.LOCAL_CURRENCY];
 
 const getHdElectrumWallet = (wallet: TWallet): AbstractHDElectrumWallet | undefined => {
   const w: unknown = wallet;
@@ -64,12 +67,15 @@ interface ManageWalletsListItemProps {
   isDraggingDisabled: boolean;
   isSwipeEnabled: boolean;
   handleToggleHideBalance: (wallet: TWallet) => void;
+  handleSetBalanceUnit: (wallet: TWallet, unit: BitcoinUnit) => void;
   moveWallet: (wallet: TWallet, offset: -1 | 1) => void;
   state: { wallets: TWallet[]; searchQuery: string; isSearchFocused?: boolean };
   navigateToWallet: (wallet: TWallet) => void;
   navigateToAddress: (address: string, walletID: string) => void;
   renderHighlightedText: (text: string, query: string) => React.ReactElement;
   isActive: boolean;
+  isFocusedWallet: boolean;
+  rowClickMode: 'navigate' | 'select';
   openSwipeableRef: React.MutableRefObject<Swipeable | null>;
   drag?: () => void;
   isPlaceHolder?: boolean;
@@ -94,8 +100,11 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   onPressIn,
   onPressOut,
   handleToggleHideBalance,
+  handleSetBalanceUnit,
   moveWallet,
   isActive,
+  isFocusedWallet,
+  rowClickMode,
   openSwipeableRef,
   style,
   walletPosition,
@@ -103,10 +112,22 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   onWalletFocus,
 }) => {
   const { colors, dark } = useTheme();
+  const { preferredFiatCurrency } = useSettings();
   const { direction } = useLocale();
   const prevIsActive = useRef(isActive);
   const swipeableRef = useRef<Swipeable | null>(null);
   const swipeInProgressRef = useRef(false);
+  const [isPrimaryPressing, setIsPrimaryPressing] = useState(false);
+
+  const handlePressIn = useCallback(() => {
+    setIsPrimaryPressing(true);
+    onPressIn?.();
+  }, [onPressIn]);
+
+  const handlePressOut = useCallback(() => {
+    setIsPrimaryPressing(false);
+    onPressOut?.();
+  }, [onPressOut]);
 
   useEffect(() => {
     if (isActive && isActive !== prevIsActive.current) {
@@ -119,11 +140,15 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     if (swipeInProgressRef.current) return;
     if (item.type === ItemType.WalletSection) {
       triggerHapticFeedback(HapticFeedbackTypes.Selection);
+      if (isDesktop && rowClickMode === 'select') {
+        onWalletFocus(item.data);
+        return;
+      }
       navigateToWallet(item.data);
     } else if (item.type === ItemType.AddressSection) {
       navigateToAddress(item.data.address, item.data.walletID);
     }
-  }, [item, navigateToWallet, navigateToAddress]);
+  }, [item, navigateToWallet, navigateToAddress, onWalletFocus, rowClickMode]);
 
   const startDrag = useCallback(() => {
     if (swipeInProgressRef.current) {
@@ -154,6 +179,20 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     };
 
     const balanceActionLabel = isHidden ? loc.wallets.swipe_balance_show : loc.wallets.swipe_balance_hide;
+    const currentUnit = wallet.getPreferredBalanceUnit();
+    const alternativeUnits = balanceUnits.filter(unit => unit !== currentUnit);
+    const unitActionLabel = (unit: BitcoinUnit) =>
+      unit === BitcoinUnit.BTC
+        ? loc.total_balance_view.display_in_bitcoin
+        : unit === BitcoinUnit.SATS
+          ? loc.total_balance_view.display_in_sats
+          : String(loc.formatString(loc.total_balance_view.display_in_fiat, { currency: preferredFiatCurrency.endPointKey }));
+    const onSelectUnit = (unit: BitcoinUnit) => {
+      triggerHapticFeedback(HapticFeedbackTypes.Selection);
+      handleSetBalanceUnit(wallet, unit);
+      swipeableRef.current?.close?.();
+      AccessibilityInfo.announceForAccessibility(`${wallet.getLabel()}, ${unitActionLabel(unit)}`);
+    };
     const canMoveUp = !isDraggingDisabled && walletPosition !== undefined && walletPosition > 0;
     const canMoveDown =
       !isDraggingDisabled && walletPosition !== undefined && walletCount !== undefined && walletPosition < walletCount - 1;
@@ -170,16 +209,18 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       loc.wallets.open_wallet_transactions,
       !isDraggingDisabled ? loc.wallets.drag_to_reorder : undefined,
       isSwipeEnabled ? balanceActionLabel : undefined,
+      ...(isSwipeEnabled ? alternativeUnits.map(unitActionLabel) : []),
     ]
       .filter(Boolean)
       .join('. ');
     const accessibilityActions = [
       ...(isSwipeEnabled ? [{ name: 'toggleBalance', label: balanceActionLabel }] : []),
+      ...(isSwipeEnabled ? alternativeUnits.map(unit => ({ name: `displayUnit:${unit}`, label: unitActionLabel(unit) })) : []),
       ...(canMoveUp ? [{ name: 'moveUp', label: loc.wallets.move_up }] : []),
       ...(canMoveDown ? [{ name: 'moveDown', label: loc.wallets.move_down }] : []),
     ];
-    const renderRightActions = () => (
-      <View style={styles.rightActionsContainer}>
+    const renderLeftActions = () => (
+      <View style={styles.leftActionsContainer}>
         <Pressable
           style={({ pressed }) => [
             styles.swipeAction,
@@ -199,9 +240,36 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       </View>
     );
 
+    const renderRightActions = () => (
+      <View style={styles.rightActionsContainer}>
+        {alternativeUnits.map(unit => (
+          <Pressable
+            key={unit}
+            style={({ pressed }) => [
+              styles.swipeAction,
+              styles.unitSwipeAction,
+              { backgroundColor: colors.buttonBackgroundColor, borderColor: colors.lightBorder },
+              pressed && styles.swipeActionPressed,
+            ]}
+            onPress={() => onSelectUnit(unit)}
+            accessibilityRole="button"
+            accessibilityLabel={`${wallet.getLabel()}, ${unitActionLabel(unit)}`}
+            accessibilityHint={unitActionLabel(unit)}
+            testID={`SwipeDisplayUnit-${unit}`}
+          >
+            <Text style={[styles.swipeActionText, { color: colors.buttonTextColor }]}>{unitActionLabel(unit)}</Text>
+          </Pressable>
+        ))}
+      </View>
+    );
+
     const contextMenuActions = [
       { title: loc.wallets.open_wallet_transactions, systemIcon: 'wallet.pass' },
       { title: balanceActionLabel, systemIcon: isHidden ? 'eye' : 'eye.slash' },
+      ...alternativeUnits.map(unit => ({
+        title: unitActionLabel(unit),
+        systemIcon: unit === BitcoinUnit.BTC ? 'bitcoinsign.circle' : unit === BitcoinUnit.SATS ? 's.circle' : 'banknote',
+      })),
       { title: loc.wallets.move_up, systemIcon: 'arrow.up', disabled: !canMoveUp },
       { title: loc.wallets.move_down, systemIcon: 'arrow.down', disabled: !canMoveDown },
     ];
@@ -209,15 +277,22 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     const onContextMenuPress = (event: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
       switch (event.nativeEvent.index) {
         case 0:
-          onPress();
+          triggerHapticFeedback(HapticFeedbackTypes.Selection);
+          navigateToWallet(wallet);
           break;
         case 1:
           onToggle();
           break;
         case 2:
-          moveWallet(wallet, -1);
+          onSelectUnit(alternativeUnits[0]);
           break;
         case 3:
+          onSelectUnit(alternativeUnits[1]);
+          break;
+        case 4:
+          moveWallet(wallet, -1);
+          break;
+        case 5:
           moveWallet(wallet, 1);
           break;
       }
@@ -229,13 +304,13 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
         iconImage={iconImage}
         onPress={onPress}
         onLongPressDrag={isDraggingDisabled ? undefined : startDrag}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
         onFocus={() => onWalletFocus(wallet)}
         searchQuery={state.searchQuery || ''}
         isActive={isActive}
         borderBottomColor={colors.lightBorder}
-        backgroundColor={colors.background}
+        backgroundColor={isFocusedWallet ? colors.lightButton : colors.background}
         titleColor={titleColor}
         balanceColor={balanceColor}
         accessibilityLabel={[wallet.getLabel(), walletPositionLabel].filter(Boolean).join(', ')}
@@ -253,6 +328,11 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
             case 'moveDown':
               moveWallet(wallet, 1);
               break;
+            default:
+              if (event.nativeEvent.actionName.startsWith('displayUnit:')) {
+                const unit = event.nativeEvent.actionName.slice('displayUnit:'.length) as BitcoinUnit;
+                if (alternativeUnits.includes(unit)) onSelectUnit(unit);
+              }
           }
         }}
       />
@@ -263,6 +343,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
         title={wallet.getLabel()}
         actions={contextMenuActions}
         onPress={onContextMenuPress}
+        disabled={isPrimaryPressing || isActive}
         previewBackgroundColor="transparent"
         style={styles.contextMenu}
       >
@@ -294,9 +375,12 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
           }
           swipeInProgressRef.current = false;
         }}
+        renderLeftActions={renderLeftActions}
         renderRightActions={renderRightActions}
         friction={2}
         rightThreshold={40}
+        leftThreshold={40}
+        overshootLeft={false}
         overshootRight={false}
       >
         {menuContent}
@@ -543,8 +627,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   rightActionsContainer: {
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'flex-end',
+  },
+  leftActionsContainer: {
+    justifyContent: 'center',
+    alignItems: 'flex-start',
   },
   swipeAction: {
     justifyContent: 'center',
@@ -556,6 +645,10 @@ const styles = StyleSheet.create({
   },
   swipeActionPressed: {
     opacity: 0.85,
+  },
+  unitSwipeAction: {
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    maxWidth: 132,
   },
   swipeActionText: {
     fontSize: 15,
