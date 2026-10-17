@@ -266,6 +266,18 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
       },
       {
         argument: {
+          url: 'lightning:LNURL1DP68GURN8GHJ7MRFVA58GMNFDENKCMM8D9HZUMRFWEJJ7MR0VA5KU0MTXY7NYVFEX93X2DFK8P3KVEFKVSEXZWR98PSNJVRRV5CRGCE3X4JKGE3HXPNXGCMPV5MXXVTZ89NXZENXXCURGCTRV93RVE35XQCXVCFSVSN8GCT884KX7EMFDCDKKXQ0',
+        },
+        expected: [
+          'LnurlAuth',
+          {
+            lnurl:
+              'LNURL1DP68GURN8GHJ7MRFVA58GMNFDENKCMM8D9HZUMRFWEJJ7MR0VA5KU0MTXY7NYVFEX93X2DFK8P3KVEFKVSEXZWR98PSNJVRRV5CRGCE3X4JKGE3HXPNXGCMPV5MXXVTZ89NXZENXXCURGCTRV93RVE35XQCXVCFSVSN8GCT884KX7EMFDCDKKXQ0',
+          },
+        ],
+      },
+      {
+        argument: {
           url: 'lnaddress@zbd.gg',
         },
         expected: [

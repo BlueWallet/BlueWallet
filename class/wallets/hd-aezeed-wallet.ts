@@ -133,6 +133,10 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     return (this.external_addresses_cache[index] = address);
   }
 
+  _getBip32Root() {
+    return bip32.fromSeed(this._getEntropyCached());
+  }
+
   _getWIFByIndex(internal: boolean, index: number): string | false {
     if (!this.secret) return false;
     const root = bip32.fromSeed(this._getEntropyCached());

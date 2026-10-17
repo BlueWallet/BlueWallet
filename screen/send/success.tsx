@@ -78,9 +78,10 @@ interface SuccessViewParam {
   fee?: number;
   invoiceDescription?: string;
   shouldAnimate?: boolean;
+  children?: React.ReactNode;
 }
 
-export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shouldAnimate = true }: SuccessViewParam) => {
+export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shouldAnimate = true, children }: SuccessViewParam) => {
   const { colors } = useTheme();
 
   let unit: string = '';
@@ -147,6 +148,7 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
           resizeMode="center"
         />
       </View>
+      {children ? <View style={styles.children}>{children}</View> : null}
     </View>
   );
 };
@@ -197,5 +199,9 @@ const styles = StyleSheet.create({
   lottie: {
     width: 200,
     height: 200,
+  },
+  children: {
+    // lottie (200px) is taller than `ready` with its margin (120 + 53), start below it so sparks do not cover the text
+    marginTop: 27,
   },
 });
