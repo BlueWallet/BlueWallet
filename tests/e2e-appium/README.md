@@ -12,10 +12,10 @@ Every Detox `it(...)` title exists here with the same name. Detox imports the fu
 
 | Detox file | Catalyst file | Cases |
 | --- | --- | --- |
-| `bluewallet.spec.js` (no wallets) | `bluewallet.spec.ts` | self-test, all settings screens, create/receive labels/Manage Wallets, both storage-encryption cases, 2-of-2 cosigner import, UR multisig setup with hardware signatures, Cobo co-signing, account discovery, home SCAN button (on-chain, Lightning, unified BIP21 wallet selector, Azteco), delete wallet, dice entropy, 2-of-3 vault with forget/restore, wrapped 2-of-2 vault |
+| `bluewallet.spec.js` (no wallets) | `bluewallet.spec.ts` | self-test, all settings screens, create/receive labels/Manage Wallets, both storage-encryption cases, 2-of-2 cosigner import, UR multisig setup with hardware signatures (plus the Catalyst-only PSBT import through the macOS open panel), Cobo co-signing, account discovery, home SCAN button (on-chain, Lightning, unified BIP21 wallet selector, Azteco), delete wallet, dice entropy, 2-of-3 vault with forget/restore, wrapped 2-of-2 vault |
 | `bluewallet2.spec.js` (funded BIP84) | `bluewallet2.spec.ts` | transaction + BIP21 scan + unit switching, batch send, sendMAX, cosign PSBT, payment codes & contacts, wallet-details operations, deep-link URL, UTXO notes and freezing, purge/refetch while running and after restart |
 | `bluewallet3.spec.js` (watch-only) | `bluewallet3.spec.ts` | zpub import, receive request, unsigned/signed UR PSBT, delete with balance confirmation |
-| — | `catalyst.spec.ts` | menu bar and shortcuts (Settings, Add/Import Wallet, Keyboard Shortcuts, Send/Receive/Wallet Details, Back to Wallets, Copy Address, Copy Transaction ID, Reload Transactions, context-dependent presence), sidebar (wallet list and detail pane, Add Wallet button and its Import Wallet context menu, persistence across screens), PSBT import through the macOS file picker |
+| — | `catalyst.spec.ts` | menu bar and shortcuts (Settings, Add/Import Wallet, Keyboard Shortcuts, Send/Receive/Wallet Details, Back to Wallets, Copy Address, Copy Transaction ID, Reload Transactions, context-dependent presence), sidebar (wallet list and detail pane, Add Wallet button and its Import Wallet context menu, persistence across screens) |
 
 Catalyst deviations from the mobile steps:
 

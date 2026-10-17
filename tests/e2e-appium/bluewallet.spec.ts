@@ -1,5 +1,8 @@
 import assert from 'assert';
-import { Transaction, address as bitcoinAddress } from 'bitcoinjs-lib';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import { Psbt, Transaction, address as bitcoinAddress } from 'bitcoinjs-lib';
 import { catalystSuite, step } from './suite';
 import { secret } from './config';
 import {
@@ -16,6 +19,8 @@ import {
   walletDetails,
 } from './flows';
 import {
+  COMMAND,
+  SHIFT,
   activate,
   back,
   getText,
@@ -416,6 +421,33 @@ catalystSuite('BlueWallet UI Tests - no wallets', test => {
       assert.strictEqual(tx.outs.length, 2);
       assert.strictEqual(bitcoinAddress.fromOutputScript(tx.outs[0].script), recipient);
       assert.strictEqual(tx.outs[0].value, 5000n);
+
+      // Catalyst only: the same unsigned PSBT also arrives as a file through the native
+      // macOS open panel, which exercises sandbox access to a user-selected file.
+      const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'bluewallet-catalyst-psbt-'));
+      const filename = path.join(directory, 'unsigned.psbt');
+      fs.writeFileSync(filename, Psbt.fromBase64(multisigFixture.unsignedPsbt).toBuffer());
+      try {
+        // Pop TransactionDetails, Confirm and the multisig PSBT screen back to Send;
+        // View › Back to Wallets is only offered while a wallet screen is in front.
+        for (let i = 0; i < 3; i++) await back(driver);
+        await waitForId(driver, 'AddressInput');
+        await tapHeaderMenuItem(driver, 'Import Transaction');
+        await pressKey(driver, 'g', COMMAND | SHIFT);
+        // Catalyst duplicates underlying sheet fields after the panel in its AX
+        // tree. Use AppKit's path-field identifier instead of the last text field.
+        const filePath = await waitForId(driver, 'PathTextField', 15_000);
+        await activate(driver);
+        await filePath.click();
+        await filePath.setValue(filename);
+        assert.strictEqual(await filePath.getAttribute('value'), filename);
+        await pressKey(driver, 'XCUIKeyboardKeyReturn');
+        await tapButtonWithLabel(driver, 'Open');
+        await waitForId(driver, 'ItemUnsigned');
+        assert.ok(!(await driver.$('~ItemSigned').isExisting()), 'A PSBT imported from a file must not be signed yet');
+      } finally {
+        fs.rmSync(directory, { recursive: true, force: true });
+      }
     },
     35 * 60_000,
   );
@@ -486,9 +518,9 @@ catalystSuite('BlueWallet UI Tests - no wallets', test => {
       // coordinate clicks ignored) nor Escape on Catalyst, so the import runs without the passphrase toggle.
       await tapId(driver, 'DoImport');
 
-      for (const path of ["m/84'/0'/0'", "m/44'/0'/0'"]) {
+      for (const derivationPath of ["m/84'/0'/0'", "m/44'/0'/0'"]) {
         await driver
-          .$(`-ios predicate string:elementType == 9 AND label CONTAINS ${JSON.stringify(path)}`)
+          .$(`-ios predicate string:elementType == 9 AND label CONTAINS ${JSON.stringify(derivationPath)}`)
           .waitForExist({ timeout: 300_000 });
       }
       await tapId(driver, 'CustomDerivationPathButton');
