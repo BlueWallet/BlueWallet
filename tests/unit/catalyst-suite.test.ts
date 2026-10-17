@@ -14,6 +14,7 @@ it('blocks commands from expired async bodies while allowing teardown requests',
   const module = { exports: {} as any };
   const fakeRequire = (name: string) => {
     if (name === './config') return {};
+    if (name === './redact') return require('../e2e-appium/redact');
     if (name === 'webdriverio') {
       return {
         remote: async (options: { transformRequest: typeof transformRequest }) => {

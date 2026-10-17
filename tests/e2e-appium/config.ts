@@ -14,3 +14,11 @@ if (!BUNDLE_ID.endsWith('.e2e') && !(HOSTED_CI && BUNDLE_ID === 'io.bluewallet.b
 /** produced by tests/e2e-appium/build-catalyst.sh */
 export const APP_PATH =
   process.env.CATALYST_APP_PATH ?? path.join(PROJECT_ROOT, 'ios/build/catalyst-e2e/Build/Products/Release-maccatalyst/BlueWallet.app');
+
+export type SecretName = 'HD_MNEMONIC_BIP84' | 'MNEMONICS_COBO';
+// Detox reads the same variables. A missing value fails the case instead of skipping it.
+export const secret = (name: SecretName): string => {
+  const value = process.env[name]?.trim();
+  if (!value) throw new Error(`Set ${name} (locally: source ../env.sh)`);
+  return value;
+};

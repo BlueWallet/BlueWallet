@@ -1,6 +1,6 @@
 // App code selects group.io.bluewallet.bluewallet for settings shared with widgets.
 // E2E omits that entitlement and keeps settings in its own standardUserDefaults,
-// where AppDelegate seeds Electrum and resets state between cases. Reads/writes
+// where AppDelegate resets state between cases. Reads/writes
 // still use the native module; only switching to the production group is blocked.
 import { NativeModules } from 'react-native';
 import DeviceInfo from 'react-native-device-info';

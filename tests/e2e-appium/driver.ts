@@ -6,6 +6,7 @@ import { AsyncLocalStorage } from 'async_hooks';
 import { remote } from 'webdriverio';
 
 import { APP_PATH, APPIUM_HOST, APPIUM_PORT, ARTIFACTS_DIR, BUNDLE_ID, HOSTED_CI } from './config';
+import { redactSecrets, secretValues } from './redact';
 
 export type Driver = Awaited<ReturnType<typeof remote>>;
 
@@ -15,7 +16,6 @@ export const attemptContext = new AsyncLocalStorage<{ closed: boolean }>();
 
 const APP_ARGUMENTS = ['-AppleLanguages', '(en)']; // tests rely on English labels, e.g. 'Close'
 const appEnvironment = {
-  E2E_ELECTRUM_PORT: process.env.E2E_ELECTRUM_PORT ?? '',
   E2E_HOSTED_CI: HOSTED_CI ? '1' : '0',
   // Hosted Intel's virtual GPU aborts while loading RenderBox binary archives.
   // Compile shaders without those archives in the CI test app only.
@@ -313,8 +313,9 @@ export const saveArtifacts = async (driver: Driver, name: string) => {
         ['show', '--style', 'compact', '--last', '5m', '--predicate', 'process == "BlueWallet" AND subsystem != "com.apple.dt.xctest"'],
         { encoding: 'utf8', timeout: 30_000, maxBuffer: 4 * 1024 * 1024 },
       );
-      fs.writeFileSync(path.join(ARTIFACTS_DIR, `${safeName}-native.log`), log);
-      console.warn('[Catalyst] Recent native log:\n' + log.split('\n').slice(-40).join('\n'));
+      const redacted = redactSecrets(log, secretValues());
+      fs.writeFileSync(path.join(ARTIFACTS_DIR, `${safeName}-native.log`), redacted);
+      console.warn('[Catalyst] Recent native log:\n' + redacted.split('\n').slice(-40).join('\n'));
     } catch (error: any) {
       console.warn('could not read native log:', error.message);
     }
@@ -361,7 +362,7 @@ export const saveArtifacts = async (driver: Driver, name: string) => {
     console.warn('could not save screenshot:', error.message);
   }
   try {
-    fs.writeFileSync(path.join(ARTIFACTS_DIR, `${safeName}.xml`), await driver.getPageSource());
+    fs.writeFileSync(path.join(ARTIFACTS_DIR, `${safeName}.xml`), redactSecrets(await driver.getPageSource(), secretValues()));
   } catch (error: any) {
     console.warn('could not save page source:', error.message);
   }
@@ -373,6 +374,36 @@ export const SHIFT = 1 << 1;
 export const pressKey = async (driver: Driver, key: string, modifierFlags = 0) => {
   await activate(driver);
   await driver.execute('macos: keys', { keys: [{ key, modifierFlags }] });
+};
+// Catalyst opens UIContextMenuInteraction menus (text views, ToolTipMenu buttons) on a
+// secondary click; holding the mouse button is delivered as a plain press.
+export const openContextMenu = async (driver: Driver, element: { elementId: string }) => {
+  await activate(driver);
+  await driver.execute('macos: rightClick', { elementId: element.elementId });
+};
+export const clickContextMenuItem = async (driver: Driver, title: string) => {
+  const value = JSON.stringify(title);
+  let rect: { x: number; y: number; width: number; height: number } | undefined;
+  await driver.waitUntil(
+    async () => {
+      // Mac2 exposes hittable as an attribute, not a searchable predicate key.
+      const items = await driver.$$(`-ios predicate string:(title == ${value} OR label == ${value}) AND enabled == true`);
+      for await (const item of items) {
+        if (String(await item.getAttribute('hittable')) !== 'true') continue;
+        const bounds = await driver.getElementRect(item.elementId);
+        if (bounds.width > 0 && bounds.height > 0) {
+          rect = bounds;
+          return true;
+        }
+      }
+      return false;
+    },
+    { timeout: 10_000, timeoutMsg: `No hittable contextual ${title} item appeared` },
+  );
+  // XCUIElement.click can traverse the app's menu bar even for a contextual
+  // item. Click the visible item's measured center without menu traversal.
+  if (!rect) throw new Error(`Contextual ${title} has no visible bounds`);
+  await driver.execute('macos: click', { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 });
 };
 export const replaceId = async (driver: Driver, id: string, text: string, input: 'type' | 'paste' = 'paste') => {
   const element = await waitForId(driver, id);
@@ -389,28 +420,8 @@ export const replaceId = async (driver: Driver, id: string, text: string, input:
     const previous = await clipboard(driver);
     try {
       await setClipboard(driver, text);
-      await driver.execute('macos: rightClick', { elementId: element.elementId });
-      let rect: { x: number; y: number; width: number; height: number } | undefined;
-      await driver.waitUntil(
-        async () => {
-          // Mac2 exposes hittable as an attribute, not a searchable predicate key.
-          const items = await driver.$$('-ios predicate string:(title == "Paste" OR label == "Paste") AND enabled == true');
-          for await (const item of items) {
-            if (String(await item.getAttribute('hittable')) !== 'true') continue;
-            const bounds = await driver.getElementRect(item.elementId);
-            if (bounds.width > 0 && bounds.height > 0) {
-              rect = bounds;
-              return true;
-            }
-          }
-          return false;
-        },
-        { timeout: 10_000, timeoutMsg: 'No hittable contextual Paste item appeared' },
-      );
-      // XCUIElement.click can traverse the app's Edit menu even for a contextual
-      // item. Click the visible item's measured center without menu traversal.
-      if (!rect) throw new Error('Contextual Paste has no visible bounds');
-      await driver.execute('macos: click', { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 });
+      await openContextMenu(driver, await element.getElement());
+      await clickContextMenuItem(driver, 'Paste');
     } finally {
       await setClipboard(driver, previous);
     }
@@ -462,9 +473,9 @@ export const tapText = async (driver: Driver, text: string) => {
   await activate(driver);
   await element.click();
 };
-export const expectText = async (driver: Driver, id: string, expected: string) => {
+export const expectText = async (driver: Driver, id: string, expected: string, timeout = 30_000) => {
   await driver.waitUntil(async () => (await getText(driver, id)) === expected, {
-    timeout: 30_000,
+    timeout,
     timeoutMsg: `Expected ${id} to contain ${JSON.stringify(expected)}`,
   });
 };

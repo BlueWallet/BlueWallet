@@ -34,11 +34,6 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             }
             UserDefaults.standard.removePersistentDomain(forName: e2eBundleID)
         }
-        if let port = ProcessInfo.processInfo.environment["E2E_ELECTRUM_PORT"], !port.isEmpty {
-            UserDefaults.standard.set("127.0.0.1", forKey: "electrum_host")
-            UserDefaults.standard.set(port, forKey: "electrum_tcp_port")
-            UserDefaults.standard.removeObject(forKey: "electrum_ssl_port")
-        }
         #endif
         sceneLaunchOptions = launchOptions
         automaticallyLoadReactNativeWindow = false

@@ -1,5 +1,4 @@
 import globalTeardown from './globalTeardown';
-import { startElectrum } from './electrum';
 import { execFileSync, spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -40,9 +39,6 @@ export default async function globalSetup() {
     (globalThis as any).__KEYBOARD_SOURCE__ = execFileSync('xcrun', ['swift', path.join(__dirname, 'keyboard.swift'), 'ascii'], {
       encoding: 'utf8',
     }).trim();
-    const electrum = await startElectrum();
-    (globalThis as any).__ELECTRUM__ = electrum;
-    process.env.E2E_ELECTRUM_PORT = String(electrum.port);
     fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
 
     if (await isAppiumUp()) {

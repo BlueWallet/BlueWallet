@@ -930,7 +930,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       extraData={[props.extraData, data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]}
     />
   ) : (
-    <View style={cStyles.contentLargeScreen}>
+    <View style={cStyles.contentLargeScreen} testID={props.testID}>
       {renderNonFlatListWallets()}
       {onNewWalletPress && <NewWalletPanel onPress={onNewWalletPress} />}
     </View>

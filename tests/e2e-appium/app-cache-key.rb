@@ -6,9 +6,9 @@ require 'yaml'
 module CatalystAppCache
   WORKFLOW = '.github/workflows/e2e-catalyst.yml'.freeze
   RUNTIME_FILES = %w[
-    config.ts driver.ts suite.ts flows.ts globalSetup.ts globalTeardown.ts
-    jest.config.js environment.js electrum.ts keyboard.swift transactionAssertions.ts README.md
-    fixtures/contacts.json fixtures/multisig.json fixtures/watch-only.json
+    config.ts driver.ts suite.ts flows.ts redact.ts globalSetup.ts globalTeardown.ts
+    jest.config.js environment.js keyboard.swift README.md
+    fixtures/multisig.json fixtures/watch-only.json
   ].map { |file| "tests/e2e-appium/#{file}" }.freeze
   BUILD_STEPS = [
     'Setup Node.js', 'Setup Xcode', 'Set up Ruby', 'Install Node modules',

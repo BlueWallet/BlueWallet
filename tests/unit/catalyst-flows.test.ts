@@ -15,6 +15,7 @@ it('waits for delayed wallet creation without replaying Create or reading the se
     return 'test seed';
   });
   const driver = {
+    selectMenuItem: async (_: unknown, menu: string, item: string) => clicks.push(`${menu} > ${item}`),
     tapAndWaitForId: async (_: unknown, id: string) => clicks.push(id),
     tapId: async (_: unknown, id: string) => clicks.push(id),
     replaceId: async () => {},
@@ -43,6 +44,9 @@ it('waits for delayed wallet creation without replaying Create or reading the se
   backupReady = true;
   releaseBackup();
   expect(await creation).toBe('test seed');
+  // The desktop menu bar replaces the CreateAWallet panel tap.
+  expect(clicks[0]).toBe('File > Add Wallet');
+  expect(clicks).not.toContain('CreateAWallet');
   expect(clicks.filter(id => id === 'Create')).toHaveLength(1);
   expect(readSeed).toHaveBeenCalledTimes(1);
 });

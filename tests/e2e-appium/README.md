@@ -1,35 +1,31 @@
 # Mac Catalyst end-to-end tests
 
-The suite uses Appium Mac2/XCTest against a Release Catalyst app. It ports mobile Detox flows where desktop UI supports them and adds native menu and keyboard shortcut coverage. There are 51 active cases and 2 explicit TODO skips (direct payment, entropy); the parity map below distinguishes active coverage from deferred flows.
+The suite uses Appium Mac2/XCTest against a Release Catalyst app. It mirrors the Detox suite one to one: `bluewallet.spec.ts`, `bluewallet2.spec.ts` and `bluewallet3.spec.ts` carry the same case titles, data and assertions as `tests/e2e/bluewallet.spec.js`, `bluewallet2.spec.js` and `bluewallet3.spec.js`. `catalyst.spec.ts` adds the desktop-only coverage: menu bar commands and shortcuts, the permanent wallets sidebar and the native file picker.
 
-Camera capture, biometrics, hardware wallets, widgets, App Store installation and external Lightning services are outside this suite. Scanner input uses the same backdoor as Detox. The sandboxed E2E app deliberately omits the camera entitlement; scanner cases exercise text payload handling without hardware access. Transaction cases use a local TCP Electrum fixture with a public test mnemonic and synthetic UTXOs; broadcasting is rejected. No private mnemonic environment variables are required. This checks real wallet transaction construction and signing, not public-server interoperability. The multisig hardware flow imports the historical PSBT fixture through the macOS file picker, then combines its multipart UR signatures; transaction construction is tested separately with synthetic coins. The fiat transaction case seeds a fresh USD rate cache with the native `defaults` tool in the E2E sandbox while the app is stopped. Settings can still fetch external exchange rates.
+The app talks to its default public Electrum servers, exactly like the mobile Detox app. Funded cases import the same test wallets from the environment: `HD_MNEMONIC_BIP84` (the BIP84 wallet with balance `0.00105526`) and `MNEMONICS_COBO` (the multisig cosigner). A missing variable fails the case with `Set HD_MNEMONIC_BIP84 (locally: source ../env.sh)`; nothing is skipped silently. No case ever broadcasts: flows stop at the transaction details hex, `Send now` and the hardware-wallet broadcast button are never tapped, and the Tools › Broadcast case submits the literal `invalid`.
+
+Camera capture, biometrics, hardware wallets, widgets, App Store installation and external Lightning services are outside this suite. Scanner input uses the same backdoor as Detox. The sandboxed E2E app deliberately omits the camera entitlement; scanner cases exercise text payload handling without hardware access.
 
 ## Detox parity map
 
-The source scenarios live in `tests/e2e/bluewallet.spec.js`, `bluewallet2.spec.js` and `bluewallet3.spec.js`. Desktop cases are independent instead of relying on the wallet state left by a previous test.
+Every Detox `it(...)` title exists here with the same name. Detox imports the funded wallet once per file in `beforeAll`; this harness resets the app before every case, so funded cases import it themselves. The mobile swipe gestures and the `SettingsButton`, `SendButton`, `ReceiveButton` and `WalletDetails` taps are replaced by their desktop equivalents.
 
-| Mobile flow | Catalyst coverage |
-| --- | --- |
-| Self-test and settings screens | `settings` |
-| Create/restart/receive amount and labels/delete | `wallets` |
-| Encrypt/decrypt and plausible deniability | `security` |
-| Individual multisig cosigners and wrapped SegWit | `creation`; native and wrapped 2-of-2 vaults from scanned cosigners |
-| Multipart multisig setup and hardware signatures | `multisig`; UR setup parts, macOS file picker PSBT import and two UR signatures |
-| Account discovery and custom path | `discovery` |
-| Home scan to on-chain send | `wallets` |
-| Coin/dice entropy | TODO: `creation` case temporarily skipped; Save requires a blocking native alert |
-| Vault export and forgetting/restoring a cosigner seed | `creation` |
-| Payment, batch, full balance, BIP21 and deep link | `transactions`: batch, full balance, BIP21 scan and deep link active; direct payment TODO/skipped |
-| BTC/sats/fiat conversion through scanning | `transactions` |
-| PSBT cosigning | `transactions` |
-| Payment codes and contacts | `contacts`; live notification transactions are not broadcast |
-| Wallet details, seed/xpub export and Manage Wallets | `wallets` |
-| UTXO notes and freezing | `transactions` |
-| Purge/refetch while running and after restart | `transactions` |
-| Watch-only zpub and unsigned/signed PSBT | `watch-only` |
-| macOS menus and keyboard shortcuts | `menus`; navigation, context-dependent commands and clipboard contents |
+| Detox file | Catalyst file | Cases |
+| --- | --- | --- |
+| `bluewallet.spec.js` (no wallets) | `bluewallet.spec.ts` | self-test, all settings screens, create/receive labels/Manage Wallets, both storage-encryption cases, 2-of-2 cosigner import, UR multisig setup with hardware signatures, Cobo co-signing, account discovery, home SCAN button (on-chain, Lightning, unified BIP21 wallet selector, Azteco), delete wallet, dice entropy, 2-of-3 vault with forget/restore, wrapped 2-of-2 vault |
+| `bluewallet2.spec.js` (funded BIP84) | `bluewallet2.spec.ts` | transaction + BIP21 scan + unit switching, batch send, sendMAX, cosign PSBT, payment codes & contacts, wallet-details operations, deep-link URL, UTXO notes and freezing, purge/refetch while running and after restart |
+| `bluewallet3.spec.js` (watch-only) | `bluewallet3.spec.ts` | zpub import, receive request, unsigned/signed UR PSBT, delete with balance confirmation |
+| — | `catalyst.spec.ts` | menu bar and shortcuts (Settings, Add/Import Wallet, Keyboard Shortcuts, Send/Receive/Wallet Details, Back to Wallets, Copy Address, Copy Transaction ID, Reload Transactions, context-dependent presence), sidebar (wallet list and detail pane, Add Wallet button and its Import Wallet context menu, persistence across screens), PSBT import through the macOS file picker |
 
-Mixed on-chain/Lightning routing that requires an external LNDHub, push-notification registration, Azteco redemption, and physical camera/hardware interaction are not claimed as covered by this isolated suite. macOS menu/shortcut and file-picker cases supplement the mobile scenarios.
+Catalyst deviations from the mobile steps:
+
+- `File › Add Wallet`, `File › Import Wallet`, `File › Send…`, `File › Receive…`, `File › Wallet Details…` and `BlueWallet › Settings…` replace the in-app buttons; `View › Back to Wallets` replaces the back gestures to the wallet list; `View › Reload Transactions` replaces pull-to-refresh. Header `…` menus are opened the same way as in Detox.
+- Long press is a native mouse press-and-hold (`macos: clickAndDrag` on the same element) for React Native gestures such as the wallet card. Tooltip menus (`ToolTipMenu`, a UIContextMenuInteraction) open on secondary click instead: a held mouse button is delivered as a plain press, so the sidebar Add Wallet case right-clicks and picks the hittable `Import wallet` item, the same path text views use for Paste.
+- Alerts raised from inside a presented sheet are deferred by Catalyst until that sheet closes: the entropy Save confirmation and the plausible-deniability "password in use" alert appear only after leaving the Add Wallet or password sheet. The entropy case is skipped with a `TODO(Catalyst alerts)` because its OK must run while the sheet is open; the plausible-deniability case asserts that the sheet stays open and dismisses the deferred alert afterwards. The passphrase prompt over the import sheet reacts to neither clicks nor Escape, so the discovery case imports without the passphrase toggle.
+- Transaction and coin rows are single accessible buttons whose testID is not exposed; the purge cases count rows by their `Incoming Transaction` / `Outgoing Transaction` labels and the UTXO case finds a coin by the memo inside its row label.
+- The receive card is one accessible Copy button, so `BitcoinAmountText` and `CustomAmountDescriptionText` are not reachable; the watch-only case verifies amount and label through the copied BIP21 request instead. The `WalletsList` container is exposed beside its wallet cards rather than above them, so cards are located by their own testID. Swipe-to-hide-balance in Manage Wallets and swipe-to-second-output in batch send have no mouse equivalent; batch send removes the last (third) recipient twice instead, so the asserted outputs are the first two recipients plus the re-added third one and removing a middle recipient is not covered on Catalyst.
+- The amount `TextInput` is hidden from accessibility behind the `Enter amount` button, so unit-switching assertions read it back through `Edit › Select All`, `Edit › Copy` and the clipboard.
+- Editing the Electrum server in settings is Android-only in Detox and stays out here; the fields are only checked to exist.
 
 ## Local run
 
@@ -44,13 +40,14 @@ export CATALYST_BUNDLE_ID=your.registered.identifier.e2e
 export CATALYST_TEAM_ID=YOUR_TEAM_ID
 export CATALYST_SIGNING_IDENTITY='Apple Development'
 bundle exec npm run e2e:catalyst:build
+source ../env.sh # HD_MNEMONIC_BIP84 and MNEMONICS_COBO, as for the integration tests
 npm run e2e:catalyst:test
 ```
 
 The build uses automatic provisioning unless `CATALYST_PROVISIONING_PROFILE` is set. Xcode may request access to the signing key during **builds**. Tests reuse the built app; rebuilding is unnecessary when only test code changes. Run a single flow with:
 
 ```sh
-npm run e2e:catalyst:test -- --runTestsByPath tests/e2e-appium/wallets.spec.ts -t 'creates a wallet'
+npm run e2e:catalyst:test -- --runTestsByPath tests/e2e-appium/bluewallet2.spec.ts -t 'can batch send'
 ```
 
 `CATALYST_APP_PATH` overrides the built app path. It must point to an E2E build with the matching `CATALYST_BUNDLE_ID`. Do not use an installed production wallet.
@@ -71,9 +68,9 @@ CI reuses the existing Catalyst development certificate/private key and profile 
 
 CI fetches the development profile read-only, takes the actual profile name from Match's output, signs with `Apple Development`, and deletes the temporary keychain afterwards. An App Store distribution identity from the release workflow is not a substitute for development provisioning of the directly launched UI-test app. Missing credentials/profile fail the job; there is no silent fallback to mocked storage.
 
-Signing secrets are never made available to fork PR code. The signed job runs on same-repository PRs or a reviewed repository branch selected through `workflow_dispatch`. Fork PRs therefore do not run this signed suite automatically; they retain the regular lint/unit jobs, including the new fixture tests which require no secrets. There is no `pull_request_target` checkout of untrusted code.
+Signing secrets are never made available to fork PR code. The signed job runs on same-repository PRs or a reviewed repository branch selected through `workflow_dispatch`. Fork PRs therefore do not run this signed suite automatically; they retain the regular lint/unit jobs. The test job receives `HD_MNEMONIC_BIP84` and `MNEMONICS_COBO` from repository secrets, the same values the Detox workflows use. There is no `pull_request_target` checkout of untrusted code.
 
-CI has separate build and test jobs. The build job signs or restores the app once and uploads a tar archive that preserves bundle permissions and symlinks. One test job downloads the artifact, verifies its signature and bundle ID, and runs all suites sequentially on one Mac (`maxWorkers: 1`). Signing credentials are used only in the build job. New pushes cancel the previous run for the same PR.
+CI has separate build and test jobs. The build job signs or restores the app once and uploads a tar archive that preserves bundle permissions and symlinks. A test-job matrix (`bluewallet`, `bluewallet2`, `bluewallet3`, `catalyst`) downloads the artifact, verifies its signature and bundle ID, and runs one spec file per runner (`maxWorkers: 1`); failure diagnostics are uploaded per file. Signing credentials are used only in the build job. New pushes cancel the previous run for the same PR.
 
 The signed app is cached immediately after a successful build, even if the subsequent UI test fails. Test-only changes, including harness unit tests and test selection, can reuse it. Changes to application sources, dependencies, E2E build inputs, build configuration, toolchain or provisioning profile invalidate the cache. Cache invalidation has a standalone regression check. Only the app bundle is cached, never wallet data or the signing keychain.
 
@@ -81,17 +78,17 @@ The signed app is cached immediately after a successful build, even if the subse
 
 Keep the application's original native modal presentation. Record Catalyst alert limitations as TODOs in tests rather than changing production presentation for automation. Informational import confirmations are dismissed when available; if absent, the test logs a TODO and still verifies the imported wallet and persistence after restart. An absent operation result, failed click or transport error remains a failure. Blocking input/confirmation subflows are explicitly deferred when they cannot continue.
 
-The payment case “creates and signs a payment with the requested amount, recipient and fee” is temporarily skipped while investigating the Intel hosted runner's Metal/RenderBox crash ([diagnostic run](https://github.com/BlueWallet/BlueWallet/actions/runs/38456922450)). The current selection is 51 runnable cases and two explicit skips (payment and entropy). The entropy case is temporarily skipped with a TODO because Save requires a native alert callback. Discovery continues through account selection and custom-path import, while its passphrase prompt/cancel subflow is deferred with a TODO. These omissions are not claimed as coverage.
-
 Cases are independent. CI allows up to three attempts per failed case (`E2E_RETRIES=2`, `E2E_FAIL_FAST=0`). Successful cases are not repeated. Jest reports the errors before retrying, and each start/pass log includes its attempt number. A case that fails all three attempts fails the job; retries never convert an unexecuted test into a pass. The custom fail-fast environment is disabled in this mode so it cannot skip a failed case's retries.
+
+An Appium server already listening on port 4723 is reused, including its WebDriverAgent runner. Restart that runner (the `xcodebuild … WebDriverAgentMac` process) after rebuilding the app or after terminating the app outside WebDriver, for example with `kill`: the runner then fails every launch with `Not authorized for performing UI testing actions`.
 
 Local runs default to a single attempt and fail-fast. For the same retry policy as CI, use `E2E_RETRIES=2 E2E_FAIL_FAST=0 npm run e2e:catalyst:test`. To diagnose only the initial failure, use `E2E_RETRIES=0 E2E_FAIL_FAST=1`: cleanup and diagnostics still run, remaining cases are reported as not run, and Jest bail prevents subsequent files from starting.
 
 Each attempt resets app state. Failed attempts discard their WebDriver session before the next case or retry. Teardown hooks also collect diagnostics for Jest timeouts; a late completion cannot mark a later attempt as passed. There are no persisted pass markers. The ten-minute transport timeout applies only to initial session creation; subsequent requests have a one-minute timeout and are not automatically replayed.
 
-Hosted Intel's virtual GPU can abort in RenderBox when loading a Metal shader archive. The harness passes `RB_USE_BINARY_ARCHIVE=0` only to the app on hosted CI; recheck this workaround when the runner image changes. Long compound cases have individual twenty-minute budgets, while element and command waits stay bounded. The build has a two-hour ceiling; the sequential test job has six hours, including retries and diagnostics. Commands from a timed-out test body are rejected before reaching WebDriver, while teardown can still save diagnostics.
+Hosted Intel's virtual GPU can abort in RenderBox when loading a Metal shader archive. The harness passes `RB_USE_BINARY_ARCHIVE=0` only to the app on hosted CI; recheck this workaround when the runner image changes. Long compound cases have individual twenty-minute budgets, while element and command waits stay bounded. The build has a two-hour ceiling; each matrix test job has four hours, including retries and diagnostics. Commands from a timed-out test body are rejected before reaching WebDriver, while teardown can still save diagnostics.
 
-Failures save accessibility XML, Appium logs, app-window screenshots and video under `artifacts/`. Videos from successful attempts are discarded. CI uploads diagnostics only if the test job fails; successful jobs upload none, including when a retry recovered. Local screenshots are disabled because XCTest captures overlapping windows, even when asked for an app-window image. These artifacts can contain the disposable test wallet's recovery words. Video captures the display, so it is enabled by default only on CI or with `E2E_RECORD_VIDEO=1`. Global teardown restores clipboard text even if the last WebDriver session crashed.
+Failures save accessibility XML, Appium logs, app-window screenshots and video under `artifacts/`. Videos from successful attempts are discarded. CI uploads diagnostics only if the test job fails; successful jobs upload none, including when a retry recovered. Local screenshots are disabled because XCTest captures overlapping windows, even when asked for an app-window image. Accessibility XML, native logs and the Appium server log (rewritten in global teardown) are written with the values of `HD_MNEMONIC`, `HD_MNEMONIC_BIP84` and `MNEMONICS_COBO` replaced by `[redacted]`, including their base64 form from clipboard pastes and the numbered words of the seed screen; screenshots and video are not redacted, so treat failure artifacts of funded cases as sensitive, as with the mobile Detox artifacts. Video captures the display, so it is enabled by default only on CI or with `E2E_RECORD_VIDEO=1`. Global teardown restores clipboard text even if the last WebDriver session crashed.
 
 CI failures also collect native logs and available BlueWallet crash reports.
 
