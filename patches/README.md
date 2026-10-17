@@ -22,7 +22,7 @@ terminator.
 [GHSA-pqg4-j6r4-53mv](https://github.com/advisories/GHSA-pqg4-j6r4-53mv).
 
 Added in BlueWallet PR https://github.com/BlueWallet/BlueWallet/pull/8940.
-`tests/unit/catalyst-shell-quote.test.ts` checks both installed copies.
+`tests/unit/catalyst-harness.test.ts` checks both installed copies.
 The bundled package version remains 1.10.0, so version-only audits can still
 report it despite the patched implementation.
 

@@ -76,7 +76,7 @@ The signed app is cached immediately after a successful build, even if the subse
 
 ## Failures and retries
 
-Keep the application's original native modal presentation. Record Catalyst alert limitations as TODOs in tests rather than changing production presentation for automation. Informational import confirmations are dismissed when available; if absent, the test logs a TODO and still verifies the imported wallet and persistence after restart. An absent operation result, failed click or transport error remains a failure. Blocking input/confirmation subflows are explicitly deferred when they cannot continue.
+Keep the application's original native modal presentation. Record Catalyst alert limitations as TODOs in tests rather than changing production presentation for automation. Blocking input/confirmation subflows are explicitly deferred when they cannot continue.
 
 Cases are independent. CI allows up to three attempts per failed case (`E2E_RETRIES=2`). Successful cases are not repeated. Jest reports the errors before retrying. A case that fails all three attempts fails the job; retries never convert an unexecuted test into a pass.
 
@@ -96,4 +96,4 @@ If a run is forcibly killed before teardown, select your previous keyboard input
 
 ## Test dependency security
 
-Mac2's bundled `shell-quote` needs a security patch in addition to the npm override. See [patch details and removal criteria](../../patches/README.md). `tests/unit/catalyst-shell-quote.test.ts` checks both installed copies.
+Mac2's bundled `shell-quote` needs a security patch in addition to the npm override. See [patch details and removal criteria](../../patches/README.md). `tests/unit/catalyst-harness.test.ts` checks both installed copies.

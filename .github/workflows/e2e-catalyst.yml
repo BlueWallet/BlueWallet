@@ -218,19 +218,6 @@ jobs:
           E2E_RETRIES: '2'
         run: npm run e2e:catalyst:test -- --runTestsByPath tests/e2e-appium/${{ matrix.spec }}.spec.ts
 
-      - name: Collect Catalyst crash diagnostics
-        if: failure()
-        run: |
-          mkdir -p artifacts/crashes
-          for directory in "$HOME/Library/Logs/DiagnosticReports" /Library/Logs/DiagnosticReports; do
-            if [[ -d "$directory" ]]; then
-              find "$directory" -type f \( -name 'BlueWallet*.ips' -o -name 'BlueWallet*.crash' \) \
-                -exec cp '{}' artifacts/crashes/ \;
-            fi
-          done
-          /usr/bin/log show --style compact --last 15m --predicate 'process == "BlueWallet" AND subsystem != "com.apple.dt.xctest"' \
-            > artifacts/crashes/BlueWallet.log 2>&1 || true
-
       # Upload test diagnostics only when the job fails.
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()

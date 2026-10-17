@@ -170,28 +170,6 @@ export const tapButtonWithLabel = withHelperCallsite(async (driver: Driver, labe
   await element.click();
 });
 
-// TODO(Catalyst alerts): restore strict success-alert coverage with native modal
-// presentation. Only informational confirmations may be absent; callers must
-// still verify the operation's result. Never swallow a failed click.
-export const tapOptionalConfirmation = async (driver: Driver, label: string, resultId: string, timeout = 180_000) => {
-  const element = buttonWithLabel(driver, label);
-  await driver.waitUntil(async () => (await element.isExisting()) || (await byId(driver, resultId).isExisting()), {
-    timeout,
-    timeoutMsg: `Neither ${label} confirmation nor operation result ${resultId} appeared`,
-  });
-  const unavailable = 'Informational confirmation did not appear';
-  try {
-    await element.waitForExist({ timeout: 10_000, timeoutMsg: unavailable });
-  } catch (error) {
-    if (!(error instanceof Error) || !error.message.includes(unavailable)) throw error;
-    if (await element.isExisting()) throw error;
-    process.stdout.write(`[Catalyst] TODO: ${label} informational alert unavailable; verifying operation result instead\n`);
-    return;
-  }
-  await activate(driver);
-  await element.click();
-};
-
 /**
  * Dispatch a transition once, then observe its result. Replaying the action
  * while React/native navigation is still working can corrupt the next screen.

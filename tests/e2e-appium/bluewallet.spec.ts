@@ -37,7 +37,6 @@ import {
   tapButtonWithLabel,
   tapHeaderMenuItem,
   tapId,
-  tapOptionalConfirmation,
   tapText,
   waitForId,
   waitForIdGone,
@@ -121,7 +120,7 @@ const importCosigner = async (driver: Driver, index: number, payload: string) =>
 };
 const finishVault = async (driver: Driver) => {
   await tapId(driver, 'CreateButton');
-  await tapOptionalConfirmation(driver, 'OK', 'Multisig Vault');
+  await tapButtonWithLabel(driver, 'OK', 180_000);
   await waitForId(driver, 'Multisig Vault');
 };
 const encrypt = async (driver: Driver, password: string, confirmation = password) => {
@@ -564,7 +563,7 @@ catalystSuite('BlueWallet UI Tests - no wallets', test => {
         });
         await activate(driver);
         await button.click();
-        await tapOptionalConfirmation(driver, 'OK', 'Imported HD Legacy (BIP44 P2PKH)', 90_000);
+        await tapButtonWithLabel(driver, 'OK', 90_000);
       });
       await relaunch(driver);
       await walletDetails(driver, 'Imported HD Legacy (BIP44 P2PKH)');
@@ -599,7 +598,7 @@ catalystSuite('BlueWallet UI Tests - no wallets', test => {
       await selectMenuItem(driver, 'File', 'Import Wallet');
       await tapId(driver, 'ScanImport');
       await scanText(driver, 'lndhub://a3b4c9109408a043d1ea:ec5a888596b2c45729d1@https://kek.lol');
-      await tapOptionalConfirmation(driver, 'OK', 'Imported Lightning', 90_000);
+      await tapButtonWithLabel(driver, 'OK', 90_000);
       await waitForId(driver, 'Imported Lightning');
 
       await homeScan(`lightning:${lightningInvoice}`);

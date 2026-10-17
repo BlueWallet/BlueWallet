@@ -13,7 +13,6 @@ import {
   scrollDownToId,
   selectMenuItem,
   tapButtonWithLabel,
-  tapOptionalConfirmation,
   relaunch,
   tapId,
   tapRepeatedly,
@@ -100,8 +99,7 @@ export const importWallet = async (
   await replaceId(driver, 'SpeedWalletTypeInput', type);
   if (passphrase) await replaceId(driver, 'SpeedPassphraseInput', passphrase);
   await tapId(driver, 'SpeedDoImport');
-  await tapOptionalConfirmation(driver, 'OK', label);
-  // Verify persistence independently of whether Catalyst presented the alert.
+  await tapButtonWithLabel(driver, 'OK', 180_000);
   await relaunch(driver);
   await waitForId(driver, label, 90_000);
   await openWallet(driver, label);

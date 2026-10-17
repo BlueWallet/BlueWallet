@@ -8,7 +8,7 @@ entries = [
   "100644 adapter-v1 0\ttests/e2e-appium/preferences.ts",
   "100644 helper-v1 0\ttests/e2e-appium/driver.ts",
   "100644 case-v1 0\ttests/e2e-appium/bluewallet.spec.ts",
-  "100644 unit-v1 0\ttests/unit/catalyst-secrets.test.ts"
+  "100644 unit-v1 0\ttests/unit/catalyst-harness.test.ts"
 ]
 options = { entries: entries, workflow: workflow, toolchain: ['Xcode test'], profile: 'a' * 64 }
 baseline = CatalystAppCache.key(**options)
