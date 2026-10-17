@@ -76,10 +76,17 @@
       "files": ["*.ts", "*.tsx"],
       "rules": {
         "@typescript-eslint/explicit-module-boundary-types": "off",
-        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-explicit-any": "error",
         "@typescript-eslint/no-this-alias": "off",
         "@typescript-eslint/no-inferrable-types": "off",
         "@typescript-eslint/no-use-before-define": ["error", { "variables": false }]
+      }
+    },
+    {
+      // mocks and SDK fakes in tests are cast freely
+      "files": ["tests/**/*.ts", "tests/**/*.tsx"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
       }
     }
   ],

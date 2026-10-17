@@ -47,7 +47,6 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   _txs_by_external_index: Record<number, Transaction[]>;
   _txs_by_internal_index: Record<number, Transaction[]>;
 
-  _utxo: any[];
   _fp: string;
 
   // BIP47
@@ -859,8 +858,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param respectFrozen {boolean} Add Frozen outputs
    * @returns {[]}
    */
-  getUtxo(respectFrozen = false) {
-    let ret = [];
+  getUtxo(respectFrozen = false): Utxo[] {
+    let ret: Utxo[] = [];
 
     if (this._utxo.length === 0) {
       ret = this.getDerivedUtxoFromOurTransaction(); // oy vey, no stored utxo. lets attempt to derive it from stored transactions
@@ -1066,7 +1065,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           if (this.type === 'HDlegacyP2PKH') utxoType = 'p2pkh';
       }
 
-      const spUtxos: SPUTXO[] = inputs.map(u => ({ ...u, utxoType, wif: u.wif! }));
+      const spUtxos: SPUTXO[] = inputs.map(u => {
+        if (!u.wif) throw new Error('Internal error: no WIF for silent payment input');
+        return { ...u, utxoType, wif: u.wif };
+      });
       const sp = new SilentPayment();
       outputs = sp.createTransaction(spUtxos, outputs) as CoinSelectOutput[];
     }

@@ -427,6 +427,7 @@ const WalletsAddMultisigStep2 = () => {
           // lets look for the correct cosigner. thats probably gona be the one with specific corresponding path,
           // for example m/48'/0'/0'/2' if user chose to setup native segwit in BW
           for (const cc of cosigner.getAllCosigners()) {
+            if (cc === true) continue;
             switch (format) {
               case MultisigHDWallet.FORMAT_P2WSH:
                 if (cc.getPath().startsWith('m/48') && cc.getPath().endsWith("/2'")) {

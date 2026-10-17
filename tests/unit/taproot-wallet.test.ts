@@ -2,6 +2,7 @@ import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import { TaprootWallet } from '../../class/wallets/taproot-wallet';
+import { errorMessage } from '../../blue_modules/errorMessage';
 
 describe('Taproot wallet', () => {
   it('can convert scriptPubKey to address', () => {
@@ -103,8 +104,8 @@ describe('Taproot wallet', () => {
         let res;
         try {
           res = w.coinselect(utxos, [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS', value }], feeRate);
-        } catch (e: any) {
-          assert.ok(e.message.includes('Not enough balance'), e.message);
+        } catch (e) {
+          assert.ok(errorMessage(e).includes('Not enough balance'), errorMessage(e));
           break;
         }
         const change = res.outputs.find(o => !o.address);

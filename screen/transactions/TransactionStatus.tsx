@@ -10,6 +10,8 @@ import {
   TouchableOpacity,
   useWindowDimensions,
   View,
+  StyleProp,
+  TextStyle,
 } from 'react-native';
 import { sha256 } from '@noble/hashes/sha256';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
@@ -19,6 +21,7 @@ import dayjs from 'dayjs';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import type { ElectrumTransaction } from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
@@ -46,20 +49,23 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { isOnChainTransaction, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
+import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 
 dayjs.extend(relativeTime);
 
-/** Mutates Electrum `vin` entries with `value` from previous outputs so fee = sum(inputs) − sum(outputs) works. */
-async function populateVinValuesFromPrevTxs(fetchedTx: any): Promise<void> {
+/** Mutates Electrum `vin` entries with `value` and `addresses` from previous outputs so fee = sum(inputs) − sum(outputs) works. */
+async function populateVinValuesFromPrevTxs(fetchedTx: ElectrumTransaction): Promise<void> {
   if (!fetchedTx?.vin?.length) return;
-  const vinTxids = fetchedTx.vin.map((vin: any) => vin.txid).filter((tid: string) => !!tid);
+  const vinTxids = fetchedTx.vin.map(vin => vin.txid).filter(tid => !!tid);
   if (vinTxids.length === 0) return;
   try {
     const prevTransactions = await BlueElectrum.multiGetTransactionByTxid(vinTxids, true, 10);
     for (let i = 0; i < fetchedTx.vin.length; i++) {
       const vin = fetchedTx.vin[i];
-      if (prevTransactions[vin.txid]?.vout?.[vin.vout]) {
-        vin.value = prevTransactions[vin.txid].vout[vin.vout].value;
+      const prevOut = prevTransactions[vin.txid]?.vout?.[vin.vout];
+      if (prevOut) {
+        vin.value = prevOut.value;
+        if (prevOut.scriptPubKey?.addresses) vin.addresses = prevOut.scriptPubKey.addresses;
       }
     }
   } catch (err) {
@@ -97,7 +103,7 @@ interface State {
   isCPFPPossible: ButtonStatus;
   isRBFBumpFeePossible: ButtonStatus;
   isRBFCancelPossible: ButtonStatus;
-  tx: any;
+  tx: Transaction | undefined;
   isLoading: boolean;
   eta: string;
   intervalMs: number;
@@ -117,7 +123,21 @@ const initialState: State = {
   loadingError: false,
 };
 
-const reducer = (state: State, action: { type: ActionType; payload?: any }): State => {
+type Action =
+  | {
+      type: ActionType.SetCPFPPossible | ActionType.SetRBFBumpFeePossible | ActionType.SetRBFCancelPossible | ActionType.SetAllButtonStatus;
+      payload: ButtonStatus;
+    }
+  | { type: ActionType.SetTransaction; payload: Transaction | undefined }
+  | {
+      type: ActionType.SetLoading | ActionType.SetLoadingError;
+      payload: boolean;
+    }
+  | { type: ActionType.SetEta; payload: string }
+  | { type: ActionType.SetIntervalMs; payload: number }
+  | { type: ActionType.SetWallet; payload: TWallet | null };
+
+const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case ActionType.SetCPFPPossible:
       return { ...state, isCPFPPossible: action.payload };
@@ -147,8 +167,8 @@ const reducer = (state: State, action: { type: ActionType; payload?: any }): Sta
 type TransactionDetailHeaderTitleProps = {
   direction: string;
   date: string;
-  directionStyle: any;
-  dateStyle: any;
+  directionStyle: StyleProp<TextStyle>;
+  dateStyle: StyleProp<TextStyle>;
 };
 
 const TransactionDetailHeaderTitle: React.FC<TransactionDetailHeaderTitleProps> = ({ direction, date, directionStyle, dateStyle }) => (
@@ -247,7 +267,7 @@ const TransactionStatus: React.FC = () => {
   const [isLoadingHex, setIsLoadingHex] = useState(false);
   const [from, setFrom] = useState<string[]>([]);
   const [to, setTo] = useState<string[]>([]);
-  const [txFromElectrum, setTxFromElectrum] = useState<any>(null);
+  const [txFromElectrum, setTxFromElectrum] = useState<ElectrumTransaction | null>(null);
   const [mempoolFee, setMempoolFee] = useState<number | null>(null);
   const [counterpartyLabel, setCounterpartyLabel] = useState<string | null>(null);
   const [paymentCode, setPaymentCode] = useState<string | null>(null);
@@ -294,7 +314,7 @@ const TransactionStatus: React.FC = () => {
     rowValue: { color: colors.alternativeTextColor },
   });
 
-  const setTX = (value: any) => {
+  const setTX = (value: Transaction | undefined) => {
     dispatch({ type: ActionType.SetTransaction, payload: value });
   };
 
@@ -519,7 +539,7 @@ const TransactionStatus: React.FC = () => {
 
           // Populate vin.value for fee calculation when transaction becomes confirmed
           if (fetchedTx.vin && fetchedTx.vin.length > 0) {
-            const vinTxids = fetchedTx.vin.map((vin: any) => vin.txid).filter((tid: string) => !!tid);
+            const vinTxids = fetchedTx.vin.map(vin => vin.txid).filter(tid => !!tid);
             if (vinTxids.length > 0) {
               try {
                 const prevTxs = await BlueElectrum.multiGetTransactionByTxid(vinTxids, true, 10);
@@ -631,7 +651,13 @@ const TransactionStatus: React.FC = () => {
           const transactions = await BlueElectrum.multiGetTransactionByTxid([hash], true, 10);
           const fetchedTx = transactions[hash];
           if (fetchedTx) {
-            setTX(fetchedTx);
+            // same normalization BlueElectrum applies to wallet transactions: input values and addresses from prev outputs
+            await populateVinValuesFromPrevTxs(fetchedTx);
+            setFrom(fetchedTx.vin.flatMap(vin => vin.addresses ?? []));
+            setTo(fetchedTx.vout.flatMap(vout => vout.scriptPubKey?.addresses ?? []));
+            setTX({ ...fetchedTx, inputs: fetchedTx.vin, outputs: fetchedTx.vout, timestamp: fetchedTx.time ?? fetchedTx.blocktime ?? 0 });
+            // nothing else clears the flag when there is no wallet
+            setIsLoading(false);
             // Raw Electrum tx has no top-level .value; refetch wallet so it computes value and we can show balance
             if (subscribedWallet) {
               fetchAndSaveWalletTransactions(subscribedWallet.getID()).then(() => {
@@ -658,10 +684,10 @@ const TransactionStatus: React.FC = () => {
   }, [tx, hash, subscribedWallet, fetchAndSaveWalletTransactions]);
 
   useEffect(() => {
-    if (isLoading) {
+    if (isLoading && !tx) {
       let isComponentMounted = true;
       const loadingTimeout = setTimeout(() => {
-        if (isComponentMounted && isLoading) {
+        if (isComponentMounted) {
           dispatch({ type: ActionType.SetLoadingError, payload: true });
           dispatch({ type: ActionType.SetLoading, payload: false });
           console.error('Loading timed out. There was an issue fetching the transaction.');
@@ -673,7 +699,7 @@ const TransactionStatus: React.FC = () => {
         clearTimeout(loadingTimeout);
       };
     }
-  }, [isLoading]);
+  }, [isLoading, tx]);
 
   const checkPossibilityOfCPFP = async () => {
     if (!wallet || !tx?.hash) {
@@ -785,6 +811,7 @@ const TransactionStatus: React.FC = () => {
   };
 
   const handleNotePress = useCallback(async () => {
+    if (!tx) return;
     // Ark rows have no on-chain hash; use their synthetic txid as fallback key.
     const metadataKey = tx.hash ?? (tx as { txid?: string }).txid;
     const currentMemo = (metadataKey && txMetadata?.[metadataKey]?.memo) || '';
@@ -855,12 +882,12 @@ const TransactionStatus: React.FC = () => {
     return null;
   };
 
-  const onlyUnique = (value: any, index: number, self: any[]) => {
+  const onlyUnique = <T,>(value: T, index: number, self: T[]) => {
     return self.indexOf(value) === index;
   };
 
-  const arrDiff = (a1: any[], a2: any[]) => {
-    const ret = [];
+  const arrDiff = (a1: string[], a2: string[]) => {
+    const ret: string[] = [];
     for (const v of a2) {
       if (a1.indexOf(v) === -1) {
         ret.push(v);
@@ -869,7 +896,7 @@ const TransactionStatus: React.FC = () => {
     return ret;
   };
 
-  const renderSection = (array: any[]) => {
+  const renderSection = (array: string[]) => {
     const fromArray = [];
 
     for (const address of array) {
@@ -986,18 +1013,13 @@ const TransactionStatus: React.FC = () => {
     }
 
     try {
-      const maybeWallet: any = wallet;
-      if (
-        typeof maybeWallet.allowBIP47 === 'function' &&
-        typeof maybeWallet.isBIP47Enabled === 'function' &&
-        'getBip47CounterpartyByTxid' in maybeWallet
-      ) {
-        if (!maybeWallet.allowBIP47() || !maybeWallet.isBIP47Enabled()) {
+      if (wallet instanceof AbstractHDElectrumWallet) {
+        if (!wallet.allowBIP47() || !wallet.isBIP47Enabled()) {
           setCounterpartyLabel(null);
           setPaymentCode(null);
           return;
         }
-        const foundPaymentCode = maybeWallet.getBip47CounterpartyByTxid(tx.hash);
+        const foundPaymentCode = wallet.getBip47CounterpartyByTxid(tx.hash);
         if (foundPaymentCode) {
           const meta = counterpartyMetadata[foundPaymentCode];
           setPaymentCode(foundPaymentCode);

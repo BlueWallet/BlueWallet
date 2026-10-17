@@ -22,6 +22,7 @@ import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import bip39WalletFormatsElectrum from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
 import bip39WalletFormatsBlueWallet from './bip39_wallet_formats_bluewallet.json';
 import type { TWallet } from './wallets/types';
+import { errorMessage } from '../blue_modules/errorMessage';
 
 // Canonicalize a user-typed derivation path: trim, iOS smart quotes and h/H hardened notation
 // become ', a leading M becomes m. The stored form must use ' because bitcoinjs derivePath
@@ -75,7 +76,7 @@ const startImport = (
 ): TImport => {
   // state
   let promiseResolve: (arg: TStatus) => void;
-  let promiseReject: (reason?: any) => void;
+  let promiseReject: (reason?: unknown) => void;
   let running = true; // if you put it to false, internal generator stops
   const wallets: TWallet[] = [];
   const promise = new Promise<TStatus>((resolve, reject) => {
@@ -241,17 +242,17 @@ const startImport = (
           // wallets.
           try {
             await ark.restoreSwaps();
-          } catch (e: any) {
-            console.log('[wallet-import] restoreSwaps failed:', e?.message ?? e);
+          } catch (e) {
+            console.log('[wallet-import] restoreSwaps failed:', errorMessage(e));
           }
           try {
             await ark.fetchBalance();
             await ark.fetchTransactions();
-          } catch (e: any) {
-            console.log('[wallet-import] initial Ark sync failed:', e?.message ?? e);
+          } catch (e) {
+            console.log('[wallet-import] initial Ark sync failed:', errorMessage(e));
           }
-        } catch (e: any) {
-          console.log('[wallet-import] Ark init failed; deferring to next open:', e?.message ?? e);
+        } catch (e) {
+          console.log('[wallet-import] Ark init failed; deferring to next open:', errorMessage(e));
         }
       }
       yield { wallet: ark };

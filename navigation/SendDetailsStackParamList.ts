@@ -1,12 +1,11 @@
 import { Psbt } from 'bitcoinjs-lib';
-import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import type { NavigationProp } from '@react-navigation/native';
+import type { RootParamList } from './RootParamList';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet, Utxo } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
-import { ScanQRCodeParamList } from './DetailViewStackParamList';
+import { DetailViewStackParamList, HeaderRightRenderer, ScanQRCodeParamList } from './DetailViewStackParamList';
 import { IFee } from '../screen/send/SendDetails';
 import { NetworkTransactionFeeType } from '../models/networkTransactionFees';
-
-type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 
 export const CoinControlSortDirection = {
   ASC: 'asc',
@@ -35,7 +34,7 @@ export type SendDetailsParams = {
   onBarScanned?: string;
   unit?: BitcoinUnit;
   noRbf?: boolean;
-  walletID: string;
+  walletID?: string;
   launchedBy?: string;
   utxos?: CreateTransactionUtxo[] | null;
   isEditable?: boolean;
@@ -52,11 +51,30 @@ export type SendDetailsParams = {
 
 export type TNavigation = {
   pop: () => void;
-  navigate: () => void;
+  navigate: NavigationProp<RootParamList>['navigate'];
 };
 
 export type TNavigationWrapper = {
   navigation: TNavigation;
+};
+
+export type SelectWalletParams = {
+  chainType?: Chain;
+  onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
+  availableWallets?: TWallet[];
+  noWalletExplanationText?: string;
+  onChainRequireSend?: boolean;
+  selectedWalletID?: string; // scroll to this wallet
+};
+
+export type SuccessParams = {
+  fee?: number;
+  amount?: number;
+  amountUnit?: BitcoinUnit;
+  txid?: string;
+  invoiceDescription?: string;
+  walletID?: string;
+  walletType?: string;
 };
 
 export type SendDetailsStackParamList = {
@@ -93,7 +111,7 @@ export type SendDetailsStackParamList = {
   };
   PsbtWithHardwareWallet: {
     memo?: string;
-    walletID: string;
+    walletID?: string;
     launchedBy?: string;
     psbt?: Psbt;
     txhex?: string;
@@ -120,6 +138,8 @@ export type SendDetailsStackParamList = {
     psbtBase64: string;
     walletID: string;
     launchedBy?: string;
+    receivedPSBTBase64?: string;
+    txhex?: string;
   };
   PsbtMultisigQRCode: {
     memo?: string;
@@ -129,32 +149,14 @@ export type SendDetailsStackParamList = {
     isShowOpenScanner?: boolean;
     onBarScanned?: string;
   };
-  Success: {
-    fee?: number;
-    amount: number;
-    amountUnit?: BitcoinUnit;
-    txid?: string;
-    invoiceDescription?: string;
-    walletID?: string;
-    walletType?: string;
-  };
-  SelectWallet: {
-    chainType?: Chain;
-    onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
-    availableWallets?: TWallet[];
-    noWalletExplanationText?: string;
-    onChainRequireSend?: boolean;
-    selectedWalletID?: string; // Add this parameter to scroll to a specific wallet
-  };
+  Success: SuccessParams;
+  SelectWallet: SelectWalletParams;
   CoinControl: {
     walletID: string;
     sortDirection?: CoinControlSortDirection;
     sortType?: CoinControlSortType;
     hasUtxos?: boolean;
   };
-  PaymentCodeList: {
-    walletID: string;
-    merge?: boolean;
-  };
+  PaymentCodeList: DetailViewStackParamList['PaymentCodeList'];
   ScanQRCode: ScanQRCodeParamList;
 };

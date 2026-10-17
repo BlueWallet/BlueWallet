@@ -1,6 +1,10 @@
 import { Keyboard } from 'react-native';
 
 import { createImportWalletOptions } from '../../navigation/AddWalletStack';
+import type { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+import type { ScreenDeps } from '../../components/navigationStyle';
+
+type ImportWalletDeps = ScreenDeps<AddWalletStackParamList, 'ImportWallet'>;
 
 jest.mock('../../typings/CommonToolTipActions', () => ({
   CommonToolTipActions: {
@@ -25,14 +29,14 @@ describe('createImportWalletOptions', () => {
         getState: () => ({ index: 0 }),
         goBack: jest.fn(),
         setParams,
-      },
+      } as unknown as ImportWalletDeps['navigation'],
       route: {
         params: {
           askPassphraseMenuState: false,
           searchAccountsMenuState: false,
           clearClipboardMenuState: true,
         },
-      },
+      } as ImportWalletDeps['route'],
     });
 
     const unstableItems = options.unstable_headerRightItems as unknown as

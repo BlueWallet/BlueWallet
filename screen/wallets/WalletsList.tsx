@@ -1,12 +1,23 @@
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import {
+  Alert,
+  findNodeHandle,
+  Image,
+  InteractionManager,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+} from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop, isIOS26OrHigher } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
+import { ExtendedTransaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import { FButton, FContainer, FloatButtonsBottomFade, getFloatingButtonReservedHeight } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
@@ -22,7 +33,7 @@ import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ConnectionPollContext } from '../../navigation/ConnectionPollContext';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { RootParamList } from '../../navigation/RootParamList';
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -30,6 +41,7 @@ import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scanQrHelper } from '../../helpers/scan-qr';
+import { errorMessage } from '../../blue_modules/errorMessage';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 const SECTION_HEADER_BASE_HEIGHT = 56;
@@ -37,9 +49,10 @@ const SECTION_HEADER_BASE_HEIGHT = 56;
 /** Electrum `ping` while the list is visible; detects mid-session drops without polling when user is elsewhere. */
 const ELECTRUM_HEALTH_POLL_WHILE_WALLETS_LIST_FOCUSED_MS = 30_000;
 
+type WalletsListItem = ExtendedTransaction | string;
 type SectionData = {
   key: string;
-  data: Transaction[] | string[];
+  data: WalletsListItem[];
 };
 
 enum ActionTypes {
@@ -100,7 +113,7 @@ function reducer(state: WalletListState, action: WalletListAction) {
   }
 }
 
-type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'WalletsList'>;
+type NavigationProps = NativeStackNavigationProp<RootParamList, 'WalletsList'>;
 
 const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -211,16 +224,15 @@ const WalletsList: React.FC = () => {
   }, [isLarge, wallets]);
 
   const onBarScanned = useCallback(
-    (value: any) => {
+    (value: string | undefined) => {
       if (!value) return;
       try {
         DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          // @ts-ignore: for now
           navigation.navigate(...completionValue);
         });
-      } catch (e: any) {
-        Alert.alert(loc.send.details_scan_error, e.message);
+      } catch (e) {
+        Alert.alert(loc.send.details_scan_error, errorMessage(e));
       }
     },
     [navigation],
@@ -242,7 +254,7 @@ const WalletsList: React.FC = () => {
   );
 
   const onSnapToItem = useCallback(
-    (e: { nativeEvent: { contentOffset: any } }) => {
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (!isFocused) return;
 
       const contentOffset = e.nativeEvent.contentOffset;
@@ -316,12 +328,12 @@ const WalletsList: React.FC = () => {
   }, [handleClick, handleLongPress, isFocused, onSnapToItem, wallets]);
 
   const renderSectionItem = useCallback(
-    (item: { section: any; item: ExtendedTransaction }) => {
+    (item: { section: SectionData; item: WalletsListItem }) => {
       switch (item.section.key) {
         case WalletsListSections.CAROUSEL:
           return sizeClass === SizeClass.Large ? null : renderWalletsCarousel();
         case WalletsListSections.TRANSACTIONS:
-          return renderTransactionListsRow(item.item);
+          return typeof item.item === 'string' ? null : renderTransactionListsRow(item.item);
         default:
           return null;
       }
@@ -330,7 +342,7 @@ const WalletsList: React.FC = () => {
   );
 
   const renderSectionHeader = useCallback(
-    (section: { section: { key: any } }) => {
+    (section: { section: SectionData }) => {
       if (sizeClass === SizeClass.Large) {
         return null;
       }
@@ -373,7 +385,7 @@ const WalletsList: React.FC = () => {
   );
 
   const renderSectionFooter = useCallback(
-    (section: { section: { key: any } }) => {
+    (section: { section: SectionData }) => {
       switch (section.section.key) {
         case WalletsListSections.TRANSACTIONS:
           if (dataSource.length === 0 && !isLoading) {
@@ -458,7 +470,7 @@ const WalletsList: React.FC = () => {
     }
   }, [onScanButtonPressed, scanImage, sendButtonLongPress, wallets.length]);
 
-  const sectionListKeyExtractor = useCallback((item: any, index: any) => {
+  const sectionListKeyExtractor = useCallback((item: WalletsListItem, index: number) => {
     if (typeof item === 'string') return item;
     const txKey = item?.hash || item?.txid;
     if (txKey && item?.walletID) return `${txKey}_${item.walletID}`;
@@ -486,7 +498,7 @@ const WalletsList: React.FC = () => {
   }, [sizeClass, sectionHeaderHeight, fontScale]);
 
   const getItemLayout = useCallback(
-    (data: any, index: number) => {
+    (_: unknown, index: number) => {
       const headerHeight = getSectionHeaderHeight();
 
       if (sizeClass === SizeClass.Large) {
@@ -525,7 +537,7 @@ const WalletsList: React.FC = () => {
 
   return (
     <>
-      <SafeAreaSectionList<any | string, SectionData>
+      <SafeAreaSectionList<WalletsListItem, SectionData>
         testID="Wallets"
         renderItem={renderSectionItem}
         keyExtractor={sectionListKeyExtractor}

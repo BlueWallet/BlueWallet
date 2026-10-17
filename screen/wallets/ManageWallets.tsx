@@ -21,26 +21,11 @@ import { TTXMetadata } from '../../class/blue-app';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import useBounceAnimation from '../../hooks/useBounceAnimation';
 import DraggableFlatList, { RenderItemParams, DragEndParams } from 'react-native-draggable-flatlist';
-import { ItemType, AddressItemData } from '../../models/itemTypes';
+import { ItemType, AddressItem, TransactionItem, WalletItem } from '../../models/itemTypes';
 import ManageWalletsListItem, { WalletGroupComponent } from '../../components/ManageWalletsListItem';
 import HighlightedText from '../../components/HighlightedText';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import DragIcon from '../../img/Search/drag';
-
-interface WalletItem {
-  type: ItemType.WalletSection;
-  data: TWallet;
-}
-
-interface TransactionItem {
-  type: ItemType.TransactionSection;
-  data: ExtendedTransaction & LightningTransaction;
-}
-
-interface AddressItem {
-  type: ItemType.AddressSection;
-  data: Omit<AddressItemData, 'label'>;
-}
 
 interface WalletGroupItem {
   type: ItemType.WalletGroupSection;
@@ -293,15 +278,7 @@ const ManageWallets: React.FC = () => {
 
                 for (let i = 0; i < addressLimit; i++) {
                   const address = addresses[i];
-                  const addressValue =
-                    typeof address === 'string'
-                      ? address
-                      : address &&
-                          typeof address === 'object' &&
-                          'address' in (address as any) &&
-                          typeof (address as any).address === 'string'
-                        ? ((address as any).address as string)
-                        : '';
+                  const addressValue = typeof address === 'string' ? address : '';
 
                   if (addressValue.toLowerCase().includes(lowerQuery)) {
                     if (!walletsWithMatches.has(walletID)) {
@@ -408,7 +385,7 @@ const ManageWallets: React.FC = () => {
   useLayoutEffect(() => {
     const searchBarOptions = {
       hideWhenScrolling: false,
-      onChangeText: (event: { nativeEvent: { text: any } }) => debouncedSearch(event.nativeEvent.text),
+      onChangeText: (event: { nativeEvent: { text: string } }) => debouncedSearch(event.nativeEvent.text),
       onClear: () => debouncedSearch(''),
       onFocus: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: true }),
       onBlur: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false }),
