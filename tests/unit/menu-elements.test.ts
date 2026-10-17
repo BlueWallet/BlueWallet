@@ -114,6 +114,10 @@ it.each([
   ['WalletTransactions', 'walletDetails'],
   ['ReceiveDetails', 'copyAddress'],
   ['TransactionStatus', 'copyTransactionId'],
+  ['ElectrumSettings', 'addElectrumServer'],
+  ['ElectrumSettings', 'resetElectrumSettings'],
+  ['ElectrumSettings', 'toggleSuggestedElectrumServers'],
+  ['AddElectrumServer', 'saveElectrumServer'],
 ] as const)('dispatches %s / %s only while its handler is registered', (screen, action) => {
   setRoute(screen);
   const hook = renderHook(useMenuElements);

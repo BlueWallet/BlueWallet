@@ -19,6 +19,8 @@ export type SettingsIconName =
   | 'lightning'
   | 'blockExplorer'
   | 'electrum'
+  | 'offline'
+  | 'favorite'
   | 'licensing'
   | 'releaseNotes'
   | 'selfTest'
@@ -49,6 +51,8 @@ const iconConfigs: Record<SettingsIconName, IconConfig> = {
   lightning: { name: 'flash-outline', color: '#F4B400', darkColor: '#FFD580', backgroundColor: 'rgba(255, 149, 0, 0.12)' },
   blockExplorer: { name: 'search-outline', color: '#1A73E8', darkColor: '#82B1FF', backgroundColor: 'rgba(0, 122, 255, 0.12)' },
   electrum: { name: 'server-outline', color: '#0F9D58', darkColor: '#69F0AE', backgroundColor: 'rgba(52, 199, 89, 0.12)' },
+  offline: { name: 'cloud-offline-outline', color: '#5F6368', darkColor: '#D1D1D6', backgroundColor: 'rgba(142, 142, 147, 0.12)' },
+  favorite: { name: 'star-outline', color: '#F4B400', darkColor: '#FFD580', backgroundColor: 'rgba(255, 149, 0, 0.12)' },
   licensing: { name: 'shield-checkmark-outline', color: '#24292e', darkColor: '#FFFFFF', backgroundColor: 'rgba(142, 142, 147, 0.12)' },
   releaseNotes: { name: 'document-text-outline', color: '#9AA0AA', darkColor: '#FFFFFF', backgroundColor: 'rgba(142, 142, 147, 0.12)' },
   selfTest: { name: 'flask-outline', color: '#FC0D44', darkColor: '#FFFFFF', backgroundColor: 'rgba(142, 142, 147, 0.12)' },
@@ -98,13 +102,25 @@ export const SettingsFootnote: React.FC<TextProps> = ({ style, ...rest }) => {
 
 interface SettingsSectionProps {
   title?: string;
+  iconName?: SettingsIconName;
   headerRight?: React.ReactNode;
   onHeaderPress?: () => void;
+  headerAccessibilityLabel?: string;
+  headerAccessibilityState?: { expanded?: boolean };
   containerStyle?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
 }
 
-export const SettingsSection: React.FC<SettingsSectionProps> = ({ title, headerRight, onHeaderPress, containerStyle, children }) => {
+export const SettingsSection: React.FC<SettingsSectionProps> = ({
+  title,
+  iconName,
+  headerRight,
+  onHeaderPress,
+  headerAccessibilityLabel,
+  headerAccessibilityState,
+  containerStyle,
+  children,
+}) => {
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     header: { backgroundColor: colors.cardSectionHeaderBackground },
@@ -115,7 +131,14 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({ title, headerR
   const header =
     title || headerRight ? (
       <View style={[styles.header, stylesHook.header]}>
-        {title ? <BlueText style={[styles.headerText, stylesHook.headerText]}>{title}</BlueText> : null}
+        {title ? (
+          <View style={styles.headerTitleGroup}>
+            {iconName ? <SettingsIcon name={iconName} /> : null}
+            <BlueText accessibilityRole="header" style={[styles.headerText, stylesHook.headerText]}>
+              {title}
+            </BlueText>
+          </View>
+        ) : null}
         {headerRight}
       </View>
     ) : null;
@@ -123,7 +146,13 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({ title, headerR
   return (
     <View style={[styles.card, containerStyle]}>
       {onHeaderPress && header ? (
-        <Pressable accessibilityRole="button" onPress={onHeaderPress} style={({ pressed }) => (pressed ? styles.headerPressed : undefined)}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={headerAccessibilityLabel ?? title}
+          accessibilityState={headerAccessibilityState}
+          onPress={onHeaderPress}
+          style={({ pressed }) => (pressed ? styles.headerPressed : undefined)}
+        >
           {header}
         </Pressable>
       ) : (
@@ -172,6 +201,13 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
     flexShrink: 1,
+  },
+  headerTitleGroup: {
+    flex: 1,
+    minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   headerPressed: {
     opacity: 0.75,

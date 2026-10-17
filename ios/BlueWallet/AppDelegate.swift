@@ -322,7 +322,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         userDefaultsGroup?.setValue(userActivityData, forKey: "onUserActivityOpen")
 
-        if ["io.bluewallet.bluewallet.receiveonchain", "io.bluewallet.bluewallet.xpub", "io.bluewallet.bluewallet.blockexplorer"].contains(activityType) {
+        if ["io.bluewallet.bluewallet.receiveonchain", "io.bluewallet.bluewallet.xpub", "io.bluewallet.bluewallet.blockexplorer", "io.bluewallet.bluewallet.electrumserverhistory"].contains(activityType) {
           EventEmitter.shared()?.sendUserActivity(userActivityData)
             return true
         }
@@ -425,6 +425,32 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             }
         }
 
+        let electrumMenuID = UIMenu.Identifier("io.bluewallet.electrum")
+        builder.remove(menu: electrumMenuID)
+        let electrumPrimaryCommands = [
+            actions.contains("addElectrumServer")
+                ? UIKeyCommand(title: "Add Server…", action: #selector(addElectrumServerMenuAction), input: "n", modifierFlags: .command)
+                : nil,
+            actions.contains("saveElectrumServer")
+                ? UIKeyCommand(title: "Save Server", action: #selector(saveElectrumServerMenuAction), input: "\r", modifierFlags: .command)
+                : nil
+        ].compactMap { $0 }
+        let electrumViewCommands = [
+            actions.contains("toggleSuggestedElectrumServers")
+                ? UIKeyCommand(title: "Toggle Suggested Servers", action: #selector(toggleSuggestedElectrumServersMenuAction), input: "g", modifierFlags: [.command, .shift])
+                : nil,
+            actions.contains("resetElectrumSettings")
+                ? UIKeyCommand(title: "Reset Electrum Settings…", action: #selector(resetElectrumSettingsMenuAction), input: "r", modifierFlags: [.command, .alternate])
+                : nil
+        ].compactMap { $0 }
+        let electrumGroups = [
+            electrumPrimaryCommands.isEmpty ? nil : UIMenu(title: "", options: .displayInline, children: electrumPrimaryCommands),
+            electrumViewCommands.isEmpty ? nil : UIMenu(title: "", options: .displayInline, children: electrumViewCommands)
+        ].compactMap { $0 }
+        if !electrumGroups.isEmpty {
+            builder.insertSibling(UIMenu(title: "Server", identifier: electrumMenuID, children: electrumGroups), afterMenu: .file)
+        }
+
         let settingsMenuID = UIMenu.Identifier("io.bluewallet.settings")
         builder.remove(menu: settingsMenuID)
         if actions.contains("settings") {
@@ -473,6 +499,22 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     @objc func copyTransactionIdMenuAction(_ keyCommand: UIKeyCommand) {
         MenuElementsController.shared.perform("copyTransactionId")
+    }
+
+    @objc func addElectrumServerMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("addElectrumServer")
+    }
+
+    @objc func saveElectrumServerMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("saveElectrumServer")
+    }
+
+    @objc func toggleSuggestedElectrumServersMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("toggleSuggestedElectrumServers")
+    }
+
+    @objc func resetElectrumSettingsMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("resetElectrumSettings")
     }
 
     @objc func keyboardShortcutsMenuAction(_ keyCommand: UIKeyCommand) {
