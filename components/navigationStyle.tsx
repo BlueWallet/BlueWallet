@@ -2,8 +2,21 @@ import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React from 'react';
 import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
+import { isDesktop } from '../blue_modules/environment';
 import loc from '../loc';
 import { Theme } from './themes';
+
+/**
+ * Presentation for the ScanQRCode screen registered inside a nested (modal) stack.
+ *
+ * On Mac Catalyst a fullScreenModal presented from within a sheet is rehosted into its
+ * own window, and UIKit then throws "rehostedVC should be in a UIWindow" as soon as the
+ * menu bar or a contextual menu is validated, which terminates the app. A regular modal
+ * is not rehosted that way, and unlike a pushed card it still appears above form-sheet
+ * routes such as the cosigner import sheet. The root scanner over the main window is
+ * unaffected, and iOS and Android keep the full-screen modal.
+ */
+export const nestedScannerPresentation: NativeStackNavigationOptions['presentation'] = isDesktop ? 'modal' : 'fullScreenModal';
 
 const styles = StyleSheet.create({
   button: {

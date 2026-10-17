@@ -530,6 +530,9 @@ const ReceiveDetails = () => {
         onPressOut={handlePressOut}
         disabled={!copyText}
         style={styles.cardPressable}
+        // Expose the payment-code tabs separately instead of grouping them
+        // inside one accessible Copy button.
+        accessible={!showTabs}
         accessibilityRole="button"
         accessibilityLabel={loc.transactions.details_copy}
         testID="ReceiveCard"
@@ -589,7 +592,7 @@ const ReceiveDetails = () => {
                   displayText={displayCopyText}
                   isAddress={isAddressTab}
                   truncated={false}
-                  interactive={false}
+                  interactive={showTabs}
                 />
               </View>
             </>

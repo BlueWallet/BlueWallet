@@ -392,7 +392,7 @@ const SelfTestContent: React.FC<{ state: TState; onPressImportDocument: () => vo
     } else {
       selfTestResult = (
         <View style={styles.center}>
-          <BlueText h4 numberOfLines={0}>
+          <BlueText testID="SelfTestError" h4 numberOfLines={0}>
             {state.errorMessage}
           </BlueText>
         </View>

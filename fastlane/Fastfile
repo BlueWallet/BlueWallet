@@ -897,6 +897,47 @@ platform :ios do
     ]
   end
 
+  desc "Fetch the isolated Catalyst E2E development signing profile"
+  lane :fetch_e2e_profiles_catalyst do
+    bundle_id = ENV.fetch('CATALYST_BUNDLE_ID', 'io.bluewallet.bluewallet.e2e')
+    hosted_ci = ENV['GITHUB_ACTIONS'] == 'true' && ENV['RUNNER_ENVIRONMENT'] == 'github-hosted'
+    unless bundle_id.end_with?('.e2e') || (hosted_ci && bundle_id == 'io.bluewallet.bluewallet')
+      UI.user_error!('E2E bundle identifier must end in .e2e outside GitHub-hosted CI')
+    end
+    # UI tests run directly on a registered Mac, so use development provisioning.
+    # Keep CI read-only: register the runner and create this profile once in Match.
+    match(
+      type: 'development',
+      platform: 'catalyst',
+      app_identifier: [bundle_id],
+      git_basic_authorization: normalize_git_basic_authorization(ENV.fetch('GIT_ACCESS_TOKEN')),
+      team_id: ENV.fetch('CATALYST_TEAM_ID'),
+      readonly: true,
+      keychain_name: ENV.fetch('KEYCHAIN_NAME'),
+      keychain_password: ENV.fetch('KEYCHAIN_PASSWORD')
+    )
+    profile = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING].fetch(bundle_id)
+    if hosted_ci
+      profile_path = ENV.fetch(Match::Utils.environment_variable_name_profile_path(
+        app_identifier: bundle_id, type: 'development', platform: 'catalyst'
+      ))
+      contents = FastlaneCore::ProvisioningProfile.parse(profile_path)
+      runner_udid = '4203018E-580F-C1B5-9525-B745CECA79EB'
+      unless contents['ProvisionsAllDevices'] || Array(contents['ProvisionedDevices']).include?(runner_udid)
+        UI.user_error!("The existing Catalyst development profile must include Intel GitHub runner #{runner_udid}. Regenerate it in Match; no new bundle identifier is required.")
+      end
+      require 'digest'
+      ENV['CATALYST_PROFILE_FINGERPRINT'] = Digest::SHA256.file(profile_path).hexdigest
+    end
+    ENV['CATALYST_PROVISIONING_PROFILE'] = profile
+    if ENV['GITHUB_ENV']
+      File.open(ENV['GITHUB_ENV'], 'a') do |file|
+        file.puts("CATALYST_PROVISIONING_PROFILE=#{profile}")
+        file.puts("CATALYST_PROFILE_FINGERPRINT=#{ENV.fetch('CATALYST_PROFILE_FINGERPRINT')}") if hosted_ci
+      end
+    end
+  end
+
   desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
   lane :fetch_dev_profiles_catalyst do
     match(
