@@ -249,8 +249,12 @@ const WalletsAddMultisigStep2 = () => {
         seed,
       });
 
-      setXpubCacheForMnemonics(seed);
-      setFpCacheForMnemonics(seed);
+      // Filling the caches runs two synchronous PBKDF2 seed derivations. Defer them so the Vault Key sheet paints the
+      // seed first; the cache is only needed later, for Share.
+      setTimeout(() => {
+        setXpubCacheForMnemonics(seed);
+        setFpCacheForMnemonics(seed);
+      }, 500);
     } catch (e) {
       setVaultKeyData(current => ({ ...current, isLoading: false }));
       const message = e instanceof Error ? e.message : String(e);
