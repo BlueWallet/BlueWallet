@@ -9,6 +9,8 @@ import loc from '../loc';
 import { ActionIcons } from '../typings/ActionIcons';
 import ToolTipMenu from './TooltipMenu';
 import { Action } from './types';
+import AuthenticatedFileDragSource from './AuthenticatedFileDragSource';
+import DraggableFile from './DraggableFile';
 
 type ErrorCorrectionLevel = 'H' | 'Q' | 'M' | 'L';
 
@@ -20,6 +22,7 @@ interface QRCodeProps {
   logoSize?: number;
   ecl?: ErrorCorrectionLevel;
   onError?: (error?: unknown) => void;
+  requireDragAuthentication?: boolean;
 }
 
 const GRADIENT_ID = 'qrgrad';
@@ -150,6 +153,7 @@ const QRCode: React.FC<QRCodeProps> = ({
   logoSize = 90,
   ecl = 'H',
   onError,
+  requireDragAuthentication = false,
 }) => {
   const svgRef = useRef<Svg>(null);
 
@@ -278,7 +282,7 @@ const QRCode: React.FC<QRCodeProps> = ({
 
   const content = renderQR ?? <View testID="qr-placeholder" style={stylesHook.placeholder} />;
 
-  return (
+  const dragContent = (
     <View
       style={styles.container}
       accessibilityIgnoresInvertColors
@@ -301,6 +305,26 @@ const QRCode: React.FC<QRCodeProps> = ({
         content
       )}
     </View>
+  );
+
+  if (requireDragAuthentication) {
+    return (
+      <AuthenticatedFileDragSource
+        fileName="qrcode.png"
+        mimeType="image/png"
+        captureViewAsImage
+        requireAuthentication
+        style={{ width: size, height: size }}
+      >
+        {dragContent}
+      </AuthenticatedFileDragSource>
+    );
+  }
+
+  return (
+    <DraggableFile fileName="qrcode.png" mimeType="image/png" captureViewAsImage style={{ width: size, height: size }}>
+      {dragContent}
+    </DraggableFile>
   );
 };
 

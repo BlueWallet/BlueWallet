@@ -30,6 +30,8 @@ import {
 import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
 import ActionSheet from '../ActionSheet.ts';
+import FileDropTarget from '../../components/FileDropTarget';
+import DraggableFile from '../../components/DraggableFile';
 
 type SignVerifyRouteParams = {
   walletID: string;
@@ -84,6 +86,8 @@ const SignVerify = () => {
     const uri = `${baseUri}?a=${address}&m=${encodeURIComponent(message)}&s=${encodeURIComponent(signature)}`;
     Share.open({ message: uri }).catch(error => console.log(error));
   };
+
+  const signedMessageUri = `https://bluewallet.github.io/VerifySignature?a=${address}&m=${encodeURIComponent(message)}&s=${encodeURIComponent(signature)}`;
 
   const presentAlert = useCallback(
     ({ title, alertMessage, buttons = [{ text: loc._.ok }] }: { title?: string; alertMessage: string; buttons?: AlertButton[] }) => {
@@ -174,55 +178,68 @@ const SignVerify = () => {
           </>
         )}
 
-        <TextInput
-          multiline
-          textAlignVertical="top"
-          blurOnSubmit
-          placeholder={loc.addresses.sign_placeholder_address}
-          placeholderTextColor="#81868e"
-          value={address}
-          onChangeText={t => setAddress(t.replace('\n', ''))}
-          testID="SignVerifyAddress"
-          style={[styles.text, stylesHooks.text]}
-          autoCorrect={false}
-          autoCapitalize="none"
-          spellCheck={false}
-        />
+        <FileDropTarget onDrop={value => setAddress(value.trim())} style={styles.dropTarget}>
+          <TextInput
+            multiline
+            textAlignVertical="top"
+            blurOnSubmit
+            placeholder={loc.addresses.sign_placeholder_address}
+            placeholderTextColor="#81868e"
+            value={address}
+            onChangeText={t => setAddress(t.replace('\n', ''))}
+            testID="SignVerifyAddress"
+            style={[styles.text, stylesHooks.text]}
+            autoCorrect={false}
+            autoCapitalize="none"
+            spellCheck={false}
+          />
+        </FileDropTarget>
         <BlueSpacing10 />
 
-        <TextInput
-          multiline
-          placeholder={loc.addresses.sign_placeholder_message}
-          placeholderTextColor="#81868e"
-          value={message}
-          onChangeText={setMessage}
-          testID="Message"
-          inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
-          style={[styles.text, styles.messageInput, stylesHooks.text]}
-          autoCorrect={false}
-          autoCapitalize="none"
-          spellCheck={false}
-          scrollEnabled
-          textAlignVertical="top"
-          onFocus={() => handleFocus(true)}
-          onBlur={() => handleFocus(false)}
-        />
+        <FileDropTarget onDrop={setMessage} style={styles.dropTarget}>
+          <TextInput
+            multiline
+            placeholder={loc.addresses.sign_placeholder_message}
+            placeholderTextColor="#81868e"
+            value={message}
+            onChangeText={setMessage}
+            testID="Message"
+            inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
+            style={[styles.text, styles.messageInput, stylesHooks.text]}
+            autoCorrect={false}
+            autoCapitalize="none"
+            spellCheck={false}
+            scrollEnabled
+            textAlignVertical="top"
+            onFocus={() => handleFocus(true)}
+            onBlur={() => handleFocus(false)}
+          />
+        </FileDropTarget>
         <BlueSpacing10 />
 
-        <TextInput
-          multiline
-          textAlignVertical="top"
-          blurOnSubmit
-          placeholder={loc.addresses.sign_placeholder_signature}
-          placeholderTextColor="#81868e"
-          value={signature}
-          onChangeText={t => setSignature(t.replace('\n', ''))}
-          testID="SignVerifySignature"
-          style={[styles.text, stylesHooks.text]}
-          autoCorrect={false}
-          autoCapitalize="none"
-          spellCheck={false}
-        />
+        <FileDropTarget onDrop={value => setSignature(value.trim())} style={styles.dropTarget}>
+          <DraggableFile
+            fileName="bitcoin-signed-message.txt"
+            mimeType="text/plain"
+            content={signedMessageUri}
+            dragEnabled={Boolean(signature)}
+          >
+            <TextInput
+              multiline
+              textAlignVertical="top"
+              blurOnSubmit
+              placeholder={loc.addresses.sign_placeholder_signature}
+              placeholderTextColor="#81868e"
+              value={signature}
+              onChangeText={t => setSignature(t.replace('\n', ''))}
+              testID="SignVerifySignature"
+              style={[styles.text, stylesHooks.text]}
+              autoCorrect={false}
+              autoCapitalize="none"
+              spellCheck={false}
+            />
+          </DraggableFile>
+        </FileDropTarget>
         <BlueSpacing40 />
 
         {!isKeyboardVisible && (
@@ -315,5 +332,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  dropTarget: {
+    alignSelf: 'stretch',
   },
 });

@@ -29,7 +29,7 @@ const LNDViewAdditionalInvoicePreImage = () => {
         <BlueTextCentered>{loc.lndViewInvoice.preimage}:</BlueTextCentered>
         <BlueSpacing20 />
         <View style={styles.qrCodeContainer}>
-          <QRCode value={preImageData} size={300} logoSize={90} />
+          <QRCode value={preImageData} size={300} logoSize={90} requireDragAuthentication />
         </View>
         <BlueSpacing20 />
         <View style={styles.copyText}>

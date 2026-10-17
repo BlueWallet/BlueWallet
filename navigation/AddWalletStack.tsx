@@ -84,6 +84,7 @@ export type AddWalletStackParamList = {
   WalletsAddMultisigVaultKeySheet: {
     keyIndex: number;
     seed: string;
+    walletLabel: string;
   };
   WalletsAddMultisigProvideMnemonicsSheet: {
     importText: string;

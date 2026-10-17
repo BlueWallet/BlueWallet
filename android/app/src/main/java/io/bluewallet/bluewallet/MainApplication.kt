@@ -18,6 +18,7 @@ import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.react.modules.fresco.FrescoModule
 import com.facebook.react.modules.i18nmanager.I18nUtil
 import io.bluewallet.bluewallet.components.segmentedcontrol.SegmentedControlPackage
+import io.bluewallet.bluewallet.components.draggablefile.DraggableFilePackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -72,6 +73,7 @@ class MainApplication : Application(), ReactApplication {
                     // Packages that cannot be autolinked yet can be added manually here, for example:
                     // add(MyReactNativePackage())
                     add(SegmentedControlPackage())
+                    add(DraggableFilePackage())
                     add(SettingsPackage())
                     add(MenuElementsPackage())
                 }
