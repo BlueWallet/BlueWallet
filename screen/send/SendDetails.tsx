@@ -844,8 +844,8 @@ const SendDetails = () => {
           const quorumReached = signatures >= multisig.getM();
           if (quorumReached) {
             // At quorum, only finalize: another signature breaks finalization, and skipping finalize leaves Export
-            // sharing a PSBT the next cosigner cannot broadcast. Finalize can still throw (e.g. an input with more
-            // signatures than M), so it runs on a copy and the original PSBT is kept to review or export.
+            // sharing a PSBT the next cosigner cannot broadcast. An input with more signatures than M cannot be
+            // finalized; then the original PSBT is kept to review or export. Any other finalize error throws and alerts.
             psbt = MultisigHDWallet.tryFinalizeUnfinalizedInputs(psbt);
           } else if (multisig.howManySignaturesCanWeMake() > 0) {
             setIsLoading(true);

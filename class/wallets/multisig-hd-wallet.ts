@@ -1218,9 +1218,16 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static tryFinalizeUnfinalizedInputs(psbt: Psbt): Psbt {
     try {
       return MultisigHDWallet.finalizedCopy(psbt);
-    } catch (_) {
-      return psbt;
+    } catch (error: any) {
+      // Only an over-signed input is kept quiet. Anything else (missing witness script or UTXO, ...) is a PSBT that
+      // cannot be finalized at all, so it must surface instead of being presented as merely short of signatures.
+      if (MultisigHDWallet.isTooManySignaturesError(error)) return psbt;
+      throw error;
     }
+  }
+
+  static isTooManySignaturesError(error: unknown): boolean {
+    return error instanceof Error && /Too many signatures/i.test(error.message);
   }
 
   /**

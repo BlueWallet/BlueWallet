@@ -2454,6 +2454,21 @@ describe('cosignPsbt with more local keys than quorum', () => {
     assert.strictEqual(psbt.toBase64(), before);
   });
 
+  it('tryFinalizeUnfinalizedInputs rethrows finalize errors other than too many signatures', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    for (const i of [0, 1]) {
+      signWithSeed(psbt, i, seeds[0]);
+      signWithSeed(psbt, i, seeds[1]);
+    }
+    // quorum is reached, but input 0 lost the script it needs to be finalized
+    delete psbt.data.inputs[0].witnessScript;
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
+
+    assert.throws(() => MultisigHDWallet.tryFinalizeUnfinalizedInputs(psbt));
+    assert.throws(() => w.cosignPsbt(psbt)); // cosign surfaces it too instead of answering { tx: false }
+  });
+
   it('cosignPsbt does not throw when another input is already over-signed', () => {
     const w = makeWallet();
     const psbt = makeUnsignedPsbt(w);
