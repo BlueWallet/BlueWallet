@@ -1,5 +1,6 @@
 import React, { useMemo, forwardRef } from 'react';
 import { StyleSheet, ScrollView, ScrollViewProps } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from './themes';
@@ -17,10 +18,14 @@ const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((prop
     floatingButtonHeight = 0,
     headerHeight = 0,
     disableDefaultTopPadding = false,
+    automaticallyAdjustKeyboardInsets,
     ...otherProps
   } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const isFocused = useIsFocused();
+  // Only adjust while focused — RN also applies keyboard insets to covered stack screens.
+  const shouldAdjustKeyboardInsets = Boolean(automaticallyAdjustKeyboardInsets) && isFocused;
 
   const componentStyle = useMemo(() => {
     return StyleSheet.compose({ flex: 1, backgroundColor: colors.background }, style);
@@ -75,6 +80,7 @@ const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((prop
       contentInsetAdjustmentBehavior="automatic"
       scrollToOverflowEnabled
       automaticallyAdjustsScrollIndicatorInsets
+      automaticallyAdjustKeyboardInsets={shouldAdjustKeyboardInsets}
       contentContainerStyle={contentStyle}
       {...otherProps}
     />
