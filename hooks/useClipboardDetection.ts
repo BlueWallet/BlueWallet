@@ -2,12 +2,7 @@ import { CommonActions } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Platform } from 'react-native';
 
-import {
-  getLastSeenClipboardHash,
-  isClipboardSheetFocused,
-  readClipboardForDetection,
-  setLastSeenClipboardHash,
-} from '../blue_modules/clipboard';
+import { getLastSeenClipboardHash, isClipboardSheetFocused, readClipboardForDetection, setLastSeenClipboardHash } from '../blue_modules/clipboard';
 import {
   CLIPBOARD_IDLE_DELAY_MS,
   CLIPBOARD_RETRY_DELAY_MS,
@@ -15,7 +10,7 @@ import {
   clipboardActionOnAppStateChange,
   evaluateClipboardOnForeground,
 } from '../blue_modules/clipboardPayment';
-import { isDesktop } from '../blue_modules/environment';
+import { isMacCatalyst } from '../blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { navigationRef } from '../NavigationService';
 import { useStorage } from './context/useStorage';
@@ -81,9 +76,7 @@ const useClipboardDetection = (enabled: boolean) => {
       const ignoreLastSeen = ignoreLastSeenOnNextRead.current;
       ignoreLastSeenOnNextRead.current = false;
       retryClipboardAfterPastePrompt.current = false;
-      const lastSeenHash = ignoreLastSeen
-        ? lastSeenClipboardHash.current
-        : ((await getLastSeenClipboardHash()) ?? lastSeenClipboardHash.current);
+      const lastSeenHash = ignoreLastSeen ? lastSeenClipboardHash.current : ((await getLastSeenClipboardHash()) ?? lastSeenClipboardHash.current);
       const { offer, nextHash } = evaluateClipboardOnForeground(content, lastSeenHash, wallets, { ignoreLastSeen });
       if (!offer) {
         lastSeenClipboardHash.current = nextHash;
@@ -132,7 +125,7 @@ const useClipboardDetection = (enabled: boolean) => {
 
   const onEnterForeground = useCallback(
     (previousState: AppStateStatus, options?: { skipRead?: boolean }) => {
-      const cameFromBackground = resumedFromBackground.current || (isDesktop && previousState === 'inactive');
+      const cameFromBackground = resumedFromBackground.current || (isMacCatalyst && previousState === 'inactive');
       const readBecausePending = needsRead.current;
       resumedFromBackground.current = false;
       if (!enabled || wallets.length === 0) return;

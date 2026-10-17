@@ -7,11 +7,6 @@ import WalletsCarousel, { walletHasPendingTransaction } from '../../components/W
 import { TWallet } from '../../class/wallets/types';
 import loc, { formatBalance } from '../../loc';
 
-jest.mock('../../blue_modules/sizeClass', () => ({
-  SizeClass: { Compact: 'Compact', Regular: 'Regular', Large: 'Large' },
-  useSizeClass: () => ({ sizeClass: 'Regular', isLarge: false }),
-}));
-
 jest.mock('../../components/themes', () => ({
   useTheme: () => ({
     colors: {
@@ -81,11 +76,21 @@ describe('walletHasPendingTransaction', () => {
     assert.strictEqual(walletHasPendingTransaction(makeWallet({ transactions: [{ confirmations: 1 }] })), false);
     assert.strictEqual(walletHasPendingTransaction(makeWallet({ transactions: [{ confirmations: 0 }] })), true);
     assert.strictEqual(
-      walletHasPendingTransaction(makeWallet({ type: LightningArkWallet.type, transactions: [{ ispaid: false, failed: false }] })),
+      walletHasPendingTransaction(
+        makeWallet({
+          type: LightningArkWallet.type,
+          transactions: [{ ispaid: false, failed: false }],
+        }),
+      ),
       true,
     );
     assert.strictEqual(
-      walletHasPendingTransaction(makeWallet({ type: LightningArkWallet.type, transactions: [{ ispaid: false, failed: true }] })),
+      walletHasPendingTransaction(
+        makeWallet({
+          type: LightningArkWallet.type,
+          transactions: [{ ispaid: false, failed: true }],
+        }),
+      ),
       false,
     );
   });
@@ -95,7 +100,10 @@ describe('wallet carousel refresh publish', () => {
   it.each([
     { name: 'FlatList animateChanges', props: { animateChanges: true } },
     { name: 'FlatList default (no animateChanges)', props: {} },
-    { name: 'drawer non-FlatList', props: { isFlatList: false, horizontal: false, animateChanges: true } },
+    {
+      name: 'drawer non-FlatList',
+      props: { isFlatList: false, horizontal: false, animateChanges: true },
+    },
   ])('stays stale until re-publish, then refreshes card fields ($name)', ({ props }) => {
     const wallet = makeWallet();
     const onPress = jest.fn();
@@ -129,7 +137,10 @@ describe('wallet carousel refresh publish', () => {
     // SectionList rows are PureComponents; WalletsList keeps carousel section data as a static string.
     let rowRenders = 0;
 
-    class CarouselRowHost extends React.PureComponent<{ extraData?: TWallet[]; wallets: TWallet[] }> {
+    class CarouselRowHost extends React.PureComponent<{
+      extraData?: TWallet[];
+      wallets: TWallet[];
+    }> {
       render() {
         rowRenders++;
         return <WalletsCarousel data={this.props.wallets} onPress={() => {}} animateChanges />;

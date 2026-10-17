@@ -1,10 +1,10 @@
 import { Alert, Linking } from 'react-native';
 
-import { isDesktop } from '../blue_modules/environment';
+import { isMacCatalyst } from '../blue_modules/environment';
 import loc from '../loc';
 
 export const openPrivacyDesktopSettings = () => {
-  if (isDesktop) {
+  if (isMacCatalyst) {
     Linking.openURL('x-apple.systempreferences:com.apple.preference.security?Privacy_Camera');
   } else {
     Linking.openSettings();

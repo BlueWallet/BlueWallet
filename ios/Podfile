@@ -9,6 +9,11 @@ end
 node_require('react-native/scripts/react_native_pods.rb')
 node_require('react-native-permissions/scripts/setup.rb')
 
+# react-native-screens ships Split behind its native Gamma implementation.
+# Without this, the JS components resolve but iOS registers no-op stubs that
+# fail when Fabric attempts to create RNSSplitHost.
+ENV['RNS_GAMMA_ENABLED'] = '1'
+
 workspace 'BlueWallet'
 platform :ios, min_ios_version_supported
 prepare_react_native_project!

@@ -12,22 +12,13 @@ import {
   ListRenderItemInfo,
   ViewStyle,
 } from 'react-native';
-import Animated, {
-  Easing,
-  FadeIn,
-  FadeOut,
-  LinearTransition,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { Easing, FadeIn, FadeOut, LinearTransition, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
 import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
 import WalletGradient from '../class/wallet-gradient';
-import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
+import { useSplitLayout } from './Context/SplitLayoutContext';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { withAlpha } from './color';
@@ -51,9 +42,7 @@ const scaleLayoutUp = (base: number, fontScale: number): number => Math.round(ba
 export const getWalletCardMinHeight = (fontScale = 1): number => scaleLayoutUp(WALLET_CARD_BASE_MIN_HEIGHT, fontScale);
 
 export const getWalletCarouselHeight = (fontScale = 1): number =>
-  scaleLayoutUp(WALLET_CAROUSEL_PADDING_TOP, fontScale) +
-  getWalletCardMinHeight(fontScale) +
-  scaleLayoutUp(WALLET_CAROUSEL_PADDING_BOTTOM, fontScale);
+  scaleLayoutUp(WALLET_CAROUSEL_PADDING_TOP, fontScale) + getWalletCardMinHeight(fontScale) + scaleLayoutUp(WALLET_CAROUSEL_PADDING_BOTTOM, fontScale);
 
 /** Default carousel row height at `fontScale` 1 — prefer `getWalletCarouselHeight(fontScale)` when layout depends on Dynamic Type. */
 export const WALLET_CAROUSEL_HEIGHT = getWalletCarouselHeight(1);
@@ -109,9 +98,9 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const itemWidth = getWalletCarouselItemWidth(width);
-  const { isLarge } = useSizeClass();
+  const { isExpanded } = useSplitLayout();
   const nStylesHooks = StyleSheet.create({
-    container: isLarge
+    container: isExpanded
       ? {
           paddingHorizontal: 24,
           marginVertical: 16,
@@ -140,7 +129,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
       onPress={onPress}
       testID="CreateAWallet"
       style={({ pressed }) => [
-        isLarge ? {} : { width: itemWidth * 1.2 },
+        isExpanded ? {} : { width: itemWidth * 1.2 },
         {
           opacity: pressed ? 0.9 : 1.0,
         },
@@ -149,13 +138,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
       accessibilityLabel={loc.wallets.list_create_a_wallet}
     >
       <Animated.View
-        style={[
-          nStyles.container,
-          nStylesHooks.container,
-          { backgroundColor: colors.lightButton },
-          isLarge ? {} : { width: itemWidth },
-          animatedScaleStyle,
-        ]}
+        style={[nStyles.container, nStylesHooks.container, { backgroundColor: colors.lightButton }, isExpanded ? {} : { width: itemWidth }, animatedScaleStyle]}
       >
         <Text style={[nStyles.addAWAllet, { color: colors.foregroundColor }]}>{loc.wallets.list_create_a_wallet}</Text>
         <Text style={[nStyles.addLine, { color: colors.alternativeTextColor }]}>{loc.wallets.list_create_a_wallet_text}</Text>
@@ -319,7 +302,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
   const { colors } = useTheme();
   const { width, fontScale } = useWindowDimensions();
   const itemWidth = getWalletCarouselItemWidth(width);
-  const { sizeClass } = useSizeClass();
+  const { isExpanded } = useSplitLayout();
   const isCompact = sizeVariant === 'compact';
   const { direction } = useLocale();
   const scaledCardStyles = useMemo(
@@ -349,20 +332,31 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
 
   const animatePressScale = useCallback(
     (toValue: number) => {
-      pressScale.value = withSpring(toValue, { damping: 13, stiffness: 180, mass: 0.9 });
+      pressScale.value = withSpring(toValue, {
+        damping: 13,
+        stiffness: 180,
+        mass: 0.9,
+      });
     },
     [pressScale],
   );
 
   useEffect(() => {
-    dragScale.value = withSpring(isDraggingActive ? dragActiveScale : 1, { damping: 16, stiffness: 200, mass: 1 });
+    dragScale.value = withSpring(isDraggingActive ? dragActiveScale : 1, {
+      damping: 16,
+      stiffness: 200,
+      mass: 1,
+    });
   }, [isDraggingActive, dragActiveScale, dragScale]);
 
   useEffect(() => {
     if (!animationsEnabled) return;
 
     const targetOpacity = isSelectedWallet === false ? 0.5 : 1.0;
-    opacityValue.value = withSpring(targetOpacity, { damping: 18, stiffness: 240 });
+    opacityValue.value = withSpring(targetOpacity, {
+      damping: 18,
+      stiffness: 240,
+    });
   }, [isSelectedWallet, opacityValue, animationsEnabled]);
 
   const onPressedIn = useCallback(() => {
@@ -386,7 +380,10 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
   useEffect(() => {
     if (isNewWallet && animationsEnabled) {
       translateYValue.value = withTiming(0, { duration: 300 });
-      opacityValue.value = withSpring(isSelectedWallet === false ? 0.5 : 1.0, { damping: 18, stiffness: 240 });
+      opacityValue.value = withSpring(isSelectedWallet === false ? 0.5 : 1.0, {
+        damping: 18,
+        stiffness: 240,
+      });
     }
   }, [isNewWallet, animationsEnabled, translateYValue, opacityValue, isSelectedWallet]);
 
@@ -449,12 +446,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
 
   return (
     <Animated.View
-      style={[
-        sizeClass === SizeClass.Large || !horizontal
-          ? [iStyles.rootLargeDevice, customStyle]
-          : [iStyles.root, { width: itemWidth }, customStyle],
-        animatedCardStyle,
-      ]}
+      style={[isExpanded || !horizontal ? [iStyles.rootLargeDevice, customStyle] : [iStyles.root, { width: itemWidth }, customStyle], animatedCardStyle]}
     >
       <Pressable
         accessibilityRole="button"
@@ -472,13 +464,13 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
           style={[
             iStyles.shadowContainer,
             isCompact && iStyles.shadowContainerCompact,
-            { backgroundColor: colors.background, shadowColor: colors.shadowColor },
+            {
+              backgroundColor: colors.background,
+              shadowColor: colors.shadowColor,
+            },
           ]}
         >
-          <LinearGradient
-            colors={WalletGradient.gradientsFor(item.type)}
-            style={[iStyles.grad, isCompact && iStyles.gradCompact, scaledCardStyles.grad]}
-          >
+          <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={[iStyles.grad, isCompact && iStyles.gradCompact, scaledCardStyles.grad]}>
             <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
             <View style={[iStyles.gradContent, isCompact && iStyles.gradContentCompact, !isCompact && scaledCardStyles.gradContent]}>
               {!isPlaceHolder && (
@@ -600,24 +592,16 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
   const flatListRef = useRef<FlatList<TWallet>>(null);
   const walletRefs = useRef<Record<string, React.MutableRefObject<View | null>>>({});
 
-  const { sizeClass } = useSizeClass();
+  const { isExpanded } = useSplitLayout();
 
   useImperativeHandle(ref, (): any => {
     if (isFlatList) {
       return {
         scrollToEnd: (params: { animated?: boolean | null | undefined } | undefined) => flatListRef.current?.scrollToEnd(params),
-        scrollToIndex: (params: {
-          animated?: boolean | null | undefined;
-          index: number;
-          viewOffset?: number | undefined;
-          viewPosition?: number | undefined;
-        }) => flatListRef.current?.scrollToIndex(params),
-        scrollToItem: (params: {
-          animated?: boolean | null | undefined;
-          item: any;
-          viewOffset?: number | undefined;
-          viewPosition?: number | undefined;
-        }) => flatListRef.current?.scrollToItem(params),
+        scrollToIndex: (params: { animated?: boolean | null | undefined; index: number; viewOffset?: number | undefined; viewPosition?: number | undefined }) =>
+          flatListRef.current?.scrollToIndex(params),
+        scrollToItem: (params: { animated?: boolean | null | undefined; item: any; viewOffset?: number | undefined; viewPosition?: number | undefined }) =>
+          flatListRef.current?.scrollToItem(params),
         scrollToOffset: (params: { animated?: boolean | null | undefined; offset: number }) => flatListRef.current?.scrollToOffset(params),
         recordInteraction: () => flatListRef.current?.recordInteraction(),
         flashScrollIndicators: () => flatListRef.current?.flashScrollIndicators(),
@@ -638,9 +622,19 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
         getWalletPosition: (walletId: string) => {
           const walletRef = walletRefs.current[walletId];
           if (walletRef?.current) {
-            return new Promise<{ x: number; y: number; width: number; height: number }>(resolve => {
+            return new Promise<{
+              x: number;
+              y: number;
+              width: number;
+              height: number;
+            }>((resolve) => {
               walletRef.current?.measure((x: number, y: number, widthVal: number, heightVal: number, pageX: number, pageY: number) => {
-                resolve({ x: pageX, y: pageY, width: widthVal, height: heightVal });
+                resolve({
+                  x: pageX,
+                  y: pageY,
+                  width: widthVal,
+                  height: heightVal,
+                });
               });
             });
           }
@@ -659,7 +653,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
   }, []);
 
   useEffect(() => {
-    data.forEach(wallet => {
+    data.forEach((wallet) => {
       if (!walletRefs.current[wallet.getID()]) {
         walletRefs.current[wallet.getID()] = { current: null };
       }
@@ -673,7 +667,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       console.debug('[WalletsCarousel] Attempting to scroll to wallet:', walletId);
 
       if (isFlatList && flatListRef.current) {
-        const walletIndex = data.findIndex(wallet => wallet.getID() === walletId);
+        const walletIndex = data.findIndex((wallet) => wallet.getID() === walletId);
         if (walletIndex !== -1) {
           try {
             console.debug('[WalletsCarousel] Found wallet at index:', walletIndex, 'horizontal:', horizontal);
@@ -696,12 +690,8 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       } else if (!isFlatList) {
         // For non-FlatList, just log the attempt
         // The parent DrawerContentScrollView should handle this
-        const walletIndex = data.findIndex(wallet => wallet.getID() === walletId);
-        console.debug(
-          '[WalletsCarousel] Would scroll to wallet index:',
-          walletIndex,
-          'but leaving scrolling to parent DrawerContentScrollView',
-        );
+        const walletIndex = data.findIndex((wallet) => wallet.getID() === walletId);
+        console.debug('[WalletsCarousel] Would scroll to wallet index:', walletIndex, 'but leaving scrolling to parent DrawerContentScrollView');
       }
     },
     [data, isFlatList, itemWidth, horizontal],
@@ -709,7 +699,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
 
   useEffect(() => {
     if (animateChanges) {
-      const currentWalletIds = data.map(wallet => wallet.getID());
+      const currentWalletIds = data.map((wallet) => wallet.getID());
 
       // Skip auto-scrolling on initial mount
       if (isInitialMount.current) {
@@ -719,12 +709,12 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       }
 
       // Handle wallet additions
-      const addedWallets = currentWalletIds.filter(id => !prevWalletIds.current.includes(id));
+      const addedWallets = currentWalletIds.filter((id) => !prevWalletIds.current.includes(id));
       if (addedWallets.length > 0) {
         // Track last added wallet for animations and scrolling
         lastAddedWalletId.current = addedWallets[addedWallets.length - 1];
 
-        addedWallets.forEach(id => {
+        addedWallets.forEach((id) => {
           newWalletsMap.current[id] = true;
         });
 
@@ -747,7 +737,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       // Clear animation states
       if (addedWallets.length > 0) {
         setTimeout(() => {
-          addedWallets.forEach(id => {
+          addedWallets.forEach((id) => {
             delete newWalletsMap.current[id];
           });
           lastAddedWalletId.current = null;
@@ -758,10 +748,16 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
 
   const onScrollToIndexFailed = (error: { averageItemLength: number; index: number }): void => {
     console.debug('onScrollToIndexFailed', error);
-    flatListRef.current?.scrollToOffset({ offset: error.averageItemLength * error.index, animated: true });
+    flatListRef.current?.scrollToOffset({
+      offset: error.averageItemLength * error.index,
+      animated: true,
+    });
     setTimeout(() => {
       if (data.length !== 0 && flatListRef.current !== null) {
-        flatListRef.current.scrollToIndex({ index: error.index, animated: true });
+        flatListRef.current.scrollToIndex({
+          index: error.index,
+          animated: true,
+        });
       }
     }, 100);
   };
@@ -817,7 +813,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
   }, []);
 
   const renderNonFlatListWallets = useCallback(() => {
-    return data.map(item => {
+    return data.map((item) => {
       if (!item) return null;
 
       const content = (
@@ -830,11 +826,9 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
           }}
           onLayout={() => {
             if (walletRefs.current[item.getID()]?.current && newWalletsMap.current[item.getID()]) {
-              walletRefs.current[item.getID()].current?.measure(
-                (x: number, y: number, widthVal: number, heightVal: number, pageX: number, pageY: number) => {
-                  console.debug(`[WalletsCarousel] New wallet ${item.getID()} positioned at y=${y}, pageY=${pageY}`);
-                },
-              );
+              walletRefs.current[item.getID()].current?.measure((x: number, y: number, widthVal: number, heightVal: number, pageX: number, pageY: number) => {
+                console.debug(`[WalletsCarousel] New wallet ${item.getID()} positioned at y=${y}, pageY=${pageY}`);
+              });
             }
           }}
         >
@@ -895,7 +889,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       paddingBottom: scaleLayoutUp(WALLET_CAROUSEL_PADDING_BOTTOM, fontScale),
     },
     contentLargeScreen: {
-      paddingHorizontal: sizeClass === SizeClass.Large ? 16 : 12,
+      paddingHorizontal: isExpanded ? 16 : 12,
     },
   });
 
