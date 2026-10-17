@@ -1,6 +1,6 @@
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useMemo, useReducer, useRef } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import BlueText from '../../components/BlueText';
 import { TWallet } from '../../class/wallets/types';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -182,7 +182,8 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
         xpub && (
           <SaveFileButton
             style={styles.exportButton}
-            fileName={`${label}.txt`}
+            fileName={`${label}.${Platform.OS === 'ios' ? 'bwcoord' : 'txt'}`}
+            textFileName={Platform.OS === 'ios' ? `${label}.txt` : undefined}
             fileContent={xpub}
             beforeOnPress={exportTxtFileBeforeOnPress}
             afterOnPress={exportTxtFileAfterOnPress}
