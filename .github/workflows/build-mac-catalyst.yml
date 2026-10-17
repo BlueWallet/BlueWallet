@@ -1,11 +1,19 @@
 name: Build Mac Catalyst
 
 on:
+  workflow_call:
+    inputs:
+      upload_testflight:
+        description: Upload the Mac Catalyst archive to App Store Connect/TestFlight
+        required: false
+        type: boolean
+        default: false
+      build_number:
+        description: CFBundleVersion to use for the Catalyst build
+        required: false
+        type: string
+        default: ''
   workflow_dispatch:
-  pull_request:
-    branches:
-      - master
-    types: [labeled, synchronize]
 
 concurrency:
   group: catalyst-build-${{ github.event.pull_request.number || github.run_id }}
@@ -14,6 +22,7 @@ concurrency:
 jobs:
   build:
     if: >
+      inputs.build_number != '' ||
       github.event_name == 'workflow_dispatch' ||
       (github.event.action == 'labeled' && (github.event.label.name == 'mac-dmg' || github.event.label.name == 'testflight')) ||
       github.event.action == 'synchronize'
@@ -41,6 +50,18 @@ jobs:
           fi
           echo "Labels on PR: ${LABELS}"
 
+      - name: Select Catalyst release outputs
+        id: release_mode
+        env:
+          CALLED_UPLOAD_TESTFLIGHT: ${{ inputs.upload_testflight || false }}
+          LABELED_UPLOAD_TESTFLIGHT: ${{ steps.labels.outputs.upload_testflight || 'false' }}
+        run: |
+          if [[ "$CALLED_UPLOAD_TESTFLIGHT" == "true" || "$LABELED_UPLOAD_TESTFLIGHT" == "true" ]]; then
+            echo "upload_testflight=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "upload_testflight=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Skip if mac-dmg label not present
         if: github.event_name == 'pull_request' && steps.labels.outputs.has_mac_dmg != 'true'
         run: |
@@ -48,37 +69,37 @@ jobs:
           exit 0
 
       - name: Checkout project
-        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        if: inputs.build_number != '' || github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        if: inputs.build_number != '' || github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: 24
           cache: 'npm'
 
       - name: Setup Xcode
-        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        if: inputs.build_number != '' || github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
         uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: latest
 
       - name: Set up Ruby
-        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        if: inputs.build_number != '' || github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
         uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
           ruby-version: 3.4.11
           bundler-cache: true
 
       - name: Install Node modules
-        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        if: inputs.build_number != '' || github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
         run: npm ci
 
       - name: Cache CocoaPods
-        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        if: inputs.build_number != '' || github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: |
@@ -90,51 +111,60 @@ jobs:
             ${{ runner.os }}-pods-catalyst-
 
       - name: Install CocoaPods dependencies
-        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        if: inputs.build_number != '' || github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
         env:
           SKIP_APP_STORE_CONNECT_AUTH: '1'
           RCT_USE_RN_DEP: "1"
           RCT_USE_PREBUILT_RNCORE: "1"
         run: bundle exec fastlane ios install_pods
 
+      - name: Set Catalyst build number
+        if: inputs.build_number != ''
+        run: bundle exec fastlane ios increment_build_number_lane
+        env:
+          NEW_BUILD_NUMBER: ${{ inputs.build_number }}
+
       - name: Create temporary keychain for signing
-        if: (github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true') && steps.labels.outputs.upload_testflight == 'true'
         run: |
           security create-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain
           security set-keychain-settings -t 3600 -u build.keychain
 
+      - name: Create App Store Connect API Key JSON
+        run: echo '${{ secrets.APPLE_API_KEY_CONTENT }}' > ./appstore_api_key.json
+
       - name: Build Mac Catalyst app with Fastlane
-        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        if: inputs.build_number != '' || github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
         id: build_catalyst
         run: bundle exec fastlane ios build_catalyst_app_lane
         env:
           SKIP_APP_STORE_CONNECT_AUTH: '1'
           SKIP_CLEAR_DERIVED_DATA: '1'
-          CATALYST_SIGNING_IDENTITY: ${{ steps.labels.outputs.upload_testflight == 'true' && secrets.CATALYST_SIGNING_IDENTITY || '' }}
-          CATALYST_TEAM_ID: ${{ steps.labels.outputs.upload_testflight == 'true' && secrets.CATALYST_TEAM_ID || '' }}
-          GIT_URL: ${{ steps.labels.outputs.upload_testflight == 'true' && secrets.GIT_URL || '' }}
-          GIT_ACCESS_TOKEN: ${{ steps.labels.outputs.upload_testflight == 'true' && secrets.GIT_ACCESS_TOKEN || '' }}
-          MATCH_READONLY: ${{ steps.labels.outputs.upload_testflight == 'true' && 'false' || 'true' }}
-          KEYCHAIN_NAME: ${{ steps.labels.outputs.upload_testflight == 'true' && 'build' || '' }}
+          CATALYST_SIGNING_IDENTITY: ${{ secrets.CATALYST_SIGNING_IDENTITY }}
+          CATALYST_DEVELOPER_ID_IDENTITY: ${{ secrets.CATALYST_DEVELOPER_ID_IDENTITY }}
+          CATALYST_TEAM_ID: ${{ secrets.CATALYST_TEAM_ID }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          MATCH_READONLY: "true"
+          KEYCHAIN_NAME: build
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+          APPLE_API_KEY_PATH: ./appstore_api_key.json
 
       - name: Upload Mac Catalyst DMG
         id: upload_dmg
-        if: success() && (github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true')
+        if: success() && (inputs.build_number != '' || github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true')
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: BlueWallet-Mac-Catalyst
           path: ${{ steps.build_catalyst.outputs.catalyst_dmg_path }}
           if-no-files-found: warn
-
-      - name: Create App Store Connect API Key JSON
-        if: success() && steps.labels.outputs.upload_testflight == 'true'
-        run: echo '${{ secrets.APPLE_API_KEY_CONTENT }}' > ./appstore_api_key.json
+          retention-days: 7
 
       - name: Upload to TestFlight
-        if: success() && steps.labels.outputs.upload_testflight == 'true'
+        if: success() && steps.release_mode.outputs.upload_testflight == 'true'
         run: bundle exec fastlane ios upload_catalyst_to_testflight
         env:
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
@@ -145,18 +175,18 @@ jobs:
           LATEST_COMMIT_MESSAGE: ${{ github.event.pull_request.title || 'Manual build' }}
 
       - name: Cleanup App Store Connect API Key JSON
-        if: always() && steps.labels.outputs.upload_testflight == 'true'
+        if: always()
         run: rm -f ./appstore_api_key.json
 
       - name: Cleanup temporary keychain
-        if: always() && steps.labels.outputs.upload_testflight == 'true'
+        if: always()
         run: security delete-keychain build.keychain || true
 
       - name: Comment on PR with DMG link
         if: success() && github.event_name == 'pull_request' && steps.labels.outputs.has_mac_dmg == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          UPLOADED_TO_TF: ${{ steps.labels.outputs.upload_testflight }}
+          UPLOADED_TO_TF: ${{ steps.release_mode.outputs.upload_testflight }}
         run: |
           ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ steps.upload_dmg.outputs.artifact-id }}"
           COMMENT_TAG="<!-- catalyst-dmg-link -->"

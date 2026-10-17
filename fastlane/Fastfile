@@ -849,7 +849,7 @@ platform :ios do
       {
         platform: "catalyst",
         app_identifiers: catalyst_app_identifiers,
-        profile_types: %w[development appstore]
+        profile_types: %w[development appstore developer_id]
       }
     ]
 
@@ -1068,30 +1068,67 @@ platform :ios do
       UI.user_error!("Mac Catalyst app was not found after build") if catalyst_app_path.nil?
       UI.success("Mac Catalyst app found at: #{catalyst_app_path}")
 
-      if should_sign && ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty?
-        UI.message("Re-signing app with: #{signing_identity}")
-        sh("codesign",
-           "--deep",
-           "--force",
-           "--options", "runtime",
-           "--sign", signing_identity,
-           catalyst_app_path)
-        sh("codesign",
-           "--verify",
-           "--deep",
-           "--strict",
-           catalyst_app_path)
-        UI.success("App signed and verified")
-      else
-        # Ad-hoc sign so macOS doesn't treat the app as "damaged"
-        UI.message("Ad-hoc signing app to avoid Gatekeeper quarantine issues...")
-        sh("codesign",
-           "--deep",
-           "--force",
-           "--sign", "-",
-           catalyst_app_path)
-        UI.success("App ad-hoc signed")
+      UI.user_error!("A signed Catalyst archive is required for direct distribution") unless should_sign
+      UI.user_error!("No Catalyst xcarchive was found for direct distribution") if archive_path.nil? || !File.exist?(archive_path)
+
+      UI.message("Installing Developer ID signing assets for direct distribution...")
+      catalyst_identifiers.each do |app_id|
+        match(
+          type: "developer_id",
+          platform: "catalyst",
+          app_identifier: app_id,
+          team_id: ENV['CATALYST_TEAM_ID'],
+          git_url: ENV['GIT_URL'],
+          git_basic_authorization: ENV['GIT_ACCESS_TOKEN'],
+          readonly: true,
+          clone_branch_directly: true,
+          keychain_name: ENV['KEYCHAIN_NAME'] || "login",
+          keychain_password: ENV['KEYCHAIN_PASSWORD'] || ""
+        )
       end
+
+      direct_export_dir = File.join(output_dir, "developer-id-export")
+      FileUtils.rm_rf(direct_export_dir)
+      FileUtils.mkdir_p(direct_export_dir)
+      direct_export_plist = File.join(output_dir, "DeveloperIDExportOptions.plist")
+      developer_id_profiles_xml = catalyst_identifiers.map do |app_id|
+        profile_name = "match Direct #{app_id} catalyst"
+        "\t\t\t<key>#{app_id}</key>\n\t\t\t<string>#{profile_name}</string>"
+      end.join("\n")
+
+      File.write(direct_export_plist, <<~PLIST)
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+          <key>method</key>
+          <string>developer-id</string>
+          <key>destination</key>
+          <string>export</string>
+          <key>teamID</key>
+          <string>#{ENV['CATALYST_TEAM_ID']}</string>
+          <key>signingStyle</key>
+          <string>manual</string>
+          <key>signingCertificate</key>
+          <string>Developer ID Application</string>
+          <key>provisioningProfiles</key>
+          <dict>
+#{developer_id_profiles_xml}
+          </dict>
+        </dict>
+        </plist>
+      PLIST
+
+      sh("xcodebuild",
+         "-exportArchive",
+         "-archivePath", archive_path,
+         "-exportOptionsPlist", direct_export_plist,
+         "-exportPath", direct_export_dir)
+
+      direct_app_path = Dir.glob(File.join(direct_export_dir, "**", "BlueWallet.app")).first
+      UI.user_error!("Developer ID export did not produce BlueWallet.app") if direct_app_path.nil? || !File.exist?(direct_app_path)
+      sh("codesign", "--verify", "--deep", "--strict", "--verbose=2", direct_app_path)
+      UI.success("Developer ID-signed app exported and verified")
 
       dmg_path = File.join(output_dir, "BlueWallet-Mac-Catalyst.dmg")
       UI.message("Creating DMG at: #{dmg_path}")
@@ -1099,7 +1136,7 @@ platform :ios do
       dmg_staging = File.join(output_dir, "dmg-staging")
       FileUtils.rm_rf(dmg_staging)
       FileUtils.mkdir_p(dmg_staging)
-      FileUtils.cp_r(catalyst_app_path, dmg_staging)
+      FileUtils.cp_r(direct_app_path, dmg_staging)
 
       sh("ln", "-s", "/Applications", "#{dmg_staging}/Applications")
 
@@ -1209,6 +1246,42 @@ platform :ios do
       sh("hdiutil", "create", "-volname", "BlueWallet", "-srcfolder", dmg_staging, "-ov", "-format", "UDZO", dmg_path)
       UI.user_error!("DMG was not created at #{dmg_path}") unless File.exist?(dmg_path)
       UI.success("DMG created at: #{dmg_path}")
+
+      developer_id_identity = ENV['CATALYST_DEVELOPER_ID_IDENTITY'].to_s
+      developer_id_identity = "Developer ID Application" if developer_id_identity.empty?
+      sh("codesign",
+         "--force",
+         "--timestamp",
+         "--sign", developer_id_identity,
+         dmg_path)
+      sh("codesign", "--verify", "--verbose=2", dmg_path)
+      UI.success("DMG signed with Developer ID")
+
+      require "json"
+      api_key_path = ENV['APPLE_API_KEY_PATH'] || "./appstore_api_key.json"
+      UI.user_error!("App Store Connect API key JSON was not found at #{api_key_path}") unless File.file?(api_key_path)
+      api_key_data = JSON.parse(File.read(api_key_path))
+      notary_key_id = ENV['APPLE_API_KEY_ID'] || api_key_data['key_id']
+      notary_issuer_id = ENV['APPLE_API_ISSUER_ID'] || api_key_data['issuer_id']
+      notary_key_content = api_key_data['key']
+      UI.user_error!("APPLE_API_KEY_ID is required for notarization") if notary_key_id.to_s.empty?
+      UI.user_error!("APPLE_API_ISSUER_ID is required for notarization") if notary_issuer_id.to_s.empty?
+      UI.user_error!("The API key JSON must contain the private key in its 'key' field") if notary_key_content.to_s.empty?
+
+      notary_key_path = File.join(output_dir, "AuthKey_#{notary_key_id}.p8")
+      begin
+        File.write(notary_key_path, notary_key_content.gsub('\\n', "\n"))
+        sh("xcrun", "notarytool", "submit", dmg_path,
+           "--key", notary_key_path,
+           "--key-id", notary_key_id,
+           "--issuer", notary_issuer_id,
+           "--wait")
+        sh("xcrun", "stapler", "staple", dmg_path)
+        sh("xcrun", "stapler", "validate", dmg_path)
+        UI.success("DMG notarized and ticket stapled successfully")
+      ensure
+        FileUtils.rm_f(notary_key_path)
+      end
 
       FileUtils.rm_rf(dmg_staging)
 
