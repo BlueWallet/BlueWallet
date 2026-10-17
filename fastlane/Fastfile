@@ -1068,31 +1068,6 @@ platform :ios do
       UI.user_error!("Mac Catalyst app was not found after build") if catalyst_app_path.nil?
       UI.success("Mac Catalyst app found at: #{catalyst_app_path}")
 
-      if should_sign && ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty?
-        UI.message("Re-signing app with: #{signing_identity}")
-        sh("codesign",
-           "--deep",
-           "--force",
-           "--options", "runtime",
-           "--sign", signing_identity,
-           catalyst_app_path)
-        sh("codesign",
-           "--verify",
-           "--deep",
-           "--strict",
-           catalyst_app_path)
-        UI.success("App signed and verified")
-      else
-        # Ad-hoc sign so macOS doesn't treat the app as "damaged"
-        UI.message("Ad-hoc signing app to avoid Gatekeeper quarantine issues...")
-        sh("codesign",
-           "--deep",
-           "--force",
-           "--sign", "-",
-           catalyst_app_path)
-        UI.success("App ad-hoc signed")
-      end
-
       dmg_path = File.join(output_dir, "BlueWallet-Mac-Catalyst.dmg")
       UI.message("Creating DMG at: #{dmg_path}")
 
@@ -1100,6 +1075,23 @@ platform :ios do
       FileUtils.rm_rf(dmg_staging)
       FileUtils.mkdir_p(dmg_staging)
       FileUtils.cp_r(catalyst_app_path, dmg_staging)
+
+      # Never modify the archived App Store build: xcodebuild must export that
+      # exact signed archive for TestFlight. The downloadable DMG gets its own
+      # ad-hoc-signed copy, matching the first-launch instructions below.
+      dmg_app_path = File.join(dmg_staging, File.basename(catalyst_app_path))
+      UI.message("Ad-hoc signing the direct-download copy...")
+      sh("codesign",
+         "--deep",
+         "--force",
+         "--sign", "-",
+         dmg_app_path)
+      sh("codesign",
+         "--verify",
+         "--deep",
+         "--strict",
+         dmg_app_path)
+      UI.success("Direct-download app copy signed and verified")
 
       sh("ln", "-s", "/Applications", "#{dmg_staging}/Applications")
 

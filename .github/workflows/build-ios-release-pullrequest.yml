@@ -9,6 +9,12 @@ on:
     branches:
       - master
   workflow_dispatch:
+    inputs:
+      upload_mac_testflight:
+        description: Upload the Mac Catalyst build to App Store Connect/TestFlight
+        required: true
+        type: boolean
+        default: true
 
 concurrency:
   group: build-ios-release-${{ github.ref }}
@@ -546,3 +552,18 @@ jobs:
               issue_number: prNumber,
               body: message,
             });
+
+  mac-catalyst:
+    name: Mac Catalyst (TestFlight and DMG)
+    needs: build
+    if: >
+      always() &&
+      (github.event_name == 'push' ||
+       github.event_name == 'workflow_dispatch' ||
+       contains(github.event.pull_request.labels.*.name, 'mac-dmg') ||
+       contains(github.event.pull_request.labels.*.name, 'testflight'))
+    uses: ./.github/workflows/build-mac-catalyst.yml
+    with:
+      build_number: ${{ needs.build.outputs.new_build_number || github.run_id }}
+      upload_testflight: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.upload_mac_testflight) || contains(github.event.pull_request.labels.*.name, 'testflight') }}
+    secrets: inherit
