@@ -6,6 +6,8 @@ import { useKeyboard } from '../hooks/useKeyboard';
 
 /** Grabber, in-content header and bottom padding of a compact Android form sheet, kept clear of the keyboard. */
 const ANDROID_SHEET_CHROME = 140;
+/** Never collapse the scroller: at this height part of the form is always on screen and the rest can be scrolled to. */
+const MIN_FORM_HEIGHT = 160;
 
 interface SheetKeyboardFormProps {
   style?: StyleProp<ViewStyle>;
@@ -32,7 +34,10 @@ const SheetKeyboardForm: React.FC<SheetKeyboardFormProps> = ({ style, children }
     return <View style={style}>{children}</View>;
   }
 
-  const maxHeight = Math.max(windowHeight - (isKeyboardVisible ? keyboardHeight : 0) - insets.top - ANDROID_SHEET_CHROME, 0);
+  // Edge-to-edge Android keeps the window size when the keyboard opens (insets change instead), so the keyboard is
+  // subtracted once. If a device does shrink the window, the cap is just smaller, never below MIN_FORM_HEIGHT.
+  const spaceAboveKeyboard = windowHeight - (isKeyboardVisible ? keyboardHeight : 0) - insets.top - ANDROID_SHEET_CHROME;
+  const maxHeight = Math.max(spaceAboveKeyboard, MIN_FORM_HEIGHT);
   const sizeStyle = StyleSheet.create({ cap: { maxHeight } });
 
   return (
