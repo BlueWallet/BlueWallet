@@ -4,9 +4,9 @@ import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTi
 
 /** Collapse of the finished step; matches the checkmark transition in MultipleStepsListItem. */
 const COLLAPSE_DURATION = 600;
-/** The next step's content waits until the previous step has collapsed and checked off. */
-const FADE_IN_DELAY = COLLAPSE_DURATION;
-const FADE_IN_DURATION = 350;
+/** The next step's buttons start fading in once the previous step's checkmark has mostly landed. */
+const FADE_IN_DELAY = 250;
+const FADE_IN_DURATION = 250;
 
 type Phase = 'open' | 'waiting' | 'fadingIn' | 'closing' | 'closed';
 
