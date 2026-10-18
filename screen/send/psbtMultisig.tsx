@@ -244,7 +244,7 @@ const PsbtMultisig = () => {
     // half-finalized, or Export would share inputs that already lost their partial signatures.
     let finalized: bitcoin.Psbt;
     try {
-      finalized = MultisigHDWallet.finalizedCopy(psbt);
+      finalized = wallet.finalizedCopy(psbt);
     } catch (err: any) {
       presentAlert({ message: err?.message ?? String(err) });
       return;

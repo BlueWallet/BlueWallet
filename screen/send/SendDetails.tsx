@@ -840,17 +840,16 @@ const SendDetails = () => {
 
         const multisig = wallet as MultisigHDWallet;
         if (multisig) {
-          const signatures = multisig.calculateHowManySignaturesWeHaveFromPsbt(psbt);
-          const quorumReached = signatures >= multisig.getM();
-          if (quorumReached) {
-            // At quorum, only finalize: another signature breaks finalization, and skipping finalize leaves Export
-            // sharing a PSBT the next cosigner cannot broadcast. An input with more signatures than M cannot be
-            // finalized; then the original PSBT is kept to review or export. Any other finalize error throws and alerts.
-            psbt = MultisigHDWallet.tryFinalizeUnfinalizedInputs(psbt);
-          } else if (multisig.howManySignaturesCanWeMake() > 0) {
+          // Finalize at quorum, otherwise add our signatures (see prepareImportedPsbt, covered by unit tests).
+          // Signing derives seeds, so show the spinner for it.
+          const willSign =
+            multisig.calculateHowManySignaturesWeHaveFromPsbt(psbt) < multisig.getM() && multisig.howManySignaturesCanWeMake() > 0;
+          if (willSign) {
             setIsLoading(true);
             await sleep(100);
-            multisig.cosignPsbt(psbt);
+          }
+          psbt = multisig.prepareImportedPsbt(psbt);
+          if (willSign) {
             setIsLoading(false);
             await sleep(100);
           }
