@@ -20,7 +20,7 @@ jest.mock('../../blue_modules/hapticFeedback', () => ({
   default: jest.fn(),
   HapticFeedbackTypes: { ImpactLight: 'impactLight' },
 }));
-jest.mock('../../blue_modules/environment', () => ({ isDesktop: false }));
+jest.mock('../../blue_modules/environment', () => ({ isMacCatalyst: false }));
 jest.mock('../../hooks/context/useStorage', () => ({
   useStorage: () => ({ wallets: [{ chain: 'ONCHAIN', isAddressValid: () => true, weOwnAddress: () => false }] }),
 }));
@@ -34,7 +34,7 @@ const appStateListeners: Array<(state: AppStateStatus) => void> = [];
 const emitAppState = (state: AppStateStatus) => {
   (AppState as { currentState: AppStateStatus }).currentState = state;
   act(() => {
-    appStateListeners.forEach(listener => listener(state));
+    appStateListeners.forEach((listener) => listener(state));
   });
 };
 const flush = async (ms: number) => {

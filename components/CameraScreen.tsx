@@ -3,7 +3,7 @@ import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Camera, CameraApi, CameraType, Orientation } from 'react-native-camera-kit-no-google';
 import { OnOrientationChangeData, OnReadCodeData } from 'react-native-camera-kit-no-google/dist/CameraProps';
 
-import { isDesktop } from '../blue_modules/environment';
+import { isMacCatalyst } from '../blue_modules/environment';
 import { triggerSelectionHapticFeedback } from '../blue_modules/hapticFeedback';
 import loc from '../loc';
 import Icon from './Icon';
@@ -98,16 +98,11 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
   return (
     <View style={styles.screen}>
       {/* Render top buttons only if not desktop as they would not be relevant */}
-      {!isDesktop && (
+      {!isMacCatalyst && (
         <View style={styles.topButtons}>
           <TouchableOpacity style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]} onPress={onSetTorch}>
             <Animated.View style={styles.topButtonImg}>
-              <Icon
-                name={torchMode ? 'flashlight' : 'flashlight-off'}
-                type="material-community"
-                size={24}
-                color={torchMode ? '#000' : '#fff'}
-              />
+              <Icon name={torchMode ? 'flashlight' : 'flashlight-off'} type="material-community" size={24} color={torchMode ? '#000' : '#fff'} />
             </Animated.View>
           </TouchableOpacity>
           <View style={styles.rightButtonsContainer}>
@@ -160,7 +155,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
         <TouchableOpacity onPress={onCancelButtonPress}>
           <Animated.Text style={[styles.backTextStyle, uiRotationStyle]}>{loc._.cancel}</Animated.Text>
         </TouchableOpacity>
-        {isDesktop ? (
+        {isMacCatalyst ? (
           <View style={styles.rightButtonsContainer}>
             {showImagePickerButton && (
               <TouchableOpacity

@@ -5,17 +5,17 @@ import AddWalletButton from './AddWalletButton';
 
 interface HeaderProps {
   leftText: string;
-  isDrawerList?: boolean;
+  isSidebar?: boolean;
   onNewWalletPress?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ leftText, isDrawerList, onNewWalletPress }) => {
+export const Header: React.FC<HeaderProps> = ({ leftText, isSidebar, onNewWalletPress }) => {
   const { colors } = useTheme();
   const styleWithProps = StyleSheet.create({
     root: {
-      backgroundColor: isDrawerList ? colors.elevated : colors.background,
-      borderTopColor: isDrawerList ? colors.elevated : colors.background,
-      borderBottomColor: isDrawerList ? colors.elevated : colors.background,
+      backgroundColor: isSidebar ? colors.elevated : colors.background,
+      borderTopColor: isSidebar ? colors.elevated : colors.background,
+      borderBottomColor: isSidebar ? colors.elevated : colors.background,
     },
     text: {
       color: colors.foregroundColor,

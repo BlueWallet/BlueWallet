@@ -1,21 +1,10 @@
 import React, { forwardRef, ReactNode, useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import {
-  Animated,
-  LayoutChangeEvent,
-  PixelRatio,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-  StyleProp,
-  TextStyle,
-} from 'react-native';
+import { Animated, LayoutChangeEvent, PixelRatio, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View, StyleProp, TextStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from './themes';
-import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
-import { isDesktop } from '../blue_modules/environment';
+import { useSplitLayout } from './Context/SplitLayoutContext';
+import { isMacCatalyst } from '../blue_modules/environment';
 import debounce from '../blue_modules/debounce';
 import { withAlpha } from './color';
 
@@ -45,10 +34,10 @@ const BUTTON_SCALE_PRESSED = 0.96;
 const BUTTON_SCALE_ANIMATION_DURATION_MS = 110;
 
 const useFloatButtonAnimation = (initialHeight: number) => {
-  const slideAnimation = useRef(new Animated.Value(isDesktop ? 0 : initialHeight)).current;
+  const slideAnimation = useRef(new Animated.Value(isMacCatalyst ? 0 : initialHeight)).current;
 
   useEffect(() => {
-    if (isDesktop) return;
+    if (isMacCatalyst) return;
     Animated.spring(slideAnimation, {
       toValue: 0,
       friction: 7,
@@ -74,20 +63,20 @@ export const getFloatingButtonReservedHeight = (fontScale = 1, bottomInset = 0):
   getScaledButtonHeight(fontScale) + FLOAT_BUTTON_LIST_CLEARANCE + getFloatButtonBottomOffset(bottomInset) - bottomInset;
 
 // Prefer the measured parent width: in Catalyst/iPad sheets it is much narrower than the window.
-const getFloatButtonAvailableWidth = (windowWidth: number, sizeClass: SizeClass, parentWidth?: number): number => {
+const getFloatButtonAvailableWidth = (windowWidth: number, isExpanded: boolean, parentWidth?: number): number => {
   if (parentWidth !== undefined && parentWidth > 0) {
     return Math.max(0, Math.ceil(parentWidth - LAYOUT.CONTAINER_SIDE_MARGIN * 2));
   }
-  const drawerOffset = sizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
+  const drawerOffset = isExpanded ? LAYOUT.DRAWER_WIDTH : 0;
   return Math.max(0, Math.ceil(windowWidth - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2));
 };
 
-const useFloatButtonLayout = (width: number, availableWidth: number, sizeClass: SizeClass, fontScale: number) => {
+const useFloatButtonLayout = (width: number, availableWidth: number, isExpanded: boolean, fontScale: number) => {
   const lastVerticalDecision = useRef(false);
 
   const shouldUseVerticalLayout = useCallback(
     (totalWidthNeeded: number, totalChildren: number) => {
-      if (sizeClass !== SizeClass.Large || totalChildren <= 1) return false;
+      if (!isExpanded || totalChildren <= 1) return false;
 
       const minWidthPerButton = 130;
       const totalButtonsWidth = minWidthPerButton * totalChildren;
@@ -110,7 +99,7 @@ const useFloatButtonLayout = (width: number, availableWidth: number, sizeClass: 
 
       return lastVerticalDecision.current;
     },
-    [sizeClass, availableWidth],
+    [isExpanded, availableWidth],
   );
 
   const calculateButtonWidth = useCallback(
@@ -123,19 +112,14 @@ const useFloatButtonLayout = (width: number, availableWidth: number, sizeClass: 
       const totalSpacersWidth = (totalChildren - 1) * LAYOUT.BUTTON_MARGIN;
       const totalWidthNeeded = totalButtonWidth + totalSpacersWidth + LAYOUT.SAFETY_MARGIN;
 
-      const effectiveMinButtonWidth =
-        sizeClass === SizeClass.Large
-          ? LAYOUT.MIN_BUTTON_WIDTH_LARGE
-          : sizeClass === SizeClass.Regular
-            ? LAYOUT.MIN_BUTTON_WIDTH
-            : LAYOUT.MIN_BUTTON_WIDTH * 0.85;
+      const effectiveMinButtonWidth = isExpanded ? LAYOUT.MIN_BUTTON_WIDTH_LARGE : LAYOUT.MIN_BUTTON_WIDTH;
 
       const shouldBeVertical = shouldUseVerticalLayout(totalWidthNeeded, totalChildren);
 
       let calculatedWidth;
 
       if (shouldBeVertical) {
-        calculatedWidth = sizeClass === SizeClass.Large ? availableWidth - LAYOUT.CONTAINER_SIDE_MARGIN * 2 : availableWidth;
+        calculatedWidth = isExpanded ? availableWidth - LAYOUT.CONTAINER_SIDE_MARGIN * 2 : availableWidth;
       } else {
         if (totalWidthNeeded > availableWidth) {
           const availableWidthPerButton = (availableWidth - totalSpacersWidth) / totalChildren;
@@ -146,18 +130,15 @@ const useFloatButtonLayout = (width: number, availableWidth: number, sizeClass: 
       }
 
       if (totalChildren === 1 && !shouldBeVertical) {
-        const singleButtonMaxWidth = availableWidth * (sizeClass === SizeClass.Compact ? 0.7 : LAYOUT.SINGLE_BUTTON_WIDTH_FACTOR);
-        const effectiveSingleMinWidth = sizeClass === SizeClass.Large ? LAYOUT.MIN_BUTTON_WIDTH * 1.2 : LAYOUT.MIN_BUTTON_WIDTH;
+        const singleButtonMaxWidth = availableWidth * LAYOUT.SINGLE_BUTTON_WIDTH_FACTOR;
+        const effectiveSingleMinWidth = isExpanded ? LAYOUT.MIN_BUTTON_WIDTH * 1.2 : LAYOUT.MIN_BUTTON_WIDTH;
 
-        calculatedWidth = Math.max(
-          effectiveSingleMinWidth - LAYOUT.PADDINGS * 2,
-          Math.min(calculatedWidth, singleButtonMaxWidth - LAYOUT.PADDINGS * 2),
-        );
+        calculatedWidth = Math.max(effectiveSingleMinWidth - LAYOUT.PADDINGS * 2, Math.min(calculatedWidth, singleButtonMaxWidth - LAYOUT.PADDINGS * 2));
       }
 
       return Math.floor(calculatedWidth);
     },
-    [availableWidth, sizeClass, shouldUseVerticalLayout],
+    [availableWidth, isExpanded, shouldUseVerticalLayout],
   );
 
   const calculateVisualParameters = useCallback(
@@ -191,10 +172,10 @@ const useFloatButtonLayout = (width: number, availableWidth: number, sizeClass: 
   );
 
   const calculateButtonFontSize = useMemo(() => {
-    const divisor = sizeClass === SizeClass.Large ? 22 : sizeClass === SizeClass.Regular ? 24 : 28;
+    const divisor = isExpanded ? 22 : 28;
     const baseSize = PixelRatio.roundToNearestPixel(width / divisor);
     return Math.min(LAYOUT.MAX_BUTTON_FONT_SIZE, baseSize);
-  }, [width, sizeClass]);
+  }, [width, isExpanded]);
 
   return {
     calculateButtonWidth,
@@ -349,12 +330,7 @@ const ButtonContent = ({ icon, text, textStyle, buttonHeight }: ButtonContentPro
   return (
     <View style={[buttonContentStaticStyles.contentContainer, { minHeight: buttonHeight }]}>
       <View style={buttonStyles.iconContainer}>{scaledIcon}</View>
-      <Text
-        numberOfLines={1}
-        adjustsFontSizeToFit
-        minimumFontScale={0.8}
-        style={[textStyle, buttonStyles.centeredText, { lineHeight: fontSize * 1.2 }]}
-      >
+      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={[textStyle, buttonStyles.centeredText, { lineHeight: fontSize * 1.2 }]}>
         {text}
       </Text>
     </View>
@@ -454,19 +430,19 @@ export const FButton = ({
 export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const insets = useSafeAreaInsets();
   const { height, width, fontScale } = useWindowDimensions();
-  const { sizeClass } = useSizeClass();
+  const { isExpanded } = useSplitLayout();
   const scaledButtonHeight = getScaledButtonHeight(fontScale);
 
   const childrenCount = React.Children.toArray(props.children).filter(Boolean).length;
 
   const [parentWidth, setParentWidth] = useState<number | undefined>();
-  const availableWidth = useMemo(() => getFloatButtonAvailableWidth(width, sizeClass, parentWidth), [width, sizeClass, parentWidth]);
+  const availableWidth = useMemo(() => getFloatButtonAvailableWidth(width, isExpanded, parentWidth), [width, isExpanded, parentWidth]);
 
   const [layoutReady, setLayoutReady] = useState<boolean>(() => availableWidth > 0);
   const { calculateButtonWidth, calculateVisualParameters, calculateContainerHeight, buttonFontSize } = useFloatButtonLayout(
     width,
     availableWidth,
-    sizeClass,
+    isExpanded,
     fontScale,
   );
 
@@ -563,10 +539,10 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   useEffect(() => {
     debouncedCalculateLayout();
     return () => debouncedCalculateLayout.cancel();
-  }, [debouncedCalculateLayout, width, height, childrenCount, sizeClass, fontScale]);
+  }, [debouncedCalculateLayout, width, height, childrenCount, isExpanded, fontScale]);
 
   // Re-fit without debounce when the layout inputs change (first measurement, sheet resize, size class, children).
-  const layoutInputs = `${availableWidth}:${sizeClass}:${childrenCount}`;
+  const layoutInputs = `${availableWidth}:${isExpanded}:${childrenCount}`;
   const appliedLayoutInputs = useRef(layoutInputs);
   useEffect(() => {
     if (appliedLayoutInputs.current === layoutInputs) return;
@@ -624,10 +600,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     });
   };
 
-  const containerHeight = useMemo(
-    () => calculateContainerHeight(childrenCount, isVertical),
-    [calculateContainerHeight, childrenCount, isVertical],
-  );
+  const containerHeight = useMemo(() => calculateContainerHeight(childrenCount, isVertical), [calculateContainerHeight, childrenCount, isVertical]);
 
   const effectiveNewWidth = newWidth ?? layoutWidth.current;
   const isPositioned = Boolean(effectiveNewWidth) && parentWidth !== undefined;
@@ -681,12 +654,7 @@ export const FloatButtonsBottomFade = React.memo(() => {
 
   return (
     <View pointerEvents="none" style={[bottomFadeStyles.wrapper, heightStyle]}>
-      <LinearGradient
-        colors={gradientColors}
-        start={BOTTOM_FADE_GRADIENT_START}
-        end={BOTTOM_FADE_GRADIENT_END}
-        style={StyleSheet.absoluteFill}
-      />
+      <LinearGradient colors={gradientColors} start={BOTTOM_FADE_GRADIENT_START} end={BOTTOM_FADE_GRADIENT_END} style={StyleSheet.absoluteFill} />
     </View>
   );
 });
