@@ -15,6 +15,7 @@ import {
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
 import SheetKeyboardForm from '../../components/SheetKeyboardForm';
+import { useKeyboard } from '../../hooks/useKeyboard';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
@@ -24,6 +25,8 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
   const route = useRoute<RouteProp<AddWalletStackParamList, 'WalletsAddMultisigProvideMnemonicsSheet'>>();
   const { colors, closeImage } = useTheme();
   const insets = useSafeAreaInsets();
+  // On a short phone the 220pt field plus the keyboard leave no room for Import, so the field shrinks while typing
+  const { isVisible: isKeyboardVisible } = useKeyboard();
   const { importText: initialImportText = '', askPassphrase: initialAskPassphrase = false } = route.params;
 
   const [importText, setImportText] = useState(initialImportText);
@@ -111,7 +114,7 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
           onChangeText={setImportText}
           inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
           testID="MnemonicInputSheet"
-          style={styles.mnemonicInput}
+          style={[styles.mnemonicInput, isKeyboardVisible && styles.mnemonicInputCompact]}
         />
         {Platform.select({
           ios: (
@@ -181,6 +184,10 @@ const styles = StyleSheet.create({
     maxHeight: 220,
     flex: 0,
     marginHorizontal: 0,
+  },
+  mnemonicInputCompact: {
+    minHeight: 96,
+    maxHeight: 96,
   },
 });
 
