@@ -4,11 +4,11 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
 import Icon from '../../components/Icon';
-import { Animated, ActivityIndicator, PixelRatio, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Animated, ActivityIndicator, Easing, PixelRatio, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import debounce from '../../blue_modules/debounce';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { TWallet, Utxo } from '../../class/wallets/types';
 import { FButton, FContainer } from '../../components/FloatButtons';
-import SafeArea from '../../components/SafeArea';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -108,11 +108,35 @@ const OutputList: React.FC<TOutputListProps> = ({
   const memo = oMemo || txMetadata[txid]?.memo || '';
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalance(value, balanceUnit, true);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   let onPress = onOpen;
   if (selectionStarted) {
     onPress = selected ? onDeSelect : onSelect;
   }
+
+  const animateTo = useCallback(
+    (toValue: number) => {
+      Animated.timing(scaleAnim, {
+        toValue,
+        duration: 120,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+    },
+    [scaleAnim],
+  );
+
+  const handlePress = useCallback(() => {
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+    onPress();
+  }, [onPress]);
+
+  const handleAvatarPress = useCallback(() => {
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+    if (selected) onDeSelect();
+    else onSelect();
+  }, [onDeSelect, onSelect, selected]);
 
   const oStyles = StyleSheet.create({
     container: { borderBottomColor: colors.lightBorder, backgroundColor: 'transparent' },
@@ -124,24 +148,28 @@ const OutputList: React.FC<TOutputListProps> = ({
   });
 
   return (
-    <Pressable onPress={onPress} style={[styles.listRow, selected ? oStyles.containerSelected : oStyles.container]}>
-      <Avatar
-        rounded
-        size={40}
-        containerStyle={selected ? oStyles.avatarSelected : oStyles.avatar}
-        onPress={selected ? onDeSelect : onSelect}
-        icon={selected ? { name: 'check', type: 'font-awesome-6', color: 'white', size: 18 } : undefined}
-      />
-      <View style={styles.itemContent}>
-        <Text style={oStyles.amount}>{amount}</Text>
-        <Text testID="OutputMemoLabel" style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
-          {memo || address}
-        </Text>
-      </View>
-      <View style={styles.badges}>
-        {frozen && <FrozenBadge />}
-        {change && <ChangeBadge />}
-      </View>
+    <Pressable onPress={handlePress} onPressIn={() => animateTo(0.97)} onPressOut={() => animateTo(1)}>
+      <Animated.View style={[styles.listRow, selected ? oStyles.containerSelected : oStyles.container, { transform: [{ scale: scaleAnim }] }]}>
+        <Avatar
+          rounded
+          size={40}
+          containerStyle={selected ? oStyles.avatarSelected : oStyles.avatar}
+          onPress={handleAvatarPress}
+          onPressIn={() => animateTo(0.97)}
+          onPressOut={() => animateTo(1)}
+          icon={selected ? { name: 'check', type: 'font-awesome-6', color: 'white', size: 18 } : undefined}
+        />
+        <View style={styles.itemContent}>
+          <Text style={oStyles.amount}>{amount}</Text>
+          <Text testID="OutputMemoLabel" style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
+            {memo || address}
+          </Text>
+        </View>
+        <View style={styles.badges}>
+          {frozen && <FrozenBadge />}
+          {change && <ChangeBadge />}
+        </View>
+      </Animated.View>
     </Pressable>
   );
 };
@@ -307,24 +335,22 @@ const CoinControl: React.FC = () => {
     );
   };
 
-  if (loading) {
-    return (
-      <SafeArea style={[styles.center, { backgroundColor: colors.elevated }]}>
-        <ActivityIndicator testID="Loading" />
-      </SafeArea>
-    );
-  }
-
   return (
-    <View style={[styles.root, { backgroundColor: colors.elevated }]}>
-      {utxos.length === 0 && (
-        <View style={styles.empty}>
-          <Text style={{ color: colors.foregroundColor }}>{loc.cc.empty}</Text>
-        </View>
-      )}
-      <SafeAreaScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.listContent}>
-        {tipCoins()}
-        {utxos.map(renderItem)}
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
+      <SafeAreaScrollView
+        contentInsetAdjustmentBehavior="never"
+        disableDefaultTopPadding
+        contentContainerStyle={loading ? styles.loadingContent : styles.listContent}
+      >
+        {loading ? (
+          <ActivityIndicator testID="Loading" />
+        ) : (
+          <>
+            {utxos.length === 0 && <Text style={[styles.emptyText, { color: colors.foregroundColor }]}>{loc.cc.empty}</Text>}
+            {tipCoins()}
+            {utxos.map(renderItem)}
+          </>
+        )}
       </SafeAreaScrollView>
 
       {selectionStarted && (
@@ -353,14 +379,13 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
-  center: {
+  loadingContent: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  empty: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  emptyText: {
+    textAlign: 'center',
     padding: 24,
   },
   sendIcon: {
@@ -370,6 +395,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   listRow: {
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,

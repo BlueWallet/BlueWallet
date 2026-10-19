@@ -28,9 +28,9 @@ jobs:
           cache: 'npm'
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
-          ruby-version: "3.4.10"
+          ruby-version: "3.4.11"
           bundler-cache: true
 
       - name: Install Node dependencies
@@ -66,7 +66,7 @@ jobs:
           project_path = 'ios/BlueWallet.xcodeproj'
           project = Xcodeproj::Project.open(project_path)
 
-          target_names = %w[WidgetsExtension Stickers]
+          target_names = %w[WidgetsExtension Stickers QuickLookPreview QuickLookThumbnail]
           embed_phase_names = ['Embed Watch Content', 'Embed Foundation Extensions']
           removed_any = false
 
@@ -164,6 +164,7 @@ jobs:
     env:
       HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
       HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+      MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
 
     steps:
       - name: Checkout

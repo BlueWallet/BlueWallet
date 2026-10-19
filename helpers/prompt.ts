@@ -50,8 +50,7 @@ export default (title: string, text: string, options: PromptHelperOptions = {}):
           },
         ];
 
-    const message = defaultValue !== undefined ? '' : text;
-    prompt(title, message, buttons, {
+    prompt(title, text, buttons, {
       type,
       cancelable,
       keyboardType,

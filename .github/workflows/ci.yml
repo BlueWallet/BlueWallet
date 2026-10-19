@@ -91,4 +91,5 @@ jobs:
         FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
         MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
         MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
+        MNEMONICS_KEYSTONE: ${{ secrets.MNEMONICS_KEYSTONE }}
         RETRY: 1

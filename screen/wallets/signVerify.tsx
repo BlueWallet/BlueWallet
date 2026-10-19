@@ -1,11 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { ActivityIndicator, Keyboard, LayoutAnimation, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  AlertButton,
+  findNodeHandle,
+  Keyboard,
+  LayoutAnimation,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import Share from 'react-native-share';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueFormLabel from '../../components/BlueFormLabel';
-import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';
 import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
@@ -19,6 +29,7 @@ import {
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
+import ActionSheet from '../ActionSheet.ts';
 
 type SignVerifyRouteParams = {
   walletID: string;
@@ -29,6 +40,7 @@ const SignVerify = () => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { sleep } = useStorage();
+  const scrollViewRef = React.useRef<ScrollView>(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const { address: _address, walletID } = useRoute<RouteProp<{ params: SignVerifyRouteParams }, 'params'>>().params;
 
@@ -73,6 +85,27 @@ const SignVerify = () => {
     Share.open({ message: uri }).catch(error => console.log(error));
   };
 
+  const presentAlert = useCallback(
+    ({ title, alertMessage, buttons = [{ text: loc._.ok }] }: { title?: string; alertMessage: string; buttons?: AlertButton[] }) => {
+      const anchor = findNodeHandle(scrollViewRef.current);
+      if (anchor === null) return;
+      const cancelButtonIndex = buttons.findIndex(button => button.style === 'cancel');
+      const destructiveButtonIndex = buttons.findIndex(button => button.style === 'destructive');
+      ActionSheet.showActionSheetWithOptions(
+        {
+          title,
+          message: alertMessage,
+          options: buttons.map(button => button.text ?? ''),
+          cancelButtonIndex: cancelButtonIndex >= 0 ? cancelButtonIndex : undefined,
+          destructiveButtonIndex: destructiveButtonIndex >= 0 ? destructiveButtonIndex : undefined,
+          anchor,
+        },
+        buttonIndex => buttons[buttonIndex]?.onPress?.(),
+      );
+    },
+    [],
+  );
+
   const handleSign = async () => {
     setLoading(true);
     await sleep(10); // wait for loading indicator to appear
@@ -83,7 +116,7 @@ const SignVerify = () => {
       setIsShareVisible(true);
     } catch (e: any) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ title: loc.errors.error, message: e.message });
+      presentAlert({ title: loc.errors.error, alertMessage: e.message });
     }
 
     setLoading(false);
@@ -96,14 +129,14 @@ const SignVerify = () => {
       const res = wallet.verifyMessage(message, address, signature);
       presentAlert({
         title: res ? loc._.success : loc.errors.error,
-        message: res ? loc.addresses.sign_signature_correct : loc.addresses.sign_signature_incorrect,
+        alertMessage: res ? loc.addresses.sign_signature_correct : loc.addresses.sign_signature_incorrect,
       });
       if (res) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       }
     } catch (e: any) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ title: loc.errors.error, message: e.message });
+      presentAlert({ title: loc.errors.error, alertMessage: e.message });
     }
     setLoading(false);
   };
@@ -125,9 +158,11 @@ const SignVerify = () => {
   return (
     <View style={[styles.screenRoot, stylesHooks.screen]}>
       <ScrollView
+        ref={scrollViewRef}
         automaticallyAdjustContentInsets
         automaticallyAdjustKeyboardInsets
         contentInsetAdjustmentBehavior="automatic"
+        scrollToOverflowEnabled
         contentContainerStyle={[styles.root, scrollBottomPad !== undefined && { paddingBottom: scrollBottomPad }]}
         style={styles.scroll}
       >

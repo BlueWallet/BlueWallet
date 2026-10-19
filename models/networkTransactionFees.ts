@@ -31,12 +31,22 @@ export default class NetworkTransactionFees {
       const response = await BlueElectrum.estimateFees();
       if (response.fast === response.medium) {
         // exception, if fees are equal lets bump priority fee + 1 so actual priority tx is above the rest
+        if (response.medium === response.slow) {
+          // another exception, bump middle one just a bit
+          return new NetworkTransactionFee(response.fast + 1, response.medium + 0.5, response.slow);
+        }
         return new NetworkTransactionFee(response.fast + 1, response.medium, response.slow);
       }
+
+      if (response.medium === response.slow) {
+        // another exception, bump middle one just a bit
+        return new NetworkTransactionFee(response.fast, response.medium + 0.5, response.slow);
+      }
+
       return new NetworkTransactionFee(response.fast, response.medium, response.slow);
     } catch (err) {
       console.warn(err);
-      return new NetworkTransactionFee(2, 1, 1);
+      return new NetworkTransactionFee(2, 1.5, 1);
     }
   }
 }

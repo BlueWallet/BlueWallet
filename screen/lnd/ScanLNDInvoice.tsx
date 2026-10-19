@@ -396,6 +396,7 @@ const ScanLNDInvoice = () => {
           automaticallyAdjustContentInsets
           automaticallyAdjustKeyboardInsets
           contentInsetAdjustmentBehavior="automatic"
+          scrollToOverflowEnabled
         >
           <View style={styles.scrollMargin}>
             <AmountInput.AmountInput

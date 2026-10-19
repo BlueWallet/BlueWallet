@@ -166,6 +166,32 @@
                     android:mimeType="text/plain"
                     android:pathPattern=".*\\.psbt" />
             </intent-filter>
+
+            <!-- Intent filters for BIP-329 JSON Lines wallet-label files -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.EDIT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/x-ndjson" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/x-ndjson" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.EDIT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:scheme="content"
+                    android:mimeType="application/octet-stream"
+                    android:pathPattern=".*\\.jsonl" />
+                <data
+                    android:scheme="file"
+                    android:mimeType="application/octet-stream"
+                    android:pathPattern=".*\\.jsonl" />
+            </intent-filter>
         </activity>
 
         <meta-data android:name="com.bugsnag.android.API_KEY" android:value="17ba9059f676f1cc4f45d98182388b01" />

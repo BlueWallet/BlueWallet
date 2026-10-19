@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="wallet_menu_group" type="id" />
+    <item name="wallet_menu_add" type="id" />
+    <item name="wallet_menu_import" type="id" />
+    <item name="wallet_menu_reload" type="id" />
+    <item name="wallet_menu_settings" type="id" />
+    <string name="wallet_menu_add">Add Wallet</string>
+    <string name="wallet_menu_import">Import Wallet</string>
+    <string name="wallet_menu_reload">Reload Transactions</string>
+    <string name="wallet_menu_settings">Settings</string>
+    <string name="wallet_menu_open">Open wallet menu</string>
+    <item name="wallet_menu_send" type="id" />
+    <string name="wallet_menu_send">Send…</string>
+    <item name="wallet_menu_receive" type="id" />
+    <string name="wallet_menu_receive">Receive…</string>
+    <item name="wallet_menu_details" type="id" />
+    <string name="wallet_menu_details">Wallet Details…</string>
+    <item name="wallet_menu_copy_address" type="id" />
+    <string name="wallet_menu_copy_address">Copy Address</string>
+    <item name="wallet_menu_copy_transaction_id" type="id" />
+    <string name="wallet_menu_copy_transaction_id">Copy Transaction ID</string>
+    <item name="wallet_menu_back" type="id" />
+    <string name="wallet_menu_back">Back to Wallets</string>
+    <item name="wallet_menu_shortcuts" type="id" />
+    <string name="wallet_menu_shortcuts">Keyboard Shortcuts…</string>
+</resources>

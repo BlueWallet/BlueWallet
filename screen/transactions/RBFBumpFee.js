@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import BlueText from '../../components/BlueText';
 import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
@@ -138,18 +138,7 @@ export default class RBFBumpFee extends CPFP {
       );
     }
 
-    return (
-      <SafeArea style={styles.root}>
-        <ScrollView
-          automaticallyAdjustContentInsets
-          automaticallyAdjustKeyboardInsets
-          automaticallyAdjustsScrollIndicatorInsets
-          contentInsetAdjustmentBehavior="automatic"
-        >
-          {this.renderStage1(loc.transactions.rbf_explain)}
-        </ScrollView>
-      </SafeArea>
-    );
+    return this.renderFeeSelection(loc.transactions.rbf_explain);
   }
 }
 

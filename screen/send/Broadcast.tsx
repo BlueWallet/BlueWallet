@@ -100,7 +100,7 @@ const Broadcast: React.FC = () => {
   }
 
   return (
-    <SettingsScrollView testID="BroadcastView">
+    <SettingsScrollView testID="BroadcastView" automaticallyAdjustKeyboardInsets>
       <SettingsSection>
         <View style={settingsCardContent}>
           {BROADCAST_RESULT.success !== broadcastResult && (

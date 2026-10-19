@@ -24,6 +24,7 @@ const handledNotificationKeys = new Set<string>();
 let pendingRegistrationPromise: Promise<boolean> | null = null;
 let pendingRegistrationResolve: ((value: boolean) => void) | null = null;
 let pendingRegistrationTimeout: ReturnType<typeof setTimeout> | undefined;
+let lastPostedToken: TPushToken | null = null;
 
 type TPushToken = {
   token: string;
@@ -575,7 +576,13 @@ const configureNotifications = async (onProcessNotifications?: () => void): Prom
             console.log('configureNotifications: Token received:', token);
           }
           await _setPushToken(token);
-          await postTokenConfig().catch(error => console.error('Failed to post token configuration:', error));
+          // Only post token configuration if token has changed (fixes issue #2255)
+          // This prevents excessive calls to GroundControl's setTokenConfiguration endpoint
+          const tokenChanged = !lastPostedToken || lastPostedToken.token !== token.token;
+          if (tokenChanged) {
+            lastPostedToken = token;
+            await postTokenConfig().catch(error => console.error('Failed to post token configuration:', error));
+          }
           settlePendingRegistration(true);
         }),
         Notifications.events().registerRemoteNotificationsRegistrationFailed(error => {
@@ -693,8 +700,7 @@ export const unsubscribe = async (addresses: string[], hashes: string[], txids: 
     });
 
     if (!response.ok) {
-      console.error('Failed to unsubscribe:', response.statusText);
-      return;
+      throw new Error(`Unsubscribe request failed with status ${response.status}: ${response.statusText}`);
     }
 
     return response;

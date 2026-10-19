@@ -131,7 +131,11 @@ const GeneralSettings: React.FC = () => {
       <SettingsSection title={loc.settings.privacy}>
         <SettingsListItem
           title={loc.settings.privacy_read_clipboard}
-          subtitle={loc.settings.privacy_clipboard_explanation}
+          subtitle={
+            Platform.OS === 'ios'
+              ? `${loc.settings.privacy_clipboard_explanation}\n${loc.settings.privacy_clipboard_ios_paste_permission}`
+              : loc.settings.privacy_clipboard_explanation
+          }
           switch={{
             value: isClipboardGetContentEnabled,
             onValueChange: setIsClipboardGetContentEnabledStorage,

@@ -2,6 +2,7 @@ import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react
 import React, { lazy } from 'react';
 import { Platform } from 'react-native';
 import UnlockWith from '../screen/UnlockWith';
+import KeyboardShortcuts from '../screen/settings/KeyboardShortcuts';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
@@ -13,6 +14,7 @@ import WalletExport from '../screen/wallets/WalletExport';
 import ViewEditMultisigCosignerViewSheet from '../screen/wallets/ViewEditMultisigCosignerViewSheet';
 import ViewEditMultisigProvideMnemonicsSheet from '../screen/wallets/ViewEditMultisigProvideMnemonicsSheet';
 import ViewEditMultisigShareCosignerSheet from '../screen/wallets/ViewEditMultisigShareCosignerSheet';
+import ClipboardDetected from '../screen/ClipboardDetected';
 import { navigationGuardRouter } from './navigationGuard';
 
 // Lazy load all components except UnlockWith
@@ -72,6 +74,18 @@ const MainRoot = () => {
       ) : (
         <>
           <DetailViewStack.Screen name="DrawerRoot" component={LazyDrawerRoot} />
+
+          <DetailViewStack.Screen
+            name="KeyboardShortcuts"
+            component={KeyboardShortcuts}
+            options={navigationStyle({
+              title: 'Keyboard Shortcuts',
+              presentation: 'modal',
+              headerShown: true,
+              headerBackVisible: false,
+              closeButtonPosition: CloseButtonPosition.Right,
+            })(theme)}
+          />
 
           {/* Modal stacks */}
           <DetailViewStack.Screen name="AddWalletRoot" component={LazyAddWalletStack} options={NavigationDefaultOptions} />
@@ -162,6 +176,18 @@ const MainRoot = () => {
             options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
           />
 
+          <DetailViewStack.Screen
+            name="ClipboardDetected"
+            component={ClipboardDetected}
+            options={navigationStyle({
+              presentation: 'formSheet',
+              sheetAllowedDetents: [0.45],
+              sheetGrabberVisible: true,
+              closeButtonPosition: CloseButtonPosition.Right,
+              title: loc.wallets.detect_on_clipboard,
+              headerShown: Platform.OS === 'ios',
+            })(theme)}
+          />
           <DetailViewStack.Screen
             name="ScanQRCode"
             component={LazyScanQRCodeComponent}

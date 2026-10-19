@@ -1,8 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import LNDViewAdditionalInvoicePreImage from '../screen/lnd/lndViewAdditionalInvoicePreImage';
@@ -59,6 +59,8 @@ import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
+import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
+import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
@@ -157,6 +159,7 @@ const DetailViewStackScreensStack = () => {
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { sizeClass } = useSizeClass();
+  const { width: windowWidth } = useWindowDimensions();
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
   // Probe connection health from the UI (e.g. WalletsList focus / 30s timer).
@@ -368,7 +371,18 @@ const DetailViewStackScreensStack = () => {
         screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
       >
         <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
-        <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
+        <DetailViewStack.Screen
+          name="WalletTransactions"
+          component={WalletTransactions}
+          options={({ route }) =>
+            getWalletTransactionsOptions({
+              route,
+              screenWidth: windowWidth,
+              headerTintColor: theme.colors.foregroundColor,
+              dark: theme.dark,
+            })
+          }
+        />
         <DetailViewStack.Screen
           name="WalletDetails"
           component={WalletDetails}
@@ -561,13 +575,17 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ReceiveCustomAmount"
           component={ReceiveCustomAmountSheet}
-          options={navigationStyle({
-            presentation: 'formSheet',
-            sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
-            headerTitle: loc.receive.details_setAmount,
-            sheetGrabberVisible: true,
-            closeButtonPosition: CloseButtonPosition.Right,
-          })(theme)}
+          options={receiveSheetOptions(loc.receive.details_setAmount, 0.9)(theme)}
+        />
+        <DetailViewStack.Screen
+          name="ReceiveMoreOptions"
+          component={ReceiveMoreOptionsSheet}
+          options={receiveSheetOptions(loc.receive.details_more_options)(theme)}
+        />
+        <DetailViewStack.Screen
+          name="ReceiveAddressLabel"
+          component={ReceiveAddressLabelSheet}
+          options={receiveSheetOptions(loc.receive.option_label)(theme)}
         />
       </DetailViewStack.Navigator>
     </ConnectionPollContext.Provider>

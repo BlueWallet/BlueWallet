@@ -109,7 +109,7 @@ const LightningSettings: React.FC = () => {
   };
 
   return (
-    <SettingsScrollView>
+    <SettingsScrollView automaticallyAdjustKeyboardInsets>
       <SettingsSection>
         <View style={settingsCardContent}>
           <SettingsFootnote>{loc.settings.lightning_settings_explain}</SettingsFootnote>

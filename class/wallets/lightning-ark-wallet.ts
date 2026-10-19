@@ -230,6 +230,22 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // waiting for the next user-driven fetchBalance tick.
         this._subscribeToSwapEvents(arkadeSwaps);
 
+        // SwapManager only auto-refunds a failed submarine swap while it is
+        // actually alive and watching it (WebSocket/poll). On a backgrounded
+        // or killed app — the common case for a Lightning send that fails a
+        // few seconds after being fired off — nothing is watching, so the
+        // locked VHTLC funds never come back on their own; only the
+        // per-swap "Refund" button (lndViewInvoice.tsx) or the "Restore swap
+        // activity" button (WalletDetails.tsx) would catch it, and both
+        // require the user to know to go look (#8804: "the failed invoices
+        // balance never came back"). Sweep once per fresh init using the
+        // SDK's own reconciliation API so a fresh app launch self-heals
+        // without the user's help. Not awaited: this is a best-effort
+        // background reconciliation, not a gate on wallet startup.
+        this._recoverStrandedSubmarineFunds(arkadeSwaps).catch((e: any) => {
+          console.log('[ARK] stranded-funds recovery failed:', e?.message ?? e);
+        });
+
         return { wallet, arkadeSwaps };
       })();
 
@@ -276,6 +292,24 @@ export class LightningArkWallet extends LightningCustodianWallet {
     swapManager.onSwapCompleted(refresh).catch(() => {});
     swapManager.onSwapFailed(refresh).catch(() => {});
     swapManager.onActionExecuted(refresh).catch(() => {});
+  }
+
+  // One-shot reconciliation for submarine swaps whose failure SwapManager
+  // never got to observe live (app backgrounded/killed mid-swap). Scan is
+  // side-effect free and cheap (one batched spendable + one batched
+  // recoverable indexer query); only swaps already past their refund CLTV
+  // (`status === 'recoverable'`) are swept, matching what the manual
+  // "Refund" button would do for each one individually.
+  private async _recoverStrandedSubmarineFunds(arkadeSwaps: ArkadeSwaps) {
+    const candidates = await arkadeSwaps.scanRecoverableSubmarineSwaps();
+    const swaps = candidates.filter(c => c.status === 'recoverable').map(c => c.swap);
+    if (swaps.length === 0) return;
+
+    await arkadeSwaps.recoverAllSubmarineFunds(swaps);
+    if (this._arkadeSwaps === arkadeSwaps) {
+      await this.fetchBalance();
+      await this.fetchTransactions();
+    }
   }
 
   private async _fetchLightningFeesAndLimits() {

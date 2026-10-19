@@ -206,6 +206,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
       contentContainerStyle={isLoading ? styles.loadingContainer : styles.contentContainer}
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
+      scrollToOverflowEnabled
       automaticallyAdjustsScrollIndicatorInsets
       contentInsetAdjustmentBehavior="automatic"
     >
