@@ -55,7 +55,6 @@ const SettingsTools: React.FC = () => {
           onPress={navigateToManageWallets}
           accessibilityLabel={loc.wallets.manage_title}
           testID="ManageWallets"
-          chevron
           bottomDivider={false}
         />
       </SettingsSection>
