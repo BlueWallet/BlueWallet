@@ -318,27 +318,39 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.launchApp({ newInstance: true });
     await waitForId('WalletsList');
     await element(by.id('cr34t3d')).longPress();
-    await waitForId('NavigationCloseButton');
+    await waitFor(element(by.label('Confirm')).atIndex(0))
+      .toExist()
+      .withTimeout(15000);
     await expect(element(by.id('cr34t3d'))).toBeVisible();
 
     // swipe wallet row left to reveal Hide action; tap it
     await element(by.id('cr34t3d')).swipe('left', 'slow', 0.6);
     await waitForId('SwipeHideBalance');
     await element(by.id('SwipeHideBalance')).tap();
-    await element(by.id('NavigationCloseButton')).tap();
+    await element(by.label('Close')).atIndex(0).tap();
+    await waitForText('Discard changes?');
+    await element(by.text('Cancel')).tap();
+    await expect(element(by.id('cr34t3d'))).toBeVisible();
+    await element(by.label('Confirm')).atIndex(0).tap();
+    await waitForText('Save wallet changes?');
+    await element(by.text('Yes')).tap();
     await waitForId('WalletsList');
 
     // restart app — hide state must persist; swipe-left now exposes "Show" (hideBalance persisted as true)
     await device.launchApp({ newInstance: true });
     await waitForId('WalletsList');
     await element(by.id('cr34t3d')).longPress();
-    await waitForId('NavigationCloseButton');
+    await waitFor(element(by.label('Confirm')).atIndex(0))
+      .toExist()
+      .withTimeout(15000);
     await element(by.id('cr34t3d')).swipe('left', 'slow', 0.6);
     await waitForId('SwipeShowBalance');
 
     // restore visible state so subsequent tests are clean
     await element(by.id('SwipeShowBalance')).tap();
-    await element(by.id('NavigationCloseButton')).tap();
+    await element(by.label('Confirm')).atIndex(0).tap();
+    await waitForText('Save wallet changes?');
+    await element(by.text('Yes')).tap();
     await waitForId('WalletsList');
 
     // address label persisted, reopen receive and verify it's still there
@@ -350,6 +362,126 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await goBack();
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can search managed wallets and exit search', async () => {
+    const walletName = `Searchable wallet ${Date.now()}`;
+    await device.clearKeychain();
+    await device.launchApp({
+      delete: true,
+      launchArgs: device.getPlatform() === 'android' ? { detoxEnableSynchronization: 0 } : undefined,
+    });
+    await device.disableSynchronization();
+    try {
+      await waitFor(element(by.id('WalletsList')))
+        .toExist()
+        .withTimeout(60000);
+      await tapIfTextPresent('Cancel');
+      await helperCreateWallet(walletName, false);
+
+      await element(by.id(walletName)).longPress();
+      await waitFor(element(by.id('ManageWalletsConfirmButton')))
+        .toExist()
+        .withTimeout(15000);
+
+      let searchField;
+      if (device.getPlatform() === 'android') {
+        await element(by.label('Search')).tap();
+        searchField = element(by.type('android.widget.EditText'));
+        await searchField.tap();
+      } else {
+        try {
+          await element(by.label('Search')).tap();
+        } catch (_) {}
+        searchField = element(by.type('UISearchTextField'));
+        await searchField.tap({ x: 8, y: 8 });
+      }
+
+      await searchField.replaceText('wallet-that-does-not-exist');
+      await waitForText('No results found.');
+      await expect(element(by.id(walletName))).not.toBeVisible();
+
+      await element(by.id('ManageWalletsClearSearchButton')).tap();
+      await waitForId(walletName);
+      await element(by.id(walletName)).swipe('left', 'slow', 0.6);
+      await waitForId('SwipeHideBalance');
+      await element(by.id(walletName)).swipe('right', 'fast', 0.6);
+      await expect(element(by.id('SwipeHideBalance'))).not.toBeVisible();
+
+      if (device.getPlatform() === 'android') {
+        await element(by.label('Search')).tap();
+        searchField = element(by.type('android.widget.EditText'));
+        await searchField.tap();
+      } else {
+        try {
+          await element(by.label('Search')).tap();
+        } catch (_) {}
+        searchField = element(by.type('UISearchTextField'));
+        await searchField.tap({ x: 8, y: 8 });
+      }
+
+      await searchField.replaceText('Searchable');
+      await sleep(500); // wait for ManageWallets' debounced search state to disable row interactions
+      await expect(element(by.id(walletName))).toBeVisible();
+      await element(by.id(walletName)).swipe('left', 'slow', 0.6);
+      await expect(element(by.id('SwipeHideBalance'))).not.toExist();
+      await expect(element(by.id('SwipeShowBalance'))).not.toExist();
+    } finally {
+      await device.enableSynchronization();
+    }
+  });
+
+  it('supports the manage-wallet reorder controls', async () => {
+    const isAndroid = device.getPlatform() === 'android';
+    const firstWalletName = `Drag wallet A ${Date.now()}`;
+    const secondWalletName = `Drag wallet B ${Date.now()}`;
+    await device.clearKeychain();
+    await device.launchApp({ delete: true, launchArgs: isAndroid ? { detoxEnableSynchronization: 0 } : undefined });
+    if (isAndroid) await device.disableSynchronization();
+    try {
+      await waitForId('WalletsList', 60000);
+      await tapIfTextPresent('Cancel');
+      await helperCreateWallet(firstWalletName, !isAndroid);
+      await helperCreateWallet(secondWalletName, !isAndroid, false);
+
+      await element(by.id(secondWalletName)).longPress();
+      await waitFor(element(by.id('ManageWalletsConfirmButton')))
+        .toExist()
+        .withTimeout(15000);
+
+      const manageWalletsList = by.id('ManageWalletsList');
+      const firstWallet = element(by.id(firstWalletName).withAncestor(manageWalletsList));
+      const secondWallet = element(by.id(secondWalletName).withAncestor(manageWalletsList));
+      const firstWalletDragHandle = element(by.id(`ManageWalletsDragHandle-${firstWalletName}`).withAncestor(manageWalletsList));
+      await expect(firstWallet).toBeVisible();
+      await expect(secondWallet).toBeVisible();
+      await expect(firstWalletDragHandle).toBeVisible();
+
+      const firstFrameBefore = (await firstWallet.getAttributes()).frame;
+      const secondFrameBefore = (await secondWallet.getAttributes()).frame;
+      assert(firstFrameBefore.y < secondFrameBefore.y, 'Expected the first wallet to initially appear above the second wallet');
+
+      if (isAndroid) {
+        await firstWalletDragHandle.longPressAndDrag(700, 0.5, 0.5, secondWallet, 0.5, 0.8, 'fast', 0);
+      } else {
+        // Detox 20's iOS long-press injector crashes RN 0.85 Fabric when the
+        // reorder gesture activates. Verify the visible drag affordance and drive
+        // the same reorder state transition through its native accessibility action.
+        await firstWallet.performAccessibilityAction('Move Down');
+      }
+      await sleep(500);
+
+      const firstFrameAfter = (await firstWallet.getAttributes()).frame;
+      const secondFrameAfter = (await secondWallet.getAttributes()).frame;
+      assert(firstFrameAfter.y > secondFrameAfter.y, 'Expected dragging to move the first wallet below the second wallet');
+
+      await element(by.id('ManageWalletsConfirmButton')).tap();
+      await waitForText('Save wallet changes?');
+      await element(by.text('Yes')).tap();
+      await waitForId('WalletsList');
+    } finally {
+      if (isAndroid) await device.enableSynchronization();
+    }
   });
 
   it('can encrypt storage, with plausible deniabilityl decrypt fake storage', async () => {

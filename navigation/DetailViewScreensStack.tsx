@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
+import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, useWindowDimensions } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -25,7 +25,7 @@ import WalletsList from '../screen/wallets/WalletsList';
 import { DetailViewStack } from './index';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { navigationGuardRouter } from './navigationGuard';
-import Icon from '../components/Icon';
+import Icon, { type MaterialIconName } from '../components/Icon';
 import SettingsButton from '../components/icons/SettingsButton';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
@@ -61,6 +61,7 @@ import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
 import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
+import type { SearchBarCommands } from 'react-native-screens';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
@@ -96,26 +97,34 @@ const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = (
   );
 };
 
-type ManageWalletsCloseButtonProps = {
+const ManageWalletsHeaderAction: React.FC<{
+  accessibilityLabel: string;
+  color: string;
+  disabled?: boolean;
+  icon?: MaterialIconName;
+  label?: string;
   onPress: () => void;
-  closeImage: any;
-};
-
-const ManageWalletsCloseButton: React.FC<ManageWalletsCloseButtonProps> = ({ onPress, closeImage }) => (
+  testID: string;
+}> = ({ accessibilityLabel, color, disabled = false, icon, label, onPress, testID }) => (
   <Pressable
     accessibilityRole="button"
-    accessibilityLabel={loc._.close}
-    style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
+    accessibilityLabel={accessibilityLabel}
+    accessibilityState={{ disabled }}
+    testID={testID}
+    disabled={disabled}
+    hitSlop={8}
+    style={({ pressed }) => [
+      styles.manageWalletsHeaderButton,
+      !disabled && styles.pointerCursor,
+      disabled && styles.manageWalletsHeaderButtonDisabled,
+      pressed && styles.manageWalletsHeaderButtonPressed,
+    ]}
     onPress={onPress}
-    testID="NavigationCloseButton"
   >
-    <Image source={closeImage} />
+    {icon ? <Icon name={icon} type="material" size={24} color={color} /> : null}
+    {label ? <Text style={[styles.manageWalletsHeaderButtonText, { color }]}>{label}</Text> : null}
   </Pressable>
 );
-
-const makeManageWalletsHeaderLeft = (onPress: () => void, closeImage: any): NonNullable<NativeStackNavigationOptions['headerLeft']> => {
-  return () => React.createElement(ManageWalletsCloseButton, { onPress, closeImage });
-};
 
 type OfflineModePillProps = {
   onPress: () => void;
@@ -161,6 +170,74 @@ const DetailViewStackScreensStack = () => {
   const { sizeClass } = useSizeClass();
   const { width: windowWidth } = useWindowDimensions();
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
+  const manageWalletsSearchBarRef = useRef<SearchBarCommands>(null);
+  const manageWalletsConfirmRef = useRef<() => void | Promise<void>>(() => {});
+  const manageWalletsCloseRef = useRef<() => void>(() => {});
+  const [manageWalletsHasUnsavedChanges, setManageWalletsHasUnsavedChanges] = useState(false);
+
+  const clearManageWalletsSearch = useCallback(() => {
+    manageWalletsSearchBarRef.current?.clearText();
+    manageWalletsSearchBarRef.current?.blur();
+    manageWalletsSearchBarRef.current?.cancelSearch();
+  }, []);
+
+  const focusManageWalletsSearch = useCallback(() => {
+    manageWalletsSearchBarRef.current?.focus();
+  }, []);
+
+  const registerManageWalletsConfirm = useCallback((handler: () => void | Promise<void>) => {
+    manageWalletsConfirmRef.current = handler;
+    return () => {
+      manageWalletsConfirmRef.current = () => {};
+    };
+  }, []);
+
+  const registerManageWalletsClose = useCallback((handler: () => void) => {
+    manageWalletsCloseRef.current = handler;
+    return () => {
+      manageWalletsCloseRef.current = () => {};
+    };
+  }, []);
+
+  const renderManageWalletsHeaderLeft = useCallback(
+    () =>
+      React.createElement(ManageWalletsHeaderAction, {
+        accessibilityLabel: loc._.close,
+        color: theme.colors.foregroundColor,
+        icon: 'close',
+        onPress: () => manageWalletsCloseRef.current(),
+        testID: 'NavigationCloseButton',
+      }),
+    [theme.colors.foregroundColor],
+  );
+
+  const renderManageWalletsHeaderRight = useCallback(
+    () =>
+      React.createElement(ManageWalletsHeaderAction, {
+        accessibilityLabel: loc.multisig.confirm,
+        color: theme.colors.foregroundColor,
+        disabled: !manageWalletsHasUnsavedChanges,
+        label: loc.multisig.confirm,
+        onPress: () => {
+          Promise.resolve(manageWalletsConfirmRef.current()).catch(console.warn);
+        },
+        testID: 'ManageWalletsConfirmButton',
+      }),
+    [manageWalletsHasUnsavedChanges, theme.colors.foregroundColor],
+  );
+
+  const renderManageWallets = useCallback(
+    () => (
+      <ManageWallets
+        clearSearch={clearManageWalletsSearch}
+        focusSearch={focusManageWalletsSearch}
+        registerCloseHandler={registerManageWalletsClose}
+        registerConfirmHandler={registerManageWalletsConfirm}
+        onUnsavedChangesChange={setManageWalletsHasUnsavedChanges}
+      />
+    ),
+    [clearManageWalletsSearch, focusManageWalletsSearch, registerManageWalletsClose, registerManageWalletsConfirm],
+  );
 
   // Probe connection health from the UI (e.g. WalletsList focus / 30s timer).
   // BlueElectrum.ping() reflects the result into the shared connection state, which
@@ -246,12 +323,51 @@ const DetailViewStackScreensStack = () => {
     }
   }, [navigation]);
 
-  const renderManageWalletsHeaderLeft = useCallback(
-    (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any; route: any; theme: any }) => ({
-      ...options,
-      headerLeft: makeManageWalletsHeaderLeft(screenNavigation.goBack, theme.closeImage),
-    }),
-    [theme.closeImage],
+  const renderManageWalletsHeaderOptions = useCallback(
+    (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any }) => {
+      return {
+        ...options,
+        headerStyle: Platform.OS === 'ios' ? undefined : options.headerStyle,
+        headerTransparent: Platform.OS === 'ios',
+        headerLeft: renderManageWalletsHeaderLeft,
+        headerRight: renderManageWalletsHeaderRight,
+        unstable_headerLeftItems: (): NativeStackHeaderItem[] => [
+          {
+            type: 'button',
+            label: loc._.close,
+            icon: { type: 'sfSymbol', name: 'xmark' },
+            identifier: 'NavigationCloseButton',
+            accessibilityLabel: loc._.close,
+            onPress: () => manageWalletsCloseRef.current(),
+          },
+        ],
+        unstable_headerRightItems: (): NativeStackHeaderItem[] => [
+          {
+            type: 'button',
+            label: loc.multisig.confirm,
+            icon: { type: 'sfSymbol', name: 'checkmark' },
+            variant: 'done',
+            identifier: 'ManageWalletsConfirmButton',
+            accessibilityLabel: loc.multisig.confirm,
+            disabled: !manageWalletsHasUnsavedChanges,
+            onPress: () => {
+              Promise.resolve(manageWalletsConfirmRef.current()).catch(console.warn);
+            },
+          },
+        ],
+        headerSearchBarOptions: {
+          ref: manageWalletsSearchBarRef,
+          hideWhenScrolling: false,
+          placement: 'stacked' as const,
+          allowToolbarIntegration: false,
+          onChangeText: (event: { nativeEvent: { text: string } }) => screenNavigation.setParams({ searchQuery: event.nativeEvent.text }),
+          onClear: () => screenNavigation.setParams({ searchQuery: '' }),
+          onFocus: () => screenNavigation.setParams({ isSearchFocused: true }),
+          onBlur: () => screenNavigation.setParams({ isSearchFocused: false }),
+        },
+      };
+    },
+    [manageWalletsHasUnsavedChanges, renderManageWalletsHeaderLeft, renderManageWalletsHeaderRight],
   );
 
   const walletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
@@ -557,20 +673,23 @@ const DetailViewStackScreensStack = () => {
         />
         <DetailViewStack.Screen
           name="ManageWallets"
-          component={ManageWallets}
           options={navigationStyle(
             {
-              presentation: 'fullScreenModal',
+              presentation: 'modal',
+              gestureEnabled: false,
               title: loc.wallets.manage_title,
               headerShown: true,
+              headerBackVisible: false,
               headerRight: undefined,
               headerStyle: {
                 backgroundColor: theme.colors.customHeader,
               },
             },
-            renderManageWalletsHeaderLeft,
+            renderManageWalletsHeaderOptions,
           )(theme)}
-        />
+        >
+          {renderManageWallets}
+        </DetailViewStack.Screen>
         <DetailViewStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={createReceiveDetailsOptions(theme)} />
         <DetailViewStack.Screen
           name="ReceiveCustomAmount"
@@ -595,15 +714,6 @@ const DetailViewStackScreensStack = () => {
 export default DetailViewStackScreensStack;
 
 const styles = StyleSheet.create({
-  headerIconButton: {
-    minWidth: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerIconButtonPressed: {
-    opacity: 0.6,
-  },
   width24: {
     width: 24,
   },
@@ -628,6 +738,26 @@ const styles = StyleSheet.create({
   updatingLabelText: {
     fontSize: 13,
     fontWeight: '700',
+  },
+  manageWalletsHeaderButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44,
+    minWidth: 44,
+    paddingHorizontal: 8,
+  },
+  manageWalletsHeaderButtonDisabled: {
+    opacity: 0.4,
+  },
+  manageWalletsHeaderButtonPressed: {
+    opacity: 0.6,
+  },
+  pointerCursor: {
+    cursor: 'pointer',
+  },
+  manageWalletsHeaderButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
