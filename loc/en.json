@@ -234,6 +234,8 @@
     "about_sm_telegram": "Telegram channel",
     "privacy_temporary_screenshots": "Allow Screen Capture",
     "privacy_temporary_screenshots_instructions": "Screen capture protection will be temporarily turned off, enabling screenshots and screen recordings. The protection will automatically reactivate when you close and reopen BlueWallet.",
+    "screen_capture_protection_title": "Screen Capture Protected",
+    "screen_capture_protection_message": "This screenshot is empty because screen capture protection is enabled. To turn it off, go to Settings and enable Allow Screen Capture.",
     "biometrics": "Biometrics",
     "biometrics_no_longer_available": "Your device settings have changed and no longer match the selected security settings in the app. Please re-enable biometrics or passcode, then restart the app to apply these changes.",
     "biom_10times": "You have attempted to enter your password 10 times. Would you like to reset your storage? This will remove all wallets and decrypt your storage.",

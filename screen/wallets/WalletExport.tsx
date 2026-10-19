@@ -19,6 +19,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import useAppState from '../../hooks/useAppState';
 import loc from '../../loc';
 import { WalletExportStackParamList } from '../../navigation/WalletExportStack';
+import ScreenCaptureProtection from './ScreenCaptureProtection';
 
 type RouteProps = RouteProp<WalletExportStackParamList, 'WalletExport'>;
 
@@ -146,69 +147,85 @@ const WalletExport: React.FC = () => {
   // for SLIP39
   if (secrets.length !== 1) {
     return (
-      <Scroll>
-        <DoNotDisclose />
+      <ScreenCaptureProtection enabled={isPrivacyBlurEnabled}>
+        <Scroll>
+          <DoNotDisclose />
 
-        <View>
-          <BlueText style={styles.manualText}>{loc.wallets.write_down_header}</BlueText>
-          <BlueText style={styles.writeText}>{loc.wallets.write_down}</BlueText>
-        </View>
+          <View>
+            <BlueText style={styles.manualText}>{loc.wallets.write_down_header}</BlueText>
+            <BlueText style={styles.writeText}>{loc.wallets.write_down}</BlueText>
+          </View>
 
-        {secrets.map((secret, index) => (
-          <React.Fragment key={secret}>
-            <BlueText style={styles.scanText}>{loc.formatString(loc.wallets.share_number, { number: index + 1 })}</BlueText>
-            <SeedWords seed={secret} />
-          </React.Fragment>
-        ))}
+          {secrets.map((secret, index) => (
+            <React.Fragment key={secret}>
+              <BlueText style={styles.scanText}>
+                {loc.formatString(loc.wallets.share_number, {
+                  number: index + 1,
+                })}
+              </BlueText>
+              <SeedWords seed={secret} />
+            </React.Fragment>
+          ))}
 
-        <BlueText style={styles.typeText}>{loc.formatString(loc.wallets.wallet_type_this, { type: wallet.typeReadable })}</BlueText>
-      </Scroll>
+          <BlueText style={styles.typeText}>
+            {loc.formatString(loc.wallets.wallet_type_this, {
+              type: wallet.typeReadable,
+            })}
+          </BlueText>
+        </Scroll>
+      </ScreenCaptureProtection>
     );
   }
 
   const secret = secrets[0];
 
   return (
-    <ScrollView
-      automaticallyAdjustContentInsets
-      contentInsetAdjustmentBehavior="automatic"
-      style={stylesHook.root}
-      contentContainerStyle={styles.scrollViewContent}
-      onLayout={onLayout}
-      testID="WalletExportScroll"
-    >
-      {wallet.type !== WatchOnlyWallet.type && <DoNotDisclose />}
+    <ScreenCaptureProtection enabled={isPrivacyBlurEnabled}>
+      <ScrollView
+        automaticallyAdjustContentInsets
+        contentInsetAdjustmentBehavior="automatic"
+        style={stylesHook.root}
+        contentContainerStyle={styles.scrollViewContent}
+        onLayout={onLayout}
+        testID="WalletExportScroll"
+      >
+        {wallet.type !== WatchOnlyWallet.type && <DoNotDisclose />}
 
-      <BlueText style={styles.scanText}>{loc.wallets.scan_import}</BlueText>
+        <BlueText style={styles.scanText}>{loc.wallets.scan_import}</BlueText>
 
-      <View style={styles.qrCodeContainer}>
-        <QRCode isMenuAvailable={false} value={secret} size={qrCodeSize} logoSize={70} />
-      </View>
+        <View style={styles.qrCodeContainer}>
+          <QRCode isMenuAvailable={false} value={secret} size={qrCodeSize} logoSize={70} />
+        </View>
 
-      {/* Do not allow to copy mnemonic */}
-      {secretIsMnemonic ? (
-        <>
-          <View>
-            <BlueText style={styles.manualText}>{loc.wallets.write_down_header}</BlueText>
-            <BlueText style={styles.writeText}>{loc.wallets.write_down}</BlueText>
-          </View>
-          <SeedWords seed={secret} />
-        </>
-      ) : (
-        <>
-          <BlueText style={styles.writeText}>
-            {wallet.type === LightningCustodianWallet.type ? loc.wallets.copy_ln_url : loc.wallets.copy_ln_public}
-          </BlueText>
-          <CopyBox text={secret} onPress={handleCopy} />
-        </>
-      )}
+        {/* Do not allow to copy mnemonic */}
+        {secretIsMnemonic ? (
+          <>
+            <View>
+              <BlueText style={styles.manualText}>{loc.wallets.write_down_header}</BlueText>
+              <BlueText style={styles.writeText}>{loc.wallets.write_down}</BlueText>
+            </View>
+            <SeedWords seed={secret} />
+          </>
+        ) : (
+          <>
+            <BlueText style={styles.writeText}>
+              {wallet.type === LightningCustodianWallet.type ? loc.wallets.copy_ln_url : loc.wallets.copy_ln_public}
+            </BlueText>
+            <CopyBox text={secret} onPress={handleCopy} />
+          </>
+        )}
 
-      {wallet.type === WatchOnlyWallet.type && (
-        <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: secret }} />
-      )}
+        {wallet.type === WatchOnlyWallet.type && (
+          <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: secret }} />
+        )}
 
-      <BlueText style={styles.typeText}>{loc.formatString(loc.wallets.wallet_type_this, { type: wallet.typeReadable })}</BlueText>
-    </ScrollView>
+        <BlueText style={styles.typeText}>
+          {loc.formatString(loc.wallets.wallet_type_this, {
+            type: wallet.typeReadable,
+          })}
+        </BlueText>
+      </ScrollView>
+    </ScreenCaptureProtection>
   );
 };
 
