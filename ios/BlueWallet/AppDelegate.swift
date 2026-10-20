@@ -55,7 +55,10 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         self.dependencyProvider = RCTAppDependencyProvider()
         self.initialProps = [:]
 
-        RCTI18nUtil.sharedInstance().allowRTL(true)
+        // Native UIKit chrome (navigation bar, alerts, pickers) follows the bundle localization,
+        // RN content follows I18nManager. Keep both on the same side.
+        let isRTL = RCTI18nUtil.sharedInstance().isRTL()
+        UIView.appearance().semanticContentAttribute = isRTL ? .forceRightToLeft : .forceLeftToRight
 
         RNNotifications.startMonitorNotifications()
         RNNotifications.addNativeDelegate(self)
