@@ -607,7 +607,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitFor(element(by.id('ManageWalletsConfirmButton')))
       .toExist()
       .withTimeout(15000);
-    await expect(element(by.id('Imported HD SegWit (BIP84 Bech32 Native)'))).toBeVisible();
+    await expect(element(by.id('Imported HD SegWit (BIP84 Bech32 Native)').withAncestor(by.id('ManageWalletsList')))).toBeVisible();
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });

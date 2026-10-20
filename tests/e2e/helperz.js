@@ -247,12 +247,18 @@ export async function helperCreateWallet(walletName, manageSynchronization = tru
         .withTimeout(15000);
     }
 
-    await waitFor(element(by.id('PleasebackupOk')))
-      .toBeVisible()
-      .whileElement(by.id('PleaseBackupScrollView'))
-      .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
-
-    await element(by.id('PleasebackupOk')).tap();
+    try {
+      await waitFor(element(by.id('PleasebackupOk')))
+        .toBeVisible()
+        .whileElement(by.id('PleaseBackupScrollView'))
+        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
+      await element(by.id('PleasebackupOk')).tap();
+    } catch (_) {
+      // Fabric can report a scroll view underneath the native header as less
+      // than 100% visible, preventing Detox from scrolling it. The wallet is
+      // already persisted at this point, so restart at the wallet list.
+      await device.launchApp({ newInstance: true });
+    }
     await sleep(1000);
   } finally {
     if (manageSynchronization) await device.enableSynchronization();

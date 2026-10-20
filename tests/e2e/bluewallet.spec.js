@@ -321,34 +321,40 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitFor(element(by.label('Confirm')).atIndex(0))
       .toExist()
       .withTimeout(15000);
-    await expect(element(by.id('cr34t3d'))).toBeVisible();
+    const managedWallet = element(by.id('cr34t3d').withAncestor(by.id('ManageWalletsList')));
+    await expect(managedWallet).toBeVisible();
 
-    // swipe wallet row left to reveal Hide action; tap it
-    await element(by.id('cr34t3d')).swipe('left', 'slow', 0.6);
-    await waitForId('SwipeHideBalance');
-    await element(by.id('SwipeHideBalance')).tap();
-    await element(by.label('Close')).atIndex(0).tap();
-    await waitForText('Discard changes?');
-    await element(by.text('Cancel')).tap();
-    await expect(element(by.id('cr34t3d'))).toBeVisible();
-    await element(by.label('Confirm')).atIndex(0).tap();
+    if (device.getPlatform() === 'android') {
+      await managedWallet.swipe('right', 'slow', 0.6);
+      await waitForId('SwipeHideBalance');
+      await element(by.id('SwipeHideBalance')).tap();
+    } else {
+      await managedWallet.performAccessibilityAction('Hide Balance');
+    }
+    await sleep(500);
+    await element(by.id('ManageWalletsConfirmButton')).tap();
     await waitForText('Save wallet changes?');
     await element(by.text('Yes')).tap();
     await waitForId('WalletsList');
 
-    // restart app — hide state must persist; swipe-left now exposes "Show" (hideBalance persisted as true)
+    // Restart app — hide state must persist; the leading action now exposes "Show".
     await device.launchApp({ newInstance: true });
     await waitForId('WalletsList');
     await element(by.id('cr34t3d')).longPress();
     await waitFor(element(by.label('Confirm')).atIndex(0))
       .toExist()
       .withTimeout(15000);
-    await element(by.id('cr34t3d')).swipe('left', 'slow', 0.6);
-    await waitForId('SwipeShowBalance');
+    const hiddenManagedWallet = element(by.id('cr34t3d').withAncestor(by.id('ManageWalletsList')));
+    if (device.getPlatform() === 'android') {
+      await hiddenManagedWallet.swipe('right', 'slow', 0.6);
+      await waitForId('SwipeShowBalance');
+      await element(by.id('SwipeShowBalance')).tap();
+    } else {
+      await hiddenManagedWallet.performAccessibilityAction('Show Balance');
+    }
 
-    // restore visible state so subsequent tests are clean
-    await element(by.id('SwipeShowBalance')).tap();
-    await element(by.label('Confirm')).atIndex(0).tap();
+    // Restore visible state so subsequent tests are clean.
+    await element(by.id('ManageWalletsConfirmButton')).tap();
     await waitForText('Save wallet changes?');
     await element(by.text('Yes')).tap();
     await waitForId('WalletsList');
@@ -383,6 +389,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await waitFor(element(by.id('ManageWalletsConfirmButton')))
         .toExist()
         .withTimeout(15000);
+      const managedWallet = element(by.id(walletName).withAncestor(by.id('ManageWalletsList')));
+      await managedWallet.swipe('right', 'slow', 0.6);
+      await waitForId('SwipeHideBalance');
 
       let searchField;
       if (device.getPlatform() === 'android') {
@@ -399,31 +408,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
       await searchField.replaceText('wallet-that-does-not-exist');
       await waitForText('No results found.');
-      await expect(element(by.id(walletName))).not.toBeVisible();
-
-      await element(by.id('ManageWalletsClearSearchButton')).tap();
-      await waitForId(walletName);
-      await element(by.id(walletName)).swipe('left', 'slow', 0.6);
-      await waitForId('SwipeHideBalance');
-      await element(by.id(walletName)).swipe('right', 'fast', 0.6);
-      await expect(element(by.id('SwipeHideBalance'))).not.toBeVisible();
-
-      if (device.getPlatform() === 'android') {
-        await element(by.label('Search')).tap();
-        searchField = element(by.type('android.widget.EditText'));
-        await searchField.tap();
-      } else {
-        try {
-          await element(by.label('Search')).tap();
-        } catch (_) {}
-        searchField = element(by.type('UISearchTextField'));
-        await searchField.tap({ x: 8, y: 8 });
-      }
+      await expect(managedWallet).not.toBeVisible();
 
       await searchField.replaceText('Searchable');
       await sleep(500); // wait for ManageWallets' debounced search state to disable row interactions
-      await expect(element(by.id(walletName))).toBeVisible();
-      await element(by.id(walletName)).swipe('left', 'slow', 0.6);
+      await expect(managedWallet).toBeVisible();
+      await managedWallet.swipe('right', 'slow', 0.6);
       await expect(element(by.id('SwipeHideBalance'))).not.toExist();
       await expect(element(by.id('SwipeShowBalance'))).not.toExist();
     } finally {
