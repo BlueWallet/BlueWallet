@@ -215,7 +215,11 @@ const _mimeTypeFromFileName = (fileName: string): string => {
   }
 };
 
-const _transactionFilePickerTypes = ['application/octet-stream', 'text/plain'];
+// iOS UIDocumentPicker only accepts UTI identifiers. MIME types are dropped, which leaves the picker with no selectable files.
+const _transactionFilePickerTypes =
+  Platform.OS === 'ios'
+    ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', 'public.plain-text', 'public.data']
+    : ['application/octet-stream', 'text/plain'];
 
 const _pickSingleFileAndKeepLocalCopy = async (type: string[] = [types.allFiles]) => {
   const [pickedFile] = await pick({

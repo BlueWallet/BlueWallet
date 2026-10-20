@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
+import AnimatedCollapsible from '../../components/AnimatedCollapsible';
 import Icon from '../../components/Icon';
+import { isIOS26OrHigher } from '../../blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
@@ -39,8 +41,6 @@ type StaticCache = Record<string, string>;
 
 const staticCache: StaticCache = {};
 
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
-
 const WalletsAddMultisigStep2 = () => {
   const { addAndSaveWallet, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
@@ -52,7 +52,12 @@ const WalletsAddMultisigStep2 = () => {
   const { m, n, format, walletLabel } = params;
   const [cosigners, setCosigners] = useState<CosignerTuple[]>([]); // array of cosigners user provided. if format [cosigner, fp, path]
   const [isLoading, setIsLoading] = useState(false);
-  const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
+  const [vaultKeyData, setVaultKeyData] = useState({
+    keyIndex: 1,
+    xpub: '',
+    seed: '',
+    isLoading: false,
+  }); // string rendered in modal
   const [importText, setImportText] = useState('');
   const [askPassphrase, setAskPassphrase] = useState(false);
   const { isPrivacyBlurEnabled, isElectrumDisabled } = useSettings();
@@ -96,12 +101,14 @@ const WalletsAddMultisigStep2 = () => {
         accessibilityRole="button"
         style={({ pressed }) => [
           styles.helpButton,
-          { backgroundColor: colors.buttonDisabledBackgroundColor },
+          !isIOS26OrHigher && {
+            backgroundColor: colors.buttonDisabledBackgroundColor,
+          },
           pressed && styles.helpButtonPressed,
         ]}
         onPress={handleOnHelpPress}
       >
-        <Icon size={20} name="help-outline" type="material" color={colors.foregroundColor} />
+        <Icon size={18} name="help-outline" type="material" color={colors.foregroundColor} />
         <Text style={[styles.helpButtonText, { color: colors.foregroundColor }]}>{loc.multisig.ms_help}</Text>
       </Pressable>
     ),
@@ -223,26 +230,37 @@ const WalletsAddMultisigStep2 = () => {
     [setFpCacheForMnemonics],
   );
 
-  const generateNewKey = useCallback(() => {
-    const w = new HDSegwitBech32Wallet();
-    w.generate().then(() => {
+  const generateNewKey = useCallback(async () => {
+    try {
+      const w = new HDSegwitBech32Wallet();
+      // Keep the Create New button in a loading state long enough to feel responsive
+      await Promise.all([w.generate(), sleep(450)]);
+
       const cosignersCopy = [...cosigners];
       cosignersCopy.push([w.getSecret(), false, false]);
+      const keyIndex = cosignersCopy.length;
+      const seed = w.getSecret();
+      const xpub = w.getXpub();
+
       setCosigners(cosignersCopy);
-      setVaultKeyData({ keyIndex: cosignersCopy.length, seed: w.getSecret(), xpub: w.getXpub(), isLoading: false });
-      setIsLoading(true);
+      setVaultKeyData({ keyIndex, seed, xpub, isLoading: false });
       navigation.navigate('WalletsAddMultisigVaultKeySheet', {
-        keyIndex: cosignersCopy.length,
-        seed: w.getSecret(),
+        keyIndex,
+        seed,
       });
+
+      // Filling the caches runs two synchronous PBKDF2 seed derivations. Defer them so the Vault Key sheet paints the
+      // seed first; the cache is only needed later, for Share.
       setTimeout(() => {
-        // filling cache
-        setXpubCacheForMnemonics(w.getSecret());
-        setFpCacheForMnemonics(w.getSecret());
-        setIsLoading(false);
+        setXpubCacheForMnemonics(seed);
+        setFpCacheForMnemonics(seed);
       }, 500);
-    });
-  }, [cosigners, navigation, setFpCacheForMnemonics, setXpubCacheForMnemonics]);
+    } catch (e) {
+      setVaultKeyData(current => ({ ...current, isLoading: false }));
+      const message = e instanceof Error ? e.message : String(e);
+      presentAlert({ message });
+    }
+  }, [cosigners, navigation, setFpCacheForMnemonics, setXpubCacheForMnemonics, sleep]);
 
   const viewKey = useCallback(
     (cosigner: CosignerTuple) => {
@@ -304,9 +322,15 @@ const WalletsAddMultisigStep2 = () => {
         //  do nothing, it's already set
       } else {
         try {
-          path = await prompt(loc.multisig.input_path, loc.formatString(loc.multisig.input_path_explain, { default: getPath() }), {
-            type: 'plain-text',
-          });
+          path = await prompt(
+            loc.multisig.input_path,
+            loc.formatString(loc.multisig.input_path_explain, {
+              default: getPath(),
+            }),
+            {
+              type: 'plain-text',
+            },
+          );
           if (!MultisigHDWallet.isPathValid(path)) path = getPath();
         } catch {
           return setIsLoading(false);
@@ -404,12 +428,16 @@ const WalletsAddMultisigStep2 = () => {
       }
 
       if ((payload.data ?? '').toUpperCase().startsWith('UR')) {
-        presentAlert({ message: 'BC-UR not decoded. This should never happen' });
+        presentAlert({
+          message: 'BC-UR not decoded. This should never happen',
+        });
       } else if (isValidMnemonicSeed(payload.data ?? '')) {
         utilizeMnemonicPhrase(payload.data ?? '', askPassphrase);
       } else {
         if (payload.data && MultisigHDWallet.isXpubValid(payload.data) && !MultisigHDWallet.isXpubForMultisig(payload.data)) {
-          return presentAlert({ message: loc.multisig.not_a_multisignature_xpub });
+          return presentAlert({
+            message: loc.multisig.not_a_multisignature_xpub,
+          });
         }
         if (payload.data && MultisigHDWallet.isXpubValid(payload.data)) {
           return tryUsingXpub(payload.data);
@@ -461,7 +489,9 @@ const WalletsAddMultisigStep2 = () => {
             existingXpub = getXpubCacheForMnemonics(existingCosigner[0], existingCosigner[3]);
           }
           if (existingXpub === cosigner.getXpub()) {
-            return presentAlert({ message: loc.multisig.this_cosigner_is_already_imported });
+            return presentAlert({
+              message: loc.multisig.this_cosigner_is_already_imported,
+            });
           }
         }
         // now, validating that cosigner is in correct format:
@@ -489,7 +519,11 @@ const WalletsAddMultisigStep2 = () => {
             throw new Error('This should never happen');
         }
         if (!correctFormat) {
-          return presentAlert({ message: loc.formatString(loc.multisig.invalid_cosigner_format, { format }) });
+          return presentAlert({
+            message: loc.formatString(loc.multisig.invalid_cosigner_format, {
+              format,
+            }),
+          });
         }
         const cosignersCopy = [...cosigners];
         cosignersCopy.push([cosigner.getXpub(), cosigner.getFp(), cosigner.getPath()]);
@@ -518,7 +552,11 @@ const WalletsAddMultisigStep2 = () => {
       utilizeMnemonicPhrase(sheetImportText ?? '', sheetAskPassphrase ?? askPassphrase);
     }
 
-    navigation.setParams({ sheetAction: undefined, sheetImportText: undefined, sheetAskPassphrase: undefined });
+    navigation.setParams({
+      sheetAction: undefined,
+      sheetImportText: undefined,
+      sheetAskPassphrase: undefined,
+    });
   }, [askPassphrase, navigation, params, utilizeMnemonicPhrase]);
 
   const dashType = useCallback(
@@ -538,11 +576,18 @@ const WalletsAddMultisigStep2 = () => {
     const renderProvideKeyButtons = el.index === cosigners.length;
     const isChecked = el.index < cosigners.length;
     return (
-      <View>
+      <View key={String(el.index)}>
         <MultipleStepsListItem
           circledText={String(el.index + 1)}
-          leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-          dashes={dashType({ index: el.index, lastIndex: data.current.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
+          leftText={loc.formatString(loc.multisig.vault_key, {
+            number: el.index + 1,
+          })}
+          dashes={dashType({
+            index: el.index,
+            lastIndex: data.current.length - 1,
+            isChecked,
+            isFocus: renderProvideKeyButtons,
+          })}
           checked={isChecked}
           rightButton={{
             disabled: vaultKeyData.isLoading,
@@ -552,36 +597,45 @@ const WalletsAddMultisigStep2 = () => {
             },
           }}
         />
-        {renderProvideKeyButtons && (
-          <>
-            <MultipleStepsListItem
-              showActivityIndicator={vaultKeyData.keyIndex === el.index && vaultKeyData.isLoading}
-              button={{
-                testID: 'VaultKeyGenerate',
-                buttonType: MultipleStepsListItemButtonType.Full,
-                onPress: () => {
-                  setVaultKeyData({ keyIndex: el.index, xpub: '', seed: '', isLoading: true });
-                  generateNewKey();
-                },
-                text: loc.multisig.create_new_key,
-                disabled: vaultKeyData.isLoading,
-              }}
-              dashes={MultipleStepsListItemDashType.TopAndBottom}
-              checked={isChecked}
-            />
-            <MultipleStepsListItem
-              button={{
-                testID: 'VaultCosignerImport' + String(el.index + 1),
-                onPress: iHaveMnemonics,
-                buttonType: MultipleStepsListItemButtonType.Full,
-                text: loc.wallets.import_do_import,
-                disabled: vaultKeyData.isLoading,
-              }}
-              dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
-              checked={isChecked}
-            />
-          </>
-        )}
+        {/* Every row keeps its collapsible so the buttons can grow into the next key while they shrink out of this one */}
+        <AnimatedCollapsible expanded={renderProvideKeyButtons}>
+          {isLive => (
+            <>
+              <MultipleStepsListItem
+                button={{
+                  // only the live copy is addressable; the copy collapsing out of the previous key is not
+                  testID: isLive ? 'VaultKeyGenerate' : undefined,
+                  buttonType: MultipleStepsListItemButtonType.Full,
+                  onPress: () => {
+                    setVaultKeyData({
+                      keyIndex: el.index,
+                      xpub: '',
+                      seed: '',
+                      isLoading: true,
+                    });
+                    generateNewKey();
+                  },
+                  text: loc.multisig.create_new_key,
+                  disabled: vaultKeyData.isLoading,
+                  showActivityIndicator: vaultKeyData.isLoading,
+                }}
+                dashes={MultipleStepsListItemDashType.TopAndBottom}
+              />
+              <MultipleStepsListItem
+                button={{
+                  testID: isLive ? 'VaultCosignerImport' + String(el.index + 1) : undefined,
+                  onPress: iHaveMnemonics,
+                  buttonType: MultipleStepsListItemButtonType.Full,
+                  text: loc.wallets.import_do_import,
+                  disabled: vaultKeyData.isLoading,
+                }}
+                dashes={
+                  el.index === data.current.length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom
+                }
+              />
+            </>
+          )}
+        </AnimatedCollapsible>
       </View>
     );
   };
@@ -598,14 +652,9 @@ const WalletsAddMultisigStep2 = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]}>
-      <View style={styles.wrapBox}>
-        <AnimatedFlatList
-          data={data.current}
-          renderItem={_renderKeyItem}
-          keyExtractor={(_item, index) => `${index}`}
-          extraData={cosigners}
-        />
-      </View>
+      <Animated.ScrollView style={styles.wrapBox} keyboardShouldPersistTaps="handled">
+        {data.current.map((_, index) => _renderKeyItem({ index }))}
+      </Animated.ScrollView>
       {footer}
       <BlueSpacing20 />
     </View>
@@ -628,16 +677,17 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   helpButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 50,
+    height: 34,
+    paddingHorizontal: 12,
+    borderRadius: 17,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   helpButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 8,
+    fontSize: 15,
+    fontWeight: '600',
+    marginLeft: 6,
   },
   helpButtonPressed: {
     opacity: 0.75,

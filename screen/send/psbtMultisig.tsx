@@ -1,25 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ListRenderItemInfo,
-  NativeSyntheticEvent,
-  LayoutRectangle,
-  NodeHandle,
-} from 'react-native';
-import Icon from '../../components/Icon';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import assert from 'assert';
 
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
-import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
+import MultipleStepsListItem, {
+  MultipleStepsListItemButtonType,
+  MultipleStepsListItemDashType,
+} from '../../components/MultipleStepsListItem';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -27,7 +20,6 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { combinePSBTs } from '../../util/combinePSBTs.ts';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
-import assert from 'assert';
 
 type RouteParams = {
   params: {
@@ -40,19 +32,90 @@ type RouteParams = {
   };
 };
 
+type DestinationTarget = { address: string; value: number };
+
+const normalizeAddress = (address: string) => address.trim().toLowerCase();
+
+const resolveOutputAddress = (output: bitcoin.Psbt['txOutputs'][number]): string | undefined => {
+  if (output.address) return output.address;
+  if (!output.script) return undefined;
+  try {
+    return bitcoin.address.fromOutputScript(output.script);
+  } catch {
+    return undefined;
+  }
+};
+
+/** Build the wallet's change-address set the same way Confirm/CreateTransaction do. */
+const getChangeAddressSet = (wallet: MultisigHDWallet): Set<string> => {
+  const changeAddresses = new Set<string>();
+  const limit = (wallet.next_free_change_address_index || 0) + (wallet.gap_limit || 20);
+  for (let c = 0; c < limit; c++) {
+    try {
+      changeAddresses.add(normalizeAddress(wallet._getInternalAddressByIndex(c)));
+    } catch {
+      // derivation can throw for incomplete cosigner setups; skip
+    }
+  }
+  return changeAddresses;
+};
+
+const getDestinationData = (psbt: bitcoin.Psbt, wallet: MultisigHDWallet, excludeChange = true) => {
+  // Only strip change outputs (same approach as SendDetails → Confirm), not all owned
+  // addresses — sending to your own receive address must still show as a recipient.
+  const changeAddresses = excludeChange ? getChangeAddressSet(wallet) : null;
+  const addresses: string[] = [];
+  let totalSat = 0;
+  const targets: DestinationTarget[] = [];
+  for (const output of psbt.txOutputs) {
+    const address = resolveOutputAddress(output);
+    if (!address) continue;
+    if (changeAddresses?.has(normalizeAddress(address))) continue;
+    const value = Number(output.value);
+    totalSat += value;
+    addresses.push(address);
+    targets.push({ address, value });
+  }
+  return { addresses, totalSat, targets };
+};
+
+const dashType = ({
+  index,
+  lastIndex,
+  isChecked,
+  isFocus,
+  exportFollows,
+}: {
+  index: number;
+  lastIndex: number;
+  isChecked: boolean;
+  isFocus: boolean;
+  exportFollows: boolean;
+}) => {
+  if (isChecked) {
+    // Keep going into the export row when it is the step that ends the line.
+    if (index === lastIndex && !exportFollows) return MultipleStepsListItemDashType.Top;
+    return MultipleStepsListItemDashType.TopAndBottom;
+  }
+  if (index === lastIndex) {
+    // The current last key continues into Provide signature, which ends the line.
+    // A later last key is the end, so the line stops on its circle.
+    return isFocus ? MultipleStepsListItemDashType.TopAndBottom : MultipleStepsListItemDashType.Top;
+  }
+  return MultipleStepsListItemDashType.TopAndBottom;
+};
+
 const PsbtMultisig = () => {
   const { wallets } = useStorage();
   const { navigate, setParams } = useNavigation();
   const { colors } = useTheme();
-  const [flatListHeight, setFlatListHeight] = useState(0);
   const { walletID, psbtBase64, memo, receivedPSBTBase64, txhex, launchedBy } = useRoute<RouteProp<RouteParams>>().params;
   const wallet = wallets.find(w => w.getID() === walletID) as MultisigHDWallet;
   assert(wallet, 'Internal error: MultisigHDWallet not found');
 
-  const [psbt, setPsbt] = useState(() => {
+  const [psbt, setPsbt] = useState<bitcoin.Psbt | null>(() => {
     try {
-      const initial = bitcoin.Psbt.fromBase64(psbtBase64);
-      return initial;
+      return bitcoin.Psbt.fromBase64(psbtBase64);
     } catch (error) {
       console.error('Error loading initial PSBT:', error);
       presentAlert({ message: loc.send.invalid_psbt });
@@ -60,36 +123,8 @@ const PsbtMultisig = () => {
     }
   });
 
-  useEffect(() => {
-    if (receivedPSBTBase64) {
-      _combinePSBT();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [receivedPSBTBase64]);
+  const [isFiltered, setIsFiltered] = useState(true);
 
-  useEffect(() => {
-    if (txhex) {
-      // we have finalized txhex, lets  calculate some stuff and navigate to Confirm scren
-      const tx = bitcoin.Transaction.fromHex(txhex);
-
-      try {
-        const satoshiPerByte = Math.round(getFee() / tx.virtualSize());
-        navigate('Confirm', {
-          fee: new BigNumber(getFee()).dividedBy(100000000).toNumber(),
-          memo,
-          walletID,
-          tx: txhex,
-          recipients: targets,
-          satoshiPerByte,
-        });
-      } catch (error: any) {
-        presentAlert({ message: error });
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [txhex]);
-
-  const data = new Array(wallet.getM());
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -103,154 +138,130 @@ const PsbtMultisig = () => {
     textFiat: {
       color: colors.alternativeTextColor,
     },
-    provideSignatureButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    provideSignatureButtonText: {
-      color: colors.buttonTextColor,
-    },
-    vaultKeyCircle: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    vaultKeyText: {
-      color: colors.alternativeTextColor,
-    },
     feeFiatText: {
       color: colors.alternativeTextColor,
-    },
-    vaultKeyCircleSuccess: {
-      backgroundColor: colors.msSuccessBG,
-    },
-    vaultKeyTextSigned: {
-      color: colors.msSuccessBG,
     },
     addressSection: {
       color: colors.alternativeTextColor2,
     },
   });
 
-  const [isFiltered, setIsFiltered] = useState(true);
+  const filteredData = useMemo(
+    () => (psbt ? getDestinationData(psbt, wallet, true) : { addresses: [], totalSat: 0, targets: [] }),
+    [psbt, wallet],
+  );
+  const unfilteredData = useMemo(
+    () => (psbt ? getDestinationData(psbt, wallet, false) : { addresses: [], totalSat: 0, targets: [] }),
+    [psbt, wallet],
+  );
 
-  if (!psbt) return null;
-
-  // if useFilter is true, include only non-owned addresses.
-  const getDestinationData = (useFilter = true) => {
-    const addresses = [];
-    let totalSat = 0;
-    const targets = [];
-    for (const output of psbt.txOutputs) {
-      if (output.address) {
-        if (useFilter && wallet.weOwnAddress(output.address)) continue;
-        totalSat += Number(output.value);
-        addresses.push(output.address);
-        targets.push({ address: output.address, value: output.value });
-      }
-    }
-    return { addresses, totalSat, targets };
-  };
-
-  const filteredData = getDestinationData(true);
-  const unfilteredData = getDestinationData(false);
-
-  const targets = filteredData.targets;
-
-  const displayData = isFiltered ? filteredData : unfilteredData;
+  // Default: hide change. Tap amount to toggle and include change outputs.
+  const targets = filteredData.targets.length > 0 ? filteredData.targets : unfilteredData.targets;
+  const preferFiltered = isFiltered && filteredData.addresses.length > 0;
+  const displayData = preferFiltered ? filteredData : unfilteredData;
   const displayTotalBtc = new BigNumber(displayData.totalSat).dividedBy(100000000).toNumber();
   const displayTotalFiat = satoshiToLocalCurrency(displayData.totalSat);
 
+  const howManySignaturesWeHave = psbt ? wallet.calculateHowManySignaturesWeHaveFromPsbt(psbt) : 0;
+  const confirmEnabled = howManySignaturesWeHave >= wallet.getM();
+  const keyIndexes = useMemo(() => Array.from({ length: wallet.getM() }, (_, index) => index), [wallet]);
+
   const getFee = () => {
+    if (!psbt) return 0;
     return wallet.calculateFeeFromPsbt(psbt);
   };
 
-  const _renderItem = (el: ListRenderItemInfo<any>) => {
-    if (el.index >= howManySignaturesWeHave) return _renderItemUnsigned(el);
-    else return _renderItemSigned(el);
-  };
+  useEffect(() => {
+    if (!psbt || !receivedPSBTBase64 || receivedPSBTBase64 === psbt.toBase64()) return;
+    try {
+      const combined = combinePSBTs({ psbtBase64: psbt.toBase64(), newPSBTBase64: receivedPSBTBase64 });
+      setPsbt(combined);
+      setParams({ receivedPSBTBase64: undefined });
+    } catch (error: any) {
+      console.error('Error during PSBT combination:', error);
+      presentAlert({ message: error.message });
+    }
+  }, [receivedPSBTBase64, psbt, setParams]);
+
+  useEffect(() => {
+    if (!txhex || !psbt) return;
+    try {
+      const tx = bitcoin.Transaction.fromHex(txhex);
+      const fee = wallet.calculateFeeFromPsbt(psbt);
+      const satoshiPerByte = Math.round(fee / tx.virtualSize());
+      navigate('Confirm', {
+        fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
+        memo,
+        walletID,
+        tx: txhex,
+        recipients: targets,
+        satoshiPerByte,
+      });
+    } catch (error: any) {
+      presentAlert({ message: error?.message ?? String(error) });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [txhex]);
+
+  if (!psbt) return null;
 
   const navigateToPSBTMultisigQRCode = () => {
-    navigate('PsbtMultisigQRCode', { walletID, psbtBase64: psbt.toBase64(), isShowOpenScanner: isConfirmEnabled() });
+    navigate('PsbtMultisigQRCode', { walletID, psbtBase64: psbt.toBase64(), isShowOpenScanner: confirmEnabled });
   };
 
-  const _renderItemUnsigned = (el: ListRenderItemInfo<any>) => {
-    const renderProvideSignature = el.index === howManySignaturesWeHave;
-    return (
-      <View testID="ItemUnsigned">
-        <View style={styles.itemUnsignedWrapper}>
-          <View style={[styles.vaultKeyCircle, stylesHook.vaultKeyCircle]}>
-            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>{el.index + 1}</Text>
-          </View>
-          <View style={styles.vaultKeyTextWrapper}>
-            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
-              {loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-            </Text>
-          </View>
-        </View>
+  const renderKey = (index: number) => {
+    const isChecked = index < howManySignaturesWeHave;
+    const isCurrentUnsigned = index === howManySignaturesWeHave;
+    const lastIndex = keyIndexes.length - 1;
 
-        {renderProvideSignature && (
-          <View>
-            <TouchableOpacity
-              accessibilityRole="button"
-              testID="ProvideSignature"
-              style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
-              onPress={navigateToPSBTMultisigQRCode}
-            >
-              <Text style={[styles.provideSignatureButtonText, stylesHook.provideSignatureButtonText]}>
-                {loc.multisig.provide_signature}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
+    return (
+      <View key={`${index}`} testID={isChecked ? 'ItemSigned' : 'ItemUnsigned'}>
+        <MultipleStepsListItem
+          checked={isChecked}
+          circledText={String(index + 1)}
+          leftText={loc.formatString(loc.multisig.vault_key, { number: index + 1 })}
+          dashes={dashType({ index, lastIndex, isChecked, isFocus: isCurrentUnsigned, exportFollows: confirmEnabled })}
+        />
+        {isCurrentUnsigned ? (
+          <MultipleStepsListItem
+            button={{
+              testID: 'ProvideSignature',
+              buttonType: MultipleStepsListItemButtonType.Full,
+              text: loc.multisig.provide_signature,
+              onPress: navigateToPSBTMultisigQRCode,
+            }}
+            // End the line here only when this key is the last step. Otherwise continue to the next key.
+            dashes={index === lastIndex ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
+          />
+        ) : null}
       </View>
     );
-  };
-
-  const _renderItemSigned = (el: ListRenderItemInfo<any>) => {
-    return (
-      <View style={styles.flexDirectionRow} testID="ItemSigned">
-        <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-          <Icon size={24} name="checkmark" type="ionicons" color={colors.msSuccessCheck} />
-        </View>
-        <View style={styles.vaultKeyTextSignedWrapper}>
-          <Text style={[styles.vaultKeyTextSigned, stylesHook.vaultKeyTextSigned]}>
-            {loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-          </Text>
-        </View>
-      </View>
-    );
-  };
-
-  const _combinePSBT = () => {
-    if (receivedPSBTBase64 && receivedPSBTBase64 !== psbt.toBase64()) {
-      try {
-        const combined = combinePSBTs({ psbtBase64: psbt.toBase64(), newPSBTBase64: receivedPSBTBase64 });
-        setPsbt(combined);
-        setParams({ receivedPSBTBase64: undefined });
-      } catch (error: any) {
-        console.error('Error during PSBT combination:', error);
-        presentAlert({ message: error.message });
-      }
-    }
   };
 
   const onConfirm = () => {
+    if (!psbt) return;
+    // Finalize a copy: a failure (e.g. an input with more signatures than the quorum) must not leave the PSBT in state
+    // half-finalized, or Export would share inputs that already lost their partial signatures.
+    let finalized: bitcoin.Psbt;
     try {
-      MultisigHDWallet.finalizeUnfinalizedInputs(psbt);
-    } catch (err) {
-      console.warn('Finalize error:', err);
+      finalized = wallet.finalizedCopy(psbt);
+    } catch (err: any) {
+      presentAlert({ message: err?.message ?? String(err) });
+      return;
     }
 
     if (launchedBy) {
-      // we must navigate back to the screen who requested psbt (instead of broadcasting it ourselves)
-      // most likely for LN channel opening
-      navigate(launchedBy, { psbt });
+      navigate(launchedBy, { psbt: finalized });
       return;
     }
 
     try {
-      const tx = psbt.extractTransaction().toHex();
-      const satoshiPerByte = Math.round(getFee() / psbt.extractTransaction().virtualSize());
+      const extracted = finalized.extractTransaction();
+      const tx = extracted.toHex();
+      const fee = getFee();
+      const satoshiPerByte = Math.round(fee / extracted.virtualSize());
       navigate('Confirm', {
-        fee: new BigNumber(getFee()).dividedBy(100000000).toNumber(),
+        fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
         memo,
         walletID,
         tx,
@@ -258,18 +269,13 @@ const PsbtMultisig = () => {
         satoshiPerByte,
       });
     } catch (error: any) {
-      presentAlert({ message: error });
+      presentAlert({ message: error?.message ?? String(error) });
     }
   };
 
-  const howManySignaturesWeHave = wallet.calculateHowManySignaturesWeHaveFromPsbt(psbt);
-  const isConfirmEnabled = () => {
-    return howManySignaturesWeHave >= wallet.getM();
-  };
-
-  const destinationAddress = (useFilter = true) => {
-    const addrs = useFilter ? filteredData.addresses : unfilteredData.addresses;
-    const displayAddrs = useFilter ? addrs : [...new Set(addrs)];
+  const destinationAddress = () => {
+    const addrs = preferFiltered ? filteredData.addresses : unfilteredData.addresses;
+    const displayAddrs = preferFiltered ? addrs : [...new Set(addrs)];
     const destinationAddressView = [];
     const destinations = Object.entries(displayAddrs);
     for (const [index, address] of destinations) {
@@ -297,97 +303,63 @@ const PsbtMultisig = () => {
     return destinationAddressView;
   };
 
-  const handleToggleFilter = () => {
-    setIsFiltered(prev => !prev);
-  };
-
-  const header = (
-    <View style={stylesHook.root}>
-      <View style={styles.containerText}>
-        <TouchableOpacity onPress={handleToggleFilter}>
-          <BlueText selectable style={[styles.textBtc, stylesHook.textBtc]}>
-            {displayTotalBtc}
-          </BlueText>
-        </TouchableOpacity>
-        <View style={styles.textBtcUnit}>
-          <BlueText selectable style={stylesHook.textBtcUnitValue}>
-            {' '}
-            {BitcoinUnit.BTC}
-          </BlueText>
-        </View>
-      </View>
-      <View style={styles.containerText}>
-        <TouchableOpacity onPress={handleToggleFilter}>
-          <BlueText selectable style={[styles.textFiat, stylesHook.textFiat]}>
-            {displayTotalFiat}
-          </BlueText>
-        </TouchableOpacity>
-      </View>
-      <View>{destinationAddress(isFiltered)}</View>
-    </View>
-  );
-
-  const footer = null;
-
-  const onLayout = (event: NativeSyntheticEvent<{ layout: LayoutRectangle; target?: NodeHandle | null }>) => {
-    const newHeight = event.nativeEvent.layout.height;
-    setFlatListHeight(newHeight);
-  };
-
   return (
-    <SafeArea style={stylesHook.root}>
-      <View style={styles.flexColumnSpaceBetween}>
-        <View style={styles.flexOne}>
-          <View style={styles.container}>
-            <View style={styles.mstopcontainer}>
-              <View style={styles.mscontainer}>
-                <View style={[styles.msleft, { height: flatListHeight - 260 }]} />
-              </View>
-              <View style={styles.msright}>
-                <BlueCard>
-                  <FlatList
-                    data={data}
-                    renderItem={_renderItem}
-                    keyExtractor={(_item, index) => `${index}`}
-                    extraData={psbt} // Ensure FlatList updates when psbt changes
-                    ListHeaderComponent={header}
-                    ListFooterComponent={footer}
-                    onLayout={onLayout}
-                  />
-                  {isConfirmEnabled() && (
-                    <View style={styles.height80}>
-                      <TouchableOpacity
-                        accessibilityRole="button"
-                        testID="ExportSignedPsbt"
-                        style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
-                        onPress={() => {
-                          navigateToPSBTMultisigQRCode();
-                        }}
-                      >
-                        <Text style={[styles.provideSignatureButtonText, stylesHook.provideSignatureButtonText]}>
-                          {loc.multisig.export_signed_psbt}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </BlueCard>
+    <SafeArea style={stylesHook.root} ignoreTopInset>
+      <View style={styles.root}>
+        <ScrollView contentContainerStyle={styles.scrollContent} bounces={false}>
+          <View style={styles.amountHeader}>
+            <View style={styles.containerText}>
+              <TouchableOpacity onPress={() => setIsFiltered(prev => !prev)}>
+                <BlueText selectable style={[styles.textBtc, stylesHook.textBtc]}>
+                  {displayTotalBtc}
+                </BlueText>
+              </TouchableOpacity>
+              <View style={styles.textBtcUnit}>
+                <BlueText selectable style={stylesHook.textBtcUnitValue}>
+                  {' '}
+                  {BitcoinUnit.BTC}
+                </BlueText>
               </View>
             </View>
+            <View style={styles.containerText}>
+              <TouchableOpacity onPress={() => setIsFiltered(prev => !prev)}>
+                <BlueText selectable style={[styles.textFiat, stylesHook.textFiat]}>
+                  {displayTotalFiat}
+                </BlueText>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.addresses}>{destinationAddress()}</View>
           </View>
-        </View>
+
+          <View style={styles.stepperSection}>
+            {keyIndexes.map(index => renderKey(index))}
+            {confirmEnabled ? (
+              <View style={styles.exportButton}>
+                <MultipleStepsListItem
+                  button={{
+                    testID: 'ExportSignedPsbt',
+                    buttonType: MultipleStepsListItemButtonType.Full,
+                    text: loc.multisig.export_signed_psbt,
+                    onPress: navigateToPSBTMultisigQRCode,
+                  }}
+                  dashes={MultipleStepsListItemDashType.Top}
+                />
+              </View>
+            ) : null}
+          </View>
+        </ScrollView>
+
         <View style={styles.feeConfirmContainer}>
           <View style={styles.feeContainer}>
-            <View style={styles.bottomWrapper}>
-              <View style={styles.bottomFeesWrapper}>
-                <BlueText selectable style={stylesHook.feeFiatText}>
-                  {loc.formatString(loc.multisig.fee, { number: satoshiToLocalCurrency(getFee()) })} -{' '}
-                </BlueText>
-                <BlueText selectable>{loc.formatString(loc.multisig.fee_btc, { number: satoshiToBTC(getFee()) })}</BlueText>
-              </View>
+            <View style={styles.bottomFeesWrapper}>
+              <BlueText selectable style={stylesHook.feeFiatText}>
+                {loc.formatString(loc.multisig.fee, { number: satoshiToLocalCurrency(getFee()) })} -{' '}
+              </BlueText>
+              <BlueText selectable>{loc.formatString(loc.multisig.fee_btc, { number: satoshiToBTC(getFee()) })}</BlueText>
             </View>
           </View>
           <View style={styles.flexConfirm}>
-            <Button disabled={!isConfirmEnabled()} title={loc.multisig.confirm} onPress={onConfirm} testID="PsbtMultisigConfirmButton" />
+            <Button disabled={!confirmEnabled} title={loc.multisig.confirm} onPress={onConfirm} testID="PsbtMultisigConfirmButton" />
           </View>
         </View>
       </View>
@@ -396,48 +368,44 @@ const PsbtMultisig = () => {
 };
 
 const styles = StyleSheet.create({
-  mstopcontainer: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  mscontainer: {
-    flex: 10,
-  },
-  flexOne: {
+  root: {
     flex: 1,
   },
-  msleft: {
-    width: 1,
-    borderStyle: 'dashed',
-    borderWidth: 0.8,
-    borderColor: '#c4c4c4',
-    marginLeft: 40,
-    marginTop: 220,
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 16,
   },
-  msright: {
-    flex: 90,
-    marginLeft: '-11%',
+  amountHeader: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    alignItems: 'center',
   },
-  container: {
-    flexDirection: 'column',
-    flex: 1,
+  addresses: {
+    width: '100%',
+    marginTop: 4,
+  },
+  stepperSection: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 24,
   },
   containerText: {
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'flex-end',
   },
   destinationTextContainer: {
     flexDirection: 'row',
-    marginBottom: 4,
-    paddingHorizontal: 60,
-    fontSize: 14,
-    marginVertical: 8,
+    paddingHorizontal: 24,
+    marginTop: 4,
     justifyContent: 'center',
   },
   textFiat: {
     fontSize: 16,
     fontWeight: '500',
-    marginBottom: 30,
+    marginBottom: 8,
   },
   textBtc: {
     fontWeight: 'bold',
@@ -451,59 +419,26 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   textDestination: {
-    paddingTop: 10,
-    paddingBottom: 40,
     fontSize: 14,
     flexWrap: 'wrap',
   },
-  provideSignatureButton: {
-    marginTop: 24,
-    marginLeft: 40,
-    height: 48,
-    borderRadius: 8,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 8,
+  textBtcUnit: {
+    justifyContent: 'flex-end',
+    paddingBottom: 4,
   },
-  provideSignatureButtonText: { fontWeight: '600', fontSize: 15 },
-  vaultKeyText: { fontSize: 18, fontWeight: 'bold' },
-  vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  vaultKeyCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 25,
+  bottomFeesWrapper: {
     justifyContent: 'center',
     alignItems: 'center',
+    flexDirection: 'row',
   },
-  vaultKeyCircleSuccess: {
-    width: 42,
-    height: 42,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  itemUnsignedWrapper: { flexDirection: 'row', paddingTop: 16 },
-  vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },
-  vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },
-  textBtcUnit: { justifyContent: 'flex-end' },
-  bottomFeesWrapper: { justifyContent: 'center', alignItems: 'center', flexDirection: 'row' },
-  bottomWrapper: { marginTop: 16 },
-  height80: {
-    height: 80,
-  },
-  flexColumnSpaceBetween: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
+  exportButton: {
+    marginTop: 8,
   },
   flexConfirm: {
-    paddingHorizontal: 32,
-    paddingVertical: 16,
+    paddingTop: 8,
   },
   feeConfirmContainer: {
-    paddingHorizontal: 32,
+    paddingHorizontal: 20,
     paddingVertical: 16,
   },
   feeContainer: {
