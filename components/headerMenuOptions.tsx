@@ -40,7 +40,7 @@ export const createEllipsisHeaderMenuOptions = ({
     unstable_headerRightItems: () => [
       {
         type: 'menu',
-        label: title,
+        label: title || identifier,
         icon: { type: 'sfSymbol', name: 'ellipsis' },
         identifier,
         accessibilityLabel: identifier,

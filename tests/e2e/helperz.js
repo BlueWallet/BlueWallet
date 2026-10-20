@@ -620,14 +620,28 @@ export async function tapHeaderMenuItem(menuItemText, { actionId, restoreSynchro
   let succeeded = false;
   await device.disableSynchronization();
   try {
-    await waitFor(headerButton('HeaderMenuButton'))
-      .toExist()
-      .withTimeout(15_000);
-
     let lastError;
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        await headerButton('HeaderMenuButton').tap();
+        let menuButton = headerButton('HeaderMenuButton');
+        try {
+          await menuButton.getAttributes();
+        } catch {
+          const nativeButtons = [];
+          for (let index = 0; index < 8; index++) {
+            const candidate = element(by.type('_UIButtonBarButton')).atIndex(index);
+            try {
+              const attributes = await candidate.getAttributes();
+              nativeButtons.push({ candidate, x: attributes.frame?.x ?? 0 });
+            } catch {
+              break;
+            }
+          }
+          nativeButtons.sort((a, b) => b.x - a.x);
+          if (nativeButtons.length === 0) throw new Error('No native header menu button found');
+          menuButton = nativeButtons[0].candidate;
+        }
+        await menuButton.tap();
         // iOS 26 action sheets use magic-morph transforms that fail Detox's
         // visibility check until the presentation animation settles.
         await sleep(1500);

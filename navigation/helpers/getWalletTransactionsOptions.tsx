@@ -8,7 +8,6 @@ import { navigationRef } from '../../NavigationService';
 import { RouteProp } from '@react-navigation/native';
 import WalletGradient from '../../class/wallet-gradient';
 import { useTheme } from '../../components/themes';
-import loc from '../../loc';
 
 export type WalletTransactionsRouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 
@@ -153,7 +152,7 @@ export const createWalletDetailsHeaderRightItems = ({
   return () => [
     {
       type: 'button',
-      label: loc.wallets.details_title,
+      label: 'WalletDetails',
       icon: { type: 'sfSymbol', name: 'ellipsis' },
       identifier: 'WalletDetails',
       accessibilityLabel: 'WalletDetails',
