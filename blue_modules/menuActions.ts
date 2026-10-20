@@ -5,7 +5,14 @@ export type ScreenMenuAction =
   | 'walletDetails'
   | 'copyAddress'
   | 'copyTransactionId';
-export type MenuAction = ScreenMenuAction | 'settings' | 'addWallet' | 'importWallet' | 'backToWallets' | 'keyboardShortcuts';
+export type MenuAction =
+  | ScreenMenuAction
+  | 'settings'
+  | 'addWallet'
+  | 'importWallet'
+  | 'manageWallets'
+  | 'backToWallets'
+  | 'keyboardShortcuts';
 export type MenuActionHandlers = Partial<Record<ScreenMenuAction, () => void>>;
 
 const screenActions: Record<string, readonly ScreenMenuAction[]> = {
@@ -18,7 +25,7 @@ const walletDetailScreens = new Set(['WalletTransactions', 'WalletDetails', 'Tra
 
 export function availableMenuActions(screen: string | undefined, registered: readonly ScreenMenuAction[], unlocked: boolean): MenuAction[] {
   if (!unlocked || !screen || screen === 'UnlockWithScreen') return [];
-  const actions: MenuAction[] = ['settings', 'keyboardShortcuts'];
+  const actions: MenuAction[] = ['settings', 'manageWallets', 'keyboardShortcuts'];
   if (screen === 'WalletsList' || screen === 'WalletTransactions') actions.push('addWallet', 'importWallet');
   if (walletDetailScreens.has(screen)) actions.push('backToWallets');
   actions.push(...(screenActions[screen] ?? []).filter(action => registered.includes(action)));
@@ -26,9 +33,10 @@ export function availableMenuActions(screen: string | undefined, registered: rea
 }
 
 // Keep these shortcuts aligned with AppDelegate and WalletMenuAction.
-export const menuShortcuts = [
+export const menuShortcuts: readonly { title: string; key: string; where: string; platform?: 'ios' | 'android' }[] = [
   { title: 'Add Wallet', key: 'Shift+A', where: 'Wallet overview and transactions' },
   { title: 'Import Wallet', key: 'I', where: 'Wallet overview and transactions' },
+  { title: 'Manage Wallets…', key: 'Shift+M', where: 'Anywhere after unlocking', platform: 'ios' },
   { title: 'Reload Transactions', key: 'R', where: 'Wallet overview and transactions' },
   { title: 'Send…', key: 'Shift+S', where: 'Transactions, when this wallet supports sending' },
   { title: 'Receive…', key: 'Shift+R', where: 'Transactions, when this wallet supports receiving' },
