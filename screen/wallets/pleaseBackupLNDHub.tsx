@@ -12,6 +12,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
+import ScreenCaptureProtection from './ScreenCaptureProtection';
 
 type PleaseBackupLNDHubRouteParams = {
   walletID: string;
@@ -67,19 +68,21 @@ const PleaseBackupLNDHub = () => {
     setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.5);
   };
   return (
-    <SafeAreaScrollView style={styles.root} contentContainerStyle={styles.scrollViewContent} centerContent onLayout={onLayout}>
-      <View>
-        <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
+    <ScreenCaptureProtection enabled={isPrivacyBlurEnabled}>
+      <SafeAreaScrollView style={styles.root} contentContainerStyle={styles.scrollViewContent} centerContent onLayout={onLayout}>
+        <View>
+          <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
+          <BlueSpacing20 />
+        </View>
         <BlueSpacing20 />
-      </View>
-      <BlueSpacing20 />
-      <QRCode value={wallet.getSecret()} size={qrCodeSize} />
-      <View style={styles.copyText}>
-        <CopyTextToClipboard text={wallet.getSecret()} />
-      </View>
-      <BlueSpacing20 />
-      <Button onPress={dismiss} title={loc.pleasebackup.ok_lnd} />
-    </SafeAreaScrollView>
+        <QRCode value={wallet.getSecret()} size={qrCodeSize} />
+        <View style={styles.copyText}>
+          <CopyTextToClipboard text={wallet.getSecret()} />
+        </View>
+        <BlueSpacing20 />
+        <Button onPress={dismiss} title={loc.pleasebackup.ok_lnd} />
+      </SafeAreaScrollView>
+    </ScreenCaptureProtection>
   );
 };
 
