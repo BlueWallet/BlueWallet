@@ -149,7 +149,9 @@ const OutputList: React.FC<TOutputListProps> = ({
 
   return (
     <Pressable onPress={handlePress} onPressIn={() => animateTo(0.97)} onPressOut={() => animateTo(1)}>
-      <Animated.View style={[styles.listRow, selected ? oStyles.containerSelected : oStyles.container, { transform: [{ scale: scaleAnim }] }]}>
+      <Animated.View
+        style={[styles.listRow, selected ? oStyles.containerSelected : oStyles.container, { transform: [{ scale: scaleAnim }] }]}
+      >
         <Avatar
           rounded
           size={40}

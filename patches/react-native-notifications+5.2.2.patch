@@ -22,60 +22,6 @@ index 5ea984c..ba3f79b 100644
          }
          debug {
              debuggable true
-diff --git a/node_modules/react-native-notifications/lib/android/app/build/intermediates/annotation_processor_list/reactNative60Debug/javaPreCompileReactNative60Debug/annotationProcessors.json b/node_modules/react-native-notifications/lib/android/app/build/intermediates/annotation_processor_list/reactNative60Debug/javaPreCompileReactNative60Debug/annotationProcessors.json
-new file mode 100644
-index 0000000..9e26dfe
---- /dev/null
-+++ b/node_modules/react-native-notifications/lib/android/app/build/intermediates/annotation_processor_list/reactNative60Debug/javaPreCompileReactNative60Debug/annotationProcessors.json
-@@ -0,0 +1 @@
-+{}
-\ No newline at end of file
-diff --git a/node_modules/react-native-notifications/lib/android/app/build/intermediates/compile_r_class_jar/reactNative60Debug/generateReactNative60DebugRFile/R.jar b/node_modules/react-native-notifications/lib/android/app/build/intermediates/compile_r_class_jar/reactNative60Debug/generateReactNative60DebugRFile/R.jar
-new file mode 100644
-index 0000000..d50b33d
-Binary files /dev/null and b/node_modules/react-native-notifications/lib/android/app/build/intermediates/compile_r_class_jar/reactNative60Debug/generateReactNative60DebugRFile/R.jar differ
-diff --git a/node_modules/react-native-notifications/lib/android/app/build/intermediates/compile_symbol_list/reactNative60Debug/generateReactNative60DebugRFile/R.txt b/node_modules/react-native-notifications/lib/android/app/build/intermediates/compile_symbol_list/reactNative60Debug/generateReactNative60DebugRFile/R.txt
-new file mode 100644
-index 0000000..e69de29
-diff --git a/node_modules/react-native-notifications/lib/android/app/build/intermediates/incremental/reactNative60Debug/packageReactNative60DebugResources/compile-file-map.properties b/node_modules/react-native-notifications/lib/android/app/build/intermediates/incremental/reactNative60Debug/packageReactNative60DebugResources/compile-file-map.properties
-new file mode 100644
-index 0000000..a4b0a32
---- /dev/null
-+++ b/node_modules/react-native-notifications/lib/android/app/build/intermediates/incremental/reactNative60Debug/packageReactNative60DebugResources/compile-file-map.properties
-@@ -0,0 +1 @@
-+#Mon Oct 19 19:10:53 COT 2026
-diff --git a/node_modules/react-native-notifications/lib/android/app/build/intermediates/incremental/reactNative60Debug/packageReactNative60DebugResources/merger.xml b/node_modules/react-native-notifications/lib/android/app/build/intermediates/incremental/reactNative60Debug/packageReactNative60DebugResources/merger.xml
-new file mode 100644
-index 0000000..2a3c840
---- /dev/null
-+++ b/node_modules/react-native-notifications/lib/android/app/build/intermediates/incremental/reactNative60Debug/packageReactNative60DebugResources/merger.xml
-@@ -0,0 +1,2 @@
-+<?xml version="1.0" encoding="utf-8"?>
-+<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/marcosrodriguez/Documents/GitHub/BlueWallet/node_modules/react-native-notifications/lib/android/app/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~:!&lt;dir>navigation"><source path="/Users/marcosrodriguez/Documents/GitHub/BlueWallet/node_modules/react-native-notifications/lib/android/app/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="reactNative60$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/marcosrodriguez/Documents/GitHub/BlueWallet/node_modules/react-native-notifications/lib/android/app/src/reactNative60/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="reactNative60" generated-set="reactNative60$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~:!&lt;dir>navigation"><source path="/Users/marcosrodriguez/Documents/GitHub/BlueWallet/node_modules/react-native-notifications/lib/android/app/src/reactNative60/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/marcosrodriguez/Documents/GitHub/BlueWallet/node_modules/react-native-notifications/lib/android/app/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~:!&lt;dir>navigation"><source path="/Users/marcosrodriguez/Documents/GitHub/BlueWallet/node_modules/react-native-notifications/lib/android/app/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"/><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~:!&lt;dir>navigation"/><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="variant$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/marcosrodriguez/Documents/GitHub/BlueWallet/node_modules/react-native-notifications/lib/android/app/src/reactNative60Debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="variant" generated-set="variant$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~:!&lt;dir>navigation"><source path="/Users/marcosrodriguez/Documents/GitHub/BlueWallet/node_modules/react-native-notifications/lib/android/app/src/reactNative60Debug/res"/></dataSet><mergedItems/></merger>
-\ No newline at end of file
-diff --git a/node_modules/react-native-notifications/lib/android/app/build/intermediates/local_only_symbol_list/reactNative60Debug/parseReactNative60DebugLocalResources/R-def.txt b/node_modules/react-native-notifications/lib/android/app/build/intermediates/local_only_symbol_list/reactNative60Debug/parseReactNative60DebugLocalResources/R-def.txt
-new file mode 100644
-index 0000000..78ac5b8
---- /dev/null
-+++ b/node_modules/react-native-notifications/lib/android/app/build/intermediates/local_only_symbol_list/reactNative60Debug/parseReactNative60DebugLocalResources/R-def.txt
-@@ -0,0 +1,2 @@
-+R_DEF: Internal format may change without notice
-+local
-diff --git a/node_modules/react-native-notifications/lib/android/app/build/intermediates/nested_resources_validation_report/reactNative60Debug/generateReactNative60DebugResources/nestedResourcesValidationReport.txt b/node_modules/react-native-notifications/lib/android/app/build/intermediates/nested_resources_validation_report/reactNative60Debug/generateReactNative60DebugResources/nestedResourcesValidationReport.txt
-new file mode 100644
-index 0000000..08f4ebe
---- /dev/null
-+++ b/node_modules/react-native-notifications/lib/android/app/build/intermediates/nested_resources_validation_report/reactNative60Debug/generateReactNative60DebugResources/nestedResourcesValidationReport.txt
-@@ -0,0 +1 @@
-+0 Warning/Error
-\ No newline at end of file
-diff --git a/node_modules/react-native-notifications/lib/android/app/build/intermediates/symbol_list_with_package_name/reactNative60Debug/generateReactNative60DebugRFile/package-aware-r.txt b/node_modules/react-native-notifications/lib/android/app/build/intermediates/symbol_list_with_package_name/reactNative60Debug/generateReactNative60DebugRFile/package-aware-r.txt
-new file mode 100644
-index 0000000..2d78319
---- /dev/null
-+++ b/node_modules/react-native-notifications/lib/android/app/build/intermediates/symbol_list_with_package_name/reactNative60Debug/generateReactNative60DebugRFile/package-aware-r.txt
-@@ -0,0 +1 @@
-+com.wix.reactnativenotifications
 diff --git a/node_modules/react-native-notifications/lib/android/app/src/main/java/com/wix/reactnativenotifications/fcm/FcmToken.java b/node_modules/react-native-notifications/lib/android/app/src/main/java/com/wix/reactnativenotifications/fcm/FcmToken.java
 index fb1aba4..368f9a8 100644
 --- a/node_modules/react-native-notifications/lib/android/app/src/main/java/com/wix/reactnativenotifications/fcm/FcmToken.java
@@ -108,3 +54,16 @@ index fb1aba4..368f9a8 100644
          }
          // Note: Cannot assume react-context exists cause this is an async dispatched service.
          if (reactContext != null && reactContext.hasActiveReactInstance()) {
+diff --git a/node_modules/react-native-notifications/react-native.config.js b/node_modules/react-native-notifications/react-native.config.js
+index d246b0c..bb1e4a3 100644
+--- a/node_modules/react-native-notifications/react-native.config.js
++++ b/node_modules/react-native-notifications/react-native.config.js
+@@ -4,7 +4,7 @@ module.exports = {
+       ios: {},
+       android: {
+         sourceDir: './lib/android/app',
+-        packageInstance: 'new RNNotificationsPackage(reactNativeHost.getApplication())',
++        packageInstance: 'new RNNotificationsPackage(getApplication())',
+       }
+     },
+   },

@@ -34,6 +34,8 @@ console.warn = console.log = (...args) => {
   process.stdout.write('\n\t\t' + output + '\n');
 };
 
+const settingsButton = () => element(device.getPlatform() === 'ios' ? by.label('SettingsButton') : by.id('SettingsButton'));
+
 /**
  * this testsuite is for test cases that require no wallets to be present
  */
@@ -48,7 +50,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('WalletsList');
 
     // go to settings, press SelfTest and wait for OK
-    await element(by.id('SettingsButton')).tap();
+    await settingsButton().tap();
     await waitFor(element(by.id('AboutButton')))
       .toBeVisible()
       .whileElement(by.id('SettingsRoot'))
@@ -94,7 +96,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('WalletsList');
 
     // go to settings, press SelfTest and wait for OK
-    await element(by.id('SettingsButton')).tap();
+    await settingsButton().tap();
 
     await element(by.id('GeneralSettings')).tap();
     await waitForId('GeneralSettingsScreen');
@@ -222,7 +224,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
         // Dialog blocks all interaction; relaunch the app to clear it
         await device.launchApp({ newInstance: true });
         await waitForId('WalletsList');
-        await element(by.id('SettingsButton')).tap();
+        await settingsButton().tap();
       } else {
         await goBack();
         await goBack();
@@ -365,8 +367,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await helperCreateWallet();
 
     // go to settings
-    await expect(element(by.id('SettingsButton'))).toBeVisible();
-    await element(by.id('SettingsButton')).tap();
+    await expect(settingsButton()).toBeVisible();
+    await settingsButton().tap();
     await expect(element(by.id('SecurityButton'))).toBeVisible();
 
     // go to Security page where we will enable encryption
@@ -419,7 +421,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // now lets enable plausible deniability feature
 
     // go to settings -> security screen -> plausible deniability screen
-    await element(by.id('SettingsButton')).tap();
+    await settingsButton().tap();
     await expect(element(by.id('SecurityButton'))).toBeVisible();
     await element(by.id('SecurityButton')).tap();
     // await expect(element(by.id('EncyptedAndPasswordProtected'))).toBeVisible();
@@ -494,7 +496,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.id('fake_wallet'))).toBeVisible();
 
     // now derypting it, to cleanup
-    await element(by.id('SettingsButton')).tap();
+    await settingsButton().tap();
     await element(by.id('SecurityButton')).tap();
 
     // correct password
@@ -520,7 +522,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
     await waitForId('WalletsList');
     await helperCreateWallet();
-    await element(by.id('SettingsButton')).tap();
+    await settingsButton().tap();
     await element(by.id('SecurityButton')).tap();
 
     // lets encrypt the storage.
@@ -569,7 +571,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.id('cr34t3d'))).toBeVisible();
 
     // now go to settings, and decrypt
-    await element(by.id('SettingsButton')).tap();
+    await settingsButton().tap();
     await element(by.id('SecurityButton')).tap();
 
     // putting FAKE storage password. should not succeed

@@ -73,6 +73,12 @@ def enableProguardInReleaseBuilds = false
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.0.1'
 
 android {
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     androidResources {
         noCompress += ["bundle"]
     }
