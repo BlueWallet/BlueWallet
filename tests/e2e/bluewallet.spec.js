@@ -12,14 +12,18 @@ import {
   helperCreateWallet,
   helperDeleteWallet,
   restoreSynchronizationIfAnimatedQrClosed,
+  retryAndroidIndexMiss,
   scanText,
   scanUrParts,
   waitForQrScannerClosed,
   setCustomFeeRate,
+  submitUnlockPassword,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
   tapHeaderMenuItem,
   tapIfTextPresent,
+  tapReturnKeyById,
+  tapTextWithoutSync,
   waitForId,
   waitForKeyboardToClose,
   waitForText,
@@ -75,6 +79,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await waitFor(element(by.id('SelfTestOk')))
         .toBeVisible()
         .withTimeout(300 * 1000);
+      // On a device, AsyncStorage may still hold its executor lock. Re-registering
+      // Detox's storage idling resource on the main thread then deadlocks.
+      if (!process.env.CI) {
+        await sleep(5000);
+      }
     } finally {
       await device.enableSynchronization();
     }
@@ -111,9 +120,18 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // currency
     // change currency to ARS ($) and switch it back to USD ($)
     await element(by.id('Currency')).tap();
-    await element(by.text('ARS ($)')).tap();
-    await expect(element(by.text('Rate is obtained from Yadio'))).toBeVisible();
-    await element(by.text('USD ($)')).tap();
+    await waitFor(element(by.text('ARS ($)')))
+      .toBeVisible()
+      .withTimeout(15_000);
+    // The row swaps in a spinner on press, so Espresso can lose the view mid-tap.
+    await tapTextWithoutSync('ARS ($)');
+    await waitFor(element(by.text('Rate is obtained from Yadio')))
+      .toBeVisible()
+      .withTimeout(20_000);
+    await tapTextWithoutSync('USD ($)');
+    await waitFor(element(by.text('Rate is obtained from Kraken')))
+      .toBeVisible()
+      .withTimeout(20_000);
     await goBack();
 
     // language
@@ -380,22 +398,18 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('IUnderstandButton')).tap();
 
     await element(by.id('PasswordInput')).replaceText('08902');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('PasswordInput');
     await element(by.id('ConfirmPasswordInput')).replaceText('666');
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('ConfirmPasswordInput');
     await confirmPasswordDialog();
 
     // now, lets put correct passwords and encrypt the storage
     await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).replaceText('qqq');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('PasswordInput');
     await element(by.id('ConfirmPasswordInput')).clearText();
     await element(by.id('ConfirmPasswordInput')).replaceText('qqq');
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('ConfirmPasswordInput');
     await confirmPasswordDialog(); // might not always work the first time
     await sleep(1000); // propagate
 
@@ -403,14 +417,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.launchApp({ newInstance: true });
 
     // trying to decrypt with incorrect password
-    await waitForId('PasswordInput');
-    await element(by.id('PasswordInput')).typeText('wrong\n');
-    await waitForKeyboardToClose();
+    await submitUnlockPassword('wrong');
     await sleep(1000); // wait for shake animation and retry
 
     // correct password
-    await element(by.id('PasswordInput')).typeText('qqq\n');
-    await waitForKeyboardToClose();
+    await submitUnlockPassword('qqq');
     await waitForId('WalletsList');
 
     // previously created wallet should be visible
@@ -433,37 +444,30 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // trying MAIN password: should fail, obviously
     await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).replaceText('qqq');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('PasswordInput');
     await element(by.id('ConfirmPasswordInput')).clearText();
     await element(by.id('ConfirmPasswordInput')).replaceText('qqq');
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('ConfirmPasswordInput');
     await confirmPasswordDialog(); // first time might not always work
-    await sleep(1000); // propagate
-    await expect(element(by.text('Password is currently in use. Please try a different password.'))).toBeVisible();
+    await waitForText('Password is currently in use. Please try a different password.', 20_000);
     await element(by.text('OK')).atIndex(0).tap();
 
     // trying new password, but will mistype
     await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('PasswordInput');
     await element(by.id('ConfirmPasswordInput')).clearText();
     await element(by.id('ConfirmPasswordInput')).replaceText('passwordForFakeStorageWithTypo'); // retyping with typo
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('ConfirmPasswordInput');
     await confirmPasswordDialog();
 
     // trying new password
     await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('PasswordInput');
     await element(by.id('ConfirmPasswordInput')).clearText();
     await element(by.id('ConfirmPasswordInput')).replaceText('passwordForFakeStorage'); // retyping
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('ConfirmPasswordInput');
     await confirmPasswordDialog(); // first time might not always work
     await sleep(1000); // propagate
 
@@ -475,9 +479,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // relaunch app
     await device.launchApp({ newInstance: true });
-    await waitForId('PasswordInput');
-    await element(by.id('PasswordInput')).typeText('qqq\n');
-    await waitForKeyboardToClose();
+    await submitUnlockPassword('qqq');
     await waitForId('WalletsList');
 
     // previously created wallet IN MAIN STORAGE should be visible
@@ -485,9 +487,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // relaunch app
     await device.launchApp({ newInstance: true });
-    await waitForId('PasswordInput');
-    await element(by.id('PasswordInput')).typeText('passwordForFakeStorage\n');
-    await waitForKeyboardToClose();
+    await submitUnlockPassword('passwordForFakeStorage');
     await waitForId('WalletsList');
 
     // previously created wallet in FAKE storage should be visible
@@ -502,8 +502,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.text('OK')).tap();
     await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('PasswordInput');
     await confirmPasswordDialog(); // in case it didnt work first time
     await sleep(1000); // propagate
     await expect(element(by.text('fake_wallet'))).toBeVisible();
@@ -528,12 +527,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
     await element(by.id('IUnderstandButton')).tap();
     await element(by.id('PasswordInput')).replaceText('pass');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('PasswordInput');
     await element(by.id('ConfirmPasswordInput')).clearText();
     await element(by.id('ConfirmPasswordInput')).replaceText('pass');
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('ConfirmPasswordInput');
     await confirmPasswordDialog();
     await sleep(1000); // propagate
     await element(by.id('PlausibleDeniabilityButton')).tap();
@@ -541,12 +538,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
     await element(by.id('PasswordInput')).replaceText('fake');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('PasswordInput');
     await element(by.id('ConfirmPasswordInput')).clearText();
     await element(by.id('ConfirmPasswordInput')).replaceText('fake'); // retyping
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('ConfirmPasswordInput');
     await confirmPasswordDialog();
     if (device.getPlatform() === 'ios') {
       // FIXME: WAllets does not exists on android
@@ -560,9 +555,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // relaunch app
     await device.launchApp({ newInstance: true });
     //
-    await waitForId('PasswordInput');
-    await element(by.id('PasswordInput')).typeText('pass\n');
-    await waitForKeyboardToClose();
+    await submitUnlockPassword('pass');
     await waitForId('WalletsList');
 
     // previously created wallet IN MAIN STORAGE should be visible
@@ -576,16 +569,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
     await element(by.text('OK')).tap();
     await element(by.id('PasswordInput')).replaceText('fake');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('PasswordInput');
     await confirmPasswordDialog();
-    await sleep(1000); // propagate
-    await element(by.text('OK')).atIndex(0).tap(); // INCORRECT PASSWORD alert
+    await waitForText('Incorrect password. Please, try again.', 20_000);
+    await element(by.text('OK')).atIndex(0).tap();
     // correct password
     await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).replaceText('pass');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await tapReturnKeyById('PasswordInput');
     await confirmPasswordDialog();
     await sleep(1000); // propagate
 
@@ -969,8 +960,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.text("m/44'/0'/0'"))).toBeVisible();
     await expect(element(by.id('Loading'))).not.toBeVisible();
 
-    // open custom derivation path screen and import the wallet
-    await element(by.id('CustomDerivationPathButton')).tap();
+    // The discovery list re-renders when loading finishes, so Espresso can lose the row mid-tap.
+    await retryAndroidIndexMiss(() => element(by.id('CustomDerivationPathButton')).tap());
     await element(by.id('DerivationPathInput')).clearText();
     await element(by.id('DerivationPathInput')).typeText("m/44'/0'/0'\n");
     await waitForKeyboardToClose();
@@ -1073,7 +1064,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     );
 
     await waitForId('SelectWalletsList');
-    await element(by.text('cr34t3d')).tap();
+    await retryAndroidIndexMiss(() => element(by.text('cr34t3d')).tap());
     await waitForId('AddressInput');
     await expect(element(by.id('AddressInput'))).toHaveText('1DamianM2k8WfNEeJmyqSe2YW1upB7UATx'); // send screen, and ONCHAIN invoice is prefilled!
     await expect(element(by.id('BitcoinAmountInput'))).toHaveText('0.000001');
@@ -1298,6 +1289,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.disableSynchronization();
     await waitForId('ExportMultisigCoordinationSetupView');
     await element(by.id('NavigationCloseButton')).atIndex(0).tap();
+    if (!process.env.CI) {
+      // The animated QR uses setInterval. Re-enabling sync while that screen is still
+      // mounted deadlocks AsyncStorage's idling resource on a device.
+      await waitFor(element(by.id('ExportMultisigCoordinationSetupView')))
+        .not.toBeVisible()
+        .withTimeout(20_000);
+      await sleep(5000);
+    }
     await device.enableSynchronization();
 
     // go to receive screen and capture current receive address
