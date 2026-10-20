@@ -67,7 +67,10 @@ type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unst
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
 
-const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
+const UpdatingLabel: React.FC<{
+  containerStyle: object;
+  textStyle: object;
+}> = ({ containerStyle, textStyle }) => {
   const opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -401,13 +404,16 @@ const DetailViewStackScreensStack = () => {
             hash: undefined,
             walletID: undefined,
           }}
-          options={navigationStyle({
-            headerStyle: {
-              backgroundColor: theme.colors.customHeader,
+          options={navigationStyle(
+            {
+              headerStyle: {
+                backgroundColor: theme.colors.customHeader,
+              },
+              headerTitle: '',
+              headerBackButtonDisplayMode: 'default',
             },
-            headerTitle: '',
-            headerBackButtonDisplayMode: 'default',
-          })(theme)}
+            withRouteParamHeaderOptions({ headerTitle: true, headerTitleAlign: true, headerTitleContainerStyle: true }),
+          )(theme)}
         />
         <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
         <DetailViewStack.Screen
@@ -423,7 +429,10 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="SelectWallet"
           component={SelectWallet}
-          options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+          options={navigationStyle(
+            { title: loc.wallets.select_wallet },
+            withRouteParamHeaderOptions({ statusBarStyle: true, headerBackVisible: true }),
+          )(theme)}
         />
         <DetailViewStack.Screen
           name="LNDViewInvoice"
@@ -486,11 +495,21 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="WalletAddresses"
           component={WalletAddresses}
-          options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
+          options={navigationStyle(
+            { title: loc.addresses.addresses_title },
+            withRouteParamHeaderOptions({ headerSearchBarOptions: true }),
+          )(theme)}
         />
 
         <DetailViewStack.Screen name="Settings" component={Settings} options={settingsScreenOptions(loc.settings.header)} />
-        <DetailViewStack.Screen name="Currency" component={Currency} options={settingsScreenOptions(loc.settings.currency)} />
+        <DetailViewStack.Screen
+          name="Currency"
+          component={Currency}
+          options={navigationStyle(
+            getSettingsHeaderOptions(loc.settings.currency, theme),
+            withRouteParamHeaderOptions({ headerSearchBarOptions: true }),
+          )(theme)}
+        />
         <DetailViewStack.Screen name="GeneralSettings" component={GeneralSettings} options={settingsScreenOptions(loc.settings.general)} />
         <DetailViewStack.Screen
           name="PlausibleDeniability"
@@ -525,7 +544,14 @@ const DetailViewStackScreensStack = () => {
           component={EncryptStorage}
           options={settingsScreenOptions(loc.settings.encrypt_title)}
         />
-        <DetailViewStack.Screen name="Language" component={Language} options={settingsScreenOptions(loc.settings.language)} />
+        <DetailViewStack.Screen
+          name="Language"
+          component={Language}
+          options={navigationStyle(
+            getSettingsHeaderOptions(loc.settings.language, theme),
+            withRouteParamHeaderOptions({ headerSearchBarOptions: true }),
+          )(theme)}
+        />
         <DetailViewStack.Screen
           name="LightningSettings"
           component={LightningSettings}

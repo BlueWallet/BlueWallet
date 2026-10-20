@@ -52,7 +52,14 @@ export type DetailViewStackParamList = {
   };
   WalletDetails: { walletID: string };
   // TODO: type tx properly once Transaction and ElectrumTransaction are unified
-  TransactionStatus: { hash: string; walletID: string; tx?: any };
+  TransactionStatus: {
+    hash: string;
+    walletID: string;
+    tx?: any;
+    headerTitle?: NativeStackNavigationOptions['headerTitle'];
+    headerTitleAlign?: NativeStackNavigationOptions['headerTitleAlign'];
+    headerTitleContainerStyle?: { flex: number; maxWidth: number };
+  };
   CPFP: {
     wallet: TWallet | null;
     txid: string;
@@ -66,6 +73,8 @@ export type DetailViewStackParamList = {
     noWalletExplanationText?: string;
     onChainRequireSend?: boolean;
     selectedWalletID?: string; // Add this parameter to scroll to a specific wallet
+    statusBarStyle?: NativeStackNavigationOptions['statusBarStyle'];
+    headerBackVisible?: boolean;
   };
   LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };
@@ -81,7 +90,10 @@ export type DetailViewStackParamList = {
   };
   LnurlAuth: undefined;
   Success: undefined;
-  WalletAddresses: { walletID: string };
+  WalletAddresses: {
+    walletID: string;
+    headerSearchBarOptions?: NativeStackNavigationOptions['headerSearchBarOptions'];
+  };
   AddWalletRoot: undefined;
   SendDetailsRoot: SendDetailsParams;
   LNDCreateInvoiceRoot: undefined;
@@ -103,17 +115,29 @@ export type DetailViewStackParamList = {
   WalletExport: undefined;
   ExportMultisigCoordinationSetupRoot: undefined;
   Settings: undefined;
-  Currency: undefined;
+  Currency:
+    | {
+        headerSearchBarOptions?: NativeStackNavigationOptions['headerSearchBarOptions'];
+      }
+    | undefined;
   GeneralSettings: undefined;
   Licensing: undefined;
   NetworkSettings: undefined;
   About: undefined;
   // DefaultView: undefined; // Commented out - not accessible from UI
-  ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string; headerRight?: HeaderRightRenderer | null };
+  ElectrumSettings: {
+    server?: ElectrumServerItem;
+    onBarScanned?: string;
+    headerRight?: HeaderRightRenderer | null;
+  };
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;
-  Language: undefined;
+  Language:
+    | {
+        headerSearchBarOptions?: NativeStackNavigationOptions['headerSearchBarOptions'];
+      }
+    | undefined;
   LightningSettings: {
     url?: string;
     onBarScanned?: string;
@@ -131,7 +155,10 @@ export type DetailViewStackParamList = {
     sheetAskPassphrase?: boolean;
     sheetCurrentlyEditingCosignerNum?: number;
   };
-  ViewEditMultisigCosignerViewSheet: { walletID: string; vaultKeyData: VaultKeyData };
+  ViewEditMultisigCosignerViewSheet: {
+    walletID: string;
+    vaultKeyData: VaultKeyData;
+  };
   ViewEditMultisigProvideMnemonicsSheet: {
     walletID: string;
     currentlyEditingCosignerNum: number;

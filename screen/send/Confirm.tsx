@@ -87,7 +87,7 @@ const Confirm: React.FC = () => {
   const paymentScript = useMemo(() => PayjoinTransaction.paymentScriptFor(recipients, payjoinAddress), [recipients, payjoinAddress]);
 
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { navigate, setOptions, goBack } = navigation;
+  const { navigate, setParams, goBack } = navigation;
   const wallet = wallets.find((w: TWallet) => w.getID() === walletID) as TWallet;
   const feeSatoshi = new BigNumber(fee).multipliedBy(100000000).toNumber();
   const { colors } = useTheme();
@@ -183,10 +183,10 @@ const Confirm: React.FC = () => {
   }, [recipients]);
 
   useEffect(() => {
-    setOptions({
+    setParams({
       headerRight: renderHeaderRight,
     });
-  }, [renderHeaderRight, setOptions]);
+  }, [renderHeaderRight, setParams]);
 
   const handleSendTransaction = async () => {
     dispatch({ type: ActionType.SET_BUTTON_DISABLED, payload: true });

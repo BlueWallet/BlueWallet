@@ -180,7 +180,10 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="SelectWallet"
         component={SelectWalletComponent}
-        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+        options={navigationStyle(
+          { title: loc.wallets.select_wallet },
+          withRouteParamHeaderOptions({ statusBarStyle: true, headerBackVisible: true }),
+        )(theme)}
       />
       <Stack.Screen
         name="CoinControlOutput"

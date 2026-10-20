@@ -1,19 +1,20 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 
+import { withRouteParamHeaderOptions } from '../../components/navigationStyle';
 import Confirm from '../../screen/send/Confirm';
 import MultisigAdvanced from '../../screen/wallets/MultisigAdvanced';
 
 let routeParams: any = {};
 
-const setParamsMock = jest.fn();
-const setOptionsMock = jest.fn();
+const setParamsMock = jest.fn(params => {
+  routeParams = { ...routeParams, ...params };
+});
 const navigateMock = jest.fn();
 const goBackMock = jest.fn();
 
 const navigationMock = {
   setParams: setParamsMock,
-  setOptions: setOptionsMock,
   navigate: navigateMock,
   goBack: goBackMock,
 };
@@ -149,12 +150,11 @@ jest.mock('../../loc', () => ({
 describe('Header options regression guards', () => {
   beforeEach(() => {
     setParamsMock.mockClear();
-    setOptionsMock.mockClear();
     navigateMock.mockClear();
     goBackMock.mockClear();
   });
 
-  it('sets Confirm headerRight only once across same-props rerenders', async () => {
+  it('sets Confirm headerRight param only once across same-props rerenders', async () => {
     routeParams = {
       recipients: [{ address: 'bc1qtestaddress0000000000000000000000000000', value: 1234 }],
       targets: [{ address: 'bc1qtestaddress0000000000000000000000000000', value: 1234 }],
@@ -170,17 +170,28 @@ describe('Header options regression guards', () => {
     const screen = render(<Confirm />);
 
     await waitFor(() => {
-      expect(setOptionsMock).toHaveBeenCalledTimes(1);
+      expect(setParamsMock).toHaveBeenCalledTimes(1);
     });
+
+    const appliedOptions = withRouteParamHeaderOptions({ headerRight: true })(
+      {},
+      {
+        route: { params: routeParams },
+        navigation: navigationMock,
+        theme: {} as any,
+      },
+    );
+    expect(appliedOptions.headerRight).toEqual(expect.any(Function));
+    expect(appliedOptions.headerRight!({ tintColor: '#000', canGoBack: true })).toBeTruthy();
 
     screen.rerender(<Confirm />);
 
     await waitFor(() => {
-      expect(setOptionsMock).toHaveBeenCalledTimes(1);
+      expect(setParamsMock).toHaveBeenCalledTimes(1);
     });
   });
 
-  it('sets MultisigAdvanced headerRight only once across same-props rerenders', async () => {
+  it('sets MultisigAdvanced headerRight param only once across same-props rerenders', async () => {
     routeParams = {
       m: 2,
       n: 3,
@@ -191,13 +202,24 @@ describe('Header options regression guards', () => {
     const screen = render(<MultisigAdvanced />);
 
     await waitFor(() => {
-      expect(setOptionsMock).toHaveBeenCalledTimes(1);
+      expect(setParamsMock).toHaveBeenCalledTimes(1);
     });
+
+    const appliedOptions = withRouteParamHeaderOptions({ headerRight: true })(
+      {},
+      {
+        route: { params: routeParams },
+        navigation: navigationMock,
+        theme: {} as any,
+      },
+    );
+    expect(appliedOptions.headerRight).toEqual(expect.any(Function));
+    expect(appliedOptions.headerRight!({ tintColor: '#000', canGoBack: true })).toBeTruthy();
 
     screen.rerender(<MultisigAdvanced />);
 
     await waitFor(() => {
-      expect(setOptionsMock).toHaveBeenCalledTimes(1);
+      expect(setParamsMock).toHaveBeenCalledTimes(1);
     });
   });
 });

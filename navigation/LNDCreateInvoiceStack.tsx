@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
-import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
@@ -38,7 +38,10 @@ const LNDCreateInvoiceRoot = () => {
       <Stack.Screen
         name="SelectWallet"
         component={SelectWalletComponent}
-        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+        options={navigationStyle(
+          { title: loc.wallets.select_wallet },
+          withRouteParamHeaderOptions({ statusBarStyle: true, headerBackVisible: true }),
+        )(theme)}
       />
       <Stack.Screen
         name="LNDViewInvoice"
