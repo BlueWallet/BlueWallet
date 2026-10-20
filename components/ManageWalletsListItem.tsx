@@ -10,12 +10,9 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { AddressItem } from './addresses/AddressItem';
 import { ItemType, AddressItemData } from '../models/itemTypes';
-import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
-import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
-import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
 import { AbstractHDElectrumWallet } from '../class/wallets/abstract-hd-electrum-wallet';
 import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
-import WalletListItem from './WalletListItem';
+import WalletListItem, { getWalletIconImage } from './WalletListItem';
 
 const getHdElectrumWallet = (wallet: TWallet): AbstractHDElectrumWallet | undefined => {
   const w: unknown = wallet;
@@ -25,18 +22,6 @@ const getHdElectrumWallet = (wallet: TWallet): AbstractHDElectrumWallet | undefi
     if (inner instanceof AbstractHDElectrumWallet) return inner;
   }
   return undefined;
-};
-
-const getWalletIconImage = (walletType: string, direction: string) => {
-  switch (walletType) {
-    case LightningCustodianWallet.type:
-    case LightningArkWallet.type:
-      return direction === 'rtl' ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
-    case MultisigHDWallet.type:
-      return direction === 'rtl' ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
-    default:
-      return direction === 'rtl' ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
-  }
 };
 
 interface WalletItem {
