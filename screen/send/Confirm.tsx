@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import React, { useEffect, useMemo, useReducer } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, Switch, Text, View } from 'react-native';
 import { PayjoinClient } from 'payjoin-client';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
@@ -72,10 +72,10 @@ const Confirm: React.FC = () => {
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useNavigation<ConfirmNavigationProp>();
   const route = useRoute<ConfirmRouteProp>(); // Get the route and its params
-  const { recipients, targets, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = route.params; // Destructure params
+  const { recipients, targets, walletID, fee, tx, psbt, payjoinUrl } = route.params; // Destructure params
 
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { navigate, setOptions, goBack } = navigation;
+  const { navigate, goBack } = navigation;
   const wallet = wallets.find((w: TWallet) => w.getID() === walletID) as TWallet;
   const feeSatoshi = new BigNumber(fee).multipliedBy(100000000).toNumber();
   const { colors } = useTheme();
@@ -97,14 +97,8 @@ const Confirm: React.FC = () => {
       transactionAmountFiat: {
         color: colors.feeText,
       },
-      txDetails: {
-        backgroundColor: colors.lightButton,
-      },
       valueValue: {
         color: colors.alternativeTextColor2,
-      },
-      valueUnit: {
-        color: colors.buttonTextColor,
       },
       root: {
         backgroundColor: colors.elevated,
@@ -116,65 +110,13 @@ const Confirm: React.FC = () => {
         color: colors.alternativeTextColor2,
       },
     }),
-    [
-      colors.foregroundColor,
-      colors.feeText,
-      colors.lightButton,
-      colors.alternativeTextColor2,
-      colors.buttonTextColor,
-      colors.elevated,
-      colors.buttonDisabledBackgroundColor,
-    ],
+    [colors.foregroundColor, colors.feeText, colors.alternativeTextColor2, colors.elevated, colors.buttonDisabledBackgroundColor],
   );
-
-  const biometricCapabilityRef = useRef(isBiometricUseCapableAndEnabled);
-
-  useEffect(() => {
-    biometricCapabilityRef.current = isBiometricUseCapableAndEnabled;
-  }, [isBiometricUseCapableAndEnabled]);
-
-  const handleOpenCreateTransaction = useCallback(async () => {
-    if (await biometricCapabilityRef.current()) {
-      if (!(await unlockWithBiometrics())) {
-        return;
-      }
-    }
-    navigate('CreateTransaction', {
-      fee,
-      recipients,
-      memo,
-      tx,
-      satoshiPerByte,
-      feeSatoshi,
-    });
-  }, [navigate, fee, recipients, memo, tx, satoshiPerByte, feeSatoshi]);
-
-  const HeaderRightButton = useMemo(
-    () => (
-      <Pressable
-        accessibilityRole="button"
-        testID="TransactionDetailsButton"
-        style={({ pressed }) => [styles.txDetails, stylesHook.txDetails, pressed && styles.txDetailsPressed]}
-        onPress={handleOpenCreateTransaction}
-      >
-        <Text style={[styles.txText, stylesHook.valueUnit]}>{loc.send.create_details}</Text>
-      </Pressable>
-    ),
-    [stylesHook.txDetails, stylesHook.valueUnit, handleOpenCreateTransaction],
-  );
-
-  const renderHeaderRight = useCallback(() => HeaderRightButton, [HeaderRightButton]);
 
   useEffect(() => {
     console.log('send/confirm - useEffect');
     console.log('address = ', recipients);
   }, [recipients]);
-
-  useEffect(() => {
-    setOptions({
-      headerRight: renderHeaderRight,
-    });
-  }, [renderHeaderRight, setOptions]);
 
   const getPaymentScript = (): Uint8Array | undefined => {
     if (!(recipients.length > 0) || !recipients[0].address) {
@@ -438,20 +380,6 @@ const styles = StyleSheet.create({
     paddingBottom: 6,
     fontWeight: '500',
     alignSelf: 'center',
-  },
-  txDetails: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 80,
-    borderRadius: 8,
-    height: 38,
-  },
-  txDetailsPressed: {
-    opacity: 0.7,
-  },
-  txText: {
-    fontSize: 15,
-    fontWeight: '600',
   },
   payjoinWrapper: {
     flexDirection: 'row',

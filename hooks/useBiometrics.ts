@@ -113,17 +113,27 @@ const showKeychainWipeAlert = () => {
 };
 
 const useBiometrics = () => {
-  const { getItem, setItem } = useStorage();
+  const storage = useStorage();
+  const getItem = storage?.getItem;
+  const setItem = storage?.setItem;
   const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [biometricPreferenceLoaded, setBiometricPreferenceLoaded] = useState(false);
   const [deviceBiometricType, setDeviceBiometricType] = useState<'TouchID' | 'FaceID' | 'Biometrics' | undefined>(undefined);
 
   useEffect(() => {
+    // A drag source rendered outside the app's storage provider must remain
+    // disabled rather than assuming biometrics are off.
+    if (!getItem) return;
     const fetchBiometricEnabledStatus = async () => {
-      const enabled = await isBiometricUseEnabled();
-      setBiometricEnabled(enabled);
+      try {
+        const enabled = await isBiometricUseEnabled();
+        setBiometricEnabled(enabled);
 
-      const biometricType = await type();
-      setDeviceBiometricType(biometricType);
+        const biometricType = await type();
+        setDeviceBiometricType(biometricType);
+      } finally {
+        setBiometricPreferenceLoaded(true);
+      }
     };
 
     fetchBiometricEnabledStatus();
@@ -159,6 +169,7 @@ const useBiometrics = () => {
   }, []);
 
   const isBiometricUseEnabled = useCallback(async () => {
+    if (!getItem) return false;
     try {
       const enabledBiometrics = await getItem(STORAGEKEY);
       return !!enabledBiometrics;
@@ -175,6 +186,7 @@ const useBiometrics = () => {
 
   const setBiometricUseEnabled = useCallback(
     async (value: boolean) => {
+      if (!setItem) return;
       await setItem(STORAGEKEY, value === true ? '1' : '');
       setBiometricEnabled(value);
     },
@@ -189,6 +201,7 @@ const useBiometrics = () => {
     setBiometricUseEnabled,
     clearKeychain,
     biometricEnabled,
+    biometricPreferenceLoaded,
   };
 };
 

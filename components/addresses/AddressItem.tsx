@@ -19,6 +19,7 @@ import ToolTipMenu from '../TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import HighlightedText from '../HighlightedText';
 import { useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import DraggableFile from '../DraggableFile';
 
 interface AddressItemProps {
   item: any;
@@ -196,36 +197,38 @@ const AddressItem = ({
   };
 
   return (
-    <ToolTipMenu
-      title={item.address}
-      actions={menuActions}
-      onPressMenuItem={onToolTipPress}
-      onPress={navigateToReceive}
-      isButton
-      buttonStyle={styles.tooltipButton}
-      shouldOpenOnLongPress
-    >
-      <View key={item.key} style={[styles.container, stylesHook.container]}>
-        <View style={styles.row}>
-          <View style={styles.leftSection}>
-            <Text style={[styles.index, stylesHook.index]}>{item.index}</Text>
+    <DraggableFile fileName={`bitcoin-address-${item.index}.txt`} mimeType="text/plain" content={item.address}>
+      <ToolTipMenu
+        title={item.address}
+        actions={menuActions}
+        onPressMenuItem={onToolTipPress}
+        onPress={navigateToReceive}
+        isButton
+        buttonStyle={styles.tooltipButton}
+        shouldOpenOnLongPress
+      >
+        <View key={item.key} style={[styles.container, stylesHook.container]}>
+          <View style={styles.row}>
+            <View style={styles.leftSection}>
+              <Text style={[styles.index, stylesHook.index]}>{item.index}</Text>
+            </View>
+            <View style={styles.middleSection}>
+              {renderAddressContent()}
+              <Text style={[stylesHook.balance, styles.balance]}>{balance}</Text>
+            </View>
           </View>
-          <View style={styles.middleSection}>
-            {renderAddressContent()}
-            <Text style={[stylesHook.balance, styles.balance]}>{balance}</Text>
+          <View style={styles.rightContainer}>
+            <View style={styles.badgesRow}>
+              <AddressTypeBadge isInternal={item.isInternal} hasTransactions={hasTransactions} />
+              {addressLabel ? <AddressLabelBadge label={addressLabel} style={styles.labelBadge} /> : null}
+            </View>
+            <Text style={[stylesHook.balance, styles.balance]}>
+              {loc.addresses.transactions}: {item.transactions ?? 0}
+            </Text>
           </View>
         </View>
-        <View style={styles.rightContainer}>
-          <View style={styles.badgesRow}>
-            <AddressTypeBadge isInternal={item.isInternal} hasTransactions={hasTransactions} />
-            {addressLabel ? <AddressLabelBadge label={addressLabel} style={styles.labelBadge} /> : null}
-          </View>
-          <Text style={[stylesHook.balance, styles.balance]}>
-            {loc.addresses.transactions}: {item.transactions ?? 0}
-          </Text>
-        </View>
-      </View>
-    </ToolTipMenu>
+      </ToolTipMenu>
+    </DraggableFile>
   );
 };
 

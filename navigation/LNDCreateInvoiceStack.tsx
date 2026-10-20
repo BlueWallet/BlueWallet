@@ -1,3 +1,4 @@
+import { getSelectWalletOptions } from './helpers/getSelectWalletOptions';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
@@ -38,7 +39,7 @@ const LNDCreateInvoiceRoot = () => {
       <Stack.Screen
         name="SelectWallet"
         component={SelectWalletComponent}
-        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+        options={navigationStyle({ title: loc.wallets.select_wallet }, getSelectWalletOptions)(theme)}
       />
       <Stack.Screen
         name="LNDViewInvoice"

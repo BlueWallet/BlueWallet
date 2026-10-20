@@ -102,7 +102,7 @@ android {
     sourceSets {
         main {
             assets.srcDirs = ['src/main/assets', 'src/main/res/assets']
-            java.srcDirs = ['src/main/java', '../../blue_modules/Views/SegmentedControl/android']
+            java.srcDirs = ['src/main/java', '../../blue_modules/Views/SegmentedControl/android', '../../blue_modules/Views/DraggableFile/android']
         }
     }
 

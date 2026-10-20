@@ -1,9 +1,12 @@
 import React
 import React_RCTAppDelegate
 import UIKit
+import UniformTypeIdentifiers
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelegate {
     var window: UIWindow?
+    private var dropOverlay: UIView?
+    private weak var routedDropView: DraggableFileView?
 
     func scene(
         _ scene: UIScene,
@@ -27,6 +30,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             initialProperties: appDelegate.initialProps,
             launchOptions: launchOptions(from: connectionOptions, fallback: appDelegate.sceneLaunchOptions)
         )
+
+        window.addInteraction(UIDropInteraction(delegate: self))
 
         // Custom Handoff activities are stored for JS; Linking cold-starts use launchOptions above.
         for userActivity in connectionOptions.userActivities {
@@ -56,6 +61,257 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         completionHandler: @escaping (Bool) -> Void
     ) {
         RNQuickActionManager.onQuickActionPress(shortcutItem, completionHandler: completionHandler)
+    }
+
+    func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
+        guard !DragAndDropState.isScreenProtected else { return false }
+        // The window-level interaction imports external content. Local exports remain
+        // ordinary drag sessions and are not re-opened by BlueWallet itself. It also
+        // acts as a router for targets in presented form sheets: UIKit can bind a
+        // session to this interaction before the pointer reaches the sheet target.
+        guard session.localDragSession == nil else { return false }
+        return session.hasItemsConforming(toTypeIdentifiers: [
+            UTType.fileURL.identifier,
+            UTType.url.identifier,
+            UTType.text.identifier,
+            UTType.image.identifier,
+            UTType.data.identifier,
+        ])
+    }
+
+    func dropInteraction(_ interaction: UIDropInteraction, sessionDidEnter session: UIDropSession) {
+        guard dropInteraction(interaction, canHandle: session) else { return }
+        updateRoutedDropView(interaction, session: session)
+    }
+
+    private func targetedDropView(for session: UIDropSession) -> DraggableFileView? {
+        guard let window else { return nil }
+        var candidate = window.hitTest(session.location(in: window), with: nil)
+        while let view = candidate {
+            if let dropView = view as? DraggableFileView, dropView.dropEnabled {
+                return dropView
+            }
+            candidate = view.superview
+        }
+        return nil
+    }
+
+    func dropInteraction(_ interaction: UIDropInteraction, sessionDidExit session: UIDropSession) {
+        clearRoutedDropView(interaction, session: session)
+        hideDropOverlay()
+    }
+
+    func dropInteraction(_ interaction: UIDropInteraction, sessionDidEnd session: UIDropSession) {
+        clearRoutedDropView(interaction, session: session)
+        hideDropOverlay()
+    }
+
+    func dropInteraction(_ interaction: UIDropInteraction, sessionDidUpdate session: UIDropSession) -> UIDropProposal {
+        guard !DragAndDropState.isScreenProtected else {
+            clearRoutedDropView(interaction, session: session)
+            hideDropOverlay()
+            return UIDropProposal(operation: .forbidden)
+        }
+        guard session.localDragSession == nil else { return UIDropProposal(operation: .forbidden) }
+        updateRoutedDropView(interaction, session: session)
+        if let routedDropView {
+            return routedDropView.dropInteraction(interaction, sessionDidUpdate: session)
+        }
+        return UIDropProposal(operation: .copy)
+    }
+
+    func dropInteraction(_ interaction: UIDropInteraction, performDrop session: UIDropSession) {
+        guard !DragAndDropState.isScreenProtected else { return }
+        if let target = targetedDropView(for: session) ?? routedDropView {
+            routedDropView = nil
+            hideDropOverlay()
+            DragAndDropLog.debug("Window routed drop to presented component target")
+            target.dropInteraction(interaction, performDrop: session)
+            return
+        }
+        clearRoutedDropView(interaction, session: session)
+        hideDropOverlay()
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        DragAndDropLog.debug("App target accepted \(session.items.count) item(s)")
+        for item in session.items {
+            let provider = item.itemProvider
+            if let type = preferredFileRepresentation(for: provider) {
+                provider.loadFileRepresentation(forTypeIdentifier: type.identifier) { [weak self] url, error in
+                    guard !DragAndDropState.isScreenProtected else { return }
+                    guard let url else {
+                        if type.conforms(to: .image) { self?.loadImageFallback(from: provider) }
+                        if let error { NSLog("[DragAndDrop] Could not load representation: %@", error.localizedDescription) }
+                        return
+                    }
+                    // Item-provider file URLs are temporary and valid only during this
+                    // callback. Copy synchronously before forwarding to React Native.
+                    self?.openDroppedURL(self?.copyProviderFile(url, contentType: type) ?? url)
+                }
+            } else if provider.canLoadObject(ofClass: UIImage.self) {
+                loadImageFallback(from: provider)
+            } else if provider.canLoadObject(ofClass: NSString.self) {
+                provider.loadObject(ofClass: NSString.self) { [weak self] object, _ in
+                    guard !DragAndDropState.isScreenProtected,
+                          let value = object as? String else { return }
+                    self?.openDroppedText(value.trimmingCharacters(in: .whitespacesAndNewlines))
+                }
+            }
+        }
+    }
+
+    private func updateRoutedDropView(_ interaction: UIDropInteraction, session: UIDropSession) {
+        let target = targetedDropView(for: session)
+        guard target !== routedDropView else {
+            if target == nil { showDropOverlay(itemCount: session.items.count) }
+            return
+        }
+        if let previous = routedDropView {
+            previous.dropInteraction(interaction, sessionDidExit: session)
+        }
+        routedDropView = target
+        if let target {
+            hideDropOverlay()
+            DragAndDropLog.debug("Window discovered nested drop target")
+            target.dropInteraction(interaction, sessionDidEnter: session)
+        } else {
+            showDropOverlay(itemCount: session.items.count)
+        }
+    }
+
+    private func clearRoutedDropView(_ interaction: UIDropInteraction, session: UIDropSession) {
+        routedDropView?.dropInteraction(interaction, sessionDidExit: session)
+        routedDropView = nil
+    }
+
+    private func preferredFileRepresentation(for provider: NSItemProvider) -> UTType? {
+        let types = provider.registeredTypeIdentifiers.compactMap(UTType.init)
+        return types.first { $0.conforms(to: .image) }
+          ?? types.first { $0.conforms(to: .data) && !$0.conforms(to: .url) }
+    }
+
+    private func copyProviderFile(_ url: URL, contentType: UTType) -> URL? {
+        let originalExtension = url.pathExtension
+        let fileExtension = originalExtension.isEmpty ? contentType.preferredFilenameExtension : originalExtension
+        let baseName = url.deletingPathExtension().lastPathComponent
+        let name = fileExtension.map { "\(baseName).\($0)" } ?? baseName
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("DroppedItems", isDirectory: true)
+        let destination = directory.appendingPathComponent("\(UUID().uuidString)-\(name)")
+        do {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            try FileManager.default.copyItem(at: url, to: destination)
+            return destination
+        } catch {
+            NSLog("[DragAndDrop] Could not copy provider file: %@", error.localizedDescription)
+            return nil
+        }
+    }
+
+    private func loadImageFallback(from provider: NSItemProvider) {
+        provider.loadObject(ofClass: UIImage.self) { [weak self] object, _ in
+            guard !DragAndDropState.isScreenProtected,
+                  let image = object as? UIImage,
+                  let data = image.pngData() else { return }
+            let url = FileManager.default.temporaryDirectory
+                .appendingPathComponent("DroppedItems", isDirectory: true)
+                .appendingPathComponent("\(UUID().uuidString).png")
+            do {
+                try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+                try data.write(to: url, options: .atomic)
+                self?.openDroppedURL(url)
+            } catch {
+                NSLog("[DragAndDrop] Could not save dropped image: %@", error.localizedDescription)
+            }
+        }
+    }
+
+    private func showDropOverlay(itemCount: Int) {
+        guard dropOverlay == nil, let window else { return }
+
+        let overlay = UIView(frame: window.bounds)
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlay.isUserInteractionEnabled = false
+        overlay.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.12)
+        overlay.layer.borderColor = UIColor.systemBlue.cgColor
+        overlay.layer.borderWidth = 3
+        overlay.layer.cornerRadius = 18
+
+        let effect = UIBlurEffect(style: .systemMaterial)
+        let message = UIVisualEffectView(effect: effect)
+        message.translatesAutoresizingMaskIntoConstraints = false
+        message.layer.cornerRadius = 16
+        message.clipsToBounds = true
+
+        let image = UIImageView(image: UIImage(systemName: "square.and.arrow.down.fill"))
+        image.tintColor = .systemBlue
+        image.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 30, weight: .semibold)
+
+        let label = UILabel()
+        label.font = .preferredFont(forTextStyle: .headline)
+        label.textColor = .label
+        label.text = itemCount == 1 ? "Drop to open in BlueWallet" : "Drop \(itemCount) items to open"
+
+        let stack = UIStackView(arrangedSubviews: [image, label])
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.alignment = .center
+        stack.spacing = 12
+        message.contentView.addSubview(stack)
+        overlay.addSubview(message)
+        NSLayoutConstraint.activate([
+            message.centerXAnchor.constraint(equalTo: overlay.centerXAnchor),
+            message.centerYAnchor.constraint(equalTo: overlay.centerYAnchor),
+            stack.leadingAnchor.constraint(equalTo: message.contentView.leadingAnchor, constant: 24),
+            stack.trailingAnchor.constraint(equalTo: message.contentView.trailingAnchor, constant: -24),
+            stack.topAnchor.constraint(equalTo: message.contentView.topAnchor, constant: 20),
+            stack.bottomAnchor.constraint(equalTo: message.contentView.bottomAnchor, constant: -20),
+        ])
+
+        overlay.alpha = 0
+        window.addSubview(overlay)
+        dropOverlay = overlay
+        UIView.animate(withDuration: 0.18) { overlay.alpha = 1 }
+        UIAccessibility.post(notification: .announcement, argument: label.text)
+    }
+
+    private func hideDropOverlay() {
+        guard let overlay = dropOverlay else { return }
+        dropOverlay = nil
+        UIView.animate(withDuration: 0.12, animations: { overlay.alpha = 0 }) { _ in overlay.removeFromSuperview() }
+    }
+
+    private func openDroppedURL(_ url: URL) {
+        DispatchQueue.main.async {
+            guard !DragAndDropState.isScreenProtected else { return }
+            if DragAndDropState.hasFocusedDropConsumer {
+                DragAndDropLog.debug("Routing inbound file to focused consumer")
+                let mimeType = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType
+                DragAndDropModule.emitFileDrop(url.absoluteString, mimeType: mimeType)
+                return
+            }
+            guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+            DragAndDropLog.debug("Routing inbound file through app deep links")
+            _ = appDelegate.application(UIApplication.shared, open: url, options: [:])
+        }
+    }
+
+    private func openDroppedText(_ value: String) {
+        guard !value.isEmpty else { return }
+        DispatchQueue.main.async {
+            guard !DragAndDropState.isScreenProtected else { return }
+            if DragAndDropState.hasFocusedDropConsumer {
+                DragAndDropLog.debug("Routing inbound text to focused consumer")
+                DragAndDropModule.emitTextDrop(value)
+                return
+            }
+            var components = URLComponents()
+            components.scheme = "bluewallet"
+            components.host = "drop"
+            components.queryItems = [URLQueryItem(name: "text", value: value)]
+            guard let url = components.url,
+                  let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+            DragAndDropLog.debug("Routing inbound text through app deep links")
+            _ = appDelegate.application(UIApplication.shared, open: url, options: [:])
+        }
     }
 
     private func launchOptions(

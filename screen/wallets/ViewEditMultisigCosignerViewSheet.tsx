@@ -12,16 +12,24 @@ import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import AuthenticatedFileDragSource from '../../components/AuthenticatedFileDragSource';
+import { makeLabelFileName } from '../../blue_modules/dragFileName';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const ViewEditMultisigCosignerViewSheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigCosignerViewSheet'>>();
   const route = useRoute<RouteProp<DetailViewStackParamList, 'ViewEditMultisigCosignerViewSheet'>>();
   const { colors } = useTheme();
+  const { wallets } = useStorage();
   const { vaultKeyData, walletID } = route.params;
   const hasXpub = Boolean(vaultKeyData.xpub);
   const hasSeed = Boolean(vaultKeyData.seed);
 
   const seedWords = useMemo(() => (vaultKeyData.seed ? vaultKeyData.seed.split(' ') : []), [vaultKeyData.seed]);
+  const seedFileName = useMemo(() => {
+    const walletLabel = wallets.find(wallet => wallet.getID() === walletID)?.getLabel() || 'multisig-wallet';
+    return makeLabelFileName(`${walletLabel}-cosigner-${vaultKeyData.keyIndex}`, 'txt');
+  }, [vaultKeyData.keyIndex, walletID, wallets]);
 
   const handleShare = () => {
     if (!vaultKeyData.xpub || !vaultKeyData.cosignerXpubURv2 || !vaultKeyData.exportFilename) return;
@@ -50,11 +58,17 @@ const ViewEditMultisigCosignerViewSheet = () => {
             <BlueSpacing20 />
             <BlueTextCentered>{loc._.wallet_key}</BlueTextCentered>
             <BlueSpacing10 />
-            <SquareEnumeratedWords
-              contentAlign={SquareEnumeratedWordsContentAlign.left}
-              entries={[vaultKeyData.xpub as string, vaultKeyData.fp ?? '', vaultKeyData.path ?? '']}
-              appendNumber={false}
-            />
+            <AuthenticatedFileDragSource
+              fileName={vaultKeyData.exportFilename}
+              mimeType="application/json"
+              content={vaultKeyData.exportString || vaultKeyData.xpub}
+            >
+              <SquareEnumeratedWords
+                contentAlign={SquareEnumeratedWordsContentAlign.left}
+                entries={[vaultKeyData.xpub as string, vaultKeyData.fp ?? '', vaultKeyData.path ?? '']}
+                appendNumber={false}
+              />
+            </AuthenticatedFileDragSource>
           </>
         )}
         {hasSeed && (
@@ -62,7 +76,9 @@ const ViewEditMultisigCosignerViewSheet = () => {
             <BlueSpacing20 />
             <BlueTextCentered>{loc._.seed}</BlueTextCentered>
             <BlueSpacing10 />
-            <SquareEnumeratedWords contentAlign={SquareEnumeratedWordsContentAlign.left} entries={seedWords} appendNumber />
+            <AuthenticatedFileDragSource fileName={seedFileName} mimeType="text/plain" content={vaultKeyData.seed}>
+              <SquareEnumeratedWords contentAlign={SquareEnumeratedWordsContentAlign.left} entries={seedWords} appendNumber />
+            </AuthenticatedFileDragSource>
             {vaultKeyData.passphrase ? <BlueTextCentered>{vaultKeyData.passphrase}</BlueTextCentered> : null}
           </>
         )}
