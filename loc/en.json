@@ -175,6 +175,7 @@
     "details_total_exceeds_balance_frozen": "The sending amount exceeds the available balance. Please note that frozen coins are excluded.",
     "details_unrecognized_file_format": "Unrecognized file format",
     "details_wallet_before_tx": "Before creating a transaction, you must first add a Bitcoin wallet.",
+    "details_wallet_not_found": "The requested wallet could not be found.",
     "dynamic_init": "Initializing",
     "dynamic_next": "Next",
     "dynamic_prev": "Previous",
