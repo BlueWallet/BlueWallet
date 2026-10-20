@@ -523,7 +523,14 @@ export async function goBack() {
   const callsite = captureCallsite(goBack);
 
   // Try each back/close affordance in order; retry the full set up to 10 times.
-  const candidates = [by.id('BackButton'), by.id('NavigationCloseButton'), by.label('Back'), by.label('Close'), by.text('Close')];
+  const candidates = [
+    by.id('BackButton'),
+    by.id('NavigationCloseButton'),
+    by.label('Back'),
+    by.label('Close'),
+    by.text('Close'),
+    by.type('_UIButtonBarButton'),
+  ];
 
   // A matcher can hit several elements across stacked screens: each nav back
   // button exists twice (_UIButtonBarButton wrapper + UIAccessibilityBackButtonElement),

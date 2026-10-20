@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   backdoorInput: {
     height: '50%',
     marginTop: 5,
-    marginHorizontal: 20,
+    marginHorizontal: 24,
     borderWidth: 1,
     borderRadius: 4,
     textAlignVertical: 'top',
