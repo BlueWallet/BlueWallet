@@ -111,6 +111,9 @@ jobs:
           
           echo -e "\033[1;34m========================================================\033[0m"
 
+      - name: Check Quick Look parsers and localization
+        run: bash tests/native/test-quicklook.sh
+
       - name: Install Simulator Runtime (iOS)
         run: |
           echo -e "\033[1;34m============ SIMULATOR RUNTIME SETUP DEBUG ============\033[0m"
