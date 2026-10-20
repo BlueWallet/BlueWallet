@@ -50,6 +50,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
       <View style={styles.column}>
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel={loc.multisig.increase_required_signatures}
           onPress={increaseM}
           disabled={n === m || m === 7}
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
@@ -64,6 +65,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
         <Text style={[styles.textM, { color: colors.outputValue }]}>{m}</Text>
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel={loc.multisig.decrease_required_signatures}
           onPress={decreaseM}
           disabled={m === 2}
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
@@ -79,6 +81,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
       <View style={styles.column}>
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel={loc.multisig.increase_total_keys}
           disabled={n === 7}
           onPress={increaseN}
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
@@ -88,6 +91,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
         <Text style={[styles.textM, { color: colors.outputValue }]}>{n}</Text>
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel={loc.multisig.decrease_total_keys}
           onPress={decreaseN}
           disabled={n === m}
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
