@@ -32,6 +32,7 @@ export type SendDetailsParams = {
   frozenBalance?: number;
   amountUnit?: BitcoinUnit;
   address?: string;
+  addresses?: string[];
   amount?: number;
   amountSats?: number;
   onBarScanned?: string;

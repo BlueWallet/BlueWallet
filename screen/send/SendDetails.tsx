@@ -223,6 +223,10 @@ const SendDetails = () => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ title: loc.errors.error, message: loc.send.details_error_decode });
       }
+    } else if (routeParams.addresses?.length) {
+      setAddresses(
+        routeParams.addresses.map(address => ({ address, amount: 0, amountSats: 0, key: String(Math.random()), unit: amountUnit })),
+      );
     } else if (routeParams.address) {
       // screen was called with `address` parameter, so we just prefill it
       setAddresses(prevAddresses => {
@@ -257,7 +261,7 @@ const SendDetails = () => {
     }
     // this effect only to run once when screen is mounted or params change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
+  }, [routeParams.uri, routeParams.address, routeParams.addresses, routeParams.addRecipientParams]);
 
   useEffect(() => {
     // check if we have a suitable wallet

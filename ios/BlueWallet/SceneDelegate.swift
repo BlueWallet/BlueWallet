@@ -21,6 +21,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window = window
         appDelegate.window = window
 
+#if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--share-extension-ui-test-host") {
+            window.rootViewController = UINavigationController(rootViewController: ShareExtensionUITestHostViewController())
+            window.makeKeyAndVisible()
+            return
+        }
+#endif
+
         appDelegate.reactNativeFactory.startReactNative(
             withModuleName: appDelegate.moduleName ?? "BlueWallet",
             in: window,
@@ -35,12 +43,31 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+#if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--share-extension-ui-test-host"),
+           URLContexts.contains(where: { $0.url.host == "shared-image" }),
+           let navigationController = window?.rootViewController as? UINavigationController,
+           let host = navigationController.viewControllers.first as? ShareExtensionUITestHostViewController {
+            host.receivedSharedPayload()
+            return
+        }
+#endif
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return
         }
         for context in URLContexts {
             _ = appDelegate.application(UIApplication.shared, open: context.url, options: [:])
         }
+    }
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
+#if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--share-extension-ui-test-host"),
+           let navigationController = window?.rootViewController as? UINavigationController,
+           let host = navigationController.viewControllers.first as? ShareExtensionUITestHostViewController {
+            host.refreshSharedPayloadStatus()
+        }
+#endif
     }
 
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
