@@ -1,5 +1,15 @@
 import React from 'react';
-import { ColorValue, DimensionValue, Image, ImageSourcePropType, StyleSheet, Text, Pressable, View } from 'react-native';
+import {
+  ColorValue,
+  DimensionValue,
+  GestureResponderEvent,
+  Image,
+  ImageSourcePropType,
+  StyleSheet,
+  Text,
+  Pressable,
+  View,
+} from 'react-native';
 import { useLocale } from '@react-navigation/native';
 
 import loc from '../loc';
@@ -15,7 +25,7 @@ interface ButtonDetails {
 interface WalletButtonProps {
   buttonType: keyof typeof buttonDetails;
   testID?: string;
-  onPress: () => void;
+  onPress: (event: GestureResponderEvent) => void;
   size: {
     width: DimensionValue | undefined;
     height: DimensionValue | undefined;

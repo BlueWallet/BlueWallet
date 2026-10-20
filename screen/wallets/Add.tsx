@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
-import { ActivityIndicator, Alert, Keyboard, Linking, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, GestureResponderEvent, Keyboard, Linking, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { Layout } from 'react-native-reanimated';
 import assert from 'assert';
 
@@ -28,6 +28,7 @@ import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetScanWasBBQR } from '../../helpers/scan-qr.ts';
+import ActionSheet from '../ActionSheet';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -175,26 +176,23 @@ const WalletsAdd: React.FC = () => {
   );
 
   const confirmResetEntropy = useCallback(
-    (newWalletType: ButtonSelected) => {
+    (newWalletType: ButtonSelected, anchor: number) => {
       if (entropy || words) {
-        Alert.alert(
-          loc.wallets.add_entropy_reset_title,
-          loc.wallets.add_entropy_reset_message,
-          [
-            {
-              text: loc._.cancel,
-              style: 'cancel',
-            },
-            {
-              text: loc._.ok,
-              style: 'destructive',
-              onPress: () => {
-                setParams({ entropy: undefined, providedEntropyBytes: undefined, words: undefined });
-                setSelectedWalletType(newWalletType);
-              },
-            },
-          ],
-          { cancelable: true },
+        ActionSheet.showActionSheetWithOptions(
+          {
+            title: loc.wallets.add_entropy_reset_title,
+            message: loc.wallets.add_entropy_reset_message,
+            options: [loc._.cancel, loc._.ok],
+            cancelButtonIndex: 0,
+            destructiveButtonIndex: 1,
+            anchor,
+          },
+          buttonIndex => {
+            if (buttonIndex === 1) {
+              setParams({ entropy: undefined, providedEntropyBytes: undefined, words: undefined });
+              setSelectedWalletType(newWalletType);
+            }
+          },
         );
       } else {
         setSelectedWalletType(newWalletType);
@@ -203,13 +201,21 @@ const WalletsAdd: React.FC = () => {
     [entropy, setParams, setSelectedWalletType, words],
   );
 
-  const handleOnLightningArkButtonPressed = useCallback(() => {
-    confirmResetEntropy(ButtonSelected.ARK);
-  }, [confirmResetEntropy]);
+  const handleOnLightningArkButtonPressed = useCallback(
+    (event: GestureResponderEvent) => {
+      if (typeof event.currentTarget !== 'number') return;
+      confirmResetEntropy(ButtonSelected.ARK, event.currentTarget);
+    },
+    [confirmResetEntropy],
+  );
 
-  const handleOnLightningButtonPressed = useCallback(() => {
-    confirmResetEntropy(ButtonSelected.OFFCHAIN);
-  }, [confirmResetEntropy]);
+  const handleOnLightningButtonPressed = useCallback(
+    (event: GestureResponderEvent) => {
+      if (typeof event.currentTarget !== 'number') return;
+      confirmResetEntropy(ButtonSelected.OFFCHAIN, event.currentTarget);
+    },
+    [confirmResetEntropy],
+  );
 
   useEffect(() => {
     // resetting format of last camera qr scan, in case user will use camera to
@@ -357,9 +363,10 @@ const WalletsAdd: React.FC = () => {
     navigate('ImportWallet');
   };
 
-  const handleOnVaultButtonPressed = () => {
+  const handleOnVaultButtonPressed = (event: GestureResponderEvent) => {
     Keyboard.dismiss();
-    confirmResetEntropy(ButtonSelected.VAULT);
+    if (typeof event.currentTarget !== 'number') return;
+    confirmResetEntropy(ButtonSelected.VAULT, event.currentTarget);
   };
 
   const handleOnBitcoinButtonPressed = () => {
