@@ -13,6 +13,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import Lnurl from '../lnurl';
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
@@ -1400,6 +1401,21 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     return { tx };
+  }
+
+  /**
+   * @returns BIP32 master node. Subclasses with non-BIP39 seed formats override this
+   */
+  _getBip32Root(): BIP32Interface {
+    return bip32.fromSeed(this._getSeed());
+  }
+
+  allowLnurlAuth(): boolean {
+    return !!this.secret;
+  }
+
+  getLnurlAuthLinkingKey(domain: string): Uint8Array {
+    return Lnurl.lud05LinkingKey(this._getBip32Root(), domain);
   }
 
   /**
