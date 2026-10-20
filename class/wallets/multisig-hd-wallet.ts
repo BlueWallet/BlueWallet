@@ -931,6 +931,11 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return howManyPrivKeysWeGot;
   }
 
+  getChangeScriptLength(): number {
+    // p2wsh is OP_0 + 32 bytes hash
+    return this.isNativeSegwit() ? 34 : 25;
+  }
+
   coinselect(
     utxos: CreateTransactionUtxo[],
     targets: CreateTransactionTarget[],
@@ -953,9 +958,13 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           length: 35 + Math.ceil((8 + this.getM() * 74 + this.getN() * 34) / 4),
         };
       } else {
-        u.script = {
-          length: 2 + this.getM() * 74 + this.getN() * 34,
-        };
+        // scriptSig is: OP_0 + M signatures (push opcode + up to 73 bytes of signature with sighash byte) + pushed redeem script
+        const redeemScriptLength = 3 + this.getN() * 34;
+        const pushLength = redeemScriptLength > 255 ? 3 : redeemScriptLength > 75 ? 2 : 1;
+        let length = 1 + this.getM() * 74 + pushLength + redeemScriptLength;
+        // coinselect lib counts 1 byte for scriptSig length, but it takes 3 bytes when scriptSig is over 252 bytes
+        if (length > 252) length += 2;
+        u.script = { length };
       }
     }
 
@@ -1147,15 +1156,50 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return goesIn - goesOut;
   }
 
+  static _isPsbtInputFinalized(input: Psbt['data']['inputs'][number]) {
+    return !!(input.finalScriptSig || input.finalScriptWitness);
+  }
+
+  /**
+   * Signatures the input has towards the quorum, the same way bitcoinjs counts them when finalizing:
+   * only signatures by keys from the input's multisig script
+   */
+  _countInputSignatures(psbt: Psbt, inputIndex: number) {
+    const input = psbt.data.inputs[inputIndex];
+    // finalized input has no partialSig anymore, but it means we have enough
+    // He who knows that enough is enough will always have enough. Lao Tzu
+    if (MultisigHDWallet._isPsbtInputFinalized(input)) return this.getM();
+
+    let sigs = 0;
+    for (const { pubkey } of input.partialSig || []) {
+      try {
+        if (psbt.inputHasPubkey(inputIndex, pubkey)) sigs++;
+      } catch (_) {
+        sigs++; // cannot verify against the script (missing or mismatched), assume the signature counts
+      }
+    }
+    return sigs;
+  }
+
+  /**
+   * Finalizes inputs that are not finalized yet, finalizing an input twice throws
+   */
+  static finalizeUnfinalizedInputs(psbt: Psbt) {
+    for (let cc = 0; cc < psbt.inputCount; cc++) {
+      if (!MultisigHDWallet._isPsbtInputFinalized(psbt.data.inputs[cc])) psbt.finalizeInput(cc);
+    }
+  }
+
+  /**
+   * Number of signatures that every input has, i.e. the least signed input decides
+   */
   calculateHowManySignaturesWeHaveFromPsbt(psbt: Psbt) {
-    let sigsHave = 0;
-    for (const inp of psbt.data.inputs) {
-      sigsHave = Math.max(sigsHave, inp.partialSig?.length || 0);
-      if (inp.finalScriptSig || inp.finalScriptWitness) sigsHave = this.getM(); // hacky, but it means we have enough
-      // He who knows that enough is enough will always have enough. Lao Tzu
+    let sigsHave = Infinity;
+    for (let cc = 0; cc < psbt.inputCount; cc++) {
+      sigsHave = Math.min(sigsHave, this._countInputSignatures(psbt, cc));
     }
 
-    return sigsHave;
+    return sigsHave === Infinity ? 0 : sigsHave;
   }
 
   /**
@@ -1184,7 +1228,13 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
 
     for (let cc = 0; cc < psbt.inputCount; cc++) {
+      const input = psbt.data.inputs[cc];
+      if (MultisigHDWallet._isPsbtInputFinalized(input)) continue;
+
       for (const { cosignerIndex, hdRoot } of hdRoots) {
+        // dont sign more than we need, otherwise there will be "Too many signatures" error
+        if (this._countInputSignatures(psbt, cc) >= this.getM()) break;
+
         try {
           psbt.signInputHD(cc, hdRoot);
         } catch (_) {} // protects agains duplicate cosignings
@@ -1222,8 +1272,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
 
     if (this.calculateHowManySignaturesWeHaveFromPsbt(psbt) >= this.getM()) {
-      const tx = psbt.finalizeAllInputs().extractTransaction();
-      return { tx };
+      MultisigHDWallet.finalizeUnfinalizedInputs(psbt);
+      return { tx: psbt.extractTransaction() };
     }
 
     return { tx: false };

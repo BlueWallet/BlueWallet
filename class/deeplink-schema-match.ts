@@ -429,6 +429,7 @@ class DeeplinkSchemaMatch {
     let address = uri || '';
     let memo = '';
     let payjoinUrl = '';
+    let disableOutputSubstitution = false;
     try {
       const parsedBitcoinUri = DeeplinkSchemaMatch.bip21decode(uri);
       address = parsedBitcoinUri.address ? parsedBitcoinUri.address.toString() : address;
@@ -441,10 +442,12 @@ class DeeplinkSchemaMatch {
         }
         if (parsedBitcoinUri.options.pj) {
           payjoinUrl = parsedBitcoinUri.options.pj;
+          // BIP78: pjos=0 means the sender MUST disallow payment output substitution
+          disableOutputSubstitution = String(parsedBitcoinUri.options.pjos) === '0';
         }
       }
     } catch (_) {}
-    return { address, amount, memo, payjoinUrl };
+    return { address, amount, memo, payjoinUrl, disableOutputSubstitution };
   }
 }
 
