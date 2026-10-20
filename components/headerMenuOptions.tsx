@@ -43,6 +43,7 @@ export const createEllipsisHeaderMenuOptions = ({
         label: title,
         icon: { type: 'sfSymbol', name: 'ellipsis' },
         identifier,
+        accessibilityLabel: identifier,
         menu: {
           title,
           items: nativeHeaderMenuItems,

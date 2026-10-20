@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Image, InteractionManager, LayoutChangeEvent, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, LayoutChangeEvent, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -97,7 +97,7 @@ const ClipboardDetected = () => {
     triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
     if (contentHash) setLastSeenClipboardHash(contentHash).catch(() => {});
     navigation.goBack();
-    InteractionManager.runAfterInteractions(() => {
+    requestIdleCallback(() => {
       DeeplinkSchemaMatch.navigationRouteFor({ url: payload }, (value: [string, any]) => navigationRef.navigate(...value), {
         wallets,
         addWallet,

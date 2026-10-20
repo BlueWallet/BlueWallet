@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useRef, useState, useEffect } from 'react';
-import { Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { findNodeHandle, Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import loc from '../../loc';
@@ -89,7 +89,9 @@ const IsItMyAddress: React.FC = () => {
 
   useEffect(() => {
     if (matchingWallets && matchingWallets.length > 0 && scrollViewRef.current && firstWalletRef.current) {
-      firstWalletRef.current.measureLayout(scrollViewRef.current.getInnerViewNode(), (x, y) => {
+      const scrollViewNode = findNodeHandle(scrollViewRef.current);
+      if (scrollViewNode === null) return;
+      firstWalletRef.current.measureLayout(scrollViewNode, (x, y) => {
         scrollViewRef.current?.scrollTo({ x: 0, y: y - 20, animated: true });
       });
     }

@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, findNodeHandle, Image, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop, isIOS26OrHigher } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
@@ -151,7 +151,7 @@ const WalletsList: React.FC = () => {
         dispatch({ type: ActionTypes.SET_LOADING, payload: false });
         // After a native Electrum error alert, the first `refreshing={false}` can fail to repaint until the
         // alert is dismissed; run again once interactions finish so pull-to-refresh does not appear stuck.
-        InteractionManager.runAfterInteractions(() => {
+        requestIdleCallback(() => {
           dispatch({ type: ActionTypes.SET_LOADING, payload: false });
         });
       }

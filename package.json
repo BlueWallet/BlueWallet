@@ -52,7 +52,7 @@
     "prettier": "^3.2.5",
     "react-test-renderer": "19.3.0",
     "ts-jest": "^29.1.1",
-    "typescript": "6.0.3"
+    "typescript": "5.9.3"
   },
   "engines": {
     "node": ">= 22.11.0"

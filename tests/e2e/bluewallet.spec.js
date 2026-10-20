@@ -8,6 +8,7 @@ import {
   expectToBeVisible,
   extractTextFromElementById,
   goBack,
+  headerButton,
   hashIt,
   helperCreateWallet,
   helperDeleteWallet,
@@ -156,7 +157,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await element(by.id('Save')).tap();
       await waitForText('OK');
       await element(by.text('OK')).tap();
-      await element(by.id('HeaderMenuButton')).tap();
+      await headerButton('HeaderMenuButton').tap();
       await element(by.text('Reset to default')).tap();
       await element(by.text('RESET TO DEFAULT')).tap();
       await waitForText('OK');
@@ -327,7 +328,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('cr34t3d')).swipe('left', 'slow', 0.6);
     await waitForId('SwipeHideBalance');
     await element(by.id('SwipeHideBalance')).tap();
-    await element(by.id('NavigationCloseButton')).tap();
+    await headerButton('NavigationCloseButton').tap();
     await waitForId('WalletsList');
 
     // restart app — hide state must persist; swipe-left now exposes "Show" (hideBalance persisted as true)
@@ -340,7 +341,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // restore visible state so subsequent tests are clean
     await element(by.id('SwipeShowBalance')).tap();
-    await element(by.id('NavigationCloseButton')).tap();
+    await headerButton('NavigationCloseButton').tap();
     await waitForId('WalletsList');
 
     // address label persisted, reopen receive and verify it's still there
@@ -617,7 +618,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // vault settings:
     await element(by.id('VaultAdvancedCustomize')).tap();
     await element(by.id('DecreaseN')).tap();
-    await element(by.id('ModalDoneButton')).tap();
+    await headerButton('ModalDoneButton').tap();
 
     //
     await element(by.id('LetsStart')).tap();
@@ -652,7 +653,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForLabel('bc1qmf06nt4jhvzz4387ak8fecs42k6jqygr2unumetfc7xkdup7ah9s8phlup');
     await goBack();
 
-    await element(by.id('WalletDetails')).tap();
+    await headerButton('WalletDetails').tap();
     await waitFor(element(by.text('Advanced')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
@@ -839,7 +840,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('Create')).tap();
     await element(by.id('VaultAdvancedCustomize')).tap();
     await element(by.id('DecreaseN')).tap();
-    await element(by.id('ModalDoneButton')).tap();
+    await headerButton('ModalDoneButton').tap();
     await element(by.id('LetsStart')).tap();
 
     // Key 1: Cobo seed, so this device can co-sign. Key 2: Keystone xpub only.
@@ -948,7 +949,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ImportWallet')).tap();
     await element(by.id('MnemonicInput')).typeText('zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong');
     await tapIfTextPresent('Done');
-    await element(by.id('HeaderMenuButton')).tap();
+    await headerButton('HeaderMenuButton').tap();
     await expect(element(by.text('Search accounts'))).toBeVisible();
     await element(by.text('Passphrase')).tap();
     await element(by.id('DoImport')).tap();
@@ -985,7 +986,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // go to wallet and check derivation path
     await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
-    await element(by.id('WalletDetails')).tap();
+    await headerButton('WalletDetails').tap();
     await waitFor(element(by.text('Advanced')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
@@ -1127,7 +1128,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ActivateBitcoinButton')).tap();
 
     // header menu -> Provide entropy via dice rolls -> 12 words
-    await element(by.id('HeaderMenuButton')).tap();
+    await headerButton('HeaderMenuButton').tap();
     await element(by.text('Provide entropy via dice rolls')).tap();
     await element(by.text('12 words')).tap();
 
@@ -1279,7 +1280,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('ReceiveButton');
 
     // verify wallet details
-    await element(by.id('WalletDetails')).tap();
+    await headerButton('WalletDetails').tap();
     await waitFor(element(by.text('Advanced')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
@@ -1299,7 +1300,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('MultisigCoordinationSetup')).tap({ x: 120, y: 18 });
     await device.disableSynchronization();
     await waitForId('ExportMultisigCoordinationSetupView');
-    await element(by.id('NavigationCloseButton')).atIndex(0).tap();
+    await headerButton('NavigationCloseButton').atIndex(0).tap();
     await device.enableSynchronization();
 
     // go to receive screen and capture current receive address
@@ -1311,7 +1312,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     assert.ok(vaultReceiveAddress && vaultReceiveAddress.length > 20);
     await goBack();
     await waitForId('ReceiveButton');
-    await element(by.id('WalletDetails')).tap();
+    await headerButton('WalletDetails').tap();
     await waitFor(element(by.id('WalletDetailsScroll')))
       .toBeVisible()
       .withTimeout(20000);
@@ -1365,7 +1366,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // go back to manage keys, restore seed for cosigner 3, and save
     await goBack();
     await waitForId('ReceiveButton');
-    await element(by.id('WalletDetails')).tap();
+    await headerButton('WalletDetails').tap();
     await waitFor(element(by.id('WalletDetailsScroll')))
       .toBeVisible()
       .withTimeout(20000);
@@ -1428,7 +1429,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('VaultAdvancedCustomize')).tap();
     await element(by.id('DecreaseN')).tap(); // 3 → 2
     await element(by.text('Best compatibility (p2sh-p2wsh)')).tap();
-    await element(by.id('ModalDoneButton')).tap();
+    await headerButton('ModalDoneButton').tap();
 
     await element(by.id('LetsStart')).tap();
 
@@ -1455,7 +1456,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('Multisig Vault');
     await element(by.id('Multisig Vault')).tap();
     await waitForId('ReceiveButton');
-    await element(by.id('WalletDetails')).tap();
+    await headerButton('WalletDetails').tap();
     await waitFor(element(by.text('Advanced')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
