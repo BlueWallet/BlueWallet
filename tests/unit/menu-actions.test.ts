@@ -10,12 +10,13 @@ describe('native menu availability', () => {
   it.each(['Settings', 'SendDetails', 'ImportWallet', 'WalletExport', 'KeyboardShortcuts'])(
     'keeps Settings and shortcuts available on %s',
     screen => {
-      expect(availableMenuActions(screen, [], true)).toEqual(['settings', 'keyboardShortcuts']);
+      expect(availableMenuActions(screen, [], true)).toEqual(['settings', 'manageWallets', 'keyboardShortcuts']);
     },
   );
   it('only offers actions registered by the current screen', () => {
     expect(availableMenuActions('WalletTransactions', ['receive'], true)).toEqual([
       'settings',
+      'manageWallets',
       'keyboardShortcuts',
       'addWallet',
       'importWallet',
@@ -24,6 +25,7 @@ describe('native menu availability', () => {
     ]);
     expect(availableMenuActions('ReceiveDetails', ['send', 'copyAddress'], true)).toEqual([
       'settings',
+      'manageWallets',
       'keyboardShortcuts',
       'backToWallets',
       'copyAddress',

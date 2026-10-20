@@ -81,7 +81,7 @@ it('updates on ready, modal navigation, and lock state', () => {
   expect(jest.mocked(MenuElementsEmitter!.setAvailableActions).mock.lastCall![0]).toContain('settings');
   setRoute('SendDetails');
   notifyNavigation('state');
-  expect(MenuElementsEmitter!.setAvailableActions).toHaveBeenLastCalledWith(['settings', 'keyboardShortcuts']);
+  expect(MenuElementsEmitter!.setAvailableActions).toHaveBeenLastCalledWith(['settings', 'manageWallets', 'keyboardShortcuts']);
   emit('settings');
   expect(navigationRef.dispatch).toHaveBeenCalledWith({
     type: 'NAVIGATE',
@@ -89,6 +89,15 @@ it('updates on ready, modal navigation, and lock state', () => {
       name: 'DrawerRoot',
       pop: true,
       params: { screen: 'DetailViewStackScreensStack', params: { screen: 'Settings' } },
+    },
+  });
+  emit('manageWallets');
+  expect(navigationRef.dispatch).toHaveBeenCalledWith({
+    type: 'NAVIGATE',
+    payload: {
+      name: 'DrawerRoot',
+      pop: true,
+      params: { screen: 'DetailViewStackScreensStack', params: { screen: 'ManageWallets' } },
     },
   });
   emit('keyboardShortcuts');
