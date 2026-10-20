@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useEffect, useCallback } from 'react';
 import { NativeEventEmitter } from 'react-native';
 import EventEmitterModule from '../blue_modules/NativeEventEmitter';
+import { parseElectrumServerHistoryDeepLink } from '../blue_modules/electrumServer';
 import { useStorage } from '../hooks/context/useStorage';
 import { HandOffActivityType } from '../components/types';
 import { useSettings } from './context/useSettings';
@@ -11,6 +12,8 @@ interface UserActivityData {
   userInfo: {
     address?: string;
     xpub?: string;
+    serverHistory?: string;
+    deepLink?: string;
   };
 }
 
@@ -34,6 +37,11 @@ const useHandoffListener = () => {
           navigate('ReceiveDetails', { address: modifiedUserInfo.address, type: activityType });
         } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub) {
           navigate('WalletXpub', { xpub: modifiedUserInfo.xpub, type: activityType });
+        } else if (activityType === HandOffActivityType.ElectrumServerHistory) {
+          const serverHistoryImport =
+            modifiedUserInfo.serverHistory ??
+            (modifiedUserInfo.deepLink ? parseElectrumServerHistoryDeepLink(modifiedUserInfo.deepLink) : undefined);
+          if (serverHistoryImport) navigate('ElectrumSettings', { serverHistoryImport });
         } else {
           console.debug(`Unhandled or incomplete activity type/data: ${activityType}`, modifiedUserInfo);
         }

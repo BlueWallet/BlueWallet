@@ -15,6 +15,7 @@ import ViewEditMultisigCosignerViewSheet from '../screen/wallets/ViewEditMultisi
 import ViewEditMultisigProvideMnemonicsSheet from '../screen/wallets/ViewEditMultisigProvideMnemonicsSheet';
 import ViewEditMultisigShareCosignerSheet from '../screen/wallets/ViewEditMultisigShareCosignerSheet';
 import ClipboardDetected from '../screen/ClipboardDetected';
+import AddElectrumServerStack from './AddElectrumServerStack';
 import { navigationGuardRouter } from './navigationGuard';
 
 // Lazy load all components except UnlockWith
@@ -93,6 +94,15 @@ const MainRoot = () => {
           <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LazyLNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
           <DetailViewStack.Screen name="ScanLNDInvoiceRoot" component={LazyScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
           <DetailViewStack.Screen name="AztecoRedeemRoot" component={LazyAztecoRedeemStackRoot} options={NavigationDefaultOptions} />
+          <DetailViewStack.Screen
+            name="AddElectrumServerRoot"
+            component={AddElectrumServerStack}
+            options={{
+              ...NavigationFormModalOptions,
+              sheetAllowedDetents: [0.9],
+              keyboardHandlingEnabled: true,
+            }}
+          />
 
           <DetailViewStack.Screen
             name="WalletExport"

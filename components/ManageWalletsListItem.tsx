@@ -139,8 +139,8 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     const isHidden = !!wallet.hideBalance;
 
     const onToggle = () => {
-      handleToggleHideBalance(wallet);
       swipeableRef.current?.close?.();
+      handleToggleHideBalance(wallet);
     };
 
     const renderRightActions = () => (

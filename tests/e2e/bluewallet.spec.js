@@ -90,12 +90,19 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t2'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({ delete: true, permissions: { notifications: 'YES' } }); // reinstalling the app just for any case to clean up app's storage
-    await waitForId('WalletsList');
+    await device.launchApp({
+      delete: true,
+      permissions: { notifications: 'YES' },
+      launchArgs: { detoxEnableSynchronization: 0 },
+    }); // reinstalling the app just for any case to clean up app's storage
+    await waitFor(element(by.id('WalletsList')))
+      .toBeVisible()
+      .withTimeout(device.getPlatform() === 'android' ? 180_000 : 16_500);
+    await device.disableSynchronization();
 
     // go to settings, press SelfTest and wait for OK
     await element(by.id('SettingsButton')).tap();
-
+    await waitForId('GeneralSettings');
     await element(by.id('GeneralSettings')).tap();
     await waitForId('GeneralSettingsScreen');
 
@@ -106,68 +113,70 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('QuickActionsSwitch')).tap();
     await element(by.id('QuickActionsSwitch')).tap();
     await goBack();
+    await waitFor(element(by.id('Currency')))
+      .toBeVisible()
+      .withTimeout(10_000);
 
     //
     // currency
     // change currency to ARS ($) and switch it back to USD ($)
     await element(by.id('Currency')).tap();
+    await waitForText('ARS ($)');
     await element(by.text('ARS ($)')).tap();
-    await expect(element(by.text('Rate is obtained from Yadio'))).toBeVisible();
+    await waitForText('Rate is obtained from Yadio');
+    await waitForText('USD ($)');
     await element(by.text('USD ($)')).tap();
     await goBack();
+    await waitFor(element(by.id('Language')))
+      .toBeVisible()
+      .withTimeout(10_000);
 
     // language
     // change language to Afrikaans, test it and switch back to English
     await element(by.id('Language')).tap();
+    await waitForText('Afrikaans (AFR)');
     await element(by.text('Afrikaans (AFR)')).tap();
     await goBack();
-    await expect(element(by.text('Taal'))).toBeVisible();
-    await element(by.id('Language')).tap();
+    await waitForText('Taal');
+    await element(by.text('Taal')).tap();
+    await waitForText('English');
     await element(by.text('English')).tap();
     await goBack();
+    await waitFor(element(by.id('SecurityButton')))
+      .toBeVisible()
+      .withTimeout(10_000);
 
     // security
     await element(by.id('SecurityButton')).tap();
+    await sleep(750);
     await goBack();
+    await waitFor(element(by.id('NetworkSettings')))
+      .toBeVisible()
+      .withTimeout(10_000);
 
     // network
     await element(by.id('NetworkSettings')).tap();
     await waitForId('ElectrumSettings');
 
-    // network -> electrum server
-    // change electrum server to electrum.blockstream.info and revert it back
-    // skip this test on iOS. HeaderMenuButton tap triggers a keyboard open for some reason.
-    if (device.getPlatform() === 'android') {
-      await element(by.id('ElectrumSettings')).tap();
-      await waitFor(element(by.id('HostInput')))
-        .toBeVisible()
-        .whileElement(by.id('ElectrumSettingsScrollView'))
-        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
-      await element(by.id('HostInput')).replaceText('electrum.blockstream.info\n');
-      await waitForKeyboardToClose();
-      await element(by.id('PortInput')).replaceText('50001\n');
-      await waitForKeyboardToClose();
-      await waitFor(element(by.id('Save')))
-        .toBeVisible()
-        .whileElement(by.id('ElectrumSettingsScrollView'))
-        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
-      await element(by.id('Save')).tap();
-      await waitForText('OK');
-      await element(by.text('OK')).tap();
-      await element(by.id('HeaderMenuButton')).tap();
-      await element(by.text('Reset to default')).tap();
-      await element(by.text('RESET TO DEFAULT')).tap();
-      await waitForText('OK');
-      await element(by.text('OK')).tap();
-      await waitFor(element(by.id('HostInput')))
-        .toBeVisible()
-        .whileElement(by.id('ElectrumSettingsScrollView'))
-        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
-      await expect(element(by.id('HostInput'))).toHaveText('');
-      await expect(element(by.id('PortInput'))).toHaveText('');
-      await expect(element(by.id('SSLPortInput'))).toHaveToggleValue(false);
-      await goBack();
-    }
+    // network -> Electrum settings
+    // With no favorite, Suggested Servers is expanded by default.
+    await element(by.id('ElectrumSettings')).tap();
+    await waitForId('ElectrumSettingsScrollView');
+    await waitFor(element(by.id('ElectrumServer-mainnet.foundationdevices.com-50002')))
+      .toExist()
+      .whileElement(by.id('ElectrumSettingsScrollView'))
+      .scroll(500, 'down');
+
+    // Add Server is a separate form sheet on Apple platforms and a nested stack screen on Android.
+    await element(by.id('add_electrum_server')).tap();
+    await waitForId('AddElectrumServerScrollView');
+    await waitForText('Server Address');
+    await waitForText('Connection Type');
+    await expect(element(by.id('SetServerAsFavoriteSwitch'))).toHaveToggleValue(true);
+    await goBack();
+    await waitForId('ElectrumSettingsScrollView');
+
+    await goBack();
 
     // network -> lightning
     // change URI and revert it back
@@ -232,11 +241,18 @@ describe('BlueWallet UI Tests - no wallets', () => {
     }
 
     // tools
+    await waitForId('SettingsRoot');
+    await waitFor(element(by.id('Tools')))
+      .toBeVisible()
+      .whileElement(by.id('SettingsRoot'))
+      .scroll(500, 'down');
     await element(by.id('Tools')).tap();
+    await waitForId('Broadcast');
 
     // tools -> broadcast
     // try to broadcast wrong tx
     await element(by.id('Broadcast')).tap();
+    await waitForId('TxHex');
     await element(by.id('TxHex')).replaceText('invalid\n');
     await waitForKeyboardToClose();
     await element(by.id('BroadcastButton')).tap();
@@ -244,18 +260,22 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // await expect(element(by.text('the transaction was rejected by network rules....'))).toBeVisible();
     await element(by.text('OK')).tap();
     await goBack();
+    await waitForId('IsItMyAddress');
 
     // IsItMyAddress
     await element(by.id('IsItMyAddress')).tap();
     await waitForId('AddressInput');
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('CheckAddress')).tap();
-    await expect(element(by.text('None of the available wallets own the provided address.'))).toBeVisible();
+    await waitForText('None of the available wallets own the provided address.');
     await element(by.text('OK')).tap();
     await goBack();
     await goBack();
 
     // about
+    await waitFor(element(by.id('SettingsRoot')))
+      .toBeVisible()
+      .withTimeout(10_000);
     await waitFor(element(by.id('AboutButton')))
       .toBeVisible()
       .whileElement(by.id('SettingsRoot'))

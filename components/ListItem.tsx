@@ -1,5 +1,8 @@
 import React, { useMemo } from 'react';
 import {
+  AccessibilityActionEvent,
+  AccessibilityActionInfo,
+  AccessibilityState,
   ActivityIndicator,
   Pressable,
   StyleProp,
@@ -32,16 +35,24 @@ export interface ListItemProps {
   switch?: SwitchProps;
   title: string;
   titleStyle?: StyleProp<TextStyle>;
+  titleSelectable?: boolean;
   subtitle?: string | React.ReactNode;
   subtitleNumberOfLines?: number;
+  subtitleSelectable?: boolean;
   rightTitle?: string;
   rightTitleStyle?: StyleProp<TextStyle>;
   rightTitleSelectable?: boolean;
   rightSubtitle?: string | React.ReactNode;
   rightSubtitleStyle?: StyleProp<TextStyle>;
+  rightElement?: React.ReactNode;
   chevron?: boolean;
   checkmark?: boolean;
   isLoading?: boolean;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  accessibilityState?: AccessibilityState;
+  accessibilityActions?: ReadonlyArray<AccessibilityActionInfo>;
+  onAccessibilityAction?: (event: AccessibilityActionEvent) => void;
 }
 
 const ListItem: React.FC<ListItemProps> = React.memo(
@@ -57,16 +68,24 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     switch: switchProps,
     title,
     titleStyle,
+    titleSelectable,
     subtitle,
     subtitleNumberOfLines,
+    subtitleSelectable,
     rightTitle,
     rightTitleStyle,
     rightTitleSelectable,
     rightSubtitle,
     rightSubtitleStyle,
+    rightElement,
     chevron,
     checkmark,
     isLoading,
+    accessibilityLabel,
+    accessibilityHint,
+    accessibilityState,
+    accessibilityActions,
+    onAccessibilityAction,
   }: ListItemProps) => {
     const { colors } = useTheme();
     const { direction } = useLocale();
@@ -124,11 +143,16 @@ const ListItem: React.FC<ListItemProps> = React.memo(
           </View>
         )}
         <View style={styles.content}>
-          <Text style={[stylesHook.title, titleStyle]} numberOfLines={0} accessibilityRole="text">
+          <Text style={[stylesHook.title, titleStyle]} numberOfLines={0} accessibilityRole="text" selectable={titleSelectable}>
             {title}
           </Text>
           {subtitle ? (
-            <Text numberOfLines={switchProps ? 0 : (subtitleNumberOfLines ?? 1)} accessibilityRole="text" style={stylesHook.subtitle}>
+            <Text
+              numberOfLines={switchProps ? 0 : (subtitleNumberOfLines ?? 1)}
+              accessibilityRole="text"
+              selectable={subtitleSelectable}
+              style={stylesHook.subtitle}
+            >
               {subtitle}
             </Text>
           ) : null}
@@ -161,6 +185,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
           <ActivityIndicator accessibilityRole="progressbar" />
         ) : (
           <>
+            {rightElement}
             {chevron ? (
               <Icon name={isRtl ? 'angle-left' : 'angle-right'} type="font-awesome" color={colors.alternativeTextColor} size={18} />
             ) : null}
@@ -187,7 +212,15 @@ const ListItem: React.FC<ListItemProps> = React.memo(
 
     if (!onPress) {
       return (
-        <View testID={testID} style={[stylesHook.containerStyle, stylesHook.divider, containerStyle, disabled && styles.disabled]}>
+        <View
+          testID={testID}
+          accessibilityLabel={accessibilityLabel}
+          accessibilityHint={accessibilityHint}
+          accessibilityState={accessibilityState}
+          accessibilityActions={accessibilityActions}
+          onAccessibilityAction={onAccessibilityAction}
+          style={[stylesHook.containerStyle, stylesHook.divider, containerStyle, disabled && styles.disabled]}
+        >
           {renderContent()}
         </View>
       );
@@ -199,6 +232,11 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         onPress={onPress}
         disabled={disabled}
         accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
+        accessibilityState={accessibilityState}
+        accessibilityActions={accessibilityActions}
+        onAccessibilityAction={onAccessibilityAction}
         android_ripple={enableFeedback ? { color: colors.androidRippleColor } : undefined}
         style={({ pressed }) => [
           stylesHook.containerStyle,

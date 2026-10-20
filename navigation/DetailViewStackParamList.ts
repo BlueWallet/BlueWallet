@@ -3,9 +3,11 @@ import type { NativeStackNavigationOptions } from '@react-navigation/native-stac
 import { LightningTransaction, TWallet } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
-import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
+import { ElectrumServerItem } from '../blue_modules/electrumServer';
 import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
 import { ClipboardPaymentKind } from '../blue_modules/clipboardPayment';
+import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { AddElectrumServerStackParamList } from './AddElectrumServerStackParamList';
 
 export type ScanQRCodeParamList = {
   cameraStatusGranted?: boolean;
@@ -35,6 +37,7 @@ type VaultKeyData = {
 
 type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']>;
 type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
+type HeaderRightItems = NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>;
 
 export type DetailViewStackParamList = {
   DrawerRoot: undefined;
@@ -109,7 +112,14 @@ export type DetailViewStackParamList = {
   NetworkSettings: undefined;
   About: undefined;
   // DefaultView: undefined; // Commented out - not accessible from UI
-  ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string; headerRight?: HeaderRightRenderer | null };
+  ElectrumSettings: {
+    server?: ElectrumServerItem;
+    serverHistoryImport?: string;
+    onBarScanned?: string;
+    headerRight?: HeaderRightRenderer | null;
+    unstable_headerRightItems?: HeaderRightItems;
+  };
+  AddElectrumServerRoot: NavigatorScreenParams<AddElectrumServerStackParamList> | undefined;
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;
