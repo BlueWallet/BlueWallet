@@ -55,9 +55,8 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({
       fontWeight: baseTextStyle.fontWeight || '600',
       lineHeight: baseTextStyle.lineHeight,
       letterSpacing: baseTextStyle.letterSpacing,
-      transform: Platform.OS === 'ios' ? [{ scale: bounceAnim }] : undefined,
     }),
-    [bounceAnim, highlightStyle, baseTextStyle],
+    [highlightStyle, baseTextStyle],
   );
 
   // Create a style for non-highlighted text parts that ensures it looks the same as original text
@@ -72,14 +71,9 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({
     (part: TextPart, index: number) => {
       if (part.isMatch) {
         return (
-          <Animated.View
-            key={`highlight-container-${index}-${queryKey}`}
-            style={[styles.highlightContainer, { transform: [{ scale: bounceAnim }] }]}
-          >
-            <Animated.Text key={`highlight-${index}-${queryKey}`} style={highlightedStyle}>
-              {part.text}
-            </Animated.Text>
-          </Animated.View>
+          <Animated.Text key={`highlight-${index}-${queryKey}`} style={[highlightedStyle, { transform: [{ scale: bounceAnim }] }]}>
+            {part.text}
+          </Animated.Text>
         );
       }
 
@@ -167,11 +161,6 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({
 const styles = StyleSheet.create({
   text: {
     fontSize: 16,
-  },
-  highlightContainer: {
-    overflow: 'hidden',
-    margin: 0,
-    padding: 0,
   },
   highlight: {
     fontWeight: '600',

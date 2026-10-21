@@ -1,6 +1,8 @@
 import assert from 'assert';
 import presentAlert from '../../components/Alert';
 import { BlueApp } from '../../class/blue-app';
+import { LegacyWallet } from '../../class/wallets/legacy-wallet';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 // Jest hoists this above the imports above.
 jest.mock('../../components/Alert', () => ({
@@ -88,6 +90,55 @@ describe('keyvalue realm backup recovery', () => {
 
     assert.strictEqual(presentAlertMock.mock.calls.length, 1);
     assert.strictEqual(Realm.open.mock.calls.filter(([config]: [{ path?: string }]) => config?.path === KEYVALUE_PATH).length, 0);
+  });
+
+  it('applies only order and balance visibility from a wallet edit draft', async () => {
+    const storage = new BlueApp();
+    const first = new LegacyWallet();
+    const second = new LegacyWallet();
+    first.setSecret('first-wallet');
+    second.setSecret('second-wallet');
+    first.balance = 100;
+    second.balance = 200;
+    storage.wallets = [first, second];
+
+    const firstEdit = Object.assign(Object.create(Object.getPrototypeOf(first)), first);
+    const secondEdit = Object.assign(Object.create(Object.getPrototypeOf(second)), second);
+    firstEdit.balance = 1;
+    secondEdit.balance = 2;
+    secondEdit.hideBalance = true;
+    secondEdit.setPreferredBalanceUnit(BitcoinUnit.SATS);
+
+    await storage.saveToDisk([secondEdit, firstEdit]);
+
+    assert.strictEqual(storage.wallets[0], second, 'the current live wallet instance is reordered, not replaced by its draft');
+    assert.strictEqual(storage.wallets[1], first);
+    assert.strictEqual(second.balance, 200, 'live wallet data updated after the draft was created is preserved');
+    assert.strictEqual(first.balance, 100);
+    assert.strictEqual(second.hideBalance, true);
+    assert.strictEqual(second.getPreferredBalanceUnit(), BitcoinUnit.SATS);
+  });
+
+  it('rolls back wallet order, balance visibility, and display units when an edit save fails', async () => {
+    const storage = new BlueApp();
+    const first = new LegacyWallet();
+    const second = new LegacyWallet();
+    first.setSecret('rollback-first-wallet');
+    second.setSecret('rollback-second-wallet');
+    storage.wallets = [first, second];
+    storage.setItem = jest.fn().mockRejectedValue(new Error('edit save failed'));
+
+    const firstEdit = Object.assign(Object.create(Object.getPrototypeOf(first)), first);
+    const secondEdit = Object.assign(Object.create(Object.getPrototypeOf(second)), second);
+    secondEdit.hideBalance = true;
+    secondEdit.setPreferredBalanceUnit(BitcoinUnit.SATS);
+
+    await assert.rejects(() => storage.saveToDisk([secondEdit, firstEdit]), /edit save failed/);
+
+    assert.deepStrictEqual(storage.wallets, [first, second]);
+    assert.strictEqual(first.hideBalance, false);
+    assert.strictEqual(second.hideBalance, false);
+    assert.strictEqual(second.getPreferredBalanceUnit(), BitcoinUnit.BTC);
   });
 
   it('closes the backup Realm when a write throws', async () => {

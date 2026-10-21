@@ -4,13 +4,35 @@ import UIKit
 @objc(MenuElementsController)
 final class MenuElementsController: NSObject {
     @objc static let shared = MenuElementsController()
+    private static let titleMetadataPrefix = "__menu_title__"
     private(set) var availableActions = Set<String>()
+    private var actionTitles: [String: String] = [:]
 
     @objc func setAvailableActions(_ actions: [String]) {
-        let updated = Set(actions)
-        guard updated != availableActions else { return }
+        var updated = Set<String>()
+        var updatedTitles: [String: String] = [:]
+        for value in actions {
+            guard value.hasPrefix(Self.titleMetadataPrefix) else {
+                updated.insert(value)
+                continue
+            }
+            let json = String(value.dropFirst(Self.titleMetadataPrefix.count))
+            guard let data = json.data(using: .utf8),
+                  let object = try? JSONSerialization.jsonObject(with: data),
+                  let metadata = object as? [String: String],
+                  let action = metadata["action"],
+                  let title = metadata["title"],
+                  !title.isEmpty else { continue }
+            updatedTitles[action] = title
+        }
+        guard updated != availableActions || updatedTitles != actionTitles else { return }
         availableActions = updated
+        actionTitles = updatedTitles
         UIMenuSystem.main.setNeedsRebuild()
+    }
+
+    func title(for action: String, fallback: String) -> String {
+        actionTitles[action] ?? fallback
     }
 
     func perform(_ action: String) {

@@ -214,7 +214,7 @@ export const expectToBeVisible = async id => {
   }
 };
 
-export async function helperCreateWallet(walletName) {
+export async function helperCreateWallet(walletName, manageSynchronization = true, revealCreatedWallet = true) {
   await waitFor(element(by.id('CreateAWallet')))
     .toBeVisible()
     .whileElement(by.id('WalletsList'))
@@ -228,15 +228,10 @@ export async function helperCreateWallet(walletName) {
   await element(by.id('ActivateBitcoinButton')).tap();
   // why tf we need 2 taps for it to work..? mystery
 
-  // iOS 26 liquid glass: the navigation transition after tapping "Create" triggers
-  // glass animations that never fully settle, keeping the app in a "busy" state.
-  // Detox synchronization waits for idle before proceeding, causing an infinite hang.
-  // Disable sync for the remainder of wallet creation and re-enable once we're back
-  // on the home screen where the glass animations have settled.
-  const isIOS = device.getPlatform() === 'ios';
-  if (isIOS) {
-    await device.disableSynchronization();
-  }
+  // Native navigation animations on iOS and RN's JS-looper idling resource on
+  // Android may never report idle after tapping Create. The assertions below
+  // already use bounded waits, so use them instead of Detox synchronization.
+  if (manageSynchronization) await device.disableSynchronization();
   try {
     await element(by.id('Create')).tap();
     await sleep(500);
@@ -252,22 +247,28 @@ export async function helperCreateWallet(walletName) {
         .withTimeout(15000);
     }
 
-    await waitFor(element(by.id('PleasebackupOk')))
-      .toBeVisible()
-      .whileElement(by.id('PleaseBackupScrollView'))
-      .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
-
-    await element(by.id('PleasebackupOk')).tap();
+    try {
+      await waitFor(element(by.id('PleasebackupOk')))
+        .toBeVisible()
+        .whileElement(by.id('PleaseBackupScrollView'))
+        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
+      await element(by.id('PleasebackupOk')).tap();
+    } catch (_) {
+      // Fabric can report a scroll view underneath the native header as less
+      // than 100% visible, preventing Detox from scrolling it. The wallet is
+      // already persisted at this point, so restart at the wallet list.
+      await device.launchApp({ newInstance: true });
+    }
     await sleep(1000);
   } finally {
-    if (isIOS) {
-      await device.enableSynchronization();
-    }
+    if (manageSynchronization) await device.enableSynchronization();
   }
   await expect(element(by.id('WalletsList'))).toBeVisible();
-  await element(by.id('WalletsList')).swipe('right', 'fast', 1); // in case emu screen is small and it doesnt fit
-  await sleep(200);
-  await expect(element(by.id(walletName || 'cr34t3d'))).toBeVisible();
+  if (revealCreatedWallet) {
+    await element(by.id('WalletsList')).swipe('right', 'fast', 1); // in case emu screen is small and it doesnt fit
+    await sleep(200);
+    await expect(element(by.id(walletName || 'cr34t3d'))).toBeVisible();
+  }
 }
 
 export async function tapAndTapAgainIfElementIsNotVisible(idToTap, idToCheckVisible) {
@@ -279,18 +280,21 @@ export async function tapAndTapAgainIfElementIsNotVisible(idToTap, idToCheckVisi
   try {
     await waitFor(element(by.id(idToCheckVisible)))
       .toBeVisible()
-      .withTimeout(3_000);
+      .withTimeout(15_000);
     return; // did not throw? its visible, return
   } catch (_) {}
 
-  // did not return so its not visible, lets tap again
-  await element(by.id(idToTap)).tap();
+  // Retry only when the source control still exists. A slow navigation may have
+  // already removed it while the destination screen is still mounting.
+  try {
+    await element(by.id(idToTap)).tap();
+  } catch (_) {}
 
   // check visibility again, this time no try-catch, if it fails it fails
   try {
     await waitFor(element(by.id(idToCheckVisible)))
       .toBeVisible()
-      .withTimeout(3_000);
+      .withTimeout(15_000);
   } catch (err) {
     rethrowWithCallsite(err, callsite);
   }
@@ -580,7 +584,8 @@ export async function typeTextIntoAlertInput(text) {
 }
 
 /**
- * Opens the send-screen header menu and taps a menu item.
+ * Opens a native menu and taps a menu item. Defaults to the screen header menu,
+ * but accepts another Detox matcher for row-level menus.
  * On iOS, action-sheet labels often fail Detox's visibility check (liquid glass
  * / partial opacity), same class of issue as native alerts — disable sync for
  * the interaction.
@@ -589,10 +594,13 @@ export async function typeTextIntoAlertInput(text) {
  * re-enabling there can hang on pending layer animations. A following `scanText()`
  * (default) restores synchronization after the backdoor scan.
  */
-export async function tapHeaderMenuItem(menuItemText, { actionId, restoreSynchronization = true } = {}) {
+export async function tapHeaderMenuItem(
+  menuItemText,
+  { actionId, restoreSynchronization = true, menuButtonMatcher = by.id('HeaderMenuButton') } = {},
+) {
   const isIOS = device.getPlatform() === 'ios';
   if (!isIOS) {
-    await element(by.id('HeaderMenuButton')).tap();
+    await element(menuButtonMatcher).tap();
     await element(by.text(menuItemText)).tap();
     return;
   }
@@ -600,14 +608,12 @@ export async function tapHeaderMenuItem(menuItemText, { actionId, restoreSynchro
   let succeeded = false;
   await device.disableSynchronization();
   try {
-    await waitFor(element(by.id('HeaderMenuButton')))
-      .toExist()
-      .withTimeout(15_000);
+    await waitFor(element(menuButtonMatcher)).toExist().withTimeout(15_000);
 
     let lastError;
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        await element(by.id('HeaderMenuButton')).tap();
+        await element(menuButtonMatcher).tap();
         // iOS 26 action sheets use magic-morph transforms that fail Detox's
         // visibility check until the presentation animation settles.
         await sleep(1500);
