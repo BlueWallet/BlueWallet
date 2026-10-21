@@ -1,7 +1,7 @@
 PODS:
   - boost (1.84.0):
     - ReactNativeDependencies
-  - BugsnagReactNative (8.9.0):
+  - BugsnagReactNative (9.1.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2870,7 +2870,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 8502bfdc46e2804408af2e163049ece181009af4
-  BugsnagReactNative: 632218d1e1e1ee3a57cfc554dd9d42c7437ca0b0
+  BugsnagReactNative: eabd24760cd3bf840d4ad73073cc8010e83ff02d
   BVLinearGradient: cb006ba232a1f3e4f341bb62c42d1098c284da70
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 501a575c40c0b50c89685762dd3e415e6bb26fb0
@@ -2973,7 +2973,7 @@ SPEC CHECKSUMS:
   React-viewtransitionnativemodule: 8505b253586f792c6c722869a664889797ecae3e
   React-webperformancenativemodule: 67f32fde92ed7e8470ee1c669bdb7c2fcb760141
   ReactAppDependencyProvider: 782ee9546c9cd3b53b73f1e9e3dd728540085fc7
-  ReactCodegen: 43587c2bff15d0aa6587431eec0f9f1924e78cb0
+  ReactCodegen: 35f5c394c7a3c39c368b6fa90378bfda5eda1f4a
   ReactCommon: 145a14b942b19fc2fe38927f261955ada56978aa
   ReactNativeCameraKit: dca102025b429e5aaaede4ba3018a9b53f0a3c71
   ReactNativeDependencies: d3b7423ba1e52525e42085c8470109abde583d2e
