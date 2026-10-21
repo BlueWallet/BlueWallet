@@ -8,6 +8,7 @@
  */
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import DefaultPreference from 'react-native-default-preference';
 
 // Jest hoists these above the import above. The factories close over `globalThis`
 // so the test body can swap implementations per-test without re-mocking.
@@ -83,8 +84,10 @@ function makeFakeClient(host = 'fake.host', port = 50002): FakeClient {
 }
 
 const created: FakeClient[] = [];
+let rejectConnections = false;
 (globalThis as any).__createNextFakeClient = () => {
   const c = makeFakeClient();
+  if (rejectConnections) c.initElectrum.mockRejectedValue(new Error('connection failed'));
   created.push(c);
   return c;
 };
@@ -108,6 +111,7 @@ describe('BlueElectrum lifecycle', () => {
     BlueElectrum.forceDisconnect();
     await BlueElectrum.setDisabled(false);
     created.length = 0;
+    rejectConnections = false;
     presentAlertMock.mockClear();
   });
 
@@ -126,6 +130,36 @@ describe('BlueElectrum lifecycle', () => {
       expect(r2).toBe(true);
       expect(BlueElectrum.getConnectionState()).toBe('connected');
       expect(created.length).toBe(1);
+    });
+  });
+
+  describe('failure alert presentation', () => {
+    it('does not resolve callers until the async failure alert has been presented', async () => {
+      jest.useFakeTimers();
+      rejectConnections = true;
+      const presentationGate = deferred<string | null>();
+      let disabledChecks = 0;
+      const getPreferenceSpy = jest.spyOn(DefaultPreference, 'get').mockImplementation(key => {
+        if (key === 'electrum_disabled' && ++disabledChecks === 7) return presentationGate.promise;
+        return Promise.resolve(null);
+      });
+
+      const connection = BlueElectrum.ensureConnected({ showAlertOnFailure: true });
+      await jest.advanceTimersByTimeAsync(2_000);
+
+      expect(presentAlertMock).not.toHaveBeenCalled();
+      let resolved = false;
+      connection.finally(() => {
+        resolved = true;
+      });
+      await Promise.resolve();
+      expect(resolved).toBe(false);
+
+      presentationGate.resolve(null);
+      await expect(connection).resolves.toBe(false);
+      expect(presentAlertMock).toHaveBeenCalledTimes(1);
+      getPreferenceSpy.mockRestore();
+      jest.useRealTimers();
     });
   });
 

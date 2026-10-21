@@ -575,8 +575,11 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
 
       setConnectionState('disconnected');
       if (ensureInFlightShowAlert) {
+        // Wait until the async disabled-preference check has completed and the alert has actually
+        // been presented. Coalesced refresh callers may need to register dismissal work before
+        // this ensureConnected() promise resolves.
         // eslint-disable-next-line @typescript-eslint/no-use-before-define -- defined later in file
-        presentNetworkErrorAlert(lastPeer);
+        await presentNetworkErrorAlert(lastPeer);
       }
       return false;
     } finally {
@@ -677,15 +680,14 @@ async function presentNetworkErrorAlert(usingPeer?: Peer, allowRepeat = false) {
       },
       {
         text: loc.settings.electrum_reset,
-        onPress: () => {
-          presentResetToDefaultsAlert().then(result => {
-            if (result) {
-              forceDisconnect();
-              setTimeout(() => {
-                ensureConnected({ showAlertOnFailure: true }).catch(() => {});
-              }, 500);
-            }
-          });
+        onPress: async () => {
+          const result = await presentResetToDefaultsAlert();
+          if (result) {
+            forceDisconnect();
+            setTimeout(() => {
+              ensureConnected({ showAlertOnFailure: true }).catch(() => {});
+            }, 500);
+          }
         },
         style: 'destructive',
       },

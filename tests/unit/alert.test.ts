@@ -34,6 +34,20 @@ describe('Alert dismissal lifecycle', () => {
     expect(afterDismiss).toHaveBeenCalledTimes(1);
   });
 
+  it('runs queued work after an Android button dismisses the alert', async () => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'android' });
+    const afterDismiss = jest.fn();
+    presentAlert({ message: 'Network error', options: { cancelable: false } });
+    expect(runAfterAlertDismissed(afterDismiss)).toBe(true);
+
+    const buttons = jest.mocked(Alert.alert).mock.calls[0][2];
+    await buttons?.[0].onPress?.();
+    jest.advanceTimersByTime(399);
+    expect(afterDismiss).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(1);
+    expect(afterDismiss).toHaveBeenCalledTimes(1);
+  });
+
   it('waits for a replacement alert to dismiss', async () => {
     const afterDismiss = jest.fn();
     presentAlert({

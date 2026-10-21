@@ -29,9 +29,10 @@ const notifyAlertDismissed = (generation: number) => {
 };
 
 const scheduleButtonDismissal = (generation: number) => {
-  // Android reports the real native dismissal through AlertOptions.onDismiss. UIKit invokes the
-  // action handler before hiding the controller, so leave time for its dismissal animation.
-  if (Platform.OS === 'ios') setTimeout(() => notifyAlertDismissed(generation), 400);
+  // Both native implementations invoke the action handler before the dialog is gone. Android's
+  // onDismiss only covers cancellation, not button presses, so use the same delayed notification
+  // on both platforms and let the generation guard ignore it if another alert replaced this one.
+  setTimeout(() => notifyAlertDismissed(generation), 400);
 };
 
 const presentAlert = (() => {
