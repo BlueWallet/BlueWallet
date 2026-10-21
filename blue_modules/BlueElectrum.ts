@@ -660,7 +660,7 @@ async function presentNetworkErrorAlert(usingPeer?: Peer, allowRepeat = false) {
     return;
   }
 
-  presentAlert({
+  await presentAlert({
     allowRepeat,
     title: loc.errors.network,
     message: loc.formatString(

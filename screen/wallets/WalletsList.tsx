@@ -148,12 +148,12 @@ const WalletsList: React.FC = () => {
       } catch (error) {
         console.error(error);
       } finally {
-        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-        // A native Electrum alert can defer the RefreshControl repaint. Repeat the update from the alert's
-        // actual dismissal path instead of from an unrelated JS idle period.
-        runAfterAlertDismissed(() => {
+        // Keep refreshing true while a native alert is up, so dismissal delivers a real
+        // true-to-false transition to RefreshControl rather than repeating an already false prop.
+        const stopLoading = () => {
           dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-        });
+        };
+        if (!runAfterAlertDismissed(stopLoading)) stopLoading();
       }
     },
     [isElectrumDisabled, refreshAllWalletTransactions],

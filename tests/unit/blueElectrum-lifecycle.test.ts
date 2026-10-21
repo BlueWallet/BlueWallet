@@ -8,7 +8,8 @@
  */
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import DefaultPreference from 'react-native-default-preference';
+import { Alert } from 'react-native';
+import { runAfterAlertDismissed } from '../../components/Alert';
 
 // Jest hoists these above the import above. The factories close over `globalThis`
 // so the test body can swap implementations per-test without re-mocking.
@@ -16,10 +17,17 @@ jest.mock('electrum-client', () => {
   return jest.fn().mockImplementation(() => (globalThis as any).__createNextFakeClient());
 });
 
-jest.mock('../../components/Alert', () => ({
-  __esModule: true,
-  default: (...args: unknown[]) => (globalThis as any).__presentAlertSpy?.(...args),
-}));
+jest.mock('../../components/Alert', () => {
+  const actual = jest.requireActual('../../components/Alert');
+  return {
+    ...actual,
+    __esModule: true,
+    default: async (...args: unknown[]) => {
+      await (globalThis as any).__alertPresentationGate;
+      return actual.default(...args);
+    },
+  };
+});
 
 type FakeClient = {
   initElectrumDeferred: Deferred<[string, string]>;
@@ -92,9 +100,6 @@ let rejectConnections = false;
   return c;
 };
 
-const presentAlertMock = jest.fn();
-(globalThis as any).__presentAlertSpy = presentAlertMock;
-
 const tick = () => new Promise<void>(resolve => setImmediate(resolve));
 async function flush(times = 4) {
   for (let i = 0; i < times; i++) await tick();
@@ -112,7 +117,12 @@ describe('BlueElectrum lifecycle', () => {
     await BlueElectrum.setDisabled(false);
     created.length = 0;
     rejectConnections = false;
-    presentAlertMock.mockClear();
+    (globalThis as any).__alertPresentationGate = undefined;
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    jest.useRealTimers();
   });
 
   describe('coalescing', () => {
@@ -137,29 +147,30 @@ describe('BlueElectrum lifecycle', () => {
     it('does not resolve callers until the async failure alert has been presented', async () => {
       jest.useFakeTimers();
       rejectConnections = true;
-      const presentationGate = deferred<string | null>();
-      let disabledChecks = 0;
-      const getPreferenceSpy = jest.spyOn(DefaultPreference, 'get').mockImplementation(key => {
-        if (key === 'electrum_disabled' && ++disabledChecks === 7) return presentationGate.promise;
-        return Promise.resolve(null);
-      });
+      const presentationGate = deferred<void>();
+      (globalThis as any).__alertPresentationGate = presentationGate.promise;
+      const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+      const afterDismiss = jest.fn();
 
       const connection = BlueElectrum.ensureConnected({ showAlertOnFailure: true });
+      let resolved = false;
+      const handoff = connection.then(result => {
+        resolved = true;
+        expect(runAfterAlertDismissed(afterDismiss)).toBe(true);
+        return result;
+      });
       await jest.advanceTimersByTimeAsync(2_000);
 
-      expect(presentAlertMock).not.toHaveBeenCalled();
-      let resolved = false;
-      connection.finally(() => {
-        resolved = true;
-      });
-      await Promise.resolve();
+      expect(alertSpy).not.toHaveBeenCalled();
       expect(resolved).toBe(false);
 
-      presentationGate.resolve(null);
-      await expect(connection).resolves.toBe(false);
-      expect(presentAlertMock).toHaveBeenCalledTimes(1);
-      getPreferenceSpy.mockRestore();
-      jest.useRealTimers();
+      presentationGate.resolve();
+      await expect(handoff).resolves.toBe(false);
+      expect(alertSpy).toHaveBeenCalledTimes(1);
+      expect(afterDismiss).not.toHaveBeenCalled();
+      await alertSpy.mock.calls[0][2]?.[2].onPress?.();
+      await jest.advanceTimersByTimeAsync(500);
+      expect(afterDismiss).toHaveBeenCalledTimes(1);
     });
   });
 
