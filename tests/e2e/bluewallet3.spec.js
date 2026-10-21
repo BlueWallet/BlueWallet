@@ -75,11 +75,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await expect(element(by.id('BitcoinAddressQRCode'))).toBeVisible();
 
     await expect(element(by.label('bitcoin:BC1QGRHR5XC5774MAPH97D73YDRJLQQMG2V6JJLR29?amount=1&label=Test'))).toBeVisible();
-    if (device.getPlatform() === 'ios') {
-      await element(by.id('ReceiveDetailsScrollView')).swipe('down', 'fast', 0.9);
-    } else {
-      await goBack();
-    }
+    await goBack();
     await element(by.id('SendButton')).tap();
     // Offline-signing prompt; liquid-glass OK often fails plain toBeVisible taps.
     await dismissAlertByText('OK', 15_000);

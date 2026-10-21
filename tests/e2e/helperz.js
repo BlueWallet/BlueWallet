@@ -510,11 +510,12 @@ export async function goBack() {
   const callsite = captureCallsite(goBack);
 
   // Try each back/close affordance in order; retry the full set up to 10 times.
-  const candidates = [by.id('BackButton'), by.id('NavigationCloseButton'), by.label('Back'), by.label('Close'), by.text('Close')];
+  const candidates = [by.id('BackButton'), by.id('NavigationCloseButton'), by.label('Back'), by.text('Close')];
 
-  // A matcher can hit several elements across stacked screens, and when a modal
-  // covers a stack that also has a back button, the covered one can precede the
-  // visible one in match order (seen with Reduce Motion on).
+  // A matcher can hit several elements across stacked screens: each nav back
+  // button exists twice (_UIButtonBarButton wrapper + UIAccessibilityBackButtonElement),
+  // and when a modal covers a stack that also has a back button, the covered
+  // one can precede the visible one in match order (seen with Reduce Motion on).
   // Probe attributes and only tap an element detox reports as visible & hittable.
   //
   // iOS 26 liquid glass: the native back button reports visible=false because
