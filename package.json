@@ -147,7 +147,6 @@
     "events": "3.3.0",
     "lottie-react-native": "7.5.0",
     "pako": "file:blue_modules/pako",
-    "payjoin-client": "1.0.1",
     "prop-types": "15.8.1",
     "qr": "0.6.0",
     "react": "19.3.0",
