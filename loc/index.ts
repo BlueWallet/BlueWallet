@@ -13,9 +13,12 @@ import * as RNLocalize from 'react-native-localize';
 import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages, LangCode } from './languages';
+import { resolveLangCodeFromRnLocales, RnLocale } from './resolveDeviceLangCode';
 import enJson from './en.json';
 
 export const STORAGE_KEY = 'lang';
+/** LangCode we last picked from the device locale; while `lang` still equals it the device keeps winning. */
+export const AUTODETECTED_LANG_KEY = 'langAutodetected';
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
@@ -316,8 +319,8 @@ const setDateTimeLocale = async () => {
       require('dayjs/locale/sl');
       break;
     case 'sr_rs':
-      lang = 'sr-cyrl';
-      require('dayjs/locale/sr-cyrl');
+      lang = 'sr';
+      require('dayjs/locale/sr');
       break;
     case 'sv_se':
       require('dayjs/locale/sv');
@@ -361,22 +364,54 @@ const setDateTimeLocale = async () => {
   }
 };
 
-// Fire-and-forget; `loc` starts as `{en}` until this resolves, so synchronous reads on a cold launch with non-en saved preference render English briefly.
-const init = async () => {
-  const lang = await AsyncStorage.getItem(STORAGE_KEY);
-  if (lang) {
-    await saveLanguage(lang);
-  } else {
-    const locales = RNLocalize.getLocales();
-    const detected = locales[0]?.languageCode;
-    if (detected && AvailableLanguages.some(language => language.value === detected)) {
-      await saveLanguage(detected);
-    } else {
-      await saveLanguage('en');
-    }
-  }
+/** Autodetect from before AUTODETECTED_LANG_KEY existed: exact `languageCode` match, else `en`. */
+const legacyAutodetectLangCode = (locales: readonly RnLocale[]): string => {
+  const detected = locales[0]?.languageCode;
+  return detected && AvailableLanguages.some(language => language.value === detected) ? detected : 'en';
 };
-init();
+
+/**
+ * Device language wins unless the user picked something else in-app, i.e. the stored value
+ * differs from what we last autodetected. Installs predating AUTODETECTED_LANG_KEY compare
+ * against the legacy autodetect result instead.
+ */
+export const pickLaunchLanguage = (params: {
+  stored: string | null;
+  lastAutodetected: string | null;
+  device: string;
+  legacyAutodetect: string;
+}): { lang: string; autodetected: boolean } => {
+  const { stored, lastAutodetected, device, legacyAutodetect } = params;
+  if (!stored || stored === (lastAutodetected ?? legacyAutodetect)) {
+    return { lang: device, autodetected: true };
+  }
+  return { lang: stored, autodetected: false };
+};
+
+/** `I18nManager.isRTL` is frozen at process start, so an RTL/LTR change only lands after a restart. */
+export const isRtlLayoutStale = (lang: string): boolean => {
+  const desiredRtl = AvailableLanguages.find(language => language.value === lang)?.isRTL ?? false;
+  return desiredRtl !== I18nManager.isRTL;
+};
+
+// Fire-and-forget; `loc` starts as `{en}` until this resolves, so synchronous reads on a cold launch with non-en saved preference render English briefly.
+const init = async (): Promise<string> => {
+  const locales = RNLocalize.getLocales();
+  const [stored, lastAutodetected] = await Promise.all([AsyncStorage.getItem(STORAGE_KEY), AsyncStorage.getItem(AUTODETECTED_LANG_KEY)]);
+  const { lang, autodetected } = pickLaunchLanguage({
+    stored,
+    lastAutodetected,
+    device: resolveLangCodeFromRnLocales(locales),
+    legacyAutodetect: legacyAutodetectLangCode(locales),
+  });
+  await saveLanguage(lang);
+  if (autodetected) {
+    // Strings are already applied; a failed bookkeeping write must not reject `languageReady`.
+    await AsyncStorage.setItem(AUTODETECTED_LANG_KEY, lang).catch(console.error);
+  }
+  return lang;
+};
+export const languageReady = init();
 
 export const saveLanguage = async (lang: string) => {
   await AsyncStorage.setItem(STORAGE_KEY, lang);

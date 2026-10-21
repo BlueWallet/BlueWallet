@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "8.0.3",
+  "version": "8.0.4",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -148,7 +148,6 @@
     "lottie-react-native": "7.5.0",
     "nostr-tools": "2.25.2",
     "pako": "file:blue_modules/pako",
-    "payjoin-client": "1.0.1",
     "prop-types": "15.8.1",
     "qr": "0.6.0",
     "react": "19.2.3",
@@ -177,7 +176,7 @@
     "react-native-quick-actions": "0.3.13",
     "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "5.10.1",
-    "react-native-screens": "4.28.0",
+    "react-native-screens": "4.30.0",
     "react-native-secure-key-store": "github:BlueWallet/react-native-secure-key-store#2076b4849e88aa0a78e08bfbb4ce3923e0925cbc",
     "react-native-share": "12.2.6",
     "react-native-svg": "15.15.5",

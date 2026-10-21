@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
-import { PayjoinClient } from 'payjoin-client';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import BlueCard from '../../components/BlueCard';
@@ -25,7 +24,6 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
-import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -72,7 +70,21 @@ const Confirm: React.FC = () => {
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useNavigation<ConfirmNavigationProp>();
   const route = useRoute<ConfirmRouteProp>(); // Get the route and its params
-  const { recipients, targets, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = route.params; // Destructure params
+  const {
+    recipients,
+    targets,
+    walletID,
+    fee,
+    memo,
+    tx,
+    satoshiPerByte,
+    psbt,
+    payjoinUrl,
+    payjoinAddress,
+    payjoinDisableOutputSubstitution,
+  } = route.params; // Destructure params
+  // only the recipient the BIP21 `pj=` came with may be payjoined; gone (edited address, batch without it) → no payjoin
+  const paymentScript = useMemo(() => PayjoinTransaction.paymentScriptFor(recipients, payjoinAddress), [recipients, payjoinAddress]);
 
   const [state, dispatch] = useReducer(reducer, initialState);
   const { navigate, setOptions, goBack } = navigation;
@@ -176,13 +188,6 @@ const Confirm: React.FC = () => {
     });
   }, [renderHeaderRight, setOptions]);
 
-  const getPaymentScript = (): Uint8Array | undefined => {
-    if (!(recipients.length > 0) || !recipients[0].address) {
-      return undefined;
-    }
-    return bitcoin.address.toOutputScript(recipients[0].address, bitcoin.networks.bitcoin);
-  };
-
   const handleSendTransaction = async () => {
     dispatch({ type: ActionType.SET_BUTTON_DISABLED, payload: true });
     dispatch({ type: ActionType.SET_LOADING, payload: true });
@@ -198,6 +203,9 @@ const Confirm: React.FC = () => {
       }
 
       const txidsToWatch = [];
+      let txid = bitcoin.Transaction.fromHex(tx).getId();
+      let feeBtc = Number(fee);
+      let payjoinNotUsed = false;
       if (!state.isPayjoinEnabled) {
         // Only broadcast the transaction after biometrics pass
         const result = await broadcastTransaction(tx);
@@ -208,25 +216,32 @@ const Confirm: React.FC = () => {
         }
       } else {
         const payJoinWallet = new PayjoinTransaction(psbt, (txHex: string) => broadcastTransaction(txHex), wallet as HDSegwitBech32Wallet);
-        const paymentScript = getPaymentScript();
         if (!paymentScript) {
           throw new Error('Invalid payment script');
         }
-        const payjoinClient = new PayjoinClient({
-          paymentScript: Buffer.from(uint8ArrayToHex(paymentScript), 'hex'),
-          wallet: payJoinWallet.getPayjoinPsbt(),
-          payjoinUrl: payjoinUrl as string,
+        const payjoinClient = payJoinWallet.createClient(paymentScript, payjoinUrl as string, {
+          ...payJoinWallet.payjoinParameters(satoshiPerByte),
+          ...(payjoinDisableOutputSubstitution ? { disableOutputSubstitution: true } : {}),
         });
-        await payjoinClient.run();
+        try {
+          await payjoinClient.run();
+        } catch (error: any) {
+          // the client already broadcast the plain (non-payjoin) tx: payment went through, just not as payjoin
+          if (!payJoinWallet.wasOriginalBroadcast()) throw error;
+          console.warn('payjoin failed, original transaction broadcast instead:', error.message);
+          payjoinNotUsed = true;
+        }
         const payjoinPsbt = payJoinWallet.getPayjoinPsbt();
         if (payjoinPsbt) {
-          const txToWatch = payjoinPsbt.extractTransaction();
-          txidsToWatch.push(txToWatch.getId());
+          // the payjoin tx is the one that went out; Success and the block explorer link must point at it
+          const sent = payJoinWallet.getSentTransaction();
+          txid = sent.txid;
+          feeBtc = Number(sent.fee) / 100000000;
+          txidsToWatch.push(txid);
         }
       }
 
-      const txid = bitcoin.Transaction.fromHex(tx).getId();
-      txidsToWatch.push(txid);
+      txidsToWatch.push(bitcoin.Transaction.fromHex(tx).getId());
       majorTomToGroundControl([], [], txidsToWatch);
       let amount = 0;
       for (const recipient of recipients) {
@@ -238,10 +253,13 @@ const Confirm: React.FC = () => {
       amount = Number(formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false));
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       navigate('Success', {
-        fee: Number(fee),
+        fee: feeBtc,
         amount,
         txid,
       });
+      if (payjoinNotUsed) {
+        presentAlert({ message: loc.send.payjoin_not_used });
+      }
 
       dispatch({ type: ActionType.SET_LOADING, payload: false });
 
@@ -332,7 +350,7 @@ const Confirm: React.FC = () => {
           keyExtractor={(_item, index) => `${index}`}
           ItemSeparatorComponent={renderSeparator}
         />
-        {!!payjoinUrl && (
+        {!!payjoinUrl && !!paymentScript && (
           <View style={styles.cardContainer}>
             <BlueCard>
               <View style={[styles.payjoinWrapper, stylesHook.payjoinWrapper]}>
