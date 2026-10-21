@@ -125,6 +125,7 @@
     "provided_address_is_invoice": "Esta dirección parece ser para una factura Lightning. Por favor, ve a tu billetera Lightning para realizar el pago de esta factura.",
     "broadcastButton": "Transmitir",
     "broadcastError": "Error",
+    "payjoin_not_used": "La transacción de Payjoin no se completó. Se realizó una transacción normal",
     "broadcastNone": "Introducir hex de transacción",
     "broadcastPending": "Pendiente",
     "broadcastSuccess": "Éxito",
