@@ -55,8 +55,6 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         self.dependencyProvider = RCTAppDependencyProvider()
         self.initialProps = [:]
 
-        RCTI18nUtil.sharedInstance().allowRTL(true)
-
         RNNotifications.startMonitorNotifications()
         RNNotifications.addNativeDelegate(self)
 
@@ -404,6 +402,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         let commands: [(String, String, Selector, String, UIKeyModifierFlags, UIMenu.Identifier)] = [
             ("addWallet", "Add Wallet", #selector(addWalletAction), "a", [.command, .shift], .file),
             ("importWallet", "Import Wallet", #selector(importWalletAction), "i", .command, .file),
+            ("manageWallets", "Manage Wallets…", #selector(manageWalletsAction), "m", [.command, .shift], .file),
             ("send", "Send…", #selector(sendMenuAction), "s", [.command, .shift], .file),
             ("receive", "Receive…", #selector(receiveMenuAction), "r", [.command, .shift], .file),
             ("walletDetails", "Wallet Details…", #selector(walletDetailsMenuAction), "d", .command, .file),
@@ -445,6 +444,10 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     @objc func importWalletAction(_ keyCommand: UIKeyCommand) {
         MenuElementsController.shared.perform("importWallet")
+    }
+
+    @objc func manageWalletsAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWallets")
     }
 
     @objc func reloadTransactionsAction(_ keyCommand: UIKeyCommand) {

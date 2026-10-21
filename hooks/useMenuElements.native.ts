@@ -40,6 +40,15 @@ function subscribe() {
       case 'keyboardShortcuts':
         navigationRef.navigate('KeyboardShortcuts');
         break;
+      case 'manageWallets':
+        navigationRef.dispatch(
+          CommonActions.navigate({
+            name: 'DrawerRoot',
+            params: { screen: 'DetailViewStackScreensStack', params: { screen: 'ManageWallets' } },
+            pop: true,
+          }),
+        );
+        break;
       case 'backToWallets':
         navigateToWalletsList();
         break;
