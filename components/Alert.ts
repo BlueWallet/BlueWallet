@@ -9,6 +9,7 @@ export enum AlertType {
 }
 
 let alertVisible = false;
+let alertGeneration = 0;
 const alertDismissCallbacks = new Set<() => void>();
 
 export const runAfterAlertDismissed = (callback: () => void) => {
@@ -17,13 +18,20 @@ export const runAfterAlertDismissed = (callback: () => void) => {
   return true;
 };
 
-const notifyAlertDismissed = () => {
-  if (!alertVisible) return;
-  alertVisible = false;
+const notifyAlertDismissed = (generation: number) => {
+  if (!alertVisible || generation !== alertGeneration) return;
   requestAnimationFrame(() => {
+    if (generation !== alertGeneration) return;
+    alertVisible = false;
     alertDismissCallbacks.forEach(callback => callback());
     alertDismissCallbacks.clear();
   });
+};
+
+const scheduleButtonDismissal = (generation: number) => {
+  // Android reports the real native dismissal through AlertOptions.onDismiss. UIKit invokes the
+  // action handler before hiding the controller, so leave time for its dismissal animation.
+  if (Platform.OS === 'ios') setTimeout(() => notifyAlertDismissed(generation), 400);
 };
 
 const presentAlert = (() => {
@@ -42,18 +50,25 @@ const presentAlert = (() => {
 
   const showAlert = (title: string | undefined, message: string, buttons: AlertButton[], options: AlertOptions) => {
     alertVisible = true;
+    const generation = ++alertGeneration;
     const dismissingButtons = buttons.map(button => ({
       ...button,
-      onPress: (value?: unknown) => {
-        (button.onPress as ((input?: unknown) => void) | undefined)?.(value);
-        notifyAlertDismissed();
+      onPress: async (value?: unknown) => {
+        try {
+          await (button.onPress as ((input?: unknown) => unknown) | undefined)?.(value);
+        } finally {
+          scheduleButtonDismissal(generation);
+        }
       },
     }));
     const dismissingOptions = {
       ...options,
       onDismiss: () => {
-        options.onDismiss?.();
-        notifyAlertDismissed();
+        try {
+          options.onDismiss?.();
+        } finally {
+          notifyAlertDismissed(generation);
+        }
       },
     };
     if (Platform.OS === 'ios' && navigationRef.isReady()) {

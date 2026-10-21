@@ -25,7 +25,14 @@ function rethrowWithCallsite(err, callsite) {
 }
 
 export function headerButton(id) {
-  return element(by.id(id));
+  if (device.getPlatform() !== 'ios' || id === 'ModalDoneButton') return element(by.id(id));
+  const nativeLabels = {
+    HeaderMenuButton: 'More options',
+    NavigationCloseButton: 'Close',
+    SettingsButton: 'SettingsButton',
+    WalletDetails: 'WalletDetails',
+  };
+  return element(nativeLabels[id] ? by.label(nativeLabels[id]) : by.id(id));
 }
 
 export async function waitForId(id, timeout = 33000) {

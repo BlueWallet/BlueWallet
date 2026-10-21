@@ -4,6 +4,7 @@ import React from 'react';
 import HeaderMenuButton from './HeaderMenuButton';
 import { mapActionGroupsToNativeHeaderMenuItems, mapActionsToNativeHeaderMenuItems } from './nativeHeaderMenuItems';
 import { Action } from './types';
+import loc from '../loc';
 
 type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 type HeaderItemsGetter = NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>;
@@ -43,7 +44,7 @@ export const createEllipsisHeaderMenuOptions = ({
         label: title,
         icon: { type: 'sfSymbol', name: 'ellipsis' },
         identifier,
-        accessibilityLabel: identifier,
+        accessibilityLabel: title || loc.receive.details_more_options,
         menu: {
           title,
           items: nativeHeaderMenuItems,

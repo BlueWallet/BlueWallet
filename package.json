@@ -54,7 +54,7 @@
     "typescript": "5.9.3"
   },
   "engines": {
-    "node": ">=22.13.0"
+    "node": "^22.13.0 || ^24.3.0 || >=26.0.0"
   },
   "scripts": {
     "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f android/app/.cxx android/.cxx android/build; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; npm cache clean --force; npm i",
