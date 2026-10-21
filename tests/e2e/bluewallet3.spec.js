@@ -83,6 +83,8 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await element(by.id('SendButton')).tap();
     // Offline-signing prompt; liquid-glass OK often fails plain toBeVisible taps.
     await dismissAlertByText('OK', 15_000);
+    await waitForId('HeaderMenuButton');
+
     await tapHeaderMenuItem('Import Transaction (QR)', {
       actionId: 'import_transaction_qr',
       restoreSynchronization: false,

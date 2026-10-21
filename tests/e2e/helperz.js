@@ -24,21 +24,10 @@ function rethrowWithCallsite(err, callsite) {
   throw err;
 }
 
-export function headerButton(id) {
-  if (device.getPlatform() !== 'ios' || id === 'ModalDoneButton') return element(by.id(id));
-  const nativeLabels = {
-    HeaderMenuButton: 'More options',
-    NavigationCloseButton: 'Close',
-    SettingsButton: 'SettingsButton',
-    WalletDetails: 'WalletDetails',
-  };
-  return element(nativeLabels[id] ? by.label(nativeLabels[id]) : by.id(id));
-}
-
 export async function waitForId(id, timeout = 33000) {
   const callsite = captureCallsite(waitForId);
   try {
-    await waitFor(headerButton(id))
+    await waitFor(element(by.id(id)))
       .toBeVisible()
       .withTimeout(timeout / 2);
   } catch (_) {
@@ -46,7 +35,7 @@ export async function waitForId(id, timeout = 33000) {
   }
 
   try {
-    await waitFor(headerButton(id))
+    await waitFor(element(by.id(id)))
       .toBeVisible()
       .withTimeout(timeout / 2);
   } catch (err) {
@@ -193,7 +182,7 @@ export async function helperDeleteWallet(label, remainingBalanceSat = false) {
   // that case is a known limitation of the e2e harness.
   await element(by.text(label)).tap();
   await waitForId('WalletDetails');
-  await headerButton('WalletDetails').tap();
+  await element(by.id('WalletDetails')).tap();
   await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
   await sleep(1000);
   await element(by.id('DeleteWallet')).tap();
@@ -602,7 +591,7 @@ export async function typeTextIntoAlertInput(text) {
 export async function tapHeaderMenuItem(menuItemText, { actionId, restoreSynchronization = true } = {}) {
   const isIOS = device.getPlatform() === 'ios';
   if (!isIOS) {
-    await headerButton('HeaderMenuButton').tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text(menuItemText)).tap();
     return;
   }
@@ -610,10 +599,14 @@ export async function tapHeaderMenuItem(menuItemText, { actionId, restoreSynchro
   let succeeded = false;
   await device.disableSynchronization();
   try {
+    await waitFor(element(by.id('HeaderMenuButton')))
+      .toExist()
+      .withTimeout(15_000);
+
     let lastError;
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        await headerButton('HeaderMenuButton').tap();
+        await element(by.id('HeaderMenuButton')).tap();
         // iOS 26 action sheets use magic-morph transforms that fail Detox's
         // visibility check until the presentation animation settles.
         await sleep(1500);
