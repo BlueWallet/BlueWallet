@@ -125,6 +125,7 @@
     "provided_address_is_invoice": "This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.",
     "broadcastButton": "Broadcast",
     "broadcastError": "Error",
+    "payjoin_not_used": "Payjoin did not go through. A regular transaction was sent instead.",
     "broadcastNone": "Insert Transaction Hex",
     "broadcastPending": "Pending",
     "broadcastSuccess": "Success",
