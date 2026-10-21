@@ -24,17 +24,8 @@ function rethrowWithCallsite(err, callsite) {
   throw err;
 }
 
-const iosNativeHeaderLabels = {
-  HeaderMenuButton: 'HeaderMenuButton',
-  NavigationCloseButton: 'Close',
-  SettingsButton: 'SettingsButton',
-  WalletDetails: 'WalletDetails',
-};
-
 export function headerButton(id) {
-  if (device.getPlatform() === 'ios' && id === 'ModalDoneButton') return element(by.text('Done'));
-  const label = iosNativeHeaderLabels[id];
-  return element(device.getPlatform() === 'ios' && label ? by.label(label) : by.id(id));
+  return element(by.id(id));
 }
 
 export async function waitForId(id, timeout = 33000) {
@@ -523,19 +514,11 @@ export async function goBack() {
   const callsite = captureCallsite(goBack);
 
   // Try each back/close affordance in order; retry the full set up to 10 times.
-  const candidates = [
-    by.id('BackButton'),
-    by.id('NavigationCloseButton'),
-    by.label('Back'),
-    by.label('Close'),
-    by.text('Close'),
-    by.type('_UIButtonBarButton'),
-  ];
+  const candidates = [by.id('BackButton'), by.id('NavigationCloseButton'), by.label('Back'), by.label('Close'), by.text('Close')];
 
-  // A matcher can hit several elements across stacked screens: each nav back
-  // button exists twice (_UIButtonBarButton wrapper + UIAccessibilityBackButtonElement),
-  // and when a modal covers a stack that also has a back button, the covered
-  // one can precede the visible one in match order (seen with Reduce Motion on).
+  // A matcher can hit several elements across stacked screens, and when a modal
+  // covers a stack that also has a back button, the covered one can precede the
+  // visible one in match order (seen with Reduce Motion on).
   // Probe attributes and only tap an element detox reports as visible & hittable.
   //
   // iOS 26 liquid glass: the native back button reports visible=false because
@@ -623,25 +606,7 @@ export async function tapHeaderMenuItem(menuItemText, { actionId, restoreSynchro
     let lastError;
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        let menuButton = headerButton('HeaderMenuButton');
-        try {
-          await menuButton.getAttributes();
-        } catch {
-          const nativeButtons = [];
-          for (let index = 0; index < 8; index++) {
-            const candidate = element(by.type('_UIButtonBarButton')).atIndex(index);
-            try {
-              const attributes = await candidate.getAttributes();
-              nativeButtons.push({ candidate, x: attributes.frame?.x ?? 0 });
-            } catch {
-              break;
-            }
-          }
-          nativeButtons.sort((a, b) => b.x - a.x);
-          if (nativeButtons.length === 0) throw new Error('No native header menu button found');
-          menuButton = nativeButtons[0].candidate;
-        }
-        await menuButton.tap();
+        await headerButton('HeaderMenuButton').tap();
         // iOS 26 action sheets use magic-morph transforms that fail Detox's
         // visibility check until the presentation animation settles.
         await sleep(1500);

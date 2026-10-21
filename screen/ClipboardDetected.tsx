@@ -96,8 +96,9 @@ const ClipboardDetected = () => {
   const handleUseClipboard = useCallback(() => {
     triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
     if (contentHash) setLastSeenClipboardHash(contentHash).catch(() => {});
-    navigation.goBack();
-    requestIdleCallback(() => {
+    const unsubscribe = navigation.addListener('transitionEnd', event => {
+      if (!event.data.closing) return;
+      unsubscribe();
       DeeplinkSchemaMatch.navigationRouteFor({ url: payload }, (value: [string, any]) => navigationRef.navigate(...value), {
         wallets,
         addWallet,
@@ -105,6 +106,7 @@ const ClipboardDetected = () => {
         setSharedCosigner,
       });
     });
+    navigation.goBack();
   }, [addWallet, contentHash, navigation, payload, saveToDisk, setSharedCosigner, wallets]);
 
   return (

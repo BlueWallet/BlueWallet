@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useRef, useState, useEffect } from 'react';
-import { findNodeHandle, Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import loc from '../../loc';
@@ -89,11 +89,13 @@ const IsItMyAddress: React.FC = () => {
 
   useEffect(() => {
     if (matchingWallets && matchingWallets.length > 0 && scrollViewRef.current && firstWalletRef.current) {
-      const scrollViewNode = findNodeHandle(scrollViewRef.current);
-      if (scrollViewNode === null) return;
-      firstWalletRef.current.measureLayout(scrollViewNode, (x, y) => {
-        scrollViewRef.current?.scrollTo({ x: 0, y: y - 20, animated: true });
-      });
+      const innerView = scrollViewRef.current.getInnerViewRef();
+      if (!innerView) return;
+      firstWalletRef.current.measureLayout(
+        innerView,
+        (_x, y) => scrollViewRef.current?.scrollTo({ x: 0, y: y - 20, animated: true }),
+        () => console.warn('Unable to measure the matching wallet position'),
+      );
     }
   }, [matchingWallets]);
 

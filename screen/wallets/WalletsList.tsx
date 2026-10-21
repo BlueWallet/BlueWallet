@@ -7,7 +7,7 @@ import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
-import presentAlert from '../../components/Alert';
+import presentAlert, { runAfterAlertDismissed } from '../../components/Alert';
 import { FButton, FContainer, FloatButtonsBottomFade, getFloatingButtonReservedHeight } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
@@ -149,9 +149,9 @@ const WalletsList: React.FC = () => {
         console.error(error);
       } finally {
         dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-        // After a native Electrum error alert, the first `refreshing={false}` can fail to repaint until the
-        // alert is dismissed; run again once interactions finish so pull-to-refresh does not appear stuck.
-        requestIdleCallback(() => {
+        // A native Electrum alert can defer the RefreshControl repaint. Repeat the update from the alert's
+        // actual dismissal path instead of from an unrelated JS idle period.
+        runAfterAlertDismissed(() => {
           dispatch({ type: ActionTypes.SET_LOADING, payload: false });
         });
       }

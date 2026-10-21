@@ -8,6 +8,24 @@ export enum AlertType {
   Toast,
 }
 
+let alertVisible = false;
+const alertDismissCallbacks = new Set<() => void>();
+
+export const runAfterAlertDismissed = (callback: () => void) => {
+  if (!alertVisible) return false;
+  alertDismissCallbacks.add(callback);
+  return true;
+};
+
+const notifyAlertDismissed = () => {
+  if (!alertVisible) return;
+  alertVisible = false;
+  requestAnimationFrame(() => {
+    alertDismissCallbacks.forEach(callback => callback());
+    alertDismissCallbacks.clear();
+  });
+};
+
 const presentAlert = (() => {
   let lastAlertParams: {
     title?: string;
@@ -23,10 +41,25 @@ const presentAlert = (() => {
   };
 
   const showAlert = (title: string | undefined, message: string, buttons: AlertButton[], options: AlertOptions) => {
+    alertVisible = true;
+    const dismissingButtons = buttons.map(button => ({
+      ...button,
+      onPress: (value?: unknown) => {
+        (button.onPress as ((input?: unknown) => void) | undefined)?.(value);
+        notifyAlertDismissed();
+      },
+    }));
+    const dismissingOptions = {
+      ...options,
+      onDismiss: () => {
+        options.onDismiss?.();
+        notifyAlertDismissed();
+      },
+    };
     if (Platform.OS === 'ios' && navigationRef.isReady()) {
-      RNAlert.alert(title ?? message, title && message ? message : undefined, buttons, options);
+      RNAlert.alert(title ?? message, title && message ? message : undefined, dismissingButtons, dismissingOptions);
     } else {
-      RNAlert.alert(title ?? '', message, buttons, options);
+      RNAlert.alert(title ?? '', message, dismissingButtons, dismissingOptions);
     }
   };
 

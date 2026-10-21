@@ -17,7 +17,6 @@
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@babel/runtime": "^7.26.0",
-    "@bugsnag/cli": "3.10.7",
     "@jest/reporters": "^27.5.1",
     "@react-native/eslint-config": "0.88.0",
     "@react-native/jest-preset": "0.88.0",
@@ -55,7 +54,7 @@
     "typescript": "5.9.3"
   },
   "engines": {
-    "node": ">= 22.11.0"
+    "node": ">=22.13.0"
   },
   "scripts": {
     "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f android/app/.cxx android/.cxx android/build; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; npm cache clean --force; npm i",
