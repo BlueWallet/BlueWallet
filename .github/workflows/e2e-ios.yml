@@ -257,7 +257,16 @@ jobs:
               await element(by.id('MnemonicInput')).typeText('zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong');
               await tapIfTextPresent('Done');
               await element(by.id('HeaderMenuButton')).tap();
-              await expect(element(by.text('Search accounts'))).toBeVisible(100);
+              // Timing probe: is the menu label obscured only right after the tap (animation in flight)?
+              for (const pause of [0, 500, 1500, 3000]) {
+                if (pause) await new Promise(r => setTimeout(r, pause));
+                try {
+                  await expect(element(by.text('Search accounts'))).toBeVisible(100);
+                  console.warn(`PROBE pause=${pause}ms visible(100)=PASS`);
+                } catch (e) {
+                  console.warn(`PROBE pause=${pause}ms visible(100)=FAIL ${String(e.message).split('\n')[0]}`);
+                }
+              }
               await expect(element(by.text('__force_hierarchy_dump__'))).toExist();
             });
           });
