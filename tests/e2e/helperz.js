@@ -363,19 +363,35 @@ export async function dismissAlertByText(text, timeoutMs = 10000) {
   }
   const deadline = Date.now() + timeoutMs;
   let dismissed = false;
+  // With synchronization off the tap can land while the alert is still animating in and get swallowed
+  // (seen on CI with RN 0.88), so a tap that threw no error does not prove the alert is gone.
+  const alertClosed = async () => {
+    try {
+      await waitFor(element(by.text(text)))
+        .not.toExist()
+        .withTimeout(2000);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
   try {
     while (Date.now() < deadline) {
       // by.text — works on pre–iOS 26 and some iOS 26 alerts
       try {
         await element(by.text(text)).atIndex(0).tap();
-        dismissed = true;
-        break;
+        if (await alertClosed()) {
+          dismissed = true;
+          break;
+        }
       } catch (_) {}
       // by.label — accessibility label, works when text matching differs
       try {
         await element(by.label(text)).atIndex(0).tap();
-        dismissed = true;
-        break;
+        if (await alertClosed()) {
+          dismissed = true;
+          break;
+        }
       } catch (_) {}
       await sleep(500);
     }
