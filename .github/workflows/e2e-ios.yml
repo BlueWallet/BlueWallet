@@ -5,16 +5,20 @@ on: [pull_request]
 permissions:
   contents: read
 
+# Experiment PR: every commit gets its own run (no cancellation of earlier commits).
 concurrency:
-  group: e2e-ios-${{ github.ref }}
-  cancel-in-progress: true
+  group: e2e-ios-${{ github.ref }}-${{ github.sha }}
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        # head = this PR (RN 0.88), master = current master (RN 0.85). Same toolchain for both.
+        source: [head, master]
     env:
-      # Experiment: build with Xcode 26.3 (SDK 26.2) to mirror the local setup where e2e passes.
-      DEVELOPER_DIR: /Applications/Xcode_26.3.app
       BUILD_CONFIGURATION: Release
       CCACHE_MAXSIZE: "2G"
       CCACHE_DIR: /Users/runner/.ccache
@@ -22,6 +26,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: ${{ matrix.source == 'master' && 'master' || '' }}
 
       - name: Setup Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
@@ -55,8 +61,9 @@ jobs:
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: ~/.ccache
-          key: ${{ runner.os }}-ccache-${{ github.sha }}
+          key: ${{ runner.os }}-ccache-${{ matrix.source }}-${{ github.sha }}
           restore-keys: |
+            ${{ runner.os }}-ccache-${{ matrix.source }}-
             ${{ runner.os }}-ccache-
 
       - name: Delete extension targets
@@ -122,6 +129,7 @@ jobs:
           CCACHE_BINARY: /opt/homebrew/bin/ccache
         run: |
           set -eo pipefail
+          xcodebuild -version
           build() {
             xcodebuild \
               -workspace BlueWallet.xcworkspace \
@@ -148,12 +156,13 @@ jobs:
             find ios/build -maxdepth 5 -name '*.app' || true
             exit 1
           fi
+          plutil -p "$APP_DIR/Info.plist" | grep -E 'DTSDKName|DTXcode"|UIDesignRequiresCompatibility|MinimumOSVersion' || true
           tar -czf BlueWallet.app.tar.gz -C "$(dirname "$APP_DIR")" "$(basename "$APP_DIR")"
 
       - name: Upload simulator app
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bluewallet-ios-app
+          name: bluewallet-ios-app-${{ matrix.source }}
           path: BlueWallet.app.tar.gz
           retention-days: 3
           compression-level: 0
@@ -162,10 +171,11 @@ jobs:
   test:
     runs-on: macos-26
     needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        source: [head, master]
     env:
-      # Experiment: Xcode 26.3 toolchain + iOS 26.2 runtime, mirrors local setup where e2e passes.
-      DEVELOPER_DIR: /Applications/Xcode_26.3.app
-      IOS_RUNTIME: iOS 26.2
       HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
       HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
       MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
@@ -173,6 +183,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: ${{ matrix.source == 'master' && 'master' || '' }}
 
       - name: Setup Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
@@ -192,7 +204,7 @@ jobs:
       - name: Download simulator app
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: bluewallet-ios-app
+          name: bluewallet-ios-app-${{ matrix.source }}
 
       - name: Restore simulator app
         run: |
@@ -203,13 +215,11 @@ jobs:
       - name: Pre-boot iOS simulator
         run: |
           DEVICE_TYPE=$(jq -r '.devices.simulator.device.type' .detoxrc.json)
-          UDID=$(applesimutils --list --byType "$DEVICE_TYPE" --byOS "$IOS_RUNTIME" | jq -r '.[0].udid // empty')
+          UDID=$(applesimutils --list --byType "$DEVICE_TYPE" | jq -r '.[0].udid // empty')
           if [ -z "$UDID" ]; then
-            echo "ERROR: no simulator of type '$DEVICE_TYPE' on '$IOS_RUNTIME' found"
-            applesimutils --list --byType "$DEVICE_TYPE" | jq -r '.[] | "\(.os.name) \(.udid)"' || true
+            echo "ERROR: no simulator of type '$DEVICE_TYPE' found"
             exit 1
           fi
-          echo "Using simulator $UDID ($IOS_RUNTIME)"
           xcrun simctl boot "$UDID" 2>/dev/null || true
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl launch "$UDID" com.apple.springboard >/dev/null 2>&1 || true
@@ -221,28 +231,53 @@ jobs:
           xcrun simctl spawn booted defaults write com.apple.Accessibility ReduceMotionEnabled -bool true
           xcrun simctl spawn booted notifyutil -p com.apple.Accessibility.ReduceMotionStatusDidChange
 
-      - name: Pin detox simulator runtime
+      # Experiment: open the Import Wallet header menu, check item visibility at 100%, then force a
+      # failing match so Detox (verbose) dumps the full window hierarchy. Same spec on both sources.
+      - name: Write hierarchy dump spec
         run: |
-          jq --arg os "$IOS_RUNTIME" '.devices.simulator.device.os = $os' .detoxrc.json > .detoxrc.tmp.json
-          mv .detoxrc.tmp.json .detoxrc.json
-          jq '.devices.simulator' .detoxrc.json
+          cat > tests/e2e/zz-dump.spec.js <<'EOF'
+          import { element, waitFor } from 'detox';
+          import { tapAndTapAgainIfElementIsNotVisible, tapIfTextPresent, waitForId } from './helperz';
 
-      - name: Run detox tests
-        timeout-minutes: 360
+          describe('zz dump', () => {
+            it('dumps window hierarchy with header menu open', async () => {
+              await device.clearKeychain();
+              await device.launchApp({ delete: true });
+              await waitForId('WalletsList');
+              await waitFor(element(by.id('CreateAWallet')))
+                .toBeVisible()
+                .whileElement(by.id('WalletsList'))
+                .scroll(500, 'right');
+              await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'ScrollView');
+              await waitFor(element(by.id('ImportWallet')))
+                .toBeVisible()
+                .whileElement(by.id('ScrollView'))
+                .scroll(500, 'down');
+              await element(by.id('ImportWallet')).tap();
+              await element(by.id('MnemonicInput')).typeText('zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong');
+              await tapIfTextPresent('Done');
+              await element(by.id('HeaderMenuButton')).tap();
+              await expect(element(by.text('Search accounts'))).toBeVisible(100);
+              await expect(element(by.text('__force_hierarchy_dump__'))).toExist();
+            });
+          });
+          EOF
+
+      - name: Run detox dump spec
+        timeout-minutes: 60
         run: |
-          npm run e2e:test:ios-release -- \
+          npm run e2e:test:ios-release -- tests/e2e/zz-dump.spec.js \
             --record-videos failing \
             --record-logs failing \
             --take-screenshots failing \
             --headless \
             --retries 0 \
             --reuse \
-            --artifacts-location ./artifacts \
-            # Detox forwards args to jest through a shell and only escapes spaces, so pipes must be backslash-escaped here.
-            --testNamePattern 'batch send\|sendMAX\|payment codes\|manage UTXO\|multisig setup from UR\|discover wallet account\|dice entropy'
+            --loglevel verbose \
+            --artifacts-location ./artifacts
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: failure()
+        if: always()
         with:
-          name: e2e-ios-videos-xcode26.3
+          name: e2e-ios-dump-${{ matrix.source }}
           path: ./artifacts/
