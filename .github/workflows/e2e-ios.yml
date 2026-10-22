@@ -13,11 +13,6 @@ concurrency:
 jobs:
   build:
     runs-on: macos-26
-    strategy:
-      fail-fast: false
-      matrix:
-        # head = this PR (RN 0.88), master = current master (RN 0.85). Same toolchain for both.
-        source: [head, master]
     env:
       BUILD_CONFIGURATION: Release
       CCACHE_MAXSIZE: "2G"
@@ -26,8 +21,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-        with:
-          ref: ${{ matrix.source == 'master' && 'master' || '' }}
 
       - name: Setup Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
@@ -61,9 +54,8 @@ jobs:
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: ~/.ccache
-          key: ${{ runner.os }}-ccache-${{ matrix.source }}-${{ github.sha }}
+          key: ${{ runner.os }}-ccache-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-ccache-${{ matrix.source }}-
             ${{ runner.os }}-ccache-
 
       - name: Delete extension targets
@@ -129,7 +121,6 @@ jobs:
           CCACHE_BINARY: /opt/homebrew/bin/ccache
         run: |
           set -eo pipefail
-          xcodebuild -version
           build() {
             xcodebuild \
               -workspace BlueWallet.xcworkspace \
@@ -156,13 +147,12 @@ jobs:
             find ios/build -maxdepth 5 -name '*.app' || true
             exit 1
           fi
-          plutil -p "$APP_DIR/Info.plist" | grep -E 'DTSDKName|DTXcode"|UIDesignRequiresCompatibility|MinimumOSVersion' || true
           tar -czf BlueWallet.app.tar.gz -C "$(dirname "$APP_DIR")" "$(basename "$APP_DIR")"
 
       - name: Upload simulator app
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bluewallet-ios-app-${{ matrix.source }}
+          name: bluewallet-ios-app
           path: BlueWallet.app.tar.gz
           retention-days: 3
           compression-level: 0
@@ -171,10 +161,6 @@ jobs:
   test:
     runs-on: macos-26
     needs: build
-    strategy:
-      fail-fast: false
-      matrix:
-        source: [head, master]
     env:
       HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
       HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
@@ -183,8 +169,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-        with:
-          ref: ${{ matrix.source == 'master' && 'master' || '' }}
 
       - name: Setup Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
@@ -204,7 +188,7 @@ jobs:
       - name: Download simulator app
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: bluewallet-ios-app-${{ matrix.source }}
+          name: bluewallet-ios-app
 
       - name: Restore simulator app
         run: |
@@ -231,62 +215,20 @@ jobs:
           xcrun simctl spawn booted defaults write com.apple.Accessibility ReduceMotionEnabled -bool true
           xcrun simctl spawn booted notifyutil -p com.apple.Accessibility.ReduceMotionStatusDidChange
 
-      # Experiment: open the Import Wallet header menu, check item visibility at 100%, then force a
-      # failing match so Detox (verbose) dumps the full window hierarchy. Same spec on both sources.
-      - name: Write hierarchy dump spec
+      - name: Run detox tests
+        timeout-minutes: 360
         run: |
-          cat > tests/e2e/zz-dump.spec.js <<'EOF'
-          import { element, waitFor } from 'detox';
-          import { tapAndTapAgainIfElementIsNotVisible, tapIfTextPresent, waitForId } from './helperz';
-
-          describe('zz dump', () => {
-            it('dumps window hierarchy with header menu open', async () => {
-              await device.clearKeychain();
-              await device.launchApp({ delete: true });
-              await waitForId('WalletsList');
-              await waitFor(element(by.id('CreateAWallet')))
-                .toBeVisible()
-                .whileElement(by.id('WalletsList'))
-                .scroll(500, 'right');
-              await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'ScrollView');
-              await waitFor(element(by.id('ImportWallet')))
-                .toBeVisible()
-                .whileElement(by.id('ScrollView'))
-                .scroll(500, 'down');
-              await element(by.id('ImportWallet')).tap();
-              await element(by.id('MnemonicInput')).typeText('zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong');
-              await tapIfTextPresent('Done');
-              await element(by.id('HeaderMenuButton')).tap();
-              // Timing probe: is the menu label obscured only right after the tap (animation in flight)?
-              for (const pause of [0, 500, 1500, 3000]) {
-                if (pause) await new Promise(r => setTimeout(r, pause));
-                try {
-                  await expect(element(by.text('Search accounts'))).toBeVisible(100);
-                  console.warn(`PROBE pause=${pause}ms visible(100)=PASS`);
-                } catch (e) {
-                  console.warn(`PROBE pause=${pause}ms visible(100)=FAIL ${String(e.message).split('\n')[0]}`);
-                }
-              }
-              await expect(element(by.text('__force_hierarchy_dump__'))).toExist();
-            });
-          });
-          EOF
-
-      - name: Run detox dump spec
-        timeout-minutes: 60
-        run: |
-          npm run e2e:test:ios-release -- tests/e2e/zz-dump.spec.js \
+          npm run e2e:test:ios-release -- \
             --record-videos failing \
             --record-logs failing \
             --take-screenshots failing \
             --headless \
-            --retries 0 \
+            --retries 3 \
             --reuse \
-            --loglevel verbose \
             --artifacts-location ./artifacts
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: always()
+        if: failure()
         with:
-          name: e2e-ios-dump-${{ matrix.source }}
+          name: e2e-ios-videos
           path: ./artifacts/
