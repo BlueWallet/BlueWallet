@@ -217,14 +217,17 @@ jobs:
       - name: Run detox tests
         timeout-minutes: 360
         run: |
+          # Experiment: verbose log level dumps the view hierarchy (incl. window list) on failed matches.
           npm run e2e:test:ios-release -- \
             --record-videos failing \
             --record-logs failing \
             --take-screenshots failing \
             --headless \
-            --retries 3 \
+            --retries 0 \
             --reuse \
-            --artifacts-location ./artifacts
+            --loglevel verbose \
+            --artifacts-location ./artifacts \
+            tests/e2e/bluewallet.spec.js
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
