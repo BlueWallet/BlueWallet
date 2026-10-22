@@ -66,4 +66,26 @@ describe('Alert dismissal lifecycle', () => {
     jest.advanceTimersByTime(400);
     expect(afterDismiss).toHaveBeenCalledTimes(1);
   });
+
+  it('drains the queue even when a dismissal callback throws', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const throwingCallback = jest.fn(() => {
+      throw new Error('callback failed');
+    });
+    const afterDismiss = jest.fn();
+    presentAlert({ message: 'First' });
+    runAfterAlertDismissed(throwingCallback);
+    runAfterAlertDismissed(afterDismiss);
+
+    await jest.mocked(Alert.alert).mock.calls[0][2]?.[0].onPress?.();
+    jest.advanceTimersByTime(400);
+    expect(afterDismiss).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+
+    presentAlert({ message: 'Second' });
+    await jest.mocked(Alert.alert).mock.calls[1][2]?.[0].onPress?.();
+    jest.advanceTimersByTime(400);
+    expect(throwingCallback).toHaveBeenCalledTimes(1);
+    expect(afterDismiss).toHaveBeenCalledTimes(1);
+  });
 });

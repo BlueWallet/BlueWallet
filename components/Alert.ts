@@ -23,8 +23,15 @@ const notifyAlertDismissed = (generation: number) => {
   requestAnimationFrame(() => {
     if (generation !== alertGeneration) return;
     alertVisible = false;
-    alertDismissCallbacks.forEach(callback => callback());
+    const callbacks = [...alertDismissCallbacks];
     alertDismissCallbacks.clear();
+    callbacks.forEach(callback => {
+      try {
+        callback();
+      } catch (error) {
+        console.error('Alert dismissal callback failed:', error);
+      }
+    });
   });
 };
 

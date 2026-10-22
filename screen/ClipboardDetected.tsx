@@ -96,17 +96,19 @@ const ClipboardDetected = () => {
   const handleUseClipboard = useCallback(() => {
     triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
     if (contentHash) setLastSeenClipboardHash(contentHash).catch(() => {});
-    const unsubscribe = navigation.addListener('transitionEnd', event => {
-      if (!event.data.closing) return;
-      unsubscribe();
-      DeeplinkSchemaMatch.navigationRouteFor({ url: payload }, (value: [string, any]) => navigationRef.navigate(...value), {
-        wallets,
-        addWallet,
-        saveToDisk,
-        setSharedCosigner,
+    navigation.goBack();
+    // The popped sheet can unmount before emitting transitionEnd. Schedule through the global
+    // frame queue so routing survives that unmount and runs after React commits the pop.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        DeeplinkSchemaMatch.navigationRouteFor({ url: payload }, (value: [string, any]) => navigationRef.navigate(...value), {
+          wallets,
+          addWallet,
+          saveToDisk,
+          setSharedCosigner,
+        });
       });
     });
-    navigation.goBack();
   }, [addWallet, contentHash, navigation, payload, saveToDisk, setSharedCosigner, wallets]);
 
   return (

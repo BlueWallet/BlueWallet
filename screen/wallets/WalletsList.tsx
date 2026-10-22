@@ -142,7 +142,8 @@ const WalletsList: React.FC = () => {
   const refreshWallets = useCallback(
     async (index: number | undefined, showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
       if (isElectrumDisabled) return;
-      dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
+      // A background carousel refresh must not clear an active pull-to-refresh indicator.
+      if (showLoadingIndicator) dispatch({ type: ActionTypes.SET_LOADING, payload: true });
       try {
         await refreshAllWalletTransactions(index, showUpdateStatusIndicator);
       } catch (error) {
