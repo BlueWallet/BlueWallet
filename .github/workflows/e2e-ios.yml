@@ -235,7 +235,8 @@ jobs:
             --retries 0 \
             --reuse \
             --artifacts-location ./artifacts \
-            --testNamePattern 'batch send|sendMAX|payment codes|manage UTXO|multisig setup from UR|discover wallet account|dice entropy'
+            # Detox forwards args to jest through a shell and only escapes spaces, so pipes must be backslash-escaped here.
+            --testNamePattern 'batch send\|sendMAX\|payment codes\|manage UTXO\|multisig setup from UR\|discover wallet account\|dice entropy'
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
