@@ -161,6 +161,8 @@ jobs:
     runs-on: macos-26
     needs: build
     env:
+      # Experiment: same RN 0.88 build, older simulator runtime (default macos-26 image runs iOS 26.5).
+      IOS_RUNTIME: iOS 26.4
       HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
       HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
       MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
@@ -198,11 +200,13 @@ jobs:
       - name: Pre-boot iOS simulator
         run: |
           DEVICE_TYPE=$(jq -r '.devices.simulator.device.type' .detoxrc.json)
-          UDID=$(applesimutils --list --byType "$DEVICE_TYPE" | jq -r '.[0].udid // empty')
+          UDID=$(applesimutils --list --byType "$DEVICE_TYPE" --byOS "$IOS_RUNTIME" | jq -r '.[0].udid // empty')
           if [ -z "$UDID" ]; then
-            echo "ERROR: no simulator of type '$DEVICE_TYPE' found"
+            echo "ERROR: no simulator of type '$DEVICE_TYPE' on '$IOS_RUNTIME' found"
+            applesimutils --list --byType "$DEVICE_TYPE" | jq -r '.[] | "\(.os.name) \(.udid)"' || true
             exit 1
           fi
+          echo "Using simulator $UDID ($IOS_RUNTIME)"
           xcrun simctl boot "$UDID" 2>/dev/null || true
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl launch "$UDID" com.apple.springboard >/dev/null 2>&1 || true
@@ -214,6 +218,12 @@ jobs:
           xcrun simctl spawn booted defaults write com.apple.Accessibility ReduceMotionEnabled -bool true
           xcrun simctl spawn booted notifyutil -p com.apple.Accessibility.ReduceMotionStatusDidChange
 
+      - name: Pin detox simulator runtime
+        run: |
+          jq --arg os "$IOS_RUNTIME" '.devices.simulator.device.os = $os' .detoxrc.json > .detoxrc.tmp.json
+          mv .detoxrc.tmp.json .detoxrc.json
+          jq '.devices.simulator' .detoxrc.json
+
       - name: Run detox tests
         timeout-minutes: 360
         run: |
@@ -222,12 +232,13 @@ jobs:
             --record-logs failing \
             --take-screenshots failing \
             --headless \
-            --retries 3 \
+            --retries 0 \
             --reuse \
-            --artifacts-location ./artifacts
+            --artifacts-location ./artifacts \
+            --testNamePattern 'batch send|sendMAX|payment codes|manage UTXO|multisig setup from UR|discover wallet account|dice entropy'
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
-          name: e2e-ios-videos
+          name: e2e-ios-videos-26.4
           path: ./artifacts/
