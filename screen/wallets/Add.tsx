@@ -203,16 +203,18 @@ const WalletsAdd: React.FC = () => {
 
   const handleOnLightningArkButtonPressed = useCallback(
     (event: GestureResponderEvent) => {
-      if (typeof event.currentTarget !== 'number') return;
-      confirmResetEntropy(ButtonSelected.ARK, event.currentTarget);
+      const anchor = typeof event.currentTarget === 'number' ? event.currentTarget : event.nativeEvent.target;
+      if (typeof anchor !== 'number') return;
+      confirmResetEntropy(ButtonSelected.ARK, anchor);
     },
     [confirmResetEntropy],
   );
 
   const handleOnLightningButtonPressed = useCallback(
     (event: GestureResponderEvent) => {
-      if (typeof event.currentTarget !== 'number') return;
-      confirmResetEntropy(ButtonSelected.OFFCHAIN, event.currentTarget);
+      const anchor = typeof event.currentTarget === 'number' ? event.currentTarget : event.nativeEvent.target;
+      if (typeof anchor !== 'number') return;
+      confirmResetEntropy(ButtonSelected.OFFCHAIN, anchor);
     },
     [confirmResetEntropy],
   );
@@ -365,8 +367,9 @@ const WalletsAdd: React.FC = () => {
 
   const handleOnVaultButtonPressed = (event: GestureResponderEvent) => {
     Keyboard.dismiss();
-    if (typeof event.currentTarget !== 'number') return;
-    confirmResetEntropy(ButtonSelected.VAULT, event.currentTarget);
+    const anchor = typeof event.currentTarget === 'number' ? event.currentTarget : event.nativeEvent.target;
+    if (typeof anchor !== 'number') return;
+    confirmResetEntropy(ButtonSelected.VAULT, anchor);
   };
 
   const handleOnBitcoinButtonPressed = () => {

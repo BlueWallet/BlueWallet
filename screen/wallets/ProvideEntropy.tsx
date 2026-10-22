@@ -317,14 +317,15 @@ const ProvideEntropy = () => {
       });
     }
 
-    if (typeof event.currentTarget !== 'number') return;
+    const anchor = typeof event.currentTarget === 'number' ? event.currentTarget : event.nativeEvent.target;
+    if (typeof anchor !== 'number') return;
     ActionSheet.showActionSheetWithOptions(
       {
         title: loc.wallets.add_entropy,
         message: entropyTitle,
         options: [loc._.cancel, loc._.ok],
         cancelButtonIndex: 0,
-        anchor: event.currentTarget,
+        anchor,
       },
       async buttonIndex => {
         if (buttonIndex === 1) {
