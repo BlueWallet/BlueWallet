@@ -225,6 +225,9 @@ const SelectFeeScreen = () => {
 
   const navigateWithFee = useCallback(
     (feeRateValue: string, feeType: NetworkTransactionFeeType) => {
+      // Resign the custom fee input before this screen is popped. The blur-on-unfocus cleanup below runs after
+      // the input is already unmounted, and then the keyboard can stay up over SendDetails/Confirm (seen on CI).
+      Keyboard.dismiss();
       navigation.popTo('SendDetails', { walletID, selectedFeeRate: feeRateValue, selectedFeeType: feeType }, { merge: true });
     },
     [navigation, walletID],
