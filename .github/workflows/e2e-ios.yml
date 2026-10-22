@@ -13,6 +13,8 @@ jobs:
   build:
     runs-on: macos-26
     env:
+      # Experiment: build with Xcode 26.3 (SDK 26.2) to mirror the local setup where e2e passes.
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app
       BUILD_CONFIGURATION: Release
       CCACHE_MAXSIZE: "2G"
       CCACHE_DIR: /Users/runner/.ccache
@@ -161,8 +163,9 @@ jobs:
     runs-on: macos-26
     needs: build
     env:
-      # Experiment: same RN 0.88 build, older simulator runtime (default macos-26 image runs iOS 26.5).
-      IOS_RUNTIME: iOS 26.4
+      # Experiment: Xcode 26.3 toolchain + iOS 26.2 runtime, mirrors local setup where e2e passes.
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app
+      IOS_RUNTIME: iOS 26.2
       HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
       HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
       MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
@@ -241,5 +244,5 @@ jobs:
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
-          name: e2e-ios-videos-26.4
+          name: e2e-ios-videos-xcode26.3
           path: ./artifacts/
