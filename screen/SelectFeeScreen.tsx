@@ -150,6 +150,23 @@ const SelectFeeScreen = () => {
   });
 
   const customFeeInputRef = useRef<TextInput>(null);
+  // True from the moment the keyboard starts appearing until it is fully hidden; Keyboard.isVisible() only
+  // flips after keyboardDidShow, so it misses the "still animating in" window.
+  const keyboardShowingRef = useRef(false);
+  useEffect(() => {
+    const subscriptions = [
+      Keyboard.addListener('keyboardWillShow', () => {
+        keyboardShowingRef.current = true;
+      }),
+      Keyboard.addListener('keyboardDidShow', () => {
+        keyboardShowingRef.current = true;
+      }),
+      Keyboard.addListener('keyboardDidHide', () => {
+        keyboardShowingRef.current = false;
+      }),
+    ];
+    return () => subscriptions.forEach(subscription => subscription.remove());
+  }, []);
   const nf = networkTransactionFees;
 
   const stylesHook = StyleSheet.create({
@@ -225,10 +242,30 @@ const SelectFeeScreen = () => {
 
   const navigateWithFee = useCallback(
     (feeRateValue: string, feeType: NetworkTransactionFeeType) => {
-      // Resign the custom fee input before this screen is popped. The blur-on-unfocus cleanup below runs after
-      // the input is already unmounted, and then the keyboard can stay up over SendDetails/Confirm (seen on CI).
+      const popToSendDetails = () =>
+        navigation.popTo('SendDetails', { walletID, selectedFeeRate: feeRateValue, selectedFeeType: feeType }, { merge: true });
+
+      if (!Keyboard.isVisible() && !keyboardShowingRef.current) {
+        popToSendDetails();
+        return;
+      }
+
+      // Popping this sheet while the custom fee keyboard is still animating in leaves an orphaned keyboard
+      // (no first responder) over SendDetails/Confirm that nothing can dismiss afterwards — seen on slow
+      // devices/CI when Done is hit right after focusing the input. Resign the input first and leave only
+      // once the keyboard is gone, with a short fallback so navigation never gets stuck.
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        subscription.remove();
+        clearTimeout(fallback);
+        popToSendDetails();
+      };
+      const subscription = Keyboard.addListener('keyboardDidHide', finish);
+      const fallback = setTimeout(finish, 1000);
+      customFeeInputRef.current?.blur();
       Keyboard.dismiss();
-      navigation.popTo('SendDetails', { walletID, selectedFeeRate: feeRateValue, selectedFeeType: feeType }, { merge: true });
     },
     [navigation, walletID],
   );
