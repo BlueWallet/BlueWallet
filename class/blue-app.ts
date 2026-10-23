@@ -262,7 +262,9 @@ export class BlueApp {
       address_metadata: {},
     };
 
-    const buckets: string[] = JSON.parse(String(await this.getItem('data')));
+    const raw = await this.getItem('data');
+    if (raw === null) throw new Error(loc.settings.encrypt_storage_empty);
+    const buckets: string[] = JSON.parse(raw);
     buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
     this.cachedPassword = fakePassword;
     const bucketsString = JSON.stringify(buckets);
@@ -679,7 +681,9 @@ export class BlueApp {
 
       if (this.cachedPassword) {
         // should find the correct bucket, encrypt and then save
-        const buckets: string[] = JSON.parse(String(await this.getItemWithFallbackToRealm('data')));
+        const raw = await this.getItemWithFallbackToRealm('data');
+        if (raw === null) throw new Error(loc.settings.encrypt_storage_empty);
+        const buckets: string[] = JSON.parse(raw);
         const newData: string[] = []; // serialized buckets
         let num = 0;
         for (const bucket of buckets) {
