@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
-import { findNodeHandle, FlatList, GestureResponderEvent, HostInstance, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
+import { findNodeHandle, FlatList, GestureResponderEvent, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
 import Badge from '../../components/Badge';
 import { encodeUR } from '../../blue_modules/ur';
 import BlueCard from '../../components/BlueCard';
@@ -54,7 +54,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [walletData, setWalletData] = useState<TWallet[]>([]);
   const saveCancelledRef = useRef(false);
   // Keep this anchor mounted in both the loading and content trees.
-  const discardChangesRef = useRef<HostInstance>(null);
+  const discardChangesRef = useRef<View>(null);
 
   const stylesHook = StyleSheet.create({
     root: {
