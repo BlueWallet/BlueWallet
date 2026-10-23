@@ -1,17 +1,5 @@
 import React, { useRef, useCallback, useReducer, useEffect, FC } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-  Keyboard,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  NativeModules,
-} from 'react-native';
-
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Keyboard, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useTheme } from '../components/themes';
 import loc, { formatBalance } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
@@ -20,8 +8,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SendDetailsStackParamList } from '../navigation/SendDetailsStackParamList';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NetworkTransactionFeeType } from '../models/networkTransactionFees';
-// Experiment-only probe, see ios/Components/MenuElementsEmitter.mm
-const frProbe = (tag: string) => (NativeModules.FirstResponderProbe as { log?: (t: string) => void } | undefined)?.log?.(tag);
 
 enum FeeScreenActions {
   SET_CUSTOM_FEE_VALUE = 'SET_CUSTOM_FEE_VALUE',
@@ -171,16 +157,12 @@ const SelectFeeScreen = () => {
     const subscriptions = [
       Keyboard.addListener('keyboardWillShow', () => {
         keyboardShowingRef.current = true;
-        frProbe('fee:keyboardWillShow');
       }),
       Keyboard.addListener('keyboardDidShow', () => {
         keyboardShowingRef.current = true;
-        frProbe('fee:keyboardDidShow');
       }),
-      Keyboard.addListener('keyboardWillHide', () => frProbe('fee:keyboardWillHide')),
       Keyboard.addListener('keyboardDidHide', () => {
         keyboardShowingRef.current = false;
-        frProbe('fee:keyboardDidHide');
       }),
     ];
     return () => subscriptions.forEach(subscription => subscription.remove());
@@ -263,7 +245,6 @@ const SelectFeeScreen = () => {
       const popToSendDetails = () =>
         navigation.popTo('SendDetails', { walletID, selectedFeeRate: feeRateValue, selectedFeeType: feeType }, { merge: true });
 
-      frProbe(`fee:navigateWithFee visible=${Keyboard.isVisible()} showing=${keyboardShowingRef.current}`);
       if (!Keyboard.isVisible() && !keyboardShowingRef.current) {
         popToSendDetails();
         return;
@@ -279,14 +260,12 @@ const SelectFeeScreen = () => {
         finished = true;
         subscription.remove();
         clearTimeout(fallback);
-        frProbe('fee:beforePop');
         popToSendDetails();
       };
       const subscription = Keyboard.addListener('keyboardDidHide', finish);
       const fallback = setTimeout(finish, 1000);
       customFeeInputRef.current?.blur();
       Keyboard.dismiss();
-      frProbe(`fee:afterBlurDismiss ref=${customFeeInputRef.current ? 'set' : 'null'}`);
     },
     [navigation, walletID],
   );
