@@ -458,6 +458,10 @@ export async function scanText(text, { restoreSynchronization = true } = {}) {
     for (let c = 0; c <= 5; c++) {
       await element(by.id('ScanQrBackdoorButton')).tap();
     }
+    // Synchronization is off here, so give the backdoor modal time to mount before typing into it.
+    await waitFor(element(by.id('scanQrBackdoorInput')))
+      .toExist()
+      .withTimeout(10_000);
     await element(by.id('scanQrBackdoorInput')).replaceText(text);
     await element(by.id('scanQrBackdoorOkButton')).tap();
     await sleep(300);
