@@ -23,6 +23,7 @@ import {
   Pressable,
   ScrollView,
   View,
+  NativeModules,
 } from 'react-native';
 import RNFS from 'react-native-fs';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
@@ -427,6 +428,7 @@ const SendDetails = () => {
     useCallback(() => {
       setIsLoading(false);
       setDumb(v => !v);
+      (NativeModules.FirstResponderProbe as { log?: (t: string) => void } | undefined)?.log?.('senddetails:focus'); // experiment-only probe
       return () => {};
     }, []),
   );
