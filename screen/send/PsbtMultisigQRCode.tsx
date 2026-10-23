@@ -52,8 +52,8 @@ const PsbtMultisigQRCode: React.FC = () => {
   }, [isFocused]);
 
   const onBarScanned = useCallback(
-    (ret: BarcodeScanResult | any) => {
-      const result = typeof ret === 'string' || ret instanceof String ? { data: ret } : ret;
+    (ret: BarcodeScanResult | string) => {
+      const result = typeof ret === 'string' ? { data: ret } : ret;
       const data = result.data || '';
 
       if (data.toUpperCase().startsWith('UR')) {

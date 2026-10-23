@@ -4,8 +4,8 @@ import React from 'react';
 import HeaderMenuButton from './HeaderMenuButton';
 import { mapActionGroupsToNativeHeaderMenuItems, mapActionsToNativeHeaderMenuItems } from './nativeHeaderMenuItems';
 import { Action } from './types';
+import { HeaderRightRenderer } from '../navigation/DetailViewStackParamList';
 
-type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 type HeaderItemsGetter = NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>;
 
 type HeaderMenuOptions = {

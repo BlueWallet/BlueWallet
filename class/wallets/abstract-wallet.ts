@@ -20,15 +20,9 @@ export class AbstractWallet {
   // @ts-ignore: override
   public readonly typeReadable = AbstractWallet.typeReadable;
 
-  static fromJson(obj: string): AbstractWallet {
-    const obj2 = JSON.parse(obj);
-    const temp = new this();
-    for (const key2 of Object.keys(obj2)) {
-      // @ts-ignore This kind of magic is not allowed in typescript, we should try and be more specific
-      temp[key2] = obj2[key2];
-    }
-
-    return temp;
+  static fromJson<T extends object>(this: new () => T, obj: string): T {
+    const obj2: Record<string, unknown> = JSON.parse(obj);
+    return Object.assign(new this(), obj2);
   }
 
   segwitType?: 'p2wpkh' | 'p2sh(p2wpkh)' | 'p2tr' | 'p2pkh' /* not segwit but ok */;
@@ -383,7 +377,7 @@ export class AbstractWallet {
    * TODO: be more precise on the type
    */
 
-  createTx(): any {
+  createTx(): never {
     throw Error('not implemented');
   }
 
