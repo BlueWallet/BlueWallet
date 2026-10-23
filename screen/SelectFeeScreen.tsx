@@ -250,10 +250,7 @@ const SelectFeeScreen = () => {
         return;
       }
 
-      // Popping this sheet while the custom fee keyboard is still animating in leaves an orphaned keyboard
-      // (no first responder) over SendDetails/Confirm that nothing can dismiss afterwards — seen on slow
-      // devices/CI when Done is hit right after focusing the input. Resign the input first and leave only
-      // once the keyboard is gone, with a short fallback so navigation never gets stuck.
+      // Resign the input and wait for the keyboard to hide before popping, else it stays orphaned (#9045).
       let finished = false;
       const finish = () => {
         if (finished) return;
@@ -362,9 +359,7 @@ const SelectFeeScreen = () => {
                     placeholderTextColor={colors.placeholderTextColor}
                     onChangeText={handleCustomFeeChange}
                     onSubmitEditing={handleCustomFeeSubmit}
-                    // Keep the native field focused on return: the default blur-and-submit resigns it inside the
-                    // keyboard key event, and on slow devices UIKit then re-shows the keyboard with no responder
-                    // (orphaned keyboard). navigateWithFee resigns it itself and waits for the keyboard to hide.
+                    // Do not blur inside the key event; navigateWithFee resigns the input itself (#9045).
                     submitBehavior="submit"
                     onFocus={handleCustomFocus}
                     onBlur={handleCustomFeeBlur}

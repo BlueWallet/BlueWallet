@@ -947,7 +947,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('MnemonicInput')).typeText('zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong');
     await tapIfTextPresent('Done');
     await element(by.id('HeaderMenuButton')).tap();
-    // iOS 26.4+ menus morph in and Detox does not wait for that animation (seen with RN 0.88): poll instead of a one-shot expect.
+    // Detox does not wait for the iOS 26.4+ menu morph animation: poll instead of a one-shot expect (#9045).
     await waitFor(element(by.text('Search accounts')))
       .toBeVisible()
       .withTimeout(10000);

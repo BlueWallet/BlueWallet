@@ -390,9 +390,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // switch on BIP47 slider if its not switched
     if (!(await getSwitchValue('BIP47Switch'))) {
       await expect(element(by.text('Contacts'))).not.toBeVisible();
-      // Scroll down so Options section (BIP47 switch) is on screen. scrollTo has no momentum: after a fast
-      // swipe the next tap can land while the scroll view is still decelerating/bouncing and UIKit swallows
-      // it to stop the scroll (switch never toggles) — Detox does not wait for deceleration, seen with RN 0.88.
+      // scrollTo instead of swipes: Detox does not wait for scroll deceleration, tap gets swallowed (#9045).
       await element(by.id('WalletDetailsScroll')).scrollTo('bottom');
       await waitFor(element(by.id('BIP47Switch')))
         .toBeVisible()

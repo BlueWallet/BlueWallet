@@ -363,8 +363,7 @@ export async function dismissAlertByText(text, timeoutMs = 10000) {
   }
   const deadline = Date.now() + timeoutMs;
   let dismissed = false;
-  // With synchronization off the tap can land while the alert is still animating in and get swallowed
-  // (seen on CI with RN 0.88), so a tap that threw no error does not prove the alert is gone.
+  // Tap can land while the alert is still animating in and get swallowed (#9045).
   const alertClosed = async () => {
     try {
       await waitFor(element(by.text(text)))
@@ -458,7 +457,7 @@ export async function scanText(text, { restoreSynchronization = true } = {}) {
     for (let c = 0; c <= 5; c++) {
       await element(by.id('ScanQrBackdoorButton')).tap();
     }
-    // Synchronization is off here, so give the backdoor modal time to mount before typing into it.
+    // Sync is off here: wait for the backdoor modal to mount (#9045).
     await waitFor(element(by.id('scanQrBackdoorInput')))
       .toExist()
       .withTimeout(10_000);
