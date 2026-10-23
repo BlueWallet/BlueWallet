@@ -3,7 +3,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform } from 'react-native';
 import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
-import { isIOS26OrHigher } from '../blue_modules/environment';
 import { useTheme } from '../components/themes';
 import { Action } from '../components/types';
 import loc from '../loc';
@@ -102,7 +101,7 @@ const SendDetailsStack = () => {
       return {
         ...options,
         headerRight: hasUtxos ? headerMenuOptions.headerRight : undefined,
-        ...(isIOS26OrHigher ? { unstable_headerRightItems: hasUtxos ? headerMenuOptions.unstable_headerRightItems : undefined } : {}),
+        unstable_headerRightItems: hasUtxos ? headerMenuOptions.unstable_headerRightItems : undefined,
       };
     },
   )(theme);

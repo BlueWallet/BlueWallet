@@ -53,7 +53,7 @@ import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmatio
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { createSettingsScreenOptions, getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
-import { isDesktop, isIOS26OrHigher } from '../blue_modules/environment';
+import { isDesktop } from '../blue_modules/environment';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
@@ -287,60 +287,53 @@ const DetailViewStackScreensStack = () => {
       return null;
     };
 
-    if (isIOS26OrHigher) {
-      // Status pills: `unstable_headerLeftItems` + `hidesSharedBackground` avoids the
-      // navigation bar's shared liquid-glass chrome on the pill (solid colors only).
-      return {
-        title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
-        headerLargeTitle: false,
-        headerTransparent: true,
-        unstable_headerLeftItems: (): NativeStackHeaderItem[] => {
-          const element = renderHeaderLeft();
-          if (element == null) {
-            return [];
-          }
-          return [{ type: 'custom', element, hidesSharedBackground: true }];
-        },
-        unstable_headerRightItems: () => {
-          if (isDesktop) {
-            return [];
-          }
-          const items: HeaderRightItem[] = [
-            {
-              type: 'button',
-              label: loc.wallets.add_title,
-              icon: { type: 'sfSymbol', name: 'plus' },
-              variant: 'prominent',
-              tintColor: theme.colors.headerProminentButtonBackgroundColor,
-              identifier: 'AddWalletButton',
-              accessibilityLabel: 'AddWalletButton',
-              onPress: navigateToAddWallet,
-            },
-          ];
-          if (sizeClass !== SizeClass.Large) {
-            items.push({
-              type: 'button',
-              label: loc.settings.default_title,
-              icon: { type: 'sfSymbol', name: 'ellipsis' },
-              identifier: 'SettingsButton',
-              accessibilityLabel: 'SettingsButton',
-              onPress: navigateToSettings,
-            });
-          }
-          return items;
-        },
-      };
-    }
-
     return {
       title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
       headerLargeTitle: false,
+      headerTransparent: Platform.OS === 'ios',
       headerShadowVisible: false,
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
       headerLeft: renderHeaderLeft,
       headerRight: () => (isDesktop ? undefined : RightBarButtons),
+      // Native header items take precedence on iOS. The React elements above
+      // remain available as the fallback on other platforms.
+      unstable_headerLeftItems: (): NativeStackHeaderItem[] => {
+        const element = renderHeaderLeft();
+        if (element == null) {
+          return [];
+        }
+        return [{ type: 'custom', element, hidesSharedBackground: true }];
+      },
+      unstable_headerRightItems: () => {
+        if (isDesktop) {
+          return [];
+        }
+        const items: HeaderRightItem[] = [
+          {
+            type: 'button',
+            label: loc.wallets.add_title,
+            icon: { type: 'sfSymbol', name: 'plus' },
+            variant: 'prominent',
+            tintColor: theme.colors.headerProminentButtonBackgroundColor,
+            identifier: 'AddWalletButton',
+            accessibilityLabel: 'AddWalletButton',
+            onPress: navigateToAddWallet,
+          },
+        ];
+        if (sizeClass !== SizeClass.Large) {
+          items.push({
+            type: 'button',
+            label: loc.settings.default_title,
+            icon: { type: 'sfSymbol', name: 'ellipsis' },
+            identifier: 'SettingsButton',
+            accessibilityLabel: 'SettingsButton',
+            onPress: navigateToSettings,
+          });
+        }
+        return items;
+      },
     };
   }, [
     RightBarButtons,

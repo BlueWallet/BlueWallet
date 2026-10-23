@@ -35,17 +35,15 @@ describe('createImportWalletOptions', () => {
       },
     });
 
-    const unstableItems = options.unstable_headerRightItems as unknown as
-      | (() => Array<{ menu?: { items: Array<{ onPress?: () => void }> } }>)
-      | undefined;
+    const unstableItems = options.unstable_headerRightItems as unknown as () => Array<{
+      menu?: { items: Array<{ onPress?: () => void }> };
+    }>;
 
-    if (unstableItems) {
-      const menuButton = unstableItems()[0];
-      menuButton.menu?.items[0].onPress?.();
-    } else {
-      const headerRightElement = (options.headerRight as unknown as () => { props: { onPressMenuItem: (id: string) => void } })();
-      headerRightElement.props.onPressMenuItem('passphrase');
-    }
+    expect(options.headerRight).toEqual(expect.any(Function));
+    expect(unstableItems).toEqual(expect.any(Function));
+
+    const menuButton = unstableItems()[0];
+    menuButton.menu?.items[0].onPress?.();
 
     expect(dismissSpy).toHaveBeenCalledTimes(1);
     expect(setParams).toHaveBeenCalledWith({ askPassphraseMenuState: true });
