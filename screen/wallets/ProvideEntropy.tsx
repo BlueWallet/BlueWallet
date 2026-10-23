@@ -27,6 +27,7 @@ import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import ActionSheet from '../ActionSheet';
+import { getActionSheetAnchor } from '../ActionSheet.common';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ProvideEntropy'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ProvideEntropy'>;
@@ -317,8 +318,8 @@ const ProvideEntropy = () => {
       });
     }
 
-    const anchor = typeof event.currentTarget === 'number' ? event.currentTarget : event.nativeEvent.target;
-    if (typeof anchor !== 'number') return;
+    const anchor = getActionSheetAnchor(event);
+    if (anchor === null) return;
     ActionSheet.showActionSheetWithOptions(
       {
         title: loc.wallets.add_entropy,

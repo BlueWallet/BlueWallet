@@ -29,6 +29,7 @@ import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetScanWasBBQR } from '../../helpers/scan-qr.ts';
 import ActionSheet from '../ActionSheet';
+import { getActionSheetAnchor } from '../ActionSheet.common';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -203,8 +204,8 @@ const WalletsAdd: React.FC = () => {
 
   const handleOnLightningArkButtonPressed = useCallback(
     (event: GestureResponderEvent) => {
-      const anchor = typeof event.currentTarget === 'number' ? event.currentTarget : event.nativeEvent.target;
-      if (typeof anchor !== 'number') return;
+      const anchor = getActionSheetAnchor(event);
+      if (anchor === null) return;
       confirmResetEntropy(ButtonSelected.ARK, anchor);
     },
     [confirmResetEntropy],
@@ -212,8 +213,8 @@ const WalletsAdd: React.FC = () => {
 
   const handleOnLightningButtonPressed = useCallback(
     (event: GestureResponderEvent) => {
-      const anchor = typeof event.currentTarget === 'number' ? event.currentTarget : event.nativeEvent.target;
-      if (typeof anchor !== 'number') return;
+      const anchor = getActionSheetAnchor(event);
+      if (anchor === null) return;
       confirmResetEntropy(ButtonSelected.OFFCHAIN, anchor);
     },
     [confirmResetEntropy],
@@ -367,8 +368,8 @@ const WalletsAdd: React.FC = () => {
 
   const handleOnVaultButtonPressed = (event: GestureResponderEvent) => {
     Keyboard.dismiss();
-    const anchor = typeof event.currentTarget === 'number' ? event.currentTarget : event.nativeEvent.target;
-    if (typeof anchor !== 'number') return;
+    const anchor = getActionSheetAnchor(event);
+    if (anchor === null) return;
     confirmResetEntropy(ButtonSelected.VAULT, anchor);
   };
 

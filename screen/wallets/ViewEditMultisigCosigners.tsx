@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
-import { findNodeHandle, FlatList, GestureResponderEvent, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
+import { findNodeHandle, FlatList, GestureResponderEvent, HostInstance, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
 import Badge from '../../components/Badge';
 import { encodeUR } from '../../blue_modules/ur';
 import BlueCard from '../../components/BlueCard';
@@ -52,11 +52,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [isVaultKeyIndexDataLoading, setIsVaultKeyIndexDataLoading] = useState<number | undefined>(undefined);
   const [askPassphrase, setAskPassphrase] = useState(false);
   const [walletData, setWalletData] = useState<TWallet[]>([]);
-  /* discardChangesRef is only so the action sheet can be shown on mac catalyst when a
-    user tries to leave the screen with unsaved changes.
-    Why the container view ? It was the easiest to get the ref for. No other reason.
-  */
-  const discardChangesRef = useRef<View>(null);
+  const saveCancelledRef = useRef(false);
+  // Keep this anchor mounted in both the loading and content trees.
+  const discardChangesRef = useRef<HostInstance>(null);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -87,7 +85,10 @@ const ViewEditMultisigCosigners: React.FC = () => {
         anchor,
       },
       buttonIndex => {
-        if (buttonIndex === 1) dispatch(data.action);
+        if (buttonIndex === 1) {
+          saveCancelledRef.current = true;
+          dispatch(data.action);
+        }
       },
     );
   });
@@ -96,6 +97,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     if (!wallet) {
       throw new Error('Wallet is undefined');
     }
+    saveCancelledRef.current = false;
     setIsLoading(true);
 
     const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
@@ -118,11 +120,12 @@ const ViewEditMultisigCosigners: React.FC = () => {
         if (!isElectrumDisabled) {
           await wallet?.fetchBalance();
         }
+        if (saveCancelledRef.current) return;
         newWallets.push(wallet);
         setIsSaveButtonDisabled(true);
         setWalletsWithNewOrder(newWallets);
         setTimeout(() => {
-          navigateToWalletsList();
+          if (!saveCancelledRef.current) navigateToWalletsList();
         }, 500);
       } catch (error: any) {
         setIsLoading(false);
@@ -485,7 +488,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   if (isLoading)
     return (
-      <View style={[styles.root, stylesHook.root]}>
+      <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
         <BlueLoading />
       </View>
     );
