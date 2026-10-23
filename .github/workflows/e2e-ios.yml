@@ -215,20 +215,23 @@ jobs:
           xcrun simctl spawn booted defaults write com.apple.Accessibility ReduceMotionEnabled -bool true
           xcrun simctl spawn booted notifyutil -p com.apple.Accessibility.ReduceMotionStatusDidChange
 
+      # Experiment: no retries, tighter timeout, console log kept as an artifact even when the step is cancelled.
       - name: Run detox tests
-        timeout-minutes: 360
+        timeout-minutes: 150
         run: |
+          set -o pipefail
+          mkdir -p ./artifacts
           npm run e2e:test:ios-release -- \
             --record-videos failing \
-            --record-logs failing \
+            --record-logs all \
             --take-screenshots failing \
             --headless \
-            --retries 3 \
+            --retries 0 \
             --reuse \
-            --artifacts-location ./artifacts
+            --artifacts-location ./artifacts 2>&1 | tee ./artifacts/detox-console.log
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: failure()
+        if: always()
         with:
           name: e2e-ios-videos
           path: ./artifacts/
