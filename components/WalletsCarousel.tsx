@@ -31,6 +31,7 @@ import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { withAlpha } from './color';
+import { secretTextStyle } from '../helpers/secretsOnScreen';
 import { useTheme } from './themes';
 import { Transaction, TWallet } from '../class/wallets/types';
 import { BlueSpacing10 } from './BlueSpacing';
@@ -133,37 +134,41 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
     scale.value = withSpring(1, { damping: 14, stiffness: 180 });
   }, [scale]);
 
+  // The wrapper carries SecretsHidden: it exists only in bundles that draw seeds in transparent ink, and e2e checks it
+  // before any seed screen. It must not sit inside the button, which the accessibility tree collapses to one element.
   return (
-    <Pressable
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      onPress={onPress}
-      testID="CreateAWallet"
-      style={({ pressed }) => [
-        isLarge ? {} : { width: itemWidth * 1.2 },
-        {
-          opacity: pressed ? 0.9 : 1.0,
-        },
-      ]}
-      accessibilityRole="button"
-      accessibilityLabel={loc.wallets.list_create_a_wallet}
-    >
-      <Animated.View
-        style={[
-          nStyles.container,
-          nStylesHooks.container,
-          { backgroundColor: colors.lightButton },
-          isLarge ? {} : { width: itemWidth },
-          animatedScaleStyle,
+    <View testID={secretTextStyle ? 'SecretsHidden' : undefined}>
+      <Pressable
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onPress={onPress}
+        testID="CreateAWallet"
+        style={({ pressed }) => [
+          isLarge ? {} : { width: itemWidth * 1.2 },
+          {
+            opacity: pressed ? 0.9 : 1.0,
+          },
         ]}
+        accessibilityRole="button"
+        accessibilityLabel={loc.wallets.list_create_a_wallet}
       >
-        <Text style={[nStyles.addAWAllet, { color: colors.foregroundColor }]}>{loc.wallets.list_create_a_wallet}</Text>
-        <Text style={[nStyles.addLine, { color: colors.alternativeTextColor }]}>{loc.wallets.list_create_a_wallet_text}</Text>
-        <View style={nStyles.button}>
-          <Text style={[nStyles.buttonText, { color: colors.brandingColor }]}>{loc.wallets.list_create_a_button}</Text>
-        </View>
-      </Animated.View>
-    </Pressable>
+        <Animated.View
+          style={[
+            nStyles.container,
+            nStylesHooks.container,
+            { backgroundColor: colors.lightButton },
+            isLarge ? {} : { width: itemWidth },
+            animatedScaleStyle,
+          ]}
+        >
+          <Text style={[nStyles.addAWAllet, { color: colors.foregroundColor }]}>{loc.wallets.list_create_a_wallet}</Text>
+          <Text style={[nStyles.addLine, { color: colors.alternativeTextColor }]}>{loc.wallets.list_create_a_wallet_text}</Text>
+          <View style={nStyles.button}>
+            <Text style={[nStyles.buttonText, { color: colors.brandingColor }]}>{loc.wallets.list_create_a_button}</Text>
+          </View>
+        </Animated.View>
+      </Pressable>
+    </View>
   );
 };
 
@@ -930,7 +935,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       extraData={[props.extraData, data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]}
     />
   ) : (
-    <View style={cStyles.contentLargeScreen}>
+    <View style={cStyles.contentLargeScreen} testID={props.testID}>
       {renderNonFlatListWallets()}
       {onNewWalletPress && <NewWalletPanel onPress={onNewWalletPress} />}
     </View>

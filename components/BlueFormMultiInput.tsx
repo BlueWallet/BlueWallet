@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 import { Platform, StyleSheet, TextInput, TextInputProps } from 'react-native';
 
 import { useTheme } from './themes';
+import { secretInputProps, secretTextStyle } from '../helpers/secretsOnScreen';
 
 const BlueFormMultiInput = forwardRef<TextInput, TextInputProps>((props, ref) => {
   const { colors } = useTheme();
@@ -23,11 +24,13 @@ const BlueFormMultiInput = forwardRef<TextInput, TextInputProps>((props, ref) =>
           color: colors.foregroundColor,
         },
         style,
+        secretTextStyle,
       ]}
       autoCorrect={false}
       autoCapitalize="none"
       spellCheck={false}
       {...restProps}
+      {...secretInputProps}
       selectTextOnFocus={false}
       keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
     />

@@ -5,7 +5,11 @@ import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-n
 
 import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
 import { Action } from '../components/types';
-import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
+import navigationStyle, {
+  CloseButtonPosition,
+  nestedScannerPresentation,
+  withRouteParamHeaderOptions,
+} from '../components/navigationStyle';
 import { isIOS26OrHigher } from '../blue_modules/environment';
 import { useTheme } from '../components/themes';
 import { HDLegacyP2PKHWallet } from '../class/wallets/hd-legacy-p2pkh-wallet';
@@ -413,7 +417,7 @@ const AddWalletStack = () => {
         options={navigationStyle({
           headerShown: false,
           statusBarHidden: true,
-          presentation: 'fullScreenModal',
+          presentation: nestedScannerPresentation,
           headerShadowVisible: false,
         })(theme)}
       />

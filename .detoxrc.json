@@ -15,7 +15,7 @@
     "ios.release": {
       "type": "ios.app",
       "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/BlueWallet.app",
-      "build": "npx react-native codegen && xcodebuild -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build"
+      "build": "export BUNDLE_CONFIG=$PWD/tests/e2e/metro.config.js && npx react-native codegen && xcodebuild -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build"
     },
     "android.debug": {
       "type": "android.apk",

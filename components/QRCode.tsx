@@ -9,12 +9,15 @@ import loc from '../loc';
 import { ActionIcons } from '../typings/ActionIcons';
 import ToolTipMenu from './TooltipMenu';
 import { Action } from './types';
+import { hideSecretQRCodes } from '../helpers/secretsOnScreen';
 
 type ErrorCorrectionLevel = 'H' | 'Q' | 'M' | 'L';
 
 interface QRCodeProps {
   value: string;
   size: number;
+  /** A seed or private key: end-to-end builds render a blank square instead. */
+  isSecret?: boolean;
   isLogoRendered?: boolean;
   isMenuAvailable?: boolean;
   logoSize?: number;
@@ -143,6 +146,7 @@ const getCachedPlan = (value: string, ecl: ErrorCorrectionLevel, size: number, i
 };
 
 const QRCode: React.FC<QRCodeProps> = ({
+  isSecret = false,
   value = '',
   size,
   isLogoRendered = true,
@@ -276,7 +280,13 @@ const QRCode: React.FC<QRCodeProps> = ({
     );
   }, [plan, size, isLogoRendered, logoSize]);
 
-  const content = renderQR ?? <View testID="qr-placeholder" style={stylesHook.placeholder} />;
+  // End-to-end builds upload failure videos and screenshots as they are: a secret's code stays blank.
+  const content =
+    isSecret && hideSecretQRCodes ? (
+      <View testID="qr-placeholder" style={stylesHook.placeholder} />
+    ) : (
+      (renderQR ?? <View testID="qr-placeholder" style={stylesHook.placeholder} />)
+    );
 
   return (
     <View

@@ -13,6 +13,7 @@ import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
+import { secretInputProps, secretTextStyle } from '../../helpers/secretsOnScreen';
 import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -197,7 +198,14 @@ const PsbtWithHardwareWallet = () => {
       <View style={[styles.rootPadding, stylesHook.rootPadding]}>
         <BlueCard style={[styles.hexWrap, stylesHook.hexWrap]}>
           <BlueText style={[styles.hexLabel, stylesHook.hexLabel]}>{loc.send.create_this_is_hex}</BlueText>
-          <TextInput style={[styles.hexInput, stylesHook.hexInput]} multiline editable={false} value={txHex} />
+          {/* A signed transaction is broadcastable: e2e builds draw it in transparent ink like a seed. */}
+          <TextInput
+            style={[styles.hexInput, stylesHook.hexInput, secretTextStyle]}
+            multiline
+            editable={false}
+            value={txHex}
+            {...secretInputProps}
+          />
 
           <TouchableOpacity accessibilityRole="button" style={styles.hexTouch} onPress={copyHexToClipboard}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_copy}</Text>

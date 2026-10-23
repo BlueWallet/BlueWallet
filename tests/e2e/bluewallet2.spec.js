@@ -3,6 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import {
+  assertSecretsHidden,
   countElements,
   extractTextFromElementById,
   getSwitchValue,
@@ -588,7 +589,12 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await tapAndTapAgainIfElementIsNotVisible('WalletExport', 'WalletExportScroll');
     await element(by.id('WalletExportScroll')).swipe('up', 'fast', 1);
     await sleep(200); // bounce animation
-    await expect(element(by.id('Secret'))).toHaveText(process.env.HD_MNEMONIC_BIP84);
+    await assertSecretsHidden();
+    // assert.ok with a fixed message: a mismatch must not print the mnemonic into the CI log (toHaveText would).
+    assert.ok(
+      (await extractTextFromElementById('Secret')) === process.env.HD_MNEMONIC_BIP84,
+      'WalletExport does not show the imported mnemonic',
+    );
     await goBack();
 
     // XPUB
