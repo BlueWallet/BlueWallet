@@ -221,16 +221,14 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p ./artifacts
-          # Experiment: only the UTXO test, verbose so the failed match dumps the view hierarchy (first responder, keyboard windows).
-          npm run e2e:test:ios-release -- tests/e2e/bluewallet2.spec.js \
-            --record-videos all \
-            --record-logs all \
+          npm run e2e:test:ios-release -- \
+            --record-videos failing \
+            --record-logs failing \
             --take-screenshots failing \
             --headless \
             --retries 0 \
             --reuse \
-            --loglevel verbose \
-            --artifacts-location ./artifacts -- -t 'can manage UTXO' 2>&1 | tee ./artifacts/detox-console.log
+            --artifacts-location ./artifacts 2>&1 | tee ./artifacts/detox-console.log
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
