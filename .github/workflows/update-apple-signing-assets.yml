@@ -1,0 +1,71 @@
+name: Apple Signing Setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_write:
+        description: Create missing Apple signing assets and update Match
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apple-signing-setup
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Update Assets
+    # Temporarily disabled with Catalyst direct distribution. Normal TestFlight
+    # CI stays read-only and does not need this writable signing-assets job.
+    # if: inputs.confirm_write
+    if: ${{ false }}
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+        with:
+          ruby-version: 3.4.11
+          bundler-cache: true
+
+      - name: Validate required secrets
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          FASTLANE_SESSION: ${{ secrets.FASTLANE_SESSION }}
+          API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        run: |
+          for name in APPLE_ID FASTLANE_SESSION API_KEY_CONTENT GIT_ACCESS_TOKEN MATCH_PASSWORD; do
+            if [[ -z "${!name}" ]]; then
+              echo "::error::Required GitHub Actions secret ${name} is missing"
+              exit 1
+            fi
+          done
+
+      - name: Create API key file
+        env:
+          API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+        run: printf '%s' "$API_KEY_CONTENT" > appstore_api_key.json
+
+      - name: Create missing signing assets
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          FASTLANE_SESSION: ${{ secrets.FASTLANE_SESSION }}
+          APPLE_API_KEY_PATH: appstore_api_key.json
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        run: bundle exec fastlane ios update_apple_signing_assets readonly:false
+
+      - name: Remove API key file
+        if: always()
+        run: rm -f appstore_api_key.json
