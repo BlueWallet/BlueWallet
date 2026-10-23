@@ -383,6 +383,10 @@ const SelectFeeScreen = () => {
                     placeholderTextColor={colors.placeholderTextColor}
                     onChangeText={handleCustomFeeChange}
                     onSubmitEditing={handleCustomFeeSubmit}
+                    // Keep the native field focused on return: the default blur-and-submit resigns it inside the
+                    // keyboard key event, and on slow devices UIKit then re-shows the keyboard with no responder
+                    // (orphaned keyboard). navigateWithFee resigns it itself and waits for the keyboard to hide.
+                    submitBehavior="submit"
                     onFocus={handleCustomFocus}
                     onBlur={handleCustomFeeBlur}
                     enablesReturnKeyAutomatically
