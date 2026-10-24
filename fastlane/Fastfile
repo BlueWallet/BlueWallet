@@ -1275,56 +1275,24 @@ platform :ios do
       output_dir = File.join(project_root, "ios", "build", "catalyst-output")
       FileUtils.mkdir_p(output_dir)
 
-      # Export the archive as a .pkg for Mac Catalyst
-      team_id = ENV['CATALYST_TEAM_ID'] || ENV['TEAM_ID']
-      export_plist_path = File.join(output_dir, "ExportOptions.plist")
-
-      # Build provisioning profiles mapping for manual signing
-      profiles_xml = catalyst_app_identifiers.map do |app_id|
-        profile_name = "match AppStore #{app_id} catalyst"
-        "\t\t\t<key>#{app_id}</key>\n\t\t\t<string>#{profile_name}</string>"
-      end.join("\n")
-
-      File.write(export_plist_path, <<~PLIST)
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-          <key>method</key>
-          <string>app-store-connect</string>
-          <key>destination</key>
-          <string>export</string>
-          <key>teamID</key>
-          <string>#{team_id}</string>
-          <key>signingStyle</key>
-          <string>manual</string>
-          <key>signingCertificate</key>
-          <string>Apple Distribution</string>
-          <key>installerSigningCertificate</key>
-          <string>3rd Party Mac Developer Installer</string>
-          <key>provisioningProfiles</key>
-          <dict>
-#{profiles_xml}
-          </dict>
-        </dict>
-        </plist>
-      PLIST
-
+      # The archive already has the validated App Store signatures and
+      # entitlements. Packaging it directly prevents exportArchive from
+      # re-signing the executables and stripping App Sandbox.
+      archived_app = File.join(archive_path, "Products/Applications/BlueWallet.app")
+      UI.user_error!("No signed Catalyst app found in #{archive_path}") unless File.directory?(archived_app)
       pkg_path = File.join(output_dir, "BlueWallet.pkg")
-      sh("xcodebuild",
-         "-exportArchive",
-         "-archivePath", archive_path,
-         "-exportOptionsPlist", export_plist_path,
-         "-exportPath", output_dir)
-
-      # Find the exported pkg
-      exported_pkg = Dir.glob(File.join(output_dir, "*.pkg")).first
-      UI.user_error!("No .pkg found after export") if exported_pkg.nil? || !File.exist?(exported_pkg)
-      UI.success("Exported pkg: #{exported_pkg}")
+      FileUtils.rm_f(pkg_path)
+      installer_identity = ENV['CATALYST_INSTALLER_SIGNING_IDENTITY'] || "3rd Party Mac Developer Installer"
+      sh("productbuild",
+         "--component", archived_app, "/Applications",
+         "--sign", installer_identity,
+         pkg_path)
+      sh("pkgutil", "--check-signature", pkg_path)
+      UI.success("Packaged signed Catalyst app: #{pkg_path}")
 
       upload_apple_testflight(
         platform: "catalyst",
-        artifact_path: exported_pkg
+        artifact_path: pkg_path
       )
 
       UI.success("Mac Catalyst build finished processing in TestFlight!")
