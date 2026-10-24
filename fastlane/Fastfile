@@ -1083,6 +1083,20 @@ platform :ios do
       end
       UI.user_error!("Mac Catalyst archive was not found after build") if archive_path.nil? || !File.exist?(archive_path)
 
+      archived_app = File.join(archive_path, "Products/Applications/BlueWallet.app")
+      sandboxed_executables = [
+        File.join(archived_app, "Contents/MacOS/BlueWallet"),
+        File.join(archived_app, "Contents/PlugIns/WidgetsExtension.appex/Contents/MacOS/WidgetsExtension")
+      ]
+      sandboxed_executables.each do |executable|
+        UI.user_error!("Signed Catalyst executable not found at #{executable}") unless File.file?(executable)
+        entitlements = sh("codesign", "-d", "--entitlements", ":-", executable, log: false)
+        unless entitlements.match?(%r{<key>com\.apple\.security\.app-sandbox</key>\s*<true\s*/>})
+          UI.user_error!("App Sandbox entitlement is missing from #{executable}")
+        end
+      end
+      UI.success("Verified App Sandbox entitlement on the Catalyst app and widget archive")
+
       candidate_paths = []
       candidate_paths << File.join(archive_path, "Products/Applications/BlueWallet.app") if archive_path
       candidate_paths << Dir.glob(File.join(derived_data_path, "Build/Products/Release-maccatalyst/*.app")).first
