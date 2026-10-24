@@ -10,7 +10,7 @@ import { Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import WalletsCarousel, { CarouselListRefType } from '../../components/WalletsCarousel';
 import { TWallet } from '../../class/wallets/types';
-import { pop } from '../../NavigationService';
+import { navigationRef, pop } from '../../NavigationService';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
@@ -28,7 +28,8 @@ const SelectWallet: React.FC = () => {
     noWalletExplanationText,
     onChainRequireSend = false,
     selectedWalletID,
-  } = route.params;
+    selectionMode,
+  } = route.params ?? {};
   const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation<NavigationProps>();
   const { wallets } = useStorage();
@@ -45,6 +46,10 @@ const SelectWallet: React.FC = () => {
   });
 
   const filterWallets = useCallback(() => {
+    if (selectionMode === 'receive') {
+      return wallets;
+    }
+
     if (availableWallets && availableWallets.length > 0) {
       return availableWallets;
     }
@@ -58,7 +63,7 @@ const SelectWallet: React.FC = () => {
     }
 
     return wallets.filter(item => item.allowSend());
-  }, [availableWallets, chainType, onChainRequireSend, wallets]);
+  }, [availableWallets, chainType, onChainRequireSend, selectionMode, wallets]);
 
   // Initialize filtered wallets and handle loading state
   useEffect(() => {
@@ -106,6 +111,18 @@ const SelectWallet: React.FC = () => {
 
   const onPress = (item: TWallet) => {
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
+    if (selectionMode === 'receive') {
+      if (item.chain === Chain.ONCHAIN) {
+        navigationRef.navigate('ReceiveDetails', { walletID: item.getID(), address: '' });
+      } else {
+        navigationRef.navigate('LNDCreateInvoiceRoot', {
+          screen: 'LNDCreateInvoice',
+          params: { walletID: item.getID() },
+        });
+      }
+      return;
+    }
+
     if (onWalletSelect) {
       // @ts-ignore idk how to fix
       onWalletSelect(item, { navigation: { pop, navigate: navigation.navigate } });

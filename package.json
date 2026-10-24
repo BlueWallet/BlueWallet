@@ -172,7 +172,6 @@
     "react-native-notifications": "5.2.2",
     "react-native-permissions": "5.6.2",
     "react-native-prompt-android": "github:BlueWallet/react-native-prompt-android#ed168d66fed556bc2ed07cf498770f058b78a376",
-    "react-native-quick-actions": "0.3.13",
     "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "5.10.1",
     "react-native-screens": "4.30.0",

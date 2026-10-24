@@ -23,7 +23,6 @@ import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 import RNFS from 'react-native-fs';
 import presentAlert from '../components/Alert';
 import useWidgetCommunication from './useWidgetCommunication';
-import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
 import useClipboardDetection from './useClipboardDetection';
@@ -42,6 +41,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     walletsInitialized,
   } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
+  const hasHandledInitialURL = useRef(false);
   const navigation = useNavigation();
 
   // We need to call hooks unconditionally before any conditional logic
@@ -55,7 +55,6 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   // They'll handle their own conditional logic internally
   useWidgetCommunication();
   useMenuElements();
-  useDeviceQuickActions();
   useHandoffListener();
 
   const processPushNotifications = useCallback(async () => {
@@ -363,11 +362,22 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   useEffect(() => {
     const subscriptions = addListeners();
 
+    if (shouldActivateListeners && !hasHandledInitialURL.current) {
+      hasHandledInitialURL.current = true;
+      Linking.getInitialURL()
+        .then(url => {
+          if (url && DeeplinkSchemaMatch.hasSchema(url)) {
+            return handleOpenURL({ url });
+          }
+        })
+        .catch(error => console.error('Failed to handle initial URL:', error));
+    }
+
     return () => {
       subscriptions.urlSubscription?.remove?.();
       subscriptions.appStateSubscription?.remove?.();
     };
-  }, [addListeners]);
+  }, [addListeners, handleOpenURL, shouldActivateListeners]);
 };
 
 export default useCompanionListeners;

@@ -308,8 +308,6 @@
     "privacy": "Integritet",
     "privacy_read_clipboard": "Läs Urklipp",
     "privacy_system_settings": "Systeminställningar",
-    "privacy_quickactions": "Plånboksgenvägar",
-    "privacy_quickactions_explanation": "Tryck och håll in BlueWallet-appikonen för att snabbt se saldot i din plånbok.",
     "privacy_clipboard_explanation": "Ange genvägar om en adress eller faktura hittas i ditt urklipp.",
     "privacy_do_not_track": "Inaktivera Analytics",
     "privacy_do_not_track_explanation": "Information om prestanda och tillförlitlighet kommer inte att skickas in för analys.",

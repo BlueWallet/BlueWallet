@@ -25,7 +25,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             withModuleName: appDelegate.moduleName ?? "BlueWallet",
             in: window,
             initialProperties: appDelegate.initialProps,
-            launchOptions: launchOptions(from: connectionOptions, fallback: appDelegate.sceneLaunchOptions)
+            launchOptions: launchOptions(from: connectionOptions, fallback: appDelegate.sceneLaunchOptions, appDelegate: appDelegate)
         )
 
         // Custom Handoff activities are stored for JS; Linking cold-starts use launchOptions above.
@@ -55,12 +55,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         performActionFor shortcutItem: UIApplicationShortcutItem,
         completionHandler: @escaping (Bool) -> Void
     ) {
-        RNQuickActionManager.onQuickActionPress(shortcutItem, completionHandler: completionHandler)
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            completionHandler(false)
+            return
+        }
+        appDelegate.openShortcutLink(shortcutItem, completionHandler: completionHandler)
     }
 
     private func launchOptions(
         from connectionOptions: UIScene.ConnectionOptions,
-        fallback: [UIApplication.LaunchOptionsKey: Any]?
+        fallback: [UIApplication.LaunchOptionsKey: Any]?,
+        appDelegate: AppDelegate
     ) -> [UIApplication.LaunchOptionsKey: Any]? {
         var options = fallback ?? [:]
 
@@ -76,8 +81,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             ]
         }
 
-        if let shortcutItem = connectionOptions.shortcutItem {
-            options[.shortcutItem] = shortcutItem
+        if let shortcutItem = connectionOptions.shortcutItem,
+           let url = appDelegate.appLinkURL(for: shortcutItem) {
+            options[.url] = url
         }
 
         return options.isEmpty ? nil : options

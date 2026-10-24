@@ -313,8 +313,6 @@
     "privacy": "Privacy",
     "privacy_read_clipboard": "Read Clipboard",
     "privacy_system_settings": "System Settings",
-    "privacy_quickactions": "Wallet Shortcuts",
-    "privacy_quickactions_explanation": "Touch and hold the BlueWallet app icon to quickly view your wallet’s balance.",
     "privacy_clipboard_explanation": "Provide shortcuts if an address or invoice is found in your clipboard.",
     "privacy_clipboard_ios_paste_permission": "To skip the paste prompt, open System Settings and set Paste from Other Apps to Allow.",
     "privacy_do_not_track": "Disable Analytics",

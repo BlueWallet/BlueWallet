@@ -206,6 +206,69 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>UIApplicationShortcutItems</key>
+	<array>
+		<dict>
+			<key>UIApplicationShortcutItemIconType</key>
+			<string>UIApplicationShortcutIconTypeCompose</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>APP_SHORTCUT_SEND</string>
+			<key>UIApplicationShortcutItemSubtitle</key>
+			<string>APP_SHORTCUT_SEND_DESCRIPTION</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>io.bluewallet.send</string>
+			<key>UIApplicationShortcutItemUserInfo</key>
+			<dict>
+				<key>url</key>
+				<string>bluewallet://send</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconType</key>
+			<string>UIApplicationShortcutIconTypeDownload</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>APP_SHORTCUT_RECEIVE</string>
+			<key>UIApplicationShortcutItemSubtitle</key>
+			<string>APP_SHORTCUT_RECEIVE_DESCRIPTION</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>io.bluewallet.receive</string>
+			<key>UIApplicationShortcutItemUserInfo</key>
+			<dict>
+				<key>url</key>
+				<string>bluewallet://receive</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconType</key>
+			<string>UIApplicationShortcutIconTypeCapturePhoto</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>APP_SHORTCUT_SCAN</string>
+			<key>UIApplicationShortcutItemSubtitle</key>
+			<string>APP_SHORTCUT_SCAN_DESCRIPTION</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>io.bluewallet.scan</string>
+			<key>UIApplicationShortcutItemUserInfo</key>
+			<dict>
+				<key>url</key>
+				<string>bluewallet://scan</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconType</key>
+			<string>UIApplicationShortcutIconTypeTask</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>APP_SHORTCUT_MANAGE_WALLETS</string>
+			<key>UIApplicationShortcutItemSubtitle</key>
+			<string>APP_SHORTCUT_MANAGE_WALLETS_DESCRIPTION</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>io.bluewallet.manage-wallets</string>
+			<key>UIApplicationShortcutItemUserInfo</key>
+			<dict>
+				<key>url</key>
+				<string>bluewallet://manage-wallets</string>
+			</dict>
+		</dict>
+	</array>
 	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
 	<false/>
 	<key>FIREBASE_MESSAGING_AUTO_INIT_ENABLED</key>

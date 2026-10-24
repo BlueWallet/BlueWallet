@@ -308,8 +308,6 @@
     "privacy": "Поверителност",
     "privacy_read_clipboard": "Чети клипборда",
     "privacy_system_settings": "Системни настройки",
-    "privacy_quickactions": "Преки пътища за портфейла",
-    "privacy_quickactions_explanation": "Докоснете и задръжте иконата на приложението BlueWallet, за да видите бързо баланса на портфейла си.",
     "privacy_clipboard_explanation": "Предоставя преки пътища, ако в клипборда ви се намери адрес или фактура.",
     "privacy_do_not_track": "Деактивирай анализите",
     "privacy_do_not_track_explanation": "Информацията за производителността и надеждността няма да бъде изпращана за анализ.",

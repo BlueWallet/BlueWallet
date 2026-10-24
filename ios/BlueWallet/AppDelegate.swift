@@ -13,7 +13,13 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     var sceneLaunchOptions: [UIApplication.LaunchOptionsKey: Any]?
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        sceneLaunchOptions = launchOptions
+        var reactLaunchOptions = launchOptions
+        if let shortcutItem = launchOptions?[.shortcutItem] as? UIApplicationShortcutItem,
+           let url = appLinkURL(for: shortcutItem) {
+            reactLaunchOptions?[.url] = url
+            reactLaunchOptions?.removeValue(forKey: .shortcutItem)
+        }
+        sceneLaunchOptions = reactLaunchOptions
         automaticallyLoadReactNativeWindow = false
         clearFilesIfNeeded()
 
@@ -61,7 +67,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         setupUserDefaultsListener()
         registerNotificationCategories()
         
-        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+        return super.application(application, didFinishLaunchingWithOptions: reactLaunchOptions)
     }
 
     override func application(
@@ -361,7 +367,20 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     }
 
     override func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
-        RNQuickActionManager.onQuickActionPress(shortcutItem, completionHandler: completionHandler)
+        openShortcutLink(shortcutItem, completionHandler: completionHandler)
+    }
+
+    func openShortcutLink(_ shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+        guard let url = appLinkURL(for: shortcutItem) else {
+            completionHandler(false)
+            return
+        }
+        completionHandler(RCTLinkingManager.application(UIApplication.shared, open: url, options: [:]))
+    }
+
+    func appLinkURL(for shortcutItem: UIApplicationShortcutItem) -> URL? {
+        guard let urlString = shortcutItem.userInfo?["url"] as? String else { return nil }
+        return URL(string: urlString)
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {

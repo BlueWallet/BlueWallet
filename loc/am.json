@@ -308,8 +308,6 @@
     "privacy": "ግላዊነት",
     "privacy_read_clipboard": "ቅንጥብ ሰሌዳ አንብብ",
     "privacy_system_settings": "የስርዓት ቅንብሮች",
-    "privacy_quickactions": "የቦርሳ አቋራጮች",
-    "privacy_quickactions_explanation": "የቦርሳዎን ቀሪ ሂሳብ በፍጥነት ለማየት የBlueWallet መተግበሪያ አዶን ነክተው ይያዙ።",
     "privacy_clipboard_explanation": "በቅንጥብ ሰሌዳዎ ውስጥ አድራሻ ወይም ደረሰኝ ከተገኘ አቋራጮች ያቅርቡ።",
     "privacy_do_not_track": "ትንታኔን አሰናክል",
     "privacy_do_not_track_explanation": "የአፈጻጸም እና የአስተማማኝነት መረጃ ለትንታኔ አይቀርብም።",

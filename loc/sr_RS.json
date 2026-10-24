@@ -308,8 +308,6 @@
     "privacy": "Privatnost",
     "privacy_read_clipboard": "Čitaj clipboard",
     "privacy_system_settings": "Sistemska podešavanja",
-    "privacy_quickactions": "Prečice novčanika",
-    "privacy_quickactions_explanation": "Dodirnite i držite ikonu BlueWallet aplikacije da biste brzo pregledali stanje vašeg novčanika.",
     "privacy_clipboard_explanation": "Pruža prečice ako se adresa ili faktura pronađe u vašem clipboard-u.",
     "privacy_do_not_track": "Onemogući analitiku",
     "privacy_do_not_track_explanation": "Informacije o performansama i pouzdanosti neće biti poslate na analizu.",

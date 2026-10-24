@@ -20,6 +20,7 @@ import {
   GuardedNavigationAction,
   validateGuardedRoute,
 } from './navigation/navigationGuard';
+import { linking } from './navigation/linking';
 
 const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorScheme> }) => {
   const { wallets, saveToDisk } = useStorage();
@@ -78,6 +79,7 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
   return (
     <NavigationContainer
       ref={navigationRef}
+      linking={linking}
       theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}
       onUnhandledAction={handleUnhandledAction}
     >
