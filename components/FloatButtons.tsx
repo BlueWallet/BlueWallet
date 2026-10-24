@@ -1,6 +1,7 @@
 import React, { forwardRef, ReactNode, useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import {
   Animated,
+  GestureResponderEvent,
   LayoutChangeEvent,
   PixelRatio,
   StyleSheet,
@@ -308,7 +309,7 @@ interface FButtonProps {
   buttonHeight?: number;
   disabled?: boolean;
   testID?: string;
-  onPress: () => void;
+  onPress: (event: GestureResponderEvent) => void;
   onLongPress?: () => void;
 }
 

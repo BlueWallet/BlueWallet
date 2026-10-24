@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
-import { Alert, findNodeHandle, FlatList, GestureResponderEvent, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
+import { findNodeHandle, FlatList, GestureResponderEvent, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
 import Badge from '../../components/Badge';
-import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 import BlueCard from '../../components/BlueCard';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
@@ -53,10 +52,8 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [isVaultKeyIndexDataLoading, setIsVaultKeyIndexDataLoading] = useState<number | undefined>(undefined);
   const [askPassphrase, setAskPassphrase] = useState(false);
   const [walletData, setWalletData] = useState<TWallet[]>([]);
-  /* discardChangesRef is only so the action sheet can be shown on mac catalyst when a
-    user tries to leave the screen with unsaved changes.
-    Why the container view ? It was the easiest to get the ref for. No other reason.
-  */
+  const saveCancelledRef = useRef(false);
+  // Keep this anchor mounted in both the loading and content trees.
   const discardChangesRef = useRef<View>(null);
 
   const stylesHook = StyleSheet.create({
@@ -76,40 +73,31 @@ const ViewEditMultisigCosigners: React.FC = () => {
   });
 
   usePreventRemove(!isSaveButtonDisabled, ({ data }) => {
-    if (isDesktop) {
-      if (!discardChangesRef.current) return dispatch(data.action);
-      const anchor = findNodeHandle(discardChangesRef.current);
-      if (!anchor) return dispatch(data.action);
-      ActionSheet.showActionSheetWithOptions(
-        {
-          options: [loc._.cancel, loc._.ok],
-          cancelButtonIndex: 0,
-          title: loc._.discard_changes,
-          message: loc._.discard_changes_explain,
-          anchor,
-        },
-        buttonIndex => {
-          if (buttonIndex === 1) {
-            dispatch(data.action);
-          }
-        },
-      );
-    } else {
-      Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
-        { text: loc._.cancel, style: 'cancel', onPress: () => {} },
-        {
-          text: loc._.ok,
-          style: 'default',
-          onPress: () => dispatch(data.action),
-        },
-      ]);
-    }
+    if (!discardChangesRef.current) return dispatch(data.action);
+    const anchor = findNodeHandle(discardChangesRef.current);
+    if (!anchor) return dispatch(data.action);
+    ActionSheet.showActionSheetWithOptions(
+      {
+        options: [loc._.cancel, loc._.ok],
+        cancelButtonIndex: 0,
+        title: loc._.discard_changes,
+        message: loc._.discard_changes_explain,
+        anchor,
+      },
+      buttonIndex => {
+        if (buttonIndex === 1) {
+          saveCancelledRef.current = true;
+          dispatch(data.action);
+        }
+      },
+    );
   });
 
   const onSave = async () => {
     if (!wallet) {
       throw new Error('Wallet is undefined');
     }
+    saveCancelledRef.current = false;
     setIsLoading(true);
 
     const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
@@ -132,11 +120,12 @@ const ViewEditMultisigCosigners: React.FC = () => {
         if (!isElectrumDisabled) {
           await wallet?.fetchBalance();
         }
+        if (saveCancelledRef.current) return;
         newWallets.push(wallet);
         setIsSaveButtonDisabled(true);
         setWalletsWithNewOrder(newWallets);
         setTimeout(() => {
-          navigateToWalletsList();
+          if (!saveCancelledRef.current) navigateToWalletsList();
         }, 500);
       } catch (error: any) {
         setIsLoading(false);
@@ -169,19 +158,16 @@ const ViewEditMultisigCosigners: React.FC = () => {
             } catch (_) {
               hasLoaded.current = true;
               setIsLoading(false);
-              return Alert.alert(
-                loc.multisig.manage_keys,
-                loc.multisig.invalid_cosigner,
-                [
-                  {
-                    text: loc._.ok,
-                    onPress: async () => {
-                      goBack();
-                    },
-                    style: 'default',
-                  },
-                ],
-                { cancelable: false },
+              const anchor = findNodeHandle(discardChangesRef.current);
+              if (!anchor) return goBack();
+              return ActionSheet.showActionSheetWithOptions(
+                {
+                  title: loc.multisig.manage_keys,
+                  message: loc.multisig.invalid_cosigner,
+                  options: [loc._.ok],
+                  anchor,
+                },
+                goBack,
               );
             }
           }
@@ -502,7 +488,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   if (isLoading)
     return (
-      <View style={[styles.root, stylesHook.root]}>
+      <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
         <BlueLoading />
       </View>
     );

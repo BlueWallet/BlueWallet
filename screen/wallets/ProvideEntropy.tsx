@@ -3,8 +3,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import BN from 'bignumber.js';
 import React, { useEffect, useReducer, useState } from 'react';
 import {
-  Alert,
   Dimensions,
+  GestureResponderEvent,
   Image,
   PixelRatio,
   ScrollView,
@@ -26,6 +26,8 @@ import { Tabs } from '../../components/Tabs';
 import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+import ActionSheet from '../ActionSheet';
+import { getActionSheetAnchor } from '../ActionSheet.common';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ProvideEntropy'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ProvideEntropy'>;
@@ -221,7 +223,7 @@ const buttonFontSize =
     ? 22
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
-const Buttons = ({ pop, save, colors }: { pop: TPop; save: () => void; colors: any }) => (
+const Buttons = ({ pop, save, colors }: { pop: TPop; save: (event: GestureResponderEvent) => void; colors: any }) => (
   <FContainer>
     <FButton
       testID="UndoEntropy"
@@ -296,7 +298,7 @@ const ProvideEntropy = () => {
     dispatch({ type: EActionType.pop });
   };
 
-  const handleSave = async () => {
+  const handleSave = (event: GestureResponderEvent) => {
     let buf = convertToBuffer(entropy);
     const bufLength = words === 24 ? 32 : 16;
     const remaining = bufLength - buf.length;
@@ -316,35 +318,32 @@ const ProvideEntropy = () => {
       });
     }
 
-    Alert.alert(
-      loc.wallets.add_entropy,
-      entropyTitle,
-      [
-        {
-          text: loc._.cancel,
-          onPress: () => {},
-          style: 'cancel',
-        },
-        {
-          text: loc._.ok,
-          onPress: async () => {
-            if (remaining > 0) {
-              const random = await randomBytes(remaining);
-              buf = concatUint8Arrays([buf, random], bufLength);
-            }
+    const anchor = getActionSheetAnchor(event);
+    if (anchor === null) return;
+    ActionSheet.showActionSheetWithOptions(
+      {
+        title: loc.wallets.add_entropy,
+        message: entropyTitle,
+        options: [loc._.cancel, loc._.ok],
+        cancelButtonIndex: 0,
+        anchor,
+      },
+      async buttonIndex => {
+        if (buttonIndex === 1) {
+          if (remaining > 0) {
+            const random = await randomBytes(remaining);
+            buf = concatUint8Arrays([buf, random], bufLength);
+          }
 
-            /* Convert Uint8Array to hex string before navigating as React Navigation
-              does not support passing Uint8Array objects between screens
-            */
+          /* Convert Uint8Array to hex string before navigating as React Navigation
+            does not support passing Uint8Array objects between screens
+          */
 
-            const popTo = StackActions.popTo('AddWallet', { entropy: uint8ArrayToHex(buf), words, providedEntropyBytes }, { merge: true });
+          const popTo = StackActions.popTo('AddWallet', { entropy: uint8ArrayToHex(buf), words, providedEntropyBytes }, { merge: true });
 
-            navigation.dispatch(popTo);
-          },
-          style: 'default',
-        },
-      ],
-      { cancelable: true },
+          navigation.dispatch(popTo);
+        }
+      },
     );
   };
 
