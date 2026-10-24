@@ -41,6 +41,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     walletsInitialized,
   } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
+  const hasHandledInitialURL = useRef(false);
   const navigation = useNavigation();
 
   // We need to call hooks unconditionally before any conditional logic
@@ -361,11 +362,22 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   useEffect(() => {
     const subscriptions = addListeners();
 
+    if (shouldActivateListeners && !hasHandledInitialURL.current) {
+      hasHandledInitialURL.current = true;
+      Linking.getInitialURL()
+        .then(url => {
+          if (url && DeeplinkSchemaMatch.hasSchema(url)) {
+            return handleOpenURL({ url });
+          }
+        })
+        .catch(error => console.error('Failed to handle initial URL:', error));
+    }
+
     return () => {
       subscriptions.urlSubscription?.remove?.();
       subscriptions.appStateSubscription?.remove?.();
     };
-  }, [addListeners]);
+  }, [addListeners, handleOpenURL, shouldActivateListeners]);
 };
 
 export default useCompanionListeners;
