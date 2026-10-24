@@ -471,7 +471,7 @@ export class BlueApp {
             break;
           case LightningCustodianWallet.type: {
             unserializedWallet = LightningCustodianWallet.fromJson(key);
-            let lndhub: string | false | undefined = false;
+            let lndhub: string | undefined;
             try {
               lndhub = await getLNDHub();
             } catch (error) {
