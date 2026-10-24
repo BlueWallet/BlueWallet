@@ -681,6 +681,7 @@ platform :ios do
 
   desc "Register new devices from a file"
   lane :register_devices_from_txt do
+    ensure_env_vars(["GIT_URL", "GIT_ACCESS_TOKEN"])
     UI.message("Registering new devices from file...")
 
     csv_path = "../../devices.txt" # Update this with the actual path to your file
@@ -695,6 +696,8 @@ platform :ios do
     # Update provisioning profiles for all app identifiers
     app_identifiers.each do |app_identifier|
       match(
+        git_url: normalize_signing_git_url(ENV["GIT_URL"]),
+        git_basic_authorization: normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"]),
         type: "development", 
         app_identifier: app_identifier,
         readonly: false, # Regenerate provisioning profile if needed
@@ -735,8 +738,8 @@ platform :ios do
       with_retry(3, "Fetching provisioning profile for #{app_identifier}") do
         UI.message("Fetching provisioning profile for #{app_identifier}...")
         match(
-          git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
-          git_url: ENV["GIT_URL"],
+          git_basic_authorization: normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"]),
+          git_url: normalize_signing_git_url(ENV["GIT_URL"]),
           type: "appstore",
           clone_branch_directly: true,
           platform: "ios",
@@ -899,7 +902,10 @@ platform :ios do
 
   desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
   lane :fetch_dev_profiles_catalyst do
+    ensure_env_vars(["GIT_URL", "GIT_ACCESS_TOKEN"])
     match(
+      git_url: normalize_signing_git_url(ENV["GIT_URL"]),
+      git_basic_authorization: normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"]),
       type: "development",
       platform: "catalyst",
       app_identifier: catalyst_app_identifiers,
@@ -910,7 +916,10 @@ platform :ios do
 
   desc "Fetch App Store certificates and provisioning profiles for Mac Catalyst"
   lane :fetch_appstore_profiles_catalyst do
+    ensure_env_vars(["GIT_URL", "GIT_ACCESS_TOKEN"])
     match(
+      git_url: normalize_signing_git_url(ENV["GIT_URL"]),
+      git_basic_authorization: normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"]),
       type: "appstore",
       platform: "catalyst",
       app_identifier: catalyst_app_identifiers,
@@ -921,8 +930,11 @@ platform :ios do
 
   desc "Create provisioning profiles for Mac Catalyst (first-time setup)"
   lane :setup_catalyst_provisioning_profiles do
+    ensure_env_vars(["GIT_URL", "GIT_ACCESS_TOKEN"])
     catalyst_app_identifiers.each do |app_identifier|
       match(
+        git_url: normalize_signing_git_url(ENV["GIT_URL"]),
+        git_basic_authorization: normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"]),
         type: "development",
         platform: "catalyst",
         app_identifier: app_identifier,
@@ -932,6 +944,8 @@ platform :ios do
       )
 
       match(
+        git_url: normalize_signing_git_url(ENV["GIT_URL"]),
+        git_basic_authorization: normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"]),
         type: "appstore",
         platform: "catalyst",
         app_identifier: app_identifier,
@@ -949,15 +963,18 @@ platform :ios do
 
   desc "Increment build number"
   lane :increment_build_number_lane do
-    UI.message("Incrementing build number to current timestamp...")
+    build_number = ENV["NEW_BUILD_NUMBER"].to_s
+    UI.user_error!("NEW_BUILD_NUMBER is required") if build_number.empty?
+    UI.user_error!("NEW_BUILD_NUMBER must contain digits only") unless build_number.match?(/\A\d+\z/)
+    UI.message("Setting build number to #{build_number}...")
 
     # Set the new build number
     increment_build_number(
       xcodeproj: "ios/BlueWallet.xcodeproj",
-      build_number: ENV["NEW_BUILD_NUMBER"]
+      build_number: build_number
     )
 
-    UI.message("Build number set to: #{ENV['NEW_BUILD_NUMBER']}")
+    UI.message("Build number set to: #{build_number}")
   end
 
   desc "Install CocoaPods dependencies"
@@ -1307,6 +1324,7 @@ platform :ios do
         api_key_path: api_key_path,
         pkg: exported_pkg,
         skip_waiting_for_build_processing: false,
+        wait_processing_timeout_duration: 5_400,
         changelog: changelog
       )
 

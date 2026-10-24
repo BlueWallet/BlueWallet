@@ -28,8 +28,27 @@ concurrency:
     github.event.label.name == 'testflight') }}
 
 jobs:
+  plan:
+    name: Plan Release
+    runs-on: ubuntu-latest
+    outputs:
+      build_number: ${{ steps.release.outputs.build_number }}
+      source_sha: ${{ steps.release.outputs.source_sha }}
+    steps:
+      - name: Set shared release inputs
+        id: release
+        env:
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # Keep the value above previously uploaded 13-digit builds. Generating it
+          # when the run starts makes re-runs newer instead of replaying run_id.
+          BUILD_NUMBER=$((5000000000000 + $(date +%s%3N)))
+          echo "build_number=${BUILD_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "source_sha=${SOURCE_SHA}" >> "$GITHUB_OUTPUT"
+
   build:
     name: iOS Build
+    needs: plan
     runs-on: macos-26
     timeout-minutes: 180
     outputs:
@@ -41,14 +60,14 @@ jobs:
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
       MATCH_READONLY: "true"
-      NEW_BUILD_NUMBER: ${{ format('{0}0{1}', github.run_id, github.run_attempt) }}
+      NEW_BUILD_NUMBER: ${{ needs.plan.outputs.build_number }}
 
     steps:
       - name: Checkout Project
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ needs.plan.outputs.source_sha }}
 
       - name: Get Latest Commit Details
         id: get_latest_commit_details
@@ -457,24 +476,27 @@ jobs:
 
   catalyst:
     name: macOS Catalyst
+    needs: plan
     if: >-
       github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'pull_request' &&
       (github.event.action == 'synchronize' ||
       (github.event.action == 'labeled' && github.event.label.name == 'testflight')) &&
       contains(github.event.pull_request.labels.*.name, 'testflight'))
     uses: ./.github/workflows/build-mac-catalyst.yml
     with:
-      build_number: ${{ format('{0}0{1}', github.run_id, github.run_attempt) }}
-      source_sha: ${{ github.event.pull_request.head.sha || github.sha }}
+      build_number: ${{ needs.plan.outputs.build_number }}
+      source_sha: ${{ needs.plan.outputs.source_sha }}
     secrets: inherit
 
   testflight-upload:
     name: iOS TestFlight
-    needs: build
+    needs: [plan, build]
     runs-on: macos-26
     if: >-
       github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'pull_request' &&
       (github.event.action == 'synchronize' ||
       (github.event.action == 'labeled' && github.event.label.name == 'testflight')) &&

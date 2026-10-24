@@ -91,7 +91,8 @@ jobs:
         env:
           REQUESTED_BUILD_NUMBER: ${{ inputs.build_number }}
         run: |
-          BUILD_NUMBER="${REQUESTED_BUILD_NUMBER:-$((GITHUB_RUN_ID * 100 + GITHUB_RUN_ATTEMPT))}"
+          BUILD_NUMBER="${REQUESTED_BUILD_NUMBER:-$((5000000000000 + $(date +%s%3N)))}"
+          export NEW_BUILD_NUMBER="$BUILD_NUMBER"
           echo "NEW_BUILD_NUMBER=${BUILD_NUMBER}" >> "$GITHUB_ENV"
           echo "build_number=${BUILD_NUMBER}" >> "$GITHUB_OUTPUT"
           bundle exec fastlane ios increment_build_number_lane
