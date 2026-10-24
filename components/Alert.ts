@@ -8,6 +8,40 @@ export enum AlertType {
   Toast,
 }
 
+let alertVisible = false;
+let alertGeneration = 0;
+const alertDismissCallbacks = new Set<() => void>();
+
+export const runAfterAlertDismissed = (callback: () => void) => {
+  if (!alertVisible) return false;
+  alertDismissCallbacks.add(callback);
+  return true;
+};
+
+const notifyAlertDismissed = (generation: number) => {
+  if (!alertVisible || generation !== alertGeneration) return;
+  requestAnimationFrame(() => {
+    if (generation !== alertGeneration) return;
+    alertVisible = false;
+    const callbacks = [...alertDismissCallbacks];
+    alertDismissCallbacks.clear();
+    callbacks.forEach(callback => {
+      try {
+        callback();
+      } catch (error) {
+        console.error('Alert dismissal callback failed:', error);
+      }
+    });
+  });
+};
+
+const scheduleButtonDismissal = (generation: number) => {
+  // Both native implementations invoke the action handler before the dialog is gone. Android's
+  // onDismiss only covers cancellation, not button presses, so use the same delayed notification
+  // on both platforms and let the generation guard ignore it if another alert replaced this one.
+  setTimeout(() => notifyAlertDismissed(generation), 400);
+};
+
 const presentAlert = (() => {
   let lastAlertParams: {
     title?: string;
@@ -23,10 +57,32 @@ const presentAlert = (() => {
   };
 
   const showAlert = (title: string | undefined, message: string, buttons: AlertButton[], options: AlertOptions) => {
+    alertVisible = true;
+    const generation = ++alertGeneration;
+    const dismissingButtons = buttons.map(button => ({
+      ...button,
+      onPress: async (value?: unknown) => {
+        try {
+          await (button.onPress as ((input?: unknown) => unknown) | undefined)?.(value);
+        } finally {
+          scheduleButtonDismissal(generation);
+        }
+      },
+    }));
+    const dismissingOptions = {
+      ...options,
+      onDismiss: () => {
+        try {
+          options.onDismiss?.();
+        } finally {
+          notifyAlertDismissed(generation);
+        }
+      },
+    };
     if (Platform.OS === 'ios' && navigationRef.isReady()) {
-      RNAlert.alert(title ?? message, title && message ? message : undefined, buttons, options);
+      RNAlert.alert(title ?? message, title && message ? message : undefined, dismissingButtons, dismissingOptions);
     } else {
-      RNAlert.alert(title ?? '', message, buttons, options);
+      RNAlert.alert(title ?? '', message, dismissingButtons, dismissingOptions);
     }
   };
 

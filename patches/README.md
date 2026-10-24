@@ -7,6 +7,18 @@ When upstream ships an equivalent fix, drop the patch here and bump the dependen
 
 ---
 
+## `@bugsnag+react-native+9.1.0.patch`
+
+Removes the package's Android `consumerProguardFiles 'proguard-rules.pro'`
+declaration. The published package does not include that file, and Android
+Gradle Plugin 9 treats the missing consumer rules file as a build error.
+
+Remove when `@bugsnag/react-native` either ships the referenced file or stops
+declaring it. Re-check both the release APK and Android Detox builds after an
+upgrade.
+
+---
+
 ## `react-native-background-fetch+4.4.2.patch`
 
 Uses the package's bundled `TSBackgroundFetch.xcframework`, which includes
@@ -21,7 +33,13 @@ upgrading, verify the bundled framework still supports all three destinations.
 
 ## `react-native-notifications+5.2.2.patch`
 
-**What:** rewrites `FcmToken.sendTokenToJS()` (Android) to obtain the
+**What:** updates the Android library for React Native 0.88 and AGP 9:
+
+- enables `buildConfig` generation explicitly;
+- replaces the deprecated default `proguard-android.txt` rules with
+  `proguard-android-optimize.txt`;
+- changes the autolinking package expression to use `getApplication()`; and
+- rewrites `FcmToken.sendTokenToJS()` to obtain the
 `ReactContext` from `ReactHost` first (bridgeless / New Architecture),
 falling back to `ReactInstanceManager` only if that fails — and wraps
 both lookups in `try/catch`.
@@ -79,7 +97,21 @@ version and re-confirm the hunks still apply (`npx patch-package`).
 
 ---
 
-## `react-native-screens+4.27.0.patch`
+## `react-native-reanimated+4.7.1.patch`
+
+Guards the AppKit import in `REAReducedMotion.h` so it is used only when UIKit
+accessibility is unavailable. Mac Catalyst exposes AppKit headers as well as
+UIKit, but reduced-motion handling must use `UIAccessibility` there. Importing
+both frameworks causes conflicting platform declarations during Catalyst
+compilation.
+
+Remove when upstream makes the reduced-motion header distinguish Catalyst from
+native macOS. This patch must contain only the header change; never regenerate
+it while Reanimated's Android `.cxx` build cache exists under `node_modules`.
+
+---
+
+## `react-native-screens+4.30.0.patch`
 
 **What:** two hunks in `RNSBarButtonItem.mm`:
 
