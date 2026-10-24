@@ -1,0 +1,226 @@
+name: Tests e2e Mac Catalyst
+
+on: [pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-catalyst-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Never expose signing credentials to fork PR code. Maintainers can run a reviewed
+    # branch in this repository via workflow_dispatch.
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    outputs:
+      # The signed app reaches the test jobs through the Actions cache: a Developer ID-signed
+      # build with the e2e backdoors must never be a downloadable artifact.
+      app-key: ${{ steps.catalyst-app-key.outputs.key }}
+    # Apple silicon hosted runners have no stable device identifier, so the app is signed with
+    # Developer ID, whose profile provisions every Mac.
+    runs-on: macos-15
+    timeout-minutes: 120
+    env:
+      # The test app keeps its own container and keychain group; it never touches production data.
+      CATALYST_BUNDLE_ID: io.bluewallet.bluewallet.e2e
+      # Failure videos and screenshots are uploaded: the bundle draws secrets in transparent ink.
+      E2E_HIDE_SECRETS: '1'
+      CATALYST_TEAM_ID: ${{ secrets.CATALYST_TEAM_ID || secrets.TEAM_ID || secrets.ITC_TEAM_ID }}
+      # App Store distribution profiles cannot provision a directly launched test app.
+      CATALYST_SIGNING_IDENTITY: Developer ID Application
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: latest
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+        with:
+          ruby-version: 3.4.11
+          bundler-cache: true
+
+      # Dependency install scripts run before the signing identity enters the keychain.
+      - name: Install Node modules
+        run: npm ci || npm ci
+
+      - name: Fetch Catalyst E2E signing credentials
+        env:
+          SKIP_APP_STORE_CONNECT_AUTH: '1'
+          GIT_URL: ${{ secrets.GIT_URL }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_READONLY: 'true'
+          KEYCHAIN_NAME: catalyst-e2e
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          for name in CATALYST_TEAM_ID GIT_URL GIT_ACCESS_TOKEN MATCH_PASSWORD KEYCHAIN_PASSWORD; do
+            if [[ -z "${!name}" ]]; then
+              echo "::error::Missing signing secret: $name (see tests/e2e-appium/README.md)"
+              exit 1
+            fi
+          done
+          if [[ ! "$CATALYST_TEAM_ID" =~ ^[A-Z0-9]{10}$ ]]; then
+            echo "::error::Signing requires a 10-character Apple developer team ID"
+            exit 1
+          fi
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME.keychain"
+          security default-keychain -s "$KEYCHAIN_NAME.keychain"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME.keychain"
+          security set-keychain-settings -t 10800 -u "$KEYCHAIN_NAME.keychain"
+          bundle exec fastlane ios fetch_e2e_profiles_catalyst
+
+      - name: Compute Catalyst app cache key
+        id: catalyst-app-key
+        run: |
+          bundle exec ruby tests/unit/catalyst-app-cache.test.rb
+          bundle exec ruby tests/e2e-appium/app-cache-key.rb >> "$GITHUB_OUTPUT"
+
+      - name: Restore signed Catalyst app
+        id: catalyst-app-cache
+        uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: ios/build/catalyst-e2e/Build/Products/Release-maccatalyst/BlueWallet.app
+          key: ${{ steps.catalyst-app-key.outputs.key }}
+
+      - name: Cache CocoaPods
+        if: steps.catalyst-app-cache.outputs.cache-hit != 'true'
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: |
+            ios/Pods
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods/repos
+          key: ${{ runner.os }}-pods-catalyst-${{ hashFiles('ios/Podfile.lock') }}
+          # same pods as the other iOS / Catalyst jobs, so their caches are good enough to start from
+          restore-keys: |
+            ${{ runner.os }}-pods-catalyst-
+            ${{ runner.os }}-pods-prebuilt-
+
+      - name: Install CocoaPods dependencies
+        if: steps.catalyst-app-cache.outputs.cache-hit != 'true'
+        env:
+          SKIP_APP_STORE_CONNECT_AUTH: '1'
+          RCT_USE_RN_DEP: "1"
+          RCT_USE_PREBUILT_RNCORE: "1"
+        run: bundle exec fastlane ios install_pods || bundle exec fastlane ios install_pods
+
+      - name: Build Mac Catalyst app
+        if: steps.catalyst-app-cache.outputs.cache-hit != 'true'
+        run: |
+          bundle exec npm run e2e:catalyst:build
+          test -f ios/build/catalyst-e2e/Build/Products/Release-maccatalyst/BlueWallet.app/Contents/Info.plist
+
+      - name: Verify signed Catalyst app
+        run: |
+          app=ios/build/catalyst-e2e/Build/Products/Release-maccatalyst/BlueWallet.app
+          codesign --verify --deep --strict "$app"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist")" = "$CATALYST_BUNDLE_ID"
+
+      # Save before UI tests: a test failure must not discard a successful build.
+      - name: Cache signed Catalyst app
+        if: steps.catalyst-app-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: ios/build/catalyst-e2e/Build/Products/Release-maccatalyst/BlueWallet.app
+          key: ${{ steps.catalyst-app-key.outputs.key }}
+
+      - name: Remove temporary signing keychain
+        if: always()
+        run: security delete-keychain catalyst-e2e.keychain || true
+
+  test:
+    needs: build
+    runs-on: macos-15
+    # GitHub's maximum. The per-case ceilings only stop a hung case: the longest spec takes
+    # about an hour on Apple silicon (39964789987), so cases retried at their ceiling cannot all fit.
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        spec: [bluewallet, bluewallet2, bluewallet3, catalyst]
+    env:
+      CATALYST_BUNDLE_ID: io.bluewallet.bluewallet.e2e
+      E2E_HIDE_SECRETS: '1' # the app was built with it, see the build job
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: latest
+
+      - name: Install Node modules
+        run: npm ci || npm ci
+
+      - name: Restore signed Catalyst app
+        uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: ios/build/catalyst-e2e/Build/Products/Release-maccatalyst/BlueWallet.app
+          key: ${{ needs.build.outputs.app-key }}
+          fail-on-cache-miss: true
+
+      - name: Verify signed Catalyst app
+        run: |
+          directory=ios/build/catalyst-e2e/Build/Products/Release-maccatalyst
+          codesign --verify --deep --strict "$directory/BlueWallet.app"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$directory/BlueWallet.app/Contents/Info.plist")" = "$CATALYST_BUNDLE_ID"
+          git rev-parse HEAD
+          xcodebuild -version
+          sw_vers -productVersion
+
+      # XCTest UI automation needs Accessibility permission for Xcode Helper. GitHub-hosted macOS images ship with
+      # System Integrity Protection disabled, so system TCC.db is writable (same approach appium-mac2-driver uses on its CI)
+      - name: Grant Accessibility to Xcode Helper
+        run: |
+          csrutil status || true
+          helper="$(xcode-select -p)/Platforms/MacOSX.platform/Developer/Library/Xcode/Agents/Xcode Helper.app/Contents/MacOS/Xcode Helper"
+          if [[ ! -f "$helper" ]]; then
+            echo "::error::Xcode Helper not found at $helper"
+            exit 1
+          fi
+          sudo sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" <<SQL
+          INSERT OR REPLACE INTO access
+            (service, client, client_type, auth_value, auth_reason, auth_version, indirect_object_identifier, flags, last_modified)
+          VALUES
+            ('kTCCServiceAccessibility', '${helper}', 1, 2, 3, 1, 'UNUSED', 0, CAST(strftime('%s', 'now') AS INTEGER));
+          SQL
+          sudo launchctl kickstart -k system/com.apple.tccd 2>/dev/null || sudo pkill -HUP tccd || true
+
+      # A disposable CI runner has nobody available to approve XCTest's system prompt.
+      - name: Enable XCTest automation on CI runner
+        run: sudo automationmodetool enable-automationmode-without-authentication
+
+      # Retry failed cases at most twice, each from clean app state.
+      - name: Run Appium tests
+        env:
+          E2E_RETRIES: '2'
+          # Same funded test wallet as the Detox suite. A missing secret fails the case, never skips it.
+          HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+        run: npm run e2e:catalyst:test -- --runTestsByPath tests/e2e-appium/${{ matrix.spec }}.spec.ts
+
+      # Upload test diagnostics only when the job fails, including a job cancelled by its timeout.
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: failure() || cancelled()
+        with:
+          name: e2e-catalyst-artifacts-${{ matrix.spec }}
+          path: ./artifacts/
+          retention-days: 7

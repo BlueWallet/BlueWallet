@@ -3,6 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { element, waitFor } from 'detox';
 
 import {
+  assertSecretsHidden,
   confirmPasswordDialog,
   dismissAlertByText,
   expectToBeVisible,
@@ -827,6 +828,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.clearKeychain();
     await device.launchApp({ delete: true, permissions: { camera: 'YES', notifications: 'YES' } });
     await waitForId('WalletsList');
+    await assertSecretsHidden(); // scanCosigner types a seed into the scanner backdoor
     await waitFor(element(by.id('CreateAWallet')))
       .toBeVisible()
       .whileElement(by.id('WalletsList'))
@@ -1118,6 +1120,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .toBeVisible()
       .whileElement(by.id('WalletsList'))
       .scroll(500, 'right');
+    await assertSecretsHidden(); // the backup screen later shows the new phrase; the marker is on the wallets list
     await element(by.id('CreateAWallet')).tap();
     await waitForId('WalletNameInput');
     await element(by.id('WalletNameInput')).replaceText('entropy1');

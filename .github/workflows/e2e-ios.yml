@@ -119,6 +119,9 @@ jobs:
         env:
           RCT_NO_LAUNCH_PACKAGER: "1"
           CCACHE_BINARY: /opt/homebrew/bin/ccache
+          # Secrets are drawn in transparent ink: failure videos are uploaded as they are.
+          BUNDLE_CONFIG: ${{ github.workspace }}/tests/e2e/metro.config.js
+          E2E_HIDE_SECRETS: '1'
         run: |
           set -eo pipefail
           build() {
@@ -217,6 +220,8 @@ jobs:
 
       - name: Run detox tests
         timeout-minutes: 360
+        env:
+          E2E_HIDE_SECRETS: '1' # the app was built with it, see the build step
         run: |
           npm run e2e:test:ios-release -- \
             --record-videos failing \

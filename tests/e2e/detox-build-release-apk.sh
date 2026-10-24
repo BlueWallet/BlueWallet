@@ -7,6 +7,9 @@ set -euo pipefail
 # ensure patched node_modules before building
 npm run patches
 
+# bundle the end-to-end flags (secrets drawn in transparent ink), see tests/e2e/metro.config.js
+export BUNDLE_CONFIG="$PWD/tests/e2e/metro.config.js"
+
 USE_FASTLANE=${USE_FASTLANE:-0}
 if [[ "${1:-}" == "--fastlane" ]]; then
 	USE_FASTLANE=1

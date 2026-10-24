@@ -897,6 +897,43 @@ platform :ios do
     ]
   end
 
+  desc "Fetch the Developer ID identity and the Catalyst E2E profile from Match"
+  lane :fetch_e2e_profiles_catalyst do
+    bundle_id = ENV.fetch('CATALYST_BUNDLE_ID', 'io.bluewallet.bluewallet.e2e')
+    UI.user_error!('E2E bundle identifier must end in .e2e') unless bundle_id.end_with?('.e2e')
+    # UI tests run directly on the Mac that builds them. A Developer ID ("Direct") profile
+    # provisions every Mac, which hosted Apple silicon runners need: each VM boots with a
+    # random Provisioning UDID, so no development profile can list it.
+    # Keep CI read-only: the certificate and this profile are created once in Match.
+    match(
+      type: 'developer_id',
+      platform: 'catalyst',
+      app_identifier: [bundle_id],
+      git_basic_authorization: normalize_git_basic_authorization(ENV.fetch('GIT_ACCESS_TOKEN')),
+      team_id: ENV.fetch('CATALYST_TEAM_ID'),
+      readonly: true,
+      keychain_name: ENV.fetch('KEYCHAIN_NAME'),
+      keychain_password: ENV.fetch('KEYCHAIN_PASSWORD')
+    )
+    profile = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING].fetch(bundle_id)
+    profile_path = ENV.fetch(Match::Utils.environment_variable_name_profile_path(
+      app_identifier: bundle_id, type: 'developer_id', platform: 'catalyst'
+    ))
+    contents = FastlaneCore::ProvisioningProfile.parse(profile_path)
+    UI.user_error!('The Catalyst Developer ID profile from Match does not provision all devices') unless contents['ProvisionsAllDevices']
+    require 'digest'
+    # Part of the signed app cache key (tests/e2e-appium/app-cache-key.rb).
+    fingerprint = Digest::SHA256.file(profile_path).hexdigest
+    ENV['CATALYST_PROVISIONING_PROFILE'] = profile
+    ENV['CATALYST_PROFILE_FINGERPRINT'] = fingerprint
+    if ENV['GITHUB_ENV']
+      File.open(ENV['GITHUB_ENV'], 'a') do |file|
+        file.puts("CATALYST_PROVISIONING_PROFILE=#{profile}")
+        file.puts("CATALYST_PROFILE_FINGERPRINT=#{fingerprint}")
+      end
+    end
+  end
+
   desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
   lane :fetch_dev_profiles_catalyst do
     match(

@@ -1,4 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
+import { secretInputProps, secretTextStyle } from '../../helpers/secretsOnScreen';
 import React, { useState } from 'react';
 import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -90,11 +91,20 @@ const ImportSpeed = () => {
       <BlueSpacing20 />
       <BlueFormLabel>Mnemonic</BlueFormLabel>
       <BlueSpacing20 />
-      <BlueFormMultiInput testID="SpeedMnemonicInput" value={importText} onChangeText={setImportText} />
+      {/* SecretsHidden exists only in bundles that draw the seed in transparent ink; e2e refuses to type it otherwise */}
+      <View testID={secretTextStyle ? 'SecretsHidden' : undefined}>
+        <BlueFormMultiInput testID="SpeedMnemonicInput" value={importText} onChangeText={setImportText} />
+      </View>
       <BlueFormLabel>Wallet type</BlueFormLabel>
       <TextInput testID="SpeedWalletTypeInput" value={walletType} style={styles.pathInput} onChangeText={setWalletType} />
       <BlueFormLabel>Passphrase</BlueFormLabel>
-      <TextInput testID="SpeedPassphraseInput" value={passphrase} style={styles.pathInput} onChangeText={setPassphrase} />
+      <TextInput
+        testID="SpeedPassphraseInput"
+        value={passphrase}
+        style={[styles.pathInput, secretTextStyle]}
+        onChangeText={setPassphrase}
+        {...secretInputProps}
+      />
       <BlueSpacing20 />
       <View style={styles.center}>
         {loading ? <ActivityIndicator /> : <Button testID="SpeedDoImport" title="Import" onPress={importMnemonic} />}
