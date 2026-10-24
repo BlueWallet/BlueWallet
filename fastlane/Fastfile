@@ -710,19 +710,21 @@ platform :ios do
   end  
 
   desc "Create a temporary keychain"
-  lane :create_temp_keychain do
-    UI.message("Creating a temporary keychain...")
+  lane :create_temp_keychain do |options|
+    keychain_name = options[:name] || "temp_keychain"
+    timeout = Integer(options[:timeout] || 3600)
+    UI.message("Creating temporary keychain #{keychain_name}...")
 
     create_keychain(
-      name: "temp_keychain",
+      name: keychain_name,
       password: ENV["KEYCHAIN_PASSWORD"],
       default_keychain: true,
       unlock: true,
-      timeout: 3600,
+      timeout: timeout,
       lock_when_sleeps: true
     )
 
-    UI.message("Temporary keychain created successfully.")
+    UI.message("Temporary keychain #{keychain_name} created successfully.")
   end
 
   desc "Synchronize certificates and provisioning profiles"
@@ -1306,73 +1308,56 @@ platform :ios do
       UI.user_error!("No .pkg found after export") if exported_pkg.nil? || !File.exist?(exported_pkg)
       UI.success("Exported pkg: #{exported_pkg}")
 
-      # Build changelog
-      branch_name = ENV['BRANCH_NAME'] || "unknown-branch"
-      last_commit_message = ENV['LATEST_COMMIT_MESSAGE'] || "No commit message found"
-      changelog = "Build Information:\n"
-      changelog += "- Branch: #{branch_name}\n" if branch_name != 'master'
-      changelog += "- Commit: #{last_commit_message}\n"
-
-      # Upload to TestFlight
-      api_key_path = File.expand_path(
-        ENV['APP_STORE_CONNECT_API_KEY_PATH'] || "appstore_api_key.json",
-        project_root
-      )
-      UI.user_error!("App Store Connect API key JSON not found at #{api_key_path}") unless File.exist?(api_key_path)
-
-      upload_to_testflight(
-        api_key_path: api_key_path,
-        pkg: exported_pkg,
-        skip_waiting_for_build_processing: false,
-        wait_processing_timeout_duration: 5_400,
-        changelog: changelog
+      upload_apple_testflight(
+        platform: "catalyst",
+        artifact_path: exported_pkg
       )
 
       UI.success("Mac Catalyst build finished processing in TestFlight!")
     end
   end
 
+  desc "Upload an Apple artifact and wait until it is ready in TestFlight"
+  private_lane :upload_apple_testflight do |options|
+    platform = options[:platform].to_s
+    artifact_path = File.expand_path(options[:artifact_path].to_s, project_root)
+    artifact_option = platform == "ios" ? :ipa : :pkg
+    expected_extension = platform == "ios" ? ".ipa" : ".pkg"
+    UI.user_error!("platform must be ios or catalyst") unless %w[ios catalyst].include?(platform)
+    UI.user_error!("#{platform} artifact must be a #{expected_extension} file") unless File.extname(artifact_path) == expected_extension
+    UI.user_error!("#{platform} artifact not found at #{artifact_path}") unless File.file?(artifact_path)
+
+    api_key_path = File.expand_path(
+      ENV['APP_STORE_CONNECT_API_KEY_PATH'] || "appstore_api_key.json",
+      project_root
+    )
+    UI.user_error!("App Store Connect API key JSON not found at #{api_key_path}") unless File.file?(api_key_path)
+
+    branch_name = ENV['BRANCH_NAME'] || "unknown-branch"
+    last_commit_message = ENV['LATEST_COMMIT_MESSAGE'] || "No commit message found"
+    changelog = "Build Information:\n"
+    changelog += "- Branch: #{branch_name}\n" unless branch_name == "master"
+    changelog += "- Commit: #{last_commit_message}\n"
+
+    upload_options = {
+      api_key_path: api_key_path,
+      skip_waiting_for_build_processing: false,
+      wait_processing_timeout_duration: 5_400,
+      changelog: changelog,
+      artifact_option => artifact_path
+    }
+    UI.message("Uploading #{platform} artifact to TestFlight from #{artifact_path}")
+    upload_to_testflight(**upload_options)
+  end
+
   desc "Upload IPA to TestFlight"
   lane :upload_to_testflight_lane do
-
-  branch_name = ENV['BRANCH_NAME'] || "unknown-branch"
-  last_commit_message = ENV['LATEST_COMMIT_MESSAGE'] || "No commit message found"
-
-
-  changelog = <<~CHANGELOG
-    Build Information:
-  CHANGELOG
-
-  # Include the branch name only if it is not 'master'
-  if branch_name != 'master'
-    changelog += <<~CHANGELOG
-      - Branch: #{branch_name}
-    CHANGELOG
+    upload_apple_testflight(
+      platform: "ios",
+      artifact_path: ENV['IPA_OUTPUT_PATH']
+    )
+    UI.success("iOS build finished processing in TestFlight!")
   end
-
-  changelog += <<~CHANGELOG
-    - Commit: #{last_commit_message}
-  CHANGELOG
-
-  ipa_path = ENV['IPA_OUTPUT_PATH']
-  
-  if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
-    UI.user_error!("IPA file not found at path: #{ipa_path}")
-  end
-
-  UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
-  UI.message("Changelog:\n#{changelog}")
-
-
-  upload_to_testflight(
-    api_key_path: "./appstore_api_key.json",
-    ipa: ipa_path,
-    skip_waiting_for_build_processing: false,
-    changelog: changelog
-  )
-
-  UI.success("iOS build finished processing in TestFlight!")
-end
 
 desc "Upload iOS source maps to Bugsnag"
 lane :upload_bugsnag_sourcemaps do
@@ -1664,14 +1649,17 @@ end
   end
 
   desc "Delete temporary keychain"
-  lane :delete_temp_keychain do
-    UI.message("Deleting temporary keychain...")
-    
-    delete_keychain(
-      name: "temp_keychain"
-    ) if File.exist?(File.expand_path("~/Library/Keychains/temp_keychain-db"))
-    
-    UI.message("Temporary keychain deleted successfully.")
+  lane :delete_temp_keychain do |options|
+    keychain_name = options[:name] || "temp_keychain"
+    UI.message("Deleting temporary keychain #{keychain_name}...")
+
+    keychain_paths = [
+      File.expand_path("~/Library/Keychains/#{keychain_name}-db"),
+      File.expand_path("~/Library/Keychains/#{keychain_name}.keychain-db")
+    ]
+    delete_keychain(name: keychain_name) if keychain_paths.any? { |path| File.exist?(path) }
+
+    UI.message("Temporary keychain #{keychain_name} deleted successfully.")
   end
 
   # Helper method to determine which iOS version to use
