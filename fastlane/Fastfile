@@ -1097,6 +1097,22 @@ platform :ios do
       end
       UI.success("Verified App Sandbox entitlement on the Catalyst app and widget archive")
 
+      embedded_profiles = [
+        File.join(archived_app, "Contents/embedded.provisionprofile"),
+        File.join(archived_app, "Contents/PlugIns/WidgetsExtension.appex/Contents/embedded.provisionprofile")
+      ]
+      embedded_profiles.each do |profile|
+        UI.user_error!("Embedded Catalyst provisioning profile not found at #{profile}") unless File.file?(profile)
+        profile_plist = sh("security", "cms", "-D", "-i", profile, log: false)
+        unless profile_plist.match?(%r{<key>com\.apple\.security\.app-sandbox</key>\s*<true\s*/>})
+          UI.user_error!(
+            "App Sandbox is missing from #{profile}. Renew the Catalyst App Store profiles; " \
+            "changing the source entitlement or package cannot add a capability the profile does not authorize."
+          )
+        end
+      end
+      UI.success("Verified App Sandbox authorization in both Catalyst provisioning profiles")
+
       candidate_paths = []
       candidate_paths << File.join(archive_path, "Products/Applications/BlueWallet.app") if archive_path
       candidate_paths << Dir.glob(File.join(derived_data_path, "Build/Products/Release-maccatalyst/*.app")).first
