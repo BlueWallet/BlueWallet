@@ -25,6 +25,10 @@ def app_store_state_readable(state)
 end
 
 require 'securerandom'
+require 'json'
+require 'time'
+require_relative 'apple_build_number'
+require_relative 'apple_signing_assets'
 
 default_platform(:ios)
 PROJECT_ROOT = File.expand_path("..", __dir__)
@@ -434,7 +438,8 @@ platform :ios do
   def match_api_authentication(options)
     key_id = options[:apple_api_key_id] || ENV["APPLE_API_KEY_ID"]
     issuer_id = options[:apple_api_issuer_id] || ENV["APPLE_API_ISSUER_ID"]
-    key_path = options[:apple_api_key_path] || ENV["APPLE_API_KEY_PATH"] || "./appstore_api_key.json"
+    configured_key_path = options[:apple_api_key_path] || ENV["APPLE_API_KEY_PATH"] || "appstore_api_key.json"
+    key_path = File.expand_path(configured_key_path, PROJECT_ROOT)
     configured_values = [key_id, issuer_id, options[:apple_api_key_path] || ENV["APPLE_API_KEY_PATH"], File.file?(key_path) ? key_path : nil]
 
     return nil if configured_values.all? { |value| value.nil? || value.empty? }
@@ -472,36 +477,78 @@ platform :ios do
     api_authentication = match_api_authentication(options)
     return api_authentication unless api_authentication.nil?
 
+    if UI.interactive?
+      UI.important("A writable signing-assets run needs an App Store Connect API key; values are kept only for this process")
+      ENV["APPLE_API_KEY_ID"] = UI.input("App Store Connect key ID:")
+      ENV["APPLE_API_ISSUER_ID"] = UI.input("App Store Connect issuer ID:")
+      ENV["APPLE_API_KEY_PATH"] = File.expand_path(UI.input("Path to AuthKey_*.p8:"))
+      return match_api_authentication(options)
+    end
+
+    UI.user_error!(
+      "An App Store Connect API key is required when updating signing assets. Set APPLE_API_KEY_ID, " \
+      "APPLE_API_ISSUER_ID, and APPLE_API_KEY_PATH. This prevents the repeated Apple ID logins that one " \
+      "Match call per profile type would otherwise perform."
+    )
+  end
+
+  # Developer ID Installer certificates are not available through App Store
+  # Connect API keys. Resolve this authentication before Match makes any
+  # changes, and never initiate or retry an Apple ID login from this lane.
+  def developer_id_apple_authentication!(options)
     options = options.merge(apple_id: ENV["FASTLANE_USER"]) if (options[:apple_id].nil? || options[:apple_id].empty?) && !ENV["FASTLANE_USER"].to_s.empty?
     resolve_signing_value(
       options: options,
       option_name: :apple_id,
       env_name: "APPLE_ID",
-      prompt: "Apple ID email:"
+      prompt: "Account Holder Apple ID email:"
     )
-    ENV["FASTLANE_USER"] ||= ENV["APPLE_ID"]
+    ENV["FASTLANE_USER"] = ENV["APPLE_ID"]
 
-    return nil unless ENV["FASTLANE_SESSION"].to_s.empty? && ENV["FASTLANE_PASSWORD"].to_s.empty?
-
-    unless UI.interactive?
-      UI.user_error!(
-        "Apple authentication is required in non-interactive environments. Prefer APPLE_API_KEY_ID, " \
-        "APPLE_API_ISSUER_ID, and APPLE_API_KEY_PATH; alternatively provide FASTLANE_SESSION or FASTLANE_PASSWORD."
-      )
+    if ENV["FASTLANE_SESSION"].to_s.empty? && ENV["FASTLANE_PASSWORD"].to_s.empty?
+      if UI.interactive?
+        UI.important(
+          "Developer ID Installer requires one Account Holder login. This lane performs only this deliberate " \
+          "login; all remaining asset updates use the API key."
+        )
+        ENV["FASTLANE_PASSWORD"] = UI.password("Account Holder Apple ID password:")
+      else
+        UI.user_error!(
+          "Catalyst direct-distribution assets require Account Holder authentication because App Store Connect " \
+          "API keys cannot access Developer ID Installer certificates. Provide FASTLANE_SESSION or FASTLANE_PASSWORD."
+        )
+      end
     end
 
-    require "shellwords"
-    UI.message("No reusable Apple session was provided; refreshing it with spaceauth before Match")
-    begin
-      sh("bundle exec fastlane spaceauth -u #{Shellwords.shellescape(ENV["APPLE_ID"])}")
-    rescue => error
-      UI.user_error!(
-        "Could not refresh the Apple session with spaceauth: #{error.message}. " \
-        "Complete the Apple MFA prompt, or configure an App Store Connect API key."
-      )
-    end
+    { username: ENV["APPLE_ID"] }
+  end
 
-    nil
+  def signing_option_enabled?(value, default: false)
+    AppleSigningAssets.option_enabled?(value, default: default)
+  end
+
+  def verify_developer_id_profiles!(expected_identifiers)
+    profile_mapping = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING] || {}
+    missing_identifiers = AppleSigningAssets.missing_profiles(
+      profile_mapping: profile_mapping,
+      expected_identifiers: expected_identifiers
+    )
+    return if missing_identifiers.empty?
+
+    UI.user_error!(
+      "Match did not install Catalyst direct-distribution profiles for: #{missing_identifiers.join(', ')}"
+    )
+  end
+
+  def verify_developer_id_identities!(keychain_name)
+    keychain_path = FastlaneCore::Helper.keychain_path(keychain_name)
+    identities = sh("security", "find-identity", "-v", "-p", "basic", keychain_path)
+    missing_identities = AppleSigningAssets.missing_identities(identity_output: identities)
+    return if missing_identities.empty?
+
+    UI.user_error!(
+      "Match did not install the required direct-distribution identities: #{missing_identities.join(', ')}"
+    )
   end
 
   # The Preview extension reads the app's cached fiat rate from this group. App
@@ -563,8 +610,15 @@ platform :ios do
       )
     end
 
+    require "open3"
     gh_available = system("gh", "--version", out: File::NULL, err: File::NULL)
-    if gh_available && UI.confirm("GIT_ACCESS_TOKEN is not set. Log in to GitHub through your browser?")
+    if gh_available
+      token, _error, status = Open3.capture3("gh", "auth", "token", "--hostname", "github.com")
+      value = token.strip if status.success?
+      UI.message("Using the active GitHub CLI login for Match") unless value.to_s.empty?
+    end
+
+    if value.to_s.empty? && gh_available && UI.confirm("GitHub CLI is not authenticated. Log in through your browser?")
       authenticated = system(
         "gh", "auth", "login",
         "--hostname", "github.com",
@@ -573,11 +627,10 @@ platform :ios do
       )
       UI.user_error!("GitHub browser login did not complete successfully") unless authenticated
 
-      require "open3"
       token, error, status = Open3.capture3("gh", "auth", "token", "--hostname", "github.com")
       UI.user_error!("Could not retrieve the GitHub token: #{error.strip}") unless status.success?
       value = token.strip
-    else
+    elsif value.to_s.empty?
       UI.important("GitHub CLI is unavailable or browser login was declined; enter a token manually.")
       value = UI.password("GitHub access token (or Base64 Git basic authorization):")
     end
@@ -726,6 +779,8 @@ platform :ios do
   lane :setup_provisioning_profiles do
     required_vars = ["GIT_ACCESS_TOKEN", "GIT_URL", "ITC_TEAM_ID", "ITC_TEAM_NAME", "KEYCHAIN_PASSWORD"]
     ensure_env_vars(required_vars)
+    ENV["GIT_URL"] = normalize_signing_git_url(ENV["GIT_URL"])
+    ENV["GIT_ACCESS_TOKEN"] = normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"])
     
     UI.message("Setting up provisioning profiles...")
     profile_mapping = {}
@@ -793,28 +848,43 @@ platform :ios do
     log_success("All provisioning profiles set up")
   end
 
-  # Run from the repository root: bundle exec fastlane update_apple_signing_assets
-  desc "Update all Apple certificates and provisioning profiles"
+  # Safe audit/install (default): bundle exec fastlane ios update_apple_signing_assets
+  # Explicit portal repair: bundle exec fastlane ios update_apple_signing_assets readonly:false
+  desc "Safely update Apple signing assets, including Catalyst direct distribution"
   lane :update_apple_signing_assets do |options|
-    minimum_fastlane_version = Gem::Version.new("2.240.0")
+    minimum_fastlane_version = Gem::Version.new("2.241.1")
     current_fastlane_version = Gem::Version.new(Fastlane::VERSION)
     if current_fastlane_version < minimum_fastlane_version
       UI.user_error!(
-        "Fastlane 2.240.0 or newer is required to renew expired certificates and authenticate with App Store Connect. " \
+        "Fastlane 2.241.1 or newer is required for secret masking, safe certificate storage, and App Store Connect authentication. " \
         "Run `bundle update fastlane` and retry this lane."
       )
     end
 
-    certificates_git_url = resolve_signing_value(
-      options: options,
-      option_name: :git_url,
-      env_name: "GIT_URL",
-      prompt: "Certificates repository URL:"
-    )
+    certificates_git_url = options[:git_url] || ENV["GIT_URL"]
+    if certificates_git_url.nil? || certificates_git_url.empty?
+      project_git_url = sh("git", "remote", "get-url", "origin", log: false).strip
+      begin
+        certificates_git_url = AppleSigningAssets.certificates_repository_url(
+          project_repository_url: project_git_url
+        )
+      rescue ArgumentError => error
+        UI.user_error!("#{error.message}. Set GIT_URL explicitly.")
+      end
+      UI.message("Using the signing-assets repository derived from the canonical project remote")
+    end
     ENV["GIT_URL"] = normalize_signing_git_url(certificates_git_url)
     developer_team_id = resolve_developer_team_id(options)
-    api_authentication = ensure_match_apple_auth!(options)
-    ensure_quick_look_app_group!(developer_team_id)
+    # Auditing/installing from the Match repository is the safe default. Apple
+    # Developer Portal changes require an explicit `readonly:false`.
+    readonly = signing_option_enabled?(options[:readonly], default: true)
+    sync_capabilities = signing_option_enabled?(options[:sync_capabilities])
+    api_authentication = readonly ? nil : ensure_match_apple_auth!(options)
+    developer_id_authentication = readonly ? nil : developer_id_apple_authentication!(options)
+    if sync_capabilities && readonly
+      UI.user_error!("sync_capabilities:true cannot be combined with readonly:true")
+    end
+    ensure_quick_look_app_group!(developer_team_id) if sync_capabilities
     resolve_signing_value(
       options: options,
       option_name: :match_password,
@@ -840,18 +910,12 @@ platform :ios do
       lock_when_sleeps: true
     )
 
-    signing_configurations = [
-      {
-        platform: "ios",
-        app_identifiers: app_identifiers,
-        profile_types: %w[development adhoc appstore]
-      },
-      {
-        platform: "catalyst",
-        app_identifiers: catalyst_app_identifiers,
-        profile_types: %w[development appstore]
-      }
-    ]
+    # Check Account Holder authentication and Developer ID assets first so a
+    # failure cannot happen after the iOS profiles have already been changed.
+    signing_configurations = AppleSigningAssets.configurations(
+      ios_identifiers: app_identifiers,
+      catalyst_identifiers: catalyst_app_identifiers
+    )
 
     begin
       signing_configurations.each do |configuration|
@@ -861,21 +925,46 @@ platform :ios do
             type: profile_type,
             platform: configuration[:platform],
             app_identifier: configuration[:app_identifiers],
-            readonly: false,
-            renew_expired_certs: true,
-            force: true,
+            readonly: readonly,
+            renew_expired_certs: !readonly,
+            force: false,
+            fail_on_name_taken: true,
+            git_url: ENV["GIT_URL"],
             git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
             keychain_name: keychain_name,
             keychain_password: keychain_password,
             team_id: developer_team_id
           }
-          match_options.merge!(api_authentication) unless api_authentication.nil?
-          match_options[:username] = ENV["APPLE_ID"] if api_authentication.nil?
+          additional_cert_types = configuration.fetch(:additional_cert_types, {})[profile_type]
+          match_options[:additional_cert_types] = additional_cert_types unless additional_cert_types.nil?
+
+          if !readonly && profile_type == "developer_id"
+            # The API-key action stores credentials in both Spaceship and lane
+            # context. Clear both so sync_code_signing cannot silently restore
+            # the API key while fetching the Developer ID Installer certificate,
+            # which requires Account Holder login authentication.
+            require "spaceship"
+            saved_api_key = lane_context[SharedValues::APP_STORE_CONNECT_API_KEY]
+            lane_context[SharedValues::APP_STORE_CONNECT_API_KEY] = nil
+            Spaceship::ConnectAPI.token = nil
+            match_options.merge!(developer_id_authentication)
+          elsif !readonly
+            match_options.merge!(api_authentication)
+          end
+
           # Do not force --single-branch: Match may need to create or fetch a
           # branch on a first run, where clone_branch_directly would fail.
-          match(**match_options)
+          begin
+            match(**match_options)
+          ensure
+            if !readonly && profile_type == "developer_id"
+              lane_context[SharedValues::APP_STORE_CONNECT_API_KEY] = saved_api_key
+            end
+          end
+          verify_developer_id_profiles!(configuration[:app_identifiers]) if profile_type == "developer_id"
         end
       end
+      verify_developer_id_identities!(keychain_name)
     ensure
       signing_error = $!
       begin
@@ -886,7 +975,8 @@ platform :ios do
       end
     end
 
-    log_success("All Apple certificates and provisioning profiles are valid")
+    mode = readonly ? "verified without Apple-side changes" : "updated without forced profile recreation"
+    log_success("All Apple signing assets were #{mode}, including Catalyst direct-distribution assets")
   end
 
   # Only these targets support Mac Catalyst (watch/stickers do not)
@@ -899,10 +989,13 @@ platform :ios do
 
   desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
   lane :fetch_dev_profiles_catalyst do
+    ensure_env_vars(["GIT_URL", "GIT_ACCESS_TOKEN"])
     match(
       type: "development",
       platform: "catalyst",
       app_identifier: catalyst_app_identifiers,
+      git_url: normalize_signing_git_url(ENV["GIT_URL"]),
+      git_basic_authorization: normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"]),
       readonly: true,
       clone_branch_directly: true
     )
@@ -910,35 +1003,22 @@ platform :ios do
 
   desc "Fetch App Store certificates and provisioning profiles for Mac Catalyst"
   lane :fetch_appstore_profiles_catalyst do
+    ensure_env_vars(["GIT_URL", "GIT_ACCESS_TOKEN"])
     match(
       type: "appstore",
       platform: "catalyst",
       app_identifier: catalyst_app_identifiers,
+      git_url: normalize_signing_git_url(ENV["GIT_URL"]),
+      git_basic_authorization: normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"]),
       readonly: true,
       clone_branch_directly: true
     )
   end
 
   desc "Create provisioning profiles for Mac Catalyst (first-time setup)"
-  lane :setup_catalyst_provisioning_profiles do
-    catalyst_app_identifiers.each do |app_identifier|
-      match(
-        type: "development",
-        platform: "catalyst",
-        app_identifier: app_identifier,
-        readonly: false,
-        force_for_new_devices: true,
-        clone_branch_directly: true
-      )
-
-      match(
-        type: "appstore",
-        platform: "catalyst",
-        app_identifier: app_identifier,
-        readonly: false,
-        clone_branch_directly: true
-      )
-    end
+  lane :setup_catalyst_provisioning_profiles do |options|
+    UI.important("Delegating Catalyst setup to the guarded Apple signing-assets lane")
+    update_apple_signing_assets(options.merge(readonly: false))
   end
 
   desc "Clear derived data"
@@ -947,17 +1027,82 @@ platform :ios do
     clear_derived_data
   end
 
-  desc "Increment build number"
-  lane :increment_build_number_lane do
-    UI.message("Incrementing build number to current timestamp...")
-    
-    # Set the new build number
-    increment_build_number(
-      xcodeproj: "ios/BlueWallet.xcodeproj", 
-      build_number: ENV["NEW_BUILD_NUMBER"]
+  desc "Allocate the next build number shared by iOS and Mac Catalyst"
+  lane :allocate_apple_build_number do
+    api_key_path = File.expand_path(
+      ENV['APP_STORE_CONNECT_API_KEY_PATH'] || "appstore_api_key.json",
+      project_root
     )
-  
-    UI.message("Build number set to: #{ENV['NEW_BUILD_NUMBER']}")
+    UI.user_error!("App Store Connect API key JSON not found at #{api_key_path}") unless File.exist?(api_key_path)
+
+    require 'spaceship'
+    api_token = Spaceship::ConnectAPI::Token.from(filepath: api_key_path)
+    UI.user_error!("Unable to create an App Store Connect token from #{api_key_path}") if api_token.nil?
+    Spaceship::ConnectAPI.token = api_token
+
+    app = Spaceship::ConnectAPI::App.find(app_identifiers.first)
+    UI.user_error!("Could not find #{app_identifiers.first} in App Store Connect") if app.nil?
+
+    project_version = get_version_number(xcodeproj: "ios/BlueWallet.xcodeproj", target: "BlueWallet")
+    uploaded_build_numbers = AppleBuildNumber.uploaded_build_numbers(
+      client: Spaceship::ConnectAPI,
+      app_id: app.id,
+      version: project_version,
+      platforms: [
+        Spaceship::ConnectAPI::Platform::IOS,
+        Spaceship::ConnectAPI::Platform::MAC_OS
+      ]
+    )
+    project_build_number = AppleBuildNumber.project_build_number(
+      project_path: File.join(project_root, "ios", "BlueWallet.xcodeproj", "project.pbxproj")
+    )
+    allocation_seed = AppleBuildNumber.allocation_seed(
+      run_id: ENV['GITHUB_RUN_ID'],
+      run_attempt: ENV.fetch('GITHUB_RUN_ATTEMPT', '1')
+    )
+    build_number = AppleBuildNumber.next(
+      high_water_marks: uploaded_build_numbers + [project_build_number],
+      now: allocation_seed
+    )
+
+    UI.message("Highest uploaded Apple build: #{uploaded_build_numbers.map(&:to_i).max || 0}")
+    UI.message("Current Xcode project build: #{project_build_number}")
+    UI.success("Allocated shared Apple build number: #{build_number}")
+
+    if ENV['GITHUB_OUTPUT']
+      File.open(ENV['GITHUB_OUTPUT'], 'a') do |file|
+        file.puts "build_number=#{build_number}"
+        file.puts "project_version=#{project_version}"
+      end
+    end
+
+    build_number
+  end
+
+  desc "Generate and apply the shared Apple build number"
+  lane :increment_build_number_lane do
+    build_number = ENV['NEW_BUILD_NUMBER']
+
+    if build_number.nil? || build_number.empty?
+      project_build_number = get_build_number(xcodeproj: "ios/BlueWallet.xcodeproj")
+      build_number = AppleBuildNumber.next(high_water_marks: [project_build_number]).to_s
+      UI.message("Using a fresh local Apple build number above project build #{project_build_number}: #{build_number}")
+    else
+      UI.message("Using supplied Apple build number: #{build_number}")
+    end
+
+    UI.user_error!("Apple build number must be numeric: #{build_number}") unless build_number.match?(/\A\d+\z/)
+    ENV['NEW_BUILD_NUMBER'] = build_number
+
+    increment_build_number(
+      xcodeproj: "ios/BlueWallet.xcodeproj",
+      build_number: build_number
+    )
+
+    File.open(ENV['GITHUB_ENV'], 'a') { |file| file.puts "NEW_BUILD_NUMBER=#{build_number}" } if ENV['GITHUB_ENV']
+    File.open(ENV['GITHUB_OUTPUT'], 'a') { |file| file.puts "build_number=#{build_number}" } if ENV['GITHUB_OUTPUT']
+
+    UI.message("Build number set to: #{build_number}")
   end
 
   desc "Install CocoaPods dependencies"
@@ -974,6 +1119,9 @@ platform :ios do
   lane :build_catalyst_app_lane do
     Dir.chdir(project_root) do
       UI.message("Building Mac Catalyst application from: #{Dir.pwd}")
+
+      ENV['GIT_URL'] = normalize_signing_git_url(ENV['GIT_URL']) unless ENV['GIT_URL'].to_s.empty?
+      ENV['GIT_ACCESS_TOKEN'] = normalize_git_basic_authorization(ENV['GIT_ACCESS_TOKEN']) unless ENV['GIT_ACCESS_TOKEN'].to_s.empty?
 
       workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
       derived_data_path = File.join(project_root, "ios", "build", "catalyst-derived-data")
@@ -1011,6 +1159,7 @@ platform :ios do
           match(
             type: "appstore",
             platform: "catalyst",
+            additional_cert_types: ["mac_installer_distribution"],
             app_identifier: app_id,
             team_id: team_id,
             git_url: ENV['GIT_URL'],
@@ -1058,6 +1207,7 @@ platform :ios do
       if archive_path.nil? || archive_path.empty?
         archive_path = Dir.glob(File.join(Dir.home, "Library/Developer/Xcode/Archives/**/*.xcarchive")).max_by { |path| File.mtime(path) }
       end
+      UI.user_error!("Mac Catalyst archive was not found after build") if archive_path.nil? || !File.exist?(archive_path)
 
       candidate_paths = []
       candidate_paths << File.join(archive_path, "Products/Applications/BlueWallet.app") if archive_path
@@ -1068,6 +1218,15 @@ platform :ios do
       UI.user_error!("Mac Catalyst app was not found after build") if catalyst_app_path.nil?
       UI.success("Mac Catalyst app found at: #{catalyst_app_path}")
 
+      dmg_path = File.join(output_dir, "BlueWallet-Mac-Catalyst.dmg")
+      UI.message("Creating DMG at: #{dmg_path}")
+
+      dmg_staging = File.join(output_dir, "dmg-staging")
+      FileUtils.rm_rf(dmg_staging)
+      FileUtils.mkdir_p(dmg_staging)
+      FileUtils.cp_r(catalyst_app_path, dmg_staging)
+      dmg_app_path = File.join(dmg_staging, File.basename(catalyst_app_path))
+
       if should_sign && ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty?
         UI.message("Re-signing app with: #{signing_identity}")
         sh("codesign",
@@ -1075,12 +1234,12 @@ platform :ios do
            "--force",
            "--options", "runtime",
            "--sign", signing_identity,
-           catalyst_app_path)
+           dmg_app_path)
         sh("codesign",
            "--verify",
            "--deep",
            "--strict",
-           catalyst_app_path)
+           dmg_app_path)
         UI.success("App signed and verified")
       else
         # Ad-hoc sign so macOS doesn't treat the app as "damaged"
@@ -1089,17 +1248,9 @@ platform :ios do
            "--deep",
            "--force",
            "--sign", "-",
-           catalyst_app_path)
+           dmg_app_path)
         UI.success("App ad-hoc signed")
       end
-
-      dmg_path = File.join(output_dir, "BlueWallet-Mac-Catalyst.dmg")
-      UI.message("Creating DMG at: #{dmg_path}")
-
-      dmg_staging = File.join(output_dir, "dmg-staging")
-      FileUtils.rm_rf(dmg_staging)
-      FileUtils.mkdir_p(dmg_staging)
-      FileUtils.cp_r(catalyst_app_path, dmg_staging)
 
       sh("ln", "-s", "/Applications", "#{dmg_staging}/Applications")
 
@@ -1216,6 +1367,7 @@ platform :ios do
       ENV['CATALYST_DMG_PATH'] = dmg_path
       if ENV['GITHUB_OUTPUT']
         File.open(ENV['GITHUB_OUTPUT'], 'a') do |f|
+          f.puts "catalyst_archive_path=#{archive_path}"
           f.puts "catalyst_app_path=#{catalyst_app_path}"
           f.puts "catalyst_dmg_path=#{dmg_path}"
         end
@@ -1229,11 +1381,7 @@ platform :ios do
   desc "Upload Mac Catalyst app to TestFlight"
   lane :upload_catalyst_to_testflight do
     Dir.chdir(project_root) do
-      # Locate the xcarchive
-      archive_path = lane_context[SharedValues::XCODEBUILD_ARCHIVE]
-      if archive_path.nil? || archive_path.empty?
-        archive_path = Dir.glob(File.join(Dir.home, "Library/Developer/Xcode/Archives/**/*.xcarchive")).max_by { |path| File.mtime(path) }
-      end
+      archive_path = ENV['CATALYST_ARCHIVE_PATH']
       UI.user_error!("No xcarchive found for TestFlight upload") if archive_path.nil? || !File.exist?(archive_path)
       UI.message("Using archive: #{archive_path}")
 
@@ -1256,13 +1404,17 @@ platform :ios do
         <plist version="1.0">
         <dict>
           <key>method</key>
-          <string>app-store</string>
+          <string>app-store-connect</string>
           <key>destination</key>
-          <string>upload</string>
+          <string>export</string>
           <key>teamID</key>
           <string>#{team_id}</string>
           <key>signingStyle</key>
           <string>manual</string>
+          <key>signingCertificate</key>
+          <string>Apple Distribution</string>
+          <key>installerSigningCertificate</key>
+          <string>3rd Party Mac Developer Installer</string>
           <key>provisioningProfiles</key>
           <dict>
 #{profiles_xml}
@@ -1294,11 +1446,178 @@ platform :ios do
       upload_to_testflight(
         api_key_path: "./appstore_api_key.json",
         pkg: exported_pkg,
-        skip_waiting_for_build_processing: true,
+        skip_waiting_for_build_processing: false,
         changelog: changelog
       )
 
-      UI.success("Successfully uploaded Mac Catalyst app to TestFlight!")
+      UI.success("Mac Catalyst build finished processing in TestFlight!")
+    end
+  end
+
+  desc "Export, sign, notarize, and staple a Mac Catalyst installer for direct distribution"
+  lane :export_catalyst_direct_distribution do
+    Dir.chdir(project_root) do
+      required_env = %w[
+        APPLE_API_KEY_ID
+        APPLE_API_ISSUER_ID
+        CATALYST_TEAM_ID
+        GIT_URL
+        GIT_ACCESS_TOKEN
+        MATCH_PASSWORD
+        KEYCHAIN_NAME
+        KEYCHAIN_PASSWORD
+      ]
+      missing_env = required_env.select { |name| ENV[name].nil? || ENV[name].empty? }
+      UI.user_error!("Direct distribution requires environment variables: #{missing_env.join(', ')}") unless missing_env.empty?
+
+      ENV['GIT_URL'] = normalize_signing_git_url(ENV['GIT_URL'])
+      ENV['GIT_ACCESS_TOKEN'] = normalize_git_basic_authorization(ENV['GIT_ACCESS_TOKEN'])
+
+      api_key_json_path = File.join(project_root, "appstore_api_key.json")
+      UI.user_error!("App Store Connect API key JSON not found at #{api_key_json_path}") unless File.exist?(api_key_json_path)
+
+      archive_path = ENV['CATALYST_ARCHIVE_PATH']
+      UI.user_error!("No xcarchive found for direct distribution") if archive_path.nil? || !File.exist?(archive_path)
+      UI.message("Using archive for direct distribution: #{archive_path}")
+
+      keychain_path = ENV['KEYCHAIN_NAME'].end_with?('.keychain') ? ENV['KEYCHAIN_NAME'] : "#{ENV['KEYCHAIN_NAME']}.keychain"
+      sh("security", "unlock-keychain", "-p", ENV['KEYCHAIN_PASSWORD'], keychain_path)
+      sh("security", "set-keychain-settings", "-lut", "21600", keychain_path)
+
+      match(
+        type: "developer_id",
+        platform: "catalyst",
+        app_identifier: catalyst_app_identifiers,
+        additional_cert_types: ["developer_id_installer"],
+        team_id: ENV['CATALYST_TEAM_ID'],
+        git_url: ENV['GIT_URL'],
+        git_basic_authorization: ENV['GIT_ACCESS_TOKEN'],
+        readonly: true,
+        clone_branch_directly: true,
+        keychain_name: ENV['KEYCHAIN_NAME'],
+        keychain_password: ENV['KEYCHAIN_PASSWORD']
+      )
+      verify_developer_id_profiles!(catalyst_app_identifiers)
+      verify_developer_id_identities!(ENV['KEYCHAIN_NAME'])
+
+      output_dir = File.join(project_root, "ios", "build", "catalyst-direct-distribution")
+      export_dir = File.join(output_dir, "export")
+      FileUtils.rm_rf(output_dir)
+      FileUtils.mkdir_p(export_dir)
+
+      direct_profile_mapping = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING] || {}
+      profiles_xml = catalyst_app_identifiers.map do |app_id|
+        profile_name = direct_profile_mapping.fetch(app_id)
+        "\t\t\t<key>#{app_id}</key>\n\t\t\t<string>#{profile_name}</string>"
+      end.join("\n")
+      export_plist_path = File.join(output_dir, "ExportOptions.plist")
+
+      File.write(export_plist_path, <<~PLIST)
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+          <key>method</key>
+          <string>developer-id</string>
+          <key>destination</key>
+          <string>export</string>
+          <key>teamID</key>
+          <string>#{ENV['CATALYST_TEAM_ID']}</string>
+          <key>signingStyle</key>
+          <string>manual</string>
+          <key>signingCertificate</key>
+          <string>Developer ID Application</string>
+          <key>provisioningProfiles</key>
+          <dict>
+#{profiles_xml}
+          </dict>
+        </dict>
+        </plist>
+      PLIST
+
+      sh("xcodebuild",
+         "-exportArchive",
+         "-archivePath", archive_path,
+         "-exportOptionsPlist", export_plist_path,
+         "-exportPath", export_dir)
+
+      exported_app = Dir.glob(File.join(export_dir, "*.app")).first
+      UI.user_error!("Developer ID export did not produce an app bundle") if exported_app.nil? || !File.exist?(exported_app)
+      sh("codesign", "--verify", "--deep", "--strict", "--verbose=2", exported_app)
+
+      build_number = ENV['NEW_BUILD_NUMBER'] || get_build_number(xcodeproj: "ios/BlueWallet.xcodeproj")
+      pkg_path = File.join(output_dir, "BlueWallet-Mac-Catalyst-#{build_number}.pkg")
+      dmg_path = File.join(output_dir, "BlueWallet-Mac-Catalyst-#{build_number}.dmg")
+      installer_identity = ENV['CATALYST_INSTALLER_SIGNING_IDENTITY'] || "Developer ID Installer"
+
+      api_key_data = JSON.parse(File.read(api_key_json_path))
+      private_key = api_key_data['key'] || api_key_data['key_content']
+      UI.user_error!("App Store Connect API key JSON does not contain the private key") if private_key.nil? || private_key.empty?
+
+      private_key_path = File.join(output_dir, "AuthKey_#{ENV['APPLE_API_KEY_ID']}.p8")
+      File.write(private_key_path, private_key)
+      File.chmod(0o600, private_key_path)
+
+      begin
+        # Notarize and staple the app before placing it in either distribution
+        # container. This ensures the DMG contains the actual notarized app,
+        # rather than the App Store-signed app from the original archive.
+        app_zip_path = File.join(output_dir, "BlueWallet-Mac-Catalyst-#{build_number}.zip")
+        sh("ditto", "-c", "-k", "--keepParent", exported_app, app_zip_path)
+        sh("xcrun", "notarytool", "submit", app_zip_path,
+           "--key", private_key_path,
+           "--key-id", ENV['APPLE_API_KEY_ID'],
+           "--issuer", ENV['APPLE_API_ISSUER_ID'],
+           "--wait")
+        sh("xcrun", "stapler", "staple", exported_app)
+        sh("xcrun", "stapler", "validate", exported_app)
+        sh("spctl", "--assess", "--type", "execute", "--verbose=2", exported_app)
+        FileUtils.rm_f(app_zip_path)
+
+        dmg_staging = File.join(output_dir, "dmg-staging")
+        FileUtils.mkdir_p(dmg_staging)
+        FileUtils.cp_r(exported_app, dmg_staging)
+        sh("ln", "-s", "/Applications", File.join(dmg_staging, "Applications"))
+        sh("hdiutil", "create", "-volname", "BlueWallet", "-srcfolder", dmg_staging, "-ov", "-format", "UDZO", dmg_path)
+        FileUtils.rm_rf(dmg_staging)
+        sh("xcrun", "notarytool", "submit", dmg_path,
+           "--key", private_key_path,
+           "--key-id", ENV['APPLE_API_KEY_ID'],
+           "--issuer", ENV['APPLE_API_ISSUER_ID'],
+           "--wait")
+        sh("xcrun", "stapler", "staple", dmg_path)
+        sh("xcrun", "stapler", "validate", dmg_path)
+
+        sh("productbuild",
+           "--component", exported_app, "/Applications",
+           "--sign", installer_identity,
+           pkg_path)
+        sh("pkgutil", "--check-signature", pkg_path)
+        sh("xcrun", "notarytool", "submit", pkg_path,
+           "--key", private_key_path,
+           "--key-id", ENV['APPLE_API_KEY_ID'],
+           "--issuer", ENV['APPLE_API_ISSUER_ID'],
+           "--wait")
+      ensure
+        FileUtils.rm_f(private_key_path)
+      end
+
+      UI.user_error!("Notarized direct-distribution DMG was not created") unless File.exist?(dmg_path)
+      sh("xcrun", "stapler", "validate", dmg_path)
+      sh("xcrun", "stapler", "staple", pkg_path)
+      sh("xcrun", "stapler", "validate", pkg_path)
+      sh("spctl", "--assess", "--type", "install", "--verbose=2", pkg_path)
+
+      if ENV['GITHUB_OUTPUT']
+        File.open(ENV['GITHUB_OUTPUT'], 'a') do |file|
+          file.puts "direct_distribution_ready=true"
+          file.puts "direct_dmg_path=#{dmg_path}"
+          file.puts "direct_pkg_path=#{pkg_path}"
+        end
+      end
+
+      UI.success("Notarized direct-distribution DMG created at: #{dmg_path}")
+      UI.success("Notarized direct-distribution package created at: #{pkg_path}")
     end
   end
 
@@ -1338,11 +1657,11 @@ platform :ios do
   upload_to_testflight(
     api_key_path: "./appstore_api_key.json",
     ipa: ipa_path,
-    skip_waiting_for_build_processing: true,
+    skip_waiting_for_build_processing: false,
     changelog: changelog
   )
 
-  UI.success("Successfully uploaded IPA to TestFlight!")
+  UI.success("iOS build finished processing in TestFlight!")
 end
 
 desc "Upload iOS source maps to Bugsnag"
