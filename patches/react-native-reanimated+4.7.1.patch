@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-reanimated/apple/reanimated/apple/REAReducedMotion.h b/node_modules/react-native-reanimated/apple/reanimated/apple/REAReducedMotion.h
+index 5e22e18..6e6a007 100644
+--- a/node_modules/react-native-reanimated/apple/reanimated/apple/REAReducedMotion.h
++++ b/node_modules/react-native-reanimated/apple/reanimated/apple/REAReducedMotion.h
+@@ -4,7 +4,7 @@
+ #import <UIKit/UIAccessibility.h>
+ #endif
+ 
+-#if __has_include(<AppKit/AppKit.h>)
++#if !__has_include(<UIKit/UIAccessibility.h>) && __has_include(<AppKit/AppKit.h>)
+ #import <AppKit/AppKit.h>
+ #endif
+ 

@@ -1,8 +1,32 @@
+diff --git a/node_modules/react-native-notifications/lib/android/app/build.gradle b/node_modules/react-native-notifications/lib/android/app/build.gradle
+index 5ea984c..ba3f79b 100644
+--- a/node_modules/react-native-notifications/lib/android/app/build.gradle
++++ b/node_modules/react-native-notifications/lib/android/app/build.gradle
+@@ -55,6 +55,10 @@ def supportsNamespace() {
+ }
+ 
+ android {
++    buildFeatures {
++        buildConfig true
++    }
++
+     if (supportsNamespace()) {
+         namespace "com.wix.reactnativenotifications"
+ 
+@@ -86,7 +90,7 @@ android {
+     buildTypes {
+         release {
+             minifyEnabled false
+-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
++            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+         }
+         debug {
+             debuggable true
 diff --git a/node_modules/react-native-notifications/lib/android/app/src/main/java/com/wix/reactnativenotifications/fcm/FcmToken.java b/node_modules/react-native-notifications/lib/android/app/src/main/java/com/wix/reactnativenotifications/fcm/FcmToken.java
-index c7bf71c..08022ff 100644
+index fb1aba4..368f9a8 100644
 --- a/node_modules/react-native-notifications/lib/android/app/src/main/java/com/wix/reactnativenotifications/fcm/FcmToken.java
 +++ b/node_modules/react-native-notifications/lib/android/app/src/main/java/com/wix/reactnativenotifications/fcm/FcmToken.java
-@@ -88,15 +88,26 @@ public class FcmToken implements IFcmToken {
+@@ -88,12 +88,23 @@ public class FcmToken implements IFcmToken {
      }
  
      protected void sendTokenToJS() {
@@ -10,18 +34,17 @@ index c7bf71c..08022ff 100644
 -        ReactContext reactContext = instanceManager.getCurrentReactContext();
 +        final ReactApplication reactApplication = (ReactApplication) mAppContext;
 +        ReactContext reactContext = null;
- 
--        if (reactContext == null) {
--            // If the react context is not available, try to get the current context from the react host (RN0.76).
--            reactContext = ((ReactApplication) mAppContext).getReactHost().getCurrentReactContext();
++
 +        try {
 +            // Bridgeless/new architecture apps expose the current context from ReactHost.
 +            reactContext = reactApplication.getReactHost().getCurrentReactContext();
 +        } catch (Throwable ignored) {
 +            // Older React Native versions may not expose ReactHost.
 +        }
-+
-+        if (reactContext == null) {
+ 
+         if (reactContext == null) {
+-            // If the react context is not available, try to get the current context from the react host (RN0.76).
+-            reactContext = ((ReactApplication) mAppContext).getReactHost().getCurrentReactContext();
 +            try {
 +                final ReactInstanceManager instanceManager = reactApplication.getReactNativeHost().getReactInstanceManager();
 +                reactContext = instanceManager.getCurrentReactContext();
@@ -31,6 +54,16 @@ index c7bf71c..08022ff 100644
          }
          // Note: Cannot assume react-context exists cause this is an async dispatched service.
          if (reactContext != null && reactContext.hasActiveReactInstance()) {
-             Bundle tokenMap = new Bundle();
-             tokenMap.putString("deviceToken", sToken);
-             mJsIOHelper.sendEventToJS(TOKEN_RECEIVED_EVENT_NAME, tokenMap, reactContext);
+diff --git a/node_modules/react-native-notifications/react-native.config.js b/node_modules/react-native-notifications/react-native.config.js
+index d246b0c..bb1e4a3 100644
+--- a/node_modules/react-native-notifications/react-native.config.js
++++ b/node_modules/react-native-notifications/react-native.config.js
+@@ -4,7 +4,7 @@ module.exports = {
+       ios: {},
+       android: {
+         sourceDir: './lib/android/app',
+-        packageInstance: 'new RNNotificationsPackage(reactNativeHost.getApplication())',
++        packageInstance: 'new RNNotificationsPackage(getApplication())',
+       }
+     },
+   },
