@@ -308,8 +308,6 @@
     "privacy": "Confidențialitate",
     "privacy_read_clipboard": "Citește clipboard",
     "privacy_system_settings": "Setări sistem",
-    "privacy_quickactions": "Scurtături ale portofelului",
-    "privacy_quickactions_explanation": "Atinge și ține apăsată pictograma aplicației BlueWallet pentru a vedea rapid balanța portofelului tău.",
     "privacy_clipboard_explanation": "Furnizează scurtături dacă o adresă sau factură este găsită în clipboard-ul tău.",
     "privacy_do_not_track": "Dezactivează Analytics",
     "privacy_do_not_track_explanation": "Informațiile despre performanță și fiabilitate nu vor fi trimise spre analiză.",

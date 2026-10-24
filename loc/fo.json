@@ -314,8 +314,6 @@
     "privacy": "Dátuvernd",
     "privacy_read_clipboard": "Lesa setiborð",
     "privacy_system_settings": "Stýrikervisstillingar",
-    "privacy_quickactions": "Mappusnarknappar",
-    "privacy_quickactions_explanation": "Halt á BlueWallet app ímyndini, vel síðani mappu fyri at síggja salduna á mappuni.",
     "privacy_clipboard_explanation": "Virkir snarknappar í fall ein adressa ella gjaldsumbøn verður funnin í setiborðinum.",
     "privacy_do_not_track": "Óvirkja greiningar",
     "privacy_do_not_track_explanation": "Ritbúnaðar avriks- og dygdarupplýsingar verða ikki innsendir til greiningar.",

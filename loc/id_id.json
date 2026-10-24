@@ -308,8 +308,6 @@
     "privacy": "Privasi",
     "privacy_read_clipboard": "Baca Clipboard",
     "privacy_system_settings": "Pengaturan sistem",
-    "privacy_quickactions": "Jalan Pintas Dompet",
-    "privacy_quickactions_explanation": "Sentuh dan tahan ikon aplikasi BlueWallet untuk melihat saldo dompet Anda dengan cepat.",
     "privacy_clipboard_explanation": "Sediakan pintasan jika alamat atau faktur ditemukan di clipboard Anda.",
     "privacy_do_not_track": "Nonaktifkan Analitik",
     "privacy_do_not_track_explanation": "Informasi performa dan keandalan tidak akan dikirim untuk dianalisis.",

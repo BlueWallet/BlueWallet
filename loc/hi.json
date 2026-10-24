@@ -308,8 +308,6 @@
     "privacy": "गोपनीयता",
     "privacy_read_clipboard": "क्लिपबोर्ड पढ़ें",
     "privacy_system_settings": "सिस्टम सेटिंग्स",
-    "privacy_quickactions": "वॉलेट शॉर्टकट",
-    "privacy_quickactions_explanation": "अपने वॉलेट का बैलेंस तुरंत देखने के लिए BlueWallet ऐप आइकन को टच करके दबाए रखें।",
     "privacy_clipboard_explanation": "यदि आपके क्लिपबोर्ड में कोई पता या इनवॉइस मिलता है तो शॉर्टकट प्रदान करें।",
     "privacy_do_not_track": "एनालिटिक्स अक्षम करें",
     "privacy_do_not_track_explanation": "प्रदर्शन और विश्वसनीयता संबंधी जानकारी विश्लेषण के लिए प्रस्तुत नहीं की जाएगी।",

@@ -308,8 +308,6 @@
     "privacy": "Yksityisyys",
     "privacy_read_clipboard": "Lue Leikepöytä",
     "privacy_system_settings": "Järjestelmäasetukset",
-    "privacy_quickactions": "Lompakon Pikanäppäimet",
-    "privacy_quickactions_explanation": "Kosketa ja pidä Aloitusnäytön BlueWallet-sovelluskuvaketta nähdäksesi nopeasti lompakon saldon.",
     "privacy_clipboard_explanation": "Toimita pikakuvakkeet, jos leikepöydältä löytyy osoite tai lasku.",
     "privacy_do_not_track": "Poista analytiikka käytöstä",
     "privacy_do_not_track_explanation": "Suorituskyky- ja luotettavuustietoja ei lähetetä analysoitavaksi.",

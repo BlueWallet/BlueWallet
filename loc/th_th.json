@@ -308,8 +308,6 @@
     "privacy": "ความเป็นส่วนตัว",
     "privacy_read_clipboard": "อ่านค่าจากคลิปบอร์ด",
     "privacy_system_settings": "ตั้งค่าระบบ",
-    "privacy_quickactions": "ทางลัดของกระเป๋าสตางค์",
-    "privacy_quickactions_explanation": "แตะค้างที่ไอคอนแอป BlueWallet เพื่อดูยอดคงเหลือของกระเป๋าสตางค์อย่างรวดเร็ว",
     "privacy_clipboard_explanation": "ให้ทางลัดหากพบแอดเดรสหรือใบแจ้งหนี้ในคลิปบอร์ดของท่าน",
     "privacy_do_not_track": "ปิดการวิเคราะห์",
     "privacy_do_not_track_explanation": "ข้อมูลประสิทธิภาพและความน่าเชื่อถือจะไม่ถูกส่งเพื่อการวิเคราะห์",

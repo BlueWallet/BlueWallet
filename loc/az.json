@@ -308,8 +308,6 @@
     "privacy": "Məxfilik",
     "privacy_read_clipboard": "Mübadilə Buferini Oxu",
     "privacy_system_settings": "Sistem Ayarları",
-    "privacy_quickactions": "Cüzdan Qısayolları",
-    "privacy_quickactions_explanation": "Cüzdanınızın balansını tez görmək üçün BlueWallet tətbiq nişanına toxunub saxlayın.",
     "privacy_clipboard_explanation": "Mübadilə buferinizdə ünvan və ya faktura tapılarsa qısayollar təqdim et.",
     "privacy_do_not_track": "Analitikanı Söndür",
     "privacy_do_not_track_explanation": "Performans və etibarlılıq məlumatları təhlil üçün göndərilməyəcək.",

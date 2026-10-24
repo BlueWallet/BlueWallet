@@ -308,8 +308,6 @@
     "privacy": "Գաղտնիություն",
     "privacy_read_clipboard": "Կարդալ սեղմատախտակը",
     "privacy_system_settings": "Համակարգի կարգավորումներ",
-    "privacy_quickactions": "Դրամապանակի դյուրանցումներ",
-    "privacy_quickactions_explanation": "Հպեք և պահեք BlueWallet հավելվածի պատկերակը՝ ձեր դրամապանակի հաշվեկշիռն արագ դիտելու համար։",
     "privacy_clipboard_explanation": "Տրամադրել դյուրանցումներ, եթե սեղմատախտակում հայտնաբերվի հասցե կամ հաշիվ-ֆակտուրա։",
     "privacy_do_not_track": "Անջատել վերլուծությունը",
     "privacy_do_not_track_explanation": "Արտադրողականության և հուսալիության մասին տվյալները չեն ուղարկվի վերլուծության համար։",

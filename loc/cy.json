@@ -308,8 +308,6 @@
     "privacy": "Preifatrwydd",
     "privacy_read_clipboard": "Darllen Clipfwrdd",
     "privacy_system_settings": "Gosodiadau System",
-    "privacy_quickactions": "Llwybrau Byr Waled",
-    "privacy_quickactions_explanation": "Cyffwrdd a dal eicon yr ap BlueWallet i weld balans dy waled yn gyflym.",
     "privacy_clipboard_explanation": "Darparu llwybrau byr os canfyddir cyfeiriad neu anfoneb yn dy glipfwrdd.",
     "privacy_do_not_track": "Analluogi Dadansoddeg",
     "privacy_do_not_track_explanation": "Ni fydd gwybodaeth perfformiad a dibynadwyedd yn cael ei chyflwyno i'w dadansoddi.",

@@ -308,8 +308,6 @@
     "privacy": "Personvern",
     "privacy_read_clipboard": "Les Utklippstavlen",
     "privacy_system_settings": "Systeminnstillinger",
-    "privacy_quickactions": "Lommebok-snarveier",
-    "privacy_quickactions_explanation": "Trykk og hold på BlueWallet-appens ikon for raskt å se saldoen for lommeboken din.",
     "privacy_clipboard_explanation": "Oppgi snarveier hvis en adresse eller faktura er funnet i utklippstavlen.",
     "privacy_do_not_track": "Deaktiver Analyse",
     "privacy_do_not_track_explanation": "Informasjon om ytelse og pålitelighet vil ikke bli sendt inn for analyse.",

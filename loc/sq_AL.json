@@ -308,8 +308,6 @@
     "privacy": "Privatësia",
     "privacy_read_clipboard": "Lexo kujtesën e përkohshme",
     "privacy_system_settings": "Cilësimet e sistemit",
-    "privacy_quickactions": "Shkurtoret e portofolit",
-    "privacy_quickactions_explanation": "Prekni dhe mbani ikonën e aplikacionit BlueWallet për të parë shpejt ballancën e portofolit tuaj.",
     "privacy_clipboard_explanation": "Ofron shkurtore nëse gjendet një adresë ose faturë në kujtesën tuaj të përkohshme.",
     "privacy_do_not_track": "Çaktivizo analitikën",
     "privacy_do_not_track_explanation": "Informacioni mbi performancën dhe besueshmërinë nuk do të dërgohet për analizë.",

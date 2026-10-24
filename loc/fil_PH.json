@@ -308,8 +308,6 @@
     "privacy": "Privacy",
     "privacy_read_clipboard": "Basahin ang Clipboard",
     "privacy_system_settings": "Mga Setting ng System",
-    "privacy_quickactions": "Mga Shortcut ng Wallet",
-    "privacy_quickactions_explanation": "Pindutin at hawakan ang icon ng BlueWallet app upang mabilis na makita ang balanse ng iyong wallet.",
     "privacy_clipboard_explanation": "Magbigay ng mga shortcut kung may nakitang address o invoice sa iyong clipboard.",
     "privacy_do_not_track": "I-disable ang Analytics",
     "privacy_do_not_track_explanation": "Hindi isusumite para sa pagsusuri ang impormasyon ng performance at reliability.",
