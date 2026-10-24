@@ -1097,22 +1097,6 @@ platform :ios do
       end
       UI.success("Verified App Sandbox entitlement on the Catalyst app and widget archive")
 
-      embedded_profiles = [
-        File.join(archived_app, "Contents/embedded.provisionprofile"),
-        File.join(archived_app, "Contents/PlugIns/WidgetsExtension.appex/Contents/embedded.provisionprofile")
-      ]
-      embedded_profiles.each do |profile|
-        UI.user_error!("Embedded Catalyst provisioning profile not found at #{profile}") unless File.file?(profile)
-        profile_plist = sh("security", "cms", "-D", "-i", profile, log: false)
-        unless profile_plist.match?(%r{<key>com\.apple\.security\.app-sandbox</key>\s*<true\s*/>})
-          UI.user_error!(
-            "App Sandbox is missing from #{profile}. Renew the Catalyst App Store profiles; " \
-            "changing the source entitlement or package cannot add a capability the profile does not authorize."
-          )
-        end
-      end
-      UI.success("Verified App Sandbox authorization in both Catalyst provisioning profiles")
-
       candidate_paths = []
       candidate_paths << File.join(archive_path, "Products/Applications/BlueWallet.app") if archive_path
       candidate_paths << Dir.glob(File.join(derived_data_path, "Build/Products/Release-maccatalyst/*.app")).first
@@ -1122,30 +1106,9 @@ platform :ios do
       UI.user_error!("Mac Catalyst app was not found after build") if catalyst_app_path.nil?
       UI.success("Mac Catalyst app found at: #{catalyst_app_path}")
 
-      if should_sign && ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty?
-        UI.message("Re-signing app with: #{signing_identity}")
-        sh("codesign",
-           "--deep",
-           "--force",
-           "--options", "runtime",
-           "--sign", signing_identity,
-           catalyst_app_path)
-        sh("codesign",
-           "--verify",
-           "--deep",
-           "--strict",
-           catalyst_app_path)
-        UI.success("App signed and verified")
-      else
-        # Ad-hoc sign so macOS doesn't treat the app as "damaged"
-        UI.message("Ad-hoc signing app to avoid Gatekeeper quarantine issues...")
-        sh("codesign",
-           "--deep",
-           "--force",
-           "--sign", "-",
-           catalyst_app_path)
-        UI.success("App ad-hoc signed")
-      end
+      # Preserve the archive's Xcode signatures. Re-signing here without the
+      # original entitlements strips App Sandbox from the app and widget.
+      sh("codesign", "--verify", "--deep", "--strict", catalyst_app_path) if should_sign
 
       dmg_path = File.join(output_dir, "BlueWallet-Mac-Catalyst.dmg")
       UI.message("Creating DMG at: #{dmg_path}")
@@ -1292,10 +1255,16 @@ platform :ios do
       FileUtils.mkdir_p(output_dir)
 
       # The archive already has the validated App Store signatures and
-      # entitlements. Packaging it directly prevents exportArchive from
-      # re-signing the executables and stripping App Sandbox.
+      # entitlements. Package it without modifying either executable signature.
       archived_app = File.join(archive_path, "Products/Applications/BlueWallet.app")
       UI.user_error!("No signed Catalyst app found in #{archive_path}") unless File.directory?(archived_app)
+      [archived_app, File.join(archived_app, "Contents/PlugIns/WidgetsExtension.appex")].each do |bundle|
+        sh("codesign", "--verify", "--strict", bundle)
+        entitlements = sh("codesign", "-d", "--entitlements", ":-", bundle, log: false)
+        unless entitlements.match?(%r{<key>com\.apple\.security\.app-sandbox</key>\s*<true\s*/>})
+          UI.user_error!("App Sandbox entitlement is missing immediately before packaging #{bundle}")
+        end
+      end
       pkg_path = File.join(output_dir, "BlueWallet.pkg")
       FileUtils.rm_f(pkg_path)
       installer_identity = ENV['CATALYST_INSTALLER_SIGNING_IDENTITY'] || "3rd Party Mac Developer Installer"
