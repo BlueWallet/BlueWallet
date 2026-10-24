@@ -308,8 +308,6 @@
     "privacy": "Privacy matter",
     "privacy_read_clipboard": "Read the clipboard",
     "privacy_system_settings": "System Settings",
-    "privacy_quickactions": "Wallet shortcuts wey dey",
-    "privacy_quickactions_explanation": "Touch and hold the BlueWallet app icon make you quick see your wallet balance.",
     "privacy_clipboard_explanation": "Provide shortcuts if address or invoice dey for your clipboard.",
     "privacy_do_not_track": "Off Analytics",
     "privacy_do_not_track_explanation": "Performance and reliability information no go send for analysis.",

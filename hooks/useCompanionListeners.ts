@@ -23,7 +23,6 @@ import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 import RNFS from 'react-native-fs';
 import presentAlert from '../components/Alert';
 import useWidgetCommunication from './useWidgetCommunication';
-import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
 import useClipboardDetection from './useClipboardDetection';
@@ -55,7 +54,6 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   // They'll handle their own conditional logic internally
   useWidgetCommunication();
   useMenuElements();
-  useDeviceQuickActions();
   useHandoffListener();
 
   const processPushNotifications = useCallback(async () => {

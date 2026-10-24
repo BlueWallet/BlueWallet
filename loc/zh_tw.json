@@ -314,8 +314,6 @@
     "privacy": "私隱",
     "privacy_read_clipboard": "讀取剪貼板",
     "privacy_system_settings": "系統設定",
-    "privacy_quickactions": "錢包捷徑",
-    "privacy_quickactions_explanation": "長按 BlueWallet 應用程式圖示以快速查看您錢包的結餘。",
     "privacy_clipboard_explanation": "如果在剪貼簿中找到地址或帳單，請提供捷徑。",
     "privacy_do_not_track": "停用分析",
     "privacy_do_not_track_explanation": "效能與可靠性資訊將不會送出進行分析。",

@@ -116,6 +116,10 @@
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
 
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+
             <!-- Main launcher intent filter -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

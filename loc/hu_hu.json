@@ -308,8 +308,6 @@
     "privacy": "Személyes adatok",
     "privacy_read_clipboard": "Vágólap olvasása",
     "privacy_system_settings": "Rendszer beállítások",
-    "privacy_quickactions": "Tárca gyorsbillentyűk",
-    "privacy_quickactions_explanation": "Érintsd meg és tartsd nyomva a BlueWallet alkalmazás ikont a képernyőn a tárca egyenleg gyors megtekintéséhez.",
     "privacy_clipboard_explanation": "Jelenítsen meg opciókat, ha cím vagy számla található a vágólapon.",
     "privacy_do_not_track": "Analitika kikapcsolása",
     "privacy_do_not_track_explanation": "A teljesítményre és a megbízhatóságra vonatkozó információk nem lesznek beküldve elemzésre.",

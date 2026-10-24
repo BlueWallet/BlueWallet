@@ -308,8 +308,6 @@
     "privacy": "Súkromie",
     "privacy_read_clipboard": "Čítať schránku",
     "privacy_system_settings": "Systémové nastavenia",
-    "privacy_quickactions": "Skratky peňaženky",
-    "privacy_quickactions_explanation": "Dotknite sa a podržte ikonu aplikácie BlueWallet pre rýchle zobrazenie zostatku vašej peňaženky.",
     "privacy_clipboard_explanation": "Poskytnúť skratky, ak je v schránke nájdená adresa alebo faktúra.",
     "privacy_do_not_track": "Vypnúť analytiku",
     "privacy_do_not_track_explanation": "Informácie o výkone a spoľahlivosti nebudú odosielané na analýzu.",

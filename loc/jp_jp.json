@@ -314,8 +314,6 @@
     "privacy": "プライバシー",
     "privacy_read_clipboard": "クリップボードを読む",
     "privacy_system_settings": "システム設定",
-    "privacy_quickactions": "ウォレットショートカット",
-    "privacy_quickactions_explanation": "BlueWalletアプリのアイコンをタッチして長押しすると、ウォレットの残高を素早く確認することができます。",
     "privacy_clipboard_explanation": "アドレスやインボイスがクリップボードにあった場合、ショートカットを提供する。",
     "privacy_do_not_track": "分析を無効にする",
     "privacy_do_not_track_explanation": "パフォーマンスと信頼性の情報を分析のために送信しません。",

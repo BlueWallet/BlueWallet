@@ -4,8 +4,10 @@ import { LightningTransaction, TWallet } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
-import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
+import { SendDetailsStackParamList, TNavigationWrapper } from './SendDetailsStackParamList';
 import { ClipboardPaymentKind } from '../blue_modules/clipboardPayment';
+import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { DrawerParamList } from './DrawerParamList';
 
 export type ScanQRCodeParamList = {
   cameraStatusGranted?: boolean;
@@ -37,7 +39,7 @@ type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']
 type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 
 export type DetailViewStackParamList = {
-  DrawerRoot: undefined;
+  DrawerRoot: NavigatorScreenParams<DrawerParamList> | undefined;
   UnlockWithScreen: undefined;
   KeyboardShortcuts: undefined;
   WalletsList: { onBarScanned?: string };
@@ -66,7 +68,9 @@ export type DetailViewStackParamList = {
     noWalletExplanationText?: string;
     onChainRequireSend?: boolean;
     selectedWalletID?: string; // Add this parameter to scroll to a specific wallet
+    selectionMode?: 'receive';
   };
+  ReceiveWalletSelection: { selectionMode: 'receive' };
   LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };
   LNDViewAdditionalInvoicePreImage: { invoiceId: string };
@@ -83,8 +87,8 @@ export type DetailViewStackParamList = {
   Success: undefined;
   WalletAddresses: { walletID: string };
   AddWalletRoot: undefined;
-  SendDetailsRoot: SendDetailsParams;
-  LNDCreateInvoiceRoot: undefined;
+  SendDetailsRoot: NavigatorScreenParams<SendDetailsStackParamList>;
+  LNDCreateInvoiceRoot: { screen: 'LNDCreateInvoice'; params: { walletID: string } } | undefined;
   ScanLNDInvoiceRoot: {
     screen: string;
     params: {

@@ -308,8 +308,6 @@
     "privacy": "Gizlilik",
     "privacy_read_clipboard": "Panoyu Oku",
     "privacy_system_settings": "Sistem Ayarları",
-    "privacy_quickactions": "Cüzdan Kısayolları",
-    "privacy_quickactions_explanation": "Cüzdanınızın bakiyesini hızlıca görüntülemek için BlueWallet uygulama simgesine basılı tutun.",
     "privacy_clipboard_explanation": "Panonuzda bir adres veya fatura bulunursa kısayollar sağla.",
     "privacy_do_not_track": "Analitiği Devre Dışı Bırak",
     "privacy_do_not_track_explanation": "Performans ve güvenilirlik bilgileri analiz için gönderilmez.",

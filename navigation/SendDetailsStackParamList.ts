@@ -37,7 +37,7 @@ export type SendDetailsParams = {
   onBarScanned?: string;
   unit?: BitcoinUnit;
   noRbf?: boolean;
-  walletID: string;
+  walletID?: string;
   launchedBy?: string;
   utxos?: CreateTransactionUtxo[] | null;
   isEditable?: boolean;
@@ -149,6 +149,7 @@ export type SendDetailsStackParamList = {
     noWalletExplanationText?: string;
     onChainRequireSend?: boolean;
     selectedWalletID?: string; // Add this parameter to scroll to a specific wallet
+    selectionMode?: 'receive';
   };
   CoinControl: {
     walletID: string;

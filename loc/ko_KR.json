@@ -308,8 +308,6 @@
     "privacy": "프라이버시",
     "privacy_read_clipboard": "읽기용 클립보드",
     "privacy_system_settings": "시스템 설정",
-    "privacy_quickactions": "지갑 단축경로",
-    "privacy_quickactions_explanation": "BlueWallet 앱 아이콘을 길게 누르면 지갑 잔액을 빠르게 볼 수 있습니다.",
     "privacy_clipboard_explanation": "클립보드에 주소나 청구서가 보이면 단축경로를 제공하세요",
     "privacy_do_not_track": "분석을 사용불가로",
     "privacy_do_not_track_explanation": "성능과 신뢰성 정보는 분석하는 데 제출되지 않을 것 입니다.",

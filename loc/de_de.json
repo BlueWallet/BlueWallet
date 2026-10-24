@@ -308,8 +308,6 @@
     "privacy": "Privatsphäre",
     "privacy_read_clipboard": "Zwischenablage lesen",
     "privacy_system_settings": "Systemeinstellungen",
-    "privacy_quickactions": "Walletverknüpfungen",
-    "privacy_quickactions_explanation": "Auf dem Startbildschirm das BlueWallet App-Symbol gedrückt halten, um rasch den Saldo zu sehen.",
     "privacy_clipboard_explanation": "Nutzt Rechnungen und Adressen in der Zwischenablage zum Senden.",
     "privacy_do_not_track": "Diagnosedaten ausschalten",
     "privacy_do_not_track_explanation": "Leistungs- und Zuverlässigkeitsinformationen nicht zur Analyse einreichen.",
