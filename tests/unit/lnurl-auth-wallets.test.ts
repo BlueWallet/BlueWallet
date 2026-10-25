@@ -11,6 +11,7 @@ import { HDSegwitElectrumSeedP2WPKHWallet } from '../../class/wallets/hd-segwit-
 import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
@@ -91,6 +92,17 @@ describe('LNURL-auth linking keys', () => {
     assert.strictEqual(
       uint8ArrayToHex(w.getLnurlAuthLinkingKey('lightninglogin.live')),
       uint8ArrayToHex(Lnurl.legacyLinkingKey('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d', 'lightninglogin.live')),
+    );
+  });
+
+  it('keeps legacy linking key for ark wallets', () => {
+    const w = new LightningArkWallet();
+    w.setSecret('arkade://' + MNEMONIC);
+    assert.ok(w.allowLnurlAuth());
+    // hmac-sha256(secret, domain), same as before LUD-05 support
+    assert.strictEqual(
+      uint8ArrayToHex(w.getLnurlAuthLinkingKey('lightninglogin.live')),
+      'f6ff426b561681a6d6ee2c01922ff79df138d72e031f5af037d8b99f01f70695',
     );
   });
 
