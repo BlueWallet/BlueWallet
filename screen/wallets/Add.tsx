@@ -49,19 +49,25 @@ interface State {
 const ActionTypes = {
   SET_LOADING: 'SET_LOADING',
   SET_WALLET_BASE_URI: 'SET_WALLET_BASE_URI',
-  SET_SELECTED_INDEX: 'SET_SELECTED_INDEX',
   SET_LABEL: 'SET_LABEL',
-  SET_SELECTED_WALLET_TYPE: 'SET_SELECTED_WALLET_TYPE',
 } as const;
-type ActionTypes = (typeof ActionTypes)[keyof typeof ActionTypes];
 
 type TAction =
   | { type: typeof ActionTypes.SET_LOADING; payload: boolean }
-  | { type: typeof ActionTypes.SET_WALLET_BASE_URI | typeof ActionTypes.SET_LABEL; payload: string }
-  | { type: typeof ActionTypes.SET_SELECTED_INDEX; payload: number }
-  | { type: typeof ActionTypes.SET_SELECTED_WALLET_TYPE; payload: ButtonSelected };
+  | { type: typeof ActionTypes.SET_WALLET_BASE_URI | typeof ActionTypes.SET_LABEL; payload: string };
 
-const index2walletType: Record<number, { text: string; subtitle: string; walletType: string }> = {
+const index2walletType: Record<
+  number,
+  {
+    text: string;
+    subtitle: string;
+    walletType:
+      | typeof HDSegwitBech32Wallet.type
+      | typeof HDLegacyP2PKHWallet.type
+      | typeof HDTaprootWallet.type
+      | typeof LightningCustodianWallet.type;
+  }
+> = {
   0: { subtitle: 'p2wpkh/HD', text: `${loc.multisig.native_segwit_title}`, walletType: HDSegwitBech32Wallet.type },
   1: { subtitle: 'p2pkh/HD', text: `${loc.multisig.legacy_title}`, walletType: HDLegacyP2PKHWallet.type },
   2: { subtitle: 'p2tr/HD', text: 'Taproot', walletType: HDTaprootWallet.type },
@@ -87,12 +93,8 @@ const walletReducer = (state: State, action: TAction): State => {
       return { ...state, isLoading: action.payload };
     case ActionTypes.SET_WALLET_BASE_URI:
       return { ...state, walletBaseURI: action.payload };
-    case ActionTypes.SET_SELECTED_INDEX:
-      return { ...state, selectedIndex: action.payload, selectedWalletType: ButtonSelected.ONCHAIN };
     case ActionTypes.SET_LABEL:
       return { ...state, label: action.payload };
-    case ActionTypes.SET_SELECTED_WALLET_TYPE:
-      return { ...state, selectedWalletType: action.payload };
     default:
       return state;
   }
@@ -161,7 +163,7 @@ const WalletsAdd: React.FC = () => {
     },
   };
 
-  const hasStoredLndHub = (walletBaseURI ?? '').trim().length > 0;
+  const hasStoredLndHub = walletBaseURI.trim().length > 0;
 
   const setSelectedWalletType = useCallback(
     (value: ButtonSelected) => {
@@ -301,7 +303,7 @@ const WalletsAdd: React.FC = () => {
     wallet.setLabel(label || loc.wallets.details_title);
 
     try {
-      const lndhub = walletBaseURI?.trim();
+      const lndhub = walletBaseURI.trim();
       if (lndhub) {
         const isValidNodeAddress = await LightningCustodianWallet.isValidNodeAddress(lndhub);
         if (isValidNodeAddress) {
@@ -479,9 +481,7 @@ const WalletsAdd: React.FC = () => {
               <Button
                 testID="Create"
                 title={loc.wallets.add_create}
-                disabled={
-                  !selectedWalletType || (selectedWalletType === ButtonSelected.OFFCHAIN && (walletBaseURI ?? '').trim().length === 0)
-                }
+                disabled={!selectedWalletType || (selectedWalletType === ButtonSelected.OFFCHAIN && walletBaseURI.trim().length === 0)}
                 onPress={createWallet}
               />
 

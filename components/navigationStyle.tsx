@@ -44,10 +44,7 @@ export type OptionsFormatter<P extends ParamListBase = ParamListBase, R extends 
 ) => NativeStackNavigationOptions;
 
 type RouteParamHeaderOptions = {
-  headerLeft?: boolean;
-  headerRight?: boolean;
-  headerBackVisible?: boolean;
-  statusBarStyle?: boolean;
+  headerRight: boolean;
 };
 
 /** what Stack.Screen options={} takes; React Navigation types navigation as optional there */
@@ -56,10 +53,7 @@ export type NavigationOptionsGetter<P extends ParamListBase = ParamListBase, R e
 ) => (deps: { navigation: NativeStackNavigationProp<P, R> | undefined; route: RouteProp<P, R> }) => NativeStackNavigationOptions;
 
 /** params a screen may receive to override its header; see RouteParamHeaderOptions */
-type HeaderParams = Pick<
-  NativeStackNavigationOptions,
-  'headerLeft' | 'headerRight' | 'headerBackVisible' | 'statusBarStyle' | 'presentation'
->;
+type HeaderParams = Pick<NativeStackNavigationOptions, 'headerRight' | 'presentation'>;
 
 const withRouteParamHeaderOptions =
   <P extends ParamListBase = ParamListBase, R extends keyof P = keyof P>(config: RouteParamHeaderOptions): OptionsFormatter<P, R> =>
@@ -67,12 +61,7 @@ const withRouteParamHeaderOptions =
     const routeParams: HeaderParams = route?.params ?? {};
     return {
       ...options,
-      ...(config.headerLeft && routeParams.headerLeft !== undefined ? { headerLeft: routeParams.headerLeft } : {}),
       ...(config.headerRight && routeParams.headerRight !== undefined ? { headerRight: routeParams.headerRight } : {}),
-      ...(config.headerBackVisible && routeParams.headerBackVisible !== undefined
-        ? { headerBackVisible: routeParams.headerBackVisible }
-        : {}),
-      ...(config.statusBarStyle && routeParams.statusBarStyle !== undefined ? { statusBarStyle: routeParams.statusBarStyle } : {}),
     };
   };
 

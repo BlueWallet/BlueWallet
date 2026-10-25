@@ -3,7 +3,7 @@ import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from '
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
 import Share from 'react-native-share';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition, receiveSheetOptions } from '../components/navigationStyle';
 import type { ScreenDeps } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import type { Theme } from '../components/themes';
@@ -529,10 +529,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ElectrumSettings"
           component={ElectrumSettings}
-          options={navigationStyle(
-            getSettingsHeaderOptions(loc.settings.electrum_settings_server, theme),
-            withRouteParamHeaderOptions({ headerRight: true }),
-          )(theme)}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.electrum_settings_server, theme))(theme)}
           initialParams={{ server: undefined }}
         />
         <DetailViewStack.Screen

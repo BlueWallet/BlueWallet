@@ -2,7 +2,7 @@ import React, { lazy, useMemo } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform } from 'react-native';
 import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
-import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { isIOS26OrHigher } from '../blue_modules/environment';
 import { useTheme } from '../components/themes';
 import { Action } from '../components/types';
@@ -116,14 +116,11 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="SendDetails"
         component={SendDetailsComponent}
-        options={navigationStyle(
-          {
-            title: loc.send.header,
-            statusBarStyle: 'light',
-            closeButtonPosition: CloseButtonPosition.Left,
-          },
-          withRouteParamHeaderOptions({ headerRight: true }),
-        )(theme)}
+        options={navigationStyle({
+          title: loc.send.header,
+          statusBarStyle: 'light',
+          closeButtonPosition: CloseButtonPosition.Left,
+        })(theme)}
         initialParams={{ isEditable: true, feeUnit: BitcoinUnit.BTC, amountUnit: BitcoinUnit.BTC }} // Correctly typed now
       />
       <Stack.Screen
@@ -142,10 +139,7 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="Confirm"
         component={ConfirmComponent}
-        options={navigationStyle(
-          { title: loc.send.confirm_header, headerRight: () => DetailsButton },
-          withRouteParamHeaderOptions({ headerRight: true }),
-        )(theme)}
+        options={navigationStyle({ title: loc.send.confirm_header, headerRight: () => DetailsButton })(theme)}
       />
       <Stack.Screen
         name="PsbtWithHardwareWallet"
@@ -160,7 +154,7 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="CreateTransaction"
         component={CreateTransactionComponent}
-        options={navigationStyle({ title: loc.send.create_details }, withRouteParamHeaderOptions({ headerRight: true }))(theme)}
+        options={navigationStyle({ title: loc.send.create_details })(theme)}
       />
       <Stack.Screen
         name="PsbtMultisig"

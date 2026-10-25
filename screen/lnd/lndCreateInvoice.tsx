@@ -274,11 +274,11 @@ const LNDCreateInvoice = () => {
 
       assert(wallet.current instanceof LightningArkWallet || wallet.current instanceof LightningCustodianWallet);
 
-      const invoiceRequest = await wallet.current?.addInvoice(+invoiceAmount, description);
+      const invoiceRequest = await wallet.current.addInvoice(+invoiceAmount, description);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
 
       // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
-      const decoded = await wallet.current?.decodeInvoice(invoiceRequest);
+      const decoded = await wallet.current.decodeInvoice(invoiceRequest);
       tryToObtainPermissions()
         .then(res => majorTomToGroundControl([], [decoded.payment_hash], []))
         .catch(err => console.error(err.message));
@@ -303,7 +303,7 @@ const LNDCreateInvoice = () => {
       setTimeout(async () => {
         assert(wallet.current instanceof LightningArkWallet || wallet.current instanceof LightningCustodianWallet);
         // wallet object doesnt have this fresh invoice in its internals, so we refetch it and only then save
-        await wallet.current?.fetchUserInvoices();
+        await wallet.current.fetchUserInvoices();
         await saveToDisk();
       }, 1000);
 

@@ -45,17 +45,13 @@ interface ManageWalletsListItemProps {
   item: Item;
   isDraggingDisabled: boolean;
   handleToggleHideBalance: (wallet: TWallet) => void;
-  state: { wallets: TWallet[]; searchQuery: string; isSearchFocused?: boolean };
+  state: { wallets: TWallet[]; searchQuery: string };
   navigateToWallet: (wallet: TWallet) => void;
   navigateToAddress: (address: string, walletID: string) => void;
   renderHighlightedText: (text: string, query: string) => React.ReactElement;
   isActive: boolean;
   globalDragActive: boolean;
   drag?: () => void;
-  isPlaceHolder?: boolean;
-  onPressIn?: () => void;
-  onPressOut?: () => void;
-  style?: ViewStyle;
 }
 
 const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
@@ -63,16 +59,12 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   isDraggingDisabled,
   drag,
   state,
-  isPlaceHolder = false,
   navigateToWallet,
   navigateToAddress,
   renderHighlightedText,
-  onPressIn,
-  onPressOut,
   handleToggleHideBalance,
   isActive,
   globalDragActive,
-  style,
 }) => {
   const { colors, dark } = useTheme();
   const { direction } = useLocale();
@@ -154,8 +146,6 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
         onPress={onPress}
         onLongPress={isDraggingDisabled ? undefined : startDrag}
         delayLongPress={500}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
         searchQuery={state.searchQuery || ''}
         isActive={isActive}
         borderBottomColor={colors.lightBorder}
