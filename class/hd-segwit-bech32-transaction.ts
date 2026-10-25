@@ -38,6 +38,30 @@ export const isTxNotReplaceableError = (error: unknown): boolean =>
   error instanceof TxNotReplaceableError || (error instanceof Error && error.name === 'TxNotReplaceableError');
 
 /**
+ * Decodes raw tx hex that came from Electrum server (or its cache). Garbage is treated as unverifiable server data, so
+ * callers can drop the cached copy and refetch.
+ */
+function decodeServerTxhex(hex: string): bitcoin.Transaction {
+  try {
+    return bitcoin.Transaction.fromHex(hex);
+  } catch (_) {
+    throw new TxVerificationError('Electrum server returned a transaction that cannot be decoded');
+  }
+}
+
+/**
+ * Max witness bytes (of a single input) we count when estimating size of a transaction whose witness we cant verify.
+ * That is a typical p2wpkh witness (1 byte items count + 1+72 bytes signature + 1+33 bytes pubkey), p2tr key-path spend
+ * is even smaller.
+ */
+const UNVERIFIED_WITNESS_MAX_BYTES = 108;
+
+const varIntLength = (n: number): number => (n < 0xfd ? 1 : n <= 0xffff ? 3 : n <= 0xffffffff ? 5 : 9);
+
+const witnessByteLength = (witness: Uint8Array[]): number =>
+  varIntLength(witness.length) + witness.reduce((sum, item) => sum + varIntLength(item.length) + item.length, 0);
+
+/**
  * Checks that input `inIndex` of `tx` is a valid P2WPKH spend of `prevOutScript` worth `value` sats.
  * Electrum servers are not trusted to tell us the truth about unconfirmed transactions: a malicious server
  * can show us a conflicting tx with our inputs (and our copied witness) but with outputs paying the attacker.
@@ -125,7 +149,7 @@ export class HDSegwitBech32Transaction {
     const hex = hexes[this._txid];
     if (!hex) throw new Error("Transaction can't be found in mempool");
     if (typeof hex !== 'string') throw new TxVerificationError('Electrum server did not return raw transaction');
-    const decoded = bitcoin.Transaction.fromHex(hex);
+    const decoded = decodeServerTxhex(hex);
     if (decoded.getId() !== this._txid) throw new TxVerificationError('Electrum server returned a transaction with unexpected txid');
     this._txhex = hex;
     this._txDecoded = decoded;
@@ -231,7 +255,7 @@ export class HDSegwitBech32Transaction {
    * 'cancel') it also throws `TxNotReplaceableError` if this wallet can't build such RBF replacement.
    *
    * @param replacement {'bump'|'cancel'|undefined} set when info is needed for an RBF replacement (not for CPFP)
-   * @returns {Promise<{fee: number, utxos: Array, unconfirmedUtxos: Array, changeAmount: number, feeRate: number, targets: Array}>}
+   * @returns {Promise<{fee: number, utxos: Array, unconfirmedUtxos: Array, changeAmount: number, feeRate: number, vsize: number, targets: Array}>}
    */
   async getInfo(replacement?: 'bump' | 'cancel') {
     let info;
@@ -281,7 +305,7 @@ export class HDSegwitBech32Transaction {
     const prevTransactions: Record<string, bitcoin.Transaction> = {};
     for (const [prevTxid, hex] of Object.entries(prevTxHexes)) {
       if (typeof hex !== 'string') continue; // not raw hex, cant check it. such input is refused below
-      const decoded = bitcoin.Transaction.fromHex(hex);
+      const decoded = decodeServerTxhex(hex);
       if (decoded.getId() !== prevTxid) throw new TxVerificationError('Electrum server returned a transaction with unexpected txid');
       prevTransactions[prevTxid] = decoded;
     }
@@ -289,6 +313,7 @@ export class HDSegwitBech32Transaction {
     // fetched, now lets count how much satoshis went in
     let wentIn = 0;
     const utxos: CreateTransactionUtxo[] = [];
+    const verifiedInputs = new Set<number>(); // inputs with checked signature, so their witness is real
     for (let i = 0; i < this._txDecoded.ins.length; i++) {
       const inp = this._txDecoded.ins[i];
       const reversedHash = uint8ArrayToHex(new Uint8Array(inp.hash).reverse());
@@ -309,6 +334,7 @@ export class HDSegwitBech32Transaction {
       if (!isValidP2wpkhSpend(this._txDecoded, i, prevOut.script, prevOut.value)) {
         throw new TxVerificationError('Transaction has invalid signature on our input, it was not created by this wallet');
       }
+      verifiedInputs.add(i);
       utxos.push({ vout: inp.index, value, txid: reversedHash, address });
     }
 
@@ -320,9 +346,10 @@ export class HDSegwitBech32Transaction {
     }
 
     const fee = wentIn - wasSpent;
-    if (fee <= 0) throw new TxVerificationError('Transaction fee is not positive');
-    let feeRate = Math.floor(fee / this._txDecoded.virtualSize());
-    if (feeRate === 0) feeRate = 1;
+    // amounts are bound by txids, so negative fee means server data is wrong. zero fee is fine (e.g. package relay)
+    if (fee < 0) throw new TxVerificationError('Transaction fee is negative');
+    const vsize = this._getVsizeForFeerate(verifiedInputs);
+    const feeRate = Math.floor(fee / vsize);
 
     // lets take a look at change, and outputs we own that current transaction creates (can be used in CPFP).
     // outputs are taken from the (txid-checked) raw tx, not from the server-decoded json
@@ -346,7 +373,29 @@ export class HDSegwitBech32Transaction {
       }
     }
 
-    return { fee, feeRate, targets, changeAmount, utxos, unconfirmedUtxos };
+    return { fee, feeRate, vsize, targets, changeAmount, utxos, unconfirmedUtxos };
+  }
+
+  /**
+   * Virtual size of this transaction, to be used for feerate calculations. Witness is not covered by txid, so server
+   * can pad witness of inputs we cant verify (e.g. not ours) and make transaction look bigger (and its feerate lower,
+   * which would make CPFP overpay). For such inputs we count at most `UNVERIFIED_WITNESS_MAX_BYTES` witness bytes, so
+   * this is never bigger than the real vsize (and feerate is never lower than the real one).
+   *
+   * @param verifiedInputs indexes of inputs whose witness was verified, their actual witness size is used
+   */
+  _getVsizeForFeerate(verifiedInputs: Set<number>): number {
+    assert(this._txDecoded, 'transaction not decoded');
+    const tx = this._txDecoded;
+    let weight = tx.byteLength(false) * 4;
+    if (tx.hasWitnesses()) {
+      weight += 2; // segwit marker & flag
+      tx.ins.forEach((inp, i) => {
+        const witnessBytes = witnessByteLength(inp.witness);
+        weight += verifiedInputs.has(i) ? witnessBytes : Math.min(witnessBytes, UNVERIFIED_WITNESS_MAX_BYTES);
+      });
+    }
+    return Math.max(1, Math.ceil(weight / 4));
   }
 
   /**
@@ -505,7 +554,7 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
-    const { feeRate, fee: oldFee, unconfirmedUtxos } = await this.getInfo();
+    const { feeRate, fee: oldFee, vsize: oldVsize, unconfirmedUtxos } = await this.getInfo();
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     const myAddress = await this._wallet.getChangeAddressAsync();
@@ -515,12 +564,14 @@ export class HDSegwitBech32Transaction {
     const targetFeeRate = 2 * newFeerate - feeRate;
 
     let add = 0;
+    let maxFeeRate = Infinity;
     let tx: bitcoin.Transaction | undefined, inputs: CoinSelectReturnInput[], outputs: CoinSelectOutput[], fee: number;
     while (add <= 128) {
+      const childFeeRate = Math.min(targetFeeRate + add, maxFeeRate);
       const createdTx = this._wallet.createTransaction(
         unconfirmedUtxos,
         [{ address: myAddress }],
-        targetFeeRate + add,
+        childFeeRate,
         myAddress,
         HDSegwitBech32Wallet.defaultRBFSequence,
       );
@@ -529,14 +580,16 @@ export class HDSegwitBech32Transaction {
       outputs = createdTx.outputs;
       fee = createdTx.fee;
       assert(tx, 'tx is createCPFPbumpFee() is undefined');
-      const combinedFeeRate = (oldFee + fee) / (this._txDecoded!.virtualSize() + tx.virtualSize()); // avg
-      if (combinedFeeRate < newFeerate) {
-        add *= 2;
-        if (!add) add = 2;
-      } else {
-        // reached target feerate
-        break;
-      }
+      const combinedFeeRate = (oldFee + fee) / (oldVsize + tx.virtualSize()); // avg
+      if (combinedFeeRate >= newFeerate) break; // reached target feerate
+      if (childFeeRate >= maxFeeRate) break; // child alone already pays for the whole package, no point paying more
+      // child paying `fullPackageFeeRate` covers newFeerate for both txs even if parent paid nothing, so there is no
+      // reason to go way above it. bound is loose (x2) so normal CPFP stays exactly as it was, it only stops runaway
+      const fullPackageFeeRate = Math.ceil((newFeerate * (oldVsize + tx.virtualSize())) / tx.virtualSize());
+      maxFeeRate = Math.max(targetFeeRate, 2 * fullPackageFeeRate + 2);
+      if (childFeeRate >= maxFeeRate) break;
+      add *= 2;
+      if (!add) add = 2;
     }
 
     // Non-null assertions are safe here because the while loop always runs at least once (add starts at 0)

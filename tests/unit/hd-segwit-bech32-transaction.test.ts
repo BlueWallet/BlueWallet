@@ -219,25 +219,37 @@ describe('HDSegwitBech32Transaction vs malicious Electrum server (GHSA-6jp4-8v48
     await assert.rejects(new HDSegwitBech32Transaction(null, tx1.getId(), wallet).createRBFbumpFee(10), isTxVerificationError);
   });
 
-  it('refuses CPFP of a tx whose fee is not positive', async () => {
+  it('refuses CPFP of a tx with negative fee, but allows a zero-fee parent', async () => {
     const { wallet, ourAddress } = setup();
     const foreignFunding = new bitcoin.Transaction();
     foreignFunding.version = 2;
     foreignFunding.addInput(new Uint8Array(32).fill(0x44), 0);
     foreignFunding.addOutput(bitcoin.address.toOutputScript(RECIPIENT), 100_000n);
     serve(foreignFunding);
-    for (const outValue of [150_000n, 100_000n]) {
+    const incomingPaying = (outValue: bigint) => {
       const incoming = new bitcoin.Transaction();
       incoming.version = 2;
       incoming.addInput(foreignFunding.getHash(), 0);
       incoming.ins[0].witness = [new Uint8Array(71), new Uint8Array(33)];
       incoming.addOutput(bitcoin.address.toOutputScript(ourAddress), outValue);
       serve(incoming);
-      await assert.rejects(
-        new HDSegwitBech32Transaction(null, incoming.getId(), wallet).createCPFPbumpFee(10),
-        (err: Error) => isTxVerificationError(err) && /fee/.test(err.message),
-      );
-    }
+      return incoming;
+    };
+
+    const negative = incomingPaying(150_000n);
+    await assert.rejects(
+      new HDSegwitBech32Transaction(null, negative.getId(), wallet).createCPFPbumpFee(10),
+      (err: Error) => isTxVerificationError(err) && /fee/.test(err.message),
+    );
+
+    const zeroFee = incomingPaying(100_000n);
+    const { fee, feeRate } = await new HDSegwitBech32Transaction(null, zeroFee.getId(), wallet).getInfo();
+    assert.strictEqual(fee, 0);
+    assert.strictEqual(feeRate, 0);
+    const { tx, fee: childFee } = await new HDSegwitBech32Transaction(null, zeroFee.getId(), wallet).createCPFPbumpFee(10);
+    assert(tx);
+    // child pays for both txs
+    assert.ok(childFee / (zeroFee.virtualSize() + tx.virtualSize()) >= 10);
   });
 
   it('drops a cached tampered copy of our tx (same txid, bad witness) and uses a fresh one from the server', async () => {
@@ -348,5 +360,108 @@ describe('HDSegwitBech32Transaction vs malicious Electrum server (GHSA-6jp4-8v48
     assert(cancelTx);
     assert.strictEqual(cancelTx.outs.length, 1);
     assert.ok(wallet.weOwnAddress(outputAddresses(cancelTx)[0]));
+  });
+
+  it('drops an undecodable cached copy of our tx and uses a fresh one from the server', async () => {
+    const { wallet, tx1 } = setup();
+    serve(tx1);
+    for (const garbage of ['0x' + tx1.toHex(), 'zz', tx1.toHex().slice(0, 40)]) {
+      mockCachedHex[tx1.getId()] = garbage;
+      const { tx } = await new HDSegwitBech32Transaction(null, tx1.getId(), wallet).createRBFbumpFee(10);
+      assert(tx);
+      assert.ok(outputAddresses(tx).includes(RECIPIENT));
+      assert.strictEqual(mockCachedHex[tx1.getId()], tx1.toHex());
+    }
+  });
+
+  it('drops an undecodable cached copy of a previous tx and uses a fresh one from the server', async () => {
+    const { wallet, fundingTx, tx1 } = setup();
+    serve(tx1);
+    mockCachedHex[fundingTx.getId()] = '0x' + fundingTx.toHex();
+    const { tx } = await new HDSegwitBech32Transaction(null, tx1.getId(), wallet).createCPFPbumpFee(10);
+    assert(tx);
+    assert.strictEqual(mockCachedHex[fundingTx.getId()], fundingTx.toHex());
+  });
+
+  it('refuses with TxVerificationError when the server keeps sending undecodable hex', async () => {
+    const { wallet, fundingTx, tx1 } = setup();
+    serve(tx1);
+    serverHex[tx1.getId()] = 'zz' + tx1.toHex();
+    await assert.rejects(
+      new HDSegwitBech32Transaction(null, tx1.getId(), wallet).createRBFbumpFee(10),
+      (err: Error) => isTxVerificationError(err) && /decoded/.test(err.message),
+    );
+
+    serve(tx1);
+    serverHex[fundingTx.getId()] = '0x' + fundingTx.toHex();
+    await assert.rejects(
+      new HDSegwitBech32Transaction(null, tx1.getId(), wallet).createCPFPbumpFee(10),
+      (err: Error) => isTxVerificationError(err) && /decoded/.test(err.message),
+    );
+  });
+
+  it('CPFP does not overpay when the server pads witness of an input we cannot verify', async () => {
+    const { wallet, ourAddress } = setup();
+    const foreignFunding = new bitcoin.Transaction();
+    foreignFunding.version = 2;
+    foreignFunding.addInput(new Uint8Array(32).fill(0x66), 0);
+    foreignFunding.addOutput(bitcoin.address.toOutputScript(RECIPIENT), 200_000n);
+    serve(foreignFunding);
+    const honest = new bitcoin.Transaction();
+    honest.version = 2;
+    honest.addInput(foreignFunding.getHash(), 0);
+    honest.ins[0].witness = [new Uint8Array(72), new Uint8Array(33)];
+    honest.addOutput(bitcoin.address.toOutputScript(ourAddress), 197_000n); // 3000 sat fee, ~27 sat/vB
+
+    serve(honest);
+    const honestInfo = await new HDSegwitBech32Transaction(null, honest.getId(), wallet).getInfo();
+    assert.strictEqual(honestInfo.vsize, honest.virtualSize());
+    const honestChild = await new HDSegwitBech32Transaction(null, honest.getId(), wallet).createCPFPbumpFee(40);
+
+    for (const padding of [
+      [new Uint8Array(200_000)],
+      [new Uint8Array(3000), new Uint8Array(3000)],
+      new Array(500).fill(new Uint8Array(1)),
+    ]) {
+      for (const k of Object.keys(mockCachedHex)) delete mockCachedHex[k];
+      const padded = bitcoin.Transaction.fromHex(honest.toHex());
+      padded.ins[0].witness = [...padded.ins[0].witness, ...padding];
+      assert.strictEqual(padded.getId(), honest.getId());
+      assert.ok(padded.virtualSize() > honest.virtualSize());
+      serve(padded);
+
+      const info = await new HDSegwitBech32Transaction(null, honest.getId(), wallet).getInfo();
+      assert.strictEqual(info.feeRate, honestInfo.feeRate);
+      const { tx, fee } = await new HDSegwitBech32Transaction(null, honest.getId(), wallet).createCPFPbumpFee(40);
+      assert(tx);
+      assert.strictEqual(fee, honestChild.fee);
+      // package pays about the selected feerate, not way more
+      const packageFeeRate = (3000 + fee) / (honest.virtualSize() + tx.virtualSize());
+      assert.ok(packageFeeRate >= 40 && packageFeeRate < 42, `package feerate ${packageFeeRate}`);
+    }
+  });
+
+  it('never estimates vsize above the real one, and uses real witness of our own (verified) inputs', async () => {
+    const { wallet, tx1 } = setup();
+    serve(tx1);
+    const { vsize } = await new HDSegwitBech32Transaction(null, tx1.getId(), wallet).getInfo();
+    assert.strictEqual(vsize, tx1.virtualSize());
+
+    // honest but big witness on an input we dont own (e.g. multisig): counted as a small one, feerate looks higher
+    const { ourAddress } = setup();
+    const foreignFunding = new bitcoin.Transaction();
+    foreignFunding.version = 2;
+    foreignFunding.addInput(new Uint8Array(32).fill(0x77), 0);
+    foreignFunding.addOutput(bitcoin.address.toOutputScript(RECIPIENT), 200_000n);
+    serve(foreignFunding);
+    const multisigLike = new bitcoin.Transaction();
+    multisigLike.version = 2;
+    multisigLike.addInput(foreignFunding.getHash(), 0);
+    multisigLike.ins[0].witness = [new Uint8Array(0), new Uint8Array(72), new Uint8Array(72), new Uint8Array(105)];
+    multisigLike.addOutput(bitcoin.address.toOutputScript(ourAddress), 197_000n);
+    serve(multisigLike);
+    const info = await new HDSegwitBech32Transaction(null, multisigLike.getId(), wallet).getInfo();
+    assert.ok(info.vsize < multisigLike.virtualSize());
+    assert.ok(info.feeRate >= Math.floor(3000 / multisigLike.virtualSize()));
   });
 });
