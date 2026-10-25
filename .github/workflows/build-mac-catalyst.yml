@@ -82,12 +82,11 @@ jobs:
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: |
-            ios/Pods
             ~/Library/Caches/CocoaPods
             ~/.cocoapods/repos
-          key: ${{ runner.os }}-pods-catalyst-${{ hashFiles('ios/Podfile.lock') }}
+          key: ${{ runner.os }}-pods-v2-catalyst-${{ hashFiles('ios/Podfile.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pods-catalyst-
+            ${{ runner.os }}-pods-v2-catalyst-
 
       - name: Install CocoaPods dependencies
         if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
