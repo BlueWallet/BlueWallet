@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import assert from 'assert';
 
@@ -8,6 +7,46 @@ import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 import { CreateTransactionUtxo } from './wallets/types.ts';
 import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
 import { isUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
+import ecc from '../blue_modules/noble_ecc';
+
+/**
+ * Thrown when data from Electrum server about a transaction can't be verified (wrong txid, invalid signature on our
+ * input etc). Such transaction must not be used as a base for RBF/CPFP.
+ */
+export class TxVerificationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TxVerificationError';
+  }
+}
+
+export const isTxVerificationError = (error: unknown): boolean =>
+  error instanceof TxVerificationError || (error instanceof Error && error.name === 'TxVerificationError');
+
+/**
+ * Checks that input `inIndex` of `tx` is a valid P2WPKH spend of `prevOutScript` worth `value` sats.
+ * Electrum servers are not trusted to tell us the truth about unconfirmed transactions: a malicious server
+ * can show us a conflicting tx with our inputs (and our copied witness) but with outputs paying the attacker.
+ * Such tx has invalid signatures, so we must never build a replacement (RBF) based on it.
+ * See GHSA-6jp4-8v48-cc5v (spesmilo/electrum).
+ */
+function isValidP2wpkhSpend(tx: bitcoin.Transaction, inIndex: number, prevOutScript: Uint8Array, value: bigint): boolean {
+  try {
+    const inp = tx.ins[inIndex];
+    if (inp.script.length !== 0 || inp.witness.length !== 2) return false;
+    const [sig, pubkey] = inp.witness;
+    const expectedOutput = bitcoin.payments.p2wpkh({ pubkey }).output;
+    if (!expectedOutput || uint8ArrayToHex(expectedOutput) !== uint8ArrayToHex(prevOutScript)) return false;
+    const { signature, hashType } = bitcoin.script.signature.decode(sig);
+    if (hashType !== bitcoin.Transaction.SIGHASH_ALL) return false;
+    const scriptCode = bitcoin.payments.p2pkh({ pubkey }).output;
+    if (!scriptCode) return false;
+    const hash = tx.hashForWitnessV0(inIndex, scriptCode, value, hashType);
+    return ecc.verify(hash, pubkey, signature);
+  } catch (_) {
+    return false;
+  }
+}
 
 /**
  * Represents transaction of a BIP84 wallet.
@@ -59,7 +98,9 @@ export class HDSegwitBech32Transaction {
     const hexes = await BlueElectrum.multiGetTransactionByTxid([this._txid], false, 10);
     this._txhex = hexes[this._txid];
     if (!this._txhex) throw new Error("Transaction can't be found in mempool");
-    this._txDecoded = bitcoin.Transaction.fromHex(this._txhex);
+    const decoded = bitcoin.Transaction.fromHex(this._txhex);
+    if (decoded.getId() !== this._txid) throw new TxVerificationError('Electrum server returned a transaction with unexpected txid');
+    this._txDecoded = decoded;
   }
 
   /**
@@ -162,30 +203,48 @@ export class HDSegwitBech32Transaction {
    */
   async getInfo() {
     if (!this._wallet) throw new Error('Wallet required for this method');
-    if (!this._remoteTx) await this._fetchRemoteTx();
     if (!this._txDecoded) await this._fetchTxhexAndDecode();
     assert(this._txDecoded, 'could not fetch tx and decode');
+    const txid = this._txid || this._txDecoded.getId();
 
     const prevInputs = [];
     for (const inp of this._txDecoded.ins) {
       prevInputs.push(uint8ArrayToHex(new Uint8Array(inp.hash).reverse()));
     }
 
-    const prevTransactions = await BlueElectrum.multiGetTransactionByTxid(prevInputs, true);
+    // fetching raw hex (not server-decoded json) so we can check it against txid
+    const prevTxHexes = await BlueElectrum.multiGetTransactionByTxid(prevInputs, false);
+    const prevTransactions: Record<string, bitcoin.Transaction> = {};
+    for (const [prevTxid, hex] of Object.entries(prevTxHexes)) {
+      if (typeof hex !== 'string') continue;
+      const decoded = bitcoin.Transaction.fromHex(hex);
+      if (decoded.getId() !== prevTxid) throw new TxVerificationError('Electrum server returned a transaction with unexpected txid');
+      prevTransactions[prevTxid] = decoded;
+    }
 
     // fetched, now lets count how much satoshis went in
     let wentIn = 0;
     const utxos: CreateTransactionUtxo[] = [];
-    for (const inp of this._txDecoded.ins) {
+    for (let i = 0; i < this._txDecoded.ins.length; i++) {
+      const inp = this._txDecoded.ins[i];
       const reversedHash = uint8ArrayToHex(new Uint8Array(inp.hash).reverse());
-      if (prevTransactions[reversedHash] && prevTransactions[reversedHash].vout && prevTransactions[reversedHash].vout[inp.index]) {
-        let value = prevTransactions[reversedHash].vout[inp.index].value;
-        value = new BigNumber(value).multipliedBy(100000000).toNumber();
-        wentIn += value;
-        const witness = inp.witness[inp.witness.length - 1];
-        const address = String(SegwitBech32Wallet.witnessToAddress(isUint8Array(witness) ? uint8ArrayToHex(witness) : witness));
-        utxos.push({ vout: inp.index, value, txid: reversedHash, address });
+      const prevOut = prevTransactions[reversedHash]?.outs[inp.index];
+      if (!prevOut) continue;
+      const value = Number(prevOut.value);
+      wentIn += value;
+
+      let address: string;
+      try {
+        address = bitcoin.address.fromOutputScript(prevOut.script);
+      } catch (_) {
+        continue; // not a standard address, definitely not ours
       }
+      if (!this._wallet.weOwnAddress(address)) continue; // not our input, nothing to verify (e.g. incoming tx)
+
+      if (!isValidP2wpkhSpend(this._txDecoded, i, prevOut.script, prevOut.value)) {
+        throw new TxVerificationError('Transaction has invalid signature on our input, it was not created by this wallet');
+      }
+      utxos.push({ vout: inp.index, value, txid: reversedHash, address });
     }
 
     // counting how much went into actual outputs
@@ -199,32 +258,25 @@ export class HDSegwitBech32Transaction {
     let feeRate = Math.floor(fee / this._txDecoded.virtualSize());
     if (feeRate === 0) feeRate = 1;
 
-    // lets take a look at change
+    // lets take a look at change, and outputs we own that current transaction creates (can be used in CPFP).
+    // outputs are taken from the (txid-checked) raw tx, not from the server-decoded json
     let changeAmount = 0;
     const targets: { value?: number; address: string }[] = [];
-    for (const outp of this._remoteTx.vout) {
-      const address = outp.scriptPubKey.addresses[0];
-      const value = new BigNumber(outp.value).multipliedBy(100000000).toNumber();
-      if (this._wallet.weOwnAddress(address)) {
-        changeAmount += value;
-      } else {
-        // this is target
-        targets.push({ value, address });
-      }
-    }
-
-    // lets find outputs we own that current transaction creates. can be used in CPFP
     const unconfirmedUtxos = [];
-    for (const outp of this._remoteTx.vout) {
-      const address = outp.scriptPubKey.addresses[0];
-      const value = new BigNumber(outp.value).multipliedBy(100000000).toNumber();
-      if (this._wallet.weOwnAddress(address)) {
-        unconfirmedUtxos.push({
-          vout: outp.n,
-          value,
-          txid: this._txid || this._txDecoded.getId(),
-          address,
-        });
+    for (let n = 0; n < this._txDecoded.outs.length; n++) {
+      const outp = this._txDecoded.outs[n];
+      const value = Number(outp.value);
+      let address: string | undefined;
+      try {
+        address = bitcoin.address.fromOutputScript(outp.script);
+      } catch (_) {}
+
+      if (address && this._wallet.weOwnAddress(address)) {
+        changeAmount += value;
+        unconfirmedUtxos.push({ vout: n, value, txid, address });
+      } else {
+        // this is target. outputs without address (e.g. OP_RETURN) are skipped, RBF bump refuses such txs
+        if (address) targets.push({ value, address });
       }
     }
 
@@ -307,6 +359,7 @@ export class HDSegwitBech32Transaction {
     if (!this._remoteTx) await this._fetchRemoteTx();
 
     const { feeRate, utxos } = await this.getInfo();
+    if (utxos.length !== this._txDecoded!.ins.length) throw new Error('Not all inputs of this transaction are ours, cannot replace it');
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     const myAddress = await this._wallet.getChangeAddressAsync();
@@ -344,7 +397,9 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
-    const { feeRate, targets, changeAmount, utxos } = await this.getInfo();
+    const { feeRate, targets, changeAmount, utxos, unconfirmedUtxos } = await this.getInfo();
+    if (utxos.length !== this._txDecoded!.ins.length) throw new Error('Not all inputs of this transaction are ours, cannot replace it');
+    if (targets.length + unconfirmedUtxos.length !== this._txDecoded!.outs.length) throw new Error('Unsupported output in transaction');
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     const myAddress = await this._wallet.getChangeAddressAsync();
