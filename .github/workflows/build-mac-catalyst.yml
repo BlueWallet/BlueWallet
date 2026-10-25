@@ -145,6 +145,19 @@ jobs:
               await github.rest.issues.createComment({ ...repo, issue_number, body: message });
             }
 
+      - name: Show Catalyst archive failure details
+        if: failure() && steps.build_catalyst.outcome == 'failure'
+        run: |
+          tail -n 300 ios/build_logs/BlueWallet-BlueWallet.log || true
+
+      - name: Upload Catalyst build logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: catalyst-build-logs
+          path: ios/build_logs/
+          retention-days: 7
+
       - name: Cleanup credentials
         if: always()
         run: |
