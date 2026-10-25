@@ -1069,7 +1069,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('MnemonicInput')).typeText('zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong');
     await tapIfTextPresent('Done');
     await element(by.id('HeaderMenuButton')).tap();
-    await expect(element(by.text('Search accounts'))).toBeVisible();
+    // Detox does not wait for the iOS 26.4+ menu morph animation: poll instead of a one-shot expect (#9045).
+    await waitFor(element(by.text('Search accounts')))
+      .toBeVisible()
+      .withTimeout(10000);
     await element(by.text('Passphrase')).tap();
     await element(by.id('DoImport')).tap();
 
@@ -1247,8 +1250,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ActivateBitcoinButton')).tap();
 
     // header menu -> Provide entropy via dice rolls -> 12 words
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Provide entropy via dice rolls')).tap();
+    await tapHeaderMenuItem('Provide entropy via dice rolls');
     await element(by.text('12 words')).tap();
 
     // BIP39: each seed word encodes 11 bits, so two leading "abandon" words require the first 22 bits

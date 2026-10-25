@@ -512,10 +512,6 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         MenuElementsController.shared.perform("backToWallets")
     }
 
-    @objc func manageWalletsAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("manageWallets")
-    }
-
     @objc func copyAddressMenuAction(_ keyCommand: UIKeyCommand) {
         MenuElementsController.shared.perform("copyAddress")
     }

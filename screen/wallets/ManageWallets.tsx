@@ -34,7 +34,6 @@ import HighlightedText from '../../components/HighlightedText';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import ActionSheet from '../ActionSheet';
-import presentAlert from '../../components/Alert';
 import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { isDesktop } from '../../blue_modules/environment';
@@ -227,7 +226,7 @@ interface ManageWalletsProps {
   clearSearch: () => void;
   focusSearch: () => void;
   registerCloseHandler: (handler: () => void) => () => void;
-  registerConfirmHandler: (handler: () => void | Promise<void>) => () => void;
+  registerConfirmHandler: (handler: (anchor?: number) => void | Promise<void>) => () => void;
   onUnsavedChangesChange: (hasUnsavedChanges: boolean) => void;
 }
 
@@ -260,7 +259,10 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
   const dragScale = useSharedValue(1);
   const reorderPanGesture = useMemo(() => Gesture.Pan().activateAfterLongPress(520), []);
   const reorderableCellAnimations = useMemo<ReorderableListCellAnimations>(
-    () => ({ opacity: 1, transform: [{ scale: dragScale }] as ReorderableListCellAnimations['transform'] }),
+    () => ({
+      opacity: 1,
+      transform: [{ scale: dragScale }] as ReorderableListCellAnimations['transform'],
+    }),
     [dragScale],
   );
   const handleDragStart = useCallback(() => {
@@ -324,32 +326,32 @@ const ManageWallets: React.FC<ManageWalletsProps> = ({
 
   useEffect(() => () => onUnsavedChangesChange(false), [onUnsavedChangesChange]);
 
-  const confirmChanges = useCallback(() => {
-    if (!hasUnsavedChanges) return;
-    const anchor = findNodeHandle(discardChangesAnchorRef.current) ?? undefined;
-    presentAlert({
-      title: loc.wallets.manage_wallets_confirm_title,
-      message: loc.wallets.manage_wallets_confirm_message,
-      anchor,
-      hapticFeedback: HapticFeedbackTypes.NotificationWarning,
-      buttons: [
+  const confirmChanges = useCallback(
+    (anchor = 0) => {
+      if (!hasUnsavedChanges) return;
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
+      ActionSheet.showActionSheetWithOptions(
         {
-          text: loc._.cancel,
-          style: 'cancel',
+          options: [loc._.cancel, loc._.yes],
+          cancelButtonIndex: 0,
+          confirmButtonIndex: 1,
+          anchor,
+          title: loc.wallets.manage_wallets_confirm_title,
+          message: loc.wallets.manage_wallets_confirm_message,
         },
-        {
-          text: loc._.yes,
-          onPress: async () => {
+        buttonIndex => {
+          if (buttonIndex !== 1) return;
+          (async () => {
             if (!(await persistChanges())) return;
             triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
             pendingRemovalActionRef.current = goBack;
             setAllowRemoval(true);
-          },
+          })().catch(console.warn);
         },
-      ],
-      options: { cancelable: true },
-    });
-  }, [goBack, hasUnsavedChanges, persistChanges]);
+      );
+    },
+    [goBack, hasUnsavedChanges, persistChanges],
+  );
 
   const closeManageWallets = useCallback(() => {
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
