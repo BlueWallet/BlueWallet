@@ -73,9 +73,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   });
 
   usePreventRemove(!isSaveButtonDisabled, ({ data }) => {
-    if (!discardChangesRef.current) return dispatch(data.action);
-    const anchor = findNodeHandle(discardChangesRef.current);
-    if (!anchor) return dispatch(data.action);
+    const anchor = discardChangesRef.current ? (findNodeHandle(discardChangesRef.current) ?? undefined) : undefined;
     ActionSheet.showActionSheetWithOptions(
       {
         options: [loc._.cancel, loc._.ok],
@@ -158,8 +156,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
             } catch (_) {
               hasLoaded.current = true;
               setIsLoading(false);
-              const anchor = findNodeHandle(discardChangesRef.current);
-              if (!anchor) return goBack();
+              const anchor = discardChangesRef.current ? (findNodeHandle(discardChangesRef.current) ?? undefined) : undefined;
               return ActionSheet.showActionSheetWithOptions(
                 {
                   title: loc.multisig.manage_keys,

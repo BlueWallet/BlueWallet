@@ -319,7 +319,6 @@ const ProvideEntropy = () => {
     }
 
     const anchor = getActionSheetAnchor(event);
-    if (anchor === null) return;
     ActionSheet.showActionSheetWithOptions(
       {
         title: loc.wallets.add_entropy,

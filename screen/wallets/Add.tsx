@@ -177,7 +177,7 @@ const WalletsAdd: React.FC = () => {
   );
 
   const confirmResetEntropy = useCallback(
-    (newWalletType: ButtonSelected, anchor: number) => {
+    (newWalletType: ButtonSelected, anchor?: number) => {
       if (entropy || words) {
         ActionSheet.showActionSheetWithOptions(
           {
@@ -204,18 +204,14 @@ const WalletsAdd: React.FC = () => {
 
   const handleOnLightningArkButtonPressed = useCallback(
     (event: GestureResponderEvent) => {
-      const anchor = getActionSheetAnchor(event);
-      if (anchor === null) return;
-      confirmResetEntropy(ButtonSelected.ARK, anchor);
+      confirmResetEntropy(ButtonSelected.ARK, getActionSheetAnchor(event));
     },
     [confirmResetEntropy],
   );
 
   const handleOnLightningButtonPressed = useCallback(
     (event: GestureResponderEvent) => {
-      const anchor = getActionSheetAnchor(event);
-      if (anchor === null) return;
-      confirmResetEntropy(ButtonSelected.OFFCHAIN, anchor);
+      confirmResetEntropy(ButtonSelected.OFFCHAIN, getActionSheetAnchor(event));
     },
     [confirmResetEntropy],
   );
@@ -368,9 +364,7 @@ const WalletsAdd: React.FC = () => {
 
   const handleOnVaultButtonPressed = (event: GestureResponderEvent) => {
     Keyboard.dismiss();
-    const anchor = getActionSheetAnchor(event);
-    if (anchor === null) return;
-    confirmResetEntropy(ButtonSelected.VAULT, anchor);
+    confirmResetEntropy(ButtonSelected.VAULT, getActionSheetAnchor(event));
   };
 
   const handleOnBitcoinButtonPressed = () => {

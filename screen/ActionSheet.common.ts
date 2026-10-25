@@ -1,5 +1,5 @@
 // ActionSheet.common.ts
-import type { GestureResponderEvent } from 'react-native';
+import { findNodeHandle, type GestureResponderEvent } from 'react-native';
 
 export interface ActionSheetOptions {
   title?: string;
@@ -8,7 +8,7 @@ export interface ActionSheetOptions {
   destructiveButtonIndex?: number;
   cancelButtonIndex?: number;
   confirmButtonIndex?: number;
-  anchor: number;
+  anchor?: number;
 }
 
 export type CompletionCallback = (buttonIndex: number) => void;
@@ -41,7 +41,26 @@ export const createAlertConfig = (options: ActionSheetOptions, completion: Compl
   };
 };
 
-export const getActionSheetAnchor = (event: GestureResponderEvent): number | null => {
-  const target = typeof event.currentTarget === 'number' ? event.currentTarget : event.nativeEvent.target;
-  return typeof target === 'number' ? target : null;
+type NodeHandleResolver = (target: GestureResponderEvent['currentTarget']) => number | null | undefined;
+
+const resolveNodeHandle: NodeHandleResolver = target => {
+  try {
+    return findNodeHandle(target as never);
+  } catch (_) {
+    return undefined;
+  }
+};
+
+export const getActionSheetAnchor = (
+  event: GestureResponderEvent,
+  resolver: NodeHandleResolver = resolveNodeHandle,
+): number | undefined => {
+  const currentTarget = event.currentTarget;
+  if (typeof currentTarget === 'number') return currentTarget;
+
+  const handle = resolver(currentTarget);
+  if (typeof handle === 'number') return handle;
+
+  const nativeTarget = event.nativeEvent.target;
+  return typeof nativeTarget === 'number' ? nativeTarget : undefined;
 };

@@ -5,12 +5,8 @@ import { ActionSheetOptions, CompletionCallback } from './ActionSheet.common';
 
 export default class ActionSheet {
   static showActionSheetWithOptions(options: ActionSheetOptions, completion: CompletionCallback): void {
-    const iosOptions = {
-      ...options,
-    };
-    if (options.anchor) {
-      iosOptions.anchor = options.anchor;
-    }
+    const { anchor, ...optionsWithoutAnchor } = options;
+    const iosOptions = anchor === undefined ? optionsWithoutAnchor : options;
     ActionSheetIOS.showActionSheetWithOptions(iosOptions, completion);
   }
 }
