@@ -155,6 +155,47 @@ describe('navigation validation', () => {
     await expect(validateGuardedRoute({ name: 'ScanLNDInvoice' }, dependencies)).resolves.toEqual({ allowed: true });
   });
 
+  it('resolves a shortcut to the first compatible wallet before navigating', async () => {
+    const dependencies = createDependencies();
+    dependencies.wallets = [
+      createWallet({ getID: () => 'cannot-send', allowSend: () => false }),
+      createWallet({ getID: () => 'first-compatible' }),
+      createWallet({ getID: () => 'second-compatible' }),
+    ];
+
+    await expect(validateGuardedRoute({ name: 'AppShortcut', params: { selectionMode: 'send' } }, dependencies)).resolves.toEqual({
+      allowed: false,
+      redirect: {
+        name: 'SendDetailsRoot',
+        params: { screen: 'SendDetails', params: { walletID: 'first-compatible' } },
+      },
+    });
+  });
+
+  it('rejects a shortcut in the guard when there is no compatible wallet', async () => {
+    const dependencies = createDependencies();
+    dependencies.wallets = [createWallet({ allowReceive: () => false })];
+
+    await expect(validateGuardedRoute({ name: 'AppShortcut', params: { selectionMode: 'receive' } }, dependencies)).resolves.toEqual({
+      allowed: false,
+      failure: 'missingReceiveWallet',
+    });
+  });
+
+  it('runs the destination guard before resolving a receive shortcut', async () => {
+    const dependencies = createDependencies();
+    dependencies.presentWalletExportReminder = jest.fn(async () => {
+      throw new Error('Show export');
+    });
+    dependencies.wallets = [createWallet({ getUserHasSavedExport: () => false })];
+
+    await expect(validateGuardedRoute({ name: 'AppShortcut', params: { selectionMode: 'receive' } }, dependencies)).resolves.toEqual({
+      allowed: false,
+      redirect: { name: 'WalletExport', params: { walletID: 'wallet-1' } },
+    });
+    expect(dependencies.presentWalletExportReminder).toHaveBeenCalledTimes(1);
+  });
+
   it('saves the wallet export acknowledgement before allowing navigation', async () => {
     const setUserHasSavedExport = jest.fn();
     const dependencies = createDependencies();
@@ -295,5 +336,20 @@ describe('navigation validation', () => {
     const validatedAction = { ...action, navigationGuardValidated: true } as GuardedNavigationAction;
     const nextState = router.getStateForAction(state, validatedAction as any, options);
     expect(nextState?.routes[nextState.index ?? 0].name).toBe('WalletExport');
+  });
+
+  it('holds shortcut actions until the guard resolves their destination', () => {
+    const original = StackRouter({});
+    const router = { ...original, ...navigationGuardRouter(original) };
+    const options = {
+      routeNames: ['DrawerRoot', 'AppShortcut'],
+      routeParamList: { DrawerRoot: undefined, AppShortcut: undefined },
+      routeGetIdList: { DrawerRoot: undefined, AppShortcut: undefined },
+    };
+    const state = original.getInitialState(options);
+    const action = CommonActions.navigate('AppShortcut', { selectionMode: 'scan' });
+
+    expect(getGuardedRoute(action)).toEqual({ name: 'AppShortcut', params: { selectionMode: 'scan' } });
+    expect(router.getStateForAction(state, action, options)).toBeNull();
   });
 });

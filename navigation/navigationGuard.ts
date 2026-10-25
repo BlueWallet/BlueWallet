@@ -1,7 +1,9 @@
 import { NavigationAction, NavigationState, PartialState, Router } from '@react-navigation/native';
 import { Chain } from '../models/bitcoinUnits';
+import { getCompatibleShortcutWallets, getShortcutWalletDestination, ShortcutWalletSelectionMode } from './linking';
 
 export const navigationGuardPolicies = {
+  AppShortcut: { shortcut: true },
   SendDetails: { walletCapability: 'onchainSend' },
   ScanLNDInvoice: { walletCapability: 'offchainSend' },
   WalletExport: { biometrics: true },
@@ -46,7 +48,7 @@ export type NavigationGuardDependencies = {
 
 export type NavigationValidationResult = {
   allowed: boolean;
-  redirect?: { name: 'WalletExport'; params: { walletID: string } };
+  redirect?: { name: string; params?: NavigationParams };
   failure?: 'missingSendWallet' | 'missingReceiveWallet' | 'missingLightningWallet';
 };
 
@@ -81,6 +83,28 @@ export const validateGuardedRoute = async (
   dependencies: NavigationGuardDependencies,
 ): Promise<NavigationValidationResult> => {
   const policy = navigationGuardPolicies[route.name];
+
+  if ('shortcut' in policy) {
+    const selectionMode = route.params?.selectionMode as ShortcutWalletSelectionMode | undefined;
+    if (!selectionMode || !['send', 'receive', 'scan'].includes(selectionMode)) return { allowed: false };
+
+    const wallet = getCompatibleShortcutWallets(selectionMode, dependencies.wallets)[0];
+    if (!wallet) {
+      return {
+        allowed: false,
+        failure: selectionMode === 'receive' ? 'missingReceiveWallet' : 'missingSendWallet',
+      };
+    }
+
+    const destination = getShortcutWalletDestination(selectionMode, wallet.chain, wallet.getID());
+    const destinationGuard = resolveGuardedRoute(destination.name, destination.params);
+    if (destinationGuard) {
+      const result = await validateGuardedRoute(destinationGuard, dependencies);
+      if (!result.allowed) return result;
+    }
+
+    return { allowed: false, redirect: destination };
+  }
 
   if ('walletCapability' in policy) {
     const hasSuitableWallet = dependencies.wallets.some(wallet => {

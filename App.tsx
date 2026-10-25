@@ -1,4 +1,11 @@
-import { CommonActions, NavigationAction, NavigationContainer, NavigationContainerRef, ParamListBase } from '@react-navigation/native';
+import {
+  CommonActions,
+  NavigationAction,
+  NavigationContainer,
+  NavigationContainerRef,
+  ParamListBase,
+  StackActions,
+} from '@react-navigation/native';
 import React, { useCallback } from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -60,6 +67,7 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
         .then(result => {
           if (result.failure) {
             triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+            const isShortcut = guardedRoute.name === 'AppShortcut';
             presentAlert({
               title: loc.errors.error,
               message:
@@ -68,13 +76,42 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
                   : result.failure === 'missingLightningWallet'
                     ? loc.wallets.no_ln_wallet_error
                     : loc.wallets.select_no_bitcoin,
+              ...(isShortcut
+                ? {
+                    buttons: [
+                      {
+                        text: loc.wallets.add_title,
+                        onPress: () => {
+                          const nextAction =
+                            navigationRef.getCurrentRoute()?.name === 'AppShortcut'
+                              ? StackActions.replace('AddWalletRoot')
+                              : CommonActions.navigate('AddWalletRoot');
+                          navigationRef.dispatch(nextAction);
+                        },
+                      },
+                      {
+                        text: loc._.ok,
+                        style: 'cancel' as const,
+                        onPress: () => {
+                          if (navigationRef.getCurrentRoute()?.name === 'AppShortcut') {
+                            navigationRef.dispatch(StackActions.popTo('DrawerRoot'));
+                          }
+                        },
+                      },
+                    ],
+                  }
+                : {}),
             });
             return;
           }
 
           if (!result.allowed && !result.redirect) return;
 
-          const nextAction = result.redirect ? CommonActions.navigate(result.redirect.name, result.redirect.params) : action;
+          const nextAction = result.redirect
+            ? guardedRoute.name === 'AppShortcut' && navigationRef.getCurrentRoute()?.name === 'AppShortcut'
+              ? StackActions.replace(result.redirect.name, result.redirect.params)
+              : CommonActions.navigate(result.redirect.name, result.redirect.params)
+            : action;
           const targetRouteName = result.redirect?.name ?? guardedRoute.name;
           const targetNavigatorKey = result.redirect
             ? findNavigatorKeyForRoute(navigationRef.getRootState(), targetRouteName)
