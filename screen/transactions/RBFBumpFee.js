@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import BlueText from '../../components/BlueText';
-import { HDSegwitBech32Transaction, isTxVerificationError } from '../../class/hd-segwit-bech32-transaction';
+import { HDSegwitBech32Transaction, isTxNotReplaceableError, isTxVerificationError } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import presentAlert from '../../components/Alert';
 import SafeArea from '../../components/SafeArea';
@@ -29,6 +29,7 @@ export default class RBFBumpFee extends CPFP {
       newFeeRate: '',
       nonReplaceable: false,
       unverified: false,
+      unsupported: false,
     });
     try {
       await this.checkPossibilityOfRBFBumpFee();
@@ -52,7 +53,7 @@ export default class RBFBumpFee extends CPFP {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
     if ((await tx.isOurTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0 && (await tx.isSequenceReplaceable())) {
-      const info = await tx.getInfo();
+      const info = await tx.getInfo('bump');
       return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
       // 1 sat makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
     } else {
@@ -97,7 +98,7 @@ export default class RBFBumpFee extends CPFP {
         this.setState({ stage: 2, txhex: newTx.toHex(), newTxid: newTx.getId() });
         this.setState({ isLoading: false });
       } catch (_) {
-        if (isTxVerificationError(_)) return this.onCheckError(_);
+        if (isTxVerificationError(_) || isTxNotReplaceableError(_)) return this.onCheckError(_);
         this.setState({ isLoading: false });
         presentAlert({ message: loc.errors.error + ': ' + _.message });
       }

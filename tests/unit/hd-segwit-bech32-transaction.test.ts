@@ -1,22 +1,30 @@
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import { HDSegwitBech32Transaction, isTxVerificationError } from '../../class/hd-segwit-bech32-transaction';
+import { HDSegwitBech32Transaction, isTxNotReplaceableError, isTxVerificationError } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import ecc from '../../blue_modules/noble_ecc';
+import { ECPairFactory } from 'ecpair';
 
 // What a (possibly malicious) Electrum server answers, keyed by txid
-const serverHex: Record<string, string> = {};
+const serverHex: Record<string, any> = {};
 const serverVerbose: Record<string, any> = {};
+// local cache of non-verbose (raw hex) answers, like the Realm cache in BlueElectrum
+const mockCachedHex: Record<string, any> = {};
 
 jest.mock('../../blue_modules/BlueElectrum', () => ({
   multiGetTransactionByTxid: jest.fn(async (txids: string[], verbose: boolean) => {
     const ret: Record<string, any> = {};
     for (const txid of txids) {
-      const value = verbose ? serverVerbose[txid] : serverHex[txid];
+      const value = verbose ? serverVerbose[txid] : (mockCachedHex[txid] ?? serverHex[txid]);
       if (value) ret[txid] = value;
+      if (value && !verbose) mockCachedHex[txid] = value;
     }
     return ret;
+  }),
+  forgetCachedTransactions: jest.fn(async (txids: string[]) => {
+    for (const txid of txids) delete mockCachedHex[txid];
   }),
   getTransactionsByAddress: jest.fn(async () => []),
 }));
@@ -56,6 +64,7 @@ function outputAddresses(tx: bitcoin.Transaction) {
 function setup() {
   for (const k of Object.keys(serverHex)) delete serverHex[k];
   for (const k of Object.keys(serverVerbose)) delete serverVerbose[k];
+  for (const k of Object.keys(mockCachedHex)) delete mockCachedHex[k];
 
   const wallet = new HDSegwitBech32Wallet();
   wallet.setSecret(MNEMONIC);
@@ -184,5 +193,160 @@ describe('HDSegwitBech32Transaction vs malicious Electrum server (GHSA-6jp4-8v48
     const { unconfirmedUtxos, fee } = await new HDSegwitBech32Transaction(null, incoming.getId(), wallet).getInfo();
     assert.strictEqual(fee, 1000);
     assert.deepStrictEqual(unconfirmedUtxos, [{ vout: 0, value: 199_000, txid: incoming.getId(), address: ourAddress }]);
+  });
+
+  it('refuses CPFP when the server withholds a previous tx (fee would be negative)', async () => {
+    const { wallet, ourAddress } = setup();
+    const incoming = new bitcoin.Transaction();
+    incoming.version = 2;
+    for (let i = 0; i < 5; i++) {
+      incoming.addInput(new Uint8Array(32).fill(0x30 + i), 0);
+      incoming.ins[i].witness = [new Uint8Array(72), new Uint8Array(33)];
+    }
+    incoming.addOutput(bitcoin.address.toOutputScript(ourAddress), 1_000_000n);
+    serve(incoming); // parents are not served
+
+    const tx = new HDSegwitBech32Transaction(null, incoming.getId(), wallet);
+    await assert.rejects(tx.createCPFPbumpFee(10), (err: Error) => isTxVerificationError(err) && /previous/.test(err.message));
+    await assert.rejects(tx.getInfo(), isTxVerificationError);
+  });
+
+  it('refuses when a previous tx comes back decoded instead of raw hex', async () => {
+    const { wallet, fundingTx, tx1 } = setup();
+    serve(tx1);
+    serverHex[fundingTx.getId()] = verboseOf(fundingTx); // e.g. -32600 fallback used to return decoded tx
+    await assert.rejects(new HDSegwitBech32Transaction(null, tx1.getId(), wallet).createCPFPbumpFee(10), isTxVerificationError);
+    await assert.rejects(new HDSegwitBech32Transaction(null, tx1.getId(), wallet).createRBFbumpFee(10), isTxVerificationError);
+  });
+
+  it('refuses CPFP of a tx whose fee is not positive', async () => {
+    const { wallet, ourAddress } = setup();
+    const foreignFunding = new bitcoin.Transaction();
+    foreignFunding.version = 2;
+    foreignFunding.addInput(new Uint8Array(32).fill(0x44), 0);
+    foreignFunding.addOutput(bitcoin.address.toOutputScript(RECIPIENT), 100_000n);
+    serve(foreignFunding);
+    for (const outValue of [150_000n, 100_000n]) {
+      const incoming = new bitcoin.Transaction();
+      incoming.version = 2;
+      incoming.addInput(foreignFunding.getHash(), 0);
+      incoming.ins[0].witness = [new Uint8Array(71), new Uint8Array(33)];
+      incoming.addOutput(bitcoin.address.toOutputScript(ourAddress), outValue);
+      serve(incoming);
+      await assert.rejects(
+        new HDSegwitBech32Transaction(null, incoming.getId(), wallet).createCPFPbumpFee(10),
+        (err: Error) => isTxVerificationError(err) && /fee/.test(err.message),
+      );
+    }
+  });
+
+  it('drops a cached tampered copy of our tx (same txid, bad witness) and uses a fresh one from the server', async () => {
+    const { wallet, tx1 } = setup();
+    serve(tx1);
+    const tampered = bitcoin.Transaction.fromHex(tx1.toHex());
+    tampered.ins[0].witness = [new Uint8Array(72).fill(1), tampered.ins[0].witness[1]];
+    assert.strictEqual(tampered.getId(), tx1.getId());
+    mockCachedHex[tx1.getId()] = tampered.toHex(); // saved while connected to a malicious server
+
+    const { tx } = await new HDSegwitBech32Transaction(null, tx1.getId(), wallet).createRBFbumpFee(10);
+    assert(tx);
+    assert.ok(outputAddresses(tx).includes(RECIPIENT));
+    assert.strictEqual(mockCachedHex[tx1.getId()], tx1.toHex());
+  });
+
+  it('drops a cached copy with the wrong txid and uses a fresh one from the server', async () => {
+    const { wallet, tx1, tx2 } = setup();
+    serve(tx1);
+    mockCachedHex[tx1.getId()] = tx2.toHex();
+    const { tx } = await new HDSegwitBech32Transaction(null, tx1.getId(), wallet).createRBFcancelTx(10);
+    assert(tx);
+    assert.strictEqual(mockCachedHex[tx1.getId()], tx1.toHex());
+  });
+
+  it('still refuses when the server keeps sending a tampered copy', async () => {
+    const { wallet, tx1 } = setup();
+    const tampered = bitcoin.Transaction.fromHex(tx1.toHex());
+    tampered.ins[0].witness = [new Uint8Array(72).fill(1), tampered.ins[0].witness[1]];
+    serve(tampered);
+    await assert.rejects(new HDSegwitBech32Transaction(null, tx1.getId(), wallet).createRBFbumpFee(10), isTxVerificationError);
+  });
+
+  it('refuses RBF (on load and on create) when not all inputs are ours, but still allows CPFP', async () => {
+    const { wallet, fundingTx, ourAddress } = setup();
+    const ECPair = ECPairFactory(ecc);
+    const foreignKey = ECPair.makeRandom();
+    const foreignScript = bitcoin.payments.p2wpkh({
+      pubkey: foreignKey.publicKey,
+    }).output!;
+    const foreignFunding = new bitcoin.Transaction();
+    foreignFunding.version = 2;
+    foreignFunding.addInput(new Uint8Array(32).fill(0x55), 0);
+    foreignFunding.addOutput(foreignScript, 50_000n);
+    serve(foreignFunding);
+
+    // payjoin-like tx: our input + someone else's input, both properly signed
+    const tx = new bitcoin.Transaction();
+    tx.version = 2;
+    tx.addInput(fundingTx.getHash(), 0, HDSegwitBech32Wallet.defaultRBFSequence);
+    tx.addInput(foreignFunding.getHash(), 0, HDSegwitBech32Wallet.defaultRBFSequence);
+    tx.addOutput(bitcoin.address.toOutputScript(RECIPIENT), 100_000n);
+    tx.addOutput(bitcoin.address.toOutputScript(wallet._getInternalAddressByIndex(0)), 49_000n);
+    const ourKey = ECPair.fromWIF(wallet._getWIFByIndex(false, 0) as string);
+    const sign = (i: number, key: typeof ourKey, value: bigint) => {
+      const scriptCode = bitcoin.payments.p2pkh({
+        pubkey: key.publicKey,
+      }).output!;
+      const hash = tx.hashForWitnessV0(i, scriptCode, value, bitcoin.Transaction.SIGHASH_ALL);
+      tx.ins[i].witness = [bitcoin.script.signature.encode(key.sign(hash), bitcoin.Transaction.SIGHASH_ALL), key.publicKey];
+    };
+    sign(0, ourKey, 100_000n);
+    sign(1, foreignKey, 50_000n);
+    assert.ok(wallet.weOwnAddress(ourAddress));
+    serve(tx);
+
+    const t = () => new HDSegwitBech32Transaction(null, tx.getId(), wallet);
+    await assert.rejects(t().getInfo('bump'), (err: Error) => isTxNotReplaceableError(err) && /inputs/.test(err.message));
+    await assert.rejects(t().getInfo('cancel'), isTxNotReplaceableError);
+    await assert.rejects(t().createRBFbumpFee(10), isTxNotReplaceableError);
+    await assert.rejects(t().createRBFcancelTx(10), isTxNotReplaceableError);
+    const { fee } = await t().getInfo();
+    assert.strictEqual(fee, 1000);
+    const { tx: child } = await t().createCPFPbumpFee(10);
+    assert(child);
+  });
+
+  it('refuses RBF bump (on load and on create) of a tx with an OP_RETURN output, cancel still works', async () => {
+    const { wallet, fundingTx, ourAddress } = setup();
+    const { tx } = wallet.createTransaction(
+      [
+        {
+          txid: fundingTx.getId(),
+          vout: 0,
+          value: 100_000,
+          address: ourAddress,
+        },
+      ],
+      [
+        { address: RECIPIENT, value: 546 },
+        { value: 0, script: { hex: '6a4c50' + '00'.repeat(80) } },
+      ],
+      2,
+      wallet._getInternalAddressByIndex(0),
+      HDSegwitBech32Wallet.defaultRBFSequence,
+    );
+    assert(tx);
+    const opReturnTx = bitcoin.Transaction.fromHex(tx.toHex());
+    serve(opReturnTx, {
+      verbose: { txid: opReturnTx.getId(), confirmations: 0 },
+    });
+
+    const t = () => new HDSegwitBech32Transaction(null, opReturnTx.getId(), wallet);
+    await assert.rejects(t().getInfo('bump'), (err: Error) => isTxNotReplaceableError(err) && /output/.test(err.message));
+    await assert.rejects(t().createRBFbumpFee(10), isTxNotReplaceableError);
+    await t().getInfo('cancel');
+    const { tx: cancelTx } = await t().createRBFcancelTx(10);
+    assert(cancelTx);
+    assert.strictEqual(cancelTx.outs.length, 1);
+    assert.ok(wallet.weOwnAddress(outputAddresses(cancelTx)[0]));
   });
 });

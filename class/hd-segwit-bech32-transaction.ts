@@ -24,6 +24,20 @@ export const isTxVerificationError = (error: unknown): boolean =>
   error instanceof TxVerificationError || (error instanceof Error && error.name === 'TxVerificationError');
 
 /**
+ * Thrown when a transaction checks out, but this wallet can't build a replacement (RBF) for it, e.g. it spends coins
+ * this wallet doesn't control or has an output we can't recreate.
+ */
+export class TxNotReplaceableError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TxNotReplaceableError';
+  }
+}
+
+export const isTxNotReplaceableError = (error: unknown): boolean =>
+  error instanceof TxNotReplaceableError || (error instanceof Error && error.name === 'TxNotReplaceableError');
+
+/**
  * Checks that input `inIndex` of `tx` is a valid P2WPKH spend of `prevOutScript` worth `value` sats.
  * Electrum servers are not trusted to tell us the truth about unconfirmed transactions: a malicious server
  * can show us a conflicting tx with our inputs (and our copied witness) but with outputs paying the attacker.
@@ -95,11 +109,25 @@ export class HDSegwitBech32Transaction {
    */
   async _fetchTxhexAndDecode() {
     assert(this._txid, 'this._txid must be a string');
+    try {
+      await this._fetchTxhexAndDecodeOnce();
+    } catch (error) {
+      if (!isTxVerificationError(error)) throw error;
+      // bad copy might come from cache (e.g. saved while connected to a malicious server), retrying with a fresh one
+      await BlueElectrum.forgetCachedTransactions([this._txid]);
+      await this._fetchTxhexAndDecodeOnce();
+    }
+  }
+
+  async _fetchTxhexAndDecodeOnce() {
+    assert(this._txid, 'this._txid must be a string');
     const hexes = await BlueElectrum.multiGetTransactionByTxid([this._txid], false, 10);
-    this._txhex = hexes[this._txid];
-    if (!this._txhex) throw new Error("Transaction can't be found in mempool");
-    const decoded = bitcoin.Transaction.fromHex(this._txhex);
+    const hex = hexes[this._txid];
+    if (!hex) throw new Error("Transaction can't be found in mempool");
+    if (typeof hex !== 'string') throw new TxVerificationError('Electrum server did not return raw transaction');
+    const decoded = bitcoin.Transaction.fromHex(hex);
     if (decoded.getId() !== this._txid) throw new TxVerificationError('Electrum server returned a transaction with unexpected txid');
+    this._txhex = hex;
     this._txDecoded = decoded;
   }
 
@@ -199,9 +227,45 @@ export class HDSegwitBech32Transaction {
    * * targets - destination(s) of funds (outputs we do not control)
    * * unconfirmedUtxos - UTXOs created by this transaction (only the ones we control)
    *
+   * Throws `TxVerificationError` if data from Electrum server can't be verified. With `replacement` set ('bump' or
+   * 'cancel') it also throws `TxNotReplaceableError` if this wallet can't build such RBF replacement.
+   *
+   * @param replacement {'bump'|'cancel'|undefined} set when info is needed for an RBF replacement (not for CPFP)
    * @returns {Promise<{fee: number, utxos: Array, unconfirmedUtxos: Array, changeAmount: number, feeRate: number, targets: Array}>}
    */
-  async getInfo() {
+  async getInfo(replacement?: 'bump' | 'cancel') {
+    let info;
+    try {
+      info = await this._getInfo();
+    } catch (error) {
+      if (!isTxVerificationError(error) || !this._txDecoded) throw error;
+      // bad copies of this tx or its parents might come from cache (e.g. saved while connected to a malicious server).
+      // dropping them and retrying once with fresh data from the server:
+      const txids = this._txDecoded.ins.map(inp => uint8ArrayToHex(new Uint8Array(inp.hash).reverse()));
+      if (this._txid) {
+        txids.push(this._txid);
+        this._txDecoded = undefined;
+        this._txhex = null;
+      }
+      await BlueElectrum.forgetCachedTransactions(txids);
+      info = await this._getInfo();
+    }
+
+    if (replacement) {
+      // RBF replacement re-spends the same inputs, so we must own (and be able to sign) all of them
+      if (info.utxos.length !== this._txDecoded!.ins.length) {
+        throw new TxNotReplaceableError('Not all inputs of this transaction are ours, cannot replace it');
+      }
+      // bump re-creates all outputs, but only the ones paying to an address are supported (e.g. not OP_RETURN)
+      if (replacement === 'bump' && info.targets.length + info.unconfirmedUtxos.length !== this._txDecoded!.outs.length) {
+        throw new TxNotReplaceableError('Unsupported output in transaction');
+      }
+    }
+
+    return info;
+  }
+
+  async _getInfo() {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._txDecoded) await this._fetchTxhexAndDecode();
     assert(this._txDecoded, 'could not fetch tx and decode');
@@ -216,7 +280,7 @@ export class HDSegwitBech32Transaction {
     const prevTxHexes = await BlueElectrum.multiGetTransactionByTxid(prevInputs, false);
     const prevTransactions: Record<string, bitcoin.Transaction> = {};
     for (const [prevTxid, hex] of Object.entries(prevTxHexes)) {
-      if (typeof hex !== 'string') continue;
+      if (typeof hex !== 'string') continue; // not raw hex, cant check it. such input is refused below
       const decoded = bitcoin.Transaction.fromHex(hex);
       if (decoded.getId() !== prevTxid) throw new TxVerificationError('Electrum server returned a transaction with unexpected txid');
       prevTransactions[prevTxid] = decoded;
@@ -229,7 +293,8 @@ export class HDSegwitBech32Transaction {
       const inp = this._txDecoded.ins[i];
       const reversedHash = uint8ArrayToHex(new Uint8Array(inp.hash).reverse());
       const prevOut = prevTransactions[reversedHash]?.outs[inp.index];
-      if (!prevOut) continue;
+      // without previous output we dont know how much went in, so fee (and feerate) would be wrong, possibly negative
+      if (!prevOut) throw new TxVerificationError('Electrum server did not return previous transaction of an input');
       const value = Number(prevOut.value);
       wentIn += value;
 
@@ -255,6 +320,7 @@ export class HDSegwitBech32Transaction {
     }
 
     const fee = wentIn - wasSpent;
+    if (fee <= 0) throw new TxVerificationError('Transaction fee is not positive');
     let feeRate = Math.floor(fee / this._txDecoded.virtualSize());
     if (feeRate === 0) feeRate = 1;
 
@@ -358,8 +424,7 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
-    const { feeRate, utxos } = await this.getInfo();
-    if (utxos.length !== this._txDecoded!.ins.length) throw new Error('Not all inputs of this transaction are ours, cannot replace it');
+    const { feeRate, utxos } = await this.getInfo('cancel');
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     const myAddress = await this._wallet.getChangeAddressAsync();
@@ -397,9 +462,7 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
-    const { feeRate, targets, changeAmount, utxos, unconfirmedUtxos } = await this.getInfo();
-    if (utxos.length !== this._txDecoded!.ins.length) throw new Error('Not all inputs of this transaction are ours, cannot replace it');
-    if (targets.length + unconfirmedUtxos.length !== this._txDecoded!.outs.length) throw new Error('Unsupported output in transaction');
+    const { feeRate, targets, changeAmount, utxos } = await this.getInfo('bump');
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     const myAddress = await this._wallet.getChangeAddressAsync();

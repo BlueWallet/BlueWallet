@@ -6,7 +6,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
-import { HDSegwitBech32Transaction, isTxVerificationError } from '../../class/hd-segwit-bech32-transaction';
+import { HDSegwitBech32Transaction, isTxNotReplaceableError, isTxVerificationError } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
@@ -108,20 +108,29 @@ export default class CPFP extends Component {
       wallet,
       isElectrumDisabled: true,
       unverified: false,
+      unsupported: false,
     };
   }
 
   /**
    * Called when checking or creating the replacement fails. Stops loading and shows "not bumpable" (or "could not be
-   * verified") message instead of fee selection, so nothing can be signed based on this transaction.
+   * verified" / "not supported") message instead of fee selection, so nothing can be signed based on this transaction.
    */
   onCheckError(error) {
     console.log('could not check transaction:', error?.message);
-    this.setState({ nonReplaceable: true, unverified: isTxVerificationError(error), isLoading: false, tx: undefined });
+    this.setState({
+      nonReplaceable: true,
+      unverified: isTxVerificationError(error),
+      unsupported: isTxNotReplaceableError(error),
+      isLoading: false,
+      tx: undefined,
+    });
   }
 
   nonReplaceableText(defaultText) {
-    return this.state.unverified ? loc.transactions.rbf_unverified : defaultText;
+    if (this.state.unverified) return loc.transactions.rbf_unverified;
+    if (this.state.unsupported) return loc.transactions.rbf_unsupported;
+    return defaultText;
   }
 
   broadcast = () => {
@@ -164,6 +173,7 @@ export default class CPFP extends Component {
       newFeeRate: '',
       nonReplaceable: false,
       unverified: false,
+      unsupported: false,
     });
     try {
       await this.checkPossibilityOfCPFP();
@@ -198,7 +208,7 @@ export default class CPFP extends Component {
         this.setState({ stage: 2, txhex: newTx.toHex(), newTxid: newTx.getId() });
         this.setState({ isLoading: false });
       } catch (_) {
-        if (isTxVerificationError(_)) return this.onCheckError(_);
+        if (isTxVerificationError(_) || isTxNotReplaceableError(_)) return this.onCheckError(_);
         this.setState({ isLoading: false });
         presentAlert({ message: loc.errors.error + ': ' + _.message });
       }
