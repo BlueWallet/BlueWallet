@@ -10,6 +10,7 @@ import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import SeedWords from '../../components/SeedWords';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
+import ScreenCaptureProtection from './ScreenCaptureProtection';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'PleaseBackup'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'PleaseBackup'>;
@@ -57,23 +58,25 @@ const PleaseBackup: React.FC = () => {
   );
 
   return (
-    <ScrollView
-      style={styles.root}
-      contentContainerStyle={[styles.flex, stylesHook.flex]}
-      testID="PleaseBackupScrollView"
-      automaticallyAdjustContentInsets
-      contentInsetAdjustmentBehavior="automatic"
-    >
-      <View style={styles.please}>
-        <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</Text>
-      </View>
-      <View style={styles.list}>
-        <SeedWords seed={wallet.getSecret()} />
-      </View>
-      <View style={styles.bottom}>
-        <Button testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
-      </View>
-    </ScrollView>
+    <ScreenCaptureProtection enabled={isPrivacyBlurEnabled}>
+      <ScrollView
+        style={styles.root}
+        contentContainerStyle={[styles.flex, stylesHook.flex]}
+        testID="PleaseBackupScrollView"
+        automaticallyAdjustContentInsets
+        contentInsetAdjustmentBehavior="automatic"
+      >
+        <View style={styles.please}>
+          <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</Text>
+        </View>
+        <View style={styles.list}>
+          <SeedWords seed={wallet.getSecret()} />
+        </View>
+        <View style={styles.bottom}>
+          <Button testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
+        </View>
+      </ScrollView>
+    </ScreenCaptureProtection>
   );
 };
 
