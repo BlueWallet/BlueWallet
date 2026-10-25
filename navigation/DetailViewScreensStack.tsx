@@ -52,10 +52,10 @@ import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import SettingsTools from '../screen/settings/SettingsTools';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
-import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { createSettingsScreenOptions, getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
 import { isDesktop, isIOS26OrHigher } from '../blue_modules/environment';
+import { shouldUseWideLayout } from '../blue_modules/layout';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
@@ -163,8 +163,8 @@ const DetailViewStackScreensStack = () => {
   const navigation = useNavigation();
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
-  const { sizeClass } = useSizeClass();
-  const { width: windowWidth } = useWindowDimensions();
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+  const isWideLayout = shouldUseWideLayout(windowWidth, windowHeight);
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
   // Probe connection health from the UI (e.g. WalletsList focus / 30s timer).
@@ -228,18 +228,24 @@ const DetailViewStackScreensStack = () => {
     });
   }, [navigation]);
 
+  const navigateToManageWallets = useCallback(() => {
+    navigation.navigate('DetailViewStackScreensStack', {
+      screen: 'ManageWallets',
+    });
+  }, [navigation]);
+
   const RightBarButtons = useMemo(
     () =>
-      sizeClass === SizeClass.Large ? (
+      isWideLayout ? (
         <AddWalletButton onPress={navigateToAddWallet} />
       ) : (
         <>
           <AddWalletButton onPress={navigateToAddWallet} />
           <View style={styles.width24} />
-          <SettingsButton />
+          <SettingsButton onPress={navigateToSettings} onManageWalletPress={navigateToManageWallets} />
         </>
       ),
-    [sizeClass, navigateToAddWallet],
+    [isWideLayout, navigateToAddWallet, navigateToManageWallets, navigateToSettings],
   );
 
   const navigateToElectrumSettings = useCallback(() => {
@@ -296,7 +302,7 @@ const DetailViewStackScreensStack = () => {
       // Status pills: `unstable_headerLeftItems` + `hidesSharedBackground` avoids the
       // navigation bar's shared liquid-glass chrome on the pill (solid colors only).
       return {
-        title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
+        title: isWideLayout ? loc.wallets.list_title : '',
         headerLargeTitle: false,
         headerTransparent: true,
         unstable_headerLeftItems: (): NativeStackHeaderItem[] => {
@@ -322,7 +328,7 @@ const DetailViewStackScreensStack = () => {
               onPress: navigateToAddWallet,
             },
           ];
-          if (sizeClass !== SizeClass.Large) {
+          if (!isWideLayout) {
             items.push({
               type: 'button',
               label: loc.settings.default_title,
@@ -338,7 +344,7 @@ const DetailViewStackScreensStack = () => {
     }
 
     return {
-      title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
+      title: isWideLayout ? loc.wallets.list_title : '',
       headerLargeTitle: false,
       headerShadowVisible: false,
       headerStyle: {
@@ -349,7 +355,7 @@ const DetailViewStackScreensStack = () => {
     };
   }, [
     RightBarButtons,
-    sizeClass,
+    isWideLayout,
     theme.colors.customHeader,
     theme.colors.headerProminentButtonBackgroundColor,
     theme.colors.foregroundColor,
