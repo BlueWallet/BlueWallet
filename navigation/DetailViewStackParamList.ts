@@ -79,7 +79,10 @@ export type DetailViewStackParamList = {
     justPaid: boolean;
     fromWalletID: string;
   };
-  LnurlAuth: undefined;
+  LnurlAuth: {
+    lnurl: string;
+    walletID?: string;
+  };
   Success: undefined;
   WalletAddresses: { walletID: string };
   AddWalletRoot: undefined;
