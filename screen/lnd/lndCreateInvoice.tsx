@@ -26,7 +26,8 @@ import { presentWalletExportReminder } from '../../helpers/presentWalletExportRe
 import loc, { formatBalance, formatBalancePlain, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
+import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
+import KeyboardAccessoryDone from '../../components/KeyboardAccessoryDone';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 import { BlueLoading } from '../../components/BlueLoading';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
@@ -52,6 +53,7 @@ const LNDCreateInvoice = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [description, setDescription] = useState('');
   const [lnurlParams, setLNURLParams] = useState<{ k1: any; callback: any; fixed: boolean; min: number; max: number }>();
+  const [keyboardAccessoryActive, setKeyboardAccessoryActive] = useState(false);
 
   const styleHooks = StyleSheet.create({
     scanRoot: {
@@ -396,36 +398,39 @@ const LNDCreateInvoice = () => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={[styles.root, styleHooks.root]}>
-        <View style={[styles.amount, styleHooks.amount]}>
-          <AmountInput.AmountInput
-            isLoading={isLoading}
-            amount={amount}
-            onAmountUnitChange={setUnit}
-            onChangeText={setAmount}
-            disabled={isLoading || (lnurlParams && lnurlParams.fixed)}
-            unit={unit}
-            inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
-          />
-          <View style={[styles.fiat, styleHooks.fiat]}>
-            <TextInput
-              onChangeText={setDescription}
-              placeholder={loc.receive.details_label}
-              value={description}
-              numberOfLines={1}
-              placeholderTextColor="#81868e"
-              style={styles.fiat2}
-              editable={!isLoading}
-              onSubmitEditing={Keyboard.dismiss}
-              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
+      <KeyboardAccessoryDock active={keyboardAccessoryActive} accessory={<KeyboardAccessoryDone />}>
+        <View style={[styles.root, styleHooks.root]}>
+          <View style={[styles.amount, styleHooks.amount]}>
+            <AmountInput.AmountInput
+              isLoading={isLoading}
+              amount={amount}
+              onAmountUnitChange={setUnit}
+              onChangeText={setAmount}
+              disabled={isLoading || (lnurlParams && lnurlParams.fixed)}
+              unit={unit}
+              onFocus={() => setKeyboardAccessoryActive(true)}
+              onBlur={() => setKeyboardAccessoryActive(false)}
             />
-            {lnurlParams ? null : renderScanClickable()}
+            <View style={[styles.fiat, styleHooks.fiat]}>
+              <TextInput
+                onChangeText={setDescription}
+                placeholder={loc.receive.details_label}
+                value={description}
+                numberOfLines={1}
+                placeholderTextColor="#81868e"
+                style={styles.fiat2}
+                editable={!isLoading}
+                onSubmitEditing={Keyboard.dismiss}
+                onFocus={() => setKeyboardAccessoryActive(true)}
+                onBlur={() => setKeyboardAccessoryActive(false)}
+              />
+              {lnurlParams ? null : renderScanClickable()}
+            </View>
+            {renderCreateButton()}
           </View>
-          <DismissKeyboardInputAccessory />
-          {renderCreateButton()}
+          {renderWalletSelectionButton()}
         </View>
-        {renderWalletSelectionButton()}
-      </View>
+      </KeyboardAccessoryDock>
     </TouchableWithoutFeedback>
   );
 };

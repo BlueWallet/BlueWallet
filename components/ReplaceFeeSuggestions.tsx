@@ -5,7 +5,8 @@ import BlueText from './BlueText';
 import loc, { formatStringAddTwoWhiteSpaces } from '../loc';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from '../models/networkTransactionFees';
 import { useTheme } from './themes';
-import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from './DismissKeyboardInputAccessory';
+import KeyboardAccessoryDock from './KeyboardAccessoryDock';
+import KeyboardAccessoryDone from './KeyboardAccessoryDone';
 
 interface ReplaceFeeSuggestionsProps {
   onFeeSelected: (fee: number) => void;
@@ -16,6 +17,7 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
   const [networkFees, setNetworkFees] = useState<NetworkTransactionFee | null>(null);
   const [selectedFeeType, setSelectedFeeType] = useState<NetworkTransactionFeeType>(NetworkTransactionFeeType.FAST);
   const [customFeeValue, setCustomFeeValue] = useState<string>('1');
+  const [keyboardAccessoryActive, setKeyboardAccessoryActive] = useState(false);
   const customTextInput = useRef<TextInput>(null);
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
@@ -104,78 +106,80 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
   };
 
   return (
-    <View>
-      {networkFees &&
-        [
-          {
-            label: loc.send.fee_fast,
-            time: loc.send.fee_10m,
-            type: NetworkTransactionFeeType.FAST,
-            rate: adjustFee(networkFees.fastestFee, transactionMinimum),
-            active: selectedFeeType === NetworkTransactionFeeType.FAST,
-          },
-          {
-            label: formatStringAddTwoWhiteSpaces(loc.send.fee_medium),
-            time: loc.send.fee_3h,
-            type: NetworkTransactionFeeType.MEDIUM,
-            rate: adjustFee(networkFees.mediumFee, transactionMinimum),
-            active: selectedFeeType === NetworkTransactionFeeType.MEDIUM,
-          },
-          {
-            label: loc.send.fee_slow,
-            time: loc.send.fee_1d,
-            type: NetworkTransactionFeeType.SLOW,
-            rate: adjustFee(networkFees.slowFee, transactionMinimum),
-            active: selectedFeeType === NetworkTransactionFeeType.SLOW,
-          },
-        ].map(({ label, type, time, rate, active }) => (
-          <TouchableOpacity
-            accessibilityRole="button"
-            key={label}
-            onPress={() => handleFeeSelection(type)}
-            style={[styles.button, active && stylesHook.activeButton]}
-          >
-            <View style={styles.buttonContent}>
-              <Text style={[styles.buttonText, stylesHook.buttonText]}>{label}</Text>
-              <View style={[styles.timeContainer, stylesHook.timeContainer]}>
-                <Text style={stylesHook.timeText}>~{time}</Text>
+    <KeyboardAccessoryDock active={keyboardAccessoryActive} accessory={<KeyboardAccessoryDone />}>
+      <View>
+        {networkFees &&
+          [
+            {
+              label: loc.send.fee_fast,
+              time: loc.send.fee_10m,
+              type: NetworkTransactionFeeType.FAST,
+              rate: adjustFee(networkFees.fastestFee, transactionMinimum),
+              active: selectedFeeType === NetworkTransactionFeeType.FAST,
+            },
+            {
+              label: formatStringAddTwoWhiteSpaces(loc.send.fee_medium),
+              time: loc.send.fee_3h,
+              type: NetworkTransactionFeeType.MEDIUM,
+              rate: adjustFee(networkFees.mediumFee, transactionMinimum),
+              active: selectedFeeType === NetworkTransactionFeeType.MEDIUM,
+            },
+            {
+              label: loc.send.fee_slow,
+              time: loc.send.fee_1d,
+              type: NetworkTransactionFeeType.SLOW,
+              rate: adjustFee(networkFees.slowFee, transactionMinimum),
+              active: selectedFeeType === NetworkTransactionFeeType.SLOW,
+            },
+          ].map(({ label, type, time, rate, active }) => (
+            <TouchableOpacity
+              accessibilityRole="button"
+              key={label}
+              onPress={() => handleFeeSelection(type)}
+              style={[styles.button, active && stylesHook.activeButton]}
+            >
+              <View style={styles.buttonContent}>
+                <Text style={[styles.buttonText, stylesHook.buttonText]}>{label}</Text>
+                <View style={[styles.timeContainer, stylesHook.timeContainer]}>
+                  <Text style={stylesHook.timeText}>~{time}</Text>
+                </View>
               </View>
-            </View>
-            <View style={styles.rateContainer}>
-              <Text style={stylesHook.rateText}>{rate} sat/byte</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
-      <TouchableOpacity
-        accessibilityRole="button"
-        onPress={() => customTextInput.current?.focus()}
-        style={[styles.button, selectedFeeType === NetworkTransactionFeeType.CUSTOM && stylesHook.activeButton]}
-      >
-        <View style={styles.buttonContent}>
-          <Text style={[styles.buttonText, stylesHook.buttonText]}>{formatStringAddTwoWhiteSpaces(loc.send.fee_custom)}</Text>
-        </View>
-        <View style={[styles.buttonContent, styles.customFeeInputContainer]}>
-          <TextInput
-            onChangeText={handleCustomFeeChange}
-            keyboardType="numeric"
-            value={customFeeValue}
-            ref={customTextInput}
-            maxLength={9}
-            style={[styles.customFeeInput, stylesHook.customFeeInput]}
-            onFocus={() => {
-              setSelectedFeeType(NetworkTransactionFeeType.CUSTOM);
-              onFeeSelected(Number(customFeeValue));
-            }}
-            placeholder={loc.send.fee_satvbyte}
-            placeholderTextColor="#81868e"
-            inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
-          />
-          <DismissKeyboardInputAccessory />
-          <Text style={stylesHook.rateText}>sat/byte</Text>
-        </View>
-      </TouchableOpacity>
-      <BlueText style={stylesHook.alternativeText}>{loc.formatString(loc.send.fee_replace_minvb, { min: transactionMinimum })}</BlueText>
-    </View>
+              <View style={styles.rateContainer}>
+                <Text style={stylesHook.rateText}>{rate} sat/byte</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        <TouchableOpacity
+          accessibilityRole="button"
+          onPress={() => customTextInput.current?.focus()}
+          style={[styles.button, selectedFeeType === NetworkTransactionFeeType.CUSTOM && stylesHook.activeButton]}
+        >
+          <View style={styles.buttonContent}>
+            <Text style={[styles.buttonText, stylesHook.buttonText]}>{formatStringAddTwoWhiteSpaces(loc.send.fee_custom)}</Text>
+          </View>
+          <View style={[styles.buttonContent, styles.customFeeInputContainer]}>
+            <TextInput
+              onChangeText={handleCustomFeeChange}
+              keyboardType="numeric"
+              value={customFeeValue}
+              ref={customTextInput}
+              maxLength={9}
+              style={[styles.customFeeInput, stylesHook.customFeeInput]}
+              onFocus={() => {
+                setKeyboardAccessoryActive(true);
+                setSelectedFeeType(NetworkTransactionFeeType.CUSTOM);
+                onFeeSelected(Number(customFeeValue));
+              }}
+              onBlur={() => setKeyboardAccessoryActive(false)}
+              placeholder={loc.send.fee_satvbyte}
+              placeholderTextColor="#81868e"
+            />
+            <Text style={stylesHook.rateText}>sat/byte</Text>
+          </View>
+        </TouchableOpacity>
+        <BlueText style={stylesHook.alternativeText}>{loc.formatString(loc.send.fee_replace_minvb, { min: transactionMinimum })}</BlueText>
+      </View>
+    </KeyboardAccessoryDock>
   );
 };
 

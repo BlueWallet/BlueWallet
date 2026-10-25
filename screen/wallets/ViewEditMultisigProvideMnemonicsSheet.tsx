@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -9,10 +9,8 @@ import BlueFormMultiInput from '../../components/BlueFormMultiInput';
 import BlueTextCentered from '../../components/BlueTextCentered';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
-import {
-  DoneAndDismissKeyboardInputAccessory,
-  DoneAndDismissKeyboardInputAccessoryViewID,
-} from '../../components/DoneAndDismissKeyboardInputAccessory';
+import KeyboardAccessoryClearPasteDone from '../../components/KeyboardAccessoryClearPasteDone';
+import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -31,6 +29,7 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
 
   const [importText, setImportText] = useState(initialImportText);
   const [askPassphrase, setAskPassphrase] = useState(initialAskPassphrase);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   const handleImport = useCallback(
     (text?: string) => {
@@ -54,46 +53,40 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
     [askPassphrase, importText, navigation, walletID, currentlyEditingCosignerNum],
   );
 
+  const keyboardAccessory = <KeyboardAccessoryClearPasteDone onClearTapped={() => setImportText('')} onPasteTapped={setImportText} />;
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.elevated }]} edges={['bottom', 'left', 'right']}>
-      <ScrollView contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="always">
-        <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
-        <BlueSpacing20 />
-        <BlueFormMultiInput
-          value={importText}
-          onChangeText={setImportText}
-          inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
-          testID="MnemonicInputSheet"
-          style={styles.mnemonicInput}
-        />
-        {Platform.select({
-          ios: (
-            <DoneAndDismissKeyboardInputAccessory
-              onClearTapped={() => setImportText('')}
-              onPasteTapped={text => {
-                setImportText(text);
-              }}
-            />
-          ),
-          default: null,
-        })}
-        <BlueSpacing20 />
-        <View style={styles.toggleRow}>
-          <BlueFormLabel>{loc.wallets.import_passphrase_title}</BlueFormLabel>
-          <Switch value={askPassphrase} onValueChange={setAskPassphrase} />
-        </View>
-        <BlueSpacing20 />
-        <Button testID="DoImportKeyButton" title={loc.wallets.import_do_import} onPress={() => handleImport()} />
-        <BlueSpacing20 />
-        <AddressInputScanButton
-          type="link"
-          testID="ScanOrOpenFile"
-          onChangeText={text => {
-            setImportText(text);
-            handleImport(text);
-          }}
-        />
-      </ScrollView>
+      <KeyboardAccessoryDock active={isInputFocused} accessory={keyboardAccessory}>
+        <ScrollView contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="always">
+          <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
+          <BlueSpacing20 />
+          <BlueFormMultiInput
+            value={importText}
+            onChangeText={setImportText}
+            onFocus={() => setIsInputFocused(true)}
+            onBlur={() => setIsInputFocused(false)}
+            testID="MnemonicInputSheet"
+            style={styles.mnemonicInput}
+          />
+          <BlueSpacing20 />
+          <View style={styles.toggleRow}>
+            <BlueFormLabel>{loc.wallets.import_passphrase_title}</BlueFormLabel>
+            <Switch value={askPassphrase} onValueChange={setAskPassphrase} />
+          </View>
+          <BlueSpacing20 />
+          <Button testID="DoImportKeyButton" title={loc.wallets.import_do_import} onPress={() => handleImport()} />
+          <BlueSpacing20 />
+          <AddressInputScanButton
+            type="link"
+            testID="ScanOrOpenFile"
+            onChangeText={text => {
+              setImportText(text);
+              handleImport(text);
+            }}
+          />
+        </ScrollView>
+      </KeyboardAccessoryDock>
     </SafeAreaView>
   );
 };
