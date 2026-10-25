@@ -7,6 +7,43 @@ When upstream ships an equivalent fix, drop the patch here and bump the dependen
 
 ---
 
+## `scripts/normalize-catalyst-framework.sh`
+
+This build-time workaround is invoked from `ios/Podfile`, rather than applied
+through `patch-package`. The Podfile inserts it into CocoaPods' framework
+embedding script after the framework is copied and before its binary is stripped
+and signed.
+
+React Native's prebuilt Mac Catalyst frameworks can contain dereferenced copies
+of versioned framework symlinks. With React Native 0.88, `React.framework` also
+contains regular `Headers`, `Modules`, `PrivacyInfo.xcprivacy`, and resource
+bundles at its root. That layout fails macOS framework signing with:
+
+```text
+unsealed contents present in the root directory of an embedded framework
+```
+
+This caused Catalyst archives to fail in `[CP] Embed Pods Frameworks` while
+CocoaPods signed `React.framework`, before TestFlight upload could start.
+
+The script repairs `Versions/Current`, restores root symlinks to the canonical
+contents under `Versions/A`, moves headers and modules into that version, and
+places the privacy manifest and resource bundles in `Versions/A/Resources`.
+It runs only for Mac Catalyst frameworks that have `Versions/A`, changes only
+the embedded build copy, and is safe to run repeatedly. Downloaded frameworks
+and iOS device/simulator builds are left unchanged.
+
+Validated locally with a full Catalyst build and Apple Distribution signing plus
+strict signature verification of the embedded React, ReactNativeDependencies,
+and Hermes frameworks.
+
+Remove the script and its Podfile integration when the upstream prebuilt
+frameworks preserve the correct versioned macOS layout. After upgrading React
+Native or CocoaPods, verify a clean Catalyst build and signing of all embedded
+frameworks; the hook depends on CocoaPods' generated embedding script structure.
+
+---
+
 ## `@bugsnag+react-native+9.1.0.patch`
 
 Removes the package's Android `consumerProguardFiles 'proguard-rules.pro'`
