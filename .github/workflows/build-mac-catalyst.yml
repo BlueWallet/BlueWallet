@@ -9,6 +9,9 @@ on:
       source_sha:
         required: true
         type: string
+      allocation_attempt:
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       build_number:
@@ -29,8 +32,17 @@ jobs:
   build:
     name: Build + Upload
     runs-on: macos-15
-    timeout-minutes: 180
+    timeout-minutes: 360
     steps:
+      - name: Validate release attempt
+        env:
+          ALLOCATION_ATTEMPT: ${{ inputs.allocation_attempt }}
+        run: |
+          if [ -n "$ALLOCATION_ATTEMPT" ] && [ "$ALLOCATION_ATTEMPT" != "$GITHUB_RUN_ATTEMPT" ]; then
+            echo '::error::Choose Re-run all jobs to allocate a new shared build number; re-running only failed jobs can reuse an accepted TestFlight build.'
+            exit 1
+          fi
+
       - name: Checkout project
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
@@ -91,7 +103,7 @@ jobs:
         env:
           REQUESTED_BUILD_NUMBER: ${{ inputs.build_number }}
         run: |
-          BUILD_NUMBER="${REQUESTED_BUILD_NUMBER:-$((5000000000000 + $(date +%s%3N)))}"
+          BUILD_NUMBER="${REQUESTED_BUILD_NUMBER:-$(ruby -e 'puts 5_000_000_000_000 + (Time.now.to_r * 1000).to_i')}"
           export NEW_BUILD_NUMBER="$BUILD_NUMBER"
           echo "NEW_BUILD_NUMBER=${BUILD_NUMBER}" >> "$GITHUB_ENV"
           echo "build_number=${BUILD_NUMBER}" >> "$GITHUB_OUTPUT"
@@ -99,6 +111,7 @@ jobs:
 
       - name: Build Mac Catalyst archive
         id: build_catalyst
+        timeout-minutes: 180
         run: bundle exec fastlane ios build_catalyst_app_lane
         env:
           SKIP_APP_STORE_CONNECT_AUTH: '1'
@@ -114,6 +127,7 @@ jobs:
 
       - name: Export and upload to TestFlight
         id: upload_testflight
+        timeout-minutes: 110
         run: bundle exec fastlane ios upload_catalyst_to_testflight
         env:
           SKIP_APP_STORE_CONNECT_AUTH: '1'

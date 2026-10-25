@@ -15,7 +15,7 @@ fi
 
 # RN 0.88 also leaves headers/modules and its privacy manifest at the root.
 # Versioned macOS frameworks permit links here, but not these regular files.
-for directory in Headers Modules; do
+for directory in Headers Modules Resources; do
   if [[ -d "$framework/$directory" && ! -L "$framework/$directory" ]]; then
     mkdir -p "$framework/Versions/A/$directory"
     /usr/bin/ditto "$framework/$directory" "$framework/Versions/A/$directory"

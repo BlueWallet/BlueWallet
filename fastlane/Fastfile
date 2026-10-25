@@ -874,6 +874,9 @@ platform :ios do
             keychain_password: keychain_password,
             team_id: developer_team_id
           }
+          if configuration[:platform] == "catalyst" && profile_type == "appstore"
+            match_options[:additional_cert_types] = ["mac_installer_distribution"]
+          end
           match_options.merge!(api_authentication) unless api_authentication.nil?
           match_options[:username] = ENV["APPLE_ID"] if api_authentication.nil?
           # Do not force --single-branch: Match may need to create or fetch a
@@ -1089,13 +1092,14 @@ platform :ios do
         File.join(archived_app, "Contents/PlugIns/WidgetsExtension.appex/Contents/MacOS/WidgetsExtension")
       ]
       sandboxed_executables.each do |executable|
+        next unless should_sign
         UI.user_error!("Signed Catalyst executable not found at #{executable}") unless File.file?(executable)
         entitlements = sh("codesign", "-d", "--entitlements", ":-", executable, log: false)
         unless entitlements.match?(%r{<key>com\.apple\.security\.app-sandbox</key>\s*<true\s*/>})
           UI.user_error!("App Sandbox entitlement is missing from #{executable}")
         end
       end
-      UI.success("Verified App Sandbox entitlement on the Catalyst app and widget archive")
+      UI.success("Verified App Sandbox entitlement on the Catalyst app and widget archive") if should_sign
 
       candidate_paths = []
       candidate_paths << File.join(archive_path, "Products/Applications/BlueWallet.app") if archive_path

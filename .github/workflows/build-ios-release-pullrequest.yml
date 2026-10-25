@@ -34,6 +34,7 @@ jobs:
     outputs:
       build_number: ${{ steps.release.outputs.build_number }}
       source_sha: ${{ steps.release.outputs.source_sha }}
+      allocation_attempt: ${{ steps.release.outputs.allocation_attempt }}
     steps:
       - name: Set shared release inputs
         id: release
@@ -45,6 +46,7 @@ jobs:
           BUILD_NUMBER=$((5000000000000 + $(date +%s%3N)))
           echo "build_number=${BUILD_NUMBER}" >> "$GITHUB_OUTPUT"
           echo "source_sha=${SOURCE_SHA}" >> "$GITHUB_OUTPUT"
+          echo "allocation_attempt=${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
 
   build:
     name: iOS Build
@@ -487,6 +489,7 @@ jobs:
     with:
       build_number: ${{ needs.plan.outputs.build_number }}
       source_sha: ${{ needs.plan.outputs.source_sha }}
+      allocation_attempt: ${{ needs.plan.outputs.allocation_attempt }}
     secrets: inherit
 
   testflight-upload:
