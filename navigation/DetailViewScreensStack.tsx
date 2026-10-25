@@ -431,6 +431,12 @@ const DetailViewStackScreensStack = () => {
           options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
         />
         <DetailViewStack.Screen
+          name="SendWalletSelection"
+          component={SelectWallet}
+          initialParams={{ selectionMode: 'send' }}
+          options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+        />
+        <DetailViewStack.Screen
           name="ReceiveWalletSelection"
           component={SelectWallet}
           initialParams={{ selectionMode: 'receive' }}

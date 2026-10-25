@@ -2,22 +2,58 @@ import { LinkingOptions } from '@react-navigation/native';
 import { Chain } from '../models/bitcoinUnits';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 
-export type ShortcutWalletSelectionMode = 'receive' | 'scan';
+export type ShortcutWalletSelectionMode = 'send' | 'receive' | 'scan';
+
+type ShortcutWallet = {
+  chain: Chain;
+  allowSend: () => boolean;
+  allowReceive: () => boolean;
+};
+
+export const isShortcutWalletCompatible = (selectionMode: ShortcutWalletSelectionMode, wallet: ShortcutWallet) => {
+  if (selectionMode === 'send') return wallet.chain === Chain.ONCHAIN && wallet.allowSend();
+  if (selectionMode === 'receive') return wallet.allowReceive();
+  return wallet.allowSend();
+};
+
+export const getCompatibleShortcutWallets = <T extends ShortcutWallet>(selectionMode: ShortcutWalletSelectionMode, wallets: readonly T[]) =>
+  wallets.filter(wallet => isShortcutWalletCompatible(selectionMode, wallet));
 
 export const getShortcutWalletDestination = (selectionMode: ShortcutWalletSelectionMode, chain: Chain, walletID: string) => {
+  if (selectionMode === 'send') {
+    return {
+      name: 'SendDetailsRoot',
+      params: { screen: 'SendDetails', params: { walletID } },
+    };
+  }
+
   if (selectionMode === 'receive') {
     return chain === Chain.ONCHAIN
       ? { name: 'ReceiveDetails', params: { walletID, address: '' } }
-      : { name: 'LNDCreateInvoiceRoot', params: { screen: 'LNDCreateInvoice', params: { walletID } } };
+      : {
+          name: 'LNDCreateInvoiceRoot',
+          params: { screen: 'LNDCreateInvoice', params: { walletID } },
+        };
   }
 
   return chain === Chain.ONCHAIN
-    ? { name: 'SendDetailsRoot', params: { screen: 'SendDetails', params: { walletID, openScanner: true } } }
+    ? {
+        name: 'SendDetailsRoot',
+        params: {
+          screen: 'SendDetails',
+          params: { walletID, openScanner: true },
+        },
+      }
     : {
         name: 'ScanLNDInvoiceRoot',
         params: {
           screen: 'ScanLNDInvoice',
-          params: { walletID, uri: undefined, onBarScanned: undefined, openScanner: true },
+          params: {
+            walletID,
+            uri: undefined,
+            onBarScanned: undefined,
+            openScanner: true,
+          },
         },
       };
 };
@@ -30,17 +66,12 @@ export const linking: LinkingOptions<DetailViewStackParamList> = {
         screens: {
           DetailViewStackScreensStack: {
             screens: {
+              SendWalletSelection: 'send',
               ReceiveWalletSelection: 'receive',
               ScanWalletSelection: 'scan',
               ManageWallets: 'manage-wallets',
             },
           },
-        },
-      },
-      SendDetailsRoot: {
-        path: 'send',
-        screens: {
-          SendDetails: '',
         },
       },
     },

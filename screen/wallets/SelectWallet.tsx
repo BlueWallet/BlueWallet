@@ -14,7 +14,8 @@ import { navigationRef, pop } from '../../NavigationService';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootParamList } from '../../navigation/RootParamList';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { getShortcutWalletDestination } from '../../navigation/linking';
+import { getCompatibleShortcutWallets, getShortcutWalletDestination } from '../../navigation/linking';
+import presentAlert from '../../components/Alert';
 
 type NavigationProps = NativeStackNavigationProp<RootParamList, 'SelectWallet'>;
 
@@ -48,12 +49,8 @@ const SelectWallet: React.FC = () => {
   });
 
   const filterWallets = useCallback(() => {
-    if (selectionMode === 'receive') {
-      return wallets.filter(item => item.allowReceive());
-    }
-
-    if (selectionMode === 'scan') {
-      return wallets.filter(item => item.allowSend());
+    if (selectionMode) {
+      return getCompatibleShortcutWallets(selectionMode, wallets);
     }
 
     if (availableWallets && availableWallets.length > 0) {
@@ -134,9 +131,20 @@ const SelectWallet: React.FC = () => {
   );
 
   useEffect(() => {
-    if (isLoading || !selectionMode || filteredWallets.length !== 1 || didAutomaticallySelectWallet.current) return;
+    if (isLoading || !selectionMode || didAutomaticallySelectWallet.current) return;
     didAutomaticallySelectWallet.current = true;
-    onPress(filteredWallets[0]);
+
+    const wallet = filteredWallets[0];
+    if (wallet) {
+      onPress(wallet);
+      return;
+    }
+
+    presentAlert({
+      title: loc.errors.error,
+      message: selectionMode === 'receive' ? loc.wallets.select_no_bitcoin : loc.send.details_wallet_before_tx,
+      hapticFeedback: HapticFeedbackTypes.NotificationError,
+    });
   }, [filteredWallets, isLoading, onPress, selectionMode]);
 
   if (isLoading) {
