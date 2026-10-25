@@ -63,9 +63,7 @@ export type DetailViewStackParamList = {
   RBFBumpFee: { txid: string; wallet: TWallet | null };
   RBFCancel: { txid: string; wallet: TWallet | null };
   SelectWallet: SelectWalletParams;
-  SendWalletSelection: { selectionMode: 'send' };
-  ReceiveWalletSelection: { selectionMode: 'receive' };
-  ScanWalletSelection: { selectionMode: 'scan' };
+  AppShortcut: { selectionMode: 'send' | 'receive' | 'scan' };
   LNDViewInvoice: { invoice: LightningTransaction | string; walletID: string };
   LNDViewAdditionalInvoicePreImage: { preImageData: string };
   Broadcast: undefined;

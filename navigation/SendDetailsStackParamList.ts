@@ -68,7 +68,6 @@ export type SelectWalletParams = {
   noWalletExplanationText?: string;
   onChainRequireSend?: boolean;
   selectedWalletID?: string; // scroll to this wallet
-  selectionMode?: 'send' | 'receive' | 'scan';
 };
 
 export type SuccessParams = {

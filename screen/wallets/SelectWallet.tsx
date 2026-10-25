@@ -10,12 +10,10 @@ import { Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import WalletsCarousel, { CarouselListRefType } from '../../components/WalletsCarousel';
 import { TWallet } from '../../class/wallets/types';
-import { navigationRef, pop } from '../../NavigationService';
+import { pop } from '../../NavigationService';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootParamList } from '../../navigation/RootParamList';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { getCompatibleShortcutWallets, getShortcutWalletDestination } from '../../navigation/linking';
-import presentAlert from '../../components/Alert';
 
 type NavigationProps = NativeStackNavigationProp<RootParamList, 'SelectWallet'>;
 
@@ -30,7 +28,6 @@ const SelectWallet: React.FC = () => {
     noWalletExplanationText,
     onChainRequireSend = false,
     selectedWalletID,
-    selectionMode,
   } = route.params ?? {};
   const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation<NavigationProps>();
@@ -40,7 +37,6 @@ const SelectWallet: React.FC = () => {
   const walletsCarousel = useRef<CarouselListRefType>(null);
   const previousRouteName = useNavigationState(state => state.routes[state.routes.length - 2]?.name);
   const [filteredWallets, setFilteredWallets] = useState<TWallet[]>([]);
-  const didAutomaticallySelectWallet = useRef(false);
 
   const stylesHook = StyleSheet.create({
     loading: {
@@ -49,10 +45,6 @@ const SelectWallet: React.FC = () => {
   });
 
   const filterWallets = useCallback(() => {
-    if (selectionMode) {
-      return getCompatibleShortcutWallets(selectionMode, wallets);
-    }
-
     if (availableWallets && availableWallets.length > 0) {
       return availableWallets;
     }
@@ -66,7 +58,7 @@ const SelectWallet: React.FC = () => {
     }
 
     return wallets.filter(item => item.allowSend());
-  }, [availableWallets, chainType, onChainRequireSend, selectionMode, wallets]);
+  }, [availableWallets, chainType, onChainRequireSend, wallets]);
 
   // Initialize filtered wallets and handle loading state
   useEffect(() => {
@@ -112,40 +104,14 @@ const SelectWallet: React.FC = () => {
     }
   }, [isModal, navigation]);
 
-  const onPress = useCallback(
-    (item: TWallet) => {
-      triggerHapticFeedback(HapticFeedbackTypes.Selection);
-      if (selectionMode) {
-        const destination = getShortcutWalletDestination(selectionMode, item.chain, item.getID());
-        navigationRef.navigate(destination.name, destination.params);
-        return;
-      }
-
-      if (onWalletSelect) {
-        onWalletSelect(item, { navigation: { pop, navigate: navigation.navigate } });
-      } else {
-        navigation.dispatch(StackActions.popTo(previousRouteName, { walletID: item.getID() }, { merge: true }));
-      }
-    },
-    [navigation, onWalletSelect, previousRouteName, selectionMode],
-  );
-
-  useEffect(() => {
-    if (isLoading || !selectionMode || didAutomaticallySelectWallet.current) return;
-    didAutomaticallySelectWallet.current = true;
-
-    const wallet = filteredWallets[0];
-    if (wallet) {
-      onPress(wallet);
-      return;
+  const onPress = (item: TWallet) => {
+    triggerHapticFeedback(HapticFeedbackTypes.Selection);
+    if (onWalletSelect) {
+      onWalletSelect(item, { navigation: { pop, navigate: navigation.navigate } });
+    } else {
+      navigation.dispatch(StackActions.popTo(previousRouteName, { walletID: item.getID() }, { merge: true }));
     }
-
-    presentAlert({
-      title: loc.errors.error,
-      message: selectionMode === 'receive' ? loc.wallets.select_no_bitcoin : loc.send.details_wallet_before_tx,
-      hapticFeedback: HapticFeedbackTypes.NotificationError,
-    });
-  }, [filteredWallets, isLoading, onPress, selectionMode]);
+  };
 
   if (isLoading) {
     return (
@@ -156,17 +122,12 @@ const SelectWallet: React.FC = () => {
   }
 
   if (filteredWallets.length <= 0) {
-    const isShortcutSelection = selectionMode === 'receive' || selectionMode === 'scan';
     return (
       <SafeArea>
         <View style={styles.noWallets}>
-          <BlueText style={styles.center}>
-            {isShortcutSelection ? loc.wallets.list_create_a_wallet : loc.wallets.select_no_bitcoin}
-          </BlueText>
+          <BlueText style={styles.center}>{loc.wallets.select_no_bitcoin}</BlueText>
           <BlueSpacing20 />
-          <BlueText style={styles.center}>
-            {noWalletExplanationText || (isShortcutSelection ? loc.wallets.list_create_a_wallet_text : loc.wallets.select_no_bitcoin_exp)}
-          </BlueText>
+          <BlueText style={styles.center}>{noWalletExplanationText || loc.wallets.select_no_bitcoin_exp}</BlueText>
         </View>
       </SafeArea>
     );

@@ -14,14 +14,20 @@ const findRoute = (state: NavigationState | PartialState<NavigationState> | unde
 
 describe('app shortcut linking', () => {
   test.each([
-    ['send', 'SendWalletSelection'],
-    ['receive', 'ReceiveWalletSelection'],
-    ['scan', 'ScanWalletSelection'],
+    ['send', 'AppShortcut'],
+    ['receive', 'AppShortcut'],
+    ['scan', 'AppShortcut'],
     ['manage-wallets', 'ManageWallets'],
   ])('maps %s directly to %s', (path, screen) => {
     const state = getStateFromPath(path, linking.config);
 
     expect(findRoute(state, screen)).toBeDefined();
+  });
+
+  test.each(['send', 'receive', 'scan'] as const)('passes %s as the shortcut mode', selectionMode => {
+    const state = getStateFromPath(selectionMode, linking.config);
+
+    expect(findRoute(state, 'AppShortcut')?.params).toEqual({ selectionMode });
   });
 
   test.each([

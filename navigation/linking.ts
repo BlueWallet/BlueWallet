@@ -66,9 +66,7 @@ export const linking: LinkingOptions<DetailViewStackParamList> = {
         screens: {
           DetailViewStackScreensStack: {
             screens: {
-              SendWalletSelection: 'send',
-              ReceiveWalletSelection: 'receive',
-              ScanWalletSelection: 'scan',
+              AppShortcut: ':selectionMode(send|receive|scan)',
               ManageWallets: 'manage-wallets',
             },
           },

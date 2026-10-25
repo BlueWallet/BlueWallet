@@ -63,6 +63,7 @@ import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
 import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
+import AppShortcut from '../screen/AppShortcut';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
@@ -430,24 +431,7 @@ const DetailViewStackScreensStack = () => {
           component={SelectWallet}
           options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
         />
-        <DetailViewStack.Screen
-          name="SendWalletSelection"
-          component={SelectWallet}
-          initialParams={{ selectionMode: 'send' }}
-          options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
-        />
-        <DetailViewStack.Screen
-          name="ReceiveWalletSelection"
-          component={SelectWallet}
-          initialParams={{ selectionMode: 'receive' }}
-          options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
-        />
-        <DetailViewStack.Screen
-          name="ScanWalletSelection"
-          component={SelectWallet}
-          initialParams={{ selectionMode: 'scan' }}
-          options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
-        />
+        <DetailViewStack.Screen name="AppShortcut" component={AppShortcut} options={{ headerShown: false }} />
         <DetailViewStack.Screen
           name="LNDViewInvoice"
           component={LNDViewInvoice}
