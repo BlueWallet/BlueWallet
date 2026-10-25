@@ -64,7 +64,7 @@ declare module 'coinselect/split' {
     feeRate: number,
     options?: import('coinselect').CoinSelectOptions,
   ): {
-    inputs: CoinselectReturnInput[];
+    inputs: U[];
     outputs: {
       address?: string;
       value: number;

@@ -13,16 +13,9 @@ import type { SignVerifyStackParamList } from './SignVerifyStack';
 import { ClipboardPaymentKind } from '../blue_modules/clipboardPayment';
 
 export type ScanQRCodeParamList = {
-  cameraStatusGranted?: boolean;
-  backdoorPressed?: boolean;
   launchedBy?: string;
-  urTotal?: number;
-  urHave?: number;
-  backdoorText?: string;
   onBarScanned?: (data: string, useBBQR: boolean) => void;
   showFileImportButton?: boolean;
-  backdoorVisible?: boolean;
-  orientation?: 'portrait';
 };
 
 type VaultKeyData = {
@@ -44,9 +37,8 @@ export type DetailViewStackParamList = {
   DrawerRoot: NavigatorScreenParams<DrawerParamList> | undefined;
   UnlockWithScreen: undefined;
   KeyboardShortcuts: undefined;
-  WalletsList: { onBarScanned?: string };
+  WalletsList: undefined;
   WalletTransactions: {
-    isLoading?: boolean;
     walletID: string;
     walletType?: string;
     onBarScanned?: string;
@@ -57,11 +49,11 @@ export type DetailViewStackParamList = {
   WalletDetails: { walletID: string };
   TransactionStatus: { hash: string; walletID: string; tx?: Transaction };
   CPFP: {
-    wallet: TWallet | null;
+    wallet: TWallet;
     txid: string;
   };
-  RBFBumpFee: { txid: string; wallet: TWallet | null };
-  RBFCancel: { txid: string; wallet: TWallet | null };
+  RBFBumpFee: { txid: string; wallet: TWallet };
+  RBFCancel: { txid: string; wallet: TWallet };
   SelectWallet: SelectWalletParams;
   AppShortcut: { selectionMode: 'send' | 'receive' | 'scan' };
   LNDViewInvoice: { invoice: LightningTransaction | string; walletID: string };
@@ -93,7 +85,7 @@ export type DetailViewStackParamList = {
   About: undefined;
   // DefaultView: undefined; // Commented out - not accessible from UI
   // server: "host:port:t|s" as the setelectrumserver deeplink sends it
-  ElectrumSettings: { server?: string; onBarScanned?: string; headerRight?: HeaderRightRenderer | null } | undefined;
+  ElectrumSettings: { server?: string; onBarScanned?: string } | undefined;
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;
@@ -111,7 +103,7 @@ export type DetailViewStackParamList = {
   ViewEditMultisigCosigners: {
     walletID: string;
     headerRight?: HeaderRightRenderer | null;
-    sheetAction?: string;
+    sheetAction?: 'importMnemonic';
     sheetImportText?: string;
     sheetAskPassphrase?: boolean;
     sheetCurrentlyEditingCosignerNum?: number;

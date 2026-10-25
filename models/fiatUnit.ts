@@ -12,12 +12,12 @@ export const FiatUnitSource = {
   Bitstamp: 'Bitstamp',
 } as const;
 
-export type RateSource = keyof typeof FiatUnitSource;
+type RateSource = keyof typeof FiatUnitSource;
 
 const BITSTAMP_FIAT = new Set(['USD', 'EUR', 'GBP']);
 
 /** Kraken public ticker pair keys for BTC/fiat — verified via AssetPairs */
-export const KRAKEN_BTC_FIAT_PAIRS: Record<string, string> = {
+const KRAKEN_BTC_FIAT_PAIRS: Record<string, string> = {
   USD: 'XXBTZUSD',
   EUR: 'XXBTZEUR',
   GBP: 'XXBTZGBP',
@@ -156,7 +156,7 @@ function canUseRateSource(source: RateSource, ticker: string): boolean {
 }
 
 export function buildRateSourceOrder(ticker: string): RateSource[] {
-  const primary = FiatUnit[ticker].source as RateSource;
+  const primary = FiatUnit[ticker].source;
   const order: RateSource[] = [primary];
   for (const fallback of UNIVERSAL_FALLBACKS) {
     if (fallback === primary) continue;
@@ -249,7 +249,7 @@ export type TFiatUnit = {
   source: RateSource;
 };
 
-export type TFiatUnits = {
+type TFiatUnits = {
   [key: string]: TFiatUnit;
 };
 

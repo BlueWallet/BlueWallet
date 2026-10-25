@@ -16,7 +16,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapt
 import BlueTextCentered from '../components/BlueTextCentered';
 import Button from '../components/Button';
 import SafeArea from '../components/SafeArea';
-import { BiometricType, unlockWithBiometrics, useBiometrics } from '../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../hooks/useBiometrics';
 import loc from '../loc';
 import { useStorage } from '../hooks/context/useStorage';
 import { PasswordInput, PasswordInputHandle } from '../components/PasswordInput';
@@ -31,7 +31,6 @@ enum AuthType {
 type State = {
   auth: {
     type: AuthType;
-    detail: keyof typeof BiometricType | undefined;
   };
   isAuthenticating: boolean;
   showPasswordInput: boolean;
@@ -46,7 +45,7 @@ const SET_PASSWORD = 'SET_PASSWORD';
 const SET_SUCCESS = 'SET_SUCCESS';
 
 type Action =
-  | { type: typeof SET_AUTH; payload: { type: AuthType; detail: keyof typeof BiometricType | undefined } }
+  | { type: typeof SET_AUTH; payload: { type: AuthType } }
   | { type: typeof SET_IS_AUTHENTICATING; payload: boolean }
   | { type: typeof SET_SHOW_PASSWORD_INPUT; payload: boolean }
   | { type: typeof SET_PASSWORD; payload: string }
@@ -55,7 +54,6 @@ type Action =
 const initialState: State = {
   auth: {
     type: AuthType.None,
-    detail: undefined,
   },
   isAuthenticating: false,
   showPasswordInput: false,
@@ -85,7 +83,7 @@ const UnlockWith: React.FC = () => {
   const isUnlockingWallets = useRef(false);
   const keyboardOffset = useRef(new Animated.Value(0)).current;
   const passwordInputRef = useRef<PasswordInputHandle>(null);
-  const passwordResolveRef = useRef<((password: string | undefined) => void) | null>(null);
+  const passwordResolveRef = useRef<((password: string) => void) | null>(null);
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useStorage();
   const { deviceBiometricType, isBiometricUseCapableAndEnabled, isBiometricUseEnabled } = useBiometrics();
 
@@ -96,23 +94,23 @@ const UnlockWith: React.FC = () => {
   useEffect(() => {
     const windowHeight = Dimensions.get('window').height;
 
-    const animateToKeyboardPosition = (event: KeyboardEvent | undefined, fallbackDuration = 220) => {
-      const keyboardTop = event?.endCoordinates?.screenY ?? windowHeight;
+    const animateToKeyboardPosition = (event: KeyboardEvent, fallbackDuration = 220) => {
+      const keyboardTop = event.endCoordinates?.screenY ?? windowHeight;
       const keyboardHeight = Math.max(0, windowHeight - keyboardTop);
       const target = -Math.min(Math.max(keyboardHeight * 0.28, 0), 96);
 
       Animated.timing(keyboardOffset, {
         toValue: target,
-        duration: event?.duration ?? fallbackDuration,
+        duration: event.duration ?? fallbackDuration,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }).start();
     };
 
-    const resetPosition = (event?: KeyboardEvent) => {
+    const resetPosition = (event: KeyboardEvent) => {
       Animated.timing(keyboardOffset, {
         toValue: 0,
-        duration: event?.duration ?? 220,
+        duration: event.duration ?? 220,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }).start();
@@ -151,7 +149,7 @@ const UnlockWith: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.isAuthenticating]);
 
-  const promptForPassword = useCallback(async (): Promise<string | undefined> => {
+  const promptForPassword = useCallback(async (): Promise<string> => {
     return new Promise(resolve => {
       passwordResolveRef.current = resolve;
       dispatch({ type: SET_SHOW_PASSWORD_INPUT, payload: true });
@@ -212,16 +210,16 @@ const UnlockWith: React.FC = () => {
       const biometricType = biometricUseCapableAndEnabled ? deviceBiometricType : undefined;
 
       if (storageIsEncrypted) {
-        dispatch({ type: SET_AUTH, payload: { type: AuthType.Encrypted, detail: undefined } });
+        dispatch({ type: SET_AUTH, payload: { type: AuthType.Encrypted } });
         unlockWithKey();
       } else if (biometricUseCapableAndEnabled) {
-        dispatch({ type: SET_AUTH, payload: { type: AuthType.Biometrics, detail: biometricType } });
+        dispatch({ type: SET_AUTH, payload: { type: AuthType.Biometrics } });
         unlockUsingBiometrics();
       } else if (biometricsUseEnabled && biometricType === undefined) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        dispatch({ type: SET_AUTH, payload: { type: AuthType.BiometricsUnavailable, detail: undefined } });
+        dispatch({ type: SET_AUTH, payload: { type: AuthType.BiometricsUnavailable } });
       } else {
-        dispatch({ type: SET_AUTH, payload: { type: AuthType.None, detail: undefined } });
+        dispatch({ type: SET_AUTH, payload: { type: AuthType.None } });
         unlockWithKey();
       }
     };

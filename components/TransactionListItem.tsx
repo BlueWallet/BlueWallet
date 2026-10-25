@@ -109,8 +109,6 @@ interface TransactionListItemProps {
   searchQuery?: string;
   style?: ViewStyle;
   renderHighlightedText?: (text: string, query: string) => React.ReactElement;
-  onPress?: () => void;
-  disableNavigation?: boolean;
 }
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
@@ -122,8 +120,6 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   searchQuery,
   style,
   renderHighlightedText,
-  onPress: customOnPress,
-  disableNavigation = false,
 }: TransactionListItemProps) => {
   const { colors } = useTheme();
   const { navigate } = useNavigation<NavigationProps>();
@@ -369,12 +365,6 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   }, [formattedAmount, itemPriceUnit]);
 
   const onPress = useCallback(async () => {
-    // If a custom onPress handler was provided, use it and return
-    if (customOnPress) {
-      customOnPress();
-      if (disableNavigation) return;
-    }
-
     if (item.hash) {
       if (renderHighlightedText) {
         pop();
@@ -425,7 +415,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
         navigate('TransactionStatus', { tx: item, hash: txid, walletID });
       }
     }
-  }, [item, renderHighlightedText, navigate, walletID, wallets, customOnPress, disableNavigation]);
+  }, [item, renderHighlightedText, navigate, walletID, wallets]);
 
   const handleOnDetailsPress = useCallback(() => {
     if (walletID && item && item.hash) {

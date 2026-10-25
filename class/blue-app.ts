@@ -32,7 +32,7 @@ import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
 import { TaprootWallet } from './wallets/taproot-wallet';
 import { errorMessage } from '../helpers/errorMessage';
 
-let usedBucketNum: boolean | number = false;
+let usedBucketNum: false | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
 
 function isRealmDecryptionError(error: unknown): boolean {

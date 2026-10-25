@@ -22,7 +22,7 @@ import {
   updateReverseSwapStatus,
   updateSubmarineSwapStatus,
 } from '@arkade-os/boltz-swap';
-import type { BoltzChainSwap, BoltzReverseSwap, BoltzSubmarineSwap, BoltzSwap } from '@arkade-os/boltz-swap';
+import type { BoltzSwap } from '@arkade-os/boltz-swap';
 import { RealmSwapRepository } from '@arkade-os/boltz-swap/repositories/realm';
 
 import { BlueApp as BlueAppClass } from '../class/blue-app';
@@ -137,11 +137,11 @@ function isFinalStatus(swap: BoltzSwap): boolean {
 
 async function persistStatusChange(swap: BoltzSwap, newStatus: BoltzSwap['status'], repo: RealmSwapRepository): Promise<void> {
   if (swap.type === 'reverse') {
-    await updateReverseSwapStatus(swap as BoltzReverseSwap, newStatus, s => repo.saveSwap(s));
+    await updateReverseSwapStatus(swap, newStatus, s => repo.saveSwap(s));
   } else if (swap.type === 'submarine') {
-    await updateSubmarineSwapStatus(swap as BoltzSubmarineSwap, newStatus, s => repo.saveSwap(s));
+    await updateSubmarineSwapStatus(swap, newStatus, s => repo.saveSwap(s));
   } else {
-    await updateChainSwapStatus(swap as BoltzChainSwap, newStatus, s => repo.saveSwap(s));
+    await updateChainSwapStatus(swap, newStatus, s => repo.saveSwap(s));
   }
 }
 

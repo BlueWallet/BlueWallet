@@ -12,20 +12,17 @@ enum ActionType {
   SetStorageEncryptedSwitch = 'SET_STORAGE_ENCRYPTED_SWITCH',
   SetDeviceBiometricCapable = 'SET_DEVICE_BIOMETRIC_CAPABLE',
   SetCurrentLoadingSwitch = 'SET_CURRENT_LOADING_SWITCH',
-  SetModalType = 'SET_MODAL_TYPE',
 }
 
 type Action =
   | { type: ActionType.SetLoading | ActionType.SetStorageEncryptedSwitch | ActionType.SetDeviceBiometricCapable; payload: boolean }
-  | { type: ActionType.SetCurrentLoadingSwitch; payload: string | null }
-  | { type: ActionType.SetModalType; payload: keyof typeof MODAL_TYPES };
+  | { type: ActionType.SetCurrentLoadingSwitch; payload: 'encrypt' | 'biometric' | null };
 
 interface State {
   isLoading: boolean;
   storageIsEncryptedSwitchEnabled: boolean;
   deviceBiometricCapable: boolean;
-  currentLoadingSwitch: string | null;
-  modalType: keyof typeof MODAL_TYPES;
+  currentLoadingSwitch: 'encrypt' | 'biometric' | null;
 }
 
 const initialState: State = {
@@ -33,7 +30,6 @@ const initialState: State = {
   storageIsEncryptedSwitchEnabled: false,
   deviceBiometricCapable: false,
   currentLoadingSwitch: null,
-  modalType: MODAL_TYPES.ENTER_PASSWORD,
 };
 
 const reducer = (state: State, action: Action): State => {
@@ -46,8 +42,6 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, deviceBiometricCapable: action.payload };
     case ActionType.SetCurrentLoadingSwitch:
       return { ...state, currentLoadingSwitch: action.payload };
-    case ActionType.SetModalType:
-      return { ...state, modalType: action.payload };
     default:
       return state;
   }
@@ -79,7 +73,6 @@ const EncryptStorage = () => {
   );
 
   const handleDecryptStorage = async () => {
-    dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.ENTER_PASSWORD });
     navigation.navigate('PromptPasswordConfirmationSheet', {
       modalType: MODAL_TYPES.ENTER_PASSWORD,
       returnTo: 'EncryptStorage',
@@ -91,7 +84,6 @@ const EncryptStorage = () => {
     dispatch({ type: ActionType.SetLoading, payload: true });
 
     if (value) {
-      dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.CREATE_PASSWORD });
       navigation.navigate('PromptPasswordConfirmationSheet', {
         modalType: MODAL_TYPES.CREATE_PASSWORD,
         returnTo: 'EncryptStorage',

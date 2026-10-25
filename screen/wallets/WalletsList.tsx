@@ -56,9 +56,6 @@ type SectionData = {
 
 enum ActionTypes {
   SET_LOADING,
-  SET_WALLETS,
-  SET_CURRENT_INDEX,
-  SET_REFRESH_FUNCTION,
 }
 
 interface SetLoadingAction {
@@ -66,47 +63,20 @@ interface SetLoadingAction {
   payload: boolean;
 }
 
-interface SetWalletsAction {
-  type: ActionTypes.SET_WALLETS;
-  payload: TWallet[];
-}
-
-interface SetCurrentIndexAction {
-  type: ActionTypes.SET_CURRENT_INDEX;
-  payload: number;
-}
-
-interface SetRefreshFunctionAction {
-  type: ActionTypes.SET_REFRESH_FUNCTION;
-  payload: () => void;
-}
-
-type WalletListAction = SetLoadingAction | SetWalletsAction | SetCurrentIndexAction | SetRefreshFunctionAction;
+type WalletListAction = SetLoadingAction;
 
 interface WalletListState {
   isLoading: boolean;
-  wallets: TWallet[];
-  currentWalletIndex: number;
-  refreshFunction: () => void;
 }
 
 const initialState = {
   isLoading: false,
-  wallets: [],
-  currentWalletIndex: 0,
-  refreshFunction: () => {},
 };
 
 function reducer(state: WalletListState, action: WalletListAction) {
   switch (action.type) {
     case ActionTypes.SET_LOADING:
       return { ...state, isLoading: action.payload };
-    case ActionTypes.SET_WALLETS:
-      return { ...state, wallets: action.payload };
-    case ActionTypes.SET_CURRENT_INDEX:
-      return { ...state, currentWalletIndex: action.payload };
-    case ActionTypes.SET_REFRESH_FUNCTION:
-      return { ...state, refreshFunction: action.payload };
     default:
       return state;
   }
@@ -298,7 +268,7 @@ const WalletsList: React.FC = () => {
       // Ark wallet rows have no on-chain `hash` — fall back to their
       // synthetic `txid` so each row gets a unique React key.
       <TransactionListItem
-        key={item.hash ?? (item as { txid?: string }).txid}
+        key={item.hash ?? item.txid}
         item={item}
         itemPriceUnit={item.walletPreferredBalanceUnit}
         walletID={item.walletID}
@@ -472,8 +442,8 @@ const WalletsList: React.FC = () => {
 
   const sectionListKeyExtractor = useCallback((item: WalletsListItem, index: number) => {
     if (typeof item === 'string') return item;
-    const txKey = item?.hash || item?.txid;
-    if (txKey && item?.walletID) return `${txKey}_${item.walletID}`;
+    const txKey = item.hash || item.txid;
+    if (txKey && item.walletID) return `${txKey}_${item.walletID}`;
     return txKey || `${item}${index}`;
   }, []);
 

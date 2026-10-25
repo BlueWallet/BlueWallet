@@ -313,7 +313,6 @@ interface FButtonProps {
   borderRadius?: number;
   fontSize?: number;
   buttonHeight?: number;
-  disabled?: boolean;
   testID?: string;
   onPress: () => void;
   onLongPress?: () => void;
@@ -405,9 +404,6 @@ export const FButton = ({
         color: colors.buttonAlternativeTextColor,
         fontSize,
       },
-      textDisabled: {
-        color: colors.formBorder,
-      },
       marginRight: buttonContentStaticStyles.marginRight,
       marginBottom: buttonContentStaticStyles.marginBottom,
       textBase: buttonContentStaticStyles.textBase,
@@ -426,12 +422,11 @@ export const FButton = ({
     }
   }
 
-  const textStyle = [customButtonStyles.textBase, props.disabled ? customButtonStyles.textDisabled : customButtonStyles.text];
+  const textStyle = [customButtonStyles.textBase, customButtonStyles.text];
 
   const handlePressIn = useCallback(() => {
-    if (props.disabled) return;
     animateScaleTo(BUTTON_SCALE_PRESSED);
-  }, [animateScaleTo, props.disabled]);
+  }, [animateScaleTo]);
 
   const handlePressOut = useCallback(() => {
     animateScaleTo(1);

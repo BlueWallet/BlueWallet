@@ -88,7 +88,7 @@ export default function PaymentCodesList() {
   const state = navigation.getState();
   const previousRouteIndex = state.index - 1;
 
-  let previousRouteName: string | null;
+  let previousRouteName: string | undefined;
   if (previousRouteIndex >= 0) {
     previousRouteName = state.routes[previousRouteIndex].name;
   }
@@ -207,11 +207,11 @@ export default function PaymentCodesList() {
   };
 
   const renderItem = (pc: string, index: number) => {
-    if (counterpartyMetadata?.[pc]?.hidden) return null; // hidden contact, do not render
+    if (counterpartyMetadata[pc]?.hidden) return null; // hidden contact, do not render
 
     const color = uint8ArrayToHex(sha256(pc)).substring(0, 6);
 
-    const displayName = shortenContactName(counterpartyMetadata?.[pc]?.label || pc);
+    const displayName = shortenContactName(counterpartyMetadata[pc]?.label || pc);
 
     if (previousRouteName === 'SendDetails') {
       return (

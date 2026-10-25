@@ -3,7 +3,7 @@ import type { NavigationProp } from '@react-navigation/native';
 import type { RootParamList } from './RootParamList';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet, Utxo } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
-import { DetailViewStackParamList, HeaderRightRenderer, ScanQRCodeParamList } from './DetailViewStackParamList';
+import { DetailViewStackParamList, ScanQRCodeParamList } from './DetailViewStackParamList';
 import { IFee } from '../screen/send/SendDetails';
 import { NetworkTransactionFeeType } from '../models/networkTransactionFees';
 
@@ -32,11 +32,7 @@ export type SendDetailsParams = {
   frozenBalance?: number;
   amountUnit?: BitcoinUnit;
   address?: string;
-  amount?: number;
-  amountSats?: number;
   onBarScanned?: string;
-  unit?: BitcoinUnit;
-  noRbf?: boolean;
   walletID?: string;
   launchedBy?: string;
   utxos?: CreateTransactionUtxo[] | null;
@@ -81,9 +77,7 @@ export type SuccessParams = {
 };
 
 export type SendDetailsStackParamList = {
-  SendDetails: SendDetailsParams & {
-    headerRight?: HeaderRightRenderer;
-  };
+  SendDetails: SendDetailsParams;
   CoinControlOutput: {
     walletID: string;
     utxo: Utxo;
@@ -112,7 +106,6 @@ export type SendDetailsStackParamList = {
     payjoinAddress?: string;
     payjoinDisableOutputSubstitution?: boolean;
     psbt: Psbt;
-    headerRight?: HeaderRightRenderer;
   };
   PsbtWithHardwareWallet: {
     memo?: string;
@@ -136,7 +129,6 @@ export type SendDetailsStackParamList = {
     recipients: CreateTransactionTarget[];
     satoshiPerByte: number;
     feeSatoshi?: number;
-    headerRight?: HeaderRightRenderer;
   };
   PsbtMultisig: {
     memo?: string;
@@ -147,11 +139,9 @@ export type SendDetailsStackParamList = {
     txhex?: string;
   };
   PsbtMultisigQRCode: {
-    memo?: string;
     psbtBase64: string;
     walletID: string;
-    launchedBy?: string;
-    isShowOpenScanner?: boolean;
+    isShowOpenScanner: boolean;
     onBarScanned?: string;
   };
   Success: SuccessParams;

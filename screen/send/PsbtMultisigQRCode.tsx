@@ -14,7 +14,7 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { isHexString } from '../../blue_modules/ur';
 
 interface BarcodeScanResult {
-  data?: string;
+  data: string;
 }
 
 type RouteParams = RouteProp<SendDetailsStackParamList, 'PsbtMultisigQRCode'>;
@@ -52,9 +52,8 @@ const PsbtMultisigQRCode: React.FC = () => {
   }, [isFocused]);
 
   const onBarScanned = useCallback(
-    (ret: BarcodeScanResult | string) => {
-      const result = typeof ret === 'string' ? { data: ret } : ret;
-      const data = result.data || '';
+    (ret: BarcodeScanResult) => {
+      const data = ret.data || '';
 
       if (data.toUpperCase().startsWith('UR')) {
         presentAlert({ message: 'BC-UR not decoded. This should never happen' });

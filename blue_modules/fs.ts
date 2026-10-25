@@ -247,7 +247,7 @@ const _pickSingleFileAndKeepLocalCopy = async (type: string[] = [types.allFiles]
   };
 };
 
-const _shareOpen = async (filePath: string, showShareDialog: boolean = false) => {
+const _shareOpen = async (filePath: string, showShareDialog: boolean) => {
   try {
     await Share.open({
       url: 'file://' + filePath,
@@ -271,7 +271,7 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
  * or perhaps messaging app). Provided filename should be just a file name, NOT a path
  */
 
-export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean = true) {
+export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean) {
   const sanitizedFileName = _sanitizeFileName(fileName);
   try {
     if (!showShareDialog) {
@@ -400,7 +400,7 @@ const readFileAsBase64 = async (uri: string): Promise<string> => {
   }
 };
 
-const handleImageFile = async (fileCopyUri: string): Promise<{ data: string | false; uri: string | false }> => {
+const handleImageFile = async (fileCopyUri: string): Promise<{ data: string; uri: string }> => {
   const base64 = await readFileAsBase64(fileCopyUri);
   const result = await detectQRCodeInImage(base64);
   if (result) {

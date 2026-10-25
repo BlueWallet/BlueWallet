@@ -143,7 +143,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     return child.toWIF();
   }
 
-  _getNodePubkeyByIndex(node: number, index: number) {
+  _getNodePubkeyByIndex(node: 0 | 1, index: number) {
     index = index * 1; // cast to int
 
     if (node === 0 && !this._node0) {

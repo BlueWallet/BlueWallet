@@ -23,7 +23,6 @@ import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
@@ -48,12 +47,12 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [wallet, setWallet] = useState<MultisigHDWallet>();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState(true);
-  const [currentlyEditingCosignerNum, setCurrentlyEditingCosignerNum] = useState<number | false>(false);
+  const [currentlyEditingCosignerNum, setCurrentlyEditingCosignerNum] = useState<number>();
   const [importText, setImportText] = useState('');
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', passphrase: '', path: '', fp: '', isLoading: false }); // string rendered in modal
   const [isVaultKeyIndexDataLoading, setIsVaultKeyIndexDataLoading] = useState<number | undefined>(undefined);
   const [askPassphrase, setAskPassphrase] = useState(false);
-  const [walletData, setWalletData] = useState<TWallet[]>([]);
+  const [walletData, setWalletData] = useState<undefined[]>([]);
   const saveButtonRef = useRef<React.ElementRef<typeof Button>>(null);
 
   const stylesHook = StyleSheet.create({
@@ -125,9 +124,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
         // eslint-disable-next-line prefer-const
         let newWallets = wallets.filter(newWallet => {
           return newWallet.getID() !== walletID;
-        }) as MultisigHDWallet[];
+        });
         if (!isElectrumDisabled) {
-          await wallet?.fetchBalance();
+          await wallet.fetchBalance();
         }
         newWallets.push(wallet);
         setIsSaveButtonDisabled(true);
@@ -197,7 +196,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     }, [walletID]),
   );
 
-  const _renderKeyItem = (el: ListRenderItemInfo<TWallet>) => {
+  const _renderKeyItem = (el: ListRenderItemInfo<undefined>) => {
     if (!wallet) {
       // failsafe
       return null;
@@ -404,7 +403,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   };
 
   const _handleUseMnemonicPhrase = useCallback(
-    (mnemonic: string, passphrase?: string, cosignerNumOverride?: number) => {
+    (mnemonic: string, passphrase: string | undefined, cosignerNumOverride: number | undefined) => {
       const cosignerNum = cosignerNumOverride ?? currentlyEditingCosignerNum;
       if (!wallet || !cosignerNum) {
         // failsafe
