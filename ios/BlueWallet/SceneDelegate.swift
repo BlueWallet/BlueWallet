@@ -35,12 +35,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
-        }
-        for context in URLContexts {
-            _ = appDelegate.application(UIApplication.shared, open: context.url, options: [:])
-        }
+        RCTLinkingManager.scene(scene, openURLContexts: URLContexts)
     }
 
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
@@ -48,6 +43,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return
         }
         _ = appDelegate.application(UIApplication.shared, continue: userActivity, restorationHandler: { _ in })
+        RCTLinkingManager.scene(scene, continue: userActivity)
     }
 
     func windowScene(
@@ -59,7 +55,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             completionHandler(false)
             return
         }
-        appDelegate.openShortcutLink(shortcutItem, completionHandler: completionHandler)
+        appDelegate.openShortcutLink(shortcutItem, in: windowScene, completionHandler: completionHandler)
     }
 
     private func launchOptions(

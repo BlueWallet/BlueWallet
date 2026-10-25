@@ -370,11 +370,24 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         openShortcutLink(shortcutItem, completionHandler: completionHandler)
     }
 
-    func openShortcutLink(_ shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+    func openShortcutLink(
+        _ shortcutItem: UIApplicationShortcutItem,
+        in scene: UIWindowScene? = nil,
+        completionHandler: @escaping (Bool) -> Void
+    ) {
         guard let url = appLinkURL(for: shortcutItem) else {
             completionHandler(false)
             return
         }
+
+        if let scene = scene ?? window.windowScene {
+            let activity = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
+            activity.webpageURL = url
+            RCTLinkingManager.scene(scene, continue: activity)
+            completionHandler(true)
+            return
+        }
+
         completionHandler(RCTLinkingManager.application(UIApplication.shared, open: url, options: [:]))
     }
 
