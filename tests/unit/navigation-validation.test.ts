@@ -1,6 +1,7 @@
 import { CommonActions, StackRouter } from '@react-navigation/native';
 import { readFileSync, readdirSync } from 'fs';
 import path from 'path';
+import { Chain } from '../../models/bitcoinUnits';
 import {
   findNavigatorKeyForRoute,
   getGuardedRoute,
@@ -17,6 +18,16 @@ const createDependencies = (): NavigationGuardDependencies => ({
   saveToDisk: jest.fn(async () => {}),
   presentWalletExportReminder: jest.fn(async () => {}),
   requestCameraAuthorization: jest.fn(async () => {}),
+});
+
+const createWallet = (overrides: Partial<NavigationGuardDependencies['wallets'][number]> = {}) => ({
+  chain: Chain.ONCHAIN,
+  getID: () => 'wallet-1',
+  getUserHasSavedExport: () => true,
+  setUserHasSavedExport: jest.fn(),
+  allowSend: () => true,
+  allowReceive: () => true,
+  ...overrides,
 });
 
 describe('navigation validation', () => {
@@ -72,6 +83,15 @@ describe('navigation validation', () => {
     expect(router.getStateForAction(state, action, options)).toBeNull();
   });
 
+  it('finds send details nested inside its modal stack', () => {
+    const action = CommonActions.navigate('SendDetailsRoot', {
+      screen: 'SendDetails',
+      params: { uri: 'bitcoin:bc1qexample' },
+    });
+
+    expect(getGuardedRoute(action)).toEqual({ name: 'SendDetails', params: { uri: 'bitcoin:bc1qexample' } });
+  });
+
   it('does not allow biometric navigation when authentication fails', async () => {
     const dependencies = createDependencies();
     dependencies.isBiometricUseEnabled = jest.fn(async () => true);
@@ -81,15 +101,50 @@ describe('navigation validation', () => {
     expect(dependencies.unlockWithBiometrics).toHaveBeenCalledTimes(1);
   });
 
+  it('requires an on-chain wallet that can send before opening send details', async () => {
+    const dependencies = createDependencies();
+
+    await expect(validateGuardedRoute({ name: 'SendDetails' }, dependencies)).resolves.toEqual({
+      allowed: false,
+      failure: 'missingSendWallet',
+    });
+
+    dependencies.wallets = [createWallet({ allowSend: () => false })];
+    await expect(validateGuardedRoute({ name: 'SendDetails' }, dependencies)).resolves.toEqual({
+      allowed: false,
+      failure: 'missingSendWallet',
+    });
+
+    dependencies.wallets = [createWallet()];
+    await expect(validateGuardedRoute({ name: 'SendDetails' }, dependencies)).resolves.toEqual({ allowed: true });
+  });
+
+  it('requires an on-chain wallet that can receive before opening receive details', async () => {
+    const dependencies = createDependencies();
+
+    await expect(validateGuardedRoute({ name: 'ReceiveDetails' }, dependencies)).resolves.toEqual({
+      allowed: false,
+      failure: 'missingReceiveWallet',
+    });
+
+    dependencies.wallets = [createWallet({ allowReceive: () => false })];
+    await expect(validateGuardedRoute({ name: 'ReceiveDetails' }, dependencies)).resolves.toEqual({
+      allowed: false,
+      failure: 'missingReceiveWallet',
+    });
+
+    dependencies.wallets = [createWallet()];
+    await expect(validateGuardedRoute({ name: 'ReceiveDetails' }, dependencies)).resolves.toEqual({ allowed: true });
+  });
+
   it('saves the wallet export acknowledgement before allowing navigation', async () => {
     const setUserHasSavedExport = jest.fn();
     const dependencies = createDependencies();
     dependencies.wallets = [
-      {
-        getID: () => 'wallet-1',
+      createWallet({
         getUserHasSavedExport: () => false,
         setUserHasSavedExport,
-      },
+      }),
     ];
 
     await expect(validateGuardedRoute({ name: 'ReceiveDetails', params: { walletID: 'wallet-1' } }, dependencies)).resolves.toEqual({
@@ -106,11 +161,10 @@ describe('navigation validation', () => {
       throw new Error('Show export');
     });
     dependencies.wallets = [
-      {
-        getID: () => 'wallet-1',
+      createWallet({
         getUserHasSavedExport: () => false,
         setUserHasSavedExport: jest.fn(),
-      },
+      }),
     ];
 
     await expect(validateGuardedRoute({ name: 'WalletAddresses', params: { walletID: 'wallet-1' } }, dependencies)).resolves.toEqual({

@@ -13,6 +13,9 @@ import { useStorage } from './hooks/context/useStorage';
 import { unlockWithBiometrics, useBiometrics } from './hooks/useBiometrics';
 import { presentWalletExportReminder } from './helpers/presentWalletExportReminder';
 import { requestCameraAuthorization } from './helpers/scan-qr';
+import presentAlert from './components/Alert';
+import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
+import loc from './loc';
 import {
   findNavigatorKeyForRoute,
   getGuardedRoute,
@@ -55,6 +58,15 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
 
       validateNavigation(guardedRoute)
         .then(result => {
+          if (result.failure) {
+            triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+            presentAlert({
+              title: loc.errors.error,
+              message: result.failure === 'missingSendWallet' ? loc.send.details_wallet_before_tx : loc.wallets.select_no_bitcoin,
+            });
+            return;
+          }
+
           if (!result.allowed && !result.redirect) return;
 
           const nextAction = result.redirect ? CommonActions.navigate(result.redirect.name, result.redirect.params) : action;

@@ -1,11 +1,13 @@
 import { NavigationAction, NavigationState, PartialState, Router } from '@react-navigation/native';
+import { Chain } from '../models/bitcoinUnits';
 
 export const navigationGuardPolicies = {
+  SendDetails: { walletCapability: 'send' },
   WalletExport: { biometrics: true },
   WalletXpub: { biometrics: true },
   ViewEditMultisigCosigners: { biometrics: true },
   ExportMultisigCoordinationSetupRoot: { biometrics: true },
-  ReceiveDetails: { walletExportSaved: true },
+  ReceiveDetails: { walletCapability: 'receive', walletExportSaved: true },
   WalletAddresses: { walletExportSaved: true },
   ScanQRCode: { camera: true },
 } as const;
@@ -23,9 +25,12 @@ export type GuardedNavigationAction = NavigationAction & {
 };
 
 type GuardWallet = {
+  chain: Chain;
   getID: () => string;
   getUserHasSavedExport: () => boolean;
   setUserHasSavedExport: (value: boolean) => void;
+  allowSend: () => boolean;
+  allowReceive: () => boolean;
 };
 
 export type NavigationGuardDependencies = {
@@ -41,6 +46,7 @@ export type NavigationGuardDependencies = {
 export type NavigationValidationResult = {
   allowed: boolean;
   redirect?: { name: 'WalletExport'; params: { walletID: string } };
+  failure?: 'missingSendWallet' | 'missingReceiveWallet';
 };
 
 const asParams = (value: unknown): NavigationParams | undefined =>
@@ -73,9 +79,22 @@ export const validateGuardedRoute = async (
   route: GuardedRoute,
   dependencies: NavigationGuardDependencies,
 ): Promise<NavigationValidationResult> => {
-  if (dependencies.currentRouteName === 'ScanQRCode') return { allowed: true };
-
   const policy = navigationGuardPolicies[route.name];
+
+  if ('walletCapability' in policy) {
+    const hasSuitableWallet = dependencies.wallets.some(
+      wallet => wallet.chain === Chain.ONCHAIN && (policy.walletCapability === 'send' ? wallet.allowSend() : wallet.allowReceive()),
+    );
+
+    if (!hasSuitableWallet) {
+      return {
+        allowed: false,
+        failure: policy.walletCapability === 'send' ? 'missingSendWallet' : 'missingReceiveWallet',
+      };
+    }
+  }
+
+  if (dependencies.currentRouteName === 'ScanQRCode') return { allowed: true };
 
   if ('biometrics' in policy && (await dependencies.isBiometricUseEnabled())) {
     if (!(await dependencies.unlockWithBiometrics())) return { allowed: false };
