@@ -436,6 +436,21 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
         amount: 0.0001,
         memo: '',
         payjoinUrl: 'https://btc.donate.kukks.org/BTC/pj',
+        disableOutputSubstitution: false,
+      },
+    );
+
+    // BIP78: pjos=0 means the sender MUST disallow payment output substitution
+    assert.deepStrictEqual(
+      DeeplinkSchemaMatch.decodeBitcoinUri(
+        `bitcoin:${suffix}bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.0001&pj=https://btc.donate.kukks.org/BTC/pj&pjos=0`,
+      ),
+      {
+        address: 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7',
+        amount: 0.0001,
+        memo: '',
+        payjoinUrl: 'https://btc.donate.kukks.org/BTC/pj',
+        disableOutputSubstitution: true,
       },
     );
 
@@ -446,6 +461,7 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
         amount: 20.3,
         memo: 'Foobar',
         payjoinUrl: '',
+        disableOutputSubstitution: false,
       },
     );
   });

@@ -1,13 +1,13 @@
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, findNodeHandle, Image, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop, isIOS26OrHigher } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
-import presentAlert from '../../components/Alert';
+import presentAlert, { runAfterAlertDismissed } from '../../components/Alert';
 import { FButton, FContainer, FloatButtonsBottomFade, getFloatingButtonReservedHeight } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
@@ -143,18 +143,19 @@ const WalletsList: React.FC = () => {
   const refreshWallets = useCallback(
     async (index: number | undefined, showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
       if (isElectrumDisabled) return;
-      dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
+      // A background carousel refresh must not clear an active pull-to-refresh indicator.
+      if (showLoadingIndicator) dispatch({ type: ActionTypes.SET_LOADING, payload: true });
       try {
         await refreshAllWalletTransactions(index, showUpdateStatusIndicator);
       } catch (error) {
         console.error(error);
       } finally {
-        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-        // After a native Electrum error alert, the first `refreshing={false}` can fail to repaint until the
-        // alert is dismissed; run again once interactions finish so pull-to-refresh does not appear stuck.
-        InteractionManager.runAfterInteractions(() => {
+        // Keep refreshing true while a native alert is up, so dismissal delivers a real
+        // true-to-false transition to RefreshControl rather than repeating an already false prop.
+        const stopLoading = () => {
           dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-        });
+        };
+        if (!runAfterAlertDismissed(stopLoading)) stopLoading();
       }
     },
     [isElectrumDisabled, refreshAllWalletTransactions],

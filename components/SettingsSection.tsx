@@ -26,7 +26,8 @@ export type SettingsIconName =
   | 'github'
   | 'search'
   | 'paperPlane'
-  | 'key';
+  | 'key'
+  | 'wallet';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -57,6 +58,7 @@ const iconConfigs: Record<SettingsIconName, IconConfig> = {
   search: { name: 'search-outline', color: '#1A73E8', darkColor: '#82B1FF', backgroundColor: 'rgba(0, 122, 255, 0.12)' },
   paperPlane: { name: 'paper-plane-outline', color: '#1A73E8', darkColor: '#82B1FF', backgroundColor: 'rgba(0, 122, 255, 0.12)' },
   key: { name: 'key-outline', color: '#0F9D58', darkColor: '#69F0AE', backgroundColor: 'rgba(52, 199, 89, 0.12)' },
+  wallet: { name: 'wallet-outline', color: '#673AB7', darkColor: '#D0BCFF', backgroundColor: 'rgba(142, 142, 147, 0.12)' },
 };
 
 const SettingsIcon: React.FC<{ name: SettingsIconName }> = ({ name }) => {

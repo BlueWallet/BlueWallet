@@ -26,6 +26,8 @@ export type SendDetailsParams = {
   transactionMemo?: string;
   isTransactionReplaceable?: boolean;
   payjoinUrl?: string;
+  payjoinAddress?: string;
+  payjoinDisableOutputSubstitution?: boolean;
   feeUnit?: BitcoinUnit;
   frozenBalance?: number;
   amountUnit?: BitcoinUnit;
@@ -88,6 +90,8 @@ export type SendDetailsStackParamList = {
     recipients: CreateTransactionTarget[];
     satoshiPerByte: number;
     payjoinUrl?: string | null;
+    payjoinAddress?: string;
+    payjoinDisableOutputSubstitution?: boolean;
     psbt: Psbt;
     headerRight?: HeaderRightRenderer;
   };

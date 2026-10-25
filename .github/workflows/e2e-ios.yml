@@ -40,12 +40,11 @@ jobs:
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: |
-            ios/Pods
             ~/Library/Caches/CocoaPods
             ~/.cocoapods/repos
-          key: ${{ runner.os }}-pods-prebuilt-${{ hashFiles('ios/Podfile.lock') }}
+          key: ${{ runner.os }}-pods-v2-prebuilt-${{ hashFiles('ios/Podfile.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pods-prebuilt-
+            ${{ runner.os }}-pods-v2-prebuilt-
 
       - name: Install ccache
         run: brew install ccache
@@ -164,6 +163,7 @@ jobs:
     env:
       HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
       HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+      MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
 
     steps:
       - name: Checkout

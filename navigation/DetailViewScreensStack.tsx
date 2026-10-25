@@ -157,7 +157,6 @@ const UpdatingPill: React.FC<UpdatingPillProps> = ({ backgroundColor, textColor 
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
-  const { width: windowWidth } = useWindowDimensions();
   const navigation = useNavigation();
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();

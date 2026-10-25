@@ -88,6 +88,8 @@ const SendDetails = () => {
   const transactionMemo = route.params?.transactionMemo;
   const utxos = route.params?.utxos;
   const payjoinUrl = route.params?.payjoinUrl;
+  const payjoinAddress = route.params?.payjoinAddress;
+  const payjoinDisableOutputSubstitution = route.params?.payjoinDisableOutputSubstitution;
   const isTransactionReplaceable = route.params?.isTransactionReplaceable;
   const routeParams = route.params;
   const scrollView = useRef<FlatList<IPaymentDestinations>>(null);
@@ -181,7 +183,13 @@ const SendDetails = () => {
     const currentAddress = addresses[scrollIndex.current];
     if (routeParams.uri) {
       try {
-        const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
+        const {
+          address,
+          amount,
+          memo,
+          payjoinUrl: pjUrl,
+          disableOutputSubstitution,
+        } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
 
         setAddresses(addrs => {
           addrs[scrollIndex.current].unit = BitcoinUnit.BTC;
@@ -205,7 +213,12 @@ const SendDetails = () => {
         if (memo?.trim().length > 0) {
           setParams({ transactionMemo: memo });
         }
-        setParams({ payjoinUrl: pjUrl, amountUnit: BitcoinUnit.BTC });
+        setParams({
+          payjoinUrl: pjUrl,
+          payjoinAddress: pjUrl ? address : '',
+          payjoinDisableOutputSubstitution: disableOutputSubstitution,
+          amountUnit: BitcoinUnit.BTC,
+        });
       } catch (error) {
         console.log(error);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -513,7 +526,13 @@ const SendDetails = () => {
           addrs[scrollIndex.current].unit = BitcoinUnit.BTC;
           return [...addrs];
         });
-        setParams({ transactionMemo: options.label || '', amountUnit: BitcoinUnit.BTC, payjoinUrl: options.pj || '' }); // there used to be `options.message` here as well. bug?
+        setParams({
+          transactionMemo: options.label || '',
+          amountUnit: BitcoinUnit.BTC,
+          payjoinUrl: options.pj || '',
+          payjoinAddress: options.pj ? address : '',
+          payjoinDisableOutputSubstitution: String(options.pjos) === '0',
+        }); // there used to be `options.message` here as well. bug?
         // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
         setTimeout(() => scrollView.current?.scrollToIndex({ index: currentIndex, animated: false }), 50);
       }
@@ -712,6 +731,8 @@ const SendDetails = () => {
       recipients,
       satoshiPerByte: requestedSatPerByte,
       payjoinUrl,
+      payjoinAddress,
+      payjoinDisableOutputSubstitution,
       psbt,
     });
     setIsLoading(false);
@@ -832,25 +853,6 @@ const SendDetails = () => {
     }
   }, [navigation, presentAlert, setIsLoading, transactionMemo, wallet]);
 
-  const askCosignThisTransaction = useCallback(async () => {
-    return new Promise(resolve => {
-      presentAlert({
-        message: loc.multisig.cosign_this_transaction,
-        buttons: [
-          {
-            text: loc._.no,
-            style: 'cancel',
-            onPress: () => resolve(false),
-          },
-          {
-            text: loc._.yes,
-            onPress: () => resolve(true),
-          },
-        ],
-      });
-    });
-  }, [presentAlert]);
-
   const _importTransactionMultisig = useCallback(
     async (base64arg: string | false) => {
       try {
@@ -858,7 +860,7 @@ const SendDetails = () => {
         if (!base64) return;
         const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
-        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
+        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0) {
           setIsLoading(true);
           await sleep(100);
           (wallet as MultisigHDWallet).cosignPsbt(psbt);
@@ -879,7 +881,7 @@ const SendDetails = () => {
       }
       setIsLoading(false);
     },
-    [askCosignThisTransaction, navigation, presentAlert, sleep, transactionMemo, wallet],
+    [navigation, presentAlert, sleep, transactionMemo, wallet],
   );
 
   const importTransactionMultisig = useCallback(() => {
@@ -1510,7 +1512,13 @@ const SendDetails = () => {
           <AddressInput
             onChangeText={text => {
               const trimmedText = text.trim();
-              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(trimmedText);
+              const {
+                address,
+                amount,
+                memo,
+                payjoinUrl: pjUrl,
+                disableOutputSubstitution,
+              } = DeeplinkSchemaMatch.decodeBitcoinUri(trimmedText);
               const hasPositiveAmount = Number(amount) > 0;
               setAddresses(addrs => {
                 const updatedAddresses = [...addrs];
@@ -1530,7 +1538,12 @@ const SendDetails = () => {
                 setParams({ transactionMemo: memo });
               }
               setIsLoading(false);
-              setParams(hasPositiveAmount ? { payjoinUrl: pjUrl, amountUnit: BitcoinUnit.BTC } : { payjoinUrl: pjUrl });
+              const payjoinParams = {
+                payjoinUrl: pjUrl,
+                payjoinAddress: pjUrl ? address : '',
+                payjoinDisableOutputSubstitution: disableOutputSubstitution,
+              };
+              setParams(hasPositiveAmount ? { ...payjoinParams, amountUnit: BitcoinUnit.BTC } : payjoinParams);
             }}
             address={item.address}
             isLoading={isLoading}

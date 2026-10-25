@@ -4,6 +4,7 @@ declare module 'bip21' {
         amount?: number;
         label?: string;
         pj?: string;
+        pjos?: string;
       }
     | { [key: string]: string };
 
