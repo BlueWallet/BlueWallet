@@ -53,7 +53,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [askPassphrase, setAskPassphrase] = useState(false);
   const [walletData, setWalletData] = useState<TWallet[]>([]);
   const saveCancelledRef = useRef(false);
-  // Keep this anchor mounted in both the loading and content trees.
+  const pendingDiscardRef = useRef<Promise<boolean> | undefined>(undefined);
   const discardChangesRef = useRef<View>(null);
 
   const stylesHook = StyleSheet.create({
@@ -73,6 +73,12 @@ const ViewEditMultisigCosigners: React.FC = () => {
   });
 
   usePreventRemove(!isSaveButtonDisabled, ({ data }) => {
+    if (pendingDiscardRef.current) return;
+
+    let resolveDiscard: (shouldContinueSaving: boolean) => void;
+    pendingDiscardRef.current = new Promise(resolve => {
+      resolveDiscard = resolve;
+    });
     const anchor = discardChangesRef.current ? (findNodeHandle(discardChangesRef.current) ?? undefined) : undefined;
     ActionSheet.showActionSheetWithOptions(
       {
@@ -83,9 +89,13 @@ const ViewEditMultisigCosigners: React.FC = () => {
         anchor,
       },
       buttonIndex => {
+        pendingDiscardRef.current = undefined;
         if (buttonIndex === 1) {
           saveCancelledRef.current = true;
+          resolveDiscard(false);
           dispatch(data.action);
+        } else {
+          resolveDiscard(true);
         }
       },
     );
@@ -118,6 +128,8 @@ const ViewEditMultisigCosigners: React.FC = () => {
         if (!isElectrumDisabled) {
           await wallet?.fetchBalance();
         }
+        const pendingDiscard = pendingDiscardRef.current;
+        if (pendingDiscard && !(await pendingDiscard)) return;
         if (saveCancelledRef.current) return;
         newWallets.push(wallet);
         setIsSaveButtonDisabled(true);
@@ -126,6 +138,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
           if (!saveCancelledRef.current) navigateToWalletsList();
         }, 500);
       } catch (error: any) {
+        const pendingDiscard = pendingDiscardRef.current;
+        if (pendingDiscard && !(await pendingDiscard)) return;
+        if (saveCancelledRef.current) return;
         setIsLoading(false);
         setParams({ headerRight: undefined });
         presentAlert({ message: error?.message ?? String(error) });
@@ -162,6 +177,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                   title: loc.multisig.manage_keys,
                   message: loc.multisig.invalid_cosigner,
                   options: [loc._.ok],
+                  cancelButtonIndex: 0,
                   anchor,
                 },
                 goBack,
@@ -483,13 +499,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
     setParams,
   ]);
 
-  if (isLoading)
-    return (
-      <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
-        <BlueLoading />
-      </View>
-    );
-
   const howMany = (
     <Badge
       value={wallet?.getM() ?? 0}
@@ -526,21 +535,27 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
-      <FlatList
-        testID="ViewEditMultisigCosignersFlatList"
-        ListHeaderComponent={tipKeys}
-        data={walletData}
-        extraData={vaultKeyData}
-        renderItem={_renderKeyItem}
-        automaticallyAdjustKeyboardInsets
-        contentInsetAdjustmentBehavior="automatic"
-        scrollToOverflowEnabled
-        automaticallyAdjustContentInsets
-        keyExtractor={(_item, index) => `${index}`}
-        contentContainerStyle={styles.contentContainerStyle}
-      />
-      <BlueCard>{footer}</BlueCard>
-      <BlueSpacing20 />
+      {isLoading ? (
+        <BlueLoading />
+      ) : (
+        <>
+          <FlatList
+            testID="ViewEditMultisigCosignersFlatList"
+            ListHeaderComponent={tipKeys}
+            data={walletData}
+            extraData={vaultKeyData}
+            renderItem={_renderKeyItem}
+            automaticallyAdjustKeyboardInsets
+            contentInsetAdjustmentBehavior="automatic"
+            scrollToOverflowEnabled
+            automaticallyAdjustContentInsets
+            keyExtractor={(_item, index) => `${index}`}
+            contentContainerStyle={styles.contentContainerStyle}
+          />
+          <BlueCard>{footer}</BlueCard>
+          <BlueSpacing20 />
+        </>
+      )}
     </View>
   );
 };
