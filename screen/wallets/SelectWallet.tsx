@@ -14,6 +14,7 @@ import { navigationRef, pop } from '../../NavigationService';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootParamList } from '../../navigation/RootParamList';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { getShortcutWalletDestination } from '../../navigation/linking';
 
 type NavigationProps = NativeStackNavigationProp<RootParamList, 'SelectWallet'>;
 
@@ -38,6 +39,7 @@ const SelectWallet: React.FC = () => {
   const walletsCarousel = useRef<CarouselListRefType>(null);
   const previousRouteName = useNavigationState(state => state.routes[state.routes.length - 2]?.name);
   const [filteredWallets, setFilteredWallets] = useState<TWallet[]>([]);
+  const didAutomaticallySelectWallet = useRef(false);
 
   const stylesHook = StyleSheet.create({
     loading: {
@@ -47,7 +49,11 @@ const SelectWallet: React.FC = () => {
 
   const filterWallets = useCallback(() => {
     if (selectionMode === 'receive') {
-      return wallets;
+      return wallets.filter(item => item.allowReceive());
+    }
+
+    if (selectionMode === 'scan') {
+      return wallets.filter(item => item.allowSend());
     }
 
     if (availableWallets && availableWallets.length > 0) {
@@ -109,26 +115,29 @@ const SelectWallet: React.FC = () => {
     }
   }, [isModal, navigation]);
 
-  const onPress = (item: TWallet) => {
-    triggerHapticFeedback(HapticFeedbackTypes.Selection);
-    if (selectionMode === 'receive') {
-      if (item.chain === Chain.ONCHAIN) {
-        navigationRef.navigate('ReceiveDetails', { walletID: item.getID(), address: '' });
-      } else {
-        navigationRef.navigate('LNDCreateInvoiceRoot', {
-          screen: 'LNDCreateInvoice',
-          params: { walletID: item.getID() },
-        });
+  const onPress = useCallback(
+    (item: TWallet) => {
+      triggerHapticFeedback(HapticFeedbackTypes.Selection);
+      if (selectionMode) {
+        const destination = getShortcutWalletDestination(selectionMode, item.chain, item.getID());
+        navigationRef.navigate(destination.name, destination.params);
+        return;
       }
-      return;
-    }
 
-    if (onWalletSelect) {
-      onWalletSelect(item, { navigation: { pop, navigate: navigation.navigate } });
-    } else {
-      navigation.dispatch(StackActions.popTo(previousRouteName, { walletID: item.getID() }, { merge: true }));
-    }
-  };
+      if (onWalletSelect) {
+        onWalletSelect(item, { navigation: { pop, navigate: navigation.navigate } });
+      } else {
+        navigation.dispatch(StackActions.popTo(previousRouteName, { walletID: item.getID() }, { merge: true }));
+      }
+    },
+    [navigation, onWalletSelect, previousRouteName, selectionMode],
+  );
+
+  useEffect(() => {
+    if (isLoading || !selectionMode || filteredWallets.length !== 1 || didAutomaticallySelectWallet.current) return;
+    didAutomaticallySelectWallet.current = true;
+    onPress(filteredWallets[0]);
+  }, [filteredWallets, isLoading, onPress, selectionMode]);
 
   if (isLoading) {
     return (
@@ -139,12 +148,17 @@ const SelectWallet: React.FC = () => {
   }
 
   if (filteredWallets.length <= 0) {
+    const isShortcutSelection = selectionMode === 'receive' || selectionMode === 'scan';
     return (
       <SafeArea>
         <View style={styles.noWallets}>
-          <BlueText style={styles.center}>{loc.wallets.select_no_bitcoin}</BlueText>
+          <BlueText style={styles.center}>
+            {isShortcutSelection ? loc.wallets.list_create_a_wallet : loc.wallets.select_no_bitcoin}
+          </BlueText>
           <BlueSpacing20 />
-          <BlueText style={styles.center}>{noWalletExplanationText || loc.wallets.select_no_bitcoin_exp}</BlueText>
+          <BlueText style={styles.center}>
+            {noWalletExplanationText || (isShortcutSelection ? loc.wallets.list_create_a_wallet_text : loc.wallets.select_no_bitcoin_exp)}
+          </BlueText>
         </View>
       </SafeArea>
     );

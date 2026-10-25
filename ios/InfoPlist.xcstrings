@@ -1,13 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "APP_SHORTCUT_MANAGE_WALLETS_DESCRIPTION" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Manage your wallets" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Administrar tus carteras" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Gérer vos portefeuilles" } }
-      }
-    },
     "APP_SHORTCUT_MANAGE_WALLETS" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Manage Wallets" } },
@@ -22,13 +15,6 @@
         "fr" : { "stringUnit" : { "state" : "translated", "value" : "Recevoir" } }
       }
     },
-    "APP_SHORTCUT_RECEIVE_DESCRIPTION" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Receive bitcoin" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Recibir bitcoin" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Recevoir des bitcoins" } }
-      }
-    },
     "APP_SHORTCUT_SCAN" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan" } },
@@ -36,25 +22,11 @@
         "fr" : { "stringUnit" : { "state" : "translated", "value" : "Scanner" } }
       }
     },
-    "APP_SHORTCUT_SCAN_DESCRIPTION" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan a QR code" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Escanear un código QR" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Scanner un code QR" } }
-      }
-    },
     "APP_SHORTCUT_SEND" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Send" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Enviar" } },
         "fr" : { "stringUnit" : { "state" : "translated", "value" : "Envoyer" } }
-      }
-    },
-    "APP_SHORTCUT_SEND_DESCRIPTION" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Send bitcoin" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Enviar bitcoin" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Envoyer des bitcoins" } }
       }
     }
   },

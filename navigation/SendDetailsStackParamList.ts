@@ -22,6 +22,7 @@ export const CoinControlSortType = {
 export type CoinControlSortType = (typeof CoinControlSortType)[keyof typeof CoinControlSortType];
 
 export type SendDetailsParams = {
+  openScanner?: boolean;
   transactionMemo?: string;
   isTransactionReplaceable?: boolean;
   payjoinUrl?: string;
@@ -67,7 +68,7 @@ export type SelectWalletParams = {
   noWalletExplanationText?: string;
   onChainRequireSend?: boolean;
   selectedWalletID?: string; // scroll to this wallet
-  selectionMode?: 'receive';
+  selectionMode?: 'receive' | 'scan';
 };
 
 export type SuccessParams = {

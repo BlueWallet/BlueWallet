@@ -137,6 +137,24 @@ describe('navigation validation', () => {
     await expect(validateGuardedRoute({ name: 'ReceiveDetails' }, dependencies)).resolves.toEqual({ allowed: true });
   });
 
+  it('requires an off-chain wallet that can send before opening the Lightning scanner', async () => {
+    const dependencies = createDependencies();
+
+    await expect(validateGuardedRoute({ name: 'ScanLNDInvoice' }, dependencies)).resolves.toEqual({
+      allowed: false,
+      failure: 'missingLightningWallet',
+    });
+
+    dependencies.wallets = [createWallet()];
+    await expect(validateGuardedRoute({ name: 'ScanLNDInvoice' }, dependencies)).resolves.toEqual({
+      allowed: false,
+      failure: 'missingLightningWallet',
+    });
+
+    dependencies.wallets = [createWallet({ chain: Chain.OFFCHAIN })];
+    await expect(validateGuardedRoute({ name: 'ScanLNDInvoice' }, dependencies)).resolves.toEqual({ allowed: true });
+  });
+
   it('saves the wallet export acknowledgement before allowing navigation', async () => {
     const setUserHasSavedExport = jest.fn();
     const dependencies = createDependencies();

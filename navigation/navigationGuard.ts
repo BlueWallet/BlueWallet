@@ -2,12 +2,13 @@ import { NavigationAction, NavigationState, PartialState, Router } from '@react-
 import { Chain } from '../models/bitcoinUnits';
 
 export const navigationGuardPolicies = {
-  SendDetails: { walletCapability: 'send' },
+  SendDetails: { walletCapability: 'onchainSend' },
+  ScanLNDInvoice: { walletCapability: 'offchainSend' },
   WalletExport: { biometrics: true },
   WalletXpub: { biometrics: true },
   ViewEditMultisigCosigners: { biometrics: true },
   ExportMultisigCoordinationSetupRoot: { biometrics: true },
-  ReceiveDetails: { walletCapability: 'receive', walletExportSaved: true },
+  ReceiveDetails: { walletCapability: 'onchainReceive', walletExportSaved: true },
   WalletAddresses: { walletExportSaved: true },
   ScanQRCode: { camera: true },
 } as const;
@@ -46,7 +47,7 @@ export type NavigationGuardDependencies = {
 export type NavigationValidationResult = {
   allowed: boolean;
   redirect?: { name: 'WalletExport'; params: { walletID: string } };
-  failure?: 'missingSendWallet' | 'missingReceiveWallet';
+  failure?: 'missingSendWallet' | 'missingReceiveWallet' | 'missingLightningWallet';
 };
 
 const asParams = (value: unknown): NavigationParams | undefined =>
@@ -82,14 +83,29 @@ export const validateGuardedRoute = async (
   const policy = navigationGuardPolicies[route.name];
 
   if ('walletCapability' in policy) {
-    const hasSuitableWallet = dependencies.wallets.some(
-      wallet => wallet.chain === Chain.ONCHAIN && (policy.walletCapability === 'send' ? wallet.allowSend() : wallet.allowReceive()),
-    );
+    const hasSuitableWallet = dependencies.wallets.some(wallet => {
+      switch (policy.walletCapability) {
+        case 'onchainSend':
+          return wallet.chain === Chain.ONCHAIN && wallet.allowSend();
+        case 'onchainReceive':
+          return wallet.chain === Chain.ONCHAIN && wallet.allowReceive();
+        case 'offchainSend':
+          return wallet.chain === Chain.OFFCHAIN && wallet.allowSend();
+        default:
+          return false;
+      }
+    });
 
     if (!hasSuitableWallet) {
+      const failure =
+        policy.walletCapability === 'onchainSend'
+          ? 'missingSendWallet'
+          : policy.walletCapability === 'onchainReceive'
+            ? 'missingReceiveWallet'
+            : 'missingLightningWallet';
       return {
         allowed: false,
-        failure: policy.walletCapability === 'send' ? 'missingSendWallet' : 'missingReceiveWallet',
+        failure,
       };
     }
   }

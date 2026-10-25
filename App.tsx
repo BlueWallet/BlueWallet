@@ -62,7 +62,12 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
             triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
             presentAlert({
               title: loc.errors.error,
-              message: result.failure === 'missingSendWallet' ? loc.send.details_wallet_before_tx : loc.wallets.select_no_bitcoin,
+              message:
+                result.failure === 'missingSendWallet'
+                  ? loc.send.details_wallet_before_tx
+                  : result.failure === 'missingLightningWallet'
+                    ? loc.wallets.no_ln_wallet_error
+                    : loc.wallets.select_no_bitcoin,
             });
             return;
           }

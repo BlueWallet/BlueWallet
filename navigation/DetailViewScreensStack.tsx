@@ -437,6 +437,12 @@ const DetailViewStackScreensStack = () => {
           options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
         />
         <DetailViewStack.Screen
+          name="ScanWalletSelection"
+          component={SelectWallet}
+          initialParams={{ selectionMode: 'scan' }}
+          options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+        />
+        <DetailViewStack.Screen
           name="LNDViewInvoice"
           component={LNDViewInvoice}
           options={navigationStyle({

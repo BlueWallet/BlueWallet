@@ -182,6 +182,12 @@ const SendDetails = () => {
   }, [customFee, selectedPresetFeeRate, feePrecalc, networkTransactionFees]);
 
   useEffect(() => {
+    if (!routeParams.openScanner) return;
+    setParams({ openScanner: undefined });
+    navigation.navigate('ScanQRCode', { showFileImportButton: true });
+  }, [navigation, routeParams.openScanner, setParams]);
+
+  useEffect(() => {
     // decode route params
     const currentAddress = addresses[scrollIndex.current];
     if (routeParams.uri) {

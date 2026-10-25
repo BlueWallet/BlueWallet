@@ -34,11 +34,7 @@
     <string name="cache_cleared_message">The document, cache, and temp directories have been cleared.</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="app_shortcut_send">Send</string>
-    <string name="app_shortcut_send_description">Send bitcoin</string>
     <string name="app_shortcut_receive">Receive</string>
-    <string name="app_shortcut_receive_description">Receive bitcoin</string>
     <string name="app_shortcut_scan">Scan</string>
-    <string name="app_shortcut_scan_description">Scan a QR code</string>
     <string name="app_shortcut_manage_wallets">Manage Wallets</string>
-    <string name="app_shortcut_manage_wallets_description">Manage your wallets</string>
 </resources>

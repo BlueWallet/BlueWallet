@@ -209,12 +209,10 @@
 	<key>UIApplicationShortcutItems</key>
 	<array>
 		<dict>
-			<key>UIApplicationShortcutItemIconType</key>
-			<string>UIApplicationShortcutIconTypeCompose</string>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>paperplane</string>
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>APP_SHORTCUT_SEND</string>
-			<key>UIApplicationShortcutItemSubtitle</key>
-			<string>APP_SHORTCUT_SEND_DESCRIPTION</string>
 			<key>UIApplicationShortcutItemType</key>
 			<string>io.bluewallet.send</string>
 			<key>UIApplicationShortcutItemUserInfo</key>
@@ -224,12 +222,10 @@
 			</dict>
 		</dict>
 		<dict>
-			<key>UIApplicationShortcutItemIconType</key>
-			<string>UIApplicationShortcutIconTypeDownload</string>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>tray.and.arrow.down</string>
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>APP_SHORTCUT_RECEIVE</string>
-			<key>UIApplicationShortcutItemSubtitle</key>
-			<string>APP_SHORTCUT_RECEIVE_DESCRIPTION</string>
 			<key>UIApplicationShortcutItemType</key>
 			<string>io.bluewallet.receive</string>
 			<key>UIApplicationShortcutItemUserInfo</key>
@@ -239,12 +235,10 @@
 			</dict>
 		</dict>
 		<dict>
-			<key>UIApplicationShortcutItemIconType</key>
-			<string>UIApplicationShortcutIconTypeCapturePhoto</string>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>qrcode.viewfinder</string>
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>APP_SHORTCUT_SCAN</string>
-			<key>UIApplicationShortcutItemSubtitle</key>
-			<string>APP_SHORTCUT_SCAN_DESCRIPTION</string>
 			<key>UIApplicationShortcutItemType</key>
 			<string>io.bluewallet.scan</string>
 			<key>UIApplicationShortcutItemUserInfo</key>
@@ -254,12 +248,10 @@
 			</dict>
 		</dict>
 		<dict>
-			<key>UIApplicationShortcutItemIconType</key>
-			<string>UIApplicationShortcutIconTypeTask</string>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>wallet.pass</string>
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>APP_SHORTCUT_MANAGE_WALLETS</string>
-			<key>UIApplicationShortcutItemSubtitle</key>
-			<string>APP_SHORTCUT_MANAGE_WALLETS_DESCRIPTION</string>
 			<key>UIApplicationShortcutItemType</key>
 			<string>io.bluewallet.manage-wallets</string>
 			<key>UIApplicationShortcutItemUserInfo</key>
