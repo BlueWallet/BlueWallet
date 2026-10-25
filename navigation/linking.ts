@@ -23,7 +23,7 @@ export const getShortcutWalletDestination = (selectionMode: ShortcutWalletSelect
 };
 
 export const linking: LinkingOptions<DetailViewStackParamList> = {
-  prefixes: ['bluewallet://'],
+  prefixes: ['bluewallet://', 'https://bluewallet.io'],
   config: {
     screens: {
       DrawerRoot: {

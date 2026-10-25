@@ -218,7 +218,7 @@
 			<key>UIApplicationShortcutItemUserInfo</key>
 			<dict>
 				<key>url</key>
-				<string>bluewallet://send</string>
+				<string>https://bluewallet.io/send</string>
 			</dict>
 		</dict>
 		<dict>
@@ -231,7 +231,7 @@
 			<key>UIApplicationShortcutItemUserInfo</key>
 			<dict>
 				<key>url</key>
-				<string>bluewallet://receive</string>
+				<string>https://bluewallet.io/receive</string>
 			</dict>
 		</dict>
 		<dict>
@@ -244,7 +244,7 @@
 			<key>UIApplicationShortcutItemUserInfo</key>
 			<dict>
 				<key>url</key>
-				<string>bluewallet://scan</string>
+				<string>https://bluewallet.io/scan</string>
 			</dict>
 		</dict>
 		<dict>
@@ -257,7 +257,7 @@
 			<key>UIApplicationShortcutItemUserInfo</key>
 			<dict>
 				<key>url</key>
-				<string>bluewallet://manage-wallets</string>
+				<string>https://bluewallet.io/manage-wallets</string>
 			</dict>
 		</dict>
 	</array>
