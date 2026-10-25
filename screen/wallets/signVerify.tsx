@@ -268,6 +268,7 @@ const SignVerify = () => {
             <FButton
               onPress={handleShare}
               text={loc.multisig.share}
+              systemImageName="square.and.arrow.up"
               icon={
                 <View>
                   <Icon name="external-link" size={16} type="font-awesome" color={colors.buttonAlternativeTextColor} />

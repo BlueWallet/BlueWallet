@@ -704,6 +704,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             testID="ReceiveButton"
             text={loc.receive.header}
             onPress={receiveButtonPress}
+            systemImageName="arrow.down.circle"
             icon={
               <View style={styles.iconContainer}>
                 <Icon
@@ -723,6 +724,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             onPress={sendButtonPress}
             text={loc.send.header}
             testID="SendButton"
+            systemImageName="arrow.up.circle"
             icon={
               <View style={styles.iconContainer}>
                 <Icon

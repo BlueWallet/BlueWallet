@@ -227,6 +227,7 @@ const Buttons = ({ pop, save, colors }: { pop: TPop; save: () => void; colors: a
       testID="UndoEntropy"
       onPress={pop}
       text={loc.entropy.undo}
+      systemImageName="arrow.uturn.backward"
       icon={
         <View style={styles.buttonsIcon}>
           <Icon name="undo" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
@@ -237,6 +238,7 @@ const Buttons = ({ pop, save, colors }: { pop: TPop; save: () => void; colors: a
       testID="SaveEntropy"
       onPress={save}
       text={loc.entropy.save}
+      systemImageName="checkmark.circle"
       icon={
         <View style={styles.buttonsIcon}>
           <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />

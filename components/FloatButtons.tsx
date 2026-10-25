@@ -291,12 +291,12 @@ const buttonContentStaticStyles = StyleSheet.create({
   },
 });
 
-interface FContainerProps {
+export interface FContainerProps {
   children: ReactNode | ReactNode[];
   inline?: boolean;
 }
 
-interface FButtonProps {
+export interface FButtonProps {
   text: string;
   icon: ReactNode;
   width?: number;
@@ -310,6 +310,8 @@ interface FButtonProps {
   testID?: string;
   onPress: () => void;
   onLongPress?: () => void;
+  /** SF Symbol used by the Mac Catalyst toolbar representation. */
+  systemImageName?: string;
 }
 
 interface ButtonContentProps {
@@ -372,6 +374,7 @@ export const FButton = ({
   fontSize = LAYOUT.MAX_BUTTON_FONT_SIZE,
   buttonHeight = LAYOUT.BUTTON_HEIGHT,
   testID,
+  systemImageName: _systemImageName,
   ...props
 }: FButtonProps) => {
   const { colors } = useTheme();

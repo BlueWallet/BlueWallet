@@ -450,6 +450,7 @@ const WalletsList: React.FC = () => {
               icon={<Image resizeMode="stretch" source={scanImage} />}
               text={loc.send.details_scan}
               testID="HomeScreenScanButton"
+              systemImageName="qrcode.viewfinder"
             />
           </FContainer>
         </>

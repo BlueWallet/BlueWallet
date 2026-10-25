@@ -358,11 +358,13 @@ const CoinControl: React.FC = () => {
           <FButton
             onPress={handleMassFreeze}
             text={allFrozen ? loc.cc.freezeLabel_un : loc.cc.freezeLabel}
+            systemImageName={allFrozen ? 'snowflake.slash' : 'snowflake'}
             icon={<Icon name="snowflake" size={buttonFontSize} type="font-awesome-6" color={colors.buttonAlternativeTextColor} />}
           />
           <FButton
             onPress={handleMassUse}
             text={selected.length > 1 ? loc.cc.use_coins : loc.cc.use_coin}
+            systemImageName="checkmark.circle"
             icon={
               <View style={styles.sendIcon}>
                 <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
