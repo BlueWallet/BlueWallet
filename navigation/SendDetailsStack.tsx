@@ -1,4 +1,5 @@
-import React, { lazy, useMemo } from 'react';
+import { getSelectWalletOptions } from './helpers/getSelectWalletOptions';
+import React, { lazy } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform } from 'react-native';
 import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
@@ -9,7 +10,7 @@ import { Action } from '../components/types';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { CoinControlSortDirection, CoinControlSortType, SendDetailsStackParamList } from './SendDetailsStackParamList';
-import HeaderRightButton from '../components/HeaderRightButton';
+import { createConfirmDetailsHeaderRight, createExportTransactionHeaderRight } from './helpers/SendTransactionHeaderButtons';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import SelectFeeScreen from '../screen/SelectFeeScreen';
 import CoinControlOutputSheet from '../screen/send/CoinControlOutputSheet';
@@ -45,11 +46,6 @@ const ScanQRCodeComponent = withLazySuspense(ScanQRCode);
 
 const SendDetailsStack = () => {
   const theme = useTheme();
-  const DetailsButton = useMemo(
-    () => <HeaderRightButton testID="TransactionDetailsButton" disabled={true} title={loc.send.create_details} />,
-    [],
-  );
-
   const coinControlOptions = navigationStyle(
     {
       title: loc.cc.header,
@@ -142,10 +138,10 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="Confirm"
         component={ConfirmComponent}
-        options={navigationStyle(
-          { title: loc.send.confirm_header, headerRight: () => DetailsButton },
-          withRouteParamHeaderOptions({ headerRight: true }),
-        )(theme)}
+        options={navigationStyle({ title: loc.send.confirm_header }, (options, { route, navigation }) => ({
+          ...options,
+          headerRight: createConfirmDetailsHeaderRight({ params: route.params, navigation }),
+        }))(theme)}
       />
       <Stack.Screen
         name="PsbtWithHardwareWallet"
@@ -160,7 +156,10 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="CreateTransaction"
         component={CreateTransactionComponent}
-        options={navigationStyle({ title: loc.send.create_details }, withRouteParamHeaderOptions({ headerRight: true }))(theme)}
+        options={navigationStyle({ title: loc.send.create_details }, (options, { route }) => ({
+          ...options,
+          headerRight: createExportTransactionHeaderRight(route.params.tx),
+        }))(theme)}
       />
       <Stack.Screen
         name="PsbtMultisig"
@@ -180,7 +179,7 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="SelectWallet"
         component={SelectWalletComponent}
-        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+        options={navigationStyle({ title: loc.wallets.select_wallet }, getSelectWalletOptions)(theme)}
       />
       <Stack.Screen
         name="CoinControlOutput"

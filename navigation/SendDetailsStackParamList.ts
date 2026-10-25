@@ -143,6 +143,7 @@ export type SendDetailsStackParamList = {
     walletType?: string;
   };
   SelectWallet: {
+    hasSelectableWallets?: boolean;
     chainType?: Chain;
     onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
     availableWallets?: TWallet[];
