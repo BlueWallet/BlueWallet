@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import BlueText from '../../components/BlueText';
-import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
+import { HDSegwitBech32Transaction, isTxVerificationError } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import presentAlert from '../../components/Alert';
 import SafeArea from '../../components/SafeArea';
@@ -28,8 +28,13 @@ export default class RBFBumpFee extends CPFP {
       isLoading: true,
       newFeeRate: '',
       nonReplaceable: false,
+      unverified: false,
     });
-    await this.checkPossibilityOfRBFBumpFee();
+    try {
+      await this.checkPossibilityOfRBFBumpFee();
+    } catch (error) {
+      this.onCheckError(error);
+    }
   }
 
   async checkPossibilityOfRBFBumpFee() {
@@ -92,6 +97,7 @@ export default class RBFBumpFee extends CPFP {
         this.setState({ stage: 2, txhex: newTx.toHex(), newTxid: newTx.getId() });
         this.setState({ isLoading: false });
       } catch (_) {
+        if (isTxVerificationError(_)) return this.onCheckError(_);
         this.setState({ isLoading: false });
         presentAlert({ message: loc.errors.error + ': ' + _.message });
       }
@@ -133,7 +139,7 @@ export default class RBFBumpFee extends CPFP {
           <BlueSpacing20 />
           <BlueSpacing20 />
 
-          <BlueText h4>{loc.transactions.cpfp_no_bump}</BlueText>
+          <BlueText h4>{this.nonReplaceableText(loc.transactions.cpfp_no_bump)}</BlueText>
         </SafeArea>
       );
     }

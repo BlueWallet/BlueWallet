@@ -387,6 +387,7 @@
     "open_url_error": "Unable to open the link with the default browser. Please change your default browser and try again.",
     "rbf_explain": "We will replace this transaction with one with a higher fee so that it will be mined faster. This is called RBF—Replace by Fee.",
     "rbf_title": "Speed Up (RBF)",
+    "rbf_unverified": "This transaction could not be verified, so it can't be sped up or canceled. Try connecting to a different Electrum server.",
     "status_bump": "Speed Up",
     "status_cancel": "Cancel",
     "txid": "Transaction ID",
