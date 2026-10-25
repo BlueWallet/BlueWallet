@@ -1,6 +1,18 @@
 pluginManagement { includeBuild("../node_modules/@react-native/gradle-plugin") }
 plugins { id("com.facebook.react.settings") }
-extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
+
+def findNpxExecutable() {
+    for (path in ["/opt/homebrew/bin/npx", "/usr/local/bin/npx"]) {
+        if (new File(path).exists()) {
+            return path
+        }
+    }
+    return "npx"
+}
+
+extensions.configure(com.facebook.react.ReactSettingsExtension){ ex ->
+    ex.autolinkLibrariesFromCommand([findNpxExecutable(), "@react-native-community/cli", "config"])
+}
 rootProject.name = 'BlueWallet'
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
