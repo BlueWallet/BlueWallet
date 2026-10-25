@@ -1,5 +1,5 @@
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
@@ -7,7 +7,6 @@ import presentAlert from '../components/Alert';
 import { useTheme } from '../components/themes';
 import { useStorage } from '../hooks/context/useStorage';
 import loc from '../loc';
-import { navigationRef } from '../NavigationService';
 import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
 import { getCompatibleShortcutWallets, getShortcutWalletDestination } from '../navigation/linking';
 
@@ -26,19 +25,29 @@ const AppShortcut = () => {
     handled.current = true;
 
     const wallet = getCompatibleShortcutWallets(params.selectionMode, wallets)[0];
-    navigation.replace('WalletsList', {});
 
     if (!wallet) {
       presentAlert({
         title: loc.errors.error,
         message: params.selectionMode === 'receive' ? loc.wallets.select_no_bitcoin : loc.send.details_wallet_before_tx,
         hapticFeedback: HapticFeedbackTypes.NotificationError,
+        buttons: [
+          {
+            text: loc.wallets.add_title,
+            onPress: () => navigation.replace('AddWalletRoot'),
+          },
+          {
+            text: loc._.ok,
+            onPress: () => navigation.dispatch(StackActions.popTo('DrawerRoot')),
+            style: 'cancel',
+          },
+        ],
       });
       return;
     }
 
     const destination = getShortcutWalletDestination(params.selectionMode, wallet.chain, wallet.getID());
-    navigationRef.navigate(destination.name, destination.params);
+    navigation.dispatch(StackActions.replace(destination.name, destination.params));
   }, [navigation, params.selectionMode, wallets]);
 
   return (

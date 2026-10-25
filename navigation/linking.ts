@@ -61,12 +61,13 @@ export const getShortcutWalletDestination = (selectionMode: ShortcutWalletSelect
 export const linking: LinkingOptions<DetailViewStackParamList> = {
   prefixes: ['bluewallet://', 'https://bluewallet.io'],
   config: {
+    initialRouteName: 'DrawerRoot',
     screens: {
+      AppShortcut: ':selectionMode(send|receive|scan)',
       DrawerRoot: {
         screens: {
           DetailViewStackScreensStack: {
             screens: {
-              AppShortcut: ':selectionMode(send|receive|scan)',
               ManageWallets: 'manage-wallets',
             },
           },

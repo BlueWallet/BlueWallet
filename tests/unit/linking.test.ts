@@ -30,6 +30,13 @@ describe('app shortcut linking', () => {
     expect(findRoute(state, 'AppShortcut')?.params).toEqual({ selectionMode });
   });
 
+  it('keeps the existing drawer as the base route instead of nesting another detail stack', () => {
+    const state = getStateFromPath('send', linking.config);
+
+    expect(state?.routes.map(route => route.name)).toEqual(['DrawerRoot', 'AppShortcut']);
+    expect(findRoute(state?.routes[0]?.state, 'AppShortcut')).toBeUndefined();
+  });
+
   test.each([
     ['send', Chain.ONCHAIN, 'SendDetailsRoot'],
     ['receive', Chain.ONCHAIN, 'ReceiveDetails'],
