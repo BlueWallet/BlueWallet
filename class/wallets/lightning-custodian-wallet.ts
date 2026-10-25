@@ -37,8 +37,8 @@ export class LightningCustodianWallet extends LegacyWallet {
    *
    * @param URI
    */
-  setBaseURI(URI: string | undefined) {
-    this.baseURI = URI?.endsWith('/') ? URI.slice(0, -1) : URI;
+  setBaseURI(URI: string) {
+    this.baseURI = URI.endsWith('/') ? URI.slice(0, -1) : URI;
   }
 
   getBaseURI() {
@@ -130,7 +130,7 @@ export class LightningCustodianWallet extends LegacyWallet {
    *
    * @return {Promise.<Array>}
    */
-  async getUserInvoices(limit: number | false = false) {
+  async getUserInvoices(limit?: number) {
     let limitString = '';
     if (limit) limitString = '?limit=' + parseInt(limit as unknown as string, 10);
     const response = await fetch(this.baseURI + '/getuserinvoices' + limitString, {

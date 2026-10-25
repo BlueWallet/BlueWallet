@@ -158,10 +158,10 @@ const WalletDetails: React.FC = () => {
 
   const [isRestoringSwaps, setIsRestoringSwaps] = useState<boolean>(false);
   const onRestoreSwapsPressed = useCallback(async () => {
-    if (wallet.type !== LightningArkWallet.type || !(wallet as unknown as LightningArkWallet).restoreSwaps) return;
+    if (wallet.type !== LightningArkWallet.type || !wallet.restoreSwaps) return;
     setIsRestoringSwaps(true);
     try {
-      await (wallet as unknown as LightningArkWallet).restoreSwaps();
+      await wallet.restoreSwaps();
       await fetchAndSaveWalletTransactions(wallet.getID());
       presentAlert({ message: loc.wallets.restore_swap_activity_done });
     } catch (e) {
@@ -251,7 +251,7 @@ const WalletDetails: React.FC = () => {
           const transactionId = transaction.hash || transaction.txid;
           if (!transactionId) return [];
 
-          const memo = txMetadata?.[transactionId]?.memo?.trim();
+          const memo = txMetadata[transactionId]?.memo?.trim();
           return [encodeBip329TransactionLabel(transactionId, memo || undefined)];
         })
         .join('\n');
@@ -266,7 +266,7 @@ const WalletDetails: React.FC = () => {
       const value = formatBalanceWithoutSuffix(transaction.value || 0, BitcoinUnit.BTC, true);
       let hash: string = transaction.hash || transaction.txid || '';
       const metadataKey = transaction.hash || transaction.txid;
-      let memo = (metadataKey && txMetadata?.[metadataKey]?.memo?.trim()) || '';
+      let memo = (metadataKey && txMetadata[metadataKey]?.memo?.trim()) || '';
       let status = '';
 
       if (wallet.chain === Chain.OFFCHAIN) {
