@@ -26,7 +26,7 @@ import {
 import { linking } from './navigation/linking';
 
 const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorScheme> }) => {
-  const { wallets, saveToDisk } = useStorage();
+  const { wallets, walletsInitialized, saveToDisk } = useStorage();
   const { isBiometricUseEnabled } = useBiometrics();
 
   const validateNavigation = useCallback(
@@ -95,8 +95,12 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
 
   return (
     <NavigationContainer
+      // Shortcut links must be resolved after the storage/unlock flow has
+      // registered the wallet screens they target. Remounting also makes
+      // React Navigation read the native initial URL again after unlock.
+      key={walletsInitialized ? 'wallets' : 'unlock'}
       ref={navigationRef}
-      linking={linking}
+      linking={walletsInitialized ? linking : undefined}
       theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}
       onUnhandledAction={handleUnhandledAction}
     >
