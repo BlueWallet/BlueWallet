@@ -27,7 +27,7 @@ interface StorageContextType {
   txMetadata: TTXMetadata;
   counterpartyMetadata: TCounterpartyMetadata;
   addressMetadata: TAddressMetadata;
-  saveToDisk: (force?: boolean) => Promise<void>;
+  saveToDisk: (force?: boolean, walletsToSave?: TWallet[]) => Promise<void>;
   selectedWalletID: () => string | undefined; // Change from string|undefined to a function
   addWallet: (wallet: TWallet) => void;
   deleteWallet: (wallet: TWallet) => void;
@@ -157,7 +157,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   };
 
   const saveToDisk = useCallback(
-    async (force: boolean = false) => {
+    async (force: boolean = false, walletsToSave?: TWallet[]) => {
       if (!force && BlueApp.getWallets().length === 0) {
         console.debug('Not saving empty wallets array');
         return;
@@ -165,7 +165,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       BlueApp.tx_metadata = txMetadata.current;
       BlueApp.counterparty_metadata = counterpartyMetadata.current;
       BlueApp.address_metadata = addressMetadata.current;
-      await BlueApp.saveToDisk();
+      await BlueApp.saveToDisk(walletsToSave);
       const w: TWallet[] = [...BlueApp.getWallets()];
       setWallets(w);
       setMetadataVersion(v => v + 1);

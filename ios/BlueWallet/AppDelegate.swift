@@ -387,7 +387,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         completionHandler()
     }
     
-    // MARK: - Menu Building (macOS Catalyst)
+    // MARK: - Menu Building (iPadOS and macOS Catalyst)
     
     override func buildMenu(with builder: UIMenuBuilder) {
         super.buildMenu(with: builder)
@@ -399,29 +399,71 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         builder.remove(menu: .preferences)
 
         let actions = MenuElementsController.shared.availableActions
-        let commands: [(String, String, Selector, String, UIKeyModifierFlags, UIMenu.Identifier)] = [
-            ("addWallet", "Add Wallet", #selector(addWalletAction), "a", [.command, .shift], .file),
-            ("importWallet", "Import Wallet", #selector(importWalletAction), "i", .command, .file),
-            ("manageWallets", "Manage Wallets…", #selector(manageWalletsAction), "m", [.command, .shift], .file),
-            ("send", "Send…", #selector(sendMenuAction), "s", [.command, .shift], .file),
-            ("receive", "Receive…", #selector(receiveMenuAction), "r", [.command, .shift], .file),
-            ("walletDetails", "Wallet Details…", #selector(walletDetailsMenuAction), "d", .command, .file),
-            ("reloadTransactions", "Reload Transactions", #selector(reloadTransactionsAction), "r", .command, .view),
-            ("backToWallets", "Back to Wallets", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view),
-            ("copyAddress", "Copy Address", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit),
-            ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit),
-            ("keyboardShortcuts", "Keyboard Shortcuts…", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
+        let walletMenuID = UIMenu.Identifier("io.bluewallet.commands.wallet")
+        let commands: [(String, String, Selector, String, UIKeyModifierFlags, UIMenu.Identifier, Int)] = [
+            ("addWallet", "Add Wallet", #selector(addWalletAction), "a", [.command, .shift], .file, 0),
+            ("importWallet", "Import Wallet", #selector(importWalletAction), "i", .command, .file, 0),
+            ("manageWallets", "Manage Wallets…", #selector(manageWalletsAction), "m", [.command, .shift], .file, 0),
+            ("send", "Send…", #selector(sendMenuAction), "s", [.command, .shift], .file, 1),
+            ("receive", "Receive…", #selector(receiveMenuAction), "r", [.command, .shift], .file, 1),
+            ("manageWalletSave", "Save Wallet Changes", #selector(manageWalletSaveAction), "s", .command, .file, 2),
+            ("manageWalletClose", "Close or Cancel Search", #selector(manageWalletCloseAction), UIKeyCommand.inputEscape, [], .file, 3),
+            ("copyAddress", "Copy Address", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit, 0),
+            ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit, 0),
+            ("manageWalletSearch", "Search Wallets", #selector(manageWalletSearchAction), "f", .command, .edit, 1),
+            ("manageWalletMoveUp", "Move Selected Wallet Up", #selector(manageWalletMoveUpAction), UIKeyCommand.inputUpArrow, .alternate, walletMenuID, 1),
+            ("manageWalletMoveDown", "Move Selected Wallet Down", #selector(manageWalletMoveDownAction), UIKeyCommand.inputDownArrow, .alternate, walletMenuID, 1),
+            ("walletDetails", "Wallet Details…", #selector(walletDetailsMenuAction), "d", .command, .view, 0),
+            ("reloadTransactions", "Reload Transactions", #selector(reloadTransactionsAction), "r", .command, .view, 1),
+            ("backToWallets", "Back to Wallets", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view, 2),
+            ("manageWalletOpen", "Open Selected Wallet", #selector(manageWalletOpenAction), "\r", [], walletMenuID, 0),
+            ("manageWalletSelectUp", "Select Previous Wallet", #selector(manageWalletSelectUpAction), UIKeyCommand.inputUpArrow, [], walletMenuID, 0),
+            ("manageWalletSelectDown", "Select Next Wallet", #selector(manageWalletSelectDownAction), UIKeyCommand.inputDownArrow, [], walletMenuID, 0),
+            ("keyboardShortcuts", "Keyboard Shortcuts…", #selector(keyboardShortcutsMenuAction), "/", .command, .help, 0)
         ]
         for parent in [UIMenu.Identifier.file, .edit, .view, .help] {
-            let identifier = UIMenu.Identifier("io.bluewallet.commands.\(parent.rawValue)")
-            builder.remove(menu: identifier)
-            let children = commands.filter { actions.contains($0.0) && $0.5 == parent }.map {
-                UIKeyCommand(title: $0.1, action: $0.2, input: $0.3, modifierFlags: $0.4)
+            builder.remove(menu: UIMenu.Identifier("io.bluewallet.commands.\(parent.rawValue)"))
+            for group in 0...3 {
+                builder.remove(menu: UIMenu.Identifier("io.bluewallet.commands.\(parent.rawValue).\(group)"))
             }
-            if !children.isEmpty {
+            let availableCommands = commands.filter { actions.contains($0.0) && $0.5 == parent }
+            for group in Set(availableCommands.map(\.6)).sorted().reversed() {
+                let children = availableCommands.filter { $0.6 == group }.map {
+                    UIKeyCommand(title: MenuElementsController.shared.title(for: $0.0, fallback: $0.1),
+                                 action: $0.2, input: $0.3, modifierFlags: $0.4)
+                }
+                let identifier = UIMenu.Identifier("io.bluewallet.commands.\(parent.rawValue).\(group)")
                 builder.insertChild(UIMenu(title: "", identifier: identifier,
                                            options: .displayInline, children: children), atStartOfMenu: parent)
             }
+        }
+
+        builder.remove(menu: walletMenuID)
+        let availableWalletCommands = commands.filter { actions.contains($0.0) && $0.5 == walletMenuID }
+        if !availableWalletCommands.isEmpty || actions.contains("manageWalletSelectionMode") {
+            var walletMenuChildren: [UIMenuElement] = []
+            for group in Set(availableWalletCommands.map(\.6)).sorted() {
+                let children = availableWalletCommands.filter { $0.6 == group }.map {
+                    UIKeyCommand(title: MenuElementsController.shared.title(for: $0.0, fallback: $0.1),
+                                 action: $0.2, input: $0.3, modifierFlags: $0.4)
+                }
+                walletMenuChildren.append(UIMenu(title: "", options: .displayInline, children: children))
+            }
+            if actions.contains("manageWalletSelectionMode") {
+                let selectionMode = UIAction(
+                    title: MenuElementsController.shared.title(for: "manageWalletSelectionMode", fallback: "Select Wallets Without Opening"),
+                    state: actions.contains("manageWalletSelectionModeSelected") ? .on : .off
+                ) { _ in MenuElementsController.shared.perform("manageWalletSelectionMode") }
+                walletMenuChildren.append(UIMenu(title: "", options: .displayInline, children: [selectionMode]))
+            }
+            builder.insertSibling(
+                UIMenu(
+                    title: MenuElementsController.shared.title(for: "manageWalletMenu", fallback: "Wallet"),
+                    identifier: walletMenuID,
+                    children: walletMenuChildren
+                ),
+                afterMenu: .view
+            )
         }
 
         let settingsMenuID = UIMenu.Identifier("io.bluewallet.settings")
@@ -476,6 +518,38 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     @objc func copyTransactionIdMenuAction(_ keyCommand: UIKeyCommand) {
         MenuElementsController.shared.perform("copyTransactionId")
+    }
+
+    @objc func manageWalletSearchAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWalletSearch")
+    }
+
+    @objc func manageWalletSaveAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWalletSave")
+    }
+
+    @objc func manageWalletCloseAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWalletClose")
+    }
+
+    @objc func manageWalletOpenAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWalletOpen")
+    }
+
+    @objc func manageWalletSelectUpAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWalletSelectUp")
+    }
+
+    @objc func manageWalletSelectDownAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWalletSelectDown")
+    }
+
+    @objc func manageWalletMoveUpAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWalletMoveUp")
+    }
+
+    @objc func manageWalletMoveDownAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("manageWalletMoveDown")
     }
 
     @objc func keyboardShortcutsMenuAction(_ keyCommand: UIKeyCommand) {

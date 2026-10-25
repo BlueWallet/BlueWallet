@@ -103,7 +103,14 @@ const presentAlert = (() => {
     options?: AlertOptions;
     allowRepeat?: boolean;
   }) => {
-    const currentAlertParams = { title, message, type, hapticFeedback, buttons, options };
+    const currentAlertParams = {
+      title,
+      message,
+      type,
+      hapticFeedback,
+      buttons,
+      options,
+    };
 
     if (!allowRepeat && lastAlertParams && JSON.stringify(lastAlertParams) === JSON.stringify(currentAlertParams)) {
       return;

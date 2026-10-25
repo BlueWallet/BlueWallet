@@ -32,5 +32,33 @@ describe('native menu availability', () => {
     ]);
     expect(availableMenuActions('TransactionStatus', ['copyTransactionId'], true)).toContain('copyTransactionId');
     expect(availableMenuActions('WalletsList', [], true)).not.toContain('backToWallets');
+    expect(availableMenuActions('WalletsList', [], true)).toContain('manageWallets');
+    expect(availableMenuActions('AddWallet', [], true)).toContain('manageWallets');
+    expect(availableMenuActions('ImportWallet', [], true)).toContain('manageWallets');
+  });
+
+  it('offers only currently valid Manage Wallets commands', () => {
+    expect(availableMenuActions('ManageWallets', ['manageWalletSearch', 'manageWalletClose', 'manageWalletSave'], true)).toEqual([
+      'settings',
+      'manageWallets',
+      'keyboardShortcuts',
+      'manageWalletSearch',
+      'manageWalletSave',
+      'manageWalletClose',
+    ]);
+  });
+
+  it('does not expose wallet interaction commands when Manage Wallets registers only search controls', () => {
+    const actions = availableMenuActions('ManageWallets', ['manageWalletSearch', 'manageWalletClose'], true);
+    expect(actions).not.toEqual(
+      expect.arrayContaining([
+        'manageWalletOpen',
+        'manageWalletSelectUp',
+        'manageWalletSelectDown',
+        'manageWalletSelectionMode',
+        'manageWalletMoveUp',
+        'manageWalletMoveDown',
+      ]),
+    );
   });
 });

@@ -13,6 +13,7 @@ const URL_BLACKLIST = ['.*arkade\\.computer/v1/indexer/script/subscription.*', '
 
 beforeAll(async () => {
   if (typeof device === 'undefined' || !device?.launchApp) return;
+  if (device.getPlatform() !== 'ios') return;
 
   const originalLaunchApp = device.launchApp.bind(device);
   device.launchApp = async (...args) => {

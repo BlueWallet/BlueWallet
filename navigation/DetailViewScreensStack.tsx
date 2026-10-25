@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
+import { Animated, AppState, findNodeHandle, View, Platform, Text, StyleSheet, Pressable, useWindowDimensions } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -32,6 +32,7 @@ import { useStorage } from '../hooks/context/useStorage';
 import { WalletTransactionsStatus } from '../components/Context/StorageProvider';
 import WalletTransactions from '../screen/wallets/WalletTransactions';
 import AddWalletButton from '../components/AddWalletButton';
+import HeaderRightButton from '../components/HeaderRightButton';
 import Settings from '../screen/settings/Settings';
 import Currency from '../screen/settings/Currency';
 import GeneralSettings from '../screen/settings/GeneralSettings';
@@ -61,13 +62,17 @@ import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
 import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
+import type { SearchBarCommands } from 'react-native-screens';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
 
-const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
+const UpdatingLabel: React.FC<{
+  containerStyle: object;
+  textStyle: object;
+}> = ({ containerStyle, textStyle }) => {
   const opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -94,27 +99,6 @@ const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = (
       <Animated.Text style={[textStyle, { opacity }]}>{loc.transactions.updating}</Animated.Text>
     </View>
   );
-};
-
-type ManageWalletsCloseButtonProps = {
-  onPress: () => void;
-  closeImage: any;
-};
-
-const ManageWalletsCloseButton: React.FC<ManageWalletsCloseButtonProps> = ({ onPress, closeImage }) => (
-  <Pressable
-    accessibilityRole="button"
-    accessibilityLabel={loc._.close}
-    style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
-    onPress={onPress}
-    testID="NavigationCloseButton"
-  >
-    <Image source={closeImage} />
-  </Pressable>
-);
-
-const makeManageWalletsHeaderLeft = (onPress: () => void, closeImage: any): NonNullable<NativeStackNavigationOptions['headerLeft']> => {
-  return () => React.createElement(ManageWalletsCloseButton, { onPress, closeImage });
 };
 
 type OfflineModePillProps = {
@@ -161,6 +145,65 @@ const DetailViewStackScreensStack = () => {
   const { sizeClass } = useSizeClass();
   const { width: windowWidth } = useWindowDimensions();
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
+  const manageWalletsSearchBarRef = useRef<SearchBarCommands>(null);
+  const manageWalletsConfirmRef = useRef<(anchor?: number) => void | Promise<void>>(() => {});
+  const manageWalletsConfirmButtonRef = useRef<View>(null);
+  const manageWalletsCloseRef = useRef<() => void>(() => {});
+  const [manageWalletsHasUnsavedChanges, setManageWalletsHasUnsavedChanges] = useState(false);
+
+  const clearManageWalletsSearch = useCallback(() => {
+    manageWalletsSearchBarRef.current?.clearText();
+    manageWalletsSearchBarRef.current?.blur();
+    manageWalletsSearchBarRef.current?.cancelSearch();
+  }, []);
+
+  const focusManageWalletsSearch = useCallback(() => {
+    manageWalletsSearchBarRef.current?.focus();
+  }, []);
+
+  const registerManageWalletsConfirm = useCallback((handler: (anchor?: number) => void | Promise<void>) => {
+    manageWalletsConfirmRef.current = handler;
+    return () => {
+      manageWalletsConfirmRef.current = () => {};
+    };
+  }, []);
+
+  const registerManageWalletsClose = useCallback((handler: () => void) => {
+    manageWalletsCloseRef.current = handler;
+    return () => {
+      manageWalletsCloseRef.current = () => {};
+    };
+  }, []);
+
+  const renderManageWalletsHeaderRight = useCallback(
+    () => (
+      <View ref={manageWalletsConfirmButtonRef} collapsable={false}>
+        <HeaderRightButton
+          disabled={!manageWalletsHasUnsavedChanges}
+          title={loc.multisig.confirm}
+          onPress={() => {
+            const anchor = findNodeHandle(manageWalletsConfirmButtonRef.current) ?? 0;
+            Promise.resolve(manageWalletsConfirmRef.current(anchor)).catch(console.warn);
+          }}
+          testID="ManageWalletsConfirmButton"
+        />
+      </View>
+    ),
+    [manageWalletsHasUnsavedChanges],
+  );
+
+  const renderManageWallets = useCallback(
+    () => (
+      <ManageWallets
+        clearSearch={clearManageWalletsSearch}
+        focusSearch={focusManageWalletsSearch}
+        registerCloseHandler={registerManageWalletsClose}
+        registerConfirmHandler={registerManageWalletsConfirm}
+        onUnsavedChangesChange={setManageWalletsHasUnsavedChanges}
+      />
+    ),
+    [clearManageWalletsSearch, focusManageWalletsSearch, registerManageWalletsClose, registerManageWalletsConfirm],
+  );
 
   // Probe connection health from the UI (e.g. WalletsList focus / 30s timer).
   // BlueElectrum.ping() reflects the result into the shared connection state, which
@@ -242,16 +285,46 @@ const DetailViewStackScreensStack = () => {
     if (routeNames?.includes('ElectrumSettings')) {
       navigation.navigate('ElectrumSettings');
     } else {
-      navigation.navigate('DetailViewStackScreensStack', { screen: 'ElectrumSettings' });
+      navigation.navigate('DetailViewStackScreensStack', {
+        screen: 'ElectrumSettings',
+      });
     }
   }, [navigation]);
 
-  const renderManageWalletsHeaderLeft = useCallback(
-    (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any; route: any; theme: any }) => ({
-      ...options,
-      headerLeft: makeManageWalletsHeaderLeft(screenNavigation.goBack, theme.closeImage),
-    }),
-    [theme.closeImage],
+  const renderManageWalletsHeaderOptions = useCallback(
+    (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any }) => {
+      return {
+        ...options,
+        headerStyle: Platform.OS === 'ios' ? undefined : options.headerStyle,
+        headerTransparent: Platform.OS === 'ios',
+        headerRight: renderManageWalletsHeaderRight,
+        unstable_headerRightItems: (): NativeStackHeaderItem[] => [
+          {
+            type: 'button',
+            label: loc.multisig.confirm,
+            icon: { type: 'sfSymbol', name: 'checkmark' },
+            variant: 'done',
+            identifier: 'ManageWalletsConfirmButton',
+            accessibilityLabel: loc.multisig.confirm,
+            disabled: !manageWalletsHasUnsavedChanges,
+            onPress: () => {
+              Promise.resolve(manageWalletsConfirmRef.current()).catch(console.warn);
+            },
+          },
+        ],
+        headerSearchBarOptions: {
+          ref: manageWalletsSearchBarRef,
+          hideWhenScrolling: false,
+          placement: 'stacked' as const,
+          allowToolbarIntegration: false,
+          onChangeText: (event: { nativeEvent: { text: string } }) => screenNavigation.setParams({ searchQuery: event.nativeEvent.text }),
+          onClear: () => screenNavigation.setParams({ searchQuery: '' }),
+          onFocus: () => screenNavigation.setParams({ isSearchFocused: true }),
+          onBlur: () => screenNavigation.setParams({ isSearchFocused: false }),
+        },
+      };
+    },
+    [manageWalletsHasUnsavedChanges, renderManageWalletsHeaderRight],
   );
 
   const walletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
@@ -265,7 +338,10 @@ const DetailViewStackScreensStack = () => {
     const renderHeaderLeft = () => {
       if (showOffline) {
         const offlineBg = theme.dark ? theme.colors.darkGray : '#000000';
-        return React.createElement(OfflineModePill, { onPress: navigateToElectrumSettings, backgroundColor: offlineBg });
+        return React.createElement(OfflineModePill, {
+          onPress: navigateToElectrumSettings,
+          backgroundColor: offlineBg,
+        });
       }
       if (showNotConnected) {
         return React.createElement(NotConnectedPill, {
@@ -368,7 +444,10 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Navigator
         UNSTABLE_router={navigationGuardRouter}
         initialRouteName="WalletsList"
-        screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
+        screenOptions={{
+          headerShadowVisible: false,
+          animationTypeForReplace: 'push',
+        }}
       >
         <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
         <DetailViewStack.Screen
@@ -439,7 +518,9 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="LNDViewAdditionalInvoicePreImage"
           component={LNDViewAdditionalInvoicePreImage}
-          options={navigationStyle({ title: loc.lndViewInvoice.additional_info })(theme)}
+          options={navigationStyle({
+            title: loc.lndViewInvoice.additional_info,
+          })(theme)}
         />
 
         <DetailViewStack.Screen name="Broadcast" component={Broadcast} options={settingsScreenOptions(loc.send.create_broadcast)} />
@@ -557,20 +638,25 @@ const DetailViewStackScreensStack = () => {
         />
         <DetailViewStack.Screen
           name="ManageWallets"
-          component={ManageWallets}
           options={navigationStyle(
             {
-              presentation: 'fullScreenModal',
+              presentation: 'modal',
+              gestureEnabled: false,
               title: loc.wallets.manage_title,
               headerShown: true,
+              headerBackVisible: false,
+              closeButtonPosition: CloseButtonPosition.Left,
+              onCloseButtonPressed: () => manageWalletsCloseRef.current(),
               headerRight: undefined,
               headerStyle: {
                 backgroundColor: theme.colors.customHeader,
               },
             },
-            renderManageWalletsHeaderLeft,
+            renderManageWalletsHeaderOptions,
           )(theme)}
-        />
+        >
+          {renderManageWallets}
+        </DetailViewStack.Screen>
         <DetailViewStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={createReceiveDetailsOptions(theme)} />
         <DetailViewStack.Screen
           name="ReceiveCustomAmount"
@@ -595,15 +681,6 @@ const DetailViewStackScreensStack = () => {
 export default DetailViewStackScreensStack;
 
 const styles = StyleSheet.create({
-  headerIconButton: {
-    minWidth: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerIconButtonPressed: {
-    opacity: 0.6,
-  },
   width24: {
     width: 24,
   },

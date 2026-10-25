@@ -187,7 +187,13 @@ const WalletsList: React.FC = () => {
     // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
   }, [refreshTransactions]);
 
-  useScreenMenuActions({ reloadTransactions: !isElectrumDisabled && !isLoading ? onRefresh : undefined });
+  const openManageWallets = useCallback(() => {
+    navigation.navigate('ManageWallets');
+  }, [navigation]);
+
+  useScreenMenuActions({
+    reloadTransactions: !isElectrumDisabled && !isLoading ? onRefresh : undefined,
+  });
 
   useFocusEffect(
     useCallback(() => {
@@ -278,10 +284,6 @@ const WalletsList: React.FC = () => {
     );
   }, [stylesHook.listHeaderBack, stylesHook.listHeaderText]);
 
-  const handleLongPress = useCallback(() => {
-    navigation.navigate('ManageWallets');
-  }, [navigation]);
-
   const renderTransactionListsRow = useCallback(
     (item: ExtendedTransaction) => (
       // Ark wallet rows have no on-chain `hash` — fall back to their
@@ -303,7 +305,7 @@ const WalletsList: React.FC = () => {
           data={wallets}
           extraData={[wallets]}
           onPress={handleClick}
-          handleLongPress={handleLongPress}
+          handleLongPress={openManageWallets}
           onMomentumScrollEnd={onSnapToItem}
           ref={walletsCarousel}
           onNewWalletPress={handleClick}
@@ -314,7 +316,7 @@ const WalletsList: React.FC = () => {
         />
       </>
     );
-  }, [handleClick, handleLongPress, isFocused, onSnapToItem, wallets]);
+  }, [handleClick, isFocused, onSnapToItem, openManageWallets, wallets]);
 
   const renderSectionItem = useCallback(
     (item: { section: any; item: ExtendedTransaction }) => {
