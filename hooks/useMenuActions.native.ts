@@ -42,6 +42,7 @@ export function getMenuActionTitles(): MenuActionTitles {
     unlockRecent: loc.menu.unlock_recent,
     addWallet: loc.wallets.add_title,
     importWallet: loc.wallets.add_import_wallet,
+    manageWallets: loc.wallets.manage_title,
     reloadTransactions: loc._.refresh,
     send: loc.send.header,
     receive: loc.receive.header,
@@ -126,6 +127,15 @@ function subscribe() {
         break;
       case 'keyboardShortcuts':
         navigationRef.navigate('KeyboardShortcuts');
+        break;
+      case 'manageWallets':
+        navigationRef.dispatch(
+          CommonActions.navigate({
+            name: 'DrawerRoot',
+            params: { screen: 'DetailViewStackScreensStack', params: { screen: 'ManageWallets' } },
+            pop: true,
+          }),
+        );
         break;
       case 'backToWallets':
         navigateToWalletsList();

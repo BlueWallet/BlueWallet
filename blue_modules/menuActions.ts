@@ -27,6 +27,7 @@ export type MenuAction =
   | 'addWallet'
   | 'importWallet'
   | 'openFile'
+  | 'manageWallets'
   | 'backToWallets'
   | 'keyboardShortcuts';
 export type MenuActionHandlers = Partial<Record<ScreenMenuAction, () => void>>;
@@ -65,7 +66,15 @@ const walletDetailScreens = new Set(['WalletTransactions', 'WalletDetails', 'Tra
 
 export function availableMenuActions(screen: string | undefined, registered: readonly ScreenMenuAction[], unlocked: boolean): MenuAction[] {
   if (!unlocked || !screen || screen === 'UnlockWithScreen') return [];
-  const actions: MenuAction[] = ['settings', 'isItMyAddress', 'broadcastTransaction', 'generateWord', 'keyboardShortcuts', 'openFile'];
+  const actions: MenuAction[] = [
+    'settings',
+    'manageWallets',
+    'isItMyAddress',
+    'broadcastTransaction',
+    'generateWord',
+    'keyboardShortcuts',
+    'openFile',
+  ];
   if (screen === 'WalletsList' || screen === 'WalletTransactions') actions.push('addWallet', 'importWallet');
   if (walletDetailScreens.has(screen)) actions.push('backToWallets');
   actions.push(...(screenActions[screen] ?? []).filter(action => registered.includes(action)));
@@ -78,10 +87,11 @@ export function nativeSendDetailsAction(actionId: string): ScreenMenuAction | un
 }
 
 // Keep these shortcuts aligned with AppDelegate and WalletMenuAction.
-export const menuShortcuts = [
+export const menuShortcuts: readonly { title: string; key: string; where: string; platform?: 'ios' | 'android' }[] = [
   { title: 'Open…', key: 'O', where: 'Anywhere after unlocking' },
   { title: 'Add Wallet', key: 'Shift+A', where: 'Wallet overview and transactions' },
   { title: 'Import Wallet', key: 'I', where: 'Wallet overview and transactions' },
+  { title: 'Manage Wallets…', key: 'Shift+M', where: 'Anywhere after unlocking', platform: 'ios' },
   { title: 'Reload Transactions', key: 'R', where: 'Wallet overview and transactions' },
   { title: 'Send…', key: 'Shift+S', where: 'Transactions, when this wallet supports sending' },
   { title: 'Receive…', key: 'Shift+R', where: 'Transactions, when this wallet supports receiving' },
@@ -90,7 +100,7 @@ export const menuShortcuts = [
   { title: 'Copy Transaction ID', key: 'Shift+C', where: 'Transaction details, when an ID is available' },
   { title: 'Speed Up', key: 'Shift+U', where: 'Transaction details, when external acceleration is available' },
   { title: 'Back to Wallets', key: 'Shift+W', where: 'Wallet detail screens' },
-  { title: 'Is it my address?', key: 'Shift+M', where: 'Anywhere after unlocking' },
+  { title: 'Is it my address?', key: 'Shift+I', where: 'Anywhere after unlocking' },
   { title: 'Broadcast Transaction', key: 'Shift+B', where: 'Anywhere after unlocking' },
   { title: 'Seed final word', key: 'Shift+G', where: 'Anywhere after unlocking' },
   { title: 'Add Recipient', key: 'Alt+A', where: 'Send details' },

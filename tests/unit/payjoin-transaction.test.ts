@@ -1,6 +1,7 @@
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
-import { PayjoinClient } from 'payjoin-client';
+import crypto from 'crypto';
+import { PayjoinClient } from '../../blue_modules/payjoin-client';
 
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import PayjoinTransaction from '../../class/payjoin-transaction';
@@ -18,7 +19,333 @@ const utxos = [
   },
 ];
 
+const MNEMONIC = 'disease public annual property useless swamp display plastic meadow cross tongue pottery';
+const RECEIVER = 'bc1qg3ke8dyyzheacqwm2mt7umvvk3rz2pvk6zpey9';
+
+// receiver-side: add one finalized p2wpkh input, bump own output, round-trip through base64 like a real endpoint
+function buildProposal(
+  b64: string,
+  recvScript: Uint8Array,
+  receiverKeeps = 50000 - 300,
+  substituteTo?: Uint8Array,
+  takenFromChange = 0,
+): string {
+  const orig = bitcoin.Psbt.fromBase64(b64);
+  const p = new bitcoin.Psbt();
+  p.setVersion(orig.version);
+  p.setLocktime(orig.locktime);
+  for (const inp of orig.txInputs) p.addInput({ hash: inp.hash, index: inp.index, sequence: inp.sequence });
+  const dummySig = Buffer.concat([
+    Buffer.from('30440220', 'hex'),
+    crypto.randomBytes(32),
+    Buffer.from('0220', 'hex'),
+    crypto.randomBytes(32),
+    Buffer.from('01', 'hex'),
+  ]);
+  const pub = Buffer.from('02' + 'ab'.repeat(32), 'hex');
+  const witness = Buffer.concat([Buffer.from([2, dummySig.length]), dummySig, Buffer.from([pub.length]), pub]);
+  p.addInput({
+    hash: crypto.randomBytes(32),
+    index: 0,
+    sequence: orig.txInputs[0].sequence,
+    witnessUtxo: { script: recvScript, value: BigInt(50000) },
+    finalScriptWitness: witness,
+  });
+  let bumped = false;
+  for (const o of orig.txOutputs) {
+    let value = o.value;
+    let script = o.script;
+    if (!bumped && uint8ArrayToHex(o.script) === uint8ArrayToHex(recvScript)) {
+      value = o.value + BigInt(receiverKeeps);
+      if (substituteTo) script = substituteTo;
+      bumped = true;
+    } else {
+      value = o.value - BigInt(takenFromChange); // sender's change pays for the receiver's extra input (BIP78 fee output)
+    }
+    p.addOutput({ script, value });
+  }
+  assert.ok(bumped);
+  return p.toBase64();
+}
+
+function setup() {
+  const w = new HDSegwitBech32Wallet();
+  w.setSecret(MNEMONIC);
+  const address = w._getExternalAddressByIndex(0);
+  const fakeUtxos = [
+    {
+      height: 919000,
+      value: 100000,
+      address,
+      vout: 0,
+      txid: 'aa'.repeat(32),
+      wif: w._getWifForAddress(address),
+      confirmations: 1000,
+    },
+  ];
+  const { psbt } = w.createTransaction(fakeUtxos, [{ address: RECEIVER, value: 30000 }], 3, w._getInternalAddressByIndex(0));
+  return { w, psbt, recvScript: bitcoin.address.toOutputScript(RECEIVER) };
+}
+
 describe('PayjoinTransaction', () => {
+  it('completes a payjoin round trip through a base64 proposal', async () => {
+    const { w, psbt, recvScript } = setup();
+    const broadcasts: string[] = [];
+    const wallet = new PayjoinTransaction(
+      psbt,
+      async txhex => {
+        broadcasts.push(txhex);
+        return true;
+      },
+      w,
+    );
+    wallet.scheduleBroadcastTx = async () => {};
+    // proposal travels through the client's own requester/parser, like a real endpoint
+    const fetchSpy = jest.spyOn(globalThis, 'fetch').mockImplementationOnce(
+      async (_url, init) =>
+        new Response(buildProposal(init?.body as string, recvScript), {
+          status: 200,
+        }),
+    );
+    const client = wallet.createClient(recvScript, 'http://localhost/pj');
+
+    await client.run();
+
+    assert.strictEqual(fetchSpy.mock.calls[0][0], 'http://localhost/pj');
+    jest.restoreAllMocks();
+    assert.strictEqual(broadcasts.length, 1);
+    const tx = bitcoin.Transaction.fromHex(broadcasts[0]);
+    assert.strictEqual(tx.ins.length, 2);
+    assert.strictEqual(tx.outs.length, 2);
+    const pj = wallet.getPayjoinPsbt();
+    assert.ok(pj);
+    assert.strictEqual(pj.extractTransaction().getId(), tx.getId());
+    assert.strictEqual(wallet.wasOriginalBroadcast(), false);
+  });
+
+  it('broadcasts original once when the endpoint rejects', async () => {
+    const { w, psbt, recvScript } = setup();
+    const broadcasts: string[] = [];
+    const wallet = new PayjoinTransaction(
+      psbt,
+      async txhex => {
+        broadcasts.push(txhex);
+        return true;
+      },
+      w,
+    );
+    jest.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response(JSON.stringify({ errorCode: 'original-psbt-rejected' }), {
+        status: 400,
+      }),
+    );
+    const client = wallet.createClient(recvScript, 'http://localhost/pj');
+
+    await assert.rejects(client.run(), /The receiver rejected the original PSBT/);
+
+    assert.strictEqual(broadcasts.length, 1);
+    assert.strictEqual(bitcoin.Transaction.fromHex(broadcasts[0]).ins.length, 1);
+    assert.strictEqual(wallet.getPayjoinPsbt(), false);
+    assert.strictEqual(wallet.wasOriginalBroadcast(), true);
+    jest.restoreAllMocks();
+  });
+
+  it('falls back to original and exposes no payjoin psbt when the proposal fails after signing', async () => {
+    const { w, psbt, recvScript } = setup();
+    const broadcasts: string[] = [];
+    const wallet = new PayjoinTransaction(
+      psbt,
+      async txhex => {
+        broadcasts.push(txhex);
+        return true;
+      },
+      w,
+    );
+    // receiver keeps 1 sat too much → fee decreased → rejected after signPsbt already ran
+    jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementationOnce(async (_url, init) => new Response(buildProposal(init?.body as string, recvScript, 50001), { status: 200 }));
+    const client = wallet.createClient(recvScript, 'http://localhost/pj');
+
+    await assert.rejects(client.run(), /The receiver decreased absolute fee/);
+
+    jest.restoreAllMocks();
+    assert.strictEqual(broadcasts.length, 1);
+    assert.strictEqual(bitcoin.Transaction.fromHex(broadcasts[0]).ins.length, 1);
+    assert.strictEqual(wallet.getPayjoinPsbt(), false);
+    assert.strictEqual(wallet.wasOriginalBroadcast(), true);
+  });
+
+  it('refuses a substituted payment output when the BIP21 carried pjos=0', async () => {
+    const { w, psbt, recvScript } = setup();
+    const broadcasts: string[] = [];
+    const wallet = new PayjoinTransaction(
+      psbt,
+      async txhex => {
+        broadcasts.push(txhex);
+        return true;
+      },
+      w,
+    );
+    const attacker = bitcoin.address.toOutputScript('bc1qyvdzueznsh0rsyfqzdtj9ce7nlx4rlg2v93lcl');
+    const fetchSpy = jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementationOnce(
+        async (_url, init) => new Response(buildProposal(init?.body as string, recvScript, 50000 - 300, attacker), { status: 200 }),
+      );
+    const client = wallet.createClient(recvScript, 'http://localhost/pj', { disableOutputSubstitution: true });
+
+    await assert.rejects(client.run(), /Some of our outputs are not included in the proposal/);
+
+    assert.strictEqual(fetchSpy.mock.calls[0][0], 'http://localhost/pj?disableoutputsubstitution=true');
+    jest.restoreAllMocks();
+    assert.strictEqual(broadcasts.length, 1);
+    assert.strictEqual(bitcoin.Transaction.fromHex(broadcasts[0]).ins.length, 1);
+    assert.strictEqual(wallet.wasOriginalBroadcast(), true);
+  });
+
+  it('refuses a proposal whose fee rate dropped below minimumFeeRate', async () => {
+    const { w, psbt, recvScript } = setup();
+    const broadcasts: string[] = [];
+    const wallet = new PayjoinTransaction(
+      psbt,
+      async txhex => {
+        broadcasts.push(txhex);
+        return true;
+      },
+      w,
+    );
+    // receiver adds an input but no fee: absolute fee unchanged, fee rate falls under the 3 sat/vB we asked for
+    const fetchSpy = jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementationOnce(async (_url, init) => new Response(buildProposal(init?.body as string, recvScript, 50000), { status: 200 }));
+    const client = wallet.createClient(recvScript, 'http://localhost/pj', { minimumFeeRate: 3 });
+
+    await assert.rejects(client.run(), /too low fee rate/);
+
+    assert.strictEqual(fetchSpy.mock.calls[0][0], 'http://localhost/pj?minfeerate=3');
+    jest.restoreAllMocks();
+    assert.strictEqual(broadcasts.length, 1);
+    assert.strictEqual(wallet.wasOriginalBroadcast(), true);
+  });
+
+  it('reports the payjoin txid and fee after a payjoin, the original ones after a fallback', async () => {
+    const { w, psbt, recvScript } = setup();
+    const wallet = new PayjoinTransaction(psbt, async () => true, w);
+    wallet.scheduleBroadcastTx = async () => {};
+    const original = psbt.extractTransaction();
+    assert.deepStrictEqual(wallet.getSentTransaction(), { txid: original.getId(), fee: psbt.getFee() });
+
+    jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementationOnce(async (_url, init) => new Response(buildProposal(init?.body as string, recvScript), { status: 200 }));
+    await wallet.createClient(recvScript, 'http://localhost/pj').run();
+    jest.restoreAllMocks();
+
+    const sent = wallet.getSentTransaction();
+    assert.notStrictEqual(sent.txid, original.getId());
+    assert.strictEqual(sent.fee, psbt.getFee() + BigInt(300));
+
+    const fallback = new PayjoinTransaction(psbt, async () => true, w);
+    jest.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response('{"errorCode":"unavailable"}', { status: 503 }));
+    await assert.rejects(fallback.createClient(recvScript, 'http://localhost/pj').run());
+    jest.restoreAllMocks();
+    assert.deepStrictEqual(fallback.getSentTransaction(), { txid: original.getId(), fee: psbt.getFee() });
+  });
+
+  it('offers its change output as the BIP78 fee output, bounded to one extra input at the chosen rate', async () => {
+    const { w, psbt, recvScript } = setup();
+    const wallet = new PayjoinTransaction(psbt, async () => true, w);
+    wallet.scheduleBroadcastTx = async () => {};
+    // setup() sends 30000 to RECEIVER with change back to the wallet: change is output 1 (coinselect appends it)
+    assert.deepStrictEqual(wallet.payjoinParameters(3), {
+      minimumFeeRate: 3,
+      additionalFeeOutputIndex: 1,
+      maxAdditionalFeeContribution: 3 * 68, // p2wpkh input vsize
+    });
+
+    // receiver takes exactly that from our change and adds 100 of its own: fee rate stays above 3 sat/vB
+    const fetchSpy = jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementationOnce(
+        async (_url, init) => new Response(buildProposal(init?.body as string, recvScript, 50000 - 100, undefined, 204), { status: 200 }),
+      );
+    await wallet.createClient(recvScript, 'http://localhost/pj', wallet.payjoinParameters(3)).run();
+    assert.strictEqual(
+      fetchSpy.mock.calls[0][0],
+      'http://localhost/pj?minfeerate=3&maxadditionalfeecontribution=204&additionalfeeoutputindex=1',
+    );
+    jest.restoreAllMocks();
+    const sent = wallet.getSentTransaction();
+    assert.strictEqual(sent.fee, psbt.getFee() + BigInt(304));
+
+    // receiver takes more than allowed from our change → rejected, original goes out
+    const greedy = new PayjoinTransaction(psbt, async () => true, w);
+    jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementationOnce(
+        async (_url, init) => new Response(buildProposal(init?.body as string, recvScript, 50000, undefined, 205), { status: 200 }),
+      );
+    await assert.rejects(
+      greedy.createClient(recvScript, 'http://localhost/pj', greedy.payjoinParameters(3)).run(),
+      /more than maxadditionalfeecontribution/,
+    );
+    jest.restoreAllMocks();
+    assert.strictEqual(greedy.wasOriginalBroadcast(), true);
+  });
+
+  it('offers no fee output when there is no change', () => {
+    const w = new HDSegwitBech32Wallet();
+    w.setSecret(MNEMONIC);
+    const address = w._getExternalAddressByIndex(0);
+    const utxo = { height: 1, value: 100000, address, vout: 0, txid: 'aa'.repeat(32), wif: w._getWifForAddress(address), confirmations: 1 };
+    // sending MAX: single output, no change
+    const { psbt } = w.createTransaction([utxo], [{ address: RECEIVER }], 3, w._getInternalAddressByIndex(0));
+    assert.strictEqual(psbt.txOutputs.length, 1);
+    const wallet = new PayjoinTransaction(psbt, async () => true, w);
+    assert.deepStrictEqual(wallet.payjoinParameters(3), { minimumFeeRate: 3 });
+  });
+
+  it('picks the payment script of the recipient the pj= belonged to, not the first one', () => {
+    const recipients = [
+      { address: 'bc1qyvdzueznsh0rsyfqzdtj9ce7nlx4rlg2v93lcl', value: 1000 },
+      { address: RECEIVER, value: 30000 },
+    ];
+    assert.deepStrictEqual(PayjoinTransaction.paymentScriptFor(recipients, RECEIVER), bitcoin.address.toOutputScript(RECEIVER));
+    // QR codes carry bech32 in upper case
+    assert.deepStrictEqual(
+      PayjoinTransaction.paymentScriptFor(recipients, RECEIVER.toUpperCase()),
+      bitcoin.address.toOutputScript(RECEIVER),
+    );
+    // address was edited after the BIP21 was pasted, or no pj address at all: no payjoin
+    assert.strictEqual(PayjoinTransaction.paymentScriptFor(recipients, 'bc1q2j76s63hx6ue4hfklhtkny4fx822kzw2ycyn5r'), undefined);
+    assert.strictEqual(PayjoinTransaction.paymentScriptFor(recipients, undefined), undefined);
+    assert.strictEqual(PayjoinTransaction.paymentScriptFor([{ value: 1 }], RECEIVER), undefined);
+  });
+
+  it('signPsbt throws when our input cannot be signed', async () => {
+    const { w, psbt, recvScript } = setup();
+    const wallet = new PayjoinTransaction(psbt, async () => true, w);
+    const tampered = bitcoin.Psbt.fromBase64(buildProposal(psbt.toBase64(), recvScript));
+    // our input (index 0) gets a witnessUtxo that does not belong to the wallet
+    tampered.updateInput(0, {
+      witnessUtxo: { script: recvScript, value: BigInt(100000) },
+    });
+    await assert.rejects(wallet.signPsbt(tampered));
+  });
+
+  it('passes the wallet adapter to the Payjoin client before a proposal is signed', () => {
+    const wallet = new HDSegwitBech32Wallet();
+    const payjoinWallet = new PayjoinTransaction(new bitcoin.Psbt(), async () => true, wallet);
+    const paymentScript = bitcoin.address.toOutputScript('bc1qyvdzueznsh0rsyfqzdtj9ce7nlx4rlg2v93lcl');
+
+    assert.strictEqual(payjoinWallet.getPayjoinPsbt(), false);
+    const client = payjoinWallet.createClient(paymentScript, 'https://example.com/pj');
+
+    assert.ok(client instanceof PayjoinClient);
+    assert.strictEqual((client as unknown as { wallet: unknown }).wallet, payjoinWallet);
+  });
+
   it('throws if smth is wrong with pj transaction', async () => {
     if (!process.env.MNEMONICS_COLDCARD) {
       console.error('process.env.MNEMONICS_COLDCARD not set, skipped');
@@ -56,10 +383,8 @@ describe('PayjoinTransaction', () => {
     };
 
     const payjoinClient = new PayjoinClient({
-      paymentScript: Buffer.from(uint8ArrayToHex(bitcoin.address.toOutputScript('bc1qyvdzueznsh0rsyfqzdtj9ce7nlx4rlg2v93lcl')), 'hex'),
-      // @ts-ignore idk too lazy to figure out, seems to work
+      paymentScript: bitcoin.address.toOutputScript('bc1qyvdzueznsh0rsyfqzdtj9ce7nlx4rlg2v93lcl'),
       wallet,
-      // @ts-ignore idk too lazy to figure out, seems to work
       payjoinRequester: payjoinRequesterMock,
     });
 
@@ -119,10 +444,8 @@ describe('PayjoinTransaction', () => {
     };
 
     const payjoinClient = new PayjoinClient({
-      paymentScript: Buffer.from(uint8ArrayToHex(bitcoin.address.toOutputScript('bc1qy0ydthpa35m37pvwl5tu76j0srcmcwtmaur3aw')), 'hex'),
-      // @ts-ignore idk too lazy to figure out, seems to work
+      paymentScript: bitcoin.address.toOutputScript('bc1qy0ydthpa35m37pvwl5tu76j0srcmcwtmaur3aw'),
       wallet,
-      // @ts-ignore idk too lazy to figure out, seems to work
       payjoinRequester: payjoinRequesterMock,
     });
 

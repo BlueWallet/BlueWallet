@@ -49,6 +49,7 @@ jest.mock('@react-native-clipboard/clipboard', () => mockClipboard);
 // src/*.ts (which has its own type errors) under allowJs.
 const workletsMockPath = 'react-native-worklets/src/mock';
 jest.mock('react-native-worklets', () => require(workletsMockPath));
+jest.mock('react-native-reanimated/src/css/native/proxy', () => ({ setCSSEventHandler: jest.fn() }));
 jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 
 jest.mock('react-native-capture-protection', () => ({

@@ -4,7 +4,11 @@ import MenuActionsEmitter from '../../blue_modules/NativeMenuActionsEmitter';
 import { navigationRef, navigateToWalletsList } from '../../NavigationService';
 import type { MenuActionHandlers } from '../../blue_modules/menuActions';
 
-jest.mock('@react-navigation/native', () => ({ CommonActions: { navigate: (payload: unknown) => ({ type: 'NAVIGATE', payload }) } }));
+jest.mock('@react-navigation/native', () => ({
+  CommonActions: {
+    navigate: (payload: unknown) => ({ type: 'NAVIGATE', payload }),
+  },
+}));
 jest.mock('../../blue_modules/NativeMenuActionsEmitter', () => ({
   __esModule: true,
   default: {
@@ -17,8 +21,19 @@ jest.mock('../../blue_modules/NativeMenuActionsEmitter', () => ({
 }));
 jest.mock('../../components/Context/recentMenuItems', () => ({
   getRecentMenuItems: jest.fn(() => [
-    { id: 'wallet:wallet-1', kind: 'wallet', title: 'Savings', walletID: 'wallet-1' },
-    { id: 'transaction:wallet-1:abc', kind: 'transaction', title: 'Rent', walletID: 'wallet-1', transactionID: 'abc' },
+    {
+      id: 'wallet:wallet-1',
+      kind: 'wallet',
+      title: 'Savings',
+      walletID: 'wallet-1',
+    },
+    {
+      id: 'transaction:wallet-1:abc',
+      kind: 'transaction',
+      title: 'Rent',
+      walletID: 'wallet-1',
+      transactionID: 'abc',
+    },
   ]),
   loadRecentMenuItems: jest.fn(async () => []),
   subscribeToRecentMenuItems: jest.fn(() => jest.fn()),
@@ -26,7 +41,13 @@ jest.mock('../../components/Context/recentMenuItems', () => ({
     id === 'wallet:wallet-1'
       ? { id, kind: 'wallet', title: 'Savings', walletID: 'wallet-1' }
       : id === 'transaction:wallet-1:abc'
-        ? { id, kind: 'transaction', title: 'Rent', walletID: 'wallet-1', transactionID: 'abc' }
+        ? {
+            id,
+            kind: 'transaction',
+            title: 'Rent',
+            walletID: 'wallet-1',
+            transactionID: 'abc',
+          }
         : undefined,
   ),
 }));
@@ -91,6 +112,7 @@ it('sends localized menu titles to the native renderers', () => {
       add_recipient: 'Add Recipient',
       copyTransactionId: 'Copy Transaction ID',
       accelerateTransaction: 'Speed Up',
+      manageWallets: 'Manage Wallets',
     }),
   );
   hook.unmount();
@@ -135,6 +157,7 @@ it('updates on ready, modal navigation, and lock state', () => {
   notifyNavigation('state');
   expect(MenuActionsEmitter!.setAvailableActions).toHaveBeenLastCalledWith([
     'settings',
+    'manageWallets',
     'isItMyAddress',
     'broadcastTransaction',
     'generateWord',
@@ -147,7 +170,22 @@ it('updates on ready, modal navigation, and lock state', () => {
     payload: {
       name: 'DrawerRoot',
       pop: true,
-      params: { screen: 'DetailViewStackScreensStack', params: { screen: 'Settings' } },
+      params: {
+        screen: 'DetailViewStackScreensStack',
+        params: { screen: 'Settings' },
+      },
+    },
+  });
+  emit('manageWallets');
+  expect(navigationRef.dispatch).toHaveBeenLastCalledWith({
+    type: 'NAVIGATE',
+    payload: {
+      name: 'DrawerRoot',
+      pop: true,
+      params: {
+        screen: 'DetailViewStackScreensStack',
+        params: { screen: 'ManageWallets' },
+      },
     },
   });
   emit('keyboardShortcuts');
@@ -176,7 +214,12 @@ it('rebuilds the available commands for each focused screen', () => {
   act(() => {
     unregister.push(
       hook.result.current.registerMenuActions(
-        { reloadTransactions: jest.fn(), send: jest.fn(), receive: jest.fn(), walletDetails: jest.fn() },
+        {
+          reloadTransactions: jest.fn(),
+          send: jest.fn(),
+          receive: jest.fn(),
+          walletDetails: jest.fn(),
+        },
         'wallet',
       ),
       hook.result.current.registerMenuActions({ copyAddress: jest.fn() }, 'receive'),
@@ -185,7 +228,15 @@ it('rebuilds the available commands for each focused screen', () => {
     );
   });
 
-  const globalActions = ['settings', 'isItMyAddress', 'broadcastTransaction', 'generateWord', 'keyboardShortcuts', 'openFile'];
+  const globalActions = [
+    'settings',
+    'manageWallets',
+    'isItMyAddress',
+    'broadcastTransaction',
+    'generateWord',
+    'keyboardShortcuts',
+    'openFile',
+  ];
   const expectActionsFor = (screen: string, key: string, expected: string[]) => {
     setRoute(screen, key);
     notifyNavigation('state');
@@ -241,7 +292,10 @@ it('opens files and recent wallets or transactions through current app navigatio
     expect.objectContaining({
       payload: expect.objectContaining({
         params: expect.objectContaining({
-          params: { screen: 'WalletTransactions', params: { walletID: 'wallet-1' } },
+          params: {
+            screen: 'WalletTransactions',
+            params: { walletID: 'wallet-1' },
+          },
         }),
       }),
     }),
@@ -251,7 +305,10 @@ it('opens files and recent wallets or transactions through current app navigatio
     expect.objectContaining({
       payload: expect.objectContaining({
         params: expect.objectContaining({
-          params: { screen: 'TransactionStatus', params: { hash: 'abc', walletID: 'wallet-1' } },
+          params: {
+            screen: 'TransactionStatus',
+            params: { hash: 'abc', walletID: 'wallet-1' },
+          },
         }),
       }),
     }),

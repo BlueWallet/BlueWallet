@@ -13,7 +13,15 @@ it('maps Send Details tooltip identifiers to native menu actions without changin
 });
 
 describe('native menu availability', () => {
-  const globalActions = ['settings', 'isItMyAddress', 'broadcastTransaction', 'generateWord', 'keyboardShortcuts', 'openFile'];
+  const globalActions = [
+    'settings',
+    'manageWallets',
+    'isItMyAddress',
+    'broadcastTransaction',
+    'generateWord',
+    'keyboardShortcuts',
+    'openFile',
+  ];
   it.each([undefined, 'UnlockWithScreen', 'WalletTransactions', 'Settings', 'SendDetails'])(
     'hides everything while locked on %s',
     screen => {

@@ -55,8 +55,6 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         self.dependencyProvider = RCTAppDependencyProvider()
         self.initialProps = [:]
 
-        RCTI18nUtil.sharedInstance().allowRTL(true)
-
         RNNotifications.startMonitorNotifications()
         RNNotifications.addNativeDelegate(self)
 
@@ -404,6 +402,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         let commands: [(String, String, String, Selector, String?, UIKeyModifierFlags, UIMenu.Identifier)] = [
             ("addWallet", "Add Wallet", "plus.rectangle.on.folder", #selector(addWalletAction), "a", [.command, .shift], .file),
             ("importWallet", "Import Wallet", "square.and.arrow.down", #selector(importWalletAction), "i", .command, .file),
+            ("manageWallets", "Manage Wallets…", "list.bullet.rectangle", #selector(manageWalletsAction), "m", [.command, .shift], .file),
             ("send", "Send…", "arrow.up.circle", #selector(sendMenuAction), "s", [.command, .shift], .file),
             ("receive", "Receive…", "arrow.down.circle", #selector(receiveMenuAction), "r", [.command, .shift], .file),
             ("walletDetails", "Wallet Details…", "info.circle", #selector(walletDetailsMenuAction), "d", .command, .file),
@@ -525,7 +524,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             let tools = [
                 UIKeyCommand(title: MenuActionsController.shared.title(for: "isItMyAddress", fallback: "Is it my address?"),
                              image: UIImage(systemName: "magnifyingglass"), action: #selector(isItMyAddressMenuAction),
-                             input: "m", modifierFlags: [.command, .shift]),
+                             input: "i", modifierFlags: [.command, .shift]),
                 UIKeyCommand(title: MenuActionsController.shared.title(for: "broadcastTransaction", fallback: "Broadcast Transaction"),
                              image: UIImage(systemName: "antenna.radiowaves.left.and.right"), action: #selector(broadcastTransactionMenuAction),
                              input: "b", modifierFlags: [.command, .shift]),
@@ -589,6 +588,10 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     @objc func sendDetailsMenuAction(_ command: UICommand) {
         guard let action = command.propertyList as? String else { return }
         MenuActionsController.shared.perform(action)
+    }
+
+    @objc func manageWalletsAction(_ keyCommand: UIKeyCommand) {
+        MenuActionsController.shared.perform("manageWallets")
     }
 
     @objc func reloadTransactionsAction(_ keyCommand: UIKeyCommand) {
