@@ -458,10 +458,44 @@ describe('HDSegwitBech32Transaction vs malicious Electrum server (GHSA-6jp4-8v48
       await assert.rejects(t().createCPFPbumpFee(50), isSizeError);
     });
 
-    it('refuses a P2SH-wrapped segwit spend', async () => {
+    it.each([
+      ['as it is', MULTISIG_WITNESS],
+      ['shrunk to a p2wpkh-like witness', [new Uint8Array(72), new Uint8Array(33)]],
+    ])('refuses a P2SH-P2WSH multisig spend, witness served %s', async (_, served) => {
+      const p2shP2wsh = bitcoin.payments.p2sh({ redeem: { output: P2WSH_SCRIPT } });
+      const scriptSig = bitcoin.script.compile([p2shP2wsh.redeem!.output!]);
+      const { withWitness, t } = incoming(p2shP2wsh.output!, { scriptSig, witness: MULTISIG_WITNESS });
+      serve(withWitness(served));
+      await assert.rejects(t().getInfo(), isSizeError);
+      await assert.rejects(t().createCPFPbumpFee(50), isSizeError);
+    });
+
+    it('refuses a P2SH spend with a p2wpkh redeem script that does not match the previous output', async () => {
       const scriptSig = bitcoin.script.compile([new Uint8Array([0x00, 0x14, ...new Uint8Array(20).fill(0x55)])]);
       const { t } = incoming(P2SH_SCRIPT, { scriptSig, witness: [new Uint8Array(72), new Uint8Array(33)] });
       await assert.rejects(t().createCPFPbumpFee(50), isSizeError);
+    });
+
+    it('sizes a P2SH-P2WPKH spend with the max witness size and exact scriptSig, whatever witness is served', async () => {
+      const p2shP2wpkh = bitcoin.payments.p2sh({ redeem: bitcoin.payments.p2wpkh({ pubkey: key.publicKey }) });
+      const scriptSig = bitcoin.script.compile([p2shP2wpkh.redeem!.output!]);
+      const realWitness = [new Uint8Array(71), new Uint8Array(33)];
+      const { real, withWitness, packageFeeRate, t } = incoming(p2shP2wpkh.output!, { scriptSig, witness: realWitness });
+      const maxSize = withWitness([new Uint8Array(72), new Uint8Array(33)]).virtualSize();
+      assert.ok(maxSize >= real.virtualSize() && maxSize - real.virtualSize() <= 1);
+
+      const honestChild = await t().createCPFPbumpFee(50);
+      assert(honestChild.tx);
+      assert.ok(packageFeeRate(honestChild.fee, honestChild.tx) >= 50);
+      for (const served of [realWitness, [new Uint8Array(64)], [], [new Uint8Array(200_000)], MULTISIG_WITNESS]) {
+        serve(withWitness(served));
+        const info = await t().getInfo();
+        assert.strictEqual(info.witnessUnverifiable, false);
+        assert.strictEqual(info.vsize, maxSize);
+        const { tx, fee } = await t().createCPFPbumpFee(50);
+        assert(tx);
+        assert.strictEqual(fee, honestChild.fee);
+      }
     });
 
     it.each([

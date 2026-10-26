@@ -140,12 +140,13 @@ function isValidP2trKeyPathSpend(tx: bitcoin.Transaction, inIndex: number, prevO
  * Witness bytes (including items count) of input `inIndex` of `tx` that is not ours, to be used for size of the
  * transaction. Witness is not covered by txid, so the one server sent can be shrunk or padded: it is only used when
  * its signature checks out. Size is taken from the (txid-covered) previous output script instead:
- * * p2wpkh - max size of such witness, server's witness is ignored
+ * * p2wpkh, p2sh-p2wpkh - max size of such witness, server's witness is ignored (scriptSig of p2sh-p2wpkh is covered
+ *   by txid, so its non-witness part is exact)
  * * p2tr - exact size, but only for a valid key-path spend
  * * not segwit - 0, consensus requires its witness to be empty (its scriptSig is covered by txid)
  *
- * @returns {number|null} null when real size cant be known (p2wsh, p2sh-wrapped segwit, p2tr script path, invalid
- * signature etc)
+ * @returns {number|null} null when real size cant be known (p2wsh, p2sh-p2wsh, p2tr script path, invalid signature
+ * etc)
  */
 function foreignInputWitnessBytes(tx: bitcoin.Transaction, inIndex: number, prevOuts: bitcoin.TxOutput[]): number | null {
   const script = prevOuts[inIndex].script;
@@ -157,9 +158,18 @@ function foreignInputWitnessBytes(tx: bitcoin.Transaction, inIndex: number, prev
   }
   if (isWitnessProgram(script)) return null; // p2wsh or unknown segwit version
   if (isP2shScript(script)) {
-    const chunks = bitcoin.script.decompile(tx.ins[inIndex].script);
+    const scriptSig = tx.ins[inIndex].script;
+    const chunks = bitcoin.script.decompile(scriptSig);
     const redeemScript = chunks?.[chunks.length - 1];
-    if (!(redeemScript instanceof Uint8Array) || isWitnessProgram(redeemScript)) return null; // p2sh-wrapped segwit
+    if (!(redeemScript instanceof Uint8Array)) return null;
+    // p2sh-p2wpkh: scriptSig is exactly a push of p2wpkh program (BIP141) whose hash is in the previous output
+    const isP2shP2wpkh =
+      chunks!.length === 1 &&
+      scriptSig.length === redeemScript.length + 1 &&
+      isP2wpkhScript(redeemScript) &&
+      uint8ArrayToHex(bitcoin.crypto.hash160(redeemScript)) === uint8ArrayToHex(script.subarray(2, 22));
+    if (isP2shP2wpkh) return P2WPKH_MAX_WITNESS_BYTES;
+    if (isWitnessProgram(redeemScript)) return null; // p2sh-p2wsh or other wrapped segwit
   }
   return 0;
 }
