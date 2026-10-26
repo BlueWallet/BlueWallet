@@ -34,12 +34,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
     }
 
+    // RCTLinkingManager's app delegate entry points ignore URLs in scene-based apps since RN 0.88,
+    // so deep links opened while the app is running must use its scene entry point.
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
-        }
+        // The scene entry point forwards only one URL; files opened together arrive as several contexts.
         for context in URLContexts {
-            _ = appDelegate.application(UIApplication.shared, open: context.url, options: [:])
+            RCTLinkingManager.scene(scene, openURLContexts: [context])
         }
     }
 

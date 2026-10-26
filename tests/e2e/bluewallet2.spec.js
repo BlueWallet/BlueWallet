@@ -1,5 +1,6 @@
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
+import { system } from 'detox';
 
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import {
@@ -612,12 +613,30 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       return;
     }
 
-    await device.launchApp({ newInstance: true });
+    const url = 'bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7?amount=0.0001&label=Yo';
 
-    await device.launchApp({
-      newInstance: true,
-      url: 'bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7?amount=0.0001&label=Yo',
-    });
+    // cold: URL arrives with launch options
+    await device.launchApp({ newInstance: true, url });
+    await waitForId('chooseFee');
+
+    // warm: app already running. Detox device.openURL calls the app delegate directly, which RN 0.88 ignores in a
+    // scene app, so on iOS let the simulator open it the way the system does: through scene(_:openURLContexts:)
+    await device.launchApp({ newInstance: true });
+    await waitForId('WalletsList');
+    if (device.getPlatform() === 'ios') {
+      require('child_process').execFileSync('xcrun', ['simctl', 'openurl', device.id, url]);
+      // iOS asks "Open in BlueWallet?" until the simulator has been answered once
+      for (let i = 0; i < 5; i++) {
+        try {
+          await system.element(by.system.label('Open')).tap();
+          break;
+        } catch (_) {
+          await sleep(1000);
+        }
+      }
+    } else {
+      await device.openURL({ url });
+    }
     await waitForId('chooseFee');
 
     // Wait for the send screen to load after deep link
