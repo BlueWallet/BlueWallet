@@ -400,102 +400,166 @@ describe('HDSegwitBech32Transaction vs malicious Electrum server (GHSA-6jp4-8v48
     );
   });
 
-  it('CPFP refetches a padded cached copy, and refuses (never overpays) if the server keeps padding', async () => {
-    const { wallet, ourAddress } = setup();
-    const foreignFunding = new bitcoin.Transaction();
-    foreignFunding.version = 2;
-    foreignFunding.addInput(new Uint8Array(32).fill(0x66), 0);
-    foreignFunding.addOutput(bitcoin.address.toOutputScript(RECIPIENT), 200_000n);
-    serve(foreignFunding);
-    const honest = new bitcoin.Transaction();
-    honest.version = 2;
-    honest.addInput(foreignFunding.getHash(), 0);
-    honest.ins[0].witness = [new Uint8Array(72), new Uint8Array(33)];
-    honest.addOutput(bitcoin.address.toOutputScript(ourAddress), 197_000n); // 3000 sat fee, ~27 sat/vB
+  describe('CPFP of a tx with a foreign input: size never comes from the witness the server sends', () => {
+    const ECPair = ECPairFactory(ecc);
+    const key = ECPair.fromPrivateKey(new Uint8Array(32).fill(0x42));
+    const P2TR_SCRIPT = new Uint8Array([0x51, 0x20, ...key.publicKey.subarray(1, 33)]); // key used as output key
+    const P2WPKH_SCRIPT = bitcoin.address.toOutputScript(RECIPIENT);
+    const P2WSH_SCRIPT = new Uint8Array([0x00, 0x20, ...new Uint8Array(32).fill(0x33)]);
+    const P2SH_SCRIPT = bitcoin.payments.p2sh({ hash: new Uint8Array(20).fill(0x44) }).output!;
+    const MULTISIG_WITNESS = [new Uint8Array(0), new Uint8Array(72), new Uint8Array(72), new Uint8Array(105)];
+    const INSCRIPTION_WITNESS = [new Uint8Array(64), new Uint8Array(50_000), new Uint8Array(33)];
+    const isSizeError = (err: Error) => isTxNotReplaceableError(err) && !isTxVerificationError(err) && /size/.test(err.message);
 
-    serve(honest);
-    const honestInfo = await new HDSegwitBech32Transaction(null, honest.getId(), wallet).getInfo();
-    assert.strictEqual(honestInfo.vsize, honest.virtualSize());
-    assert.strictEqual(honestInfo.witnessUnverifiable, false);
-    const honestChild = await new HDSegwitBech32Transaction(null, honest.getId(), wallet).createCPFPbumpFee(40);
-
-    for (const padding of [
-      [new Uint8Array(200_000)],
-      [new Uint8Array(3000), new Uint8Array(3000)],
-      new Array(500).fill(new Uint8Array(1)),
-    ]) {
-      const padded = bitcoin.Transaction.fromHex(honest.toHex());
-      padded.ins[0].witness = [...padded.ins[0].witness, ...padding];
-      assert.strictEqual(padded.getId(), honest.getId());
-      assert.ok(padded.virtualSize() > honest.virtualSize());
-
-      // padded copy in cache, honest server: cache is dropped and CPFP is the same as for the honest tx
-      serve(honest);
-      mockCachedHex[honest.getId()] = padded.toHex();
-      const { tx, fee } = await new HDSegwitBech32Transaction(null, honest.getId(), wallet).createCPFPbumpFee(40);
-      assert(tx);
-      assert.strictEqual(fee, honestChild.fee);
-      assert.strictEqual(mockCachedHex[honest.getId()], honest.toHex());
-      // package pays about the selected feerate, not way more
-      const packageFeeRate = (3000 + fee) / (honest.virtualSize() + tx.virtualSize());
-      assert.ok(packageFeeRate >= 40 && packageFeeRate < 42, `package feerate ${packageFeeRate}`);
-
-      // server keeps padding: refused, nothing to sign
-      delete mockCachedHex[honest.getId()];
-      serve(padded);
-      const isSizeError = (err: Error) => isTxNotReplaceableError(err) && !isTxVerificationError(err) && /size/.test(err.message);
-      await assert.rejects(new HDSegwitBech32Transaction(null, honest.getId(), wallet).getInfo(), isSizeError);
-      await assert.rejects(new HDSegwitBech32Transaction(null, honest.getId(), wallet).createCPFPbumpFee(40), isSizeError);
-    }
-  });
-
-  describe('CPFP of a tx with a foreign input', () => {
-    const incomingWithWitness = (witness: Uint8Array[]) => {
+    /**
+     * Incoming tx (3000 sat fee) spending a foreign output with `prevScript`. `real` is the tx miners have, the server
+     * can be told to send a copy of it with another witness (same txid).
+     */
+    const incoming = (prevScript: Uint8Array, input: { witness?: Uint8Array[]; scriptSig?: Uint8Array; p2trHashType?: number }) => {
       const { wallet, ourAddress } = setup();
       const foreignFunding = new bitcoin.Transaction();
       foreignFunding.version = 2;
       foreignFunding.addInput(new Uint8Array(32).fill(0x77), 0);
-      foreignFunding.addOutput(bitcoin.address.toOutputScript(RECIPIENT), 200_000n);
+      foreignFunding.addOutput(prevScript, 200_000n);
       serve(foreignFunding);
-      const incoming = new bitcoin.Transaction();
-      incoming.version = 2;
-      incoming.addInput(foreignFunding.getHash(), 0);
-      incoming.ins[0].witness = witness;
-      incoming.addOutput(bitcoin.address.toOutputScript(ourAddress), 197_000n); // 3000 sat fee
-      serve(incoming);
-      return { wallet, incoming, t: () => new HDSegwitBech32Transaction(null, incoming.getId(), wallet) };
+      const real = new bitcoin.Transaction();
+      real.version = 2;
+      real.addInput(foreignFunding.getHash(), 0);
+      real.addOutput(bitcoin.address.toOutputScript(ourAddress), 197_000n);
+      if (input.scriptSig) real.ins[0].script = input.scriptSig;
+      if (input.witness) real.ins[0].witness = input.witness;
+      if (input.p2trHashType !== undefined) {
+        const hash = real.hashForWitnessV1(0, [prevScript], [200_000n], input.p2trHashType);
+        const sig = ecc.signSchnorr!(hash, key.privateKey!);
+        real.ins[0].witness = [
+          input.p2trHashType === bitcoin.Transaction.SIGHASH_DEFAULT ? sig : new Uint8Array([...sig, input.p2trHashType]),
+        ];
+      }
+      serve(real);
+      const withWitness = (witness: Uint8Array[]) => {
+        const copy = bitcoin.Transaction.fromHex(real.toHex());
+        copy.ins[0].witness = witness;
+        assert.strictEqual(copy.getId(), real.getId());
+        return copy;
+      };
+      const packageFeeRate = (childFee: number, child: bitcoin.Transaction) =>
+        (3000 + childFee) / (real.virtualSize() + child.virtualSize());
+      return { real, withWitness, packageFeeRate, t: () => new HDSegwitBech32Transaction(null, real.getId(), wallet) };
     };
 
     it.each([
-      ['2-of-3 P2WSH multisig', [new Uint8Array(0), new Uint8Array(72), new Uint8Array(72), new Uint8Array(105)]],
-      ['inscription', [new Uint8Array(64), new Uint8Array(50_000), new Uint8Array(33)]],
-    ])('refuses when its witness is too big to be verified (%s)', async (_, witness) => {
-      const { t } = incomingWithWitness(witness);
-      const isSizeError = (err: Error) => isTxNotReplaceableError(err) && !isTxVerificationError(err) && /size/.test(err.message);
+      ['as it is', MULTISIG_WITNESS],
+      ['shrunk', [new Uint8Array(64)]],
+      ['shrunk to a p2wpkh-like witness', [new Uint8Array(72), new Uint8Array(33)]],
+    ])('refuses a 2-of-3 P2WSH multisig spend, witness served %s', async (_, served) => {
+      const { withWitness, t } = incoming(P2WSH_SCRIPT, { witness: MULTISIG_WITNESS });
+      serve(withWitness(served));
+      await assert.rejects(t().getInfo(), isSizeError);
+      await assert.rejects(t().createCPFPbumpFee(50), isSizeError);
+    });
+
+    it('refuses a P2SH-wrapped segwit spend', async () => {
+      const scriptSig = bitcoin.script.compile([new Uint8Array([0x00, 0x14, ...new Uint8Array(20).fill(0x55)])]);
+      const { t } = incoming(P2SH_SCRIPT, { scriptSig, witness: [new Uint8Array(72), new Uint8Array(33)] });
+      await assert.rejects(t().createCPFPbumpFee(50), isSizeError);
+    });
+
+    it.each([
+      ['as it is', INSCRIPTION_WITNESS],
+      ['shrunk to a fake key-path signature', [new Uint8Array(64)]],
+      ['shrunk to a fake key-path signature with sighash byte', [new Uint8Array([...new Uint8Array(64), 0x01])]],
+    ])('refuses a P2TR script-path spend (inscription), witness served %s', async (_, served) => {
+      const { withWitness, t } = incoming(P2TR_SCRIPT, { witness: INSCRIPTION_WITNESS });
+      serve(withWitness(served));
       await assert.rejects(t().getInfo(), isSizeError);
       await assert.rejects(t().createCPFPbumpFee(50), isSizeError);
     });
 
     it.each([
-      ['P2WPKH', [new Uint8Array(72), new Uint8Array(33)]],
-      ['P2TR key path', [new Uint8Array(64)]],
-      ['P2TR key path with sighash byte', [new Uint8Array(65)]],
-    ])('works as before for a usual witness (%s)', async (_, witness) => {
-      const { t, incoming } = incomingWithWitness(witness);
+      ['without sighash byte', bitcoin.Transaction.SIGHASH_DEFAULT],
+      ['with sighash byte', bitcoin.Transaction.SIGHASH_ALL],
+    ])('sizes a valid P2TR key-path spend exactly (%s), CPFP pays the selected feerate', async (_, p2trHashType) => {
+      const { real, packageFeeRate, t } = incoming(P2TR_SCRIPT, { p2trHashType });
       const info = await t().getInfo();
       assert.strictEqual(info.witnessUnverifiable, false);
-      assert.strictEqual(info.vsize, incoming.virtualSize());
-      assert.strictEqual(info.feeRate, Math.floor(3000 / incoming.virtualSize()));
+      assert.strictEqual(info.vsize, real.virtualSize());
+      assert.strictEqual(info.feeRate, Math.floor(3000 / real.virtualSize()));
       const { tx, fee } = await t().createCPFPbumpFee(50);
       assert(tx);
-      assert.ok((3000 + fee) / (incoming.virtualSize() + tx.virtualSize()) >= 50);
+      const rate = packageFeeRate(fee, tx);
+      assert.ok(rate >= 50, `package feerate ${rate}`); // size is exact (checked above), so no overpay from it
     });
 
-    it('never estimates vsize above the real one', async () => {
-      const { t, incoming } = incomingWithWitness([new Uint8Array(0), new Uint8Array(72), new Uint8Array(72), new Uint8Array(105)]);
-      const tx = t();
-      await tx._fetchTxhexAndDecode();
-      assert.ok(tx._getVsizeForFeerate(new Set()) < incoming.virtualSize());
+    it('never overpays for a padded P2TR key-path spend: drops a padded cached copy, refuses if the server keeps padding', async () => {
+      const { real, withWitness, packageFeeRate, t } = incoming(P2TR_SCRIPT, { p2trHashType: bitcoin.Transaction.SIGHASH_DEFAULT });
+      const [sig] = real.ins[0].witness;
+      const honestChild = await t().createCPFPbumpFee(50);
+      for (const padded of [
+        [sig, new Uint8Array([0x50, ...new Uint8Array(40)])], // annex
+        [sig, new Uint8Array(40)],
+        [new Uint8Array([...sig, 0x01])], // sighash byte the signature was not made with
+        [new Uint8Array([...sig, ...new Uint8Array(40)])],
+      ]) {
+        // padded copy in cache, honest server: cache is dropped, CPFP is the same as for the honest copy
+        serve(real);
+        mockCachedHex[real.getId()] = withWitness(padded).toHex();
+        const { tx, fee } = await t().createCPFPbumpFee(50);
+        assert(tx);
+        assert.strictEqual(fee, honestChild.fee);
+        assert.strictEqual(mockCachedHex[real.getId()], real.toHex());
+        assert.ok(packageFeeRate(fee, tx) >= 50);
+
+        // server keeps padding: refused, nothing to sign
+        delete mockCachedHex[real.getId()];
+        serve(withWitness(padded));
+        await assert.rejects(t().getInfo(), isSizeError);
+        await assert.rejects(t().createCPFPbumpFee(50), isSizeError);
+      }
+    });
+
+    it('sizes a P2WPKH spend with the max witness size, whatever witness is served (shrunk, padded, cached)', async () => {
+      const realWitness = [new Uint8Array(71), new Uint8Array(33)]; // usual low-R signature, 1 byte less than max
+      const { real, withWitness, packageFeeRate, t } = incoming(P2WPKH_SCRIPT, { witness: realWitness });
+      const maxSize = withWitness([new Uint8Array(72), new Uint8Array(33)]).virtualSize();
+      assert.ok(maxSize >= real.virtualSize() && maxSize - real.virtualSize() <= 1);
+
+      const honest = await t().getInfo();
+      assert.strictEqual(honest.witnessUnverifiable, false);
+      assert.strictEqual(honest.vsize, maxSize);
+      const honestChild = await t().createCPFPbumpFee(50);
+      assert(honestChild.tx);
+      assert.ok(packageFeeRate(honestChild.fee, honestChild.tx) >= 50);
+
+      for (const served of [[new Uint8Array(64)], [], [new Uint8Array(200_000)], new Array(500).fill(new Uint8Array(1))]) {
+        for (const cached of [false, true]) {
+          delete mockCachedHex[real.getId()];
+          serve(cached ? real : withWitness(served));
+          if (cached) mockCachedHex[real.getId()] = withWitness(served).toHex();
+          const info = await t().getInfo();
+          assert.strictEqual(info.vsize, maxSize);
+          assert.strictEqual(info.witnessUnverifiable, false);
+          const { tx, fee } = await t().createCPFPbumpFee(50);
+          assert(tx);
+          assert.strictEqual(fee, honestChild.fee);
+        }
+      }
+    });
+
+    it('sizes a legacy (P2PKH) spend exactly, a witness served for it is ignored', async () => {
+      const scriptSig = bitcoin.script.compile([new Uint8Array(72), key.publicKey]);
+      const p2pkh = bitcoin.payments.p2pkh({ pubkey: key.publicKey }).output!;
+      const { real, withWitness, packageFeeRate, t } = incoming(p2pkh, { scriptSig });
+      assert.strictEqual(real.hasWitnesses(), false);
+      for (const served of [[], [new Uint8Array(500)]]) {
+        serve(withWitness(served));
+        const info = await t().getInfo();
+        assert.strictEqual(info.witnessUnverifiable, false);
+        assert.strictEqual(info.vsize, real.virtualSize());
+        const { tx, fee } = await t().createCPFPbumpFee(50);
+        assert(tx);
+        const rate = packageFeeRate(fee, tx);
+        assert.ok(rate >= 50, `package feerate ${rate}`); // size is exact (checked above), so no overpay from it
+      }
     });
   });
 

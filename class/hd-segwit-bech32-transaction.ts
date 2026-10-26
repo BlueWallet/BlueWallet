@@ -52,16 +52,30 @@ function decodeServerTxhex(hex: string): bitcoin.Transaction {
 }
 
 /**
- * Max witness bytes (of a single input) we count when estimating size of a transaction whose witness we cant verify.
- * That is a typical p2wpkh witness (1 byte items count + 1+72 bytes signature + 1+33 bytes pubkey), p2tr key-path spend
- * is even smaller.
+ * Max witness bytes of a p2wpkh input in a transaction that can be in the mempool (and we only CPFP unconfirmed ones):
+ * 1 byte items count + 1+72 bytes signature + 1+33 bytes pubkey. DER signature is at most 71 bytes (33 bytes R, 32 bytes
+ * S, since relay policy requires low S) plus 1 sighash byte, and relay policy requires compressed pubkeys in segwit.
  */
-const UNVERIFIED_WITNESS_MAX_BYTES = 108;
+const P2WPKH_MAX_WITNESS_BYTES = 108;
 
 const varIntLength = (n: number): number => (n < 0xfd ? 1 : n <= 0xffff ? 3 : n <= 0xffffffff ? 5 : 9);
 
 const witnessByteLength = (witness: Uint8Array[]): number =>
   varIntLength(witness.length) + witness.reduce((sum, item) => sum + varIntLength(item.length) + item.length, 0);
+
+const isP2wpkhScript = (script: Uint8Array): boolean => script.length === 22 && script[0] === 0x00 && script[1] === 0x14;
+
+const isP2trScript = (script: Uint8Array): boolean => script.length === 34 && script[0] === 0x51 && script[1] === 0x20;
+
+const isP2shScript = (script: Uint8Array): boolean =>
+  script.length === 23 && script[0] === 0xa9 && script[1] === 0x14 && script[22] === 0x87;
+
+/** Segwit output script (BIP141): version opcode (OP_0..OP_16) followed by a single 2..40 bytes push */
+const isWitnessProgram = (script: Uint8Array): boolean =>
+  script.length >= 4 &&
+  script.length <= 42 &&
+  (script[0] === 0x00 || (script[0] >= 0x51 && script[0] <= 0x60)) &&
+  script[1] === script.length - 2;
 
 /** Address of an output script, or undefined if it has none (e.g. OP_RETURN) */
 const outputScriptToAddress = (script: Uint8Array): string | undefined => {
@@ -95,6 +109,59 @@ function isValidP2wpkhSpend(tx: bitcoin.Transaction, inIndex: number, prevOutScr
   } catch (_) {
     return false;
   }
+}
+
+const TAPROOT_SIGHASH_TYPES = [0x01, 0x02, 0x03, 0x81, 0x82, 0x83];
+
+/**
+ * Checks that input `inIndex` of `tx` is a valid taproot key-path spend: its witness is a single schnorr signature (so
+ * no annex and no script) by the output key of `prevOutScripts[inIndex]`. Taproot sighash commits to all prevouts.
+ */
+function isValidP2trKeyPathSpend(tx: bitcoin.Transaction, inIndex: number, prevOutScripts: Uint8Array[], values: bigint[]): boolean {
+  try {
+    const inp = tx.ins[inIndex];
+    if (inp.script.length !== 0 || inp.witness.length !== 1) return false;
+    const sig = inp.witness[0];
+    let hashType = bitcoin.Transaction.SIGHASH_DEFAULT;
+    if (sig.length === 65) {
+      hashType = sig[64];
+      if (!TAPROOT_SIGHASH_TYPES.includes(hashType)) return false;
+    } else if (sig.length !== 64) {
+      return false;
+    }
+    const hash = tx.hashForWitnessV1(inIndex, prevOutScripts, values, hashType);
+    return ecc.verifySchnorr?.(hash, prevOutScripts[inIndex].subarray(2), sig.subarray(0, 64)) === true;
+  } catch (_) {
+    return false;
+  }
+}
+
+/**
+ * Witness bytes (including items count) of input `inIndex` of `tx` that is not ours, to be used for size of the
+ * transaction. Witness is not covered by txid, so the one server sent can be shrunk or padded: it is only used when
+ * its signature checks out. Size is taken from the (txid-covered) previous output script instead:
+ * * p2wpkh - max size of such witness, server's witness is ignored
+ * * p2tr - exact size, but only for a valid key-path spend
+ * * not segwit - 0, consensus requires its witness to be empty (its scriptSig is covered by txid)
+ *
+ * @returns {number|null} null when real size cant be known (p2wsh, p2sh-wrapped segwit, p2tr script path, invalid
+ * signature etc)
+ */
+function foreignInputWitnessBytes(tx: bitcoin.Transaction, inIndex: number, prevOuts: bitcoin.TxOutput[]): number | null {
+  const script = prevOuts[inIndex].script;
+  if (isP2wpkhScript(script)) return P2WPKH_MAX_WITNESS_BYTES;
+  if (isP2trScript(script)) {
+    const scripts = prevOuts.map(o => o.script);
+    const values = prevOuts.map(o => o.value);
+    return isValidP2trKeyPathSpend(tx, inIndex, scripts, values) ? witnessByteLength(tx.ins[inIndex].witness) : null;
+  }
+  if (isWitnessProgram(script)) return null; // p2wsh or unknown segwit version
+  if (isP2shScript(script)) {
+    const chunks = bitcoin.script.decompile(tx.ins[inIndex].script);
+    const redeemScript = chunks?.[chunks.length - 1];
+    if (!(redeemScript instanceof Uint8Array) || isWitnessProgram(redeemScript)) return null; // p2sh-wrapped segwit
+  }
+  return 0;
 }
 
 /**
@@ -267,7 +334,7 @@ export class HDSegwitBech32Transaction {
    *
    * Throws `TxVerificationError` if data from Electrum server can't be verified. With `replacement` set ('bump' or
    * 'cancel') it also throws `TxNotReplaceableError` if this wallet can't build such RBF replacement. Without it (CPFP)
-   * it throws `TxNotReplaceableError` if size of the transaction can't be verified (see `_hasUnverifiableWitness()`).
+   * it throws `TxNotReplaceableError` if size of the transaction can't be verified (see `foreignInputWitnessBytes()`).
    *
    * @param replacement {'bump'|'cancel'|undefined} set when info is needed for an RBF replacement (not for CPFP)
    * @returns {Promise<{fee: number, utxos: Array, unconfirmedUtxos: Array, changeAmount: number, feeRate: number, vsize: number, witnessUnverifiable: boolean, targets: Array}>}
@@ -291,8 +358,9 @@ export class HDSegwitBech32Transaction {
     }
 
     if (!replacement && info.witnessUnverifiable) {
-      // CPFP needs real size of this tx, but witness of inputs we cant verify is not covered by txid. it might be
-      // padded (by a server or in cache), so trying a fresh copy once. if still too big we cant price CPFP, refusing
+      // CPFP needs real size of this tx, but witness is not covered by txid and size of some input could not be
+      // verified. a bad copy might come from cache, so trying a fresh one once (also drops cached raw hex). if size
+      // still cant be verified we cant price CPFP, refusing
       if (this._txid) {
         await BlueElectrum.forgetCachedTransactions([this._txid]);
         this._txDecoded = undefined;
@@ -300,7 +368,7 @@ export class HDSegwitBech32Transaction {
         info = await this._getInfo();
       }
       if (info.witnessUnverifiable) {
-        throw new TxNotReplaceableError("Transaction has a big witness that can't be verified, cannot calculate its size");
+        throw new TxNotReplaceableError("Transaction has an input witness that can't be verified, cannot calculate its size");
       }
     }
 
@@ -339,31 +407,36 @@ export class HDSegwitBech32Transaction {
       prevTransactions[prevTxid] = decoded;
     }
 
+    // previous outputs of all inputs (amounts and scripts are covered by txids)
+    const prevOuts = this._txDecoded.ins.map(inp => {
+      const prevOut = prevTransactions[uint8ArrayToHex(new Uint8Array(inp.hash).reverse())]?.outs[inp.index];
+      // without previous output we dont know how much went in, so fee (and feerate) would be wrong, possibly negative
+      if (!prevOut) throw new TxVerificationError('Electrum server did not return previous transaction of an input');
+      return prevOut;
+    });
+
     // fetched, now lets count how much satoshis went in
     let wentIn = 0;
     const utxos: CreateTransactionUtxo[] = [];
-    const verifiedInputs = new Set<number>(); // inputs with checked signature, so their witness is real
+    const witnessBytes: Array<number | null> = []; // per input, for size of this tx. null if it cant be known
     for (let i = 0; i < this._txDecoded.ins.length; i++) {
       const inp = this._txDecoded.ins[i];
       const reversedHash = uint8ArrayToHex(new Uint8Array(inp.hash).reverse());
-      const prevOut = prevTransactions[reversedHash]?.outs[inp.index];
-      // without previous output we dont know how much went in, so fee (and feerate) would be wrong, possibly negative
-      if (!prevOut) throw new TxVerificationError('Electrum server did not return previous transaction of an input');
+      const prevOut = prevOuts[i];
       const value = Number(prevOut.value);
       wentIn += value;
 
-      let address: string;
-      try {
-        address = bitcoin.address.fromOutputScript(prevOut.script);
-      } catch (_) {
-        continue; // not a standard address, definitely not ours
+      const address = outputScriptToAddress(prevOut.script);
+      if (!address || !this._wallet.weOwnAddress(address)) {
+        // not our input, nothing to verify (e.g. incoming tx). its witness is not trusted for size
+        witnessBytes.push(foreignInputWitnessBytes(this._txDecoded, i, prevOuts));
+        continue;
       }
-      if (!this._wallet.weOwnAddress(address)) continue; // not our input, nothing to verify (e.g. incoming tx)
 
       if (!isValidP2wpkhSpend(this._txDecoded, i, prevOut.script, prevOut.value)) {
         throw new TxVerificationError('Transaction has invalid signature on our input, it was not created by this wallet');
       }
-      verifiedInputs.add(i);
+      witnessBytes.push(witnessByteLength(inp.witness)); // signature checked, so this witness is real
       utxos.push({ vout: inp.index, value, txid: reversedHash, address });
     }
 
@@ -377,9 +450,9 @@ export class HDSegwitBech32Transaction {
     const fee = wentIn - wasSpent;
     // amounts are bound by txids, so negative fee means server data is wrong. zero fee is fine (e.g. package relay)
     if (fee < 0) throw new TxVerificationError('Transaction fee is negative');
-    const vsize = this._getVsizeForFeerate(verifiedInputs);
+    const witnessUnverifiable = witnessBytes.some(bytes => bytes === null);
+    const vsize = this._getVsizeForFeerate(witnessBytes);
     const feeRate = Math.floor(fee / vsize);
-    const witnessUnverifiable = this._hasUnverifiableWitness(verifiedInputs);
 
     // lets take a look at change, and outputs we own that current transaction creates (can be used in CPFP).
     // outputs are taken from the (txid-checked) raw tx, not from the server-decoded json
@@ -404,35 +477,22 @@ export class HDSegwitBech32Transaction {
   }
 
   /**
-   * True if some input we cant verify has witness bigger than `UNVERIFIED_WITNESS_MAX_BYTES`. Then real size of the
-   * transaction is not known: `_getVsizeForFeerate()` counts less (so a padded witness cant make CPFP overpay), but an
-   * honest big witness (multisig, script path spend, inscription) would make CPFP underpay a lot.
+   * Virtual size of this transaction, to be used for feerate calculations. Witness is not covered by txid, so the one
+   * server sent can be shrunk or padded, and its size is not used directly: non-witness part is covered by txid, and
+   * witness size of each input is given by the caller (see `foreignInputWitnessBytes()`). When all of them are known,
+   * this is the real vsize, or a bit bigger for p2wpkh inputs that are not ours (at most 1 vbyte per such input).
    *
-   * @param verifiedInputs indexes of inputs whose witness was verified
+   * @param witnessBytes witness bytes (with items count) of each input, 0 for a non-segwit input. null if not known:
+   * served witness is counted then, so the result is not reliable (CPFP refuses such tx, RBF needs all inputs ours)
    */
-  _hasUnverifiableWitness(verifiedInputs: Set<number>): boolean {
-    assert(this._txDecoded, 'transaction not decoded');
-    return this._txDecoded.ins.some((inp, i) => !verifiedInputs.has(i) && witnessByteLength(inp.witness) > UNVERIFIED_WITNESS_MAX_BYTES);
-  }
-
-  /**
-   * Virtual size of this transaction, to be used for feerate calculations. Witness is not covered by txid, so server
-   * can pad witness of inputs we cant verify (e.g. not ours) and make transaction look bigger (and its feerate lower,
-   * which would make CPFP overpay). For such inputs we count at most `UNVERIFIED_WITNESS_MAX_BYTES` witness bytes, so
-   * this is never bigger than the real vsize (and feerate is never lower than the real one).
-   *
-   * @param verifiedInputs indexes of inputs whose witness was verified, their actual witness size is used
-   */
-  _getVsizeForFeerate(verifiedInputs: Set<number>): number {
+  _getVsizeForFeerate(witnessBytes: Array<number | null>): number {
     assert(this._txDecoded, 'transaction not decoded');
     const tx = this._txDecoded;
+    const sizes = tx.ins.map((inp, i) => witnessBytes[i] ?? witnessByteLength(inp.witness));
     let weight = tx.byteLength(false) * 4;
-    if (tx.hasWitnesses()) {
+    if (sizes.some(bytes => bytes > 0)) {
       weight += 2; // segwit marker & flag
-      tx.ins.forEach((inp, i) => {
-        const witnessBytes = witnessByteLength(inp.witness);
-        weight += verifiedInputs.has(i) ? witnessBytes : Math.min(witnessBytes, UNVERIFIED_WITNESS_MAX_BYTES);
-      });
+      for (const bytes of sizes) weight += Math.max(bytes, 1); // non-segwit input still has 1 byte (empty items count)
     }
     return Math.max(1, Math.ceil(weight / 4));
   }
