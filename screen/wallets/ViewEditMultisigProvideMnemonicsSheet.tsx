@@ -41,7 +41,6 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
           'ViewEditMultisigCosigners',
           {
             walletID,
-            cosigners: [],
             sheetAction: 'importMnemonic',
             sheetImportText: textToUse,
             sheetAskPassphrase: askPassphrase,

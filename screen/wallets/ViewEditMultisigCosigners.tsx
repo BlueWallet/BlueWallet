@@ -28,6 +28,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import { navigateToWalletsList } from '../../NavigationService';
+import { errorMessage } from '../../helpers/errorMessage';
 
 type RouteParams = RouteProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
 type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
@@ -138,10 +139,10 @@ const ViewEditMultisigCosigners: React.FC = () => {
         setTimeout(() => {
           navigateToWalletsList();
         }, 500);
-      } catch (error: any) {
+      } catch (error) {
         setIsLoading(false);
         setParams({ headerRight: undefined });
-        presentAlert({ message: error?.message ?? String(error) });
+        presentAlert({ message: errorMessage(error) });
       }
     }, 100);
   };
@@ -200,7 +201,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     }, [walletID]),
   );
 
-  const _renderKeyItem = (el: ListRenderItemInfo<any>) => {
+  const _renderKeyItem = (el: ListRenderItemInfo<TWallet>) => {
     if (!wallet) {
       // failsafe
       return null;
@@ -420,9 +421,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
         return presentAlert({ message: loc.multisig.invalid_mnemonics });
       try {
         wallet.replaceCosignerXpubWithSeed(cosignerNum, hd.getSecret(), passphrase);
-      } catch (e: any) {
+      } catch (e) {
         console.log(e);
-        return presentAlert({ message: e.message });
+        return presentAlert({ message: errorMessage(e) });
       }
 
       setWallet(wallet);
@@ -446,8 +447,8 @@ const ViewEditMultisigCosigners: React.FC = () => {
       if (shouldAskPassphrase) {
         try {
           passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
-        } catch (e: any) {
-          if (e.message === 'Cancel Pressed') {
+        } catch (e) {
+          if (errorMessage(e) === 'Cancel Pressed') {
             setIsLoading(false);
             return;
           }
@@ -463,9 +464,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
     return new Promise((resolve, reject) => {
       try {
         wallet?.replaceCosignerSeedWithXpub(index);
-      } catch (e: any) {
+      } catch (e) {
         reject(e);
-        return presentAlert({ message: e.message });
+        return presentAlert({ message: errorMessage(e) });
       }
       setWallet(wallet);
       setIsSaveButtonDisabled(false);

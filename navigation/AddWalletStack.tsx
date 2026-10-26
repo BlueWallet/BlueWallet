@@ -16,10 +16,8 @@ import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { withLazySuspense } from './LazyLoadingIndicator';
-import { ScanQRCodeParamList } from './DetailViewStackParamList';
+import { HeaderRightRenderer, ScanQRCodeParamList } from './DetailViewStackParamList';
 import { navigationGuardRouter } from './navigationGuard';
-
-type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 
 export type AddWalletStackParamList = {
   AddWallet: {
@@ -165,84 +163,95 @@ const addWalletTypes = [
 ];
 
 const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
-  navigationStyle({ closeButtonPosition: CloseButtonPosition.Left, title: loc.wallets.add_title }, (options, { navigation, route }) => {
-    const selectedIndex = route.params?.selectedIndex ?? 0;
-    const selectedWalletType = route.params?.selectedWalletType ?? Chain.ONCHAIN;
-    const words = route.params?.words;
-    const entropyHex = route.params?.entropy;
-    const hasEntropy = !!entropyHex;
-    const providedEntropyBytes = route.params?.providedEntropyBytes || (entropyHex ? Math.floor(entropyHex.length / 2) : 0);
+  navigationStyle<AddWalletStackParamList, 'AddWallet'>(
+    {
+      closeButtonPosition: CloseButtonPosition.Left,
+      title: loc.wallets.add_title,
+    },
+    (options, { navigation, route }) => {
+      const selectedIndex = route.params?.selectedIndex ?? 0;
+      const selectedWalletType = route.params?.selectedWalletType ?? Chain.ONCHAIN;
+      const words = route.params?.words;
+      const entropyHex = route.params?.entropy;
+      const hasEntropy = !!entropyHex;
+      const providedEntropyBytes = route.params?.providedEntropyBytes || (entropyHex ? Math.floor(entropyHex.length / 2) : 0);
 
-    const entropyButtonText = hasEntropy
-      ? loc.formatString(loc.wallets.add_entropy_bytes, {
-          bytes: providedEntropyBytes,
-        })
-      : loc.wallets.add_entropy_provide;
+      const entropyButtonText = hasEntropy
+        ? loc.formatString(loc.wallets.add_entropy_bytes, {
+            bytes: providedEntropyBytes,
+          })
+        : loc.wallets.add_entropy_provide;
 
-    const onPressMenuItem = (id: string) => {
-      if (id === LightningCustodianWallet.type) {
-        navigation.setParams({ selectedWalletType: Chain.OFFCHAIN });
-      } else if (id === '12_words') {
-        navigation.navigate('ProvideEntropy', { words: 12, entropy: entropyHex });
-      } else if (id === '24_words') {
-        navigation.navigate('ProvideEntropy', { words: 24, entropy: entropyHex });
-      } else if (id === CommonToolTipActions.ResetToDefault.id) {
-        navigation.setParams({ entropy: undefined, providedEntropyBytes: undefined, words: undefined, selectedWalletType: Chain.ONCHAIN });
-      } else {
-        const nextIndex = addWalletTypes.findIndex(item => item.id === id);
-        if (nextIndex >= 0) {
-          navigation.setParams({ selectedIndex: nextIndex, selectedWalletType: Chain.ONCHAIN });
+      const onPressMenuItem = (id: string) => {
+        if (id === LightningCustodianWallet.type) {
+          navigation.setParams({ selectedWalletType: Chain.OFFCHAIN });
+        } else if (id === '12_words') {
+          navigation.navigate('ProvideEntropy', { words: 12, entropy: entropyHex });
+        } else if (id === '24_words') {
+          navigation.navigate('ProvideEntropy', { words: 24, entropy: entropyHex });
+        } else if (id === CommonToolTipActions.ResetToDefault.id) {
+          navigation.setParams({
+            entropy: undefined,
+            providedEntropyBytes: undefined,
+            words: undefined,
+            selectedWalletType: Chain.ONCHAIN,
+          });
+        } else {
+          const nextIndex = addWalletTypes.findIndex(item => item.id === id);
+          if (nextIndex >= 0) {
+            navigation.setParams({ selectedIndex: nextIndex, selectedWalletType: Chain.ONCHAIN });
+          }
         }
+      };
+
+      const actions: Action[] = [
+        {
+          id: 'wallets',
+          text: loc.multisig.wallet_type,
+          displayInline: true,
+          subactions: addWalletTypes.map((walletType, index) => ({
+            id: walletType.id,
+            text: walletType.text,
+            subtitle: walletType.subtitle,
+            menuState: index === selectedIndex && selectedWalletType === Chain.ONCHAIN,
+          })),
+        },
+      ];
+
+      if (selectedWalletType === Chain.ONCHAIN) {
+        actions.push({
+          id: CommonToolTipActions.Entropy.id,
+          text: entropyButtonText,
+          subactions: [
+            {
+              id: '12_words',
+              text: loc.wallets.add_wallet_seed_length_12,
+              subtitle: loc.wallets.add_wallet_seed_length,
+              menuState: words === 12,
+            },
+            {
+              id: '24_words',
+              text: loc.wallets.add_wallet_seed_length_24,
+              subtitle: loc.wallets.add_wallet_seed_length,
+              menuState: words === 24,
+            },
+            { ...CommonToolTipActions.ResetToDefault, hidden: !hasEntropy },
+          ],
+        });
       }
-    };
 
-    const actions: Action[] = [
-      {
-        id: 'wallets',
-        text: loc.multisig.wallet_type,
-        displayInline: true,
-        subactions: addWalletTypes.map((walletType, index) => ({
-          id: walletType.id,
-          text: walletType.text,
-          subtitle: walletType.subtitle,
-          menuState: index === selectedIndex && selectedWalletType === Chain.ONCHAIN,
-        })),
-      },
-    ];
+      const headerMenuOptions = createEllipsisHeaderMenuOptions({ actions, onPressMenuItem, title: '' });
 
-    if (selectedWalletType === Chain.ONCHAIN) {
-      actions.push({
-        id: CommonToolTipActions.Entropy.id,
-        text: entropyButtonText,
-        subactions: [
-          {
-            id: '12_words',
-            text: loc.wallets.add_wallet_seed_length_12,
-            subtitle: loc.wallets.add_wallet_seed_length,
-            menuState: words === 12,
-          },
-          {
-            id: '24_words',
-            text: loc.wallets.add_wallet_seed_length_24,
-            subtitle: loc.wallets.add_wallet_seed_length,
-            menuState: words === 24,
-          },
-          { ...CommonToolTipActions.ResetToDefault, hidden: !hasEntropy },
-        ],
-      });
-    }
-
-    const headerMenuOptions = createEllipsisHeaderMenuOptions({ actions, onPressMenuItem, title: '' });
-
-    return {
-      ...options,
-      headerRight: headerMenuOptions.headerRight,
-      ...(isIOS26OrHigher ? { unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems } : {}),
-    };
-  })(theme);
+      return {
+        ...options,
+        headerRight: headerMenuOptions.headerRight,
+        ...(isIOS26OrHigher ? { unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems } : {}),
+      };
+    },
+  )(theme);
 
 export const createImportWalletOptions = (theme: ReturnType<typeof useTheme>) =>
-  navigationStyle({ title: loc.wallets.import_title }, (options, { navigation, route }) => {
+  navigationStyle<AddWalletStackParamList, 'ImportWallet'>({ title: loc.wallets.import_title }, (options, { navigation, route }) => {
     const askPassphraseMenuState = route.params?.askPassphraseMenuState ?? false;
     const searchAccountsMenuState = route.params?.searchAccountsMenuState ?? false;
     const clearClipboardMenuState = route.params?.clearClipboardMenuState ?? true;

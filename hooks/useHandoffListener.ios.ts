@@ -14,7 +14,7 @@ interface UserActivityData {
   };
 }
 
-const eventEmitter = EventEmitterModule ? new NativeEventEmitter(EventEmitterModule as any) : null;
+const eventEmitter = EventEmitterModule ? new NativeEventEmitter(EventEmitterModule) : null;
 
 const useHandoffListener = () => {
   const { walletsInitialized } = useStorage();
@@ -31,9 +31,9 @@ const useHandoffListener = () => {
       const modifiedUserInfo = { ...(userInfo || {}), type: activityType };
       try {
         if (activityType === HandOffActivityType.ReceiveOnchain && modifiedUserInfo.address) {
-          navigate('ReceiveDetails', { address: modifiedUserInfo.address, type: activityType });
+          navigate('ReceiveDetails', { address: modifiedUserInfo.address });
         } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub) {
-          navigate('WalletXpub', { xpub: modifiedUserInfo.xpub, type: activityType });
+          navigate('WalletXpub', { xpub: modifiedUserInfo.xpub });
         } else {
           console.debug(`Unhandled or incomplete activity type/data: ${activityType}`, modifiedUserInfo);
         }
@@ -49,10 +49,9 @@ const useHandoffListener = () => {
 
     const activitySubscription = eventEmitter?.addListener('onUserActivityOpen', handleUserActivity);
 
-    if (EventEmitterModule && (EventEmitterModule as any).getMostRecentUserActivity) {
-      (EventEmitterModule as any)
-        .getMostRecentUserActivity()
-        .then(handleUserActivity)
+    if (EventEmitterModule?.getMostRecentUserActivity) {
+      EventEmitterModule.getMostRecentUserActivity()
+        .then(data => data && handleUserActivity(data as UserActivityData))
         .catch(() => console.debug('No valid user activity object received'));
     } else {
       console.debug('EventEmitter native module is not available.');

@@ -7,6 +7,7 @@ import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 import { CreateTransactionUtxo } from './wallets/types.ts';
 import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
 import { isUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
+import type { ElectrumTransaction } from '../blue_modules/BlueElectrum';
 import ecc from '../blue_modules/noble_ecc';
 
 /**
@@ -95,7 +96,7 @@ export class HDSegwitBech32Transaction {
   private _txid: string | null;
   private _wallet: HDSegwitBech32Wallet | undefined;
   private _txDecoded: bitcoin.Transaction | undefined;
-  private _remoteTx: any;
+  private _remoteTx: ElectrumTransaction | null;
   private _mfp?: number;
 
   /**
@@ -190,9 +191,12 @@ export class HDSegwitBech32Transaction {
    * @returns {Promise<void>}
    * @private
    */
-  async _fetchRemoteTx() {
+  async _fetchRemoteTx(): Promise<ElectrumTransaction> {
     const result = await BlueElectrum.multiGetTransactionByTxid([this._txid || this._txDecoded!.getId()], true);
-    this._remoteTx = Object.values(result)[0];
+    const remoteTx = Object.values(result)[0];
+    if (!remoteTx) throw new Error('Transaction not found on Electrum');
+    this._remoteTx = remoteTx;
+    return remoteTx;
   }
 
   /**
@@ -201,8 +205,8 @@ export class HDSegwitBech32Transaction {
    * @returns {Promise<Number>}
    */
   async getRemoteConfirmationsNum() {
-    if (!this._remoteTx) await this._fetchRemoteTx();
-    return this._remoteTx.confirmations || 0; // stupid undefined
+    const remoteTx = this._remoteTx ?? (await this._fetchRemoteTx());
+    return remoteTx.confirmations || 0; // stupid undefined
   }
 
   /**
@@ -469,7 +473,7 @@ export class HDSegwitBech32Transaction {
    * @param newFeerate {number} Sat/byte. Should be greater than previous tx feerate
    * @returns {Promise<{outputs: Array, tx: Transaction, inputs: Array, fee: Number}>}
    */
-  async createRBFcancelTx(newFeerate: any) {
+  async createRBFcancelTx(newFeerate: number) {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 

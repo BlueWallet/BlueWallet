@@ -13,6 +13,7 @@ import { useTheme } from '../../components/themes';
 import { useStorage } from '../../hooks/context/useStorage';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { errorMessage } from '../../helpers/errorMessage';
 
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportSpeed'>;
 
@@ -78,8 +79,8 @@ const ImportSpeed = () => {
       await wallet.fetchBalance();
       navigation.getParent()?.goBack();
       addAndSaveWallet(wallet);
-    } catch (e: any) {
-      presentAlert({ message: e.message });
+    } catch (e) {
+      presentAlert({ message: errorMessage(e) });
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,4 @@
-import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-
-type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']>;
-type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
+import { HeaderLeftRenderer, HeaderRightRenderer } from './DetailViewStackParamList';
 
 export type ReceiveDetailsStackParamList = {
   ReceiveDetails: {
