@@ -7,6 +7,7 @@ import { SegwitBech32Wallet } from './segwit-bech32-wallet';
 import { CreateTransactionResult, CreateTransactionUtxo } from './types.ts';
 import { CoinSelectTarget } from 'coinselect';
 import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
+import { errorMessage } from '../../helpers/errorMessage';
 const ECPair = ECPairFactory(ecc);
 
 export class TaprootWallet extends SegwitBech32Wallet {
@@ -19,12 +20,11 @@ export class TaprootWallet extends SegwitBech32Wallet {
   // @ts-ignore: override
   public readonly segwitType = 'p2tr';
 
-  static fromJson(obj: string): TaprootWallet {
-    const wallet = super.fromJson(obj) as unknown as TaprootWallet;
+  static fromJson<T extends TaprootWallet>(this: new () => T, obj: string): T {
+    const wallet = Object.assign(new this(), JSON.parse(obj) as Record<string, unknown>);
     // older versions serialized this wallet with segwitType 'p2wpkh', which made coinselect overestimate input size
     // this override can be removed in 2028, by then all stored wallets should be re-saved with the correct value
-    // @ts-ignore: override readonly
-    wallet.segwitType = 'p2tr';
+    (wallet as { segwitType: string }).segwitType = 'p2tr';
     return wallet;
   }
 
@@ -68,8 +68,8 @@ export class TaprootWallet extends SegwitBech32Wallet {
       address = bitcoin.payments.p2tr({
         internalPubkey: xOnlyPubkey,
       }).address;
-    } catch (err: any) {
-      console.log(err.message);
+    } catch (err) {
+      console.log(errorMessage(err));
       return false;
     }
     this._address = address ?? false;

@@ -50,7 +50,7 @@ const SendDetailsStack = () => {
     [],
   );
 
-  const coinControlOptions = navigationStyle(
+  const coinControlOptions = navigationStyle<SendDetailsStackParamList, 'CoinControl'>(
     {
       title: loc.cc.header,
       closeButtonIfFirstInStack: CloseButtonPosition.Left,

@@ -15,9 +15,9 @@ import { useTheme } from '../../components/themes';
 import { useStorage } from '../../hooks/context/useStorage';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { AztecoRedeemStackParamList } from '../../navigation/AztecoRedeemStack';
 
-type RouteProps = RouteProp<DetailViewStackParamList, 'AztecoRedeem'>;
+type RouteProps = RouteProp<AztecoRedeemStackParamList, 'AztecoRedeem'>;
 
 const AztecoRedeem = () => {
   const navigation = useNavigation();

@@ -1,6 +1,7 @@
 import React, { useRef, useCallback, useReducer, useEffect, FC } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Keyboard, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useTheme } from '../components/themes';
+import type { Theme } from '../components/themes';
 import loc, { formatBalance } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
@@ -83,7 +84,7 @@ interface FeeOptionProps {
   disabled?: boolean;
   onPress: () => void;
   formatFee: (fee: number) => string;
-  colors: any;
+  colors: Theme['colors'];
 }
 
 const FeeOption: FC<FeeOptionProps> = ({ label, time, fee, rate, active, disabled, onPress, formatFee, colors }) => {

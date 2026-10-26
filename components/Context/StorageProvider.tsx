@@ -4,6 +4,7 @@ import { LegacyWallet } from '../../class/wallets/legacy-wallet';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import type { TWallet } from '../../class/wallets/types';
+import type { NavigationRoute, ParamListBase, PartialRoute, Route } from '@react-navigation/native';
 import presentAlert from '../../components/Alert';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -56,7 +57,7 @@ interface StorageContextType {
   getItem: typeof BlueApp.getItem;
   setItem: typeof BlueApp.setItem;
   handleWalletDeletion: (walletID: string) => Promise<boolean>;
-  confirmWalletDeletion: (wallet: any, onConfirmed: () => void) => void;
+  confirmWalletDeletion: (wallet: TWallet, onConfirmed: () => void) => void;
 }
 
 export enum WalletTransactionsStatus {
@@ -64,8 +65,7 @@ export enum WalletTransactionsStatus {
   ALL = 'ALL',
 }
 
-// @ts-ignore default value does not match the type
-export const StorageContext = createContext<StorageContextType>(undefined);
+export const StorageContext = createContext<StorageContextType | undefined>(undefined);
 
 export const StorageProvider = ({ children }: { children: React.ReactNode }) => {
   const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata ?? {});
@@ -131,12 +131,17 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const findWalletIDInNavigationState = (routes: any[], screenName: string): string | undefined => {
+  type WalletRouteParams = { walletID?: string; screen?: string; params?: { walletID?: string } };
+  const findWalletIDInNavigationState = (
+    routes: (NavigationRoute<ParamListBase, string> | PartialRoute<Route<string>>)[],
+    screenName: string,
+  ): string | undefined => {
     for (let i = routes.length - 1; i >= 0; i--) {
       const route = routes[i];
+      const params = route.params as WalletRouteParams | undefined;
 
-      if (route.name === screenName && (route.params as { walletID?: string }).walletID) {
-        return (route.params as { walletID?: string }).walletID;
+      if (route.name === screenName && params?.walletID) {
+        return params.walletID;
       }
 
       if (route.state?.routes) {
@@ -144,12 +149,12 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         if (walletID) return walletID;
       }
 
-      if (route.params?.screen === screenName && route.params?.params?.walletID) {
-        return route.params.params.walletID;
+      if (params?.screen === screenName && params.params?.walletID) {
+        return params.params.walletID;
       }
 
-      if (route.name === 'DetailViewStackScreensStack' && route.params?.screen === screenName && route.params?.params?.walletID) {
-        return route.params.params.walletID;
+      if (route.name === 'DetailViewStackScreensStack' && params?.screen === screenName && params.params?.walletID) {
+        return params.params.walletID;
       }
     }
 
@@ -427,7 +432,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     [wallets, addWallet, saveToDisk],
   );
 
-  function confirmWalletDeletion(wallet: any, onConfirmed: () => void) {
+  function confirmWalletDeletion(wallet: TWallet, onConfirmed: () => void) {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     try {
       const balance = formatBalanceWithoutSuffix(wallet.getBalance(), BitcoinUnit.SATS, true);

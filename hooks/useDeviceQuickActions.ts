@@ -4,7 +4,6 @@ import { CommonActions } from '@react-navigation/native';
 import { DeviceEventEmitter, Linking, Platform } from 'react-native';
 import QuickActions, { ShortcutItem } from 'react-native-quick-actions';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
-import { TWallet } from '../class/wallets/types';
 import { formatBalance } from '../loc';
 import * as NavigationService from '../NavigationService';
 import { useSettings } from '../hooks/context/useSettings';
@@ -45,7 +44,7 @@ const useDeviceQuickActions = () => {
         })
         .catch(() => removeShortcuts());
     }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, walletsInitialized, preferredFiatCurrency, isStorageEncrypted]);
 
   useEffect(() => {
@@ -58,7 +57,7 @@ const useDeviceQuickActions = () => {
         });
       return () => DeviceEventEmitter.removeAllListeners('quickActionShortcut');
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized]);
 
   useEffect(() => {
@@ -69,15 +68,15 @@ const useDeviceQuickActions = () => {
         removeShortcuts();
       }
     }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isQuickActionsEnabled, walletsInitialized]);
 
-  const popInitialShortcutAction = async (): Promise<any> => {
+  const popInitialShortcutAction = async (): Promise<ShortcutItem | null> => {
     const data = await QuickActions.popInitialAction();
     return data;
   };
 
-  const popInitialAction = async (data: any): Promise<void> => {
+  const popInitialAction = async (data: ShortcutItem | null): Promise<void> => {
     try {
       if (data) {
         const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
@@ -104,7 +103,7 @@ const useDeviceQuickActions = () => {
   };
 
   const handleOpenURL = (event: { url: string }): void => {
-    DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => NavigationService.navigate(...value), {
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigationRef.navigate(...value), {
       wallets,
       addWallet,
       saveToDisk,
@@ -112,7 +111,7 @@ const useDeviceQuickActions = () => {
     });
   };
 
-  const walletQuickActions = (data: any): void => {
+  const walletQuickActions = (data: ShortcutItem): void => {
     const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
     if (wallet) {
       NavigationService.dispatch(
@@ -138,7 +137,7 @@ const useDeviceQuickActions = () => {
 
   const setQuickActions = async (): Promise<void> => {
     if (await getEnabled()) {
-      QuickActions.isSupported((error: null, _supported: any) => {
+      QuickActions.isSupported((error: Error | null) => {
         if (error === null) {
           const shortcutItems: ShortcutItem[] = wallets.slice(0, 4).map((wallet, index) => ({
             type: 'Wallets',
@@ -150,10 +149,11 @@ const useDeviceQuickActions = () => {
             userInfo: {
               url: `bluewallet://wallet/${wallet.getID()}`,
             },
-            icon: Platform.select({
-              android: 'quickactions',
-              ios: index === 0 ? 'Favorite' : 'Bookmark',
-            }) || 'quickactions',
+            icon:
+              Platform.select({
+                android: 'quickactions',
+                ios: index === 0 ? 'Favorite' : 'Bookmark',
+              }) || 'quickactions',
           }));
           QuickActions.setShortcutItems(shortcutItems);
         }
@@ -164,6 +164,6 @@ const useDeviceQuickActions = () => {
   };
 
   return { popInitialAction };
-}
+};
 
 export default useDeviceQuickActions;
