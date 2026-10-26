@@ -2,14 +2,14 @@ import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { StyleSheet, ViewStyle, ActivityIndicator, Platform, Animated, View, Text, Pressable } from 'react-native';
 import { useLocale } from '@react-navigation/native';
 import { Swipeable } from 'react-native-gesture-handler';
-import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
+import { Transaction, TWallet } from '../class/wallets/types';
 import loc from '../loc';
 import { TransactionListItem } from './TransactionListItem';
 import { useTheme } from './themes';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { AddressItem } from './addresses/AddressItem';
-import { ItemType, AddressItemData } from '../models/itemTypes';
+import { ItemType, AddressItem as AddressSectionItem, TransactionItem, WalletItem } from '../models/itemTypes';
 import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
@@ -39,22 +39,7 @@ const getWalletIconImage = (walletType: string, direction: string) => {
   }
 };
 
-interface WalletItem {
-  type: ItemType.WalletSection;
-  data: TWallet;
-}
-
-interface TransactionItem {
-  type: ItemType.TransactionSection;
-  data: ExtendedTransaction & LightningTransaction;
-}
-
-interface AddressItem {
-  type: ItemType.AddressSection;
-  data: AddressItemData;
-}
-
-type Item = WalletItem | TransactionItem | AddressItem;
+type Item = WalletItem | TransactionItem | AddressSectionItem;
 
 interface ManageWalletsListItemProps {
   item: Item;
@@ -261,7 +246,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
 interface WalletGroupProps {
   wallet: TWallet;
   transactions: TransactionItem[];
-  addresses: AddressItem[];
+  addresses: AddressSectionItem[];
   state: { wallets: TWallet[]; searchQuery: string };
   navigateToWallet: (wallet: TWallet) => void;
   navigateToAddress: (address: string, walletID: string) => void;
@@ -338,7 +323,7 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
   const titleColor = dark ? colors.foregroundColor : colors.darkGray;
   const iconImage = getWalletIconImage(wallet.type, direction);
 
-  const renderAddress = (address: AddressItem, index: number) => {
+  const renderAddress = (address: AddressSectionItem, index: number) => {
     const computedBalance = hdElectrum?.getBalanceForExternalIndex(address.data.index) ?? 0;
     const computedTransactions = hdElectrum?.getTransactionCountForExternalIndex(address.data.index) ?? 0;
 

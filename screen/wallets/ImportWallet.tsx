@@ -174,7 +174,7 @@ const ImportWallet = () => {
   }, [importMnemonic, onBlur]);
 
   const onBarScanned = useCallback(
-    (value: string | { data: any }) => {
+    (value: string | { data: string }) => {
       // no objects here, only strings
       const newValue: string = typeof value !== 'string' ? value.data + '' : value;
       commitImportText(newValue, newValue.length);

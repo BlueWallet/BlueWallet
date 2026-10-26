@@ -20,15 +20,17 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { LNDStackParamsList } from '../../navigation/LNDStackParamsList';
+import { RootParamList } from '../../navigation/RootParamList';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { DecodedInvoice, TWallet } from '../../class/wallets/types';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { BlueLoading } from '../../components/BlueLoading';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { errorMessage } from '../../helpers/errorMessage';
 
 type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
-type NavigationProps = NativeStackNavigationProp<LNDStackParamsList, 'ScanLNDInvoice'>;
+type NavigationProps = NativeStackNavigationProp<RootParamList, 'ScanLNDInvoice'>;
 
 const ScanLNDInvoice = () => {
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
@@ -46,7 +48,8 @@ const ScanLNDInvoice = () => {
   const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState<boolean>(false);
   const [destination, setDestination] = useState<string>('');
   const [unit, setUnit] = useState<BitcoinUnit>(BitcoinUnit.SATS);
-  const [decoded, setDecoded] = useState<DecodedInvoice | undefined>();
+  // {} is the Ark-address sentinel: no invoice, but the form must render
+  const [decoded, setDecoded] = useState<Partial<DecodedInvoice> | undefined>();
   const [amount, setAmount] = useState<string | undefined>();
   const [isAmountInitiallyEmpty, setIsAmountInitiallyEmpty] = useState<boolean | undefined>();
   const [expiresIn, setExpiresIn] = useState<string | undefined>();
@@ -135,7 +138,6 @@ const ScanLNDInvoice = () => {
         const arkw = new LightningArkWallet();
         if (arkw.isAddressValid(data)) {
           setParams({ uri: undefined });
-          // @ts-ignore we need it to be set to something
           setDecoded({});
           setIsAmountInitiallyEmpty(true);
           setDestination(data);
@@ -166,11 +168,11 @@ const ScanLNDInvoice = () => {
         setAmount(newDecoded.num_satoshis.toString());
         setExpiresIn(newExpiresIn);
         setDecoded(newDecoded);
-      } catch (Err: any) {
+      } catch (Err) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         Keyboard.dismiss();
         setParams({ uri: undefined });
-        setTimeout(() => presentAlert({ message: Err.message, hapticFeedback: HapticFeedbackTypes.NotificationError }), 10);
+        setTimeout(() => presentAlert({ message: errorMessage(Err), hapticFeedback: HapticFeedbackTypes.NotificationError }), 10);
         setIsLoading(false);
         setAmount(undefined);
         setDestination('');
@@ -231,7 +233,8 @@ const ScanLNDInvoice = () => {
     }
     setIsLoading(true);
 
-    const expiryTimeMs = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
+    // an Ark address sets decoded = {} with no invoice to expire
+    const expiryTimeMs = decoded.timestamp !== undefined ? (decoded.timestamp + (decoded.expiry ?? 0)) * 1000 : Infinity;
     if (+new Date() > expiryTimeMs) {
       setIsLoading(false);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -247,11 +250,11 @@ const ScanLNDInvoice = () => {
 
     try {
       await wallet.payInvoice(destination, amountSats);
-    } catch (Err: any) {
-      console.log(Err.message);
+    } catch (Err) {
+      console.log(errorMessage(Err));
       setIsLoading(false);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      return presentAlert({ message: Err.message });
+      return presentAlert({ message: errorMessage(Err) });
     }
 
     navigate('Success', {
@@ -351,7 +354,7 @@ const ScanLNDInvoice = () => {
   const onBarScanned = useCallback(
     (value: string): void => {
       if (!value) return;
-      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, (completionValue: any) => {
+      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         navigate(...completionValue);
       });
@@ -404,7 +407,7 @@ const ScanLNDInvoice = () => {
               amount={amount}
               onAmountUnitChange={setUnit}
               onChangeText={setAmount}
-              disabled={!isAmountInitiallyEmpty || !decoded || isLoading || decoded.num_satoshis > 0}
+              disabled={!isAmountInitiallyEmpty || !decoded || isLoading || (decoded.num_satoshis ?? 0) > 0}
               unit={unit}
               inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
             />
@@ -429,7 +432,7 @@ const ScanLNDInvoice = () => {
             {expiresIn !== undefined && (
               <View>
                 <Text style={stylesHook.expiresIn}>{expiresIn}</Text>
-                {decoded && decoded.num_satoshis > 0 && feeText !== '' && (
+                {decoded && (decoded.num_satoshis ?? 0) > 0 && feeText !== '' && (
                   <Text style={stylesHook.expiresIn}>{loc.formatString(feeLabel, { fee: feeText })}</Text>
                 )}
               </View>

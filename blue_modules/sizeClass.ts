@@ -13,7 +13,7 @@ type NativeSizeClassPayload = {
 const sizeClassNativeModule = NativeModules.SizeClassEmitter as
   | {
       getCurrentSizeClass?: () => Promise<NativeSizeClassPayload>;
-      addListener: (eventType: string) => any;
+      addListener: (eventType: string) => void;
       removeListeners: (count: number) => void;
     }
   | undefined;

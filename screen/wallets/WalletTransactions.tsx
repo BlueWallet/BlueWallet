@@ -55,6 +55,7 @@ import { getClipboardContent } from '../../blue_modules/clipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import WalletGradient from '../../class/wallet-gradient';
+import { errorMessage } from '../../helpers/errorMessage';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -135,12 +136,12 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   });
 
   const onBarCodeRead = useCallback(
-    (ret?: { data?: any }) => {
+    (ret?: { data?: string }) => {
       if (!isLoading) {
         setIsLoading(true);
         const parameters = {
           walletID,
-          uri: ret?.data ? ret.data : ret,
+          uri: ret?.data,
         };
         if (wallet.chain === Chain.ONCHAIN) {
           navigate('SendDetailsRoot', {
@@ -235,14 +236,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         setFetchFailures(0);
         const newTimestamp = Date.now();
         setLastFetchTimestamp(newTimestamp);
-      } catch (err: any) {
-        const errorMessage: string = err.message;
+      } catch (err) {
+        const message = errorMessage(err);
         setFetchFailures(prev => {
           const newFailures = prev + 1;
           // Only show error on final attempt for automatic refresh
           if ((isManualRefresh || newFailures === MAX_FAILURES) && newFailures >= MAX_FAILURES) {
-            if (errorMessage) {
-              presentAlert({ message: errorMessage, type: AlertType.Toast });
+            if (message) {
+              presentAlert({ message, type: AlertType.Toast });
             }
           }
           setIsLoading(true);
@@ -345,7 +346,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const txRowHeight = Math.round(TX_ROW_BASE_HEIGHT * fontScale);
 
   const getItemLayout = useCallback(
-    (_: any, index: number) => ({
+    (_: unknown, index: number) => ({
       length: txRowHeight,
       offset: txRowHeight * index,
       index,
@@ -454,7 +455,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           }
           case 2: {
             navigate('ScanQRCode', {
-              showImportFileButton: true,
+              showFileImportButton: true,
             });
             break;
           }
@@ -476,12 +477,23 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     }
   };
 
-  useScreenMenuActions({
-    reloadTransactions: !isElectrumDisabled && !isLoading ? () => refreshTransactions(true) : undefined,
-    send: wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd()) ? sendButtonPress : undefined,
-    receive: wallet.allowReceive() ? receiveButtonPress : undefined,
-    walletDetails: !isLoading ? () => navigate('WalletDetails', { walletID }) : undefined,
-  });
+  const hideBalanceInRecentMenu = wallet.hideBalance;
+  const hideFromRecentMenu = wallet.getHideTransactionsInWalletsList?.() ?? false;
+  const recentWallet = useMemo(() => {
+    const formattedBalance = !hideBalanceInRecentMenu && Number.isFinite(balance) ? formatBalance(balance, displayUnit, true) : '';
+    const title = formattedBalance ? `${wallet.getLabel()} — ${formattedBalance}` : wallet.getLabel();
+    return { id: `wallet:${walletID}`, kind: 'wallet' as const, title, walletID };
+  }, [balance, displayUnit, hideBalanceInRecentMenu, wallet, walletID]);
+
+  useScreenMenuActions(
+    {
+      reloadTransactions: !isElectrumDisabled && !isLoading ? () => refreshTransactions(true) : undefined,
+      send: wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd()) ? sendButtonPress : undefined,
+      receive: wallet.allowReceive() ? receiveButtonPress : undefined,
+      walletDetails: !isLoading ? () => navigate('WalletDetails', { walletID }) : undefined,
+    },
+    hideFromRecentMenu ? undefined : recentWallet,
+  );
 
   useFocusEffect(
     useCallback(() => {

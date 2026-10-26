@@ -36,7 +36,7 @@ interface SelectWalletAction {
 interface NavigateAction {
   type: WalletActionType.Navigate;
   screen: string;
-  params: { [key: string]: any };
+  params: Record<string, unknown>;
 }
 
 interface SetFocusAction {
