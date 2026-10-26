@@ -30,6 +30,10 @@ export default class RBFCancel extends CPFP {
     }
   }
 
+  unsupportedText() {
+    return loc.transactions.rbf_unsupported_cancel;
+  }
+
   async checkPossibilityOfRBFCancel() {
     let tx;
     if (isWatchOnlySegwitBech32(this.state.wallet)) {

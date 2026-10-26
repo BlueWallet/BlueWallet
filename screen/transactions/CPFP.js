@@ -129,8 +129,13 @@ export default class CPFP extends Component {
 
   nonReplaceableText(defaultText) {
     if (this.state.unverified) return loc.transactions.rbf_unverified;
-    if (this.state.unsupported) return loc.transactions.rbf_unsupported;
+    if (this.state.unsupported) return this.unsupportedText();
     return defaultText;
+  }
+
+  /** Message shown when this wallet can't do it for this transaction (`TxNotReplaceableError`) */
+  unsupportedText() {
+    return loc.transactions.cpfp_unsupported_size;
   }
 
   broadcast = () => {

@@ -26,7 +26,8 @@ export const isTxVerificationError = (error: unknown): boolean =>
 
 /**
  * Thrown when a transaction checks out, but this wallet can't build a replacement (RBF) for it, e.g. it spends coins
- * this wallet doesn't control or has an output we can't recreate.
+ * this wallet doesn't control or has an output we can't recreate. Also thrown for CPFP when size of the transaction
+ * can't be verified.
  */
 export class TxNotReplaceableError extends Error {
   constructor(message: string) {
@@ -61,6 +62,15 @@ const varIntLength = (n: number): number => (n < 0xfd ? 1 : n <= 0xffff ? 3 : n 
 
 const witnessByteLength = (witness: Uint8Array[]): number =>
   varIntLength(witness.length) + witness.reduce((sum, item) => sum + varIntLength(item.length) + item.length, 0);
+
+/** Address of an output script, or undefined if it has none (e.g. OP_RETURN) */
+const outputScriptToAddress = (script: Uint8Array): string | undefined => {
+  try {
+    return bitcoin.address.fromOutputScript(script);
+  } catch (_) {
+    return undefined;
+  }
+};
 
 /**
  * Checks that input `inIndex` of `tx` is a valid P2WPKH spend of `prevOutScript` worth `value` sats.
@@ -256,10 +266,11 @@ export class HDSegwitBech32Transaction {
    * * unconfirmedUtxos - UTXOs created by this transaction (only the ones we control)
    *
    * Throws `TxVerificationError` if data from Electrum server can't be verified. With `replacement` set ('bump' or
-   * 'cancel') it also throws `TxNotReplaceableError` if this wallet can't build such RBF replacement.
+   * 'cancel') it also throws `TxNotReplaceableError` if this wallet can't build such RBF replacement. Without it (CPFP)
+   * it throws `TxNotReplaceableError` if size of the transaction can't be verified (see `_hasUnverifiableWitness()`).
    *
    * @param replacement {'bump'|'cancel'|undefined} set when info is needed for an RBF replacement (not for CPFP)
-   * @returns {Promise<{fee: number, utxos: Array, unconfirmedUtxos: Array, changeAmount: number, feeRate: number, vsize: number, targets: Array}>}
+   * @returns {Promise<{fee: number, utxos: Array, unconfirmedUtxos: Array, changeAmount: number, feeRate: number, vsize: number, witnessUnverifiable: boolean, targets: Array}>}
    */
   async getInfo(replacement?: 'bump' | 'cancel') {
     let info;
@@ -277,6 +288,20 @@ export class HDSegwitBech32Transaction {
       }
       await BlueElectrum.forgetCachedTransactions(txids);
       info = await this._getInfo();
+    }
+
+    if (!replacement && info.witnessUnverifiable) {
+      // CPFP needs real size of this tx, but witness of inputs we cant verify is not covered by txid. it might be
+      // padded (by a server or in cache), so trying a fresh copy once. if still too big we cant price CPFP, refusing
+      if (this._txid) {
+        await BlueElectrum.forgetCachedTransactions([this._txid]);
+        this._txDecoded = undefined;
+        this._txhex = null;
+        info = await this._getInfo();
+      }
+      if (info.witnessUnverifiable) {
+        throw new TxNotReplaceableError("Transaction has a big witness that can't be verified, cannot calculate its size");
+      }
     }
 
     if (replacement) {
@@ -354,6 +379,7 @@ export class HDSegwitBech32Transaction {
     if (fee < 0) throw new TxVerificationError('Transaction fee is negative');
     const vsize = this._getVsizeForFeerate(verifiedInputs);
     const feeRate = Math.floor(fee / vsize);
+    const witnessUnverifiable = this._hasUnverifiableWitness(verifiedInputs);
 
     // lets take a look at change, and outputs we own that current transaction creates (can be used in CPFP).
     // outputs are taken from the (txid-checked) raw tx, not from the server-decoded json
@@ -363,10 +389,7 @@ export class HDSegwitBech32Transaction {
     for (let n = 0; n < this._txDecoded.outs.length; n++) {
       const outp = this._txDecoded.outs[n];
       const value = Number(outp.value);
-      let address: string | undefined;
-      try {
-        address = bitcoin.address.fromOutputScript(outp.script);
-      } catch (_) {}
+      const address = outputScriptToAddress(outp.script);
 
       if (address && this._wallet.weOwnAddress(address)) {
         changeAmount += value;
@@ -377,7 +400,19 @@ export class HDSegwitBech32Transaction {
       }
     }
 
-    return { fee, feeRate, vsize, targets, changeAmount, utxos, unconfirmedUtxos };
+    return { fee, feeRate, vsize, witnessUnverifiable, targets, changeAmount, utxos, unconfirmedUtxos };
+  }
+
+  /**
+   * True if some input we cant verify has witness bigger than `UNVERIFIED_WITNESS_MAX_BYTES`. Then real size of the
+   * transaction is not known: `_getVsizeForFeerate()` counts less (so a padded witness cant make CPFP overpay), but an
+   * honest big witness (multisig, script path spend, inscription) would make CPFP underpay a lot.
+   *
+   * @param verifiedInputs indexes of inputs whose witness was verified
+   */
+  _hasUnverifiableWitness(verifiedInputs: Set<number>): boolean {
+    assert(this._txDecoded, 'transaction not decoded');
+    return this._txDecoded.ins.some((inp, i) => !verifiedInputs.has(i) && witnessByteLength(inp.witness) > UNVERIFIED_WITNESS_MAX_BYTES);
   }
 
   /**
@@ -460,7 +495,12 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._txDecoded) await this._fetchTxhexAndDecode();
 
+    assert(this._txDecoded, 'could not fetch tx and decode');
+
     if (await this.thereAreUnknownInputsInTx()) return false;
+
+    // bump re-creates all outputs, but only the ones paying to an address are supported (same as `getInfo('bump')`)
+    if (this._txDecoded.outs.some(outp => !outputScriptToAddress(outp.script))) return false;
 
     return true;
   }

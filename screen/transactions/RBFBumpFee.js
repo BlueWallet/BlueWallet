@@ -38,6 +38,10 @@ export default class RBFBumpFee extends CPFP {
     }
   }
 
+  unsupportedText() {
+    return loc.transactions.rbf_unsupported_bump;
+  }
+
   async checkPossibilityOfRBFBumpFee() {
     let tx;
     if (isWatchOnlySegwitBech32(this.state.wallet)) {

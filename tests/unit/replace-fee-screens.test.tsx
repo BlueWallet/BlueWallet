@@ -45,6 +45,7 @@ const screens = [
     notPossible: loc.transactions.cpfp_no_bump,
     create: 'createRBFbumpFee',
     replacement: 'bump',
+    unsupported: loc.transactions.rbf_unsupported_bump,
   },
   {
     name: 'RBFCancel',
@@ -52,6 +53,7 @@ const screens = [
     notPossible: loc.transactions.cancel_no,
     create: 'createRBFcancelTx',
     replacement: 'cancel',
+    unsupported: loc.transactions.rbf_unsupported_cancel,
   },
   {
     name: 'CPFP',
@@ -59,6 +61,7 @@ const screens = [
     notPossible: loc.transactions.cpfp_no_bump,
     create: 'createCPFPbumpFee',
     replacement: undefined,
+    unsupported: loc.transactions.cpfp_unsupported_size,
   },
 ];
 
@@ -76,7 +79,9 @@ const renderScreen = async (Screen: any) => {
   return { ...utils, ref };
 };
 
-describe.each(screens)('$name screen', ({ Screen, notPossible, create, replacement }) => {
+const allUnsupportedTexts = screens.map(s => s.unsupported);
+
+describe.each(screens)('$name screen', ({ Screen, notPossible, create, replacement, unsupported }) => {
   beforeEach(() => {
     for (const k of Object.keys(mockTx)) delete mockTx[k];
     Object.assign(mockTx, {
@@ -102,16 +107,18 @@ describe.each(screens)('$name screen', ({ Screen, notPossible, create, replaceme
     else expect(mockTx.getInfo).toHaveBeenCalledWith();
   });
 
-  it('shows "can\'t be sped up or canceled" on load when this wallet cannot replace the transaction', async () => {
+  it('shows its own "can\'t be done" message on load when this wallet cannot do it for the transaction', async () => {
     mockTx.getInfo.mockRejectedValue(new TxNotReplaceableError('Unsupported output in transaction'));
     const { ref, getByText, queryByText } = await renderScreen(Screen);
     expect(ref.current.state.isLoading).toBe(false);
     expect(ref.current.state.tx).toBeUndefined();
-    getByText(loc.transactions.rbf_unsupported);
+    getByText(unsupported);
+    // only the message of this screen, e.g. speed up screen doesn't say that cancel is impossible
+    for (const other of allUnsupportedTexts.filter(t => t !== unsupported)) expect(queryByText(other)).toBeNull();
     expect(queryByText(loc.transactions.rbf_unverified)).toBeNull();
   });
 
-  it('stops with "can\'t be sped up or canceled" when creating the replacement is refused', async () => {
+  it('stops with its own "can\'t be done" message when creating the replacement is refused', async () => {
     mockTx[create].mockRejectedValue(new TxNotReplaceableError('Not all inputs of this transaction are ours, cannot replace it'));
     const { ref, getByText } = await renderScreen(Screen);
     await act(async () => {
@@ -123,7 +130,7 @@ describe.each(screens)('$name screen', ({ Screen, notPossible, create, replaceme
     expect(ref.current.state.isLoading).toBe(false);
     expect(ref.current.state.stage).toBe(1);
     expect(ref.current.state.tx).toBeUndefined();
-    getByText(loc.transactions.rbf_unsupported);
+    getByText(unsupported);
   });
 
   it('shows "could not be verified" instead of spinning forever when verification fails', async () => {
