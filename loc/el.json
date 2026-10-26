@@ -308,6 +308,8 @@
     "privacy": "Ιδιωτικότητα",
     "privacy_read_clipboard": "Ανάγνωση προχείρου",
     "privacy_system_settings": "Ρυθμίσεις συστήματος",
+    "privacy_quickactions": "Συντομεύσεις πορτοφολιού",
+    "privacy_quickactions_explanation": "Αγγίξτε και κρατήστε το εικονίδιο της εφαρμογής BlueWallet για να δείτε γρήγορα το υπόλοιπο του πορτοφολιού σας.",
     "privacy_clipboard_explanation": "Παρέχει συντομεύσεις εάν βρεθεί μια διεύθυνση ή ένα τιμολόγιο στο πρόχειρό σας.",
     "privacy_do_not_track": "Απενεργοποίηση ανάλυσης",
     "privacy_do_not_track_explanation": "Πληροφορίες απόδοσης και αξιοπιστίας δεν θα υποβάλλονται για ανάλυση.",

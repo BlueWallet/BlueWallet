@@ -23,7 +23,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         automaticallyLoadReactNativeWindow = false
         clearFilesIfNeeded()
 
-        if #available(iOS 18.0, visionOS 2.0, *) {
+        if #available(iOS 16.4, visionOS 1.0, *) {
             WalletAppShortcuts.updateAppShortcutParameters()
         }
         

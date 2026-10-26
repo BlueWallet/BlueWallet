@@ -308,6 +308,8 @@
     "privacy": "Privatnost",
     "privacy_read_clipboard": "Čitaj međuspremnik",
     "privacy_system_settings": "Postavke sustava",
+    "privacy_quickactions": "Prečaci novčanika",
+    "privacy_quickactions_explanation": "Dodirnite i držite ikonu BlueWallet aplikacije za brzi pregled salda novčanika.",
     "privacy_clipboard_explanation": "Pruža prečace ako se u međuspremniku pronađe adresa ili faktura.",
     "privacy_do_not_track": "Isključi analitiku",
     "privacy_do_not_track_explanation": "Informacije o izvedbi i pouzdanosti neće biti poslane na analizu.",

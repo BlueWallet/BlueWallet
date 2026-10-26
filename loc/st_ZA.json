@@ -308,6 +308,8 @@
     "privacy": "Lekunutu",
     "privacy_read_clipboard": "Bala Clipboard",
     "privacy_system_settings": "Ditlhophiso tsa Sisteme",
+    "privacy_quickactions": "Dikgutshwanyane tsa Sepache",
+    "privacy_quickactions_explanation": "Tshwara mme o boloke aekhone ya BlueWallet ho bona tjhelete ya sepache sa hao ka potlako.",
     "privacy_clipboard_explanation": "Fana ka dikgutshwanyane haeba aterese kapa invoisi e fumanwa ho clipboard ya hao.",
     "privacy_do_not_track": "Tima Tlhahlobo",
     "privacy_do_not_track_explanation": "Tlhahisoleseding ya tshebetso le ya botshepehi e ke ke ya rongwa bakeng sa tlhahlobo.",

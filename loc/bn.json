@@ -308,6 +308,8 @@
     "privacy": "গোপনীয়তা",
     "privacy_read_clipboard": "ক্লিপবোর্ড পড়ুন",
     "privacy_system_settings": "সিস্টেম সেটিংস",
+    "privacy_quickactions": "ওয়ালেট শর্টকাট",
+    "privacy_quickactions_explanation": "আপনার ওয়ালেটের ব্যালেন্স দ্রুত দেখতে BlueWallet অ্যাপ আইকনটি স্পর্শ করে ধরে রাখুন।",
     "privacy_clipboard_explanation": "আপনার ক্লিপবোর্ডে কোনো ঠিকানা বা ইনভয়েস পাওয়া গেলে শর্টকাট প্রদান করুন।",
     "privacy_do_not_track": "অ্যানালিটিক্স নিষ্ক্রিয় করুন",
     "privacy_do_not_track_explanation": "কর্মক্ষমতা ও নির্ভরযোগ্যতা সম্পর্কিত তথ্য বিশ্লেষণের জন্য জমা দেওয়া হবে না।",

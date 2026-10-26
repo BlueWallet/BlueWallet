@@ -308,6 +308,8 @@
     "privacy": "Riêng tư",
     "privacy_read_clipboard": "Đọc bảng tạm",
     "privacy_system_settings": "Cài đặt hệ thống",
+    "privacy_quickactions": "Các phím tắt ví",
+    "privacy_quickactions_explanation": "Chạm và giữ biểu tượng ứng dụng BlueWallet để xem nhanh số dư của ví.",
     "privacy_clipboard_explanation": "Cung cấp phím tắt trong trường hợp một địa chỉ hoặc hóa đơn được tìm thấy trong bảng tạm của bạn.",
     "privacy_do_not_track": "Vô hiệu hoá phân tích ",
     "privacy_do_not_track_explanation": "Thông tin về hiệu suất và độ tin cậy sẽ không được gửi để phân tích.",

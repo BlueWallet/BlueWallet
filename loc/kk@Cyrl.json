@@ -308,6 +308,8 @@
     "privacy": "Құпиялылық",
     "privacy_read_clipboard": "Алмасу буферін оқу",
     "privacy_system_settings": "Жүйелік баптаулар",
+    "privacy_quickactions": "Әмиян таңбашалары",
+    "privacy_quickactions_explanation": "Әмиян балансын жылдам көру үшін BlueWallet қолданба белгішесін басып тұрыңыз.",
     "privacy_clipboard_explanation": "Алмасу буферінде мекенжай немесе шот табылса, таңбашаларды ұсыну.",
     "privacy_do_not_track": "Аналитиканы өшіру",
     "privacy_do_not_track_explanation": "Өнімділік пен сенімділік туралы ақпарат талдау үшін жіберілмейді.",

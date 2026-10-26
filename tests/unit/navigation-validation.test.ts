@@ -1,9 +1,10 @@
-import { CommonActions, StackRouter } from '@react-navigation/native';
+import { CommonActions, StackActions, StackRouter } from '@react-navigation/native';
 import { readFileSync, readdirSync } from 'fs';
 import path from 'path';
 import { Chain } from '../../models/bitcoinUnits';
 import {
   findNavigatorKeyForRoute,
+  getGuardRedirectAction,
   getGuardedRoute,
   GuardedNavigationAction,
   NavigationGuardDependencies,
@@ -194,6 +195,25 @@ describe('navigation validation', () => {
       redirect: { name: 'WalletExport', params: { walletID: 'wallet-1' } },
     });
     expect(dependencies.presentWalletExportReminder).toHaveBeenCalledTimes(1);
+  });
+
+  it('pops the shortcut placeholder to the existing drawer for on-chain receive', async () => {
+    const dependencies = createDependencies();
+    dependencies.wallets = [createWallet()];
+
+    const result = await validateGuardedRoute({ name: 'AppShortcut', params: { selectionMode: 'receive' } }, dependencies);
+    expect(result).toEqual({
+      allowed: false,
+      redirect: {
+        name: 'DrawerRoot',
+        params: {
+          screen: 'DetailViewStackScreensStack',
+          params: { screen: 'ReceiveDetails', params: { walletID: 'wallet-1', address: '' } },
+        },
+      },
+    });
+
+    expect(getGuardRedirectAction(result.redirect!, true)).toEqual(StackActions.popTo('DrawerRoot', result.redirect!.params));
   });
 
   it('saves the wallet export acknowledgement before allowing navigation', async () => {

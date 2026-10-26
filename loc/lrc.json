@@ -308,6 +308,8 @@
     "privacy": "سی خومی",
     "privacy_read_clipboard": "ونن ویرگه",
     "privacy_system_settings": "سامونیا دسگا",
+    "privacy_quickactions": "میونبر کیف پیلٛ",
+    "privacy_quickactions_explanation": "نشونه بنومه BlueWallet ن لمس بکوݩ ۉ نگه دار سی دؽن سریع مۉجۊدی کیف پیلٛت.",
     "privacy_clipboard_explanation": "اگه آدرس یا سۊرت هساوی د ویرگه تو پیدا بۊئه، میونبر دار.",
     "privacy_do_not_track": "قیر فعال کردن تحلیل گری",
     "privacy_do_not_track_explanation": "دونسمنیا عملکرد ۉ ٱطمیون پزیری سی تحلیل کلٛ نمؽۊن.",

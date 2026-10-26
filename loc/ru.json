@@ -308,6 +308,8 @@
     "privacy": "Приватность",
     "privacy_read_clipboard": "Чтение буфера обмена",
     "privacy_system_settings": "Настройки системы",
+    "privacy_quickactions": "Быстрые команды",
+    "privacy_quickactions_explanation": "Долгое нажатие на иконку BlueWallet показывает баланс.",
     "privacy_clipboard_explanation": "Показывать действие, если в буфере адрес или инвойс.",
     "privacy_do_not_track": "Выключить аналитику",
     "privacy_do_not_track_explanation": "Данные производительности не будут отправляться.",

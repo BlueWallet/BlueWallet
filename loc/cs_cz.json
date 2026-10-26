@@ -314,6 +314,8 @@
     "privacy": "Soukromí",
     "privacy_read_clipboard": "Kopírovat ze schránky",
     "privacy_system_settings": "Systémová nastavení",
+    "privacy_quickactions": "Zástupci peněženky",
+    "privacy_quickactions_explanation": "Dlouhý stisk ikony BlueWallet na vaší výchozí obrazovce zobrazí váš zůstatek.",
     "privacy_clipboard_explanation": "Poskytnout zkratky, pokud se ve vaší schránce nachází adresa nebo faktura.",
     "privacy_do_not_track": "Zakázat analytiku",
     "privacy_do_not_track_explanation": "Informace o výkonu a spolehlivosti nebudou odesílány k analýze.",

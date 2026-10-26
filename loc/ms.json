@@ -308,6 +308,8 @@
     "privacy": "Persendirian",
     "privacy_read_clipboard": "Baca Papan Sepit",
     "privacy_system_settings": "Tetapan Sistem",
+    "privacy_quickactions": "Pintasan Dompet",
+    "privacy_quickactions_explanation": "Sentuh dan tahan ikon aplikasi BlueWallet untuk melihat baki dompet anda dengan pantas.",
     "privacy_clipboard_explanation": "Memberikan pintasan jika alamat atau invois dijumpai pada papan sepit anda.",
     "privacy_do_not_track": "Lumpuhkan Penyelidik",
     "privacy_do_not_track_explanation": "Maklumat pencapaian dan keandalan tidak akan dihantar untuk kaji selidik.",

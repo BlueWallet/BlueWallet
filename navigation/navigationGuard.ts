@@ -1,4 +1,4 @@
-import { NavigationAction, NavigationState, PartialState, Router } from '@react-navigation/native';
+import { CommonActions, NavigationAction, NavigationState, PartialState, Router, StackActions } from '@react-navigation/native';
 import { Chain } from '../models/bitcoinUnits';
 import { getCompatibleShortcutWallets, getShortcutWalletDestination, ShortcutWalletSelectionMode } from './linking';
 
@@ -50,6 +50,15 @@ export type NavigationValidationResult = {
   allowed: boolean;
   redirect?: { name: string; params?: NavigationParams };
   failure?: 'missingSendWallet' | 'missingReceiveWallet' | 'missingLightningWallet';
+};
+
+export const getGuardRedirectAction = (
+  redirect: NonNullable<NavigationValidationResult['redirect']>,
+  isShortcutPlaceholder: boolean,
+): NavigationAction => {
+  if (!isShortcutPlaceholder) return CommonActions.navigate(redirect.name, redirect.params);
+  if (redirect.name === 'DrawerRoot') return StackActions.popTo('DrawerRoot', redirect.params);
+  return StackActions.replace(redirect.name, redirect.params);
 };
 
 const asParams = (value: unknown): NavigationParams | undefined =>

@@ -308,6 +308,8 @@
     "privacy": "Privaatsus",
     "privacy_read_clipboard": "Loe lõikelauda",
     "privacy_system_settings": "Süsteemi seaded",
+    "privacy_quickactions": "Rahakoti otseteed",
+    "privacy_quickactions_explanation": "Puuduta ja hoia BlueWallet'i ikooni, et kiiresti vaadata oma rahakoti saldot.",
     "privacy_clipboard_explanation": "Paku otseteid, kui lõikelaualt leitakse aadress või arve.",
     "privacy_do_not_track": "Keela analüütika",
     "privacy_do_not_track_explanation": "Jõudluse ja töökindluse teavet ei esitata analüüsiks.",

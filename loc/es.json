@@ -308,6 +308,8 @@
     "privacy": "Privacidad",
     "privacy_read_clipboard": "Leer portapapeles",
     "privacy_system_settings": "Configuración del sistema",
+    "privacy_quickactions": "Atajos para tus carteras",
+    "privacy_quickactions_explanation": "Mantén pulsado el icono de la aplicación BlueWallet para ver rápidamente el balance de tu cartera.",
     "privacy_clipboard_explanation": "Muestra atajos si encuentra direcciones o facturas en tu portapapeles.",
     "privacy_do_not_track": "Deshabilitar analíticas",
     "privacy_do_not_track_explanation": "Los datos sobre funcionamiento y fiabilidad no serán enviados para ser analizados.",

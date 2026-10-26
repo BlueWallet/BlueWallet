@@ -308,6 +308,8 @@
     "privacy": "Privatliv",
     "privacy_read_clipboard": "Læs udklipsholder",
     "privacy_system_settings": "Systemindstillinger",
+    "privacy_quickactions": "Wallet-genveje",
+    "privacy_quickactions_explanation": "Tryk og hold på BlueWallet-appikonet for hurtigt at se din wallets saldo.",
     "privacy_clipboard_explanation": "Tilbyd genveje, hvis en adresse eller faktura findes i din udklipsholder.",
     "privacy_do_not_track": "Deaktiver analyse",
     "privacy_do_not_track_explanation": "Oplysninger om ydeevne og pålidelighed vil ikke blive indsendt til analyse.",

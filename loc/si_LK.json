@@ -308,6 +308,8 @@
     "privacy": "පෞද්ගලිකත්වය",
     "privacy_read_clipboard": "පසුරු පුවරුව කියවන්න",
     "privacy_system_settings": "පද්ධති සැකසීම්",
+    "privacy_quickactions": "පසුම්බි කෙටිමං",
+    "privacy_quickactions_explanation": "ඔබේ පසුම්බියේ ශේෂය ඉක්මනින් බැලීමට බ්ලූවොලට් යෙදුම් අයිකනය ස්පර්ශ කර අල්ලාගෙන සිටින්න.",
     "privacy_clipboard_explanation": "ඔබේ පසුරු පුවරුවේ ලිපිනයක් හෝ ඉන්වොයිසියක් හමු වුවහොත් කෙටිමං ලබා දෙන්න.",
     "privacy_do_not_track": "විශ්ලේෂණ අක්‍රීය කරන්න",
     "privacy_do_not_track_explanation": "විශ්ලේෂණය සඳහා කාර්ය සාධනය සහ විශ්වසනීයත්ව තොරතුරු ඉදිරිපත් නොකෙරේ.",

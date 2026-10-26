@@ -308,6 +308,8 @@
     "privacy": "Privacy",
     "privacy_read_clipboard": "Leggi gli appunti",
     "privacy_system_settings": "Impostazioni di sistema",
+    "privacy_quickactions": "Scorciatoie Wallet",
+    "privacy_quickactions_explanation": "Tocca e tieni premuta l'icona dell'app BlueWallet per visualizzare rapidamente il saldo del tuo portafoglio.",
     "privacy_clipboard_explanation": "Fornisci scorciatoie se viene rilevato un indirizzo o una ricevuta nella tua clipboard.",
     "privacy_do_not_track": "Disattiva Analytics",
     "privacy_do_not_track_explanation": "Le informazioni sulle prestazioni e l'affidabilità non saranno inviate per l'analisi.",

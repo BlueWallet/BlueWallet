@@ -308,6 +308,8 @@
     "privacy": "Privacidade",
     "privacy_read_clipboard": "Copiar da Área de Transferência",
     "privacy_system_settings": "Definições do Sistema",
+    "privacy_quickactions": "Atalhos da Carteira",
+    "privacy_quickactions_explanation": "Toque e mantenha pressionado o ícone da aplicação BlueWallet para visualizar rapidamente o saldo da sua carteira.",
     "privacy_clipboard_explanation": "Fornecer atalhos se um endereço ou fatura for encontrado na sua área de transferência.",
     "privacy_do_not_track": "Desativar Ferramentas Analíticas",
     "privacy_do_not_track_explanation": "As informações sobre desempenho e fiabilidade não serão enviadas para análise.",

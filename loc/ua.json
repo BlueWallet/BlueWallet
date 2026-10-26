@@ -308,6 +308,8 @@
     "privacy": "Приватність",
     "privacy_read_clipboard": "Зчитувати буфер обміну",
     "privacy_system_settings": "Системні Налаштування",
+    "privacy_quickactions": "Ярлики Гаманця",
+    "privacy_quickactions_explanation": "Натисніть та утримуйте іконку застосунку BlueWallet, щоб швидко переглянути баланс гаманця.",
     "privacy_clipboard_explanation": "Надавати ярлики, якщо в буфері обміну знайдено адресу або інвойс.",
     "privacy_do_not_track": "Вимкнути Аналітику",
     "privacy_do_not_track_explanation": "Інформація про продуктивність і надійність не надсилатиметься для аналізу.",

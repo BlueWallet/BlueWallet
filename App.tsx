@@ -25,6 +25,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapti
 import loc from './loc';
 import {
   findNavigatorKeyForRoute,
+  getGuardRedirectAction,
   getGuardedRoute,
   GuardedRoute,
   GuardedNavigationAction,
@@ -108,9 +109,10 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
           if (!result.allowed && !result.redirect) return;
 
           const nextAction = result.redirect
-            ? guardedRoute.name === 'AppShortcut' && navigationRef.getCurrentRoute()?.name === 'AppShortcut'
-              ? StackActions.replace(result.redirect.name, result.redirect.params)
-              : CommonActions.navigate(result.redirect.name, result.redirect.params)
+            ? getGuardRedirectAction(
+                result.redirect,
+                guardedRoute.name === 'AppShortcut' && navigationRef.getCurrentRoute()?.name === 'AppShortcut',
+              )
             : action;
           const targetRouteName = result.redirect?.name ?? guardedRoute.name;
           const targetNavigatorKey = result.redirect

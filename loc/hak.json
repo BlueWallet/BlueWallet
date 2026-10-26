@@ -308,6 +308,8 @@
     "privacy": "隱私",
     "privacy_read_clipboard": "讀取剪貼簿",
     "privacy_system_settings": "系統設定",
+    "privacy_quickactions": "錢包捷徑",
+    "privacy_quickactions_explanation": "撳等 BlueWallet app 圖示毋放，做得遽遽查看你錢包个餘額。",
     "privacy_clipboard_explanation": "假使你个剪貼簿內肚尋到地址抑係發票，就提供捷徑。",
     "privacy_do_not_track": "停用分析",
     "privacy_do_not_track_explanation": "效能摎可靠性个資訊毋會送出去做分析。",

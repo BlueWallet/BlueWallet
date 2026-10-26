@@ -43,7 +43,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return
         }
         _ = appDelegate.application(UIApplication.shared, continue: userActivity, restorationHandler: { _ in })
-        RCTLinkingManager.scene(scene, continue: userActivity)
     }
 
     func windowScene(

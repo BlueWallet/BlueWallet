@@ -308,6 +308,8 @@
     "privacy": "Privacitat",
     "privacy_read_clipboard": "Llegir el portapapers",
     "privacy_system_settings": "Configuració del Sistema",
+    "privacy_quickactions": "Dreceres del moneder",
+    "privacy_quickactions_explanation": "Mantingueu premuda la icona de l'aplicació BlueWallet per consultar ràpidament el saldo del vostre moneder.",
     "privacy_clipboard_explanation": "Proporcionar dreceres si es troba una adreça o factura al vostre porta-retalls.",
     "privacy_do_not_track": "Desactivar analítiques",
     "privacy_do_not_track_explanation": "La informació de rendiment i fiabilitat no s'enviarà per a la seva anàlisi.",

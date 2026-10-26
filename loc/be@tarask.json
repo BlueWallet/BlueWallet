@@ -308,6 +308,8 @@
     "privacy": "Прыватнасьць",
     "privacy_read_clipboard": "Чытаць буфэр абмену",
     "privacy_system_settings": "Сыстэмныя налады",
+    "privacy_quickactions": "Цэтлікі кашалька",
+    "privacy_quickactions_explanation": "Націсьніце і ўтрымлівайце значок BlueWallet, каб хутка прагледзець баланс вашага кашалька.",
     "privacy_clipboard_explanation": "Прадастаўляць цэтлікі, калі адрас альбо інвойс знойдзены ў вашым буфэры абмену.",
     "privacy_do_not_track": "Адключыць аналітыку",
     "privacy_do_not_track_explanation": "Інфармацыя пра прадукцыйнасьць і надзейнасьць ня будзе адпраўляцца для аналізу.",

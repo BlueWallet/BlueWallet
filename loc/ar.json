@@ -308,6 +308,8 @@
     "privacy": "الخصوصية",
     "privacy_read_clipboard": "قراءة الحافظة",
     "privacy_system_settings": "إعدادات الجهاز",
+    "privacy_quickactions": "اختصارات المحفظة",
+    "privacy_quickactions_explanation": "اضغط مع الاستمرار على أيقونة تطبيق BlueWallet لعرض رصيد محفظتك بسرعة.",
     "privacy_clipboard_explanation": "عرض اختصار إذا تم العثور على عنوان أو فاتورة في الحافظة الخاصة بك.",
     "privacy_do_not_track": "تعطيل التحليلات",
     "privacy_do_not_track_explanation": "لن يتم إرسال التحليلات المتعلقة بأداء وقابلية تشغيل المحفظة إلينا.",

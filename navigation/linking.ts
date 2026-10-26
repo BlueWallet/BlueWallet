@@ -1,6 +1,6 @@
 import { LinkingOptions } from '@react-navigation/native';
 import { Chain } from '../models/bitcoinUnits';
-import { DetailViewStackParamList } from './DetailViewStackParamList';
+import { RootParamList } from './RootParamList';
 
 export type ShortcutWalletSelectionMode = 'send' | 'receive' | 'scan';
 
@@ -29,7 +29,13 @@ export const getShortcutWalletDestination = (selectionMode: ShortcutWalletSelect
 
   if (selectionMode === 'receive') {
     return chain === Chain.ONCHAIN
-      ? { name: 'ReceiveDetails', params: { walletID, address: '' } }
+      ? {
+          name: 'DrawerRoot',
+          params: {
+            screen: 'DetailViewStackScreensStack',
+            params: { screen: 'ReceiveDetails', params: { walletID, address: '' } },
+          },
+        }
       : {
           name: 'LNDCreateInvoiceRoot',
           params: { screen: 'LNDCreateInvoice', params: { walletID } },
@@ -58,7 +64,7 @@ export const getShortcutWalletDestination = (selectionMode: ShortcutWalletSelect
       };
 };
 
-export const linking: LinkingOptions<DetailViewStackParamList> = {
+export const linking: LinkingOptions<RootParamList> = {
   prefixes: ['bluewallet://', 'https://bluewallet.io'],
   config: {
     initialRouteName: 'DrawerRoot',

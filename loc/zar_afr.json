@@ -308,6 +308,8 @@
     "privacy": "Privaatheid",
     "privacy_read_clipboard": "Lees knipbord",
     "privacy_system_settings": "Stelselinstellings",
+    "privacy_quickactions": "Beursie-kortpaaie",
+    "privacy_quickactions_explanation": "Raak en hou die BlueWallet app-ikoon om jou beursie se balans vinnig te sien.",
     "privacy_clipboard_explanation": "Verskaf kortpaaie indien 'n adres of faktuur in jou knipbord gevind word.",
     "privacy_do_not_track": "Skakel analise af",
     "privacy_do_not_track_explanation": "Prestasie- en betroubaarheidsinligting sal nie vir ontleding ingedien word nie.",

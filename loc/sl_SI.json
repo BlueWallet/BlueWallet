@@ -308,6 +308,8 @@
     "privacy": "Zasebnost",
     "privacy_read_clipboard": "Branje odložišča",
     "privacy_system_settings": "Sistemske nastavitve",
+    "privacy_quickactions": "Bližnjice",
+    "privacy_quickactions_explanation": "Dotaknite se ikone aplikacije BlueWallet in jo zadržite, da si hitro ogledate stanje denarnice.",
     "privacy_clipboard_explanation": "Prikaži bližnjice, če je v odložišču najden naslov ali račun.",
     "privacy_do_not_track": "Onemogoči analitiko",
     "privacy_do_not_track_explanation": "Informacije o zmogljivosti in zanesljivosti ne bodo poslane v analizo.",

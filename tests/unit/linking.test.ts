@@ -39,12 +39,22 @@ describe('app shortcut linking', () => {
 
   test.each([
     ['send', Chain.ONCHAIN, 'SendDetailsRoot'],
-    ['receive', Chain.ONCHAIN, 'ReceiveDetails'],
+    ['receive', Chain.ONCHAIN, 'DrawerRoot'],
     ['receive', Chain.OFFCHAIN, 'LNDCreateInvoiceRoot'],
     ['scan', Chain.ONCHAIN, 'SendDetailsRoot'],
     ['scan', Chain.OFFCHAIN, 'ScanLNDInvoiceRoot'],
   ] as const)('routes %s through an available %s wallet', (mode, chain, routeName) => {
     expect(getShortcutWalletDestination(mode, chain, 'wallet-1').name).toBe(routeName);
+  });
+
+  it('routes on-chain receive through the existing drawer stack', () => {
+    expect(getShortcutWalletDestination('receive', Chain.ONCHAIN, 'wallet-1')).toEqual({
+      name: 'DrawerRoot',
+      params: {
+        screen: 'DetailViewStackScreensStack',
+        params: { screen: 'ReceiveDetails', params: { walletID: 'wallet-1', address: '' } },
+      },
+    });
   });
 
   test.each([

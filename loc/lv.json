@@ -308,6 +308,8 @@
     "privacy": "Privātums",
     "privacy_read_clipboard": "Lasīt starpliktuvi",
     "privacy_system_settings": "Sistēmas iestatījumi",
+    "privacy_quickactions": "Maka saīsnes",
+    "privacy_quickactions_explanation": "Pieskarieties BlueWallet lietotnes ikonai un turiet to, lai ātri apskatītu sava maka bilanci.",
     "privacy_clipboard_explanation": "Piedāvāt saīsnes, ja jūsu starpliktuvē tiek atrasta adrese vai rēķins.",
     "privacy_do_not_track": "Atspējot analītiku",
     "privacy_do_not_track_explanation": "Informācija par veiktspēju un uzticamību netiks iesniegta analīzei.",

@@ -308,6 +308,8 @@
     "privacy": "ಗೌಪ್ಯತೆ",
     "privacy_read_clipboard": "ಕ್ಲಿಪ್‌ಬೋರ್ಡ್ ಓದಿ",
     "privacy_system_settings": "ಸಿಸ್ಟಮ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
+    "privacy_quickactions": "ವ್ಯಾಲೆಟ್ ಶಾರ್ಟ್‌ಕಟ್‌ಗಳು",
+    "privacy_quickactions_explanation": "ನಿಮ್ಮ ವ್ಯಾಲೆಟ್‌ನ ಬಾಕಿಯನ್ನು ತ್ವರಿತವಾಗಿ ವೀಕ್ಷಿಸಲು BlueWallet ಆ್ಯಪ್ ಐಕಾನ್ ಅನ್ನು ಸ್ಪರ್ಶಿಸಿ ಹಿಡಿದುಕೊಳ್ಳಿ.",
     "privacy_clipboard_explanation": "ನಿಮ್ಮ ಕ್ಲಿಪ್‌ಬೋರ್ಡ್‌ನಲ್ಲಿ ವಿಳಾಸ ಅಥವಾ ಇನ್‌ವಾಯ್ಸ್ ಸಿಕ್ಕರೆ ಶಾರ್ಟ್‌ಕಟ್‌ಗಳನ್ನು ಒದಗಿಸಿ.",
     "privacy_do_not_track": "ಅನಾಲಿಟಿಕ್ಸ್ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ",
     "privacy_do_not_track_explanation": "ಕಾರ್ಯಕ್ಷಮತೆ ಮತ್ತು ವಿಶ್ವಸನೀಯತೆ ಮಾಹಿತಿಯನ್ನು ವಿಶ್ಲೇಷಣೆಗಾಗಿ ಸಲ್ಲಿಸಲಾಗುವುದಿಲ್ಲ.",

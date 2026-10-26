@@ -312,6 +312,8 @@
     "privacy": "隐私",
     "privacy_read_clipboard": "读取剪贴板",
     "privacy_system_settings": "系统设置",
+    "privacy_quickactions": "钱包快捷方式",
+    "privacy_quickactions_explanation": "长按 BlueWallet 应用程序图标即可快速查看钱包余额。",
     "privacy_clipboard_explanation": "如果在剪贴板中发现地址或发票，则提供快捷方式。",
     "privacy_clipboard_ios_paste_permission": "若要跳过粘贴提示，请打开“系统设置”，并将“从其他应用粘贴”设置为“允许”。",
     "privacy_do_not_track": "禁用数据分析功能",

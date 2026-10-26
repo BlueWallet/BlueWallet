@@ -136,7 +136,6 @@
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="bitcoin" />
                 <data android:scheme="lightning" />
                 <data android:scheme="bluewallet" />
@@ -144,6 +143,14 @@
                 <data android:scheme="blue" />
                 <data android:scheme="http" />
                 <data android:scheme="https" />
+            </intent-filter>
+
+            <!-- Browsable links are limited to BlueWallet's custom scheme. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="bluewallet" />
             </intent-filter>
 
             <!-- Intent filter for importing other file types (but not launching the app) -->

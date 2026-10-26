@@ -308,6 +308,8 @@
     "privacy": "Privacy",
     "privacy_read_clipboard": "Lees klembord",
     "privacy_system_settings": "Systeeminstellingen",
+    "privacy_quickactions": "Wallet snelkoppelingen",
+    "privacy_quickactions_explanation": "Houd het BlueWallet-app-icoon ingedrukt om snel het saldo van je wallet te bekijken.",
     "privacy_clipboard_explanation": "Bied snelkoppelingen aan als een adres of factuur op uw klembord staat.",
     "privacy_do_not_track": "Analyses Uitschakelen",
     "privacy_do_not_track_explanation": "Informatie over de prestatie en betrouwbaarheid zal niet worden opgegeven voor analyse.",
