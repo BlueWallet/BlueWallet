@@ -282,6 +282,7 @@ jest.mock('realm', () => {
   // Primary-key field per Realm object type. Used by create() to key the
   // in-memory store and by delete() to remove individual objects.
   const PK_FIELD = {
+    Cache: 'cache_key',
     ArkContract: 'script',
     ArkVtxo: 'pk',
     ArkUtxo: 'pk',

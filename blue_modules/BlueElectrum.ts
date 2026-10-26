@@ -103,6 +103,13 @@ export const suggestedServers: Peer[] = hardcodedPeers.map(peer => ({
 let mainClient: typeof ElectrumClient | undefined;
 let serverName: string | false = false;
 let disableBatching: boolean = false;
+
+function disableBatchingOnLimit(error: unknown): void {
+  if (!error || typeof error !== 'object' || !('message' in error) || error.message !== 'Batch limit exceeded') throw error;
+  // Some servers support batches but impose a lower limit than our chunks.
+  // Reuse the existing single-request path for the rest of this connection.
+  disableBatching = true;
+}
 let currentPeerIndex = hardcodedPeers.findIndex(peer => peer.host === defaultPeer.host && peer.ssl === defaultPeer.ssl);
 if (currentPeerIndex < 0) currentPeerIndex = 0;
 let latestBlock: { height: number; time: number } | { height: undefined; time: undefined } = { height: undefined, time: undefined };
@@ -420,6 +427,7 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
     if (ver && ver[0]) {
       console.log('[electrum] connected to ', ver);
       serverName = ver[0];
+      disableBatching = false;
       if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs') || ver[0].startsWith('Fulcrum')) {
         disableBatching = true;
         const [electrumImplementation, electrumVersion] = ver[0].split(' ');
@@ -1030,7 +1038,12 @@ export const multiGetBalanceByAddress = async (addresses: string[], batchsize: n
         balances.push({ result: promiseResults[resultIndex], param: index2scripthash[resultIndex] });
       }
     } else {
-      balances = await mainClient.blockchainScripthash_getBalanceBatch(scripthashes);
+      try {
+        balances = await mainClient.blockchainScripthash_getBalanceBatch(scripthashes);
+      } catch (error) {
+        disableBatchingOnLimit(error);
+        return multiGetBalanceByAddress(addresses, batchsize);
+      }
     }
 
     for (const bal of balances) {
@@ -1067,7 +1080,12 @@ export const multiGetUtxoByAddress = async function (addresses: string[], batchs
       // electrs OTOH supports it, but we dont know it we are currently connected to it or to EPS
       // so it is pretty safe to do nothing, as caller can derive UTXO from stored transactions
     } else {
-      results = await mainClient.blockchainScripthash_listunspentBatch(scripthashes);
+      try {
+        results = await mainClient.blockchainScripthash_listunspentBatch(scripthashes);
+      } catch (error) {
+        disableBatchingOnLimit(error);
+        return multiGetUtxoByAddress(addresses, batchsize);
+      }
     }
 
     for (const utxos of results) {
@@ -1124,7 +1142,12 @@ export const multiGetHistoryByAddress = async function (
         results.push({ result: histories[historyIndex], param: index2scripthash[historyIndex] });
       }
     } else {
-      results = await mainClient.blockchainScripthash_getHistoryBatch(scripthashes);
+      try {
+        results = await mainClient.blockchainScripthash_getHistoryBatch(scripthashes);
+      } catch (error) {
+        disableBatchingOnLimit(error);
+        return multiGetHistoryByAddress(addresses, batchsize);
+      }
     }
 
     for (const history of results) {
@@ -1241,7 +1264,12 @@ export async function multiGetTransactionByTxid<T extends boolean>(
         }
       }
     } else {
-      results = await mainClient.blockchainTransaction_getBatch(chunk, verbose);
+      try {
+        results = await mainClient.blockchainTransaction_getBatch(chunk, verbose);
+      } catch (error) {
+        disableBatchingOnLimit(error);
+        return Object.assign(ret, await multiGetTransactionByTxid(txids, verbose, batchsize));
+      }
     }
 
     for (const txdata of results) {

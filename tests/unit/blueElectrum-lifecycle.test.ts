@@ -41,6 +41,11 @@ type FakeClient = {
   initElectrum: jest.Mock;
   blockchainHeaders_subscribe: jest.Mock;
   blockchainScripthash_getHistory: jest.Mock;
+  blockchainScripthash_getHistoryBatch: jest.Mock;
+  blockchainScripthash_getBalance: jest.Mock;
+  blockchainScripthash_getBalanceBatch: jest.Mock;
+  blockchainScripthash_listunspentBatch: jest.Mock;
+  blockchainTransaction_getBatch: jest.Mock;
   blockchainTransaction_get: jest.Mock;
   server_ping: jest.Mock;
   close: jest.Mock;
@@ -75,6 +80,11 @@ function makeFakeClient(host = 'fake.host', port = 50002): FakeClient {
   fc.initElectrum = jest.fn(() => fc.initElectrumDeferred!.promise);
   fc.blockchainHeaders_subscribe = jest.fn(() => fc.headersDeferred!.promise);
   fc.blockchainScripthash_getHistory = jest.fn();
+  fc.blockchainScripthash_getHistoryBatch = jest.fn();
+  fc.blockchainScripthash_getBalance = jest.fn();
+  fc.blockchainScripthash_getBalanceBatch = jest.fn();
+  fc.blockchainScripthash_listunspentBatch = jest.fn();
+  fc.blockchainTransaction_getBatch = jest.fn();
   fc.blockchainTransaction_get = jest.fn();
   fc.server_ping = jest.fn(() => {
     fc.pingDeferred = deferred<unknown>();
@@ -105,9 +115,9 @@ async function flush(times = 4) {
   for (let i = 0; i < times; i++) await tick();
 }
 
-function resolveLastConnect() {
+function resolveLastConnect(serverName = 'Fulcrum 1.10.0') {
   const c = created[created.length - 1];
-  c.initElectrumDeferred.resolve(['Fulcrum 1.10.0', '1.4']);
+  c.initElectrumDeferred.resolve([serverName, '1.4']);
   c.headersDeferred.resolve({ height: 1000 });
 }
 
@@ -334,5 +344,109 @@ describe('BlueElectrum lifecycle', () => {
       expect(result).toEqual({ height: 996, tip: 1000 });
       expect(client.blockchainTransaction_get).toHaveBeenCalledWith(TX_HASH, true);
     });
+  });
+});
+
+describe('BlueElectrum batch limit recovery', () => {
+  const addresses = ['1BitcoinEaterAddressDontSendf59kuE', '1BoatSLRHtKNngkdXEeobR76b53LETtpyT'];
+  let client: FakeClient;
+
+  beforeEach(async () => {
+    BlueElectrum.forceDisconnect();
+    await BlueElectrum.setDisabled(false);
+    created.length = 0;
+    rejectConnections = false;
+    const connection = BlueElectrum.ensureConnected();
+    await flush();
+    resolveLastConnect();
+    await connection;
+    client = created[created.length - 1];
+  });
+
+  afterEach(() => {
+    BlueElectrum.forceDisconnect();
+    jest.restoreAllMocks();
+  });
+
+  it('recovers balances without losing confirmed or unconfirmed amounts', async () => {
+    client.blockchainScripthash_getBalanceBatch.mockRejectedValue(new Error('Batch limit exceeded'));
+    client.blockchainScripthash_getBalance.mockResolvedValue({
+      confirmed: 100,
+      unconfirmed: -5,
+    });
+    await expect(BlueElectrum.multiGetBalanceByAddress(addresses)).resolves.toEqual({
+      balance: 200,
+      unconfirmed_balance: -10,
+      addresses: Object.fromEntries(addresses.map(address => [address, { confirmed: 100, unconfirmed: -5 }])),
+    });
+    expect(client.blockchainScripthash_getBalanceBatch).toHaveBeenCalledTimes(1);
+    expect(client.blockchainScripthash_getBalance).toHaveBeenCalledTimes(2);
+  });
+
+  it('recovers history and remembers the fallback for subsequent requests', async () => {
+    client.blockchainScripthash_getHistoryBatch.mockRejectedValue(new Error('Batch limit exceeded'));
+    client.blockchainScripthash_getHistory.mockImplementation(async (scripthash: string) => [{ tx_hash: scripthash, height: 100 }]);
+    for (let i = 0; i < 2; i++) {
+      const histories = await BlueElectrum.multiGetHistoryByAddress(addresses);
+      expect(Object.keys(histories)).toEqual(addresses);
+      for (const address of addresses) {
+        expect(histories[address]).toEqual([
+          {
+            tx_hash: expect.stringMatching(/^[0-9a-f]{64}$/),
+            height: 100,
+            address,
+          },
+        ]);
+      }
+    }
+    expect(client.blockchainScripthash_getHistoryBatch).toHaveBeenCalledTimes(1);
+    expect(client.blockchainScripthash_getHistory).toHaveBeenCalledTimes(4);
+  });
+
+  it('uses the existing non-batching UTXO path when a batch is rejected', async () => {
+    client.blockchainScripthash_listunspentBatch.mockRejectedValue(new Error('Batch limit exceeded'));
+    await expect(BlueElectrum.multiGetUtxoByAddress(addresses)).resolves.toEqual({});
+    expect(client.blockchainScripthash_listunspentBatch).toHaveBeenCalledTimes(1);
+  });
+
+  it('preserves cached transactions while retrying cache misses', async () => {
+    const cachedID = 'ab'.repeat(32);
+    const missingID = 'cd'.repeat(32);
+    client.blockchainTransaction_getBatch.mockResolvedValue([{ param: cachedID, result: 'cached hex' }]);
+    await BlueElectrum.multiGetTransactionByTxid([cachedID], false);
+    client.blockchainTransaction_getBatch.mockRejectedValue(new Error('Batch limit exceeded'));
+    client.blockchainTransaction_get.mockResolvedValue('uncached hex');
+    await expect(BlueElectrum.multiGetTransactionByTxid([cachedID, missingID], false)).resolves.toEqual({
+      [cachedID]: 'cached hex',
+      [missingID]: 'uncached hex',
+    });
+    expect(client.blockchainTransaction_get).toHaveBeenCalledWith(missingID, false);
+    expect(client.blockchainTransaction_get).toHaveBeenCalledTimes(1);
+  });
+
+  it('propagates other errors instead of changing capabilities', async () => {
+    const failure = new Error('connection closed');
+    client.blockchainScripthash_getBalanceBatch.mockRejectedValue(failure);
+    await expect(BlueElectrum.multiGetBalanceByAddress(addresses)).rejects.toBe(failure);
+    expect(client.blockchainScripthash_getBalance).not.toHaveBeenCalled();
+    client.blockchainScripthash_getBalanceBatch.mockResolvedValue([]);
+    await BlueElectrum.multiGetBalanceByAddress(addresses);
+    expect(client.blockchainScripthash_getBalanceBatch).toHaveBeenCalledTimes(2);
+  });
+
+  it('tries batching again on a new connection', async () => {
+    client.blockchainScripthash_getHistoryBatch.mockRejectedValue(new Error('Batch limit exceeded'));
+    client.blockchainScripthash_getHistory.mockResolvedValue([]);
+    await BlueElectrum.multiGetHistoryByAddress(addresses);
+    BlueElectrum.forceDisconnect();
+    const connection = BlueElectrum.ensureConnected();
+    await flush();
+    resolveLastConnect('ElectrumX 1.16.0');
+    await connection;
+    const nextClient = created[created.length - 1];
+    nextClient.blockchainScripthash_getHistoryBatch.mockResolvedValue([]);
+    await BlueElectrum.multiGetHistoryByAddress(addresses);
+    expect(nextClient.blockchainScripthash_getHistoryBatch).toHaveBeenCalledTimes(1);
+    expect(nextClient.blockchainScripthash_getHistory).not.toHaveBeenCalled();
   });
 });
