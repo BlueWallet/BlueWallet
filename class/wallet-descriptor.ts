@@ -30,7 +30,7 @@ export class WalletDescriptor {
   static getDescriptor(fpHex: string, path: string, xpub: string, scriptType?: DescriptorScriptType): string {
     const normalizedXpub = WalletDescriptor.normalizeToXpub(xpub);
     const origin = `[${fpHex.toLowerCase()}/${path.replace('m/', '')}]`;
-    const keyExpr = `${origin}${normalizedXpub}/<0;1>/*`;
+    const keyExpr = `${origin}${normalizedXpub}`;
 
     const effectiveType = scriptType ?? WalletDescriptor.scriptTypeFromPath(path);
 

@@ -984,7 +984,7 @@ describe('Watch only wallet', () => {
     assert.ok(w.getSecret().startsWith('xpub'));
 
     const exported = w.getSecretForExport();
-    assert.strictEqual(exported, `tr([97311f91/86'/0'/0']${w.getSecret()}/<0;1>/*)`);
+    assert.strictEqual(exported, `tr([97311f91/86'/0'/0']${w.getSecret()})`);
     const restored = new WatchOnlyWallet();
     restored.setSecret(exported);
     restored.init();
@@ -996,7 +996,7 @@ describe('Watch only wallet', () => {
     w.setDerivationPath("m/0'");
     assert.ok(w._hdWalletInstance instanceof HDTaprootWallet);
     const exported2 = w.getSecretForExport();
-    assert.strictEqual(exported2, `tr([97311f91/0']${w.getSecret()}/<0;1>/*)`);
+    assert.strictEqual(exported2, `tr([97311f91/0']${w.getSecret()})`);
     const restored2 = new WatchOnlyWallet();
     restored2.setSecret(exported2);
     restored2.init();
