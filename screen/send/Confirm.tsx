@@ -24,6 +24,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
+import { errorMessage } from '../../helpers/errorMessage';
 
 enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -225,10 +226,10 @@ const Confirm: React.FC = () => {
         });
         try {
           await payjoinClient.run();
-        } catch (error: any) {
+        } catch (error) {
           // the client already broadcast the plain (non-payjoin) tx: payment went through, just not as payjoin
           if (!payJoinWallet.wasOriginalBroadcast()) throw error;
-          console.warn('payjoin failed, original transaction broadcast instead:', error.message);
+          console.warn('payjoin failed, original transaction broadcast instead:', errorMessage(error));
           payjoinNotUsed = true;
         }
         const payjoinPsbt = payJoinWallet.getPayjoinPsbt();
@@ -265,11 +266,11 @@ const Confirm: React.FC = () => {
 
       await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
       fetchAndSaveWalletTransactions(walletID);
-    } catch (error: any) {
+    } catch (error) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       dispatch({ type: ActionType.SET_LOADING, payload: false });
       dispatch({ type: ActionType.SET_BUTTON_DISABLED, payload: false });
-      presentAlert({ message: error.message });
+      presentAlert({ message: errorMessage(error) });
     }
   };
 

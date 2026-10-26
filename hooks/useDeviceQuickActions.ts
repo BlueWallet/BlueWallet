@@ -87,12 +87,12 @@ const useDeviceQuickActions = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized]);
 
-  const popInitialShortcutAction = async (): Promise<any> => {
+  const popInitialShortcutAction = async (): Promise<ShortcutItem | null> => {
     const data = await QuickActions.popInitialAction();
     return data;
   };
 
-  const popInitialAction = async (data: any): Promise<void> => {
+  const popInitialAction = async (data: ShortcutItem | null): Promise<void> => {
     try {
       if (data) {
         const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
@@ -120,7 +120,7 @@ const useDeviceQuickActions = () => {
 
   const handleOpenURL = useCallback(
     (event: { url: string }): void => {
-      DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => NavigationService.navigate(...value), {
+      DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigationRef.navigate(...value), {
         wallets,
         addWallet,
         saveToDisk,
@@ -140,7 +140,7 @@ const useDeviceQuickActions = () => {
     return () => setNativeOpenFileHandler(undefined);
   }, [handleOpenURL, walletsInitialized]);
 
-  const walletQuickActions = (data: any): void => {
+  const walletQuickActions = (data: ShortcutItem): void => {
     const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
     if (wallet) {
       NavigationService.dispatch(
@@ -165,7 +165,7 @@ const useDeviceQuickActions = () => {
   };
 
   const setQuickActions = async (): Promise<void> => {
-    QuickActions.isSupported((error: null, _supported: any) => {
+    QuickActions.isSupported((error: Error | null) => {
       if (error === null) {
         const shortcutItems: ShortcutItem[] = wallets.slice(0, 4).map((wallet, index) => ({
           type: 'Wallets',

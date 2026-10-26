@@ -32,7 +32,7 @@ import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { withAlpha } from './color';
 import { useTheme } from './themes';
-import { Transaction, TWallet } from '../class/wallets/types';
+import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { BlueSpacing10 } from './BlueSpacing';
 import { useLocale } from '@react-navigation/native';
 
@@ -69,7 +69,7 @@ export const walletHasPendingTransaction = (item: TWallet): boolean => {
   const isLightningShaped = item.type === LightningCustodianWallet.type || item.type === LightningArkWallet.type;
   // Lightning/Ark: `ispaid === false` alone is not pending (failed/refunded swaps stay in history).
   if (isLightningShaped) {
-    return item.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed);
+    return item.getTransactions().some((tx: Pick<LightningTransaction, 'ispaid' | 'failed'>) => tx.ispaid === false && !tx.failed);
   }
   return item.getTransactions().some((tx: Transaction) => tx.confirmations === 0);
 };
@@ -537,7 +537,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
   );
 };
 
-interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
+interface WalletsCarouselProps extends Partial<FlatListProps<TWallet>> {
   horizontal?: boolean;
   isFlatList?: boolean;
   selectedWallet?: string;
@@ -551,7 +551,17 @@ interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   animateChanges?: boolean;
 }
 
-export type CarouselListRefType = FlatList<TWallet>;
+/** what the carousel actually exposes through its ref (a subset of FlatList in list mode) */
+export type CarouselListRefType = {
+  scrollToEnd: (params?: { animated?: boolean | null }) => void;
+  scrollToIndex: (params: { animated?: boolean | null; index: number; viewOffset?: number; viewPosition?: number }) => void;
+  scrollToItem: (params: { animated?: boolean | null; item: TWallet; viewOffset?: number; viewPosition?: number }) => void;
+  scrollToOffset: (params: { animated?: boolean | null; offset: number }) => void;
+  recordInteraction: () => void;
+  flashScrollIndicators: () => void;
+  getNativeScrollRef: () => unknown;
+  getWalletPosition?: (walletId: string) => Promise<{ x: number; y: number; width: number; height: number } | null>;
+};
 
 const styles = StyleSheet.create({
   listHeaderSeparator: {
@@ -602,7 +612,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
 
   const { sizeClass } = useSizeClass();
 
-  useImperativeHandle(ref, (): any => {
+  useImperativeHandle(ref, (): CarouselListRefType => {
     if (isFlatList) {
       return {
         scrollToEnd: (params: { animated?: boolean | null | undefined } | undefined) => flatListRef.current?.scrollToEnd(params),
@@ -614,7 +624,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
         }) => flatListRef.current?.scrollToIndex(params),
         scrollToItem: (params: {
           animated?: boolean | null | undefined;
-          item: any;
+          item: TWallet;
           viewOffset?: number | undefined;
           viewPosition?: number | undefined;
         }) => flatListRef.current?.scrollToItem(params),

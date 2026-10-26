@@ -27,6 +27,7 @@ import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuActions from './useMenuActions';
 import useClipboardDetection from './useClipboardDetection';
+import { errorMessage } from '../helpers/errorMessage';
 
 /**
  * Hook that initializes all companion listeners and functionality without rendering a component
@@ -88,11 +89,8 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         if (+payload.type === 100) {
           const arkWallet = wallets.find(w => w.getID() === payload.walletID);
           if (!arkWallet || !(arkWallet instanceof LightningArkWallet)) {
-            if (wasTapped) {
-              navigation.navigate('WalletTransactions', {
-                walletID: payload.walletID,
-                walletType: arkWallet?.type,
-              });
+            if (wasTapped && payload.walletID) {
+              navigation.navigate('WalletTransactions', { walletID: payload.walletID });
               return true;
             }
             continue;
@@ -105,8 +103,8 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
           try {
             await arkWallet.fetchTransactions();
             await saveToDisk();
-          } catch (e: any) {
-            console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', e?.message ?? e);
+          } catch (e) {
+            console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', errorMessage(e));
           }
 
           if (wasTapped) {
@@ -180,8 +178,8 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             try {
               await arkWallet.fetchTransactions();
               await saveToDisk();
-            } catch (e: any) {
-              console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', e?.message ?? e);
+            } catch (e) {
+              console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', errorMessage(e));
             }
 
             if (wasTapped) {
@@ -295,24 +293,24 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             throw new Error(loc.send.qr_error_no_qrcode);
           }
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          DeeplinkSchemaMatch.navigationRouteFor({ url: qrValue }, (value: [string, any]) => navigationRef.navigate(...value), {
+          DeeplinkSchemaMatch.navigationRouteFor({ url: qrValue }, value => navigationRef.navigate(...value), {
             wallets,
             addWallet,
             saveToDisk,
             setSharedCosigner,
           });
         } else {
-          DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
+          DeeplinkSchemaMatch.navigationRouteFor(event, value => navigationRef.navigate(...value), {
             wallets,
             addWallet,
             saveToDisk,
             setSharedCosigner,
           });
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error('Error in handleOpenURL:', err);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: err.message || loc.send.qr_error_no_qrcode });
+        presentAlert({ message: errorMessage(err) || loc.send.qr_error_no_qrcode });
       }
     },
     [wallets, addWallet, saveToDisk, setSharedCosigner, shouldActivateListeners],

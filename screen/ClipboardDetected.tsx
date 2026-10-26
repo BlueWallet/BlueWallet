@@ -101,7 +101,7 @@ const ClipboardDetected = () => {
     // frame queue so routing survives that unmount and runs after React commits the pop.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        DeeplinkSchemaMatch.navigationRouteFor({ url: payload }, (value: [string, any]) => navigationRef.navigate(...value), {
+        DeeplinkSchemaMatch.navigationRouteFor({ url: payload }, value => navigationRef.navigate(...value), {
           wallets,
           addWallet,
           saveToDisk,
