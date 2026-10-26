@@ -44,7 +44,7 @@ import prompt from '../../helpers/prompt';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe';
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { isOnChainTransaction, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
@@ -194,9 +194,43 @@ const TransactionStatus: React.FC = () => {
   const showLoadingError = loadingError && !tx;
   const transactionId = tx?.hash || tx?.txid;
   const transactionIdCopyRef = useRef<CopyTextToClipboardHandle>(null);
-  useScreenMenuActions({ copyTransactionId: transactionId && !showLoadingError ? () => transactionIdCopyRef.current?.copy() : undefined });
   const { wallets, txMetadata, counterpartyMetadata, addressMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const subscribedWallet = useWalletSubscribe(walletID);
+  const recentOwningWallet = wallet ?? subscribedWallet ?? wallets.find(candidate => candidate.getID() === walletID);
+  const hideBalanceInRecentMenu = recentOwningWallet?.hideBalance;
+  const hideFromRecentMenu = recentOwningWallet?.getHideTransactionsInWalletsList?.() ?? false;
+  const recentBalanceUnit = recentOwningWallet ? (recentOwningWallet.preferredBalanceUnit ?? BitcoinUnit.BTC) : undefined;
+  const recentWalletLabel = recentOwningWallet?.getLabel?.();
+  const recentTransaction = useMemo(() => {
+    const id = transactionId ?? hash;
+    const value = Number(tx?.value);
+    const formattedValue =
+      !hideBalanceInRecentMenu && recentBalanceUnit && Number.isFinite(value) ? formatBalance(value, recentBalanceUnit, true) : '';
+    const label = txMetadata?.[id]?.memo || `Transaction ${id.slice(0, 12)}…`;
+    return {
+      id: `transaction:${walletID}:${id}`,
+      kind: 'transaction' as const,
+      title: [label, formattedValue, recentWalletLabel].filter(Boolean).join(' — '),
+      walletID,
+      transactionID: id,
+    };
+  }, [hash, hideBalanceInRecentMenu, recentBalanceUnit, recentWalletLabel, transactionId, tx?.value, txMetadata, walletID]);
+  const showMempoolSpeedUp =
+    Boolean(tx?.hash) && isRBFBumpFeePossible === ButtonStatus.NotPossible && isCPFPPossible === ButtonStatus.NotPossible;
+  const handleOpenMempoolAccelerator = useCallback(() => {
+    if (!tx?.hash) return;
+    Linking.openURL(`https://mempool.space/tx/${tx.hash}#accelerate&partnerCode=bluewallet`).catch(e => {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ message: e.message });
+    });
+  }, [tx?.hash]);
+  useScreenMenuActions(
+    {
+      copyTransactionId: transactionId && !showLoadingError ? () => transactionIdCopyRef.current?.copy() : undefined,
+      accelerateTransaction: showMempoolSpeedUp ? handleOpenMempoolAccelerator : undefined,
+    },
+    hideFromRecentMenu ? undefined : recentTransaction,
+  );
   const { navigate, goBack, setOptions } = useNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { width: windowWidth, fontScale } = useWindowDimensions();
@@ -849,14 +883,6 @@ const TransactionStatus: React.FC = () => {
     [navigate],
   );
 
-  const handleOpenMempoolAccelerator = useCallback(() => {
-    if (!tx?.hash) return;
-    Linking.openURL(`https://mempool.space/tx/${tx.hash}#accelerate&partnerCode=bluewallet`).catch(e => {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: e.message });
-    });
-  }, [tx?.hash]);
-
   const handleOpenBlockExplorer = useCallback(() => {
     if (!tx?.hash || !selectedBlockExplorer) return;
     const url = `${selectedBlockExplorer.url}/tx/${tx.hash}`;
@@ -990,9 +1016,6 @@ const TransactionStatus: React.FC = () => {
   const isOnChainTx = isOnChainTransaction(tx);
   const isPending = resolveTxDisplayState(tx) === 'pending';
   const preferredBalanceUnit = wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC;
-  const showMempoolSpeedUp =
-    Boolean(tx?.hash) && isRBFBumpFeePossible === ButtonStatus.NotPossible && isCPFPPossible === ButtonStatus.NotPossible;
-
   const showBlocksAccordion = isOnChainTx && !isPending && parsedConfirmations > 0;
 
   const onBlocksHeaderPress = useCallback(() => {
