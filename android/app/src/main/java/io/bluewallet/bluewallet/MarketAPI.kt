@@ -1,10 +1,14 @@
 package io.bluewallet.bluewallet
 
 import android.content.Context
+import android.os.PowerManager
+import android.net.ConnectivityManager
 import android.util.Log
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
@@ -268,24 +272,13 @@ object MarketAPI {
             
             // First try connecting directly for fee histogram
             Log.d(TAG, "Attempting to connect directly to Electrum server for fee")
-            var success = electrumClient.connectToNextAvailable(validateCertificates = false)
+            val success = electrumClient.connectToNextAvailable(validateCertificates = false)
 
             if (success) {
                 Log.i(TAG, "Connected to Electrum server: ${ElectrumClient.hardcodedPeers}")
             } else {
-                Log.e(TAG, "Failed to connect to any Electrum server on first attempt. Retrying once more.")
-            }
-            
-            if (!success) {
-                Log.e(TAG, "Failed to connect to any Electrum server on first attempt. Retrying once more.")
-                // Short delay before retry
-                delay(1000)
-                success = electrumClient.connectToNextAvailable(validateCertificates = false)
-                
-                if (!success) {
-                    Log.e(TAG, "Failed to connect to any Electrum server after retry. Fee unavailable.")
-                    return ERROR_INDICATOR
-                }
+                Log.e(TAG, "Failed to connect to an eligible Electrum server. Fee unavailable.")
+                return ERROR_INDICATOR
             }
             
             Log.d(TAG, "Successfully connected to Electrum server. Sending fee histogram request")
@@ -296,7 +289,29 @@ object MarketAPI {
             }
             
             Log.d(TAG, "Waiting for fee histogram response")
-            val receivedData = electrumClient.receive()
+            val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val capabilities = connectivityManager.activeNetwork?.let(connectivityManager::getNetworkCapabilities)
+            val dataSaverEnabled = connectivityManager.restrictBackgroundStatus == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED
+            val receivedData = receiveElectrumResponse(
+                useStreaming = shouldUseElectrumStreaming(
+                    isPowerSaveMode = powerManager.isPowerSaveMode,
+                    isDataSaverEnabled = dataSaverEnabled,
+                    downstreamBandwidthKbps = capabilities?.linkDownstreamBandwidthKbps ?: 0,
+                ),
+                stream = electrumClient::messages,
+                oneShot = electrumClient::receive,
+                fallback = { streamError ->
+                    Log.w(TAG, "Streaming receive failed; falling back to one-shot receive", streamError)
+                    electrumClient.close()
+                    val fallbackConnected = electrumClient.connectToNextAvailable(validateCertificates = false)
+                    if (!fallbackConnected || !electrumClient.send(message.toByteArray())) {
+                        ByteArray(0)
+                    } else {
+                        electrumClient.receive()
+                    }
+                },
+            )
             if (receivedData.isEmpty()) {
                 Log.e(TAG, "Empty response from Electrum server when requesting fee histogram. Fee unavailable.")
                 return ERROR_INDICATOR
@@ -514,5 +529,31 @@ object MarketAPI {
         }
         
         return marketData
+    }
+}
+
+internal fun shouldUseElectrumStreaming(
+    isPowerSaveMode: Boolean,
+    isDataSaverEnabled: Boolean,
+    downstreamBandwidthKbps: Int,
+): Boolean {
+    val isKnownSlowConnection = downstreamBandwidthKbps in 1 until 512
+    return !isPowerSaveMode && !isDataSaverEnabled && !isKnownSlowConnection
+}
+
+internal suspend fun receiveElectrumResponse(
+    useStreaming: Boolean,
+    stream: () -> Flow<ByteArray>,
+    oneShot: suspend () -> ByteArray,
+    fallback: suspend (Exception) -> ByteArray,
+): ByteArray {
+    if (!useStreaming) return oneShot()
+
+    return try {
+        stream().first()
+    } catch (error: CancellationException) {
+        throw error
+    } catch (error: Exception) {
+        fallback(error)
     }
 }

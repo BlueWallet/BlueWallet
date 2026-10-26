@@ -11,6 +11,8 @@ import SwiftUI
 
 struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
     typealias Entry = WalletInformationAndMarketWidgetEntry
+    private static let entryStore = LastSuccessfulEntryStore()
+    private let refreshInterval: TimeInterval = 15 * 60
 
     actor LastSuccessfulEntryStore {
         private var lastSuccessfulEntry: WalletInformationAndMarketWidgetEntry?
@@ -23,8 +25,6 @@ struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
             lastSuccessfulEntry = entry
         }
     }
-
-    let entryStore = LastSuccessfulEntryStore()
 
     func placeholder(in context: Context) -> WalletInformationAndMarketWidgetEntry {
         return WalletInformationAndMarketWidgetEntry.placeholder
@@ -45,57 +45,33 @@ struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
         if (context.isPreview) {
             let entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
             entries.append(entry)
-            let timeline = Timeline(entries: entries, policy: .atEnd)
+            let timeline = Timeline(entries: entries, policy: .after(Date().addingTimeInterval(refreshInterval)))
             completion(timeline)
         } else {
             let userPreferredCurrency = Currency.getUserPreferredCurrency()
             let allWalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
 
-            fetchMarketDataWithRetry(currency: userPreferredCurrency, retries: 3) { marketData in
-                let entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: marketData, allWalletsBalance: allWalletsBalance)
-                Task {
-                    await entryStore.setLastSuccessfulEntry(entry)
-                    entries.append(entry)
-                    let timeline = Timeline(entries: entries, policy: .atEnd)
-                    completion(timeline)
+            Task {
+                let marketData: MarketData
+                do {
+                    marketData = try await MarketAPI.fetchMarketData(currency: userPreferredCurrency)
+                } catch {
+                    marketData = await Self.entryStore.getLastSuccessfulEntry()?.marketData
+                        ?? WalletInformationAndMarketWidgetEntry.placeholder.marketData
                 }
+
+                let now = Date()
+                let entry = WalletInformationAndMarketWidgetEntry(
+                    date: now,
+                    marketData: marketData,
+                    allWalletsBalance: allWalletsBalance
+                )
+                if marketData.rate > 0 {
+                    await Self.entryStore.setLastSuccessfulEntry(entry)
+                }
+                completion(Timeline(entries: [entry], policy: .after(now.addingTimeInterval(refreshInterval))))
             }
         }
-    }
-
-    private func fetchMarketDataWithRetry(currency: String, retries: Int, completion: @escaping (MarketData) -> ()) {
-        var attempt = 0
-
-        func attemptFetch() {
-            attempt += 1
-            print("Attempt \(attempt) to fetch market data.")
-
-          MarketAPI.fetchMarketData(currency: currency) { result in
-                switch result {
-                case .success(let marketData):
-                    print("Successfully fetched market data on attempt \(attempt).")
-                    completion(marketData)
-                case .failure(let error):
-                    print("Error fetching market data: \(error.localizedDescription). Retry \(attempt)/\(retries)")
-                    if attempt < retries {
-                        DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
-                            attemptFetch()
-                        }
-                    } else {
-                        print("Max retries reached.")
-                        Task {
-                            if let lastEntry = await entryStore.getLastSuccessfulEntry() {
-                                completion(lastEntry.marketData)
-                            } else {
-                                completion(WalletInformationAndMarketWidgetEntry.placeholder.marketData)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        attemptFetch()
     }
 }
 

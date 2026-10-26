@@ -127,6 +127,10 @@ android {
 
 }
 
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+
 task copyFiatUnits(type: Copy) {
     from '../../models/fiatUnits.json'
     into 'src/main/assets'
@@ -142,6 +146,9 @@ tasks.configureEach { task ->
 }
 
 dependencies {
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     androidTestImplementation('com.wix:detox:20.51.4')
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
