@@ -12,6 +12,7 @@ import {
   ScriptPubKeyType,
 } from '../blue_modules/payjoin-client';
 import presentAlert from '../components/Alert';
+import { errorMessage } from '../helpers/errorMessage';
 import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
 import { CreateTransactionTarget } from './wallets/types';
 import assert from 'assert';
@@ -147,8 +148,8 @@ export default class PayjoinTransaction implements IPayjoinClientWallet {
         this._payjoinPsbt = this._signedProposal;
       }
       return '';
-    } catch (e: any) {
-      return 'Error: ' + e.message;
+    } catch (e) {
+      return 'Error: ' + errorMessage(e);
     }
   }
 

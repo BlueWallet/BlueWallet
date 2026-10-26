@@ -18,9 +18,9 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import useAppState from '../../hooks/useAppState';
 import loc from '../../loc';
-import { WalletExportStackParamList } from '../../navigation/WalletExportStack';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
-type RouteProps = RouteProp<WalletExportStackParamList, 'WalletExport'>;
+type RouteProps = RouteProp<DetailViewStackParamList, 'WalletExport'>;
 
 const HORIZONTAL_PADDING = 20;
 

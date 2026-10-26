@@ -33,6 +33,7 @@ import {
   type ArkSwapNotificationAction,
 } from './arkade-adapters/realm/notificationSuppressionRepository';
 import { notifyArkSwapActionable, resolveActionableAction } from './arkade-notifications';
+import { errorMessage } from '../helpers/errorMessage';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -158,9 +159,9 @@ async function pollSwap(
   let response;
   try {
     response = await withTimeout(swapProvider.getSwapStatus(swap.id), remainingRunMs());
-  } catch (e: any) {
-    recordError(`getSwapStatus(${swap.id}): ${e?.message ?? e}`);
-    if (e?.message === 'deadline exceeded' || remainingRunMs() <= 0) cancelRequested = true;
+  } catch (e) {
+    recordError(`getSwapStatus(${swap.id}): ${errorMessage(e)}`);
+    if (errorMessage(e) === 'deadline exceeded' || remainingRunMs() <= 0) cancelRequested = true;
     return;
   }
 
@@ -177,8 +178,8 @@ async function pollSwap(
   if (statusChanged) {
     try {
       await persistStatusChange(swap, remoteStatus, repo);
-    } catch (e: any) {
-      recordError(`persistStatusChange(${swap.id}): ${e?.message ?? e}`);
+    } catch (e) {
+      recordError(`persistStatusChange(${swap.id}): ${errorMessage(e)}`);
       return;
     }
 
@@ -203,8 +204,8 @@ async function pollSwap(
   if (isFinalStatus(effectiveSwap)) {
     try {
       suppression.clearForSwap(effectiveSwap.id);
-    } catch (e: any) {
-      recordError(`suppression.clearForSwap(${effectiveSwap.id}): ${e?.message ?? e}`);
+    } catch (e) {
+      recordError(`suppression.clearForSwap(${effectiveSwap.id}): ${errorMessage(e)}`);
     }
     lastSeenActionMap.delete(lastKey);
     return;
@@ -218,16 +219,16 @@ async function pollSwap(
     // re-fires.
     try {
       suppression.clearForSwapAction(effectiveSwap.id, lastSeen);
-    } catch (e: any) {
-      recordError(`suppression.clearForSwapAction(${effectiveSwap.id}): ${e?.message ?? e}`);
+    } catch (e) {
+      recordError(`suppression.clearForSwapAction(${effectiveSwap.id}): ${errorMessage(e)}`);
     }
   }
 
   if (action) {
     try {
       await notifyArkSwapActionable(effectiveSwap, suppression, walletID, walletLabel);
-    } catch (e: any) {
-      recordError(`notifyArkSwapActionable(${effectiveSwap.id}): ${e?.message ?? e}`);
+    } catch (e) {
+      recordError(`notifyArkSwapActionable(${effectiveSwap.id}): ${errorMessage(e)}`);
     }
     lastSeenActionMap.set(lastKey, action);
   } else {
@@ -244,22 +245,22 @@ async function processWallet(wallet: LightningArkWallet): Promise<void> {
   let realm;
   try {
     realm = await getArkadeRealm(namespace);
-  } catch (e: any) {
+  } catch (e) {
     // Most likely the Keychain is locked (WHEN_UNLOCKED_THIS_DEVICE_ONLY) or
     // the Realm file is unreachable. Either way the background task no-ops
     // for this wallet — claim/refund is foreground-only anyway.
     state.exitedDueToUnavailableStorage = true;
-    recordError(`getArkadeRealm(${namespace}): ${e?.message ?? e}`);
+    recordError(`getArkadeRealm(${namespace}): ${errorMessage(e)}`);
     return;
   }
 
   let swaps: BoltzSwap[];
-  const repo = new RealmSwapRepository(realm as any);
+  const repo = new RealmSwapRepository(realm);
   const suppression = new RealmNotificationSuppressionRepository(realm);
   try {
     swaps = await repo.getAllSwaps<BoltzSwap>();
-  } catch (e: any) {
-    recordError(`getAllSwaps(${namespace}): ${e?.message ?? e}`);
+  } catch (e) {
+    recordError(`getAllSwaps(${namespace}): ${errorMessage(e)}`);
     return;
   }
 
@@ -293,8 +294,8 @@ export async function runArkBackgroundTask(taskId: string): Promise<void> {
       if (shouldStopRun()) break;
       try {
         await processWallet(wallet);
-      } catch (e: any) {
-        recordError(`processWallet: ${e?.message ?? e}`);
+      } catch (e) {
+        recordError(`processWallet: ${errorMessage(e)}`);
       }
     }
   } finally {
@@ -344,8 +345,8 @@ export async function registerArkBackgroundTask(): Promise<void> {
     } else {
       console.warn(`[ArkBackground] Background fetch unavailable: ${state.availability}`);
     }
-  } catch (e: any) {
-    recordError(`configure: ${e?.message ?? e}`);
+  } catch (e) {
+    recordError(`configure: ${errorMessage(e)}`);
   }
 }
 
@@ -353,8 +354,8 @@ export async function stopArkBackgroundTask(): Promise<void> {
   cancelRequested = true;
   try {
     await BackgroundFetch.stop();
-  } catch (e: any) {
-    recordError(`stop: ${e?.message ?? e}`);
+  } catch (e) {
+    recordError(`stop: ${errorMessage(e)}`);
   }
 
   // Await in-flight run completion (draining). A live background run keeps

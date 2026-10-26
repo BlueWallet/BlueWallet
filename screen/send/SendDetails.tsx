@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation, RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
+import { CommonActions, useNavigation, RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import assert from 'assert';
@@ -23,6 +23,7 @@ import {
   Pressable,
   ScrollView,
   View,
+  LayoutChangeEvent,
 } from 'react-native';
 import RNFS from 'react-native-fs';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
@@ -57,6 +58,7 @@ import ActionSheet from '../ActionSheet';
 import { isCancel, pickTransaction } from '../../blue_modules/fs';
 import { Measure } from '../../class/measure';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
+import { errorMessage } from '../../helpers/errorMessage';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -350,7 +352,7 @@ const SendDetails = () => {
       { key: 'fastestFee', fee: fees.fastestFee },
     ] as const;
 
-    const newFeePrecalc: /* Record<string, any> */ IFee = { ...feePrecalc };
+    const newFeePrecalc: IFee = { ...feePrecalc };
 
     let targets = [];
     for (const transaction of addresses) {
@@ -394,8 +396,8 @@ const SendDetails = () => {
           const { fee } = wallet.coinselect(lutxo, targets, opt.fee);
           newFeePrecalc[opt.key] = fee;
           break;
-        } catch (e: any) {
-          if (e.message.includes('Not enough') && !flag) {
+        } catch (e) {
+          if (errorMessage(e).includes('Not enough') && !flag) {
             flag = true;
             targets = targets.map((t, index) => (index > 0 ? { ...t, value: 546 } : { address: t.address }));
             continue;
@@ -431,7 +433,7 @@ const SendDetails = () => {
     }, []),
   );
 
-  const handleLayout = (event: any) => {
+  const handleLayout = (event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
     setDimensions({ width, height });
   };
@@ -471,7 +473,7 @@ const SendDetails = () => {
    */
 
   const processAddressData = useCallback(
-    (data: string | { data?: any }) => {
+    (data: string | { data?: unknown }) => {
       assert(wallet, 'Internal error: wallet not set');
       if (typeof data !== 'string') {
         data = String(data.data);
@@ -621,9 +623,9 @@ const SendDetails = () => {
 
     try {
       await createPsbtTransaction();
-    } catch (Err: any) {
+    } catch (Err) {
       setIsLoading(false);
-      presentAlert({ title: loc.errors.error, message: Err.message });
+      presentAlert({ title: loc.errors.error, message: errorMessage(Err) });
       console.log(Err);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
@@ -676,9 +678,12 @@ const SendDetails = () => {
     if (tx && routeParams.launchedBy && psbt) {
       console.warn('navigating back to ', routeParams.launchedBy);
 
-      // @ts-ignore idk how to fix FIXME?
-
-      navigation.navigate(routeParams.launchedBy, { psbt });
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: routeParams.launchedBy,
+          params: { psbt },
+        }),
+      );
     }
 
     if (wallet?.type === WatchOnlyWallet.type) {
@@ -762,12 +767,12 @@ const SendDetails = () => {
   }, [navigateToQRCodeScanner, presentAlert, wallet?.type]);
 
   const importQrTransactionOnBarScanned = useCallback(
-    (ret: any) => {
+    (ret: string | { data: string }) => {
       if (!wallet) return;
-      if (!ret.data) ret = { data: ret };
-      if (ret.data.toUpperCase().startsWith('UR')) {
+      const data = typeof ret === 'string' ? ret : ret.data;
+      if (data.toUpperCase().startsWith('UR')) {
         presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
-      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      } else if (data.indexOf('+') === -1 && data.indexOf('=') === -1 && data.indexOf('=') === -1) {
         // this looks like NOT base64, so maybe its transaction's hex
         // we dont support it in this flow
       } else {
@@ -775,7 +780,7 @@ const SendDetails = () => {
 
         // we construct PSBT object and pass to next screen
         // so user can do smth with it:
-        const psbt = bitcoin.Psbt.fromBase64(ret.data);
+        const psbt = bitcoin.Psbt.fromBase64(data);
 
         navigation.navigate('PsbtWithHardwareWallet', {
           memo: transactionMemo,
@@ -843,8 +848,8 @@ const SendDetails = () => {
 
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ title: loc.errors.error, message: loc.send.details_unrecognized_file_format });
-    } catch (err: any) {
-      console.error('error picking transaction:', err?.message);
+    } catch (err) {
+      console.error('error picking transaction:', errorMessage(err));
       if (!isCancel(err)) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });
@@ -874,9 +879,12 @@ const SendDetails = () => {
             walletID: wallet.getID(),
           });
         }
-      } catch (error: any) {
+      } catch (error) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
+        presentAlert({
+          title: loc.send.problem_with_psbt,
+          message: errorMessage(error),
+        });
       }
       setIsLoading(false);
     },
@@ -888,16 +896,16 @@ const SendDetails = () => {
   }, [_importTransactionMultisig]);
 
   const onBarScanned = useCallback(
-    (ret: any) => {
-      if (!ret.data) ret = { data: ret };
-      if (ret.data.toUpperCase().startsWith('UR')) {
+    (ret: string | { data: string }) => {
+      const data = typeof ret === 'string' ? ret : ret.data;
+      if (data.toUpperCase().startsWith('UR')) {
         presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
-      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      } else if (data.indexOf('+') === -1 && data.indexOf('=') === -1 && data.indexOf('=') === -1) {
         // this looks like NOT base64, so maybe its transaction's hex
         // we dont support it in this flow
       } else {
         // psbt base64?
-        return _importTransactionMultisig(ret.data);
+        return _importTransactionMultisig(data);
       }
     },
     [_importTransactionMultisig, presentAlert],
@@ -910,9 +918,9 @@ const SendDetails = () => {
       try {
         psbt = bitcoin.Psbt.fromBase64(psbtBase64);
         tx = (wallet as MultisigHDWallet).cosignPsbt(psbt).tx;
-      } catch (e: any) {
+      } catch (e) {
         console.log(e);
-        presentAlert({ title: loc.errors.error, message: e.message });
+        presentAlert({ title: loc.errors.error, message: errorMessage(e) });
         return;
       } finally {
         setIsLoading(false);
@@ -922,10 +930,10 @@ const SendDetails = () => {
 
       // we need to remove change address from recipients, so that Confirm screen show more accurate info
       const changeAddresses: string[] = [];
-      // @ts-ignore hacky
-      for (let c = 0; c < wallet.next_free_change_address_index + wallet.gap_limit; c++) {
-        // @ts-ignore hacky
-        changeAddresses.push(wallet._getInternalAddressByIndex(c));
+      if (wallet instanceof AbstractHDElectrumWallet) {
+        for (let c = 0; c < wallet.next_free_change_address_index + wallet.gap_limit; c++) {
+          changeAddresses.push(wallet._getInternalAddressByIndex(c));
+        }
       }
       const recipients = psbt.txOutputs
         .filter(({ address }) => !changeAddresses.includes(String(address)))
@@ -1522,7 +1530,7 @@ const SendDetails = () => {
     );
   };
 
-  const getItemLayout = (_: any, index: number) => ({
+  const getItemLayout = (_: unknown, index: number) => ({
     length: dimensions.width,
     offset: dimensions.width * index,
     index,
