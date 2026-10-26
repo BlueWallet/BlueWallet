@@ -44,6 +44,7 @@ type FakeClient = {
   blockchainScripthash_getHistoryBatch: jest.Mock;
   blockchainScripthash_getBalance: jest.Mock;
   blockchainScripthash_getBalanceBatch: jest.Mock;
+  blockchainScripthash_listunspent: jest.Mock;
   blockchainScripthash_listunspentBatch: jest.Mock;
   blockchainTransaction_getBatch: jest.Mock;
   blockchainTransaction_get: jest.Mock;
@@ -83,6 +84,7 @@ function makeFakeClient(host = 'fake.host', port = 50002): FakeClient {
   fc.blockchainScripthash_getHistoryBatch = jest.fn();
   fc.blockchainScripthash_getBalance = jest.fn();
   fc.blockchainScripthash_getBalanceBatch = jest.fn();
+  fc.blockchainScripthash_listunspent = jest.fn();
   fc.blockchainScripthash_listunspentBatch = jest.fn();
   fc.blockchainTransaction_getBatch = jest.fn();
   fc.blockchainTransaction_get = jest.fn();
@@ -162,7 +164,9 @@ describe('BlueElectrum lifecycle', () => {
       const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
       const afterDismiss = jest.fn();
 
-      const connection = BlueElectrum.ensureConnected({ showAlertOnFailure: true });
+      const connection = BlueElectrum.ensureConnected({
+        showAlertOnFailure: true,
+      });
       let resolved = false;
       const handoff = connection.then(result => {
         resolved = true;
@@ -307,7 +311,9 @@ describe('BlueElectrum lifecycle', () => {
     it('returns null for implausible height without caching', async () => {
       const client = await connectAtTip(1000);
 
-      client.blockchainTransaction_get.mockResolvedValue({ confirmations: 2000 });
+      client.blockchainTransaction_get.mockResolvedValue({
+        confirmations: 2000,
+      });
 
       const result = await BlueElectrum.getConfirmedBlockHeight('deadbeef');
       expect(result).toBeNull();
@@ -403,10 +409,60 @@ describe('BlueElectrum batch limit recovery', () => {
     expect(client.blockchainScripthash_getHistory).toHaveBeenCalledTimes(4);
   });
 
-  it('uses the existing non-batching UTXO path when a batch is rejected', async () => {
-    client.blockchainScripthash_listunspentBatch.mockRejectedValue(new Error('Batch limit exceeded'));
+  it('fetches UTXOs individually after a batch limit instead of erasing them', async () => {
+    client.blockchainScripthash_listunspentBatch
+      .mockImplementationOnce(async (hashes: string[]) =>
+        hashes.map(param => ({ param, result: [{ tx_hash: 'ab'.repeat(32), tx_pos: 1, height: 100, value: 42 }] })),
+      )
+      .mockRejectedValue(new Error('Batch limit exceeded'));
+    client.blockchainScripthash_listunspent.mockImplementation(async () => [
+      { tx_hash: 'ab'.repeat(32), tx_pos: 1, height: 100, value: 42 },
+    ]);
+    const utxos = await BlueElectrum.multiGetUtxoByAddress(addresses, 1);
+    for (const address of addresses) {
+      expect(utxos[address]).toEqual([{ txid: 'ab'.repeat(32), vout: 1, height: 100, value: 42, address }]);
+    }
+    expect(client.blockchainScripthash_listunspentBatch).toHaveBeenCalledTimes(2);
+    expect(client.blockchainScripthash_listunspent).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps the EPS UTXO no-op when that server lacks listunspent', async () => {
+    BlueElectrum.forceDisconnect();
+    const connection = BlueElectrum.ensureConnected();
+    await flush();
+    resolveLastConnect('ElectrumPersonalServer 0.2.4');
+    await connection;
+    const eps = created[created.length - 1];
     await expect(BlueElectrum.multiGetUtxoByAddress(addresses)).resolves.toEqual({});
-    expect(client.blockchainScripthash_listunspentBatch).toHaveBeenCalledTimes(1);
+    expect(eps.blockchainScripthash_listunspent).not.toHaveBeenCalled();
+    expect(eps.blockchainScripthash_listunspentBatch).not.toHaveBeenCalled();
+  });
+
+  it.each(['history', 'balance', 'transaction'])('recovers %s singles rejected by a later batch-limit frame', async kind => {
+    const limit = new Error('Batch limit exceeded');
+    if (kind === 'history') {
+      client.blockchainScripthash_getHistoryBatch.mockRejectedValue(limit);
+      client.blockchainScripthash_getHistory.mockRejectedValueOnce(limit).mockResolvedValue([]);
+      await expect(BlueElectrum.multiGetHistoryByAddress([addresses[0]])).resolves.toEqual({ [addresses[0]]: [] });
+    } else if (kind === 'balance') {
+      client.blockchainScripthash_getBalanceBatch.mockRejectedValue(limit);
+      client.blockchainScripthash_getBalance.mockRejectedValueOnce(limit).mockResolvedValue({ confirmed: 42, unconfirmed: 0 });
+      await expect(BlueElectrum.multiGetBalanceByAddress([addresses[0]])).resolves.toMatchObject({ balance: 42 });
+    } else {
+      const txid = 'ef'.repeat(32);
+      client.blockchainTransaction_getBatch.mockRejectedValue(limit);
+      client.blockchainTransaction_get.mockRejectedValueOnce(limit).mockResolvedValue('tx hex');
+      await expect(BlueElectrum.multiGetTransactionByTxid([txid], false)).resolves.toEqual({ [txid]: 'tx hex' });
+    }
+  });
+
+  it('bounds repeated single-request failures and does not return partial transactions', async () => {
+    const txid = '12'.repeat(32);
+    const limit = new Error('Batch limit exceeded');
+    client.blockchainTransaction_getBatch.mockRejectedValue(limit);
+    client.blockchainTransaction_get.mockRejectedValue(limit);
+    await expect(BlueElectrum.multiGetTransactionByTxid([txid], false)).rejects.toBe(limit);
+    expect(client.blockchainTransaction_get).toHaveBeenCalledTimes(2);
   });
 
   it('preserves cached transactions while retrying cache misses', async () => {
@@ -450,3 +506,82 @@ describe('BlueElectrum batch limit recovery', () => {
     expect(nextClient.blockchainScripthash_getHistory).not.toHaveBeenCalled();
   });
 });
+
+it('recovers parallel refreshes through real Electrum frames arriving after fallback RPCs', async () => {
+  const net = jest.requireActual('net');
+  const ElectrumClient = jest.requireActual('electrum-client');
+  const originalFactory = (globalThis as any).__createNextFakeClient;
+  let batches = 0;
+  let lateFrames = 2;
+  let singleRequests = 0;
+  const limit = JSON.stringify({ id: null, error: { message: 'Batch limit exceeded' } }) + '\n';
+  const server = net.createServer((socket: any) => {
+    let buffer = '';
+    socket.on('data', (data: Buffer) => {
+      buffer += data.toString();
+      const lines = buffer.split('\n');
+      buffer = lines.pop()!;
+      const requests = lines.filter(Boolean).map(line => JSON.parse(line));
+      const singles = requests.filter(
+        request => !Array.isArray(request) && request.method !== 'server.version' && request.method !== 'blockchain.headers.subscribe',
+      );
+      singleRequests += singles.length;
+      // A later null-id error clears every callback queued by the fallback.
+      if (singles.length && lateFrames > 0) {
+        lateFrames--;
+        socket.write(limit);
+        return;
+      }
+      for (const request of requests) {
+        if (Array.isArray(request)) {
+          batches++;
+          if (batches === 3) socket.write(limit);
+          continue;
+        }
+        let result: unknown;
+        switch (request.method) {
+          case 'server.version':
+            result = ['Fulcrum 2.1.2', '1.4'];
+            break;
+          case 'blockchain.headers.subscribe':
+            result = { height: 1000 };
+            break;
+          case 'blockchain.scripthash.get_balance':
+            result = { confirmed: 42, unconfirmed: 0 };
+            break;
+          case 'blockchain.transaction.get':
+            result = 'raw tx hex';
+            break;
+          default:
+            result = [];
+        }
+        socket.write(JSON.stringify({ id: request.id, result }) + '\n');
+      }
+    });
+  });
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  const port = server.address().port;
+  (globalThis as any).__createNextFakeClient = () => new ElectrumClient(net, null, port, '127.0.0.1', 'tcp');
+  BlueElectrum.forceDisconnect();
+  try {
+    await BlueElectrum.setDisabled(false);
+    expect(await BlueElectrum.ensureConnected()).toBe(true);
+    const address = '1BitcoinEaterAddressDontSendf59kuE';
+    const txid = '34'.repeat(32);
+    const [history, balance, transactions] = await Promise.all([
+      BlueElectrum.multiGetHistoryByAddress([address]),
+      BlueElectrum.multiGetBalanceByAddress([address]),
+      BlueElectrum.multiGetTransactionByTxid([txid], false),
+    ]);
+    expect(history).toEqual({ [address]: [] });
+    expect(balance.balance).toBe(42);
+    expect(transactions).toEqual({ [txid]: 'raw tx hex' });
+    expect(batches).toBe(3);
+    expect(lateFrames).toBe(0);
+    expect(singleRequests).toBeLessThanOrEqual(12);
+  } finally {
+    BlueElectrum.forceDisconnect();
+    (globalThis as any).__createNextFakeClient = originalFactory;
+    await new Promise<void>(resolve => server.close(resolve));
+  }
+}, 15000);

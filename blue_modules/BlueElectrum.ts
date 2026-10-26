@@ -104,11 +104,48 @@ let mainClient: typeof ElectrumClient | undefined;
 let serverName: string | false = false;
 let disableBatching: boolean = false;
 
+let batchingDisabledByLimit = false;
+let pendingBatchRequests = 0;
+let batchLimitRetryBudget = 0;
+
+function isBatchLimitError(error: unknown): boolean {
+  return !!error && typeof error === 'object' && 'message' in error && error.message === 'Batch limit exceeded';
+}
+
 function disableBatchingOnLimit(error: unknown): void {
-  if (!error || typeof error !== 'object' || !('message' in error) || error.message !== 'Batch limit exceeded') throw error;
-  // Some servers support batches but impose a lower limit than our chunks.
-  // Reuse the existing single-request path for the rest of this connection.
+  if (!isBatchLimitError(error)) throw error;
+  if (!batchingDisabledByLimit) {
+    // A null-id response rejects every queued call, although other rejected
+    // batches can still have error frames in flight on this connection.
+    batchLimitRetryBudget = pendingBatchRequests;
+    batchingDisabledByLimit = true;
+  }
   disableBatching = true;
+}
+
+async function requestBatch<T = any>(request: () => Promise<T>): Promise<T> {
+  const client = mainClient;
+  pendingBatchRequests++;
+  try {
+    return await request();
+  } catch (error) {
+    if (mainClient !== client) throw error;
+    disableBatchingOnLimit(error);
+    throw error;
+  } finally {
+    if (mainClient === client) pendingBatchRequests--;
+  }
+}
+
+async function requestSingle<T = any>(request: () => Promise<T>): Promise<T> {
+  const client = mainClient;
+  for (let retries = 0; ; retries++) {
+    try {
+      return await request();
+    } catch (error) {
+      if (mainClient !== client || !isBatchLimitError(error) || retries >= batchLimitRetryBudget) throw error;
+    }
+  }
 }
 let currentPeerIndex = hardcodedPeers.findIndex(peer => peer.host === defaultPeer.host && peer.ssl === defaultPeer.ssl);
 if (currentPeerIndex < 0) currentPeerIndex = 0;
@@ -428,6 +465,9 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
       console.log('[electrum] connected to ', ver);
       serverName = ver[0];
       disableBatching = false;
+      batchingDisabledByLimit = false;
+      pendingBatchRequests = 0;
+      batchLimitRetryBudget = 0;
       if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs') || ver[0].startsWith('Fulcrum')) {
         disableBatching = true;
         const [electrumImplementation, electrumVersion] = ver[0].split(' ');
@@ -1014,7 +1054,7 @@ export const multiGetBalanceByAddress = async (addresses: string[], batchsize: n
 
   const chunks = splitIntoChunks(addresses, batchsize);
   for (const chunk of chunks) {
-    const scripthashes = [];
+    const scripthashes: string[] = [];
     const scripthash2addr: Record<string, string> = {};
     for (const addr of chunk) {
       const script = bitcoin.address.toOutputScript(addr);
@@ -1030,7 +1070,7 @@ export const multiGetBalanceByAddress = async (addresses: string[], batchsize: n
       const promises = [];
       const index2scripthash: Record<number, string> = {};
       for (let promiseIndex = 0; promiseIndex < scripthashes.length; promiseIndex++) {
-        promises.push(mainClient.blockchainScripthash_getBalance(scripthashes[promiseIndex]));
+        promises.push(requestSingle(() => mainClient.blockchainScripthash_getBalance(scripthashes[promiseIndex])));
         index2scripthash[promiseIndex] = scripthashes[promiseIndex];
       }
       const promiseResults = await Promise.all(promises);
@@ -1039,9 +1079,9 @@ export const multiGetBalanceByAddress = async (addresses: string[], batchsize: n
       }
     } else {
       try {
-        balances = await mainClient.blockchainScripthash_getBalanceBatch(scripthashes);
+        balances = await requestBatch(() => mainClient.blockchainScripthash_getBalanceBatch(scripthashes));
       } catch (error) {
-        disableBatchingOnLimit(error);
+        if (!isBatchLimitError(error)) throw error;
         return multiGetBalanceByAddress(addresses, batchsize);
       }
     }
@@ -1063,7 +1103,7 @@ export const multiGetUtxoByAddress = async function (addresses: string[], batchs
 
   const chunks = splitIntoChunks(addresses, batchsize);
   for (const chunk of chunks) {
-    const scripthashes = [];
+    const scripthashes: string[] = [];
     const scripthash2addr: Record<string, string> = {};
     for (const addr of chunk) {
       const script = bitcoin.address.toOutputScript(addr);
@@ -1075,15 +1115,22 @@ export const multiGetUtxoByAddress = async function (addresses: string[], batchs
 
     let results = [];
 
-    if (disableBatching) {
+    if (disableBatching && batchingDisabledByLimit) {
+      results = await Promise.all(
+        scripthashes.map(async param => ({
+          result: await requestSingle(() => mainClient.blockchainScripthash_listunspent(param)),
+          param,
+        })),
+      );
+    } else if (disableBatching) {
       // ElectrumPersonalServer doesnt support `blockchain.scripthash.listunspent`
       // electrs OTOH supports it, but we dont know it we are currently connected to it or to EPS
       // so it is pretty safe to do nothing, as caller can derive UTXO from stored transactions
     } else {
       try {
-        results = await mainClient.blockchainScripthash_listunspentBatch(scripthashes);
+        results = await requestBatch(() => mainClient.blockchainScripthash_listunspentBatch(scripthashes));
       } catch (error) {
-        disableBatchingOnLimit(error);
+        if (!isBatchLimitError(error)) throw error;
         return multiGetUtxoByAddress(addresses, batchsize);
       }
     }
@@ -1118,7 +1165,7 @@ export const multiGetHistoryByAddress = async function (
 
   const chunks = splitIntoChunks(addresses, batchsize);
   for (const chunk of chunks) {
-    const scripthashes = [];
+    const scripthashes: string[] = [];
     const scripthash2addr: Record<string, string> = {};
     for (const addr of chunk) {
       const script = bitcoin.address.toOutputScript(addr);
@@ -1135,7 +1182,7 @@ export const multiGetHistoryByAddress = async function (
       const index2scripthash: Record<number, string> = {};
       for (let promiseIndex = 0; promiseIndex < scripthashes.length; promiseIndex++) {
         index2scripthash[promiseIndex] = scripthashes[promiseIndex];
-        promises.push(mainClient.blockchainScripthash_getHistory(scripthashes[promiseIndex]));
+        promises.push(requestSingle(() => mainClient.blockchainScripthash_getHistory(scripthashes[promiseIndex])));
       }
       const histories = await Promise.all(promises);
       for (let historyIndex = 0; historyIndex < histories.length; historyIndex++) {
@@ -1143,9 +1190,9 @@ export const multiGetHistoryByAddress = async function (
       }
     } else {
       try {
-        results = await mainClient.blockchainScripthash_getHistoryBatch(scripthashes);
+        results = await requestBatch(() => mainClient.blockchainScripthash_getHistoryBatch(scripthashes));
       } catch (error) {
-        disableBatchingOnLimit(error);
+        if (!isBatchLimitError(error)) throw error;
         return multiGetHistoryByAddress(addresses, batchsize);
       }
     }
@@ -1219,7 +1266,7 @@ export async function multiGetTransactionByTxid<T extends boolean>(
         for (let promiseIndex = 0; promiseIndex < chunk.length; promiseIndex++) {
           const txid = chunk[promiseIndex];
           index2txid[promiseIndex] = txid;
-          promises.push(mainClient.blockchainTransaction_get(txid, verbose));
+          promises.push(requestSingle(() => mainClient.blockchainTransaction_get(txid, verbose)));
         }
 
         const transactionResults = await Promise.all(promises);
@@ -1234,14 +1281,16 @@ export async function multiGetTransactionByTxid<T extends boolean>(
           results.push({ result: tx, param: txid });
         }
       } catch (error: any) {
+        if (isBatchLimitError(error)) throw error;
         if (String(error?.message ?? error).startsWith('verbose transactions are currently unsupported')) {
           // electrs-esplora. cant use verbose, so fetching txs one by one and decoding locally
           for (const txid of chunk) {
             try {
-              let tx = await mainClient.blockchainTransaction_get(txid, false);
+              let tx = await requestSingle(() => mainClient.blockchainTransaction_get(txid, false));
               tx = txhexToElectrumTransaction(tx);
               results.push({ result: tx, param: txid });
             } catch (err) {
+              if (isBatchLimitError(err)) throw err;
               console.log('[electrum]', err);
             }
           }
@@ -1250,7 +1299,7 @@ export async function multiGetTransactionByTxid<T extends boolean>(
           // fail and only non-tracked by EPS transactions will be omitted
           for (const txid of chunk) {
             try {
-              let tx = await mainClient.blockchainTransaction_get(txid, verbose);
+              let tx = await requestSingle(() => mainClient.blockchainTransaction_get(txid, verbose));
               if (typeof tx === 'string' && verbose) {
                 // apparently electrum server (EPS?) didnt recognize VERBOSE parameter, and  sent us plain txhex instead of decoded tx.
                 // lets decode it manually on our end then:
@@ -1258,6 +1307,7 @@ export async function multiGetTransactionByTxid<T extends boolean>(
               }
               results.push({ result: tx, param: txid });
             } catch (err) {
+              if (isBatchLimitError(err)) throw err;
               console.log('[electrum]', err);
             }
           }
@@ -1265,9 +1315,9 @@ export async function multiGetTransactionByTxid<T extends boolean>(
       }
     } else {
       try {
-        results = await mainClient.blockchainTransaction_getBatch(chunk, verbose);
+        results = await requestBatch(() => mainClient.blockchainTransaction_getBatch(chunk, verbose));
       } catch (error) {
-        disableBatchingOnLimit(error);
+        if (!isBatchLimitError(error)) throw error;
         return Object.assign(ret, await multiGetTransactionByTxid(txids, verbose, batchsize));
       }
     }
@@ -1276,7 +1326,7 @@ export async function multiGetTransactionByTxid<T extends boolean>(
       if (txdata.error && txdata.error.code === -32600) {
         // response too large
         // lets do single call, that should go through okay:
-        txdata.result = await mainClient.blockchainTransaction_get(txdata.param, false);
+        txdata.result = await requestSingle(() => mainClient.blockchainTransaction_get(txdata.param, false));
         // since we used VERBOSE=false, server sent us plain txhex which we must decode on our end:
         txdata.result = txhexToElectrumTransaction(txdata.result);
       }
