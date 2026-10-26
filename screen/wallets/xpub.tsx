@@ -16,8 +16,8 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
-import { WalletDescriptor } from '../../class/wallet-descriptor.ts';
+import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
+import { DescriptorScriptType, WalletDescriptor } from '../../class/wallet-descriptor.ts';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 type WalletXpubRouteProp = RouteProp<DetailViewStackParamList, 'WalletXpub'>;
@@ -65,13 +65,17 @@ const WalletXpub: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      if (wallet && wallet?.type === HDTaprootWallet.type && wallet.getDerivationPath) {
-        await new Promise(resolve => setTimeout(resolve, 100)); // sleep to propagate ui
-        // need to convert xpub to a wallet descriptor
+      if (wallet && wallet instanceof AbstractHDElectrumWallet) {
+        await new Promise(resolve => setTimeout(resolve, 100));
         const fp = wallet.getMasterFingerprintHex();
         const path = wallet.getDerivationPath() ?? '';
-        const xpub2 = WalletDescriptor.getDescriptor(fp, path, wallet.getXpub());
-        setXPubText(xpub2);
+        const scriptType: DescriptorScriptType | undefined = wallet.segwitType as DescriptorScriptType | undefined;
+        try {
+          const descriptor = WalletDescriptor.getDescriptor(fp, path, wallet.getXpub(), scriptType);
+          setXPubText(descriptor);
+        } catch (_) {
+          setXPubText(xpub);
+        }
       } else {
         setXPubText(xpub);
       }
