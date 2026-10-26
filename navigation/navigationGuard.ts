@@ -52,17 +52,40 @@ export type NavigationValidationResult = {
   failure?: 'missingSendWallet' | 'missingReceiveWallet' | 'missingLightningWallet';
 };
 
-export const getGuardRedirectAction = (
-  redirect: NonNullable<NavigationValidationResult['redirect']>,
-  isShortcutPlaceholder: boolean,
-): NavigationAction => {
-  if (!isShortcutPlaceholder) return CommonActions.navigate(redirect.name, redirect.params);
-  if (redirect.name === 'DrawerRoot') return StackActions.popTo('DrawerRoot', redirect.params);
-  return StackActions.replace(redirect.name, redirect.params);
-};
-
 const asParams = (value: unknown): NavigationParams | undefined =>
   value !== null && typeof value === 'object' && !Array.isArray(value) ? (value as NavigationParams) : undefined;
+
+export type GuardRedirectAction = {
+  action: NavigationAction;
+  targetRouteName: string;
+};
+
+export const getGuardRedirectActions = (
+  redirect: NonNullable<NavigationValidationResult['redirect']>,
+  isShortcutPlaceholder: boolean,
+): GuardRedirectAction[] => {
+  if (!isShortcutPlaceholder) {
+    return [{ action: CommonActions.navigate(redirect.name, redirect.params), targetRouteName: redirect.name }];
+  }
+
+  if (redirect.name === 'DrawerRoot') {
+    const drawerParams = asParams(redirect.params);
+    const detailStackParams = drawerParams?.screen === 'DetailViewStackScreensStack' ? asParams(drawerParams.params) : undefined;
+    const destinationName = typeof detailStackParams?.screen === 'string' ? detailStackParams.screen : undefined;
+
+    if (destinationName) {
+      return [
+        { action: StackActions.popTo('DrawerRoot'), targetRouteName: 'DrawerRoot' },
+        {
+          action: CommonActions.navigate(destinationName, asParams(detailStackParams?.params)),
+          targetRouteName: destinationName,
+        },
+      ];
+    }
+  }
+
+  return [{ action: StackActions.replace(redirect.name, redirect.params), targetRouteName: redirect.name }];
+};
 
 export const resolveGuardedRoute = (name: string, params?: NavigationParams): GuardedRoute | undefined => {
   const nestedScreen = params?.screen;

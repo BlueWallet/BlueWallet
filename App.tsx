@@ -25,7 +25,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapti
 import loc from './loc';
 import {
   findNavigatorKeyForRoute,
-  getGuardRedirectAction,
+  getGuardRedirectActions,
   getGuardedRoute,
   GuardedRoute,
   GuardedNavigationAction,
@@ -108,22 +108,24 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
 
           if (!result.allowed && !result.redirect) return;
 
-          const nextAction = result.redirect
-            ? getGuardRedirectAction(
+          const nextActions = result.redirect
+            ? getGuardRedirectActions(
                 result.redirect,
                 guardedRoute.name === 'AppShortcut' && navigationRef.getCurrentRoute()?.name === 'AppShortcut',
               )
-            : action;
-          const targetRouteName = result.redirect?.name ?? guardedRoute.name;
-          const targetNavigatorKey = result.redirect
-            ? findNavigatorKeyForRoute(navigationRef.getRootState(), targetRouteName)
-            : navigatorKey;
+            : [{ action, targetRouteName: guardedRoute.name }];
 
-          navigationRef.dispatch({
-            ...nextAction,
-            ...(targetNavigatorKey ? { target: targetNavigatorKey } : {}),
-            navigationGuardValidated: true,
-          } as GuardedNavigationAction);
+          for (const { action: nextAction, targetRouteName } of nextActions) {
+            const targetNavigatorKey = result.redirect
+              ? findNavigatorKeyForRoute(navigationRef.getRootState(), targetRouteName)
+              : navigatorKey;
+
+            navigationRef.dispatch({
+              ...nextAction,
+              ...(targetNavigatorKey ? { target: targetNavigatorKey } : {}),
+              navigationGuardValidated: true,
+            } as GuardedNavigationAction);
+          }
         })
         .catch(error => console.error('Navigation validation failed', error));
     },

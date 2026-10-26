@@ -113,17 +113,6 @@ const GeneralSettings: React.FC = () => {
   return (
     <SettingsScrollView testID="GeneralSettingsScreen">
       <SettingsSection title={loc.settings.integration}>
-        <SettingsListItem
-          title={loc.settings.privacy_quickactions}
-          subtitle={`${loc.settings.privacy_quickactions_explanation}${encryptedDisabledNote}`}
-          switch={{
-            value: storageIsEncrypted ? false : isQuickActionsEnabled,
-            onValueChange: onQuickActionsValueChange,
-            disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
-          }}
-          switchTestID="QuickActionsSwitch"
-          bottomDivider={Platform.OS === 'ios'}
-        />
         {Platform.OS === 'ios' && (
           <SettingsListItem
             title={loc.settings.general_continuity}

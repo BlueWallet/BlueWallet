@@ -4,7 +4,7 @@ import path from 'path';
 import { Chain } from '../../models/bitcoinUnits';
 import {
   findNavigatorKeyForRoute,
-  getGuardRedirectAction,
+  getGuardRedirectActions,
   getGuardedRoute,
   GuardedNavigationAction,
   NavigationGuardDependencies,
@@ -197,7 +197,7 @@ describe('navigation validation', () => {
     expect(dependencies.presentWalletExportReminder).toHaveBeenCalledTimes(1);
   });
 
-  it('pops the shortcut placeholder to the existing drawer for on-chain receive', async () => {
+  it('pops the shortcut placeholder before navigating the guarded detail stack for on-chain receive', async () => {
     const dependencies = createDependencies();
     dependencies.wallets = [createWallet()];
 
@@ -213,7 +213,53 @@ describe('navigation validation', () => {
       },
     });
 
-    expect(getGuardRedirectAction(result.redirect!, true)).toEqual(StackActions.popTo('DrawerRoot', result.redirect!.params));
+    const redirectActions = getGuardRedirectActions(result.redirect!, true);
+    expect(redirectActions).toEqual([
+      { action: StackActions.popTo('DrawerRoot'), targetRouteName: 'DrawerRoot' },
+      {
+        action: CommonActions.navigate('ReceiveDetails', { walletID: 'wallet-1', address: '' }),
+        targetRouteName: 'ReceiveDetails',
+      },
+    ]);
+
+    const rootRouter = StackRouter({ initialRouteName: 'DrawerRoot' });
+    const rootOptions = {
+      routeNames: ['DrawerRoot', 'AppShortcut'],
+      routeParamList: { DrawerRoot: undefined, AppShortcut: undefined },
+      routeGetIdList: { DrawerRoot: undefined, AppShortcut: undefined },
+    };
+    const initialRootState = rootRouter.getInitialState(rootOptions);
+    const rootState = rootRouter.getStateForAction(
+      initialRootState,
+      StackActions.push('AppShortcut', { selectionMode: 'receive' }),
+      rootOptions,
+    ) as typeof initialRootState | null;
+    const drawerState =
+      rootState &&
+      rootRouter.getStateForAction(
+        rootState,
+        redirectActions[0].action as Parameters<typeof rootRouter.getStateForAction>[1],
+        rootOptions,
+      );
+
+    expect(drawerState?.routes[drawerState.index ?? 0].name).toBe('DrawerRoot');
+
+    const original = StackRouter({});
+    const guardedRouter = navigationGuardRouter(original);
+    const options = {
+      routeNames: ['WalletsList', 'ReceiveDetails'],
+      routeParamList: { WalletsList: undefined, ReceiveDetails: undefined },
+      routeGetIdList: { WalletsList: undefined, ReceiveDetails: undefined },
+    };
+    const initialState = original.getInitialState(options);
+    const receiveAction = {
+      ...redirectActions[1].action,
+      navigationGuardValidated: true,
+    } as Parameters<typeof guardedRouter.getStateForAction>[1];
+    const receiveState = guardedRouter.getStateForAction(initialState, receiveAction, options);
+
+    expect(receiveState).not.toBeNull();
+    expect(receiveState?.routes[receiveState.index ?? 0].name).toBe('ReceiveDetails');
   });
 
   it('saves the wallet export acknowledgement before allowing navigation', async () => {

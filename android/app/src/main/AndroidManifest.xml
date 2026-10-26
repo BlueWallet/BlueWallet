@@ -145,12 +145,15 @@
                 <data android:scheme="https" />
             </intent-filter>
 
-            <!-- Browsable links are limited to BlueWallet's custom scheme. -->
+            <!-- Browsable links are limited to static shortcut routes. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="bluewallet" />
+                <data android:scheme="bluewallet" android:host="send" />
+                <data android:scheme="bluewallet" android:host="receive" />
+                <data android:scheme="bluewallet" android:host="scan" />
+                <data android:scheme="bluewallet" android:host="manage-wallets" />
             </intent-filter>
 
             <!-- Intent filter for importing other file types (but not launching the app) -->

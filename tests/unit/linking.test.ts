@@ -37,6 +37,14 @@ describe('app shortcut linking', () => {
     expect(findRoute(state?.routes[0]?.state, 'AppShortcut')).toBeUndefined();
   });
 
+  it('puts the wallet list behind manage wallets on a cold deep link', () => {
+    const state = getStateFromPath('manage-wallets', linking.config);
+    const detailStack = findRoute(state, 'DetailViewStackScreensStack');
+
+    expect(detailStack?.state?.routes.map((route: { name: string }) => route.name)).toEqual(['WalletsList', 'ManageWallets']);
+    expect(detailStack?.state?.index).toBe(1);
+  });
+
   test.each([
     ['send', Chain.ONCHAIN, 'SendDetailsRoot'],
     ['receive', Chain.ONCHAIN, 'DrawerRoot'],

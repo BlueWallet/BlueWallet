@@ -5,14 +5,26 @@ const repositoryRoot = path.join(__dirname, '../..');
 const readRepositoryFile = (relativePath: string) => readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
 
 describe('native app shortcut configuration', () => {
-  it('limits Android browsable links to the BlueWallet scheme', () => {
+  it('limits Android browsable links to the static BlueWallet shortcut routes', () => {
     const manifest = readRepositoryFile('android/app/src/main/AndroidManifest.xml');
     const browsableFilters = manifest
       .match(/<intent-filter[\s\S]*?<\/intent-filter>/g)
       ?.filter(intentFilter => intentFilter.includes('android.intent.category.BROWSABLE'));
 
     expect(browsableFilters).toHaveLength(1);
-    expect(browsableFilters?.[0].match(/android:scheme="([^"]+)"/g)).toEqual(['android:scheme="bluewallet"']);
+    expect(browsableFilters?.[0].match(/android:scheme="([^"]+)"/g)).toEqual([
+      'android:scheme="bluewallet"',
+      'android:scheme="bluewallet"',
+      'android:scheme="bluewallet"',
+      'android:scheme="bluewallet"',
+    ]);
+    expect(browsableFilters?.[0].match(/android:host="([^"]+)"/g)).toEqual([
+      'android:host="send"',
+      'android:host="receive"',
+      'android:host="scan"',
+      'android:host="manage-wallets"',
+    ]);
+    expect(browsableFilters?.[0]).not.toMatch(/setelectrumserver|setlndhuburl/);
   });
 
   it('uses registered custom-scheme URLs for iOS App Intents', () => {
