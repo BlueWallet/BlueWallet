@@ -236,11 +236,7 @@ describe('navigation validation', () => {
     ) as typeof initialRootState | null;
     const drawerState =
       rootState &&
-      rootRouter.getStateForAction(
-        rootState,
-        redirectActions[0].action as Parameters<typeof rootRouter.getStateForAction>[1],
-        rootOptions,
-      );
+      rootRouter.getStateForAction(rootState, redirectActions[0].action as Parameters<typeof rootRouter.getStateForAction>[1], rootOptions);
 
     expect(drawerState?.routes[drawerState.index ?? 0].name).toBe('DrawerRoot');
 
