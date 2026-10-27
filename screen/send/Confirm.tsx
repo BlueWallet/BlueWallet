@@ -177,6 +177,18 @@ const Confirm: React.FC = () => {
   );
 
   const renderHeaderRight = useCallback(() => HeaderRightButton, [HeaderRightButton]);
+  const renderUnstableHeaderRightItems = useCallback(
+    () => [
+      {
+        type: 'button' as const,
+        label: loc.send.create_details,
+        onPress: handleOpenCreateTransaction,
+        identifier: 'TransactionDetailsButton',
+        accessibilityLabel: loc.send.create_details,
+      },
+    ],
+    [handleOpenCreateTransaction],
+  );
 
   useEffect(() => {
     console.log('send/confirm - useEffect');
@@ -186,8 +198,9 @@ const Confirm: React.FC = () => {
   useEffect(() => {
     setOptions({
       headerRight: renderHeaderRight,
+      unstable_headerRightItems: renderUnstableHeaderRightItems,
     });
-  }, [renderHeaderRight, setOptions]);
+  }, [renderHeaderRight, renderUnstableHeaderRightItems, setOptions]);
 
   const handleSendTransaction = async () => {
     dispatch({ type: ActionType.SET_BUTTON_DISABLED, payload: true });
