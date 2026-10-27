@@ -1,6 +1,7 @@
 import { StackActions, useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
+import Share from 'react-native-share';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
 import type { ScreenDeps } from '../components/navigationStyle';
@@ -63,6 +64,7 @@ import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
 import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
+import type { DetailViewStackParamList } from './DetailViewStackParamList';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
@@ -645,10 +647,34 @@ const styles = StyleSheet.create({
 });
 
 const createReceiveDetailsOptions = (theme: ReturnType<typeof useTheme>) =>
-  navigationStyle({
-    title: loc.receive.header,
-    closeButtonPosition: CloseButtonPosition.Right,
-    headerShown: true,
-    presentation: 'modal',
-    headerBackVisible: false,
-  })(theme);
+  navigationStyle<DetailViewStackParamList, 'ReceiveDetails'>(
+    {
+      title: loc.receive.header,
+      closeButtonPosition: CloseButtonPosition.Right,
+      headerShown: true,
+      presentation: 'modal',
+      headerBackVisible: false,
+    },
+    (options, { route }) => {
+      if (!isIOS26OrHigher) return options;
+
+      const shareMessage = route.params.headerShareMessage;
+      return {
+        ...options,
+        unstable_headerLeftItems: () => [
+          {
+            type: 'button',
+            label: loc.receive.details_share,
+            icon: { type: 'sfSymbol', name: 'square.and.arrow.up' },
+            identifier: 'ShareButton',
+            accessibilityLabel: loc.receive.details_share,
+            disabled: !shareMessage,
+            onPress: () => {
+              if (!shareMessage) return;
+              Share.open({ message: shareMessage }).catch(error => console.debug('Error sharing:', error));
+            },
+          },
+        ],
+      };
+    },
+  )(theme);

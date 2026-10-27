@@ -1,6 +1,6 @@
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, LayoutChangeEvent, View } from 'react-native';
 import Share from 'react-native-share';
 import BlueText from '../../components/BlueText';
@@ -95,23 +95,6 @@ const WalletXpub: React.FC = () => {
   const handleShareButtonPressed = useCallback(() => {
     Share.open({ message: xPubText || xpub }).catch(console.log);
   }, [xPubText, xpub]);
-
-  useLayoutEffect(() => {
-    if (!isIOS26OrHigher) return;
-
-    navigation.setOptions({
-      unstable_headerLeftItems: () => [
-        {
-          type: 'button',
-          label: loc.receive.details_share,
-          icon: { type: 'sfSymbol', name: 'square.and.arrow.up' },
-          identifier: 'ShareButton',
-          accessibilityLabel: loc.receive.details_share,
-          onPress: handleShareButtonPressed,
-        },
-      ],
-    });
-  }, [handleShareButtonPressed, navigation]);
 
   return (
     <SafeAreaScrollView
