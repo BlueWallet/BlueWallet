@@ -208,6 +208,7 @@ jest.mock('../../loc', () => ({
       cancel: 'Cancel',
     },
   },
+  formatBalance: (value: number | string, unit: string) => `${value} ${unit}`,
   formatBalanceWithoutSuffix: (value: number | string) => String(value),
 }));
 
