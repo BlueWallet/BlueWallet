@@ -119,7 +119,7 @@ it('sends localized menu titles to the native renderers', () => {
       cancelTransaction: 'Cancel',
       openTransactionInExplorer: 'View in Browser',
       editTransactionNote: 'Note to Self',
-      toggleBlockDetails: 'Details',
+      toggleBlockDetails: 'Block Details',
       toggleAdvancedDetails: 'Advanced',
       manageWallets: 'Manage Wallets',
     }),

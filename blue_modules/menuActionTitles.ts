@@ -23,7 +23,7 @@ export function getMenuActionTitles(): MenuActionTitles {
     cancelTransaction: loc.transactions.status_cancel,
     openTransactionInExplorer: loc.transactions.details_view_in_browser,
     editTransactionNote: loc.send.details_note_placeholder,
-    toggleBlockDetails: loc.transactions.details_section,
+    toggleBlockDetails: loc.transactions.details_block,
     toggleAdvancedDetails: loc.transactions.details_advanced,
     backToWallets: loc.menu.back_to_wallets,
     settings: loc.settings.header,
