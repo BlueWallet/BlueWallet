@@ -24,7 +24,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:allowBackup="false"
         android:largeHeap="true"
-        android:extractNativeLibs="true"
         android:usesCleartextTraffic="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
@@ -116,6 +115,10 @@
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
 
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+
             <!-- Main launcher intent filter -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -140,6 +143,17 @@
                 <data android:scheme="blue" />
                 <data android:scheme="http" />
                 <data android:scheme="https" />
+            </intent-filter>
+
+            <!-- Browsable links are limited to static shortcut routes. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="bluewallet" android:host="send" />
+                <data android:scheme="bluewallet" android:host="receive" />
+                <data android:scheme="bluewallet" android:host="scan" />
+                <data android:scheme="bluewallet" android:host="manage-wallets" />
             </intent-filter>
 
             <!-- Intent filter for importing other file types (but not launching the app) -->

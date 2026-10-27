@@ -13,11 +13,17 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     var sceneLaunchOptions: [UIApplication.LaunchOptionsKey: Any]?
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        sceneLaunchOptions = launchOptions
+        var reactLaunchOptions = launchOptions
+        if let shortcutItem = launchOptions?[.shortcutItem] as? UIApplicationShortcutItem,
+           let url = appLinkURL(for: shortcutItem) {
+            reactLaunchOptions?[.url] = url
+            reactLaunchOptions?.removeValue(forKey: .shortcutItem)
+        }
+        sceneLaunchOptions = reactLaunchOptions
         automaticallyLoadReactNativeWindow = false
         clearFilesIfNeeded()
 
-        if #available(iOS 16.4, *) {
+        if #available(iOS 16.4, visionOS 1.0, *) {
             WalletAppShortcuts.updateAppShortcutParameters()
         }
         
@@ -55,15 +61,13 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         self.dependencyProvider = RCTAppDependencyProvider()
         self.initialProps = [:]
 
-        RCTI18nUtil.sharedInstance().allowRTL(true)
-
         RNNotifications.startMonitorNotifications()
         RNNotifications.addNativeDelegate(self)
 
         setupUserDefaultsListener()
         registerNotificationCategories()
         
-        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+        return super.application(application, didFinishLaunchingWithOptions: reactLaunchOptions)
     }
 
     override func application(
@@ -363,7 +367,33 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     }
 
     override func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
-        RNQuickActionManager.onQuickActionPress(shortcutItem, completionHandler: completionHandler)
+        openShortcutLink(shortcutItem, completionHandler: completionHandler)
+    }
+
+    func openShortcutLink(
+        _ shortcutItem: UIApplicationShortcutItem,
+        in scene: UIWindowScene? = nil,
+        completionHandler: @escaping (Bool) -> Void
+    ) {
+        guard let url = appLinkURL(for: shortcutItem) else {
+            completionHandler(false)
+            return
+        }
+
+        if let scene = scene ?? window.windowScene {
+            let activity = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
+            activity.webpageURL = url
+            RCTLinkingManager.scene(scene, continue: activity)
+            completionHandler(true)
+            return
+        }
+
+        completionHandler(RCTLinkingManager.application(UIApplication.shared, open: url, options: [:]))
+    }
+
+    func appLinkURL(for shortcutItem: UIApplicationShortcutItem) -> URL? {
+        guard let urlString = shortcutItem.userInfo?["url"] as? String else { return nil }
+        return URL(string: urlString)
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
@@ -400,24 +430,31 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         builder.remove(menu: .toolbar)
         builder.remove(menu: .preferences)
 
-        let actions = MenuElementsController.shared.availableActions
-        let commands: [(String, String, Selector, String, UIKeyModifierFlags, UIMenu.Identifier)] = [
-            ("addWallet", "Add Wallet", #selector(addWalletAction), "a", [.command, .shift], .file),
-            ("importWallet", "Import Wallet", #selector(importWalletAction), "i", .command, .file),
-            ("send", "Send…", #selector(sendMenuAction), "s", [.command, .shift], .file),
-            ("receive", "Receive…", #selector(receiveMenuAction), "r", [.command, .shift], .file),
-            ("walletDetails", "Wallet Details…", #selector(walletDetailsMenuAction), "d", .command, .file),
-            ("reloadTransactions", "Reload Transactions", #selector(reloadTransactionsAction), "r", .command, .view),
-            ("backToWallets", "Back to Wallets", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view),
-            ("copyAddress", "Copy Address", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit),
-            ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit),
-            ("keyboardShortcuts", "Keyboard Shortcuts…", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
+        let actions = MenuActionsController.shared.availableActions
+        let commands: [(String, String, String, Selector, String?, UIKeyModifierFlags, UIMenu.Identifier)] = [
+            ("addWallet", "Add Wallet", "plus.rectangle.on.folder", #selector(addWalletAction), "a", [.command, .shift], .file),
+            ("importWallet", "Import Wallet", "square.and.arrow.down", #selector(importWalletAction), "i", .command, .file),
+            ("manageWallets", "Manage Wallets…", "list.bullet.rectangle", #selector(manageWalletsAction), "m", [.command, .shift], .file),
+            ("send", "Send…", "arrow.up.circle", #selector(sendMenuAction), "s", [.command, .shift], .file),
+            ("receive", "Receive…", "arrow.down.circle", #selector(receiveMenuAction), "r", [.command, .shift], .file),
+            ("walletDetails", "Wallet Details…", "info.circle", #selector(walletDetailsMenuAction), "d", .command, .file),
+            ("reloadTransactions", "Reload Transactions", "arrow.clockwise", #selector(reloadTransactionsAction), "r", .command, .view),
+            ("backToWallets", "Back to Wallets", "wallet.pass", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view),
+            ("copyAddress", "Copy Address", "doc.on.doc", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit),
+            ("copyTransactionId", "Copy Transaction ID", "doc.on.doc", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit),
+            ("accelerateTransaction", "Speed up Transaction", "hare", #selector(accelerateTransactionMenuAction), "u", [.command, .shift], .view),
+            ("keyboardShortcuts", "Keyboard Shortcuts…", "keyboard", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
         ]
         for parent in [UIMenu.Identifier.file, .edit, .view, .help] {
             let identifier = UIMenu.Identifier("io.bluewallet.commands.\(parent.rawValue)")
             builder.remove(menu: identifier)
-            let children = commands.filter { actions.contains($0.0) && $0.5 == parent }.map {
-                UIKeyCommand(title: $0.1, action: $0.2, input: $0.3, modifierFlags: $0.4)
+            let children = commands.filter { actions.contains($0.0) && $0.6 == parent }.map { command -> UICommand in
+                let title = MenuActionsController.shared.title(for: command.0, fallback: command.1)
+                let image = UIImage(systemName: command.2)
+                if let input = command.4 {
+                    return UIKeyCommand(title: title, image: image, action: command.3, input: input, modifierFlags: command.5)
+                }
+                return UICommand(title: title, image: image, action: command.3)
             }
             if !children.isEmpty {
                 builder.insertChild(UIMenu(title: "", identifier: identifier,
@@ -437,7 +474,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         ].compactMap { $0 }
         let electrumViewCommands = [
             actions.contains("toggleSuggestedElectrumServers")
-                ? UIKeyCommand(title: "Toggle Suggested Servers", action: #selector(toggleSuggestedElectrumServersMenuAction), input: "g", modifierFlags: [.command, .shift])
+                ? UIKeyCommand(title: "Toggle Suggested Servers", action: #selector(toggleSuggestedElectrumServersMenuAction), input: "e", modifierFlags: [.command, .shift])
                 : nil,
             actions.contains("resetElectrumSettings")
                 ? UIKeyCommand(title: "Reset Electrum Settings…", action: #selector(resetElectrumSettingsMenuAction), input: "r", modifierFlags: [.command, .alternate])
@@ -451,54 +488,196 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             builder.insertSibling(UIMenu(title: "Server", identifier: electrumMenuID, children: electrumGroups), afterMenu: .file)
         }
 
+        let sendDetailsMenuID = UIMenu.Identifier("io.bluewallet.sendDetails")
+        builder.remove(menu: sendDetailsMenuID)
+        let sendDetailsCommands: [(String, String, String, String, UIKeyModifierFlags)] = [
+            ("add_recipient", "Add Recipient", "person.badge.plus", "a", [.command, .alternate]),
+            ("remove_recipient", "Remove Recipient", "person.badge.minus", "r", [.command, .alternate]),
+            ("remove_all_recipients", "Remove All Recipients", "person.2.slash", "r", [.command, .alternate, .shift]),
+            ("send_max", "Use Full Balance", "dial.high", "m", [.command, .alternate]),
+            ("allow_rbf", "Allow Fee Bump", "arrowshape.up.circle", "b", [.command, .alternate]),
+            ("import_transaction", "Import Transaction", "square.and.arrow.down", "i", [.command, .alternate]),
+            ("import_transaction_qr", "Import Transaction (QR)", "qrcode.viewfinder", "q", [.command, .alternate]),
+            ("import_transaction_multisig", "Import Multisig Transaction", "square.and.arrow.down.on.square", "i", [.command, .alternate, .shift]),
+            ("co_sign_transaction", "Co-sign Transaction", "signature", "c", [.command, .alternate]),
+            ("sign_psbt", "Sign a Transaction", "signature", "s", [.command, .alternate]),
+            ("insert_contact", "Insert Contact", "at.badge.plus", "p", [.command, .alternate]),
+            ("coin_control", "Coin Control", "switch.2", "o", [.command, .alternate])
+        ]
+        let availableSendCommands = sendDetailsCommands.filter { actions.contains($0.0) }.map {
+            let command = UIKeyCommand(title: MenuActionsController.shared.title(for: $0.0, fallback: $0.1),
+                                       image: UIImage(systemName: $0.2), action: #selector(sendDetailsMenuAction),
+                                       input: $0.3, modifierFlags: $0.4, propertyList: $0.0)
+            if let state = MenuActionsController.shared.actionStates[$0.0] {
+                command.attributes = state.disabled == true ? .disabled : []
+                if let checked = state.checked {
+                    command.state = checked ? .on : .off
+                }
+            }
+            return command
+        }
+        if !availableSendCommands.isEmpty {
+            builder.insertChild(UIMenu(title: MenuActionsController.shared.title(for: "send", fallback: "Send"),
+                                       image: UIImage(systemName: "paperplane"), identifier: sendDetailsMenuID,
+                                       children: availableSendCommands), atStartOfMenu: .file)
+        }
+
+        let recentItems: [UIMenuElement]
+        if !actions.contains("openFile") {
+            recentItems = [UICommand(title: MenuActionsController.shared.title(for: "unlockRecent", fallback: "Unlock BlueWallet to View Recent Items"),
+                                     image: UIImage(systemName: "lock"),
+                                     action: #selector(unavailableRecentMenuAction), attributes: .disabled)]
+        } else if MenuActionsController.shared.recentItems.isEmpty {
+            recentItems = [UICommand(title: MenuActionsController.shared.title(for: "noRecent", fallback: "No Recent Wallets or Transactions"),
+                                     image: UIImage(systemName: "clock"),
+                                     action: #selector(unavailableRecentMenuAction), attributes: .disabled)]
+        } else {
+            recentItems = MenuActionsController.shared.recentItems.map { item in
+                UICommand(
+                    title: item.title,
+                    image: UIImage(systemName: item.kind == "wallet" ? "wallet.pass" : "list.bullet.rectangle"),
+                    action: #selector(openRecentMenuAction),
+                    propertyList: item.id
+                )
+            }
+        }
+
+        func replacingSystemFileCommands(_ elements: [UIMenuElement]) -> [UIMenuElement] {
+            elements.map { element in
+                if let menu = element as? UIMenu {
+                    let isOpenRecent = menu.identifier == .openRecent
+                    let children = isOpenRecent ? recentItems : replacingSystemFileCommands(menu.children)
+                    let identifier = isOpenRecent ? UIMenu.Identifier("io.bluewallet.openRecent") : menu.identifier
+                    return UIMenu(title: menu.title, image: menu.image, identifier: identifier,
+                                  options: menu.options, children: children)
+                }
+                if let command = element as? UICommand,
+                   command.action == NSSelectorFromString("open:") {
+                    return UIKeyCommand(title: command.title, image: UIImage(systemName: "folder"), action: #selector(openFileMenuAction),
+                                        input: "o", modifierFlags: .command)
+                }
+                if let command = element as? UICommand,
+                   command.action == NSSelectorFromString("performClose:") {
+                    let closeCommand = UIKeyCommand(title: command.title, image: UIImage(systemName: "xmark"), action: #selector(closePresentedMenuAction),
+                                                    input: "w", modifierFlags: .command)
+                    closeCommand.attributes = presentedViewController == nil ? .hidden : []
+                    return closeCommand
+                }
+                return element
+            }
+        }
+        builder.replaceChildren(ofMenu: .file, from: replacingSystemFileCommands)
+
         let settingsMenuID = UIMenu.Identifier("io.bluewallet.settings")
+        let toolsMenuID = UIMenu.Identifier("io.bluewallet.tools")
         builder.remove(menu: settingsMenuID)
+        builder.remove(menu: toolsMenuID)
         if actions.contains("settings") {
-            let command = UIKeyCommand(title: "Settings…", action: #selector(openSettings),
+            let command = UIKeyCommand(title: MenuActionsController.shared.title(for: "settings", fallback: "Settings") + "…",
+                                       image: UIImage(systemName: "gearshape"), action: #selector(openSettings),
                                        input: ",", modifierFlags: .command)
             builder.insertSibling(UIMenu(title: "", identifier: settingsMenuID,
                                          options: .displayInline, children: [command]), afterMenu: .about)
+
+            let tools = [
+                UIKeyCommand(title: MenuActionsController.shared.title(for: "isItMyAddress", fallback: "Is it my address?"),
+                             image: UIImage(systemName: "magnifyingglass"), action: #selector(isItMyAddressMenuAction),
+                             input: "i", modifierFlags: [.command, .shift]),
+                UIKeyCommand(title: MenuActionsController.shared.title(for: "broadcastTransaction", fallback: "Broadcast Transaction"),
+                             image: UIImage(systemName: "antenna.radiowaves.left.and.right"), action: #selector(broadcastTransactionMenuAction),
+                             input: "b", modifierFlags: [.command, .shift]),
+                UIKeyCommand(title: MenuActionsController.shared.title(for: "generateWord", fallback: "Seed final word"),
+                             image: UIImage(systemName: "key"), action: #selector(generateWordMenuAction),
+                             input: "g", modifierFlags: [.command, .shift])
+            ]
+            builder.insertSibling(UIMenu(title: MenuActionsController.shared.title(for: "tools", fallback: "Tools"),
+                                         image: UIImage(systemName: "wrench.and.screwdriver"),
+                                         identifier: toolsMenuID, children: tools), afterMenu: settingsMenuID)
         }
     }
 
     @objc func openSettings(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("settings")
+        MenuActionsController.shared.perform("settings")
+    }
+
+    @objc func accelerateTransactionMenuAction(_ command: UICommand) {
+        MenuActionsController.shared.perform("accelerateTransaction")
+    }
+
+    @objc func isItMyAddressMenuAction(_ command: UICommand) {
+        MenuActionsController.shared.perform("isItMyAddress")
+    }
+
+    @objc func broadcastTransactionMenuAction(_ command: UICommand) {
+        MenuActionsController.shared.perform("broadcastTransaction")
+    }
+
+    @objc func generateWordMenuAction(_ command: UICommand) {
+        MenuActionsController.shared.perform("generateWord")
     }
 
     @objc func addWalletAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("addWallet")
+        MenuActionsController.shared.perform("addWallet")
     }
 
     @objc func importWalletAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("importWallet")
+        MenuActionsController.shared.perform("importWallet")
+    }
+
+    @objc func openFileMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuActionsController.shared.perform("openFile")
+    }
+
+    @objc func closePresentedMenuAction(_ keyCommand: UIKeyCommand) {
+        presentedViewController?.dismiss(animated: true) {
+            DispatchQueue.main.async {
+                UIMenuSystem.main.setNeedsRebuild()
+            }
+        }
+    }
+
+    @objc func openRecentMenuAction(_ command: UICommand) {
+        guard let identifier = command.propertyList as? String else { return }
+        MenuActionsController.shared.perform("openRecent:\(identifier)")
+    }
+
+    @objc func unavailableRecentMenuAction(_ command: UICommand) {}
+
+    @objc func sendDetailsMenuAction(_ command: UICommand) {
+        guard let action = command.propertyList as? String else { return }
+        MenuActionsController.shared.perform(action)
+    }
+
+    @objc func manageWalletsAction(_ keyCommand: UIKeyCommand) {
+        MenuActionsController.shared.perform("manageWallets")
     }
 
     @objc func reloadTransactionsAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("reloadTransactions")
+        MenuActionsController.shared.perform("reloadTransactions")
     }
 
     @objc func sendMenuAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("send")
+        MenuActionsController.shared.perform("send")
     }
 
     @objc func receiveMenuAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("receive")
+        MenuActionsController.shared.perform("receive")
     }
 
     @objc func walletDetailsMenuAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("walletDetails")
+        MenuActionsController.shared.perform("walletDetails")
     }
 
     @objc func backToWalletsMenuAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("backToWallets")
+        MenuActionsController.shared.perform("backToWallets")
     }
 
     @objc func copyAddressMenuAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("copyAddress")
+        MenuActionsController.shared.perform("copyAddress")
     }
 
     @objc func copyTransactionIdMenuAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("copyTransactionId")
+        MenuActionsController.shared.perform("copyTransactionId")
     }
 
     @objc func addElectrumServerMenuAction(_ keyCommand: UIKeyCommand) {
@@ -518,7 +697,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     }
 
     @objc func keyboardShortcutsMenuAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("keyboardShortcuts")
+        MenuActionsController.shared.perform("keyboardShortcuts")
     }
 
     @objc func showHelp(_ sender: Any) {
@@ -526,9 +705,35 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
+
+    private var presentedViewController: UIViewController? {
+        guard let rootViewController = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap(\.windows)
+            .first(where: \.isKeyWindow)?
+            .rootViewController else { return nil }
+
+        var presented = rootViewController.presentedViewController
+        while let next = presented?.presentedViewController {
+            presented = next
+        }
+        return presented
+    }
+
+    override func validate(_ command: UICommand) {
+        if command.action == #selector(closePresentedMenuAction) {
+            command.attributes = presentedViewController == nil ? .hidden : []
+        } else {
+            super.validate(command)
+        }
+    }
     
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
-        if action == #selector(showHelp(_:)) {
+        if action == #selector(openFileMenuAction) {
+            return MenuActionsController.shared.availableActions.contains("openFile")
+        } else if action == #selector(closePresentedMenuAction) {
+            return presentedViewController != nil
+        } else if action == #selector(showHelp(_:)) {
             return true
         } else {
             return super.canPerformAction(action, withSender: sender)

@@ -49,7 +49,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import loc from '../../loc';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { DetailViewStackParamList, HeaderRightItems } from '../../navigation/DetailViewStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import ActionSheet from '../ActionSheet';
 
@@ -193,7 +193,7 @@ const ElectrumSettings: React.FC = () => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const params = useRoute<RouteProps>().params as DetailViewStackParamList['ElectrumSettings'];
-  const { server, serverHistoryImport } = params;
+  const { server, serverHistoryImport } = params ?? {};
   const customOnly = false;
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
@@ -893,12 +893,12 @@ const ElectrumSettings: React.FC = () => {
   };
 
   useEffect(() => {
-    const data = params.onBarScanned;
+    const data = params?.onBarScanned;
     if (data) {
       onBarScanned(data);
       navigation.setParams({ onBarScanned: undefined });
     }
-  }, [navigation, params.onBarScanned]);
+  }, [navigation, params?.onBarScanned]);
 
   const onSSLPortChange = (value: boolean) => {
     Keyboard.dismiss();
@@ -1018,30 +1018,29 @@ const ElectrumSettings: React.FC = () => {
     [colors.buttonDisabledTextColor, colors.primary, isLoading, isValidatingServer, save, saveDisabled],
   );
 
-  const unstableSaveHeaderRightItems = useCallback(
-    () => [
-      ...(isValidatingServer
-        ? [
-            {
-              type: 'custom' as const,
-              element: <ActivityIndicator accessibilityLabel={loc.settings.electrum_validating_server} color={colors.primary} />,
-            },
-          ]
-        : [
-            {
-              type: 'button' as const,
-              label: loc.settings.save,
-              icon: { type: 'sfSymbol' as const, name: 'checkmark' },
-              tintColor: colors.primary,
-              identifier: 'Save',
-              accessibilityLabel: loc.settings.save,
-              disabled: saveDisabled || isLoading,
-              onPress: () => save(),
-            },
-          ]),
-    ],
-    [colors.primary, isLoading, isValidatingServer, save, saveDisabled],
-  );
+  const unstableSaveHeaderRightItems = useCallback<HeaderRightItems>(() => {
+    if (isValidatingServer) {
+      return [
+        {
+          type: 'custom',
+          element: <ActivityIndicator accessibilityLabel={loc.settings.electrum_validating_server} color={colors.primary} />,
+        },
+      ];
+    }
+
+    return [
+      {
+        type: 'button',
+        label: loc.settings.save,
+        icon: { type: 'sfSymbol', name: 'checkmark' },
+        tintColor: colors.primary,
+        identifier: 'Save',
+        accessibilityLabel: loc.settings.save,
+        disabled: saveDisabled || isLoading,
+        onPress: () => save(),
+      },
+    ];
+  }, [colors.primary, isLoading, isValidatingServer, save, saveDisabled]);
 
   useEffect(() => {
     if (!customOnly) return;

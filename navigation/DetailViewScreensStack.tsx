@@ -1,9 +1,11 @@
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
+import type { ScreenDeps } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
+import type { Theme } from '../components/themes';
 import loc from '../loc';
 import LNDViewAdditionalInvoicePreImage from '../screen/lnd/lndViewAdditionalInvoicePreImage';
 import LNDViewInvoice from '../screen/lnd/lndViewInvoice';
@@ -98,7 +100,7 @@ const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = (
 
 type ManageWalletsCloseButtonProps = {
   onPress: () => void;
-  closeImage: any;
+  closeImage: Theme['closeImage'];
 };
 
 const ManageWalletsCloseButton: React.FC<ManageWalletsCloseButtonProps> = ({ onPress, closeImage }) => (
@@ -113,7 +115,10 @@ const ManageWalletsCloseButton: React.FC<ManageWalletsCloseButtonProps> = ({ onP
   </Pressable>
 );
 
-const makeManageWalletsHeaderLeft = (onPress: () => void, closeImage: any): NonNullable<NativeStackNavigationOptions['headerLeft']> => {
+const makeManageWalletsHeaderLeft = (
+  onPress: () => void,
+  closeImage: Theme['closeImage'],
+): NonNullable<NativeStackNavigationOptions['headerLeft']> => {
   return () => React.createElement(ManageWalletsCloseButton, { onPress, closeImage });
 };
 
@@ -247,9 +252,12 @@ const DetailViewStackScreensStack = () => {
   }, [navigation]);
 
   const renderManageWalletsHeaderLeft = useCallback(
-    (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any; route: any; theme: any }) => ({
+    (options: NativeStackNavigationOptions, { navigation: screenNavigation }: ScreenDeps) => ({
       ...options,
-      headerLeft: makeManageWalletsHeaderLeft(screenNavigation.goBack, theme.closeImage),
+      headerLeft: makeManageWalletsHeaderLeft(() => {
+        if (screenNavigation.canGoBack()) screenNavigation.goBack();
+        else screenNavigation.dispatch(StackActions.popTo('WalletsList'));
+      }, theme.closeImage),
     }),
     [theme.closeImage],
   );
@@ -446,7 +454,6 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="IsItMyAddress"
           component={IsItMyAddress}
-          initialParams={{ address: undefined }}
           options={settingsScreenOptions(loc.is_it_my_address.title)}
         />
         <DetailViewStack.Screen name="GenerateWord" component={GenerateWord} options={settingsScreenOptions(loc.autofill_word.title)} />

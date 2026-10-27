@@ -125,6 +125,7 @@
     "provided_address_is_invoice": "This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.",
     "broadcastButton": "Broadcast",
     "broadcastError": "Error",
+    "payjoin_not_used": "Payjoin did not go through. A regular transaction was sent instead.",
     "broadcastNone": "Insert Transaction Hex",
     "broadcastPending": "Pending",
     "broadcastSuccess": "Success",
@@ -212,6 +213,7 @@
     "reset_amount_confirm": "Would you like to reset the amount?",
     "success_done": "Done",
     "cant_send_to_silentpayment_adress": "This wallet cannot send to SilentPayment addresses",
+    "silentpayment_no_wif": "Internal error: no WIF for silent payment input",
     "cant_send_to_bip47": "This wallet cannot send to BIP47 payment codes",
     "cant_find_bip47_notification": "Add this Payment Code to contacts first",
     "problem_with_psbt": "Problem with PSBT"
@@ -316,6 +318,7 @@
     "encrypt_decrypt": "Decrypt Storage",
     "encrypt_decrypt_q": "Are you sure you want to decrypt your storage? This will allow your wallets to be accessed without a password.",
     "encrypt_enc_and_pass": "Password Protected",
+    "encrypt_storage_empty": "Nothing to encrypt: storage is empty",
     "encrypt_storage_explanation_headline": "Enable Storage Encryption",
     "encrypt_storage_explanation_description_line1": "Enabling Storage Encryption adds an extra layer of protection to your app by securing the way your data is stored on your device. This makes it harder for anyone to access your information without permission.",
     "encrypt_storage_explanation_description_line2": "However, it's important to know that this encryption only protects the access to your wallets stored on the device's keychain. It doesn't put a password or any extra protection on the wallets themselves.",
@@ -331,6 +334,7 @@
     "encrypt_use_expl": "{type} will be used to confirm your identity before making a transaction, unlocking, exporting, or deleting a wallet.",
     "biometrics_fail": "If {type} is not enabled, or fails to unlock, you can use your device passcode as an alternative.",
     "general": "General",
+    "integration": "Integration",
     "general_continuity": "Continuity",
     "general_continuity_e": "When enabled, you will be able to view selected wallets, and transactions, using your other Apple iCloud connected devices.",
     "header": "Settings",
@@ -356,8 +360,6 @@
     "privacy": "Privacy",
     "privacy_read_clipboard": "Read Clipboard",
     "privacy_system_settings": "System Settings",
-    "privacy_quickactions": "Wallet Shortcuts",
-    "privacy_quickactions_explanation": "Touch and hold the BlueWallet app icon to quickly view your wallet’s balance.",
     "privacy_clipboard_explanation": "Provide shortcuts if an address or invoice is found in your clipboard.",
     "privacy_clipboard_ios_paste_permission": "To skip the paste prompt, open System Settings and set Paste from Other Apps to Allow.",
     "privacy_do_not_track": "Disable Analytics",
@@ -686,6 +688,15 @@
     "check_address": "Check address",
     "no_wallet_owns_address": "None of the available wallets own the provided address.",
     "view_qrcode": "View QR Code"
+  },
+  "menu": {
+    "open": "Open…",
+    "open_recent": "Open Recent",
+    "no_recent": "No recent wallets or transactions",
+    "unlock_recent": "Unlock BlueWallet to view recent items",
+    "back_to_wallets": "Back to Wallets",
+    "copy_address": "Copy Address",
+    "keyboard_shortcuts": "Keyboard Shortcuts…"
   },
   "autofill_word": {
     "title": "Seed final word",

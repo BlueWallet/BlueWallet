@@ -7,5 +7,4 @@
 //
 
 #import "RNNotifications.h"
-#import "RNQuickActionManager.h"
 #import "NativeEventEmitterSpec.h"

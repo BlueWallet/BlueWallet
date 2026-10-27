@@ -7,7 +7,6 @@ import { sha256 } from '@noble/hashes/sha256';
 import { SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
-import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { ContactList } from '../../class/contact-list';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import presentAlert from '../../components/Alert';
@@ -24,6 +23,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { BlueLoading } from '../../components/BlueLoading';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { errorMessage } from '../../helpers/errorMessage';
 
 interface DataSection {
   title: string;
@@ -68,7 +68,7 @@ const actionKeys: Action[] = [
   },
 ];
 
-function onlyUnique(value: any, index: number, self: any[]) {
+function onlyUnique<T>(value: T, index: number, self: T[]) {
   return self.indexOf(value) === index;
 }
 
@@ -96,8 +96,8 @@ export default function PaymentCodesList() {
   useEffect(() => {
     if (!walletID) return;
 
-    const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as AbstractHDElectrumWallet;
-    if (!foundWallet) return;
+    const foundWallet = wallets.find(w => w.getID() === walletID);
+    if (!(foundWallet instanceof AbstractHDElectrumWallet)) return;
 
     const newData: DataSection[] = [
       {
@@ -115,18 +115,18 @@ export default function PaymentCodesList() {
     return name.substr(0, 10) + '...' + name.substr(name.length - 10, 10);
   };
 
-  const onToolTipPress = async (id: any, pc: string) => {
+  const onToolTipPress = async (id: string | Actions, pc: string) => {
     try {
       setIsLoading(true);
       await _onToolTipPress(id, pc);
-    } catch (error: any) {
-      presentAlert({ message: error.message });
+    } catch (error) {
+      presentAlert({ message: errorMessage(error) });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const _onToolTipPress = async (id: any, pc: string) => {
+  const _onToolTipPress = async (id: string | Actions, pc: string) => {
     switch (String(id)) {
       case String(Actions.copyToClipboard): {
         Clipboard.setString(pc);
@@ -149,8 +149,8 @@ export default function PaymentCodesList() {
           return;
         }
         // check if notif tx is in place and has confirmations
-        const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
-        assert(foundWallet, 'Internal error: cant find walletID ' + walletID);
+        const foundWallet = wallets.find(w => w.getID() === walletID);
+        assert(foundWallet instanceof AbstractHDElectrumWallet, 'Internal error: cant find walletID ' + walletID);
         const notifTx = foundWallet.getBIP47NotificationTransaction(pc);
         if (!notifTx) {
           await _addContact(pc);
@@ -182,18 +182,26 @@ export default function PaymentCodesList() {
     const previousRoute = state.routes[state.routes.length - 2];
 
     if (previousRoute.name === ('SendDetails' as string)) {
-      const popToAction = StackActions.popTo('SendDetails', {
-        walletID,
-        addRecipientParams: {
-          address: pc,
+      const popToAction = StackActions.popTo(
+        'SendDetails',
+        {
+          walletID,
+          uri: undefined,
+          address: undefined,
+          addRecipientParams: {
+            address: pc,
+          },
         },
-        merge: true,
-      });
+        { merge: true },
+      );
       navigation.dispatch(popToAction);
     } else {
       navigation.navigate('SendDetailsRoot', {
-        paymentCode: pc,
-        walletID,
+        screen: 'SendDetails',
+        params: {
+          paymentCode: pc,
+          walletID,
+        },
       });
     }
   };
@@ -224,7 +232,7 @@ export default function PaymentCodesList() {
     return (
       <ToolTipMenu
         actions={toolTipActions}
-        onPressMenuItem={(item: any) => onToolTipPress(item, pc)}
+        onPressMenuItem={(item: string) => onToolTipPress(item, pc)}
         isButton={true}
         shouldOpenOnLongPress={false}
         buttonStyle={styles.tooltipButton}
@@ -248,16 +256,16 @@ export default function PaymentCodesList() {
       if (!newPc) return;
 
       await _addContact(newPc);
-    } catch (error: any) {
-      console.debug(error.message);
+    } catch (error) {
+      console.debug(errorMessage(error));
     } finally {
       setIsLoading(false);
     }
   };
 
   const _addContact = async (newPc: string) => {
-    const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
-    assert(foundWallet, 'Internal error: cant find walletID ' + walletID);
+    const foundWallet = wallets.find(w => w.getID() === walletID);
+    assert(foundWallet instanceof AbstractHDElectrumWallet, 'Internal error: cant find walletID ' + walletID);
 
     if (counterpartyMetadata[newPc]?.hidden) {
       // contact already present, just need to unhide it

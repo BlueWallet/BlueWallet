@@ -1,6 +1,5 @@
 import React from 'react';
 import DefaultPreference from 'react-native-default-preference';
-// @ts-ignore: Handoff is not typed
 import Handoff from 'react-native-handoff';
 import { useSettings } from '../hooks/context/useSettings';
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';

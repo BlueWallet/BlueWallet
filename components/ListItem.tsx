@@ -24,6 +24,8 @@ import { useTheme } from './themes';
 export const TX_ROW_BASE_HEIGHT = 64;
 
 export interface ListItemProps {
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
   leftAvatar?: React.JSX.Element;
   containerStyle?: StyleProp<ViewStyle>;
   noFeedback?: boolean;
@@ -48,8 +50,6 @@ export interface ListItemProps {
   chevron?: boolean;
   checkmark?: boolean;
   isLoading?: boolean;
-  accessibilityLabel?: string;
-  accessibilityHint?: string;
   accessibilityState?: AccessibilityState;
   accessibilityActions?: ReadonlyArray<AccessibilityActionInfo>;
   onAccessibilityAction?: (event: AccessibilityActionEvent) => void;
@@ -58,6 +58,8 @@ export interface ListItemProps {
 const ListItem: React.FC<ListItemProps> = React.memo(
   ({
     leftAvatar,
+    accessibilityLabel,
+    accessibilityHint,
     containerStyle,
     noFeedback = false,
     bottomDivider = true,
@@ -81,8 +83,6 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     chevron,
     checkmark,
     isLoading,
-    accessibilityLabel,
-    accessibilityHint,
     accessibilityState,
     accessibilityActions,
     onAccessibilityAction,
@@ -231,10 +231,11 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         testID={testID}
         onPress={onPress}
         disabled={disabled}
+        accessible
         accessibilityRole="button"
-        accessibilityLabel={accessibilityLabel}
+        accessibilityLabel={accessibilityLabel ?? title}
         accessibilityHint={accessibilityHint}
-        accessibilityState={accessibilityState}
+        accessibilityState={{ ...accessibilityState, disabled: accessibilityState?.disabled ?? !!disabled }}
         accessibilityActions={accessibilityActions}
         onAccessibilityAction={onAccessibilityAction}
         android_ripple={enableFeedback ? { color: colors.androidRippleColor } : undefined}

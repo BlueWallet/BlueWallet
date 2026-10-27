@@ -208,6 +208,7 @@ jest.mock('../../loc', () => ({
       cancel: 'Cancel',
     },
   },
+  formatBalance: (value: number | string, unit: string) => `${value} ${unit}`,
   formatBalanceWithoutSuffix: (value: number | string) => String(value),
 }));
 
@@ -343,6 +344,82 @@ describe('TransactionStatus regression', () => {
     await waitFor(() => {
       expect(view.getByText('received')).toBeTruthy();
     });
+  });
+
+  it('keeps a hash-only transaction on screen when electrum answers after the loading watchdog', async () => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    jest.useFakeTimers();
+    (BlueElectrum.multiGetTransactionByTxid as jest.Mock).mockImplementationOnce(
+      (txids: string[]) =>
+        new Promise(resolve =>
+          setTimeout(
+            () => resolve(Object.fromEntries(txids.map(txid => [txid, { hash: txid, value: 1200, confirmations: 1, vin: [], vout: [] }]))),
+            11000,
+          ),
+        ),
+    );
+    routeParams = { hash: 'mock-tx' };
+    const view = render(<TransactionStatus />);
+
+    await act(async () => {
+      jest.advanceTimersByTime(10001);
+    });
+    expect(view.getByText('loading error')).toBeTruthy();
+
+    await act(async () => {
+      jest.advanceTimersByTime(1000);
+    });
+    await waitFor(() => {
+      expect(view.getByText('confirmations: 1')).toBeTruthy();
+    });
+    expect(view.queryByText('loading error')).toBeNull();
+    jest.useRealTimers();
+  });
+
+  it('keeps a hash-only transaction when the watchdog fires during the previous-output lookup', async () => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    jest.useFakeTimers();
+    const row = { hash: 'mock-tx', value: 1200, confirmations: 1, vin: [{ txid: 'prev-tx', vout: 0 }], vout: [] };
+    (BlueElectrum.multiGetTransactionByTxid as jest.Mock)
+      // the tx itself lands just before the watchdog
+      .mockImplementationOnce(() => new Promise(resolve => setTimeout(() => resolve({ 'mock-tx': row }), 9999)))
+      // the previous outputs land well after it
+      .mockImplementationOnce(
+        () =>
+          new Promise(resolve =>
+            setTimeout(() => resolve({ 'prev-tx': { vout: [{ value: 0.5, scriptPubKey: { addresses: ['bc1qprev'] } }] } }), 5000),
+          ),
+      );
+    routeParams = { hash: 'mock-tx' };
+    const view = render(<TransactionStatus />);
+
+    await act(async () => {
+      jest.advanceTimersByTime(10001);
+    });
+    expect(view.getByText('confirmations: 1')).toBeTruthy();
+    expect(view.queryByText('loading error')).toBeNull();
+
+    await act(async () => {
+      jest.advanceTimersByTime(5000);
+    });
+    expect(view.getByText('confirmations: 1')).toBeTruthy();
+    expect(view.queryByText('loading error')).toBeNull();
+    expect(BlueElectrum.multiGetTransactionByTxid).toHaveBeenCalledTimes(2);
+    jest.useRealTimers();
+  });
+
+  it('shows a hash-only transaction whose electrum row has no vin/vout instead of the loading error', async () => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    (BlueElectrum.multiGetTransactionByTxid as jest.Mock).mockImplementationOnce(() =>
+      Promise.resolve({ 'mock-tx': { hash: 'mock-tx', value: 1200, confirmations: 1 } }),
+    );
+    routeParams = { hash: 'mock-tx' };
+    const view = render(<TransactionStatus />);
+
+    await waitFor(() => {
+      expect(view.getByText('confirmations: 1')).toBeTruthy();
+    });
+    expect(view.queryByText('loading error')).toBeNull();
   });
 
   it('renders an Arkade row as received (not pending) and never queries Electrum for its synthetic id', async () => {
