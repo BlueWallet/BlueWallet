@@ -1,6 +1,6 @@
 import BIP47Factory from '@spsina/bip47';
 
-import { SilentPayment } from 'silent-payments';
+import { bech32m } from 'bech32';
 
 import ecc from '../blue_modules/noble_ecc';
 import { concatUint8Arrays } from '../blue_modules/uint8array-extras';
@@ -17,7 +17,16 @@ export class ContactList {
   }
 
   isBip352PaymentCodeValid(pc: string) {
-    return SilentPayment.isPaymentCodeValid(pc);
+    // stricter than SilentPayment.isPaymentCodeValid() of pinned silent-payments: checks prefix, case, length and keys
+    if (pc !== pc.toLowerCase() && pc !== pc.toUpperCase()) return false;
+    try {
+      const { prefix, words } = bech32m.decode(pc.toLowerCase(), 118);
+      if (prefix !== 'sp' || words.shift() !== 0) return false;
+      const data = new Uint8Array(bech32m.fromWords(words));
+      return data.length === 66 && ecc.isPoint(data.slice(0, 33)) && ecc.isPoint(data.slice(33));
+    } catch (_) {
+      return false;
+    }
   }
 
   isPaymentCodeValid(pc: string): boolean {

@@ -585,7 +585,7 @@ const SendDetails = () => {
 
       // validating payment codes, if any
       if (!error) {
-        if (transaction.address.startsWith('sp1')) {
+        if (transaction.address.toLowerCase().startsWith('sp1')) {
           if (!wallet.allowSilentPaymentSend()) {
             console.log('validation error');
             error = loc.send.cant_send_to_silentpayment_adress;

@@ -1043,7 +1043,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     let { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate);
 
-    const hasSilentPaymentOutput: boolean = !!outputs.find(o => o.address?.startsWith('sp1'));
+    const hasSilentPaymentOutput: boolean = !!outputs.find(o => o.address?.toLowerCase().startsWith('sp1'));
     if (hasSilentPaymentOutput) {
       if (!this.allowSilentPaymentSend()) {
         throw new Error('This wallet can not send to SilentPayment address');
@@ -1071,7 +1071,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         return { ...u, utxoType, wif: u.wif };
       });
       const sp = new SilentPayment();
-      outputs = sp.createTransaction(spUtxos, outputs) as CoinSelectOutput[];
+      // silent-payments lib expects lowercase sp1 code
+      const spOutputs = outputs.map(o => (o.address?.toLowerCase().startsWith('sp1') ? { ...o, address: o.address.toLowerCase() } : o));
+      outputs = sp.createTransaction(spUtxos, spOutputs) as CoinSelectOutput[];
     }
 
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
