@@ -442,7 +442,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ("backToWallets", "Back to Wallets", "wallet.pass", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view),
             ("copyAddress", "Copy Address", "doc.on.doc", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit),
             ("copyTransactionId", "Copy Transaction ID", "doc.on.doc", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit),
-            ("accelerateTransaction", "Speed up Transaction", "hare", #selector(accelerateTransactionMenuAction), "u", [.command, .shift], .view),
+            ("copyTransactionHex", "Copy Transaction Hex", "doc.on.doc", #selector(copyTransactionHexMenuAction), "c", [.command, .alternate, .shift], .edit),
             ("keyboardShortcuts", "Keyboard Shortcuts…", "keyboard", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
         ]
         for parent in [UIMenu.Identifier.file, .edit, .view, .help] {
@@ -460,6 +460,52 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
                 builder.insertChild(UIMenu(title: "", identifier: identifier,
                                            options: .displayInline, children: children), atStartOfMenu: parent)
             }
+        }
+
+        // Keep commands that operate on the current transaction together. Each
+        // inline group gets a separator, matching the grouping conventions used
+        // throughout the macOS menu bar.
+        let transactionMenuID = UIMenu.Identifier("io.bluewallet.transaction")
+        builder.remove(menu: transactionMenuID)
+        typealias TransactionCommand = (action: String, fallback: String, input: String, modifiers: UIKeyModifierFlags, needsMoreInput: Bool)
+        let transactionCommandGroups: [[TransactionCommand]] = [
+            [
+                ("bumpFeeRbf", "Speed Up with RBF", "u", [.command, .alternate], true),
+                ("bumpFeeCpfp", "Speed Up with CPFP", "u", [.command, .alternate, .shift], true),
+                ("accelerateTransaction", "Speed Up Externally", "u", [.command, .shift], true),
+                ("cancelTransaction", "Cancel Transaction", "k", [.command, .alternate], true)
+            ],
+            [
+                ("openTransactionInExplorer", "View in Block Explorer", "e", [.command, .alternate], false),
+                ("editTransactionNote", "Edit Note", "n", [.command, .alternate], true)
+            ],
+            [
+                ("toggleBlockDetails", "Block Details", "b", [.command, .alternate], false),
+                ("toggleAdvancedDetails", "Advanced Details", "a", [.command, .alternate], false)
+            ]
+        ]
+        let transactionGroups = transactionCommandGroups.compactMap { group -> UIMenu? in
+            let children = group.compactMap { item -> UIKeyCommand? in
+                guard actions.contains(item.action) else { return nil }
+                var title = MenuActionsController.shared.title(for: item.action, fallback: item.fallback)
+                if item.needsMoreInput && !title.hasSuffix("…") { title += "…" }
+                let command = UIKeyCommand(title: title, action: #selector(transactionMenuAction),
+                                           input: item.input, modifierFlags: item.modifiers,
+                                           propertyList: item.action)
+                if let state = MenuActionsController.shared.actionStates[item.action] {
+                    command.attributes = state.disabled == true ? .disabled : []
+                    if let checked = state.checked {
+                        command.state = checked ? .on : .off
+                    }
+                }
+                return command
+            }
+            guard !children.isEmpty else { return nil }
+            return UIMenu(title: "", options: .displayInline, children: children)
+        }
+        if !transactionGroups.isEmpty {
+            let title = MenuActionsController.shared.title(for: "transactionMenu", fallback: "Transaction")
+            builder.insertSibling(UIMenu(title: title, identifier: transactionMenuID, children: transactionGroups), afterMenu: .view)
         }
 
         let sendDetailsMenuID = UIMenu.Identifier("io.bluewallet.sendDetails")
@@ -574,8 +620,9 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         MenuActionsController.shared.perform("settings")
     }
 
-    @objc func accelerateTransactionMenuAction(_ command: UICommand) {
-        MenuActionsController.shared.perform("accelerateTransaction")
+    @objc func transactionMenuAction(_ command: UICommand) {
+        guard let action = command.propertyList as? String else { return }
+        MenuActionsController.shared.perform(action)
     }
 
     @objc func isItMyAddressMenuAction(_ command: UICommand) {
@@ -652,6 +699,10 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     @objc func copyTransactionIdMenuAction(_ keyCommand: UIKeyCommand) {
         MenuActionsController.shared.perform("copyTransactionId")
+    }
+
+    @objc func copyTransactionHexMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuActionsController.shared.perform("copyTransactionHex")
     }
 
     @objc func keyboardShortcutsMenuAction(_ keyCommand: UIKeyCommand) {

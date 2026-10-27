@@ -2,7 +2,6 @@ import { useEffect, useCallback } from 'react';
 import { CommonActions } from '@react-navigation/native';
 import MenuActionsEmitter from '../blue_modules/NativeMenuActionsEmitter';
 import { availableMenuActions, MenuActionHandlers, MenuActionStates, ScreenMenuAction } from '../blue_modules/menuActions';
-import type { MenuActionTitles } from '../blue_modules/menuActions';
 import { navigationRef, navigateToWalletsList } from '../NavigationService';
 import {
   findRecentMenuItem,
@@ -10,9 +9,12 @@ import {
   loadRecentMenuItems,
   subscribeToRecentMenuItems,
 } from '../components/Context/recentMenuItems';
-import loc from '../loc';
+import { getMenuActionTitles } from '../blue_modules/menuActionTitles';
 
-type MenuRegistration = { handlers: MenuActionHandlers; states: MenuActionStates };
+type MenuRegistration = {
+  handlers: MenuActionHandlers;
+  states: MenuActionStates;
+};
 const handlerRegistry = new Map<string, Map<symbol, MenuRegistration>>();
 let consumers = 0;
 let dispose: (() => void) | undefined;
@@ -31,44 +33,10 @@ function currentContext() {
   const registrations = route ? [...(handlerRegistry.get(route.key)?.values() ?? [])] : [];
   const handlers: MenuActionHandlers = Object.assign({}, ...registrations.map(registration => registration.handlers));
   const states: MenuActionStates = Object.assign({}, ...registrations.map(registration => registration.states));
-  return { handlers, states, actions: availableMenuActions(route?.name, Object.keys(handlers) as ScreenMenuAction[], unlocked) };
-}
-
-export function getMenuActionTitles(): MenuActionTitles {
   return {
-    openFile: loc.menu.open,
-    openRecent: loc.menu.open_recent,
-    noRecent: loc.menu.no_recent,
-    unlockRecent: loc.menu.unlock_recent,
-    addWallet: loc.wallets.add_title,
-    importWallet: loc.wallets.add_import_wallet,
-    manageWallets: loc.wallets.manage_title,
-    reloadTransactions: loc._.refresh,
-    send: loc.send.header,
-    receive: loc.receive.header,
-    walletDetails: loc.wallets.details_title,
-    copyAddress: loc.menu.copy_address,
-    copyTransactionId: loc.transactions.details_copy_txid,
-    accelerateTransaction: loc.transactions.status_bump,
-    backToWallets: loc.menu.back_to_wallets,
-    settings: loc.settings.header,
-    tools: loc.settings.tools,
-    isItMyAddress: loc.is_it_my_address.title,
-    broadcastTransaction: loc.settings.network_broadcast,
-    generateWord: loc.autofill_word.title,
-    keyboardShortcuts: loc.menu.keyboard_shortcuts,
-    add_recipient: loc.send.details_add_rec_add,
-    remove_recipient: loc.send.details_add_rec_rem,
-    remove_all_recipients: loc.send.details_add_rec_rem_all,
-    send_max: loc.send.details_adv_full,
-    allow_rbf: loc.send.details_adv_fee_bump,
-    import_transaction: loc.send.details_adv_import,
-    import_transaction_qr: loc.send.details_adv_import_qr,
-    import_transaction_multisig: loc.send.details_adv_import,
-    co_sign_transaction: loc.multisig.co_sign_transaction,
-    sign_psbt: loc.send.psbt_sign,
-    insert_contact: loc.send.details_insert_contact,
-    coin_control: loc.cc.header,
+    handlers,
+    states,
+    actions: availableMenuActions(route?.name, Object.keys(handlers) as ScreenMenuAction[], unlocked),
   };
 }
 
@@ -111,7 +79,10 @@ function subscribe() {
         navigationRef.dispatch(
           CommonActions.navigate({
             name: 'DrawerRoot',
-            params: { screen: 'DetailViewStackScreensStack', params: { screen: 'Settings' } },
+            params: {
+              screen: 'DetailViewStackScreensStack',
+              params: { screen: 'Settings' },
+            },
             pop: true,
           }),
         );
@@ -132,7 +103,10 @@ function subscribe() {
         navigationRef.dispatch(
           CommonActions.navigate({
             name: 'DrawerRoot',
-            params: { screen: 'DetailViewStackScreensStack', params: { screen: 'ManageWallets' } },
+            params: {
+              screen: 'DetailViewStackScreensStack',
+              params: { screen: 'ManageWallets' },
+            },
             pop: true,
           }),
         );
