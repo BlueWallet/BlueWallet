@@ -1431,7 +1431,7 @@ PODS:
     - Yoga
   - react-native-context-menu-view (1.21.0):
     - React
-  - react-native-document-picker (12.0.2):
+  - react-native-document-picker (12.0.3):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1456,7 +1456,7 @@ PODS:
     - Yoga
   - react-native-get-random-values (1.11.0):
     - React-Core
-  - react-native-image-picker (8.2.1):
+  - react-native-image-picker (8.3.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1558,12 +1558,12 @@ PODS:
   - react-native-tcp-socket (6.4.3):
     - CocoaAsyncSocket
     - React-Core
-  - react-native-vector-icons-entypo (13.1.4)
-  - react-native-vector-icons-fontawesome (13.1.4)
-  - react-native-vector-icons-fontawesome6 (13.1.4)
-  - react-native-vector-icons-ionicons (13.1.4)
-  - react-native-vector-icons-material-design-icons (13.1.4)
-  - react-native-vector-icons-material-icons (13.1.4)
+  - react-native-vector-icons-entypo (13.1.5)
+  - react-native-vector-icons-fontawesome (13.1.5)
+  - react-native-vector-icons-fontawesome6 (13.1.5)
+  - react-native-vector-icons-ionicons (13.1.5)
+  - react-native-vector-icons-material-design-icons (13.1.5)
+  - react-native-vector-icons-material-icons (13.1.5)
   - React-NativeModulesApple (0.88.0):
     - hermes-engine
     - React-bridging
@@ -2056,7 +2056,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.33.0):
+  - RNGestureHandler (2.33.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2127,7 +2127,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNPermissions (5.6.2):
+  - RNPermissions (5.6.3):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2348,7 +2348,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNSVG (15.15.5):
+  - RNSVG (15.16.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2370,9 +2370,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNSVG/common (= 15.15.5)
+    - RNSVG/common (= 15.16.0)
     - Yoga
-  - RNSVG/common (15.15.5):
+  - RNSVG/common (15.16.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2921,19 +2921,19 @@ SPEC CHECKSUMS:
   react-native-bw-file-access: fe925b77dbf48500df0b294c6851f8c84607a203
   react-native-capture-protection: 1e29f4d2c82377af33460990ccf1b55edd9f0de9
   react-native-context-menu-view: da39a4612c1294d651907162529cfba8421e9b89
-  react-native-document-picker: e32c9b6580e81d205793d256c1c40e8d2b4ab27b
+  react-native-document-picker: 4c175782581129aea4efd7998210ce2cf2c4e721
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
-  react-native-image-picker: 19a3b13c7e56e95ebdcfb6600ffb018771f10c90
+  react-native-image-picker: 56de6c74b8bb4d3a2572ae4952420d188bdf0beb
   react-native-notifications: e2d3c022d6077de7e420ba5c01b4bd9464f3941d
   react-native-safe-area-context: b1c9f15a36e597e9cef4c5526e209ef2645bc2e0
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: e502f7c50922acc808015ce3fe54bb96fae75bf8
-  react-native-vector-icons-entypo: ace53756c06b6c366e5a09f286dd6d5dc0c5ea88
-  react-native-vector-icons-fontawesome: b19a84b13d42875ae4e70c2aa0c5db81672378b8
-  react-native-vector-icons-fontawesome6: d8c281ba59f4f14003b01a8788cd3cc52c5435e9
-  react-native-vector-icons-ionicons: cc4bfc451b5d5c61d3c91e05f5a65c097dd0e5cb
-  react-native-vector-icons-material-design-icons: 9e98e87947156bfe95135fb523b62821486044e3
-  react-native-vector-icons-material-icons: 6d1d8ea28261609bbb975b1e9c51fe54eedfafe6
+  react-native-vector-icons-entypo: 74c1762da06bccffb7f7c3a3a0142c90251fdcdd
+  react-native-vector-icons-fontawesome: c293d5990f222b3e2bb655aa8ab059481a6282e5
+  react-native-vector-icons-fontawesome6: e97a6fb994817b74fa0ba7f141e7e302c2ec3644
+  react-native-vector-icons-ionicons: 7ac17e91143285b016bfcd034fadf1e49317555e
+  react-native-vector-icons-material-design-icons: 8d696a2371e2bd5bb5254370c33b5ffbc503e840
+  react-native-vector-icons-material-icons: eaf368e397065aac2cc5a69aeb948c835e186101
   React-NativeModulesApple: 52f3def085f129de1307e3eb78e26729ff70f421
   React-networking: 1e6441349ac72bfd4f7a79c300c3dd76993a7058
   React-oscompat: e64123dd8199f9e99cede19fa542c3da3445481e
@@ -2968,7 +2968,7 @@ SPEC CHECKSUMS:
   React-viewtransitionnativemodule: 8505b253586f792c6c722869a664889797ecae3e
   React-webperformancenativemodule: 67f32fde92ed7e8470ee1c669bdb7c2fcb760141
   ReactAppDependencyProvider: 782ee9546c9cd3b53b73f1e9e3dd728540085fc7
-  ReactCodegen: 35f5c394c7a3c39c368b6fa90378bfda5eda1f4a
+  ReactCodegen: eaae707c764389cc71d277eba44f72c3e237b691
   ReactCommon: 145a14b942b19fc2fe38927f261955ada56978aa
   ReactNativeCameraKit: dca102025b429e5aaaede4ba3018a9b53f0a3c71
   ReactNativeDependencies: d3b7423ba1e52525e42085c8470109abde583d2e
@@ -2979,16 +2979,16 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3
   RNDeviceInfo: bcce8752b5043a623fe3c26789679b473f705d3c
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
-  RNGestureHandler: c30d0805eccd9b0f143c252ae769131096337322
+  RNGestureHandler: 0124c0b5117c1376f013aaac888ed4134ca88b58
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: 990ea9078621f2617a9cdabdb4cfb485a8c1560d
   RNLocalize: 6b1ada941cb6116aace7d9f508a9fdd24d792ff8
-  RNPermissions: 7e3d23b5eb870af7a8b180f4afc1fef220a7812d
+  RNPermissions: 76a61a23c55d9b19ea7e636494ca963c61924e8f
   RNReactNativeHapticFeedback: a34ef53cf2bc2d37f3406eaa946ef78acfa9e053
   RNReanimated: 3018727dbf272754d0f31ef73f619e49ade7baf0
   RNScreens: 6d0d3b7819284dbf9f222899eb819f069fce4b8b
   RNShare: d632358678e52bc48ff09b8696e218453a894802
-  RNSVG: 8b5f2fdb9f0245a863cdd6e9c48a7689821a08b0
+  RNSVG: c35beed3dcf6fd14b50ca1fc0d4214a17ec5334d
   RNWorklets: 488806637a21eb17812a48dadca7cb8c698c8cfd
   SocketRocket: 37aec555668fb852ec12e3c0de59a86ca58f0871
   Yoga: d1c536142c5ff8ec8cd856ab2a7c227a1d875c8e

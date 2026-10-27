@@ -681,19 +681,19 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     }
 
     @objc func addElectrumServerMenuAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("addElectrumServer")
+      MenuActionsController.shared.perform("addElectrumServer")
     }
 
     @objc func saveElectrumServerMenuAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("saveElectrumServer")
+      MenuActionsController.shared.perform("saveElectrumServer")
     }
 
     @objc func toggleSuggestedElectrumServersMenuAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("toggleSuggestedElectrumServers")
+      MenuActionsController.shared.perform("toggleSuggestedElectrumServers")
     }
 
     @objc func resetElectrumSettingsMenuAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("resetElectrumSettings")
+      MenuActionsController.shared.perform("resetElectrumSettings")
     }
 
     @objc func keyboardShortcutsMenuAction(_ keyCommand: UIKeyCommand) {
