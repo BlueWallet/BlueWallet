@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="send"
+        android:enabled="true"
+        android:icon="@drawable/app_shortcut_send"
+        android:shortcutShortLabel="@string/app_shortcut_send">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="io.bluewallet.bluewallet"
+            android:targetClass="io.bluewallet.bluewallet.MainActivity"
+            android:data="bluewallet://send" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="receive"
+        android:enabled="true"
+        android:icon="@drawable/app_shortcut_receive"
+        android:shortcutShortLabel="@string/app_shortcut_receive">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="io.bluewallet.bluewallet"
+            android:targetClass="io.bluewallet.bluewallet.MainActivity"
+            android:data="bluewallet://receive" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="scan"
+        android:enabled="true"
+        android:icon="@drawable/app_shortcut_scan"
+        android:shortcutShortLabel="@string/app_shortcut_scan">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="io.bluewallet.bluewallet"
+            android:targetClass="io.bluewallet.bluewallet.MainActivity"
+            android:data="bluewallet://scan" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="manage_wallets"
+        android:enabled="true"
+        android:icon="@drawable/app_shortcut_manage_wallets"
+        android:shortcutShortLabel="@string/app_shortcut_manage_wallets">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="io.bluewallet.bluewallet"
+            android:targetClass="io.bluewallet.bluewallet.MainActivity"
+            android:data="bluewallet://manage-wallets" />
+    </shortcut>
+</shortcuts>

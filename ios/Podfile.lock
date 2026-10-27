@@ -2150,8 +2150,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNQuickAction (0.3.13):
-    - React
   - RNReactNativeHapticFeedback (2.3.4):
     - hermes-engine
     - RCTRequired
@@ -2596,7 +2594,6 @@ DEPENDENCIES:
   - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNLocalize (from `../node_modules/react-native-localize`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
-  - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -2849,8 +2846,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-localize"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
-  RNQuickAction:
-    :path: "../node_modules/react-native-quick-actions"
   RNReactNativeHapticFeedback:
     :path: "../node_modules/react-native-haptic-feedback"
   RNReanimated:
@@ -2989,7 +2984,6 @@ SPEC CHECKSUMS:
   RNKeychain: 990ea9078621f2617a9cdabdb4cfb485a8c1560d
   RNLocalize: 6b1ada941cb6116aace7d9f508a9fdd24d792ff8
   RNPermissions: 7e3d23b5eb870af7a8b180f4afc1fef220a7812d
-  RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNReactNativeHapticFeedback: a34ef53cf2bc2d37f3406eaa946ef78acfa9e053
   RNReanimated: 3018727dbf272754d0f31ef73f619e49ade7baf0
   RNScreens: 6d0d3b7819284dbf9f222899eb819f069fce4b8b

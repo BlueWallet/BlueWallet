@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
@@ -254,7 +254,10 @@ const DetailViewStackScreensStack = () => {
   const renderManageWalletsHeaderLeft = useCallback(
     (options: NativeStackNavigationOptions, { navigation: screenNavigation }: ScreenDeps) => ({
       ...options,
-      headerLeft: makeManageWalletsHeaderLeft(screenNavigation.goBack, theme.closeImage),
+      headerLeft: makeManageWalletsHeaderLeft(() => {
+        if (screenNavigation.canGoBack()) screenNavigation.goBack();
+        else screenNavigation.dispatch(StackActions.popTo('WalletsList'));
+      }, theme.closeImage),
     }),
     [theme.closeImage],
   );

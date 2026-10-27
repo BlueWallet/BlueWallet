@@ -16,6 +16,7 @@ import ViewEditMultisigProvideMnemonicsSheet from '../screen/wallets/ViewEditMul
 import ViewEditMultisigShareCosignerSheet from '../screen/wallets/ViewEditMultisigShareCosignerSheet';
 import ClipboardDetected from '../screen/ClipboardDetected';
 import { navigationGuardRouter } from './navigationGuard';
+import AppShortcut from '../screen/AppShortcut';
 
 // Lazy load all components except UnlockWith
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
@@ -74,6 +75,7 @@ const MainRoot = () => {
       ) : (
         <>
           <DetailViewStack.Screen name="DrawerRoot" component={LazyDrawerRoot} />
+          <DetailViewStack.Screen name="AppShortcut" component={AppShortcut} />
 
           <DetailViewStack.Screen
             name="KeyboardShortcuts"

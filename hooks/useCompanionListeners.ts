@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking } from 'react-native';
 import { reconcileArkBackgroundTaskResults } from '../blue_modules/arkade-background';
 import { updateExchangeRate } from '../blue_modules/currency';
+import { showFilePickerAndReadFile } from '../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import {
   clearStoredNotifications,
@@ -22,10 +23,10 @@ import { useStorage } from './context/useStorage';
 import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 import RNFS from 'react-native-fs';
 import presentAlert from '../components/Alert';
+import { setAvailableRecentWalletIDs, setHiddenRecentWalletIDs, setRecentMenuItemsEnabled } from '../components/Context/recentMenuItems';
 import useWidgetCommunication from './useWidgetCommunication';
-import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
-import useMenuActions from './useMenuActions';
+import useMenuActions, { setNativeMenuWalletsInitialized, setNativeOpenFileHandler } from './useMenuActions';
 import useClipboardDetection from './useClipboardDetection';
 import { errorMessage } from '../helpers/errorMessage';
 
@@ -41,8 +42,10 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     refreshAllWalletTransactions,
     setSharedCosigner,
     walletsInitialized,
+    isStorageEncrypted,
   } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
+  const hasHandledInitialURL = useRef(false);
   const navigation = useNavigation();
 
   // We need to call hooks unconditionally before any conditional logic
@@ -56,7 +59,6 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   // They'll handle their own conditional logic internally
   useWidgetCommunication();
   useMenuActions();
-  useDeviceQuickActions();
   useHandoffListener();
 
   const processPushNotifications = useCallback(async () => {
@@ -316,6 +318,46 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     [wallets, addWallet, saveToDisk, setSharedCosigner, shouldActivateListeners],
   );
 
+  useEffect(() => {
+    setNativeMenuWalletsInitialized(walletsInitialized);
+    return () => setNativeMenuWalletsInitialized(false);
+  }, [walletsInitialized]);
+
+  useEffect(() => {
+    if (!walletsInitialized) return;
+    setAvailableRecentWalletIDs(new Set(wallets.map(wallet => wallet.getID())));
+    setHiddenRecentWalletIDs(new Set(wallets.filter(wallet => wallet.getHideTransactionsInWalletsList?.()).map(wallet => wallet.getID())));
+  }, [wallets, walletsInitialized]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!walletsInitialized) {
+      setRecentMenuItemsEnabled(false).catch(error => console.warn('Failed to disable native menu history:', error));
+      return;
+    }
+
+    isStorageEncrypted()
+      .then(encrypted => {
+        if (!cancelled) return setRecentMenuItemsEnabled(!encrypted);
+      })
+      .catch(error => console.warn('Failed to update native menu history privacy:', error));
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isStorageEncrypted, walletsInitialized]);
+
+  useEffect(() => {
+    if (!walletsInitialized) return;
+    setNativeOpenFileHandler(async () => {
+      const { data, uri } = await showFilePickerAndReadFile();
+      const fileUrl = uri && /\.(psbt|bwcosigner)$/i.test(uri) ? uri : data;
+      if (fileUrl) await handleOpenURL({ url: fileUrl });
+    });
+    return () => setNativeOpenFileHandler(undefined);
+  }, [handleOpenURL, walletsInitialized]);
+
   const handleAppStateChange = useCallback(
     async (nextAppState: AppStateStatus) => {
       const previousState = appState.current;
@@ -361,11 +403,22 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   useEffect(() => {
     const subscriptions = addListeners();
 
+    if (shouldActivateListeners && !hasHandledInitialURL.current) {
+      hasHandledInitialURL.current = true;
+      Linking.getInitialURL()
+        .then(url => {
+          if (url && DeeplinkSchemaMatch.hasSchema(url)) {
+            return handleOpenURL({ url });
+          }
+        })
+        .catch(error => console.error('Failed to handle initial URL:', error));
+    }
+
     return () => {
       subscriptions.urlSubscription?.remove?.();
       subscriptions.appStateSubscription?.remove?.();
     };
-  }, [addListeners]);
+  }, [addListeners, handleOpenURL, shouldActivateListeners]);
 };
 
 export default useCompanionListeners;

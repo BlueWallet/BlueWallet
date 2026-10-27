@@ -182,6 +182,12 @@ const SendDetails = () => {
   }, [customFee, selectedPresetFeeRate, feePrecalc, networkTransactionFees]);
 
   useEffect(() => {
+    if (!routeParams.openScanner) return;
+    setParams({ openScanner: undefined });
+    navigation.navigate('ScanQRCode', { showFileImportButton: true });
+  }, [navigation, routeParams.openScanner, setParams]);
+
+  useEffect(() => {
     // decode route params
     const currentAddress = addresses[scrollIndex.current];
     if (routeParams.uri) {
@@ -264,15 +270,8 @@ const SendDetails = () => {
   }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
 
   useEffect(() => {
-    // check if we have a suitable wallet
     const suitable = wallets.filter(w => w.chain === Chain.ONCHAIN && w.allowSend());
-    if (suitable.length === 0) {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ title: loc.errors.error, message: loc.send.details_wallet_before_tx });
-      navigation.goBack();
-      return;
-    }
-    const newWallet = (routeParams.walletID && wallets.find(w => w.getID() === routeParams.walletID)) || suitable[0];
+    const newWallet = (routeParams.walletID && wallets.find(w => w.getID() === routeParams.walletID)) || suitable[0]!;
     setWallet(newWallet);
     setParams({ feeUnit: newWallet.getPreferredBalanceUnit(), amountUnit: newWallet.getPreferredBalanceUnit() });
 
