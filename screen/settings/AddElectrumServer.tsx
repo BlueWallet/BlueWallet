@@ -22,6 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { suggestedServers } from '../../blue_modules/BlueElectrum';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
+import NativeLocalNetworkPermission from '../../codegen/NativeLocalNetworkPermission';
 import { ElectrumServerItem, inferElectrumServerSsl, isLocalElectrumHost, parseElectrumServer } from '../../blue_modules/electrumServer';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import AddressInput from '../../components/AddressInput';
@@ -206,6 +207,16 @@ const AddElectrumServer: React.FC = () => {
     setIsValidating(true);
     setValidationError(undefined);
     try {
+      if (Platform.OS === 'ios' && isLocalElectrumHost(draftServer.host)) {
+        const hasLocalNetworkAccess = (await NativeLocalNetworkPermission?.requestLocalNetworkAccess()) ?? false;
+        if (!hasLocalNetworkAccess) {
+          setShowLocalNetworkSettings(true);
+          setValidationError(loc.settings.electrum_local_server_unavailable);
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+          return;
+        }
+      }
+
       const validation = await BlueElectrum.validateConnection(draftServer.host, draftServer.tcp, draftServer.ssl);
       if (!validation.success) {
         const isLocalNetworkFailure = Platform.OS === 'ios' && isLocalElectrumHost(draftServer.host);
@@ -283,11 +294,9 @@ const AddElectrumServer: React.FC = () => {
         : [
             {
               type: 'button' as const,
-              label: loc.settings.save,
-              icon: { type: 'sfSymbol' as const, name: 'checkmark' as const },
-              tintColor: colors.primary,
-              identifier: 'Save',
-              accessibilityLabel: loc.settings.save,
+              label: loc.settings.electrum_confirm,
+              identifier: 'Confirm',
+              accessibilityLabel: loc.settings.electrum_confirm,
               disabled: saveDisabled,
               onPress: save,
             },

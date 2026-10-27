@@ -113,6 +113,7 @@ it('sends localized menu titles to the native renderers', () => {
       copyTransactionId: 'Copy Transaction ID',
       accelerateTransaction: 'Speed Up',
       manageWallets: 'Manage Wallets',
+      toggleSuggestedElectrumServers: 'Show Suggested Servers',
     }),
   );
   hook.unmount();

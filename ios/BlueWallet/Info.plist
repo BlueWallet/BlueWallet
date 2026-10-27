@@ -346,6 +346,10 @@
 	<string>In order to use FaceID for authentication when performing sensitive actions, we need your permission.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>BlueWallet uses your local network when you connect to an Electrum server hosted on it.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_bluewallet-permission._tcp</string>
+	</array>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Your authorization is required to save this image.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

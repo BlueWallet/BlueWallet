@@ -288,6 +288,7 @@
     "electrum_port_accessibility_label": "TCP or SSL port",
     "electrum_port_accessibility_hint": "Enter a port, or paste a complete Electrum server endpoint.",
     "electrum_connection_type_hint": "Choose whether this server uses TCP or SSL.",
+    "electrum_confirm": "Confirm",
     "electrum_local_server_unavailable": "BlueWallet could not reach this server on your local network. Make sure Local Network access is enabled in System Settings and that this device is connected to the same Wi-Fi or Ethernet network.",
     "electrum_copy": "Copy",
     "electrum_copy_server": "Copy Server",

@@ -472,10 +472,17 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
                 ? UIKeyCommand(title: "Save Server", action: #selector(saveElectrumServerMenuAction), input: "\r", modifierFlags: .command)
                 : nil
         ].compactMap { $0 }
+        let suggestedServersCommand: UIKeyCommand? = actions.contains("toggleSuggestedElectrumServers")
+            ? UIKeyCommand(title: MenuActionsController.shared.title(for: "toggleSuggestedElectrumServers", fallback: "Show Suggested Servers"),
+                           action: #selector(toggleSuggestedElectrumServersMenuAction), input: "e", modifierFlags: [.command, .shift])
+            : nil
+        if let suggestedServersCommand {
+            let state = MenuActionsController.shared.actionStates["toggleSuggestedElectrumServers"]
+            suggestedServersCommand.state = state?.checked == true ? .on : .off
+            suggestedServersCommand.attributes = state?.disabled == true ? .disabled : []
+        }
         let electrumViewCommands = [
-            actions.contains("toggleSuggestedElectrumServers")
-                ? UIKeyCommand(title: "Toggle Suggested Servers", action: #selector(toggleSuggestedElectrumServersMenuAction), input: "e", modifierFlags: [.command, .shift])
-                : nil,
+            suggestedServersCommand,
             actions.contains("resetElectrumSettings")
                 ? UIKeyCommand(title: "Reset Electrum Settings…", action: #selector(resetElectrumSettingsMenuAction), input: "r", modifierFlags: [.command, .alternate])
                 : nil

@@ -59,4 +59,21 @@ describe('native app shortcut configuration', () => {
       expect(strings.settings.privacy_quickactions_explanation).toBeDefined();
     }
   });
+
+  it('registers the local-network permission probe used before validating local Electrum servers', () => {
+    const infoPlist = readRepositoryFile('ios/BlueWallet/Info.plist');
+    const project = readRepositoryFile('ios/BlueWallet.xcodeproj/project.pbxproj');
+    const permissionModule = readRepositoryFile('ios/Components/LocalNetworkPermission.mm');
+
+    expect(infoPlist).toContain('<string>_bluewallet-permission._tcp</string>');
+    expect(project).toContain('LocalNetworkPermission.mm in Sources');
+    expect(permissionModule).toContain('nw_browse_descriptor_create_bonjour_service("_bluewallet-permission._tcp", NULL)');
+  });
+
+  it('renders Show Suggested Servers as a stateful native menu command', () => {
+    const appDelegate = readRepositoryFile('ios/BlueWallet/AppDelegate.swift');
+
+    expect(appDelegate).toContain('suggestedServersCommand.state = state?.checked == true ? .on : .off');
+    expect(appDelegate).toContain('suggestedServersCommand.attributes = state?.disabled == true ? .disabled : []');
+  });
 });

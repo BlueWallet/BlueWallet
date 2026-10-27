@@ -696,11 +696,15 @@ const ElectrumSettings: React.FC = () => {
     [fetchData, navigation, presentAlert, showSuggestedServers],
   );
 
-  useScreenMenuActions({
-    addElectrumServer: () => navigation.navigate('AddElectrumServerRoot'),
-    resetElectrumSettings: host || serverHistory.size > 0 ? () => onPressMenuItem(CommonToolTipActions.ResetToDefault.id) : undefined,
-    toggleSuggestedElectrumServers: host && (port || sslPort) ? () => onPressMenuItem(SHOW_SUGGESTED_SERVERS_ACTION_ID) : undefined,
-  });
+  useScreenMenuActions(
+    {
+      addElectrumServer: () => navigation.navigate('AddElectrumServerRoot'),
+      resetElectrumSettings: host || serverHistory.size > 0 ? () => onPressMenuItem(CommonToolTipActions.ResetToDefault.id) : undefined,
+      toggleSuggestedElectrumServers: host && (port || sslPort) ? () => onPressMenuItem(SHOW_SUGGESTED_SERVERS_ACTION_ID) : undefined,
+    },
+    undefined,
+    { toggleSuggestedElectrumServers: { checked: showSuggestedServers } },
+  );
 
   const isFavorite = useCallback(
     (value: ElectrumServerItem) => {
