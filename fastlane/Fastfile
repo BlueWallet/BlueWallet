@@ -504,44 +504,73 @@ platform :ios do
     nil
   end
 
-  # The Preview extension reads the app's cached fiat rate from this group. App
-  # Groups are a Developer Portal capability, so they must be enabled before
-  # Match creates a profile for a newly-added extension identifier.
-  def ensure_quick_look_app_group!(developer_team_id)
-    group_identifier = "group.io.bluewallet.bluewallet"
-    extension_identifiers = ["io.bluewallet.bluewallet.QuickLookPreview"]
+  def app_group_capabilities
+    require "xcodeproj"
+    project_path = File.join(PROJECT_ROOT, "ios", "BlueWallet.xcodeproj")
+    project = Xcodeproj::Project.open(project_path)
+    project_directory = File.dirname(project_path)
+    associations = Hash.new { |hash, group_identifier| hash[group_identifier] = [] }
+
+    project.targets.each do |target|
+      target.build_configurations.each do |configuration|
+        settings = configuration.build_settings
+        app_identifier = settings["PRODUCT_BUNDLE_IDENTIFIER"]
+        entitlements_setting = settings["CODE_SIGN_ENTITLEMENTS"]
+        next if app_identifier.to_s.empty? || entitlements_setting.to_s.empty?
+
+        entitlements_relative_path = entitlements_setting
+          .sub(/\A\$\(SRCROOT\)\//, "")
+          .sub(/\A\$\{SRCROOT\}\//, "")
+        entitlements_path = File.expand_path(entitlements_relative_path, project_directory)
+        next unless File.file?(entitlements_path)
+
+        entitlements = Xcodeproj::Plist.read_from_path(entitlements_path)
+        Array(entitlements["com.apple.security.application-groups"]).each do |group_identifier|
+          associations[group_identifier] << app_identifier
+        end
+      end
+    end
+
+    associations.transform_values(&:uniq)
+  end
+
+  # Synchronize configured Developer Portal capabilities before Match creates
+  # or repairs provisioning profiles. Add future App Group associations to the
+  # configuration above instead of adding target-specific logic to the lane.
+  def ensure_app_capabilities!(developer_team_id)
 
     if !UI.interactive? && ENV["FASTLANE_SESSION"].to_s.empty? && ENV["FASTLANE_PASSWORD"].to_s.empty?
       UI.important(
-        "Skipping Quick Look App Group synchronization: legacy Developer Portal authentication is unavailable. " \
-        "Provide FASTLANE_SESSION or FASTLANE_PASSWORD when creating the extension profile for the first time."
+        "Skipping Developer Portal capability synchronization: legacy authentication is unavailable. " \
+        "Provide FASTLANE_SESSION or FASTLANE_PASSWORD when configuring capabilities for the first time."
       )
       return
     end
 
     require "spaceship"
-    UI.message("Synchronizing Quick Look App Group capability in the Developer Portal")
+    UI.message("Synchronizing configured app capabilities in the Developer Portal")
     Spaceship::Portal.login(ENV["FASTLANE_USER"], ENV["FASTLANE_PASSWORD"])
     Spaceship::Portal.client.team_id = developer_team_id
 
-    group = Spaceship::Portal.app_group.find(group_identifier)
-    group ||= Spaceship::Portal.app_group.create!(
-      group_id: group_identifier,
-      name: "BlueWallet Shared Data"
-    )
+    groups_by_app_identifier = Hash.new { |hash, app_identifier| hash[app_identifier] = [] }
+    app_group_capabilities.each do |group_identifier, app_identifiers|
+      group = Spaceship::Portal.app_group.find(group_identifier)
+      group ||= Spaceship::Portal.app_group.create!(
+        group_id: group_identifier,
+        name: "#{group_identifier} App Group"
+      )
+      app_identifiers.each { |app_identifier| groups_by_app_identifier[app_identifier] << group }
+    end
 
-    extension_identifiers.each do |bundle_identifier|
-      app = Spaceship::Portal.app.find(bundle_identifier)
-      UI.user_error!("Could not find App ID #{bundle_identifier} in the Developer Portal") if app.nil?
+    groups_by_app_identifier.each do |app_identifier, groups|
+      app = Spaceship::Portal.app.find(app_identifier)
+      UI.user_error!("Could not find App ID #{app_identifier} in the Developer Portal") if app.nil?
 
       app.update_service(Spaceship::Portal.app_service.app_group.on)
-      app.associate_groups([group])
+      app.associate_groups(groups)
     end
   rescue => error
-    UI.user_error!(
-      "Could not synchronize the Quick Look App Group capability: #{error.message}. " \
-      "Enable #{group_identifier} for QuickLookPreview in the Apple Developer portal and retry."
-    )
+    UI.user_error!("Could not synchronize configured app capabilities: #{error.message}")
   end
 
   def normalize_git_basic_authorization(value)
@@ -819,7 +848,11 @@ platform :ios do
     ENV["GIT_URL"] = normalize_signing_git_url(certificates_git_url)
     developer_team_id = resolve_developer_team_id(options)
     api_authentication = ensure_match_apple_auth!(options)
-    ensure_quick_look_app_group!(developer_team_id)
+    if options[:sync_capabilities] == true
+      ensure_app_capabilities!(developer_team_id)
+    else
+      UI.message("Skipping Developer Portal capability synchronization (use sync_capabilities:true to enable it)")
+    end
     resolve_signing_value(
       options: options,
       option_name: :match_password,
@@ -857,6 +890,12 @@ platform :ios do
         profile_types: %w[development appstore]
       }
     ]
+    force_profile_regeneration = options[:force] == true
+    if force_profile_regeneration
+      UI.important("Forced provisioning-profile regeneration is enabled")
+    else
+      UI.message("Provisioning profiles will only be created or repaired when required (use force:true to regenerate all profiles)")
+    end
 
     begin
       signing_configurations.each do |configuration|
@@ -868,7 +907,7 @@ platform :ios do
             app_identifier: configuration[:app_identifiers],
             readonly: false,
             renew_expired_certs: true,
-            force: true,
+            force: force_profile_regeneration,
             git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
             keychain_name: keychain_name,
             keychain_password: keychain_password,
@@ -897,7 +936,7 @@ platform :ios do
     log_success("All Apple certificates and provisioning profiles are valid")
   end
 
-  # Only these targets support Mac Catalyst (watch/stickers do not)
+  # App identifiers that require Mac Catalyst signing assets (stickers do not)
   def catalyst_app_identifiers
     [
       "io.bluewallet.bluewallet",
