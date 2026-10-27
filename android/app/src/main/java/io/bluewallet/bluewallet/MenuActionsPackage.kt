@@ -6,14 +6,14 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.model.ReactModuleInfo
 import com.facebook.react.module.model.ReactModuleInfoProvider
 
-class MenuElementsPackage : BaseReactPackage() {
+class MenuActionsPackage : BaseReactPackage() {
     override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? =
-        if (name == MenuElementsModule.NAME) MenuElementsModule(reactContext) else null
+        if (name == MenuActionsModule.NAME) MenuActionsModule(reactContext) else null
 
     override fun getReactModuleInfoProvider() = ReactModuleInfoProvider {
-        mapOf(MenuElementsModule.NAME to ReactModuleInfo(
-            MenuElementsModule.NAME,
-            MenuElementsModule::class.java.name,
+        mapOf(MenuActionsModule.NAME to ReactModuleInfo(
+            MenuActionsModule.NAME,
+            MenuActionsModule::class.java.name,
             false,
             false,
             false,

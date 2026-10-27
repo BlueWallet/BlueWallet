@@ -16,7 +16,6 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { WalletDescriptor } from '../../class/wallet-descriptor.ts';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
@@ -65,16 +64,16 @@ const WalletXpub: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      if (wallet && wallet?.type === HDTaprootWallet.type && wallet.getDerivationPath) {
-        await new Promise(resolve => setTimeout(resolve, 100)); // sleep to propagate ui
-        // need to convert xpub to a wallet descriptor
-        const fp = wallet.getMasterFingerprintHex();
-        const path = wallet.getDerivationPath() ?? '';
-        const xpub2 = WalletDescriptor.getDescriptor(fp, path, wallet.getXpub());
-        setXPubText(xpub2);
-      } else {
+      if (!wallet) {
         setXPubText(xpub);
+        return;
       }
+      await new Promise(resolve => setTimeout(resolve, 100)); // sleep to propagate ui
+      let descriptor: string | undefined;
+      try {
+        descriptor = WalletDescriptor.fromWallet(wallet);
+      } catch (_) {}
+      setXPubText(descriptor ?? xpub);
     })();
   }, [wallet, xpub]);
 

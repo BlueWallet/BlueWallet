@@ -6,6 +6,7 @@ export type LNDStackParamsList = {
     walletID?: string;
     uri?: string;
     onBarScanned?: string;
+    openScanner?: boolean;
   };
   LnurlPay: DetailViewStackParamList['LnurlPay'];
   LnurlPaySuccess: DetailViewStackParamList['LnurlPaySuccess'];

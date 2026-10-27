@@ -12,7 +12,6 @@ enum SettingsPrivacySection {
   None,
   All,
   ReadClipboard,
-  QuickActions,
   Widget,
   TemporaryScreenshots,
   TotalBalance,
@@ -30,8 +29,6 @@ const GeneralSettings: React.FC = () => {
     setIsWidgetBalanceDisplayAllowedStorage,
     isClipboardGetContentEnabled,
     setIsClipboardGetContentEnabledStorage,
-    isQuickActionsEnabled,
-    setIsQuickActionsEnabledStorage,
     isTotalBalanceEnabled,
     setIsTotalBalanceEnabledStorage,
     isHandOffUseEnabled,
@@ -63,19 +60,6 @@ const GeneralSettings: React.FC = () => {
       setIsLoading(SettingsPrivacySection.None);
     },
     [setDoNotTrackStorage],
-  );
-
-  const onQuickActionsValueChange = useCallback(
-    async (value: boolean) => {
-      setIsLoading(SettingsPrivacySection.QuickActions);
-      try {
-        setIsQuickActionsEnabledStorage(value);
-      } catch (e) {
-        console.debug('onQuickActionsValueChange catch', e);
-      }
-      setIsLoading(SettingsPrivacySection.None);
-    },
-    [setIsQuickActionsEnabledStorage],
   );
 
   const onWidgetsTotalBalanceValueChange = useCallback(
@@ -128,6 +112,20 @@ const GeneralSettings: React.FC = () => {
 
   return (
     <SettingsScrollView testID="GeneralSettingsScreen">
+      <SettingsSection title={loc.settings.integration}>
+        {Platform.OS === 'ios' && (
+          <SettingsListItem
+            title={loc.settings.general_continuity}
+            subtitle={loc.settings.general_continuity_e}
+            switch={{
+              value: isHandOffUseEnabled,
+              onValueChange: onHandOffUseEnabledChange,
+            }}
+            bottomDivider={false}
+          />
+        )}
+      </SettingsSection>
+
       <SettingsSection title={loc.settings.privacy}>
         <SettingsListItem
           title={loc.settings.privacy_read_clipboard}
@@ -142,16 +140,6 @@ const GeneralSettings: React.FC = () => {
             disabled: isLoading === SettingsPrivacySection.All,
           }}
           switchTestID="ClipboardSwitch"
-        />
-        <SettingsListItem
-          title={loc.settings.privacy_quickactions}
-          subtitle={`${loc.settings.privacy_quickactions_explanation}${encryptedDisabledNote}`}
-          switch={{
-            value: storageIsEncrypted ? false : isQuickActionsEnabled,
-            onValueChange: onQuickActionsValueChange,
-            disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
-          }}
-          switchTestID="QuickActionsSwitch"
         />
         <SettingsListItem
           title={loc.total_balance_view.title}
@@ -196,18 +184,6 @@ const GeneralSettings: React.FC = () => {
                 value: storageIsEncrypted ? false : isWidgetBalanceDisplayAllowed,
                 onValueChange: onWidgetsTotalBalanceValueChange,
                 disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
-              }}
-              bottomDivider={false}
-            />
-          </SettingsSection>
-
-          <SettingsSection title={loc.settings.general_continuity}>
-            <SettingsListItem
-              title={loc.settings.general_continuity}
-              subtitle={loc.settings.general_continuity_e}
-              switch={{
-                value: isHandOffUseEnabled,
-                onValueChange: onHandOffUseEnabledChange,
               }}
               bottomDivider={false}
             />

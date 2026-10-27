@@ -1,6 +1,7 @@
 import assert from 'assert';
 
 import Lnurl from '../../class/lnurl';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 
 describe('LNURL', function () {
   it('can findlnurl', () => {
@@ -218,6 +219,14 @@ describe('LNURL', function () {
     assert.strictEqual(Lnurl.decipherAES('AAAAAAAAAAAAAAAAAAAAAA==', preimage, validIv), '');
     // Empty ciphertext
     assert.strictEqual(Lnurl.decipherAES('', preimage, validIv), '');
+  });
+
+  it('decodeInvoice uses the first payment_hash tag when invoice has several', () => {
+    const invoice =
+      'lnbc10u1pj48ugqpp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5yg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3qdq9v36hqxqrrsscqpf3jedlxz9662te9znrjf4vu42nc5xeqahmvsam2hlq3a54crn4dyz267ajcsee7g6w78jltzxmurn8ckgtkvqs7rx7l3zlqesalj9l8spj06jea';
+    const first = '11'.repeat(32);
+    assert.strictEqual(new Lnurl('').decodeInvoice(invoice).payment_hash, first);
+    assert.strictEqual(new LightningCustodianWallet().decodeInvoice(invoice).payment_hash, first);
   });
 });
 

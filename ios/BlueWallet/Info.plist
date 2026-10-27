@@ -206,6 +206,61 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>UIApplicationShortcutItems</key>
+	<array>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>paperplane</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>APP_SHORTCUT_SEND</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>io.bluewallet.send</string>
+			<key>UIApplicationShortcutItemUserInfo</key>
+			<dict>
+				<key>url</key>
+				<string>https://bluewallet.io/send</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>tray.and.arrow.down</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>APP_SHORTCUT_RECEIVE</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>io.bluewallet.receive</string>
+			<key>UIApplicationShortcutItemUserInfo</key>
+			<dict>
+				<key>url</key>
+				<string>https://bluewallet.io/receive</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>qrcode.viewfinder</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>APP_SHORTCUT_SCAN</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>io.bluewallet.scan</string>
+			<key>UIApplicationShortcutItemUserInfo</key>
+			<dict>
+				<key>url</key>
+				<string>https://bluewallet.io/scan</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>wallet.pass</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>APP_SHORTCUT_MANAGE_WALLETS</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>io.bluewallet.manage-wallets</string>
+			<key>UIApplicationShortcutItemUserInfo</key>
+			<dict>
+				<key>url</key>
+				<string>https://bluewallet.io/manage-wallets</string>
+			</dict>
+		</dict>
+	</array>
 	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
 	<false/>
 	<key>FIREBASE_MESSAGING_AUTO_INIT_ENABLED</key>
