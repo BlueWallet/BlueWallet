@@ -1,7 +1,9 @@
 import { DrawerContentScrollView, DrawerContentComponentProps } from '@react-navigation/drawer';
 import { useNavigation, useIsFocused, useNavigationState } from '@react-navigation/native';
 import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { StyleSheet, View, ViewStyle, Animated, ScrollView } from 'react-native';
+import { StyleSheet, View, ViewStyle, Animated, ScrollView, useWindowDimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { shouldUseWideLayout } from '../../blue_modules/layout';
 import { TWallet } from '../../class/wallets/types';
 import { Header } from '../../components/Header';
 import { useTheme } from '../../components/themes';
@@ -99,6 +101,8 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
   const { colors } = useTheme();
   const isFocused = useIsFocused();
   const { isTotalBalanceEnabled } = useSettings();
+  const { height, width } = useWindowDimensions();
+  const isDrawerVisible = shouldUseWideLayout(width, height);
   const [sidebarMode, setSidebarMode] = useState<'wallets' | 'settings'>('wallets');
   const prevWalletCount = useRef(wallets.length);
 
@@ -250,10 +254,10 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
 
   if (sidebarMode === 'settings') {
     return (
-      <View style={[stylesHook.root, styles.settingsRoot]}>
+      <SafeAreaView style={[stylesHook.root, styles.settingsRoot]} edges={['top']}>
         <Header leftText={loc.settings.header} onBackPress={onWalletsPress} isDrawerList />
         <SettingsContent onNavigate={onSettingsNavigate} style={stylesHook.root} />
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -271,7 +275,7 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
       <Header
         leftText={loc.wallets.list_title}
         onNewWalletPress={onNewWalletPress}
-        onSettingsPress={onSettingsPress}
+        onSettingsPress={isDrawerVisible ? undefined : onSettingsPress}
         onManageWalletsPress={handleLongPress}
         isDrawerList
       />

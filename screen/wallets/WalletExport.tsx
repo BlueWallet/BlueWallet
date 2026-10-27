@@ -1,8 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import { LayoutChangeEvent, ScrollView, StyleSheet, Pressable, View } from 'react-native';
+import Share from 'react-native-share';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { validateMnemonic } from '../../blue_modules/bip39';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -19,6 +21,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import useAppState from '../../hooks/useAppState';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { isIOS26OrHigher } from '../../blue_modules/environment';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletExport'>;
 
@@ -58,7 +61,7 @@ const DoNotDisclose: React.FC = () => {
 const WalletExport: React.FC = () => {
   const { wallets } = useStorage();
   const { walletID } = useRoute<RouteProps>().params;
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<DetailViewStackParamList, 'WalletExport'>>();
   const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
   const wallet = wallets.find(w => w.getID() === walletID)!;
@@ -125,6 +128,31 @@ const WalletExport: React.FC = () => {
     Clipboard.setString(secrets[0]);
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
   }, [secrets]);
+
+  const handleShare = useCallback(() => {
+    if (secrets.length !== 1) return;
+    Share.open({ message: secrets[0] }).catch(console.log);
+  }, [secrets]);
+
+  useLayoutEffect(() => {
+    if (!isIOS26OrHigher) return;
+
+    navigation.setOptions({
+      unstable_headerLeftItems:
+        secrets.length === 1
+          ? () => [
+              {
+                type: 'button',
+                label: loc.receive.details_share,
+                icon: { type: 'sfSymbol', name: 'square.and.arrow.up' },
+                identifier: 'ShareButton',
+                accessibilityLabel: loc.receive.details_share,
+                onPress: handleShare,
+              },
+            ]
+          : undefined,
+    });
+  }, [handleShare, navigation, secrets.length]);
 
   const Scroll = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
