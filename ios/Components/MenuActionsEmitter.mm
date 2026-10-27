@@ -5,11 +5,11 @@
 #import <React/RCTViewManager.h>
 #import "BlueWallet-Swift.h"
 
-@interface MenuElementsEmitter : NativeMenuElementsEmitterSpecBase <NativeMenuElementsEmitterSpec, RCTInvalidating>
+@interface MenuActionsEmitter : NativeMenuActionsEmitterSpecBase <NativeMenuActionsEmitterSpec, RCTInvalidating>
 @end
 
-@implementation MenuElementsEmitter
-RCT_EXPORT_MODULE(MenuElementsEmitter)
+@implementation MenuActionsEmitter
+RCT_EXPORT_MODULE(MenuActionsEmitter)
 
 + (BOOL)requiresMainQueueSetup { return YES; }
 
@@ -25,7 +25,28 @@ RCT_EXPORT_MODULE(MenuElementsEmitter)
 - (void)setAvailableActions:(NSArray<NSString *> *)actions
 {
   dispatch_async(dispatch_get_main_queue(), ^{
-    [MenuElementsController.shared setAvailableActions:actions];
+    [MenuActionsController.shared setAvailableActions:actions];
+  });
+}
+
+- (void)setActionStates:(NSString *)statesJson
+{
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [MenuActionsController.shared setActionStates:statesJson];
+  });
+}
+
+- (void)setRecentItems:(NSString *)itemsJson
+{
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [MenuActionsController.shared setRecentItems:itemsJson];
+  });
+}
+
+- (void)setMenuTitles:(NSString *)titlesJson
+{
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [MenuActionsController.shared setMenuTitles:titlesJson];
   });
 }
 
@@ -38,7 +59,10 @@ RCT_EXPORT_MODULE(MenuElementsEmitter)
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   dispatch_async(dispatch_get_main_queue(), ^{
-    [MenuElementsController.shared setAvailableActions:@[]];
+    [MenuActionsController.shared setAvailableActions:@[]];
+    [MenuActionsController.shared setActionStates:@"{}"];
+    [MenuActionsController.shared setMenuTitles:@"{}"];
+    [MenuActionsController.shared setRecentItems:@"[]"];
   });
 }
 
@@ -50,6 +74,6 @@ RCT_EXPORT_MODULE(MenuElementsEmitter)
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
     (const facebook::react::ObjCTurboModule::InitParams &)params
 {
-  return std::make_shared<facebook::react::NativeMenuElementsEmitterSpecJSI>(params);
+  return std::make_shared<facebook::react::NativeMenuActionsEmitterSpecJSI>(params);
 }
 @end

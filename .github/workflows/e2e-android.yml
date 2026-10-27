@@ -144,7 +144,12 @@ jobs:
         enable-hw-keyboard: true
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
         arch: x86_64
-        script: npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 4 --reuse --artifacts-location ${{ github.workspace }}/artifacts
+        script: |
+          # Quickstep can ANR during emulator boot and leave a focus-stealing
+          # system dialog over every test. Stop it before launching BlueWallet.
+          adb shell settings put global hide_error_dialogs 1
+          adb shell am force-stop com.android.launcher3
+          npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 4 --reuse --artifacts-location ${{ github.workspace }}/artifacts
 
     - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       if: failure()

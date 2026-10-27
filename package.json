@@ -133,7 +133,7 @@
     "bip32": "5.0.1",
     "bip38": "github:BlueWallet/bip38#7ec4b1932b98eaaff16c5a26765a26466958e6b4",
     "bip39": "3.1.2",
-    "bitcoinjs-lib": "7.0.4",
+    "bitcoinjs-lib": "7.0.5",
     "bitcoinjs-message": "2.2.0",
     "bolt11": "1.4.2",
     "buffer": "6.0.3",
@@ -192,6 +192,10 @@
     "wif": "2.0.6"
   },
   "overrides": {
-    "@arkade-os/sdk": "0.4.79"
+    "@arkade-os/sdk": "0.4.79",
+    "silent-payments": {
+      "bip39": "3.1.2",
+      "bitcoinjs-lib": "7.0.5"
+    }
   }
 }
