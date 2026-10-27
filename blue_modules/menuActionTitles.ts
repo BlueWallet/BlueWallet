@@ -22,6 +22,7 @@ export function getMenuActionTitles(): MenuActionTitles {
     accelerateTransaction: loc.transactions.status_bump,
     cancelTransaction: loc.transactions.status_cancel,
     openTransactionInExplorer: loc.transactions.details_view_in_browser,
+    shareTransaction: loc.transactions.details_share,
     editTransactionNote: loc.send.details_note_placeholder,
     toggleBlockDetails: loc.transactions.details_block,
     toggleAdvancedDetails: loc.transactions.details_advanced,

@@ -365,6 +365,7 @@
     "details_outputs": "Outputs",
     "date": "Date",
     "details_received": "Received",
+    "details_share": "Share Transaction",
     "details_view_in_browser": "View in Browser",
     "details_title": "Transaction",
     "incoming_transaction": "Incoming Transaction",

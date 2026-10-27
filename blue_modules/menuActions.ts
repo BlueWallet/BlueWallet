@@ -11,6 +11,7 @@ export type ScreenMenuAction =
   | 'accelerateTransaction'
   | 'cancelTransaction'
   | 'openTransactionInExplorer'
+  | 'shareTransaction'
   | 'editTransactionNote'
   | 'toggleBlockDetails'
   | 'toggleAdvancedDetails'
@@ -62,6 +63,7 @@ const screenActions: Record<string, readonly ScreenMenuAction[]> = {
     'accelerateTransaction',
     'cancelTransaction',
     'openTransactionInExplorer',
+    'shareTransaction',
     'editTransactionNote',
     'toggleBlockDetails',
     'toggleAdvancedDetails',

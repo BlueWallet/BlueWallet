@@ -467,7 +467,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         // throughout the macOS menu bar.
         let transactionMenuID = UIMenu.Identifier("io.bluewallet.transaction")
         builder.remove(menu: transactionMenuID)
-        typealias TransactionCommand = (action: String, fallback: String, input: String, modifiers: UIKeyModifierFlags, needsMoreInput: Bool)
+        typealias TransactionCommand = (action: String, fallback: String, input: String?, modifiers: UIKeyModifierFlags, needsMoreInput: Bool)
         let transactionCommandGroups: [[TransactionCommand]] = [
             [
                 ("bumpFeeRbf", "Speed Up with RBF", "u", [.command, .alternate], true),
@@ -477,6 +477,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ],
             [
                 ("openTransactionInExplorer", "View in Block Explorer", "e", [.command, .alternate], false),
+                ("shareTransaction", "Share Transaction", nil, [], true),
                 ("editTransactionNote", "Edit Note", "n", [.command, .alternate], true)
             ],
             [
@@ -485,13 +486,19 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ]
         ]
         let transactionGroups = transactionCommandGroups.compactMap { group -> UIMenu? in
-            let children = group.compactMap { item -> UIKeyCommand? in
+            let children = group.compactMap { item -> UICommand? in
                 guard actions.contains(item.action) else { return nil }
                 var title = MenuActionsController.shared.title(for: item.action, fallback: item.fallback)
                 if item.needsMoreInput && !title.hasSuffix("…") { title += "…" }
-                let command = UIKeyCommand(title: title, action: #selector(transactionMenuAction),
-                                           input: item.input, modifierFlags: item.modifiers,
+                let command: UICommand
+                if let input = item.input {
+                    command = UIKeyCommand(title: title, action: #selector(transactionMenuAction),
+                                           input: input, modifierFlags: item.modifiers,
                                            propertyList: item.action)
+                } else {
+                    command = UICommand(title: title, action: #selector(transactionMenuAction),
+                                        propertyList: item.action)
+                }
                 if let state = MenuActionsController.shared.actionStates[item.action] {
                     command.attributes = state.disabled == true ? .disabled : []
                     if let checked = state.checked {
@@ -506,6 +513,17 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         if !transactionGroups.isEmpty {
             let title = MenuActionsController.shared.title(for: "transactionMenu", fallback: "Transaction")
             builder.insertSibling(UIMenu(title: title, identifier: transactionMenuID, children: transactionGroups), afterMenu: .view)
+        }
+
+        let shareTransactionMenuID = UIMenu.Identifier("io.bluewallet.shareTransaction")
+        builder.remove(menu: shareTransactionMenuID)
+        if actions.contains("shareTransaction") {
+            var title = MenuActionsController.shared.title(for: "shareTransaction", fallback: "Share Transaction")
+            if !title.hasSuffix("…") { title += "…" }
+            let command = UICommand(title: title, image: UIImage(systemName: "square.and.arrow.up"),
+                                    action: #selector(transactionMenuAction), propertyList: "shareTransaction")
+            builder.insertChild(UIMenu(title: "", identifier: shareTransactionMenuID,
+                                       options: .displayInline, children: [command]), atStartOfMenu: .share)
         }
 
         let sendDetailsMenuID = UIMenu.Identifier("io.bluewallet.sendDetails")

@@ -5,9 +5,14 @@ import { _setSkipUpdateExchangeRate } from '../../blue_modules/currency';
 import TransactionStatus from '../../screen/transactions/TransactionStatus';
 
 const mockUseScreenMenuActions = jest.fn();
+const mockPresentShare = jest.fn();
 jest.mock('../../hooks/useScreenMenuActions', () => ({
   __esModule: true,
   default: (...args: unknown[]) => mockUseScreenMenuActions(...args),
+}));
+jest.mock('../../blue_modules/NativeMenuActionsEmitter', () => ({
+  __esModule: true,
+  default: { presentShare: (...args: unknown[]) => mockPresentShare(...args) },
 }));
 
 // TransactionStatus renders fiat amounts via satoshiToLocalCurrency(), which
@@ -195,6 +200,7 @@ jest.mock('../../loc', () => ({
       details_outputs: 'outputs',
       details_inputs_count: 'Inputs ({count})',
       details_outputs_count: 'Outputs ({count})',
+      details_share: 'Share Transaction',
       details_view_in_browser: 'view in browser',
       details_note: 'Note',
       details_add_note: 'Add note',
@@ -527,6 +533,7 @@ describe('TransactionStatus regression', () => {
         expect.objectContaining({
           copyTransactionId: expect.any(Function),
           openTransactionInExplorer: expect.any(Function),
+          shareTransaction: expect.any(Function),
           editTransactionNote: expect.any(Function),
           toggleBlockDetails: expect.any(Function),
           toggleAdvancedDetails: expect.any(Function),
@@ -537,6 +544,9 @@ describe('TransactionStatus regression', () => {
       toggleBlockDetails: { checked: false },
       toggleAdvancedDetails: { checked: false },
     });
+
+    mockUseScreenMenuActions.mock.lastCall?.[0].shareTransaction();
+    expect(mockPresentShare).toHaveBeenCalledWith('https://block.explorer/tx/mock-tx', 'txid: mock-tx', 'Share Transaction');
   });
 
   it('fetches and shows block summary after expanding the accordion header', async () => {

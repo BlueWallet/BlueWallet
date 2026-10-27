@@ -17,6 +17,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import MenuActionsEmitter from '../../blue_modules/NativeMenuActionsEmitter';
 import type { ElectrumTransaction } from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -899,6 +900,15 @@ const TransactionStatus: React.FC = () => {
       });
   }, [tx?.hash, selectedBlockExplorer]);
 
+  const handleShareTransaction = useCallback(() => {
+    if (!tx?.hash || !selectedBlockExplorer) return;
+    MenuActionsEmitter?.presentShare(
+      `${selectedBlockExplorer.url}/tx/${tx.hash}`,
+      `${loc.transactions.txid}: ${tx.hash}`,
+      loc.transactions.details_share,
+    );
+  }, [tx?.hash, selectedBlockExplorer]);
+
   const shortenCounterpartyName = (addr: string): string => {
     if (addr.length < 20) return addr;
     return addr.substr(0, 10) + '...' + addr.substr(addr.length - 10, 10);
@@ -1025,6 +1035,7 @@ const TransactionStatus: React.FC = () => {
       cancelTransaction:
         tx && wallet && isRBFCancelPossible === ButtonStatus.Possible ? () => navigateToRBF('RBFCancel', tx, wallet) : undefined,
       openTransactionInExplorer: tx?.hash && selectedBlockExplorer ? handleOpenBlockExplorer : undefined,
+      shareTransaction: tx?.hash && selectedBlockExplorer ? handleShareTransaction : undefined,
       editTransactionNote: tx ? handleNotePress : undefined,
       toggleBlockDetails: showBlocksAccordion ? onBlocksHeaderPress : undefined,
       toggleAdvancedDetails: tx ? toggleAdvancedDetails : undefined,
