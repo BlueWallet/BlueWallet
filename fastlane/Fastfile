@@ -901,7 +901,9 @@ platform :ios do
   def catalyst_app_identifiers
     [
       "io.bluewallet.bluewallet",
-      "io.bluewallet.bluewallet.MarketWidget"
+      "io.bluewallet.bluewallet.MarketWidget",
+      "io.bluewallet.bluewallet.QuickLookPreview",
+      "io.bluewallet.bluewallet.QuickLookThumbnail"
     ]
   end
 
@@ -1015,7 +1017,9 @@ platform :ios do
       # Only these targets support Mac Catalyst
       catalyst_identifiers = [
         "io.bluewallet.bluewallet",
-        "io.bluewallet.bluewallet.MarketWidget"
+        "io.bluewallet.bluewallet.MarketWidget",
+        "io.bluewallet.bluewallet.QuickLookPreview",
+        "io.bluewallet.bluewallet.QuickLookThumbnail"
       ]
 
       has_signing_creds = ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty? &&
