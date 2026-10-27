@@ -1,7 +1,7 @@
 import { useFocusEffect, useNavigation, RouteProp, usePreventRemove, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from '@react-native-vector-icons/ionicons';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   AlertButton,
@@ -79,10 +79,12 @@ const SwipeableServerRow: React.FC<{
   testID: string;
   isLast?: boolean;
   onDelete?: () => void;
+  onRemoveFavorite?: () => void;
   onCopy?: () => void;
   deleteTestID?: string;
+  removeFavoriteTestID?: string;
   menuTitle: string;
-}> = ({ children, onTest, onDelete, onCopy, testID, isLast, deleteTestID, menuTitle }) => {
+}> = ({ children, onTest, onDelete, onRemoveFavorite, onCopy, testID, isLast, deleteTestID, removeFavoriteTestID, menuTitle }) => {
   const swipeableRef = useRef<Swipeable>(null);
   const performAction = (action?: () => void) => {
     swipeableRef.current?.close();
@@ -105,6 +107,16 @@ const SwipeableServerRow: React.FC<{
             id: 'delete',
             text: loc.wallets.details_delete,
             image: Platform.OS === 'ios' ? 'trash' : undefined,
+            destructive: true,
+          },
+        ]
+      : []),
+    ...(onRemoveFavorite
+      ? [
+          {
+            id: 'removeFavorite',
+            text: loc.settings.electrum_remove_favorite_server,
+            image: Platform.OS === 'ios' ? 'star.slash' : undefined,
             destructive: true,
           },
         ]
@@ -152,6 +164,20 @@ const SwipeableServerRow: React.FC<{
           </Text>
         </Pressable>
       ) : null}
+      {onRemoveFavorite ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={loc.settings.electrum_remove_favorite_server}
+          testID={removeFavoriteTestID}
+          onPress={() => performAction(onRemoveFavorite)}
+          style={({ pressed }) => [styles.deleteAction, pressed && styles.deleteActionPressed]}
+        >
+          <Ionicons accessible={false} name="star-outline" color="#FFFFFF" size={21} />
+          <Text accessible={false} numberOfLines={1} style={styles.swipeActionText}>
+            {loc.settings.electrum_remove_favorite_short}
+          </Text>
+        </Pressable>
+      ) : null}
       {onCopy ? (
         <Pressable
           accessibilityRole="button"
@@ -178,7 +204,9 @@ const SwipeableServerRow: React.FC<{
         <ToolTipMenu
           title={menuTitle}
           actions={menuActionGroups}
-          onPressMenuItem={id => performAction(id === 'delete' ? onDelete : id === 'copy' ? onCopy : onTest)}
+          onPressMenuItem={id =>
+            performAction(id === 'delete' ? onDelete : id === 'removeFavorite' ? onRemoveFavorite : id === 'copy' ? onCopy : onTest)
+          }
           shouldOpenOnLongPress
           style={styles.serverContextMenu}
         >
@@ -699,7 +727,7 @@ const ElectrumSettings: React.FC = () => {
   useScreenMenuActions(
     {
       addElectrumServer: () => navigation.navigate('AddElectrumServerRoot'),
-      resetElectrumSettings: host || serverHistory.size > 0 ? () => onPressMenuItem(CommonToolTipActions.ResetToDefault.id) : undefined,
+      resetElectrumSettings: host && (port || sslPort) ? () => onPressMenuItem(CommonToolTipActions.ResetToDefault.id) : undefined,
       toggleSuggestedElectrumServers: host && (port || sslPort) ? () => onPressMenuItem(SHOW_SUGGESTED_SERVERS_ACTION_ID) : undefined,
     },
     undefined,
@@ -715,7 +743,7 @@ const ElectrumSettings: React.FC = () => {
 
   const generateToolTipActions = useCallback(() => {
     const resetToDefaults = { ...CommonToolTipActions.ResetToDefault };
-    resetToDefaults.hidden = !host && serverHistory.size === 0;
+    resetToDefaults.hidden = !host || (!port && !sslPort);
     return [
       [
         {
@@ -738,7 +766,7 @@ const ElectrumSettings: React.FC = () => {
           ]
         : []),
     ] as Action[][];
-  }, [host, port, serverHistory.size, showSuggestedServers, sslPort]);
+  }, [host, port, showSuggestedServers, sslPort]);
 
   const serverList = useMemo<ServerListEntry[]>(() => {
     const hasFavorite = Boolean(host && (port || sslPort));
@@ -859,14 +887,19 @@ const ElectrumSettings: React.FC = () => {
       };
     }
 
+    const menuIdentifier = `ElectrumHeaderMenu-${visibleActions
+      .map(action => `${String(action.id)}:${action.menuState === true ? 'on' : action.menuState === false ? 'off' : 'none'}`)
+      .join('|')}`;
+
     return createEllipsisHeaderMenuOptions({
       actions,
       onPressMenuItem,
       preserveGroups: true,
+      identifier: menuIdentifier,
     });
   }, [colors.primary, generateToolTipActions, onPressMenuItem]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (customOnly) return;
     navigation.setParams({
       headerRight: headerMenuOptions.headerRight,
@@ -1253,6 +1286,34 @@ const ElectrumSettings: React.FC = () => {
     [presentAlert, serverHistory],
   );
 
+  const removeFavoriteServer = useCallback(
+    async (favoriteServer: ElectrumServerItem) => {
+      try {
+        const updatedHistory = uniqueElectrumServers([...Array.from(serverHistory), favoriteServer]);
+        await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+        await DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(updatedHistory));
+        await DefaultPreference.clear(BlueElectrum.ELECTRUM_HOST);
+        await DefaultPreference.clear(BlueElectrum.ELECTRUM_TCP_PORT);
+        await DefaultPreference.clear(BlueElectrum.ELECTRUM_SSL_PORT);
+        await AsyncStorage.removeItem(SHOW_SUGGESTED_SERVERS_STORAGE_KEY);
+
+        setServerHistory(new Set(updatedHistory));
+        setHost('');
+        setPort(undefined);
+        setSslPort(undefined);
+        setShowSuggestedServers(true);
+        setIsSuggestedExpanded(true);
+        await BlueElectrum.connectToRandomSuggestedServer().catch(() => false);
+        await fetchData();
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      } catch (error) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: (error as Error).message });
+      }
+    },
+    [fetchData, presentAlert, serverHistory],
+  );
+
   const testServerConnection = useCallback(
     async (serverToTest: ElectrumServerItem) => {
       const key = serverKey(serverToTest);
@@ -1344,15 +1405,18 @@ const ElectrumSettings: React.FC = () => {
           accessibilityHint={favorite ? loc.settings.electrum_favorite_server : loc.settings.electrum_server_row_hint}
           accessibilityState={{
             selected: favorite,
-            disabled: favorite || isLoading,
+            disabled: isLoading,
             busy: isTesting,
           }}
           accessibilityActions={[
+            ...(favorite ? [{ name: 'removeFavorite', label: loc.settings.electrum_remove_favorite_server }] : []),
             ...(!isElectrumDisabled && !favorite ? [{ name: 'test', label: loc.settings.electrum_test_connection }] : []),
             ...(item.isHistory ? [{ name: 'delete', label: loc.wallets.details_delete }] : []),
           ]}
           onAccessibilityAction={event => {
-            if (event.nativeEvent.actionName === 'test' && !isElectrumDisabled && !favorite) {
+            if (event.nativeEvent.actionName === 'removeFavorite' && favorite) {
+              removeFavoriteServer(item.server);
+            } else if (event.nativeEvent.actionName === 'test' && !isElectrumDisabled && !favorite) {
               testServerConnection(item.server);
             } else if (event.nativeEvent.actionName === 'delete' && item.isHistory) {
               deleteServerFromHistory(item.server);
@@ -1371,7 +1435,7 @@ const ElectrumSettings: React.FC = () => {
               </View>
             ) : connected ? (
               <View importantForAccessibility="no" style={styles.connectedIcon}>
-                <Ionicons name="checkmark-circle" size={20} color={colors.receiveText} />
+                <Ionicons name="link" size={20} color={colors.receiveText} />
               </View>
             ) : undefined
           }
@@ -1401,7 +1465,9 @@ const ElectrumSettings: React.FC = () => {
           testID={`TestElectrumServer-${item.server.host}-${serverPort}`}
           menuTitle={`${item.server.host}:${serverPort}`}
           onTest={isElectrumDisabled || favorite ? undefined : () => testServerConnection(item.server)}
+          onRemoveFavorite={favorite ? () => removeFavoriteServer(item.server) : undefined}
           isLast={item.isLast}
+          removeFavoriteTestID={favorite ? `RemoveFavoriteElectrumServer-${item.server.host}-${serverPort}` : undefined}
           deleteTestID={item.isHistory ? `DeleteElectrumServer-${item.server.host}-${serverPort}` : undefined}
           onDelete={item.isHistory ? () => deleteServerFromHistory(item.server) : undefined}
         >
@@ -1426,6 +1492,7 @@ const ElectrumSettings: React.FC = () => {
       host,
       port,
       presentSelectServerAlert,
+      removeFavoriteServer,
       serverTestResults,
       sslPort,
       stylesHook,

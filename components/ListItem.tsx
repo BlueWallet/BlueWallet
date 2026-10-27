@@ -258,6 +258,7 @@ export default ListItem;
 const styles = StyleSheet.create({
   margin16: {
     marginLeft: 16,
+    alignSelf: 'center',
   },
   width16: { width: 16 },
   contentRow: {

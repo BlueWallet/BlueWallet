@@ -294,6 +294,8 @@
     "electrum_copy_server": "Copy Server",
     "electrum_add_server": "Add Server",
     "electrum_favorite_server": "Favorite Server",
+    "electrum_remove_favorite_server": "Remove Favorite Server",
+    "electrum_remove_favorite_short": "Remove",
     "electrum_server_history": "Server History",
     "electrum_import_server_history": "Import History",
     "electrum_import_success": "Servers imported: {count}.",

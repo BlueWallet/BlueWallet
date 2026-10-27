@@ -26,6 +26,20 @@ export const inferElectrumServerSsl = (port: number): boolean | undefined => {
   return tcpMatches === sslMatches ? undefined : sslMatches > tcpMatches;
 };
 
+export const inferElectrumServerFromHost = (value: string): ElectrumServerItem | undefined => {
+  const host = normalizeElectrumServerText(value).toLowerCase().replace(/\.$/, '');
+  if (!host || /[:\s]/.test(host)) return undefined;
+
+  const knownServer = hardcodedPeers.find(server => server.host === host);
+  if (knownServer) return { ...knownServer };
+
+  // Popular self-hosted Bitcoin node distributions use these documented Electrum defaults.
+  if (/(^|[.-])mynode([.-]|$)/.test(host)) return { host, ssl: 50002 };
+  if (/(^|[.-])(umbrel|raspiblitz|citadel)([.-]|$)/.test(host)) return { host, tcp: 50003 };
+
+  return undefined;
+};
+
 export const isLocalElectrumHost = (host: string): boolean => {
   const normalizedHost = normalizeElectrumServerText(host)
     .toLowerCase()

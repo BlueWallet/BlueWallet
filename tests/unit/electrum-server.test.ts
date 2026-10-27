@@ -1,9 +1,10 @@
 import {
   createElectrumServerHistoryDeepLink,
+  electrumServerKey,
   electrumServersForHandoff,
   formatElectrumServer,
+  inferElectrumServerFromHost,
   inferElectrumServerSsl,
-  electrumServerKey,
   isLocalElectrumHost,
   parseElectrumServer,
   parseElectrumServerDocument,
@@ -50,6 +51,23 @@ describe('Electrum server parsing', () => {
   it('selects the standard transport when a standard Electrum port is first entered', () => {
     expect(inferElectrumServerSsl(50001)).toBe(false);
     expect(inferElectrumServerSsl(50002)).toBe(true);
+  });
+
+  it.each(['umbrel', 'umbrel.local', 'bitcoin.umbrel.local', 'raspiblitz.local', 'citadel.local'])(
+    'suggests the standard local TCP port for %s',
+    host => expect(inferElectrumServerFromHost(host)).toEqual({ host, tcp: 50001 }),
+  );
+
+  it('suggests the documented SSL port for myNode', () => {
+    expect(inferElectrumServerFromHost('mynode.local')).toEqual({ host: 'mynode.local', ssl: 50002 });
+  });
+
+  it('uses the configured transport and port for a hardcoded server host', () => {
+    expect(inferElectrumServerFromHost('ELECTRUM1.BLUEWALLET.IO.')).toEqual({ host: 'electrum1.bluewallet.io', ssl: 443 });
+  });
+
+  it('does not guess a port for an unknown host', () => {
+    expect(inferElectrumServerFromHost('node.example.com')).toBeUndefined();
   });
 
   it('extracts valid servers from a mixed text document', () => {

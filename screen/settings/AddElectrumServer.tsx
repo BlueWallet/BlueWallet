@@ -23,7 +23,13 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { suggestedServers } from '../../blue_modules/BlueElectrum';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import NativeLocalNetworkPermission from '../../codegen/NativeLocalNetworkPermission';
-import { ElectrumServerItem, inferElectrumServerSsl, isLocalElectrumHost, parseElectrumServer } from '../../blue_modules/electrumServer';
+import {
+  ElectrumServerItem,
+  inferElectrumServerFromHost,
+  inferElectrumServerSsl,
+  isLocalElectrumHost,
+  parseElectrumServer,
+} from '../../blue_modules/electrumServer';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import AddressInput from '../../components/AddressInput';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
@@ -46,6 +52,7 @@ const AddElectrumServer: React.FC = () => {
   const [host, setHost] = useState('');
   const [port, setPort] = useState<number>();
   const [sslPort, setSslPort] = useState<number>();
+  const [portWasAutofilled, setPortWasAutofilled] = useState(false);
   const [serverHistory, setServerHistory] = useState<Set<ElectrumServerItem>>(new Set());
   const [currentFavorite, setCurrentFavorite] = useState<ElectrumServerItem>();
   const [setAsFavorite, setSetAsFavorite] = useState(true);
@@ -143,6 +150,7 @@ const AddElectrumServer: React.FC = () => {
     const server = parseElectrumServer(text);
     if (!server) return false;
     inferredConnectionType.current = true;
+    setPortWasAutofilled(false);
     setHost(server.host);
     setPort(server.tcp);
     setSslPort(server.ssl);
@@ -167,6 +175,7 @@ const AddElectrumServer: React.FC = () => {
 
   const onPortChange = useCallback(
     (text: string) => {
+      setPortWasAutofilled(false);
       if (applyServerText(text)) return;
       const value = text.trim();
       const numericPort = Number(value);
@@ -186,6 +195,23 @@ const AddElectrumServer: React.FC = () => {
       sslPort === undefined ? setPort(numericPort) : setSslPort(numericPort);
     },
     [applyServerText, sslPort],
+  );
+
+  const onHostChange = useCallback(
+    (text: string) => {
+      if (applyServerText(text)) return;
+      const value = text.trim();
+      setHost(value);
+      if (port !== undefined || sslPort !== undefined) return;
+
+      const inferredServer = inferElectrumServerFromHost(value);
+      if (!inferredServer) return;
+      inferredConnectionType.current = true;
+      setPortWasAutofilled(true);
+      setPort(inferredServer.tcp);
+      setSslPort(inferredServer.ssl);
+    },
+    [applyServerText, port, sslPort],
   );
 
   const draftServer = useMemo(() => {
@@ -395,9 +421,7 @@ const AddElectrumServer: React.FC = () => {
               example: '10.20.30.40',
             })}
             address={host}
-            onChangeText={text => {
-              if (!applyServerText(text)) setHost(text.trim());
-            }}
+            onChangeText={onHostChange}
             editable={!isLoading}
             keyboardType="default"
             inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
@@ -428,6 +452,7 @@ const AddElectrumServer: React.FC = () => {
               autoCorrect={false}
               autoCapitalize="none"
               keyboardType="number-pad"
+              selectTextOnFocus={portWasAutofilled}
               inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
               accessibilityLabel={loc.settings.electrum_port_accessibility_label}
               accessibilityHint={loc.settings.electrum_port_accessibility_hint}
@@ -468,7 +493,7 @@ const AddElectrumServer: React.FC = () => {
               triggerSelectionHapticFeedback();
               setSetAsFavorite(value);
             },
-            disabled: isLoading,
+            disabled: isLoading || !draftServer,
           }}
           bottomDivider={false}
           containerStyle={styles.favoriteRow}
