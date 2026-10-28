@@ -129,8 +129,8 @@ const KEY_EXCEPTIONS = new Set([
 // Per-file exceptions: a key intentionally identical to English in ONE specific
 // locale only (not exempt globally). `<file>` -> set of `section.key`.
 const FILE_KEY_EXCEPTIONS = {
-  // French "Options" is genuinely identical to the English label.
-  'fr_fr.json': new Set(['wallets.details_options']),
+  // French "Options" and "Transactions" are genuinely identical to the English labels.
+  'fr_fr.json': new Set(['wallets.details_options', 'transactions.list_title']),
   // Faroese maintainer intentionally uses the international "Send" as the button label.
   'fo.json': new Set(['send.header']),
 };
