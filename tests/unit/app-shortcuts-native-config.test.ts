@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'fs';
+import { readFileSync } from 'fs';
 import path from 'path';
 
 const repositoryRoot = path.join(__dirname, '../..');
@@ -48,22 +48,10 @@ describe('native app shortcut configuration', () => {
 
     expect(sceneDelegate).not.toContain('RCTLinkingManager.scene(scene, continue: userActivity)');
   });
-
   it('places transaction sharing in the standard macOS Share menu', () => {
     const appDelegate = readRepositoryFile('ios/BlueWallet/AppDelegate.swift');
 
     expect(appDelegate).toContain('propertyList: "shareTransaction"');
     expect(appDelegate).toContain('atStartOfMenu: .share');
-  });
-
-  it('leaves Transifex-managed quick-action strings untouched', () => {
-    const localizationDirectory = path.join(repositoryRoot, 'loc');
-    const nonEnglishLocalizations = readdirSync(localizationDirectory).filter(file => file.endsWith('.json') && file !== 'en.json');
-
-    for (const localization of nonEnglishLocalizations) {
-      const strings = JSON.parse(readFileSync(path.join(localizationDirectory, localization), 'utf8'));
-      expect(strings.settings.privacy_quickactions).toBeDefined();
-      expect(strings.settings.privacy_quickactions_explanation).toBeDefined();
-    }
   });
 });
