@@ -149,6 +149,9 @@ jobs:
           # system dialog over every test. Stop it before launching BlueWallet.
           adb shell settings put global hide_error_dialogs 1
           adb shell am force-stop com.android.launcher3
+          # An app can still ANR right after this, and the setting above does not close a dialog
+          # already shown. CLOSE_SYSTEM_DIALOGS does.
+          for i in 1 2 3 4 5 6; do adb shell dumpsys window | grep -q "Application Not Responding" && echo "::warning::ANR dialog at boot, closing it" && adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS > /dev/null; sleep 5; done; true
           npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 4 --reuse --artifacts-location ${{ github.workspace }}/artifacts
 
     - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
