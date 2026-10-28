@@ -24,6 +24,7 @@ import {
   waitForKeyboardToClose,
   waitForText,
   waitForLabel,
+  waitForSwitchValue,
 } from './helperz';
 
 // if loglevel is set to `error`, this kind of logging will still get through
@@ -38,6 +39,175 @@ console.warn = console.log = (...args) => {
  * this testsuite is for test cases that require no wallets to be present
  */
 describe('BlueWallet UI Tests - no wallets', () => {
+  // These cases deliberately avoid confirming a valid endpoint: they exercise
+  // the form and row controls without relying on a public Electrum server.
+  async function openElectrumSettings() {
+    await device.clearKeychain();
+    await device.launchApp({
+      delete: true,
+      permissions: { notifications: 'YES' },
+      launchArgs: { detoxEnableSynchronization: 0 },
+    });
+    await device.disableSynchronization();
+    await waitForId('WalletsList', device.getPlatform() === 'android' ? 180_000 : 33_000);
+    await element(by.id('SettingsButton')).tap();
+    await waitFor(element(by.id('NetworkSettings')))
+      .toBeVisible()
+      .whileElement(by.id('SettingsRoot'))
+      .scroll(400, 'down');
+    await element(by.id('NetworkSettings')).tap();
+    await waitForId('ElectrumSettings');
+    await element(by.id('ElectrumSettings')).tap();
+    await waitForId('ElectrumSettingsScrollView');
+  }
+
+  async function expectControlEnabled(id, enabled) {
+    await waitFor(element(by.id(id)))
+      .toExist()
+      .withTimeout(5000);
+    // Detox exposes enabled through native attributes rather than a toBeEnabled
+    // matcher. Wait for React Navigation's native header updates as well.
+    let attributes;
+    for (let attempt = 0; attempt < 20; attempt++) {
+      attributes = await element(by.id(id)).atIndex(0).getAttributes();
+      if (attributes.enabled === enabled) return;
+      await sleep(250);
+    }
+    assert.strictEqual(attributes.enabled, enabled, `${id} should be ${enabled ? 'enabled' : 'disabled'}`);
+  }
+
+  async function dismissElectrumKeyboard() {
+    if (device.getPlatform() === 'ios') {
+      await element(by.id('KeyboardDoneButton')).tap();
+    } else {
+      await device.pressBack();
+    }
+  }
+
+  it('electrum server form validates drafts and protects unsaved changes', async () => {
+    try {
+      await openElectrumSettings();
+      await element(by.id('add_electrum_server')).tap();
+      await waitForId('AddElectrumServerScrollView');
+      const confirmId = device.getPlatform() === 'ios' ? 'Confirm' : 'Save';
+      await expectControlEnabled(confirmId, false);
+      await expectControlEnabled('SetServerAsFavoriteSwitch', false);
+      await expect(element(by.id('SetServerAsFavoriteSwitch'))).toHaveToggleValue(true);
+
+      // Known local hosts autofill their standard TCP port. No permission
+      // request or connection should happen before the user presses Confirm.
+      await element(by.id('HostInput')).tap();
+      await element(by.id('HostInput')).replaceText('umbrel.local');
+      await waitFor(element(by.id('PortInput')))
+        .toHaveText('50001')
+        .withTimeout(5000);
+      await expectControlEnabled(confirmId, true);
+      await expectControlEnabled('SetServerAsFavoriteSwitch', true);
+
+      if (device.getPlatform() === 'ios') {
+        await waitForId('KeyboardNextButton');
+        await element(by.id('KeyboardNextButton')).tap();
+        await waitFor(element(by.id('PortInput')))
+          .toBeFocused()
+          .withTimeout(5000);
+        await element(by.id('KeyboardPreviousButton')).tap();
+        await waitFor(element(by.id('HostInput')))
+          .toBeFocused()
+          .withTimeout(5000);
+        await element(by.id('KeyboardNextButton')).tap();
+      } else {
+        await element(by.id('PortInput')).tap();
+      }
+      await element(by.id('PortInput')).replaceText('70000');
+      await expectControlEnabled(confirmId, false);
+      await expectControlEnabled('SetServerAsFavoriteSwitch', false);
+      await element(by.id('PortInput')).clearText();
+      await expectControlEnabled(confirmId, false);
+      await element(by.id('PortInput')).replaceText('50001');
+      await expectControlEnabled(confirmId, true);
+      await dismissElectrumKeyboard();
+
+      await waitFor(element(by.id('SetServerAsFavoriteSwitch')))
+        .toBeVisible()
+        .whileElement(by.id('AddElectrumServerScrollView'))
+        .scroll(200, 'down');
+      await element(by.id('SetServerAsFavoriteSwitch')).tap();
+      await waitForSwitchValue('SetServerAsFavoriteSwitch', false);
+      await element(by.id('SetServerAsFavoriteSwitch')).tap();
+      await waitForSwitchValue('SetServerAsFavoriteSwitch', true);
+
+      await goBack();
+      await waitForText('Discard changes?');
+      assert.strictEqual(await dismissAlertByText('Cancel'), true, 'Cancel must keep the draft open');
+      await device.disableSynchronization();
+      await waitForId('AddElectrumServerScrollView');
+      await expect(element(by.id('PortInput'))).toHaveText('50001');
+      await goBack();
+      await waitForText('Discard changes?');
+      assert.strictEqual(await dismissAlertByText('OK'), true, 'Discard must dismiss the form');
+      await device.disableSynchronization();
+      await waitFor(element(by.id('AddElectrumServerScrollView')))
+        .not.toExist()
+        .withTimeout(5000);
+
+      await element(by.id('add_electrum_server')).tap();
+      await waitForId('AddElectrumServerScrollView');
+      // Pasting a complete endpoint normalizes all fields and dismisses the
+      // keyboard, including tab-separated server/port/protocol records.
+      await element(by.id('HostInput')).tap();
+      await element(by.id('HostInput')).replaceText(' HIPPO.1209K.COM\t50002\tSSL ');
+      await waitFor(element(by.id('HostInput')))
+        .toHaveText('hippo.1209k.com')
+        .withTimeout(5000);
+      await waitFor(element(by.id('PortInput')))
+        .toHaveText('50002')
+        .withTimeout(5000);
+      await waitFor(element(by.id('HostInput')))
+        .not.toBeFocused()
+        .withTimeout(5000);
+      await expectControlEnabled(confirmId, true);
+
+      // A suggested server is already available; it cannot be added again.
+      await element(by.id('HostInput')).tap();
+      await element(by.id('HostInput')).replaceText('MAINNET.FOUNDATIONDEVICES.COM');
+      await waitFor(element(by.id('PortInput')))
+        .toHaveText('50002')
+        .withTimeout(5000);
+      await expectControlEnabled(confirmId, false);
+      await dismissElectrumKeyboard();
+      await waitForText('Server Already Added');
+    } finally {
+      await device.enableSynchronization();
+    }
+  });
+
+  it('electrum suggested server actions stay available in offline mode', async () => {
+    try {
+      await openElectrumSettings();
+      await expectControlEnabled('ElectrumConnectionEnabledSwitch', true);
+      await expect(element(by.id('ElectrumConnectionEnabledSwitch'))).toHaveToggleValue(false);
+      await element(by.id('ElectrumConnectionEnabledSwitch')).tap();
+      await waitForSwitchValue('ElectrumConnectionEnabledSwitch', true);
+      const serverId = 'ElectrumServer-mainnet.foundationdevices.com-50002';
+      const testId = 'TestElectrumServer-mainnet.foundationdevices.com-50002';
+      const copyId = 'CopyElectrumServer-mainnet.foundationdevices.com-50002';
+      await waitFor(element(by.id(serverId)))
+        .toBeVisible()
+        .whileElement(by.id('ElectrumSettingsScrollView'))
+        .scroll(300, 'down');
+      await element(by.id(serverId)).swipe('left', 'slow', 0.8);
+      await waitForId(testId);
+      await waitForId(copyId);
+      await element(by.id(copyId)).tap();
+      await waitFor(element(by.id(copyId)))
+        .not.toBeVisible()
+        .withTimeout(5000);
+      await expect(element(by.id(serverId))).toBeVisible();
+    } finally {
+      await device.enableSynchronization();
+    }
+  });
+
   it('selftest passes', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t1');
     if (process.env.CI) {
@@ -171,6 +341,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForText('Server Address');
     await waitForText('Connection Type');
     await expect(element(by.id('SetServerAsFavoriteSwitch'))).toHaveToggleValue(true);
+    await expectControlEnabled(device.getPlatform() === 'ios' ? 'Confirm' : 'Save', false);
+    await expectControlEnabled('SetServerAsFavoriteSwitch', false);
     await goBack();
     await waitForId('ElectrumSettingsScrollView');
 

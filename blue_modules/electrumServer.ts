@@ -35,7 +35,7 @@ export const inferElectrumServerFromHost = (value: string): ElectrumServerItem |
 
   // Popular self-hosted Bitcoin node distributions use these documented Electrum defaults.
   if (/(^|[.-])mynode([.-]|$)/.test(host)) return { host, ssl: 50002 };
-  if (/(^|[.-])(umbrel|raspiblitz|citadel)([.-]|$)/.test(host)) return { host, tcp: 50003 };
+  if (/(^|[.-])(umbrel|raspiblitz|citadel)([.-]|$)/.test(host)) return { host, tcp: 50001 };
 
   return undefined;
 };
@@ -44,13 +44,14 @@ export const isLocalElectrumHost = (host: string): boolean => {
   const normalizedHost = normalizeElectrumServerText(host)
     .toLowerCase()
     .replace(/^\[|\]$/g, '');
-  if (normalizedHost === 'localhost' || normalizedHost.endsWith('.local')) return true;
   if (
-    normalizedHost === '::1' ||
-    normalizedHost.startsWith('fe80:') ||
-    normalizedHost.startsWith('fc') ||
-    normalizedHost.startsWith('fd')
-  ) {
+    /^[a-z0-9-]+$/.test(normalizedHost) ||
+    normalizedHost.endsWith('.local') ||
+    normalizedHost.endsWith('.lan') ||
+    normalizedHost.endsWith('.home.arpa')
+  )
+    return true;
+  if (normalizedHost === '::1' || (normalizedHost.includes(':') && /^(?:fe[89ab][0-9a-f]:|f[cd][0-9a-f]{2}:)/.test(normalizedHost))) {
     return true;
   }
   const octets = normalizedHost.split('.').map(Number);

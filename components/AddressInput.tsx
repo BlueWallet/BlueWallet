@@ -10,6 +10,8 @@ interface AddressInputProps {
   placeholder?: string;
   onChangeText: (text: string) => void;
   editable?: boolean;
+  showScanButton?: boolean;
+  accessibilityState?: React.ComponentProps<typeof TextInput>['accessibilityState'];
   inputAccessoryViewID?: string;
   onFocus?: () => void;
   onBlur?: () => void;
@@ -43,6 +45,8 @@ const AddressInput = ({
   placeholder = loc.send.details_address,
   onChangeText,
   editable = true,
+  showScanButton = true,
+  accessibilityState,
   inputAccessoryViewID,
   onFocus = () => {},
   onBlur = () => {},
@@ -87,10 +91,11 @@ const AddressInput = ({
         onBlur={onBlur}
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
+        accessibilityState={accessibilityState}
         returnKeyType={returnKeyType}
         onSubmitEditing={onSubmitEditing}
       />
-      {editable ? <AddressInputScanButton isLoading={isLoading} onChangeText={onChangeText} /> : null}
+      {editable && showScanButton ? <AddressInputScanButton isLoading={isLoading} onChangeText={onChangeText} /> : null}
     </View>
   );
 };

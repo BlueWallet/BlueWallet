@@ -53,7 +53,12 @@ export const DismissKeyboardInputAccessory: React.FC<DismissKeyboardInputAccesso
           />
         ) : null}
         <View style={styles.spacer} />
-        <BlueButtonLink title={loc.send.input_done} onPress={Keyboard.dismiss} />
+        <BlueButtonLink
+          title={loc.send.input_done}
+          onPress={Keyboard.dismiss}
+          accessibilityLabel={loc.send.input_done}
+          testID="KeyboardDoneButton"
+        />
       </View>
     </InputAccessoryView>
   );

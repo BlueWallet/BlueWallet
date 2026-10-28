@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import {
   AccessibilityActionEvent,
   AccessibilityActionInfo,
+  AccessibilityRole,
   AccessibilityState,
   ActivityIndicator,
   Pressable,
@@ -24,6 +25,8 @@ import { useTheme } from './themes';
 export const TX_ROW_BASE_HEIGHT = 64;
 
 export interface ListItemProps {
+  accessible?: boolean;
+  accessibilityRole?: AccessibilityRole;
   accessibilityLabel?: string;
   accessibilityHint?: string;
   leftAvatar?: React.JSX.Element;
@@ -57,6 +60,8 @@ export interface ListItemProps {
 
 const ListItem: React.FC<ListItemProps> = React.memo(
   ({
+    accessible,
+    accessibilityRole,
     leftAvatar,
     accessibilityLabel,
     accessibilityHint,
@@ -142,7 +147,11 @@ const ListItem: React.FC<ListItemProps> = React.memo(
             <View style={styles.width16} />
           </View>
         )}
-        <View style={styles.content}>
+        <View
+          style={styles.content}
+          accessibilityElementsHidden={Boolean(switchProps)}
+          importantForAccessibility={switchProps ? 'no-hide-descendants' : 'auto'}
+        >
           <Text style={[stylesHook.title, titleStyle]} numberOfLines={0} accessibilityRole="text" selectable={titleSelectable}>
             {title}
           </Text>
@@ -193,8 +202,13 @@ const ListItem: React.FC<ListItemProps> = React.memo(
               <Switch
                 {...memoizedSwitchProps}
                 testID={resolvedSwitchTestID}
-                accessibilityLabel={title}
-                accessibilityHint={typeof subtitle === 'string' ? subtitle : undefined}
+                accessibilityLabel={memoizedSwitchProps?.accessibilityLabel ?? title}
+                accessibilityHint={memoizedSwitchProps?.accessibilityHint ?? (typeof subtitle === 'string' ? subtitle : undefined)}
+                accessibilityState={{
+                  ...memoizedSwitchProps?.accessibilityState,
+                  checked: Boolean(memoizedSwitchProps?.value),
+                  disabled: Boolean(memoizedSwitchProps?.disabled),
+                }}
                 style={styles.margin16}
                 accessible
                 accessibilityRole="switch"
@@ -213,6 +227,8 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     if (!onPress) {
       return (
         <View
+          accessible={accessible}
+          accessibilityRole={accessibilityRole}
           testID={testID}
           accessibilityLabel={accessibilityLabel}
           accessibilityHint={accessibilityHint}
@@ -231,8 +247,8 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         testID={testID}
         onPress={onPress}
         disabled={disabled}
-        accessible
-        accessibilityRole="button"
+        accessible={accessible ?? true}
+        accessibilityRole={accessibilityRole ?? 'button'}
         accessibilityLabel={accessibilityLabel ?? title}
         accessibilityHint={accessibilityHint}
         accessibilityState={{ ...accessibilityState, disabled: accessibilityState?.disabled ?? !!disabled }}

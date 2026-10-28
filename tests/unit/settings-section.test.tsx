@@ -70,6 +70,34 @@ describe('SettingsSection', () => {
 });
 
 describe('SettingsListItem', () => {
+  it('exposes a non-navigating favorite row as one accessible element with custom actions', () => {
+    const screen = render(
+      <SettingsListItem
+        accessible
+        accessibilityRole="text"
+        title="favorite.example"
+        accessibilityLabel="favorite.example, SSL 50002, Favorite Server"
+        accessibilityActions={[{ name: 'removeFavorite', label: 'Remove Favorite Server' }]}
+      />,
+    );
+    expect(screen.getByRole('text', { name: 'favorite.example, SSL 50002, Favorite Server' }).props.accessibilityActions).toEqual([
+      { name: 'removeFavorite', label: 'Remove Favorite Server' },
+    ]);
+  });
+
+  it('exposes checked and disabled switch state without hiding its explanation', () => {
+    const screen = render(
+      <SettingsListItem
+        title="Set as Favorite"
+        subtitle="Connects only to this server"
+        switch={{ value: true, disabled: true, accessibilityHint: 'No other servers will be tried' }}
+      />,
+    );
+    const toggle = screen.getByRole('switch', { name: 'Set as Favorite' });
+    expect(toggle.props.accessibilityState).toEqual({ checked: true, disabled: true });
+    expect(toggle.props.accessibilityHint).toBe('No other servers will be tried');
+  });
+
   it('renders title and forwards presses', () => {
     const onPress = jest.fn();
     const { getByText } = render(<SettingsListItem title="Currency" iconName="currency" onPress={onPress} testID="CurrencyItem" />);

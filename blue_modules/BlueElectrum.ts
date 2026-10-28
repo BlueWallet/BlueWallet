@@ -14,7 +14,7 @@ import presentAlert from '../components/Alert';
 import { errorMessage } from '../helpers/errorMessage';
 import loc from '../loc';
 import { GROUP_IO_BLUEWALLET } from './currency';
-import { ElectrumServerItem, hardcodedPeers } from './electrumServer';
+import { ElectrumServerItem, hardcodedPeers, parseElectrumServer, parseElectrumServerDocumentResult } from './electrumServer';
 import { triggerWarningHapticFeedback } from './hapticFeedback';
 import { AlertButton } from 'react-native';
 import { uint8ArrayToHex, stringToUint8Array, hexToUint8Array } from './uint8array-extras/index';
@@ -230,11 +230,12 @@ export const getPreferredServer = async (): Promise<ElectrumServerItem | undefin
       return;
     }
 
-    return {
-      host,
-      tcp: tcpPort ? Number(tcpPort) : undefined,
-      ssl: sslPort ? Number(sslPort) : undefined,
-    };
+    // A legacy preference may contain both ports or an invalid port. A favorite
+    // represents one endpoint, with SSL taking precedence when both are valid.
+    return (
+      (sslPort ? parseElectrumServer(`${host} ${sslPort} ssl`) : undefined) ??
+      (tcpPort ? parseElectrumServer(`${host} ${tcpPort} tcp`) : undefined)
+    );
   } catch (error) {
     console.error('[electrum] Error in getPreferredServer:', error);
     return undefined;
@@ -603,7 +604,7 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
 export async function presentResetToDefaultsAlert(alertPresenter: typeof presentAlert = presentAlert): Promise<boolean> {
   const hasPreferredServer = await getPreferredServer();
   const serverHistoryStr = await DefaultPreference.get(ELECTRUM_SERVER_HISTORY);
-  const serverHistory = typeof serverHistoryStr === 'string' ? JSON.parse(serverHistoryStr) : [];
+  const serverHistory = typeof serverHistoryStr === 'string' ? parseElectrumServerDocumentResult(serverHistoryStr).servers : [];
   return new Promise(resolve => {
     triggerWarningHapticFeedback();
 

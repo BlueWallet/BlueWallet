@@ -15,14 +15,27 @@ import {
 } from '../../blue_modules/electrumServer';
 
 describe('Electrum server parsing', () => {
-  it.each(['localhost', 'umbrel.local', '10.0.0.2', '172.16.0.2', '192.168.1.2', '169.254.1.2', '::1', 'fe80::1', 'fd00::1'])(
-    'recognizes local Electrum host %s',
-    host => expect(isLocalElectrumHost(host)).toBe(true),
-  );
+  it.each([
+    'localhost',
+    'umbrel',
+    'umbrel.local',
+    'node.lan',
+    'node.home.arpa',
+    '10.0.0.2',
+    '172.16.0.2',
+    '192.168.1.2',
+    '169.254.1.2',
+    '::1',
+    'fe80::1',
+    'fd00::1',
+  ])('recognizes local Electrum host %s', host => expect(isLocalElectrumHost(host)).toBe(true));
 
-  it.each(['electrum.example.com', '8.8.8.8', '172.15.0.2', '172.32.0.2'])('does not classify public host %s as local', host => {
-    expect(isLocalElectrumHost(host)).toBe(false);
-  });
+  it.each(['electrum.example.com', 'fc-server.example.com', 'fd-server.example.com', '8.8.8.8', '172.15.0.2', '172.32.0.2'])(
+    'does not classify public host %s as local',
+    host => {
+      expect(isLocalElectrumHost(host)).toBe(false);
+    },
+  );
 
   it('includes the favorite in Handoff exports without duplicating history', () => {
     const favorite = { host: 'favorite.example.com', ssl: 50002 };

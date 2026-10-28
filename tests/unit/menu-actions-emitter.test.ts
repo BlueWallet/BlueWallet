@@ -336,6 +336,11 @@ it.each([
   ['ReceiveDetails', 'copyAddress'],
   ['TransactionStatus', 'copyTransactionId'],
   ['TransactionStatus', 'accelerateTransaction'],
+  ['ElectrumSettings', 'toggleElectrumOffline'],
+  ['ElectrumSettings', 'copyConnectedElectrumServer'],
+  ['ElectrumSettings', 'removeFavoriteElectrumServer'],
+  ['AddElectrumServer', 'focusElectrumHost'],
+  ['AddElectrumServer', 'focusElectrumPort'],
 ] as const)('dispatches %s / %s only while its handler is registered', (screen, action) => {
   setRoute(screen);
   const hook = renderHook(useMenuActions);
@@ -369,5 +374,32 @@ it('keeps newer registrations when an older owner cleans up and routes Back to W
   emit('backToWallets');
   expect(navigateToWalletsList).toHaveBeenCalledTimes(1);
   act(removeCurrent);
+  hook.unmount();
+});
+
+it('publishes disabled form commands and removes them when leaving the form', () => {
+  setRoute('AddElectrumServer', 'electrum-form');
+  const hook = renderHook(useMenuActions);
+  let unregister!: () => void;
+  act(() => {
+    unregister = hook.result.current.registerMenuActions(
+      { saveElectrumServer: jest.fn(), focusElectrumHost: jest.fn(), focusElectrumPort: jest.fn() },
+      'electrum-form',
+      { saveElectrumServer: { disabled: true }, focusElectrumHost: { disabled: false } },
+    );
+  });
+  expect(MenuActionsEmitter!.setAvailableActions).toHaveBeenLastCalledWith(
+    expect.arrayContaining(['saveElectrumServer', 'focusElectrumHost', 'focusElectrumPort']),
+  );
+  expect(JSON.parse(jest.mocked(MenuActionsEmitter!.setActionStates).mock.lastCall![0])).toEqual({
+    saveElectrumServer: { disabled: true },
+    focusElectrumHost: { disabled: false },
+  });
+  setRoute('Settings', 'other-settings');
+  notifyNavigation('state');
+  expect(jest.mocked(MenuActionsEmitter!.setAvailableActions).mock.lastCall![0]).not.toEqual(
+    expect.arrayContaining(['saveElectrumServer']),
+  );
+  act(unregister);
   hook.unmount();
 });
