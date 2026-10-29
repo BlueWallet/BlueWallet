@@ -27,12 +27,17 @@
 		<key>QuickLookPreview.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>135</integer>
+			<integer>146</integer>
 		</dict>
 		<key>QuickLookThumbnail.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>136</integer>
+			<integer>147</integer>
+		</dict>
+		<key>ShareExtension.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>148</integer>
 		</dict>
 		<key>Stickers.xcscheme_^#shared#^_</key>
 		<dict>
