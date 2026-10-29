@@ -17,11 +17,6 @@ jest.mock('react-native-linear-gradient', () => {
   return { __esModule: true, default: RNView };
 });
 
-jest.mock('../../blue_modules/sizeClass', () => {
-  const actual = jest.requireActual('../../blue_modules/sizeClass');
-  return { ...actual, useSizeClass: () => ({ sizeClass: actual.SizeClass.Large }) };
-});
-
 jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({
   __esModule: true,
   default: () => ({ width: 1600, height: 1000, fontScale: 1, scale: 2 }),
