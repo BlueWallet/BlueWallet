@@ -9,7 +9,7 @@ import {
   loadRecentMenuItems,
   subscribeToRecentMenuItems,
 } from '../components/Context/recentMenuItems';
-import { getMenuActionTitles } from '../blue_modules/menuActionTitles';
+import { getMenuActionTitles } from '../components/menuActionTitles';
 
 type MenuRegistration = {
   handlers: MenuActionHandlers;

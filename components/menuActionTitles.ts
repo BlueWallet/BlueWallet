@@ -1,5 +1,5 @@
+import type { MenuActionTitles } from '../blue_modules/menuActions';
 import loc from '../loc';
-import type { MenuActionTitles } from './menuActions';
 
 export function getMenuActionTitles(): MenuActionTitles {
   return {

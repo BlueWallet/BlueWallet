@@ -2,7 +2,7 @@ import React from 'react';
 import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../../components/themes';
 import { menuShortcuts } from '../../blue_modules/menuActions';
-import { getMenuActionTitles } from '../../blue_modules/menuActionTitles';
+import { getMenuActionTitles } from '../../components/menuActionTitles';
 import loc from '../../loc';
 
 export default function KeyboardShortcuts() {
