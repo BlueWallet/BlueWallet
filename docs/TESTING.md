@@ -78,6 +78,20 @@ npm run e2e:build:ios-release
 npm run e2e:test:ios-release
 ```
 
+Run the native iOS UI tests from Xcode with the `BlueWallet` scheme, or seed a booted simulator and run them from the command line:
+
+```sh
+xcrun simctl addmedia booted img/qr-code.png
+xcodebuild \
+  -workspace ios/BlueWallet.xcworkspace \
+  -scheme BlueWallet \
+  -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+  -only-testing:BlueWalletUITests \
+  test
+```
+
+The image-share UI test is iOS-only. It opens the seeded image in Photos and verifies that BlueWallet is offered as a share service; the target explicitly disables Mac Catalyst.
+
 Validate the Share Extension in isolation with:
 
 ```sh
