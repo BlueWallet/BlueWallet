@@ -189,7 +189,7 @@ class MainActivity : ReactActivity() {
         return try {
             val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(sourceIntent.type)
                 ?.takeIf { it.matches(Regex("[A-Za-z0-9]+")) }
-                ?: "jpg"
+                ?: "image"
             val directory = File(cacheDir, "shared-images").apply { mkdirs() }
             val destination = File(directory, "${java.util.UUID.randomUUID()}.$extension")
             contentResolver.openInputStream(sourceUri).use { input ->

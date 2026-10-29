@@ -283,7 +283,8 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
           decodedUrl = event.url;
         }
         const fileName = decodedUrl.split('/').pop()?.toLowerCase() || '';
-        if (/\.(jpe?g|png|heic|heif|webp|gif|bmp|tiff?)$/i.test(fileName)) {
+        const isSharedImage = decodedUrl.includes('/shared-images/');
+        if (isSharedImage || /\.(jpe?g|png|heic|heif|webp|gif|bmp|tiff?)$/i.test(fileName)) {
           let base64: string;
           try {
             base64 = await RNFS.readFile(decodedUrl, 'base64');
@@ -301,7 +302,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             saveToDisk,
             setSharedCosigner,
           });
-          if (decodedUrl.includes('/shared-images/')) {
+          if (isSharedImage) {
             RNFS.unlink(decodedUrl.replace(/^file:\/\//, '')).catch(() => undefined);
           }
         } else {
@@ -412,7 +413,9 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         .then(url => {
           if (
             url &&
-            (DeeplinkSchemaMatch.hasSchema(url) || /\.(?:jpe?g|png|heic|heif|webp|gif|bmp|tiff?)$/i.test(decodeURIComponent(url)))
+            (DeeplinkSchemaMatch.hasSchema(url) ||
+              decodeURIComponent(url).includes('/shared-images/') ||
+              /\.(?:jpe?g|png|heic|heif|webp|gif|bmp|tiff?)$/i.test(decodeURIComponent(url)))
           ) {
             return handleOpenURL({ url });
           }

@@ -43,13 +43,14 @@ public class ImageShareIntentUiTest {
 
     @Test
     public void imageShareColdStartBecomesPrivateViewIntent() throws Exception {
-        MainActivity activity = activityRule.launchActivity(imageShareIntent("image/png"));
+        MainActivity activity = activityRule.launchActivity(imageShareIntent("image/x-bluewallet-test"));
         Intent receivedIntent = activity.getIntent();
 
         assertEquals(Intent.ACTION_VIEW, receivedIntent.getAction());
         assertEquals("file", receivedIntent.getData().getScheme());
-        assertEquals("image/png", receivedIntent.getType());
+        assertEquals("image/x-bluewallet-test", receivedIntent.getType());
         assertTrue(receivedIntent.getData().getPath().contains("/shared-images/"));
+        assertTrue(receivedIntent.getData().getPath().endsWith(".image"));
         assertArrayEquals(IMAGE_BYTES, Files.readAllBytes(new File(receivedIntent.getData().getPath()).toPath()));
     }
 

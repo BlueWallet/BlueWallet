@@ -44,13 +44,17 @@ final class ShareViewController: UIViewController {
                    previousName == (previousName as NSString).lastPathComponent {
                     try? FileManager.default.removeItem(at: directory.appendingPathComponent(previousName))
                 }
-                guard let image = UIImage(contentsOfFile: sourceURL.path),
-                      let imageData = image.pngData() else {
-                    throw CocoaError(.fileReadCorruptFile)
-                }
-                let fileName = "\(UUID().uuidString).png"
+                let contentType = provider.registeredTypeIdentifiers
+                    .compactMap(UTType.init)
+                    .first(where: { $0.conforms(to: .image) })
+                let sourceExtension = sourceURL.pathExtension
+                let preferredExtension = contentType?.preferredFilenameExtension
+                let fileExtension = (sourceExtension.isEmpty ? preferredExtension : sourceExtension)?
+                    .lowercased()
+                    .filter { $0.isLetter || $0.isNumber }
+                let fileName = [UUID().uuidString, fileExtension].compactMap { $0 }.joined(separator: ".")
                 let destinationURL = directory.appendingPathComponent(fileName)
-                try imageData.write(to: destinationURL, options: .atomic)
+                try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
                 defaults.set(fileName, forKey: Self.pendingImageKey)
                 defaults.synchronize()
                 DispatchQueue.main.async { self.extensionContext?.completeRequest(returningItems: nil) }

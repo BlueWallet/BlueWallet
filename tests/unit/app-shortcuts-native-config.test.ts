@@ -27,6 +27,13 @@ describe('native app shortcut configuration', () => {
     expect(shareExtensionInfo).toContain('<string>com.apple.share-services</string>');
     expect(shareExtensionInfo).toContain('<key>NSExtensionActivationSupportsImageWithMaxCount</key>');
     expect(androidSendFilters?.some(intentFilter => intentFilter.includes('android:mimeType="image/*"'))).toBe(true);
+
+    const shareViewController = readRepositoryFile('ios/ShareExtension/ShareViewController.swift');
+    const companionListeners = readRepositoryFile('hooks/useCompanionListeners.ts');
+    expect(shareViewController).toContain('conforms(to: .image)');
+    expect(shareViewController).toContain('copyItem(at: sourceURL, to: destinationURL)');
+    expect(shareViewController).not.toContain('pngData()');
+    expect(companionListeners).toContain("decodedUrl.includes('/shared-images/')");
   });
 
   it('limits Android browsable links to the static BlueWallet shortcut routes', () => {
