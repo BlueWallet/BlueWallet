@@ -1,13 +1,16 @@
 import XCTest
 
 final class ImageShareExtensionUITests: XCTestCase {
-    private let photos = XCUIApplication(bundleIdentifier: "com.apple.mobileslideshow")
+    private var photos: XCUIApplication {
+        #if targetEnvironment(macCatalyst)
+        XCUIApplication(bundleIdentifier: "com.apple.Photos")
+        #else
+        XCUIApplication(bundleIdentifier: "com.apple.mobileslideshow")
+        #endif
+    }
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        #if targetEnvironment(macCatalyst)
-        throw XCTSkip("Image share-service UI coverage is intentionally iOS-only")
-        #endif
     }
 
     func testBlueWalletIsOfferedForSharingAnImage() throws {

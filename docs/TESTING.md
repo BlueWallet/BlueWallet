@@ -90,7 +90,7 @@ xcodebuild \
   test
 ```
 
-The image-share UI test is iOS-only. It opens the seeded image in Photos and verifies that BlueWallet is offered as a share service; the target explicitly disables Mac Catalyst.
+The image-share UI test opens an image in Photos and verifies that BlueWallet is offered as a share service. The target supports local iOS and Mac Catalyst runs. CI intentionally runs this test only against an iPhone simulator.
 
 Validate the Share Extension in isolation with:
 
