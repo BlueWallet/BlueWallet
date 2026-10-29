@@ -149,7 +149,9 @@ jobs:
           ')
           xcrun simctl boot "$SIMULATOR_UDID" 2>/dev/null || true
           xcrun simctl bootstatus "$SIMULATOR_UDID" -b
-          xcrun simctl addmedia "$SIMULATOR_UDID" ../img/qr-code.png
+          BITCOIN_QR_IMAGE="${RUNNER_TEMP}/bluewallet-bitcoin-qr.png"
+          xcrun swift ../tests/e2e/generate-bitcoin-qr.swift "$BITCOIN_QR_IMAGE"
+          xcrun simctl addmedia "$SIMULATOR_UDID" "$BITCOIN_QR_IMAGE"
           xcodebuild \
             -workspace BlueWallet.xcworkspace \
             -scheme BlueWallet \

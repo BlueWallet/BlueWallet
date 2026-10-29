@@ -81,7 +81,8 @@ npm run e2e:test:ios-release
 Run the native iOS UI tests from Xcode with the `BlueWallet` scheme, or seed a booted simulator and run them from the command line:
 
 ```sh
-xcrun simctl addmedia booted img/qr-code.png
+xcrun swift tests/e2e/generate-bitcoin-qr.swift /tmp/bluewallet-bitcoin-qr.png
+xcrun simctl addmedia booted /tmp/bluewallet-bitcoin-qr.png
 xcodebuild \
   -workspace ios/BlueWallet.xcworkspace \
   -scheme BlueWallet \
@@ -90,7 +91,7 @@ xcodebuild \
   test
 ```
 
-The image-share UI test opens an image in Photos and verifies that BlueWallet is offered as a share service. The target supports local iOS and Mac Catalyst runs. CI intentionally runs this test only against an iPhone simulator.
+The image-share UI test creates a Bitcoin wallet, opens the generated valid Bitcoin QR in Photos, shares it through the BlueWallet share service, and verifies that the containing app receives the address in its send flow. Run it on a fresh simulator so the generated QR is the newest photo. The target supports local iOS and Mac Catalyst runs. CI intentionally runs this test only against an iPhone simulator.
 
 Validate the Share Extension in isolation with:
 
