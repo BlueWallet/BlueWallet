@@ -26,6 +26,9 @@ describe('native app shortcut configuration', () => {
 
     expect(shareExtensionInfo).toContain('<string>com.apple.share-services</string>');
     expect(shareExtensionInfo).toContain('<key>NSExtensionActivationSupportsImageWithMaxCount</key>');
+    expect(shareExtensionInfo).toContain('<key>CFBundleIdentifier</key>');
+    expect(shareExtensionInfo).toContain('<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>');
+    expect(shareExtensionInfo).toContain('<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>');
     expect(androidSendFilters?.some(intentFilter => intentFilter.includes('android:mimeType="image/*"'))).toBe(true);
 
     const shareViewController = readRepositoryFile('ios/ShareExtension/ShareViewController.swift');
