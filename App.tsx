@@ -9,7 +9,6 @@ import {
 import React, { useCallback } from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { SizeClassProvider } from './components/Context/SizeClassProvider';
 import { SettingsProvider } from './components/Context/SettingsProvider';
 import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
 import MasterView from './navigation/MasterView';
@@ -154,15 +153,13 @@ const App = () => {
   const colorScheme = useColorScheme();
 
   return (
-    <SizeClassProvider>
-      <SafeAreaProvider>
-        <StorageProvider>
-          <SettingsProvider>
-            <Navigation colorScheme={colorScheme} />
-          </SettingsProvider>
-        </StorageProvider>
-      </SafeAreaProvider>
-    </SizeClassProvider>
+    <SafeAreaProvider>
+      <StorageProvider>
+        <SettingsProvider>
+          <Navigation colorScheme={colorScheme} />
+        </SettingsProvider>
+      </StorageProvider>
+    </SafeAreaProvider>
   );
 };
 

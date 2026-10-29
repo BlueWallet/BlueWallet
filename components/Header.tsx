@@ -1,15 +1,27 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from './themes';
 import AddWalletButton from './AddWalletButton';
+import SettingsButton from './icons/SettingsButton';
+import Icon from './Icon';
 
 interface HeaderProps {
   leftText: string;
   isDrawerList?: boolean;
   onNewWalletPress?: () => void;
+  onSettingsPress?: () => void;
+  onManageWalletsPress?: () => void;
+  onBackPress?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ leftText, isDrawerList, onNewWalletPress }) => {
+export const Header: React.FC<HeaderProps> = ({
+  leftText,
+  isDrawerList,
+  onNewWalletPress,
+  onSettingsPress,
+  onManageWalletsPress,
+  onBackPress,
+}) => {
   const { colors } = useTheme();
   const styleWithProps = StyleSheet.create({
     root: {
@@ -24,8 +36,18 @@ export const Header: React.FC<HeaderProps> = ({ leftText, isDrawerList, onNewWal
 
   return (
     <View style={[styles.root, styleWithProps.root]}>
-      <Text style={[styles.text, styleWithProps.text]}>{leftText}</Text>
-      {onNewWalletPress && <AddWalletButton onPress={onNewWalletPress} />}
+      {onBackPress ? (
+        <Pressable accessibilityRole="button" accessibilityLabel={leftText} onPress={onBackPress} style={styles.backButton}>
+          <Icon name="chevron-left" type="material" size={28} color={colors.foregroundColor} />
+          <Text style={[styles.text, styleWithProps.text]}>{leftText}</Text>
+        </Pressable>
+      ) : (
+        <Text style={[styles.text, styleWithProps.text]}>{leftText}</Text>
+      )}
+      <View style={styles.actions}>
+        {onNewWalletPress && <AddWalletButton onPress={onNewWalletPress} />}
+        {onSettingsPress && onManageWalletsPress && <SettingsButton onPress={onSettingsPress} onManageWalletPress={onManageWalletsPress} />}
+      </View>
     </View>
   );
 };
@@ -42,5 +64,15 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     fontWeight: 'bold',
     fontSize: 34,
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexShrink: 1,
   },
 });

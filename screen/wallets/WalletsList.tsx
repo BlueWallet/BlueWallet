@@ -27,10 +27,10 @@ import WalletsCarousel, {
   CarouselListRefType,
   getWalletCarouselHeight,
 } from '../../components/WalletsCarousel';
-import { useSizeClass, SizeClass } from '../../blue_modules/sizeClass';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { shouldUseWideLayout } from '../../blue_modules/layout';
 import { ConnectionPollContext } from '../../navigation/ConnectionPollContext';
 import { RootParamList } from '../../navigation/RootParamList';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -117,13 +117,13 @@ type NavigationProps = NativeStackNavigationProp<RootParamList, 'WalletsList'>;
 const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isLoading } = state;
-  const { sizeClass, isLarge } = useSizeClass();
   const walletsCarousel = useRef<CarouselListRefType>(null);
   const connectionPoll = useContext(ConnectionPollContext);
   const currentWalletIndex = useRef<number>(0);
   const { wallets, getTransactions, refreshAllWalletTransactions } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
-  const { width, fontScale } = useWindowDimensions();
+  const { height, width, fontScale } = useWindowDimensions();
+  const isWideLayout = shouldUseWideLayout(width, height);
   const insets = useSafeAreaInsets();
   const carouselHeight = getWalletCarouselHeight(fontScale);
   const transactionItemHeight = Math.round(TX_ROW_BASE_HEIGHT * fontScale);
@@ -142,7 +142,7 @@ const WalletsList: React.FC = () => {
     },
     listHeaderBack: {
       backgroundColor: colors.background,
-      paddingTop: sizeClass === SizeClass.Large ? 8 : 0,
+      paddingTop: isWideLayout ? 8 : 0,
       minHeight: sectionHeaderHeight,
     },
     listHeaderText: {
@@ -217,11 +217,11 @@ const WalletsList: React.FC = () => {
 
   useEffect(() => {
     // new wallet added - no longer auto-scrolls
-    if (!isLarge) {
+    if (!isWideLayout) {
       // Just update the count, no scrolling
       walletsCount.current = wallets.length;
     }
-  }, [isLarge, wallets]);
+  }, [isWideLayout, wallets]);
 
   const onBarScanned = useCallback(
     (value: string | undefined) => {
@@ -331,19 +331,19 @@ const WalletsList: React.FC = () => {
     (item: { section: SectionData; item: WalletsListItem }) => {
       switch (item.section.key) {
         case WalletsListSections.CAROUSEL:
-          return sizeClass === SizeClass.Large ? null : renderWalletsCarousel();
+          return isWideLayout ? null : renderWalletsCarousel();
         case WalletsListSections.TRANSACTIONS:
           return typeof item.item === 'string' ? null : renderTransactionListsRow(item.item);
         default:
           return null;
       }
     },
-    [sizeClass, renderTransactionListsRow, renderWalletsCarousel],
+    [isWideLayout, renderTransactionListsRow, renderWalletsCarousel],
   );
 
   const renderSectionHeader = useCallback(
     (section: { section: SectionData }) => {
-      if (sizeClass === SizeClass.Large) {
+      if (isWideLayout) {
         return null;
       }
 
@@ -374,7 +374,7 @@ const WalletsList: React.FC = () => {
       }
     },
     [
-      sizeClass,
+      isWideLayout,
       isTotalBalanceEnabled,
       renderListHeaderComponent,
       stylesHook.listHeaderBack,
@@ -481,7 +481,7 @@ const WalletsList: React.FC = () => {
 
   const sections: SectionData[] = useMemo(() => {
     // On large screens, only show transactions section
-    if (sizeClass === SizeClass.Large) {
+    if (isWideLayout) {
       return [{ key: WalletsListSections.TRANSACTIONS, data: dataSource }];
     }
 
@@ -490,18 +490,18 @@ const WalletsList: React.FC = () => {
       { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
       { key: WalletsListSections.TRANSACTIONS, data: dataSource },
     ];
-  }, [sizeClass, dataSource]);
+  }, [isWideLayout, dataSource]);
 
   // Constants for layout calculations
   const getSectionHeaderHeight = useCallback(() => {
-    return sectionHeaderHeight + (sizeClass === SizeClass.Large ? Math.round(20 * fontScale) : 0);
-  }, [sizeClass, sectionHeaderHeight, fontScale]);
+    return sectionHeaderHeight + (isWideLayout ? Math.round(20 * fontScale) : 0);
+  }, [isWideLayout, sectionHeaderHeight, fontScale]);
 
   const getItemLayout = useCallback(
     (_: unknown, index: number) => {
       const headerHeight = getSectionHeaderHeight();
 
-      if (sizeClass === SizeClass.Large) {
+      if (isWideLayout) {
         // On large screens: only transaction items, no carousel
         return {
           length: transactionItemHeight,
@@ -532,7 +532,7 @@ const WalletsList: React.FC = () => {
         };
       }
     },
-    [sizeClass, getSectionHeaderHeight, carouselHeight, transactionItemHeight],
+    [isWideLayout, getSectionHeaderHeight, carouselHeight, transactionItemHeight],
   );
 
   return (

@@ -1,8 +1,7 @@
-import { createDrawerNavigator, DrawerNavigationOptions, DrawerContentComponentProps } from '@react-navigation/drawer';
-import { useLocale } from '@react-navigation/native';
-import React, { useEffect, useMemo } from 'react';
-import { Animated, Easing } from 'react-native';
-import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
+import { createDrawerNavigator, DrawerContentComponentProps, DrawerNavigationOptions } from '@react-navigation/drawer';
+import React, { useMemo } from 'react';
+import { useWindowDimensions } from 'react-native';
+import { shouldUseWideLayout } from '../blue_modules/layout';
 import DrawerList from '../screen/wallets/DrawerList';
 import DetailViewStackScreensStack from './DetailViewScreensStack';
 import { DrawerParamList } from './DrawerParamList';
@@ -11,72 +10,38 @@ import useCompanionListeners from '../hooks/useCompanionListeners';
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
 const DrawerContent = (props: DrawerContentComponentProps) => {
-  const { isLargeScreen } = useSizeClass();
+  const { height, width } = useWindowDimensions();
 
-  if (!isLargeScreen) {
-    return null;
-  }
-
-  return <DrawerList {...props} />;
-};
-
-const getAnimationConfig = (isDrawerTransitionConfigured: boolean) => {
-  if (!isDrawerTransitionConfigured) return {};
-
-  return {
-    config: {
-      timing: Animated.timing,
-      useNativeDriver: true,
-      duration: 250,
-      easing: Easing.inOut(Easing.cubic),
-    },
-  };
+  return shouldUseWideLayout(width, height) ? <DrawerList {...props} /> : null;
 };
 
 const DrawerRoot = () => {
-  const { sizeClass, isLargeScreen } = useSizeClass();
-  const { direction } = useLocale();
+  const { height, width } = useWindowDimensions();
+  const isWideLayout = shouldUseWideLayout(width, height);
   useCompanionListeners();
 
-  const getDrawerWidth = useMemo(() => {
-    switch (sizeClass) {
-      case SizeClass.Large:
-        return 320;
-      case SizeClass.Regular:
-        return 280;
-      default:
-        return 0;
-    }
-  }, [sizeClass]);
-
-  const drawerStyle: DrawerNavigationOptions = useMemo(
+  const screenOptions = useMemo<DrawerNavigationOptions>(
     () => ({
-      drawerPosition: direction === 'rtl' ? 'right' : 'left',
       drawerStyle: {
-        width: getDrawerWidth,
+        width: isWideLayout ? 320 : 0,
         height: '100%',
       },
-      drawerType: isLargeScreen ? 'permanent' : 'front',
-      overlayColor: 'rgba(0,0,0,0.4)',
+      drawerType: isWideLayout ? 'permanent' : 'front',
+      overlayStyle: { backgroundColor: 'rgba(0, 0, 0, 0.4)' },
       swipeEnabled: false,
-
-      ...getAnimationConfig(true),
+      headerShown: false,
     }),
-    [getDrawerWidth, isLargeScreen, direction],
+    [isWideLayout],
   );
-
-  useEffect(() => {
-    console.debug('[DrawerRoot] Size class changed:', SizeClass[sizeClass]);
-  }, [sizeClass]);
 
   return (
     <Drawer.Navigator
-      screenOptions={drawerStyle}
+      screenOptions={screenOptions}
       drawerContent={DrawerContent}
       initialRouteName="DetailViewStackScreensStack"
-      defaultStatus={isLargeScreen ? 'open' : 'closed'}
+      defaultStatus={isWideLayout ? 'open' : 'closed'}
     >
-      <Drawer.Screen name="DetailViewStackScreensStack" component={DetailViewStackScreensStack} options={{ headerShown: false }} />
+      <Drawer.Screen name="DetailViewStackScreensStack" component={DetailViewStackScreensStack} />
     </Drawer.Navigator>
   );
 };

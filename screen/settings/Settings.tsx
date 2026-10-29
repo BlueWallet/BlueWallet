@@ -1,18 +1,25 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useMemo, useLayoutEffect, useCallback } from 'react';
-import { View, StyleSheet, Linking, Image } from 'react-native';
+import { View, StyleSheet, Linking, Image, StyleProp, ViewStyle } from 'react-native';
 import loc from '../../loc';
 import { SettingsSection, SettingsListItem, SettingsScrollView } from '../../components/SettingsSection';
 import { useSettings } from '../../hooks/context/useSettings';
 
-const Settings = () => {
-  const { navigate, setOptions } = useNavigation();
-  const { language } = useSettings(); // Subscribe to language changes to trigger re-render
-  useLayoutEffect(() => {
-    // Only the title needs refreshing on language change; header styling comes from the route options
-    setOptions({ title: loc.settings.header });
-  }, [setOptions, language]);
+export type SettingsDestination =
+  | 'GeneralSettings'
+  | 'Currency'
+  | 'Language'
+  | 'EncryptStorage'
+  | 'NetworkSettings'
+  | 'SettingsTools'
+  | 'About';
 
+type SettingsContentProps = {
+  onNavigate: (destination: SettingsDestination) => void;
+  style?: StyleProp<ViewStyle>;
+};
+
+export const SettingsContent = ({ onNavigate, style }: SettingsContentProps) => {
   const handleDonatePress = useCallback(() => {
     Linking.openURL('https://donate.bluewallet.io/');
   }, []);
@@ -27,7 +34,7 @@ const Settings = () => {
   );
 
   return (
-    <SettingsScrollView testID="SettingsRoot">
+    <SettingsScrollView testID="SettingsRoot" style={style}>
       <SettingsSection>
         <SettingsListItem
           title={loc.settings.donate}
@@ -44,35 +51,35 @@ const Settings = () => {
         <SettingsListItem
           title={loc.settings.general}
           iconName="settings"
-          onPress={() => navigate('GeneralSettings')}
+          onPress={() => onNavigate('GeneralSettings')}
           testID="GeneralSettings"
           chevron
         />
         <SettingsListItem
           title={loc.settings.currency}
           iconName="currency"
-          onPress={() => navigate('Currency')}
+          onPress={() => onNavigate('Currency')}
           testID="Currency"
           chevron
         />
         <SettingsListItem
           title={loc.settings.language}
           iconName="language"
-          onPress={() => navigate('Language')}
+          onPress={() => onNavigate('Language')}
           testID="Language"
           chevron
         />
         <SettingsListItem
           title={loc.settings.encrypt_title}
           iconName="security"
-          onPress={() => navigate('EncryptStorage')}
+          onPress={() => onNavigate('EncryptStorage')}
           testID="SecurityButton"
           chevron
         />
         <SettingsListItem
           title={loc.settings.network}
           iconName="network"
-          onPress={() => navigate('NetworkSettings')}
+          onPress={() => onNavigate('NetworkSettings')}
           testID="NetworkSettings"
           chevron
           bottomDivider={false}
@@ -83,7 +90,7 @@ const Settings = () => {
         <SettingsListItem
           title={loc.settings.tools}
           iconName="tools"
-          onPress={() => navigate('SettingsTools')}
+          onPress={() => onNavigate('SettingsTools')}
           testID="Tools"
           chevron
           bottomDivider={false}
@@ -94,7 +101,7 @@ const Settings = () => {
         <SettingsListItem
           title={loc.settings.about}
           iconName="about"
-          onPress={() => navigate('About')}
+          onPress={() => onNavigate('About')}
           testID="AboutButton"
           chevron
           bottomDivider={false}
@@ -102,6 +109,20 @@ const Settings = () => {
       </SettingsSection>
     </SettingsScrollView>
   );
+};
+
+const Settings = () => {
+  const { navigate, setOptions } = useNavigation();
+  const { language } = useSettings(); // Subscribe to language changes to trigger re-render
+
+  useLayoutEffect(() => {
+    // Only the title needs refreshing on language change; header styling comes from the route options
+    setOptions({ title: loc.settings.header });
+  }, [setOptions, language]);
+
+  const handleNavigate = useCallback((destination: SettingsDestination) => navigate(destination), [navigate]);
+
+  return <SettingsContent onNavigate={handleNavigate} />;
 };
 
 export default Settings;
