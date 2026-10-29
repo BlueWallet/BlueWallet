@@ -1,7 +1,9 @@
 package io.bluewallet.bluewallet
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -12,6 +14,7 @@ import android.view.KeyboardShortcutInfo
 import android.view.Menu
 import android.view.MenuItem
 import android.view.Window
+import android.webkit.MimeTypeMap
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.MenuItemCompat
 import com.facebook.react.ReactActivity
@@ -20,6 +23,7 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
+import java.io.File
 
 class MainActivity : ReactActivity() {
 
@@ -164,11 +168,44 @@ class MainActivity : ReactActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        intent = normalizedImageShareIntent(intent)
         // react-native-screens override
         supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
         super.onCreate(null)
         if (resources.getBoolean(R.bool.portrait_only)) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(normalizedImageShareIntent(intent))
+    }
+
+    private fun normalizedImageShareIntent(sourceIntent: Intent): Intent {
+        if (sourceIntent.action != Intent.ACTION_SEND || sourceIntent.type?.startsWith("image/") != true) return sourceIntent
+
+        @Suppress("DEPRECATION")
+        val sourceUri = sourceIntent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM) ?: return sourceIntent
+        return try {
+            val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(sourceIntent.type)
+                ?.takeIf { it.matches(Regex("[A-Za-z0-9]+")) }
+                ?: "jpg"
+            val directory = File(cacheDir, "shared-images").apply { mkdirs() }
+            val destination = File(directory, "${java.util.UUID.randomUUID()}.$extension")
+            contentResolver.openInputStream(sourceUri).use { input ->
+                requireNotNull(input) { "Unable to read shared image" }
+                destination.outputStream().use { output -> input.copyTo(output) }
+            }
+
+            Intent(sourceIntent).apply {
+                action = Intent.ACTION_VIEW
+                data = Uri.fromFile(destination)
+                type = sourceIntent.type
+                removeExtra(Intent.EXTRA_STREAM)
+            }
+        } catch (error: Exception) {
+            Log.e("MainActivity", "Unable to import shared image", error)
+            sourceIntent
         }
     }
 

@@ -10,6 +10,9 @@
 		001E3379238F94755682A739 /* ThumbnailProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E745397267AD62B80F3CA6C3 /* ThumbnailProvider.swift */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040819EDF8BD9C50A9C83E24 /* libPods-BlueWallet.a */; };
+		2260AE041909AABF7EF28EB6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2162D22139056EC332C84D92 /* Foundation.framework */; };
+		41AE884ADD8FAD9DD7A98BCA /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8C01F4E95E959405C8F36ACC /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4CED5056AB4E79C4F5189D18 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCDD5A68672EE86FD38C5C7 /* ShareViewController.swift */; };
 		577A0069C98D178A050CC84F /* QuickLookThumbnail.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 29920A93BCBA9DB4E82EE92D /* QuickLookThumbnail.appex */; platformFilter = ios; };
 		5A5F0B31C17BC5D403C83596 /* QuickLookThumbnailing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41506AE5039335113D1905FF /* QuickLookThumbnailing.framework */; };
 		6D2A6464258BA92D0092292B /* Stickers.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D2A6463258BA92D0092292B /* Stickers.xcassets */; };
@@ -146,6 +149,13 @@
 			remoteGlobalIDString = B3290000000000000000000B;
 			remoteInfo = QuickLookPreview;
 		};
+		D7B8545EE5E7FF4348DB986B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A40B5C3350021E37983BCFEF;
+			remoteInfo = ShareExtension;
+		};
 		F7A1B2C3D4E5F60718293A4B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -166,6 +176,7 @@
 				6D2A6468258BA92D0092292B /* Stickers.appex in Embed Foundation Extensions */,
 				6DD410A7266CADF40087DE03 /* WidgetsExtension.appex in Embed Foundation Extensions */,
 				577A0069C98D178A050CC84F /* QuickLookThumbnail.appex in Embed Foundation Extensions */,
+				41AE884ADD8FAD9DD7A98BCA /* ShareExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -220,15 +231,18 @@
 		6DEB4C3A254FBF4800E9F9AA /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		6DF25A9E249DB97E001D06F5 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6EB3338E347F4AFAA8C85C04 /* libRNDeviceInfo-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNDeviceInfo-tvOS.a"; sourceTree = "<group>"; };
+		6FCDD5A68672EE86FD38C5C7 /* ShareViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		70C9C17A3F52430B99582AF4 /* libRNCamera.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCamera.a; sourceTree = "<group>"; };
 		7B468CC34D5B41F3950078EF /* libsqlite3.0.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.0.tbd; path = usr/lib/libsqlite3.0.tbd; sourceTree = SDKROOT; };
 		8448882949434D41A054C0B2 /* ToolTipMenuTests.xctest */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ToolTipMenuTests.xctest; sourceTree = "<group>"; };
 		84E05A832721191B001A0D3A /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		8637D4B5E14D443A9031DA95 /* libRNFS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFS.a; sourceTree = "<group>"; };
+		8C01F4E95E959405C8F36ACC /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		90F86BC5194548CA87D729A9 /* libToolTipMenu.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libToolTipMenu.a; sourceTree = "<group>"; };
 		93D74F9C8EE7B4443A49594C /* Pods-BlueWallet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueWallet.release.xcconfig"; path = "Target Support Files/Pods-BlueWallet/Pods-BlueWallet.release.xcconfig"; sourceTree = "<group>"; };
 		94565BFC6A0C4235B3EC7B01 /* libRNSVG.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNSVG.a; sourceTree = "<group>"; };
 		95208B2A05884A76B5BB99C0 /* libRCTGoogleAnalyticsBridge.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTGoogleAnalyticsBridge.a; sourceTree = "<group>"; };
+		9CEC041A2EA5D070E60CAC2B /* ShareExtension.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = ShareExtension.entitlements; sourceTree = "<group>"; };
 		9DF4E6C040764E4BA1ACC1EB /* libTcpSockets.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libTcpSockets.a; sourceTree = "<group>"; };
 		9F1F51A83D044F3BB26A35FC /* libRNSVG-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNSVG-tvOS.a"; sourceTree = "<group>"; };
 		A7C4B1FDAD264618BAF8C335 /* libRNCWebView.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCWebView.a; sourceTree = "<group>"; };
@@ -285,6 +299,7 @@
 		B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTQRCodeLocalImage.a; sourceTree = "<group>"; };
 		B9D9B3A7B2CB4255876B67AF /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		BBA99996E6FA4B49ACE0BEFA /* libRNRate.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNRate.a; sourceTree = "<group>"; };
+		C58672D81CDB13371ADD8679 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CD746B955C55410793BB72C0 /* libRNGestureHandler.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNGestureHandler.a; sourceTree = "<group>"; };
 		E6B44173A8854B6D85D7F933 /* libRNVectorIcons-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNVectorIcons-tvOS.a"; sourceTree = "<group>"; };
 		E745397267AD62B80F3CA6C3 /* ThumbnailProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ThumbnailProvider.swift; sourceTree = "<group>"; };
@@ -298,6 +313,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2D8E08690D99B1F40DE9A8AA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2260AE041909AABF7EF28EB6 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1325640AAA0ADDDC43F2A18E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -523,6 +546,7 @@
 				4B0CACE36C3348E1BCEA92C8 /* Resources */,
 				FAA856B639C61E61D2CF90A8 /* Pods */,
 				DBE02524057AE76C1508FC5C /* QuickLookThumbnail */,
+				9BD01E6020485CF9A6430EA4 /* ShareExtension */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -537,6 +561,7 @@
 				6D2A6461258BA92C0092292B /* Stickers.appex */,
 				6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */,
 				29920A93BCBA9DB4E82EE92D /* QuickLookThumbnail.appex */,
+				8C01F4E95E959405C8F36ACC /* ShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -547,6 +572,17 @@
 				2162D22139056EC332C84D92 /* Foundation.framework */,
 			);
 			name = iOS;
+			sourceTree = "<group>";
+		};
+		9BD01E6020485CF9A6430EA4 /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				C58672D81CDB13371ADD8679 /* Info.plist */,
+				9CEC041A2EA5D070E60CAC2B /* ShareExtension.entitlements */,
+				6FCDD5A68672EE86FD38C5C7 /* ShareViewController.swift */,
+			);
+			name = ShareExtension;
+			path = ShareExtension;
 			sourceTree = "<group>";
 		};
 		B32900000000000000000006 /* QuickLookPreview */ = {
@@ -695,6 +731,7 @@
 				6D2A6467258BA92D0092292B /* PBXTargetDependency */,
 				6DD410A6266CADF40087DE03 /* PBXTargetDependency */,
 				F7A1B2C3D4E5F60718293A4C /* PBXTargetDependency */,
+				95A06AFDECADB81018BACF5C /* PBXTargetDependency */,
 			);
 			name = BlueWallet;
 			productName = "Hello World";
@@ -750,6 +787,23 @@
 			name = QuickLookThumbnail;
 			productName = QuickLookThumbnail;
 			productReference = 29920A93BCBA9DB4E82EE92D /* QuickLookThumbnail.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		A40B5C3350021E37983BCFEF /* ShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9D3BF247245DA0543D5A8EAF /* Build configuration list for PBXNativeTarget "ShareExtension" */;
+			buildPhases = (
+				45925A7602F204DDC842F0F6 /* Sources */,
+				2D8E08690D99B1F40DE9A8AA /* Frameworks */,
+				A93B3C5490D36066E269D50F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShareExtension;
+			productName = ShareExtension;
+			productReference = 8C01F4E95E959405C8F36ACC /* ShareExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		B3290000000000000000000B /* QuickLookPreview */ = {
@@ -842,11 +896,19 @@
 				6D2A6460258BA92C0092292B /* Stickers */,
 				6DD4109B266CADF10087DE03 /* WidgetsExtension */,
 				965FB16588C226F99A95FF1D /* QuickLookThumbnail */,
+				A40B5C3350021E37983BCFEF /* ShareExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		A93B3C5490D36066E269D50F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F8E1A680F5B00A75B9A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1035,6 +1097,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		45925A7602F204DDC842F0F6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4CED5056AB4E79C4F5189D18 /* ShareViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F871A680F5B00A75B9A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1163,6 +1233,11 @@
 			target = 6DD4109B266CADF10087DE03 /* WidgetsExtension */;
 			targetProxy = 6DD410A5266CADF40087DE03 /* PBXContainerItemProxy */;
 		};
+		95A06AFDECADB81018BACF5C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A40B5C3350021E37983BCFEF /* ShareExtension */;
+			targetProxy = D7B8545EE5E7FF4348DB986B /* PBXContainerItemProxy */;
+		};
 		B3290000000000000000000C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			platformFilter = ios;
@@ -1178,6 +1253,36 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		09CB360D044797EC64B13891 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1903279999;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7W54YZ4WU;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				MARKETING_VERSION = 8.0.4;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore io.bluewallet.bluewallet.ShareExtension";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "match AppStore io.bluewallet.bluewallet.ShareExtension catalyst";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,6";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1AE7FA8B4A18928E917F42D1 /* Pods-BlueWallet.debug.xcconfig */;
@@ -1293,6 +1398,35 @@
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
+		};
+		C54447D6B42C7C2F433B30B6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1903279999;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7W54YZ4WU;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				MARKETING_VERSION = 8.0.4;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore io.bluewallet.bluewallet.ShareExtension";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "match AppStore io.bluewallet.bluewallet.ShareExtension catalyst";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,6";
+			};
+			name = Debug;
 		};
 		140DD55D6B1D5CA902349F85 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -1825,6 +1959,15 @@
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
 				83CBBA211A601CBA00E9B192 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9D3BF247245DA0543D5A8EAF /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				09CB360D044797EC64B13891 /* Release */,
+				C54447D6B42C7C2F433B30B6 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

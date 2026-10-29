@@ -5,7 +5,8 @@ def app_identifiers
     "io.bluewallet.bluewallet.Stickers",
     "io.bluewallet.bluewallet.MarketWidget",
     "io.bluewallet.bluewallet.QuickLookPreview",
-    "io.bluewallet.bluewallet.QuickLookThumbnail"
+    "io.bluewallet.bluewallet.QuickLookThumbnail",
+    "io.bluewallet.bluewallet.ShareExtension"
   ]
 end
 
@@ -504,23 +505,26 @@ platform :ios do
     nil
   end
 
-  # The Preview extension reads the app's cached fiat rate from this group. App
-  # Groups are a Developer Portal capability, so they must be enabled before
-  # Match creates a profile for a newly-added extension identifier.
-  def ensure_quick_look_app_group!(developer_team_id)
+  # Extensions exchange data with the app through this group. App Groups are a
+  # Developer Portal capability, so they must be enabled before Match creates a
+  # profile for a newly-added extension identifier.
+  def ensure_extension_app_groups!(developer_team_id)
     group_identifier = "group.io.bluewallet.bluewallet"
-    extension_identifiers = ["io.bluewallet.bluewallet.QuickLookPreview"]
+    extension_identifiers = [
+      "io.bluewallet.bluewallet.QuickLookPreview",
+      "io.bluewallet.bluewallet.ShareExtension"
+    ]
 
     if !UI.interactive? && ENV["FASTLANE_SESSION"].to_s.empty? && ENV["FASTLANE_PASSWORD"].to_s.empty?
       UI.important(
-        "Skipping Quick Look App Group synchronization: legacy Developer Portal authentication is unavailable. " \
+        "Skipping extension App Group synchronization: legacy Developer Portal authentication is unavailable. " \
         "Provide FASTLANE_SESSION or FASTLANE_PASSWORD when creating the extension profile for the first time."
       )
       return
     end
 
     require "spaceship"
-    UI.message("Synchronizing Quick Look App Group capability in the Developer Portal")
+    UI.message("Synchronizing extension App Group capabilities in the Developer Portal")
     Spaceship::Portal.login(ENV["FASTLANE_USER"], ENV["FASTLANE_PASSWORD"])
     Spaceship::Portal.client.team_id = developer_team_id
 
@@ -539,8 +543,8 @@ platform :ios do
     end
   rescue => error
     UI.user_error!(
-      "Could not synchronize the Quick Look App Group capability: #{error.message}. " \
-      "Enable #{group_identifier} for QuickLookPreview in the Apple Developer portal and retry."
+      "Could not synchronize extension App Group capabilities: #{error.message}. " \
+      "Enable #{group_identifier} for QuickLookPreview and ShareExtension in the Apple Developer portal and retry."
     )
   end
 
@@ -819,7 +823,7 @@ platform :ios do
     ENV["GIT_URL"] = normalize_signing_git_url(certificates_git_url)
     developer_team_id = resolve_developer_team_id(options)
     api_authentication = ensure_match_apple_auth!(options)
-    ensure_quick_look_app_group!(developer_team_id)
+    ensure_extension_app_groups!(developer_team_id)
     resolve_signing_value(
       options: options,
       option_name: :match_password,
@@ -901,7 +905,8 @@ platform :ios do
   def catalyst_app_identifiers
     [
       "io.bluewallet.bluewallet",
-      "io.bluewallet.bluewallet.MarketWidget"
+      "io.bluewallet.bluewallet.MarketWidget",
+      "io.bluewallet.bluewallet.ShareExtension"
     ]
   end
 

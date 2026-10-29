@@ -20,6 +20,8 @@ In the commit where you up version you can have the commit message as
 
 ## Guidelines
 
+See [docs/TESTING.md](docs/TESTING.md) for the standard local and CI test commands for JavaScript, Android, iOS, and Mac Catalyst.
+
 Do *not* add new dependencies. Bonus points if you manage to actually remove a dependency.
 
 Bumped production dependencies must be pinned.
