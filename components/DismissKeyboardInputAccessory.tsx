@@ -5,6 +5,7 @@ import BlueButtonLink from './BlueButtonLink';
 import loc from '../loc';
 
 interface DismissKeyboardInputAccessoryProps {
+  nativeID?: string;
   onPrevious?: () => void;
   onNext?: () => void;
   previousDisabled?: boolean;
@@ -13,6 +14,7 @@ interface DismissKeyboardInputAccessoryProps {
 
 export const DismissKeyboardInputAccessoryViewID = 'DismissKeyboardInputAccessory';
 export const DismissKeyboardInputAccessory: React.FC<DismissKeyboardInputAccessoryProps> = ({
+  nativeID = DismissKeyboardInputAccessoryViewID,
   onPrevious,
   onNext,
   previousDisabled,
@@ -30,7 +32,7 @@ export const DismissKeyboardInputAccessory: React.FC<DismissKeyboardInputAccesso
   }
 
   return (
-    <InputAccessoryView nativeID={DismissKeyboardInputAccessoryViewID}>
+    <InputAccessoryView nativeID={nativeID}>
       <View style={[styles.container, styleHooks.container]}>
         {onPrevious ? (
           <BlueButtonLink

@@ -51,6 +51,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.disableSynchronization();
     await waitForId('WalletsList', device.getPlatform() === 'android' ? 180_000 : 33_000);
     await element(by.id('SettingsButton')).tap();
+    await waitForId('SettingsRoot');
     await waitFor(element(by.id('NetworkSettings')))
       .toBeVisible()
       .whileElement(by.id('SettingsRoot'))
@@ -59,6 +60,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('ElectrumSettings');
     await element(by.id('ElectrumSettings')).tap();
     await waitForId('ElectrumSettingsScrollView');
+    await device.enableSynchronization();
   }
 
   async function expectControlEnabled(id, enabled) {
@@ -78,7 +80,40 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
   async function dismissElectrumKeyboard() {
     if (device.getPlatform() === 'ios') {
+      await waitForId('KeyboardDoneButton');
       await element(by.id('KeyboardDoneButton')).tap();
+    } else {
+      await device.pressBack();
+    }
+  }
+
+  async function chooseDiscardAction(text) {
+    const button = device.getPlatform() === 'ios' ? element(by.label(text)) : element(by.text(text));
+    await waitFor(button).toExist().withTimeout(5000);
+    await button.atIndex(0).tap();
+    if (text === 'Cancel') {
+      // UIKit's dismissal transition can briefly intercept taps even after the
+      // sheet disappears. Verify that the draft really becomes interactive.
+      let lastError;
+      for (let attempt = 0; attempt < 12; attempt++) {
+        try {
+          await element(by.id('HostInput')).tap();
+          await waitFor(element(by.id('HostInput')))
+            .toBeFocused()
+            .withTimeout(1000);
+          return;
+        } catch (error) {
+          lastError = error;
+          await sleep(250);
+        }
+      }
+      throw lastError;
+    }
+  }
+
+  async function closeElectrumForm() {
+    if (device.getPlatform() === 'ios') {
+      await element(by.id('NavigationCloseButton')).tap();
     } else {
       await device.pressBack();
     }
@@ -89,15 +124,17 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await openElectrumSettings();
       await element(by.id('add_electrum_server')).tap();
       await waitForId('AddElectrumServerScrollView');
+      await waitForId('HostInput');
       const confirmId = device.getPlatform() === 'ios' ? 'Confirm' : 'Save';
       await expectControlEnabled(confirmId, false);
       await expectControlEnabled('SetServerAsFavoriteSwitch', false);
       await expect(element(by.id('SetServerAsFavoriteSwitch'))).toHaveToggleValue(true);
+      await expectControlEnabled('HostInput', true);
 
       // Known local hosts autofill their standard TCP port. No permission
       // request or connection should happen before the user presses Confirm.
       await element(by.id('HostInput')).tap();
-      await element(by.id('HostInput')).replaceText('umbrel.local');
+      await element(by.id('HostInput')).typeText('umbrel.local');
       await waitFor(element(by.id('PortInput')))
         .toHaveText('50001')
         .withTimeout(5000);
@@ -110,10 +147,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
         await waitFor(element(by.id('PortInput')))
           .toBeFocused()
           .withTimeout(5000);
+        await waitForId('KeyboardPreviousButton');
         await element(by.id('KeyboardPreviousButton')).tap();
         await waitFor(element(by.id('HostInput')))
           .toBeFocused()
           .withTimeout(5000);
+        await waitForId('KeyboardNextButton');
         await element(by.id('KeyboardNextButton')).tap();
       } else {
         await element(by.id('PortInput')).tap();
@@ -136,22 +175,26 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await element(by.id('SetServerAsFavoriteSwitch')).tap();
       await waitForSwitchValue('SetServerAsFavoriteSwitch', true);
 
-      await goBack();
+      await closeElectrumForm();
       await waitForText('Discard changes?');
-      assert.strictEqual(await dismissAlertByText('Cancel'), true, 'Cancel must keep the draft open');
-      await device.disableSynchronization();
-      await waitForId('AddElectrumServerScrollView');
+      await chooseDiscardAction('Cancel');
+      // Cancel verification focuses the host input. The keyboard covers part
+      // of the scroll view, so assert existence rather than 75% visibility.
+      await waitFor(element(by.id('AddElectrumServerScrollView')))
+        .toExist()
+        .withTimeout(5000);
       await expect(element(by.id('PortInput'))).toHaveText('50001');
-      await goBack();
+      await dismissElectrumKeyboard();
+      await closeElectrumForm();
       await waitForText('Discard changes?');
-      assert.strictEqual(await dismissAlertByText('OK'), true, 'Discard must dismiss the form');
-      await device.disableSynchronization();
+      await chooseDiscardAction('OK');
       await waitFor(element(by.id('AddElectrumServerScrollView')))
         .not.toExist()
         .withTimeout(5000);
 
       await element(by.id('add_electrum_server')).tap();
       await waitForId('AddElectrumServerScrollView');
+      await expectControlEnabled('HostInput', true);
       // Pasting a complete endpoint normalizes all fields and dismisses the
       // keyboard, including tab-separated server/port/protocol records.
       await element(by.id('HostInput')).tap();
@@ -176,7 +219,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await expectControlEnabled(confirmId, false);
       await dismissElectrumKeyboard();
       await waitForText('Server Already Added');
+    } catch (error) {
+      await device.takeScreenshot('electrum-form-failure').catch(() => undefined);
+      throw error;
     } finally {
+      // Leave the active settings/form before restoring synchronization. A
+      // failing assertion must not strand cleanup on screen-specific work.
+      await device.launchApp({ newInstance: true, launchArgs: { detoxEnableSynchronization: 0 } });
+      await waitForId('WalletsList');
       await device.enableSynchronization();
     }
   });
@@ -203,7 +253,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
         .not.toBeVisible()
         .withTimeout(5000);
       await expect(element(by.id(serverId))).toBeVisible();
+    } catch (error) {
+      await device.takeScreenshot('electrum-offline-failure').catch(() => undefined);
+      throw error;
     } finally {
+      await device.launchApp({ newInstance: true, launchArgs: { detoxEnableSynchronization: 0 } });
+      await waitForId('WalletsList');
       await device.enableSynchronization();
     }
   });

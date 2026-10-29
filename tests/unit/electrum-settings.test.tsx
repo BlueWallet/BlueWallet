@@ -32,6 +32,7 @@ jest.mock('../../blue_modules/BlueElectrum', () => ({
   suppressNetworkErrorAlerts: jest.fn(() => jest.fn()),
   getPreferredServer: jest.fn(async () => undefined),
   getConfig: jest.fn(async () => ({ connected: 0 })),
+  subscribeConnectionState: jest.fn(() => jest.fn()),
   getServerBanner: jest.fn(async () => ''),
   validateConnection: jest.fn(async () => ({ success: true })),
   isDisabled: jest.fn(async () => false),
@@ -217,6 +218,36 @@ describe('Add Electrum Server behavior', () => {
     expect(announce).toHaveBeenCalledWith(expect.stringContaining('Connection refused on port 50001'), { queue: true });
   });
 
+  it('keeps the address input single-line when validation makes it read-only', async () => {
+    let finishValidation!: (value: { success: boolean; error?: string }) => void;
+    jest.mocked(BlueElectrum.validateConnection).mockReturnValueOnce(
+      new Promise(resolve => {
+        finishValidation = resolve;
+      }),
+    );
+    routeParams = { server: { host: 'example.com', tcp: 50001 } };
+    const screen = render(<AddElectrumServer />);
+    expect(screen.getByTestId('HostInput').props.multiline).toBe(false);
+    await waitFor(() => expect(screen.getByTestId('HostInput').props.editable).toBe(true));
+    confirm();
+    await waitFor(() => expect(screen.getByTestId('HostInput').props.editable).toBe(false));
+    expect(screen.getByTestId('HostInput').props.multiline).toBe(false);
+    await act(async () => {
+      finishValidation({ success: false, error: 'Connection refused' });
+    });
+    expect(screen.getByTestId('HostInput').props.editable).toBe(true);
+    expect(screen.getByTestId('HostInput').props.multiline).toBe(false);
+  });
+
+  it('uses separate keyboard accessories for each input and each form instance', async () => {
+    const first = await openForm();
+    const hostAccessory = first.getByTestId('HostInput').props.inputAccessoryViewID;
+    expect(hostAccessory).not.toBe(first.getByTestId('PortInput').props.inputAccessoryViewID);
+    first.unmount();
+    const reopened = await openForm();
+    expect(reopened.getByTestId('HostInput').props.inputAccessoryViewID).not.toBe(hostAccessory);
+  });
+
   it('rechecks persisted history after validation so stale form state cannot add duplicates', async () => {
     jest.mocked(BlueElectrum.validateConnection).mockImplementationOnce(async () => {
       await DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify([{ host: 'example.com', tcp: 50001 }]));
@@ -232,13 +263,22 @@ describe('Add Electrum Server behavior', () => {
 });
 
 describe('Electrum settings lifecycle', () => {
-  it('loads corrupt history without crashing and stops polling when unmounted', async () => {
+  it('loads corrupt history, refreshes on connection events, and unsubscribes when unmounted', async () => {
     jest.useFakeTimers();
+    const unsubscribe = jest.fn();
+    jest.mocked(BlueElectrum.subscribeConnectionState).mockReturnValueOnce(unsubscribe);
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
     await DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, '{broken');
     const screen = render(<ElectrumSettings />);
     await act(async () => {});
+    const countBeforeEvent = jest.mocked(BlueElectrum.getConfig).mock.calls.length;
+    const listener = jest.mocked(BlueElectrum.subscribeConnectionState).mock.calls.at(-1)![0];
+    await act(async () => {
+      listener('connected');
+    });
+    expect(BlueElectrum.getConfig).toHaveBeenCalledTimes(countBeforeEvent + 1);
     screen.unmount();
+    expect(unsubscribe).toHaveBeenCalledTimes(1);
     const count = jest.mocked(BlueElectrum.getConfig).mock.calls.length;
     await act(async () => {
       jest.advanceTimersByTime(5000);

@@ -447,17 +447,19 @@ const ElectrumSettings: React.FC = () => {
     useCallback(() => {
       focused.current = true;
       let active = true;
-      let timer: ReturnType<typeof setTimeout>;
-      const pollConfig = async () => {
+      let refreshGeneration = 0;
+      const refreshConfig = async () => {
+        const generation = ++refreshGeneration;
         try {
           const currentConfig = await BlueElectrum.getConfig();
-          if (active) dispatch({ type: 'patch', value: { config: currentConfig } });
+          if (active && generation === refreshGeneration) dispatch({ type: 'patch', value: { config: currentConfig } });
         } catch (error) {
           console.warn('[electrum] Failed to refresh connection status:', error);
-        } finally {
-          if (active) timer = setTimeout(pollConfig, 1000);
         }
       };
+      const unsubscribe = BlueElectrum.subscribeConnectionState(() => {
+        refreshConfig();
+      });
       fetchData()
         .catch(error => {
           if (active) {
@@ -468,13 +470,13 @@ const ElectrumSettings: React.FC = () => {
           }
         })
         .finally(() => {
-          if (active) timer = setTimeout(pollConfig, 1000);
+          if (active) refreshConfig();
         });
       return () => {
         active = false;
         focused.current = false;
         fetchGeneration.current += 1;
-        clearTimeout(timer);
+        unsubscribe();
       };
     }, [fetchData, presentAlert]),
   );

@@ -25,8 +25,6 @@
     "enter_amount": "Enter amount",
     "qr_custom_input_button": "Tap 10 times to enter custom input",
     "unlock": "Unlock",
-    "port": "Port",
-    "ssl_port": "SSL Port",
     "suggested": "Suggested"
   },
   "azteco": {
@@ -272,7 +270,6 @@
     "electrum_offline_description": "When enabled, your Bitcoin wallets will not attempt to fetch balances or transactions.",
     "electrum_port": "Port, usually {example}",
     "electrum_saved": "Your changes have been saved successfully. Restarting BlueWallet may be required for the changes to take effect.",
-    "set_electrum_server_as_default": "Set {server} as the default Electrum server?",
     "set_lndhub_as_default": "Set {url} as the default LNDhub server?",
     "electrum_settings_server": "Electrum Server",
     "electrum_server_address": "Server Address",

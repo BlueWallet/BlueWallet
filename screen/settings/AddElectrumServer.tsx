@@ -1,7 +1,7 @@
 import { useFocusEffect, useNavigation, usePreventRemove, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Ionicons from '@react-native-vector-icons/ionicons';
-import React, { useCallback, useEffect, useMemo, useRef, useReducer, useLayoutEffect } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useRef, useReducer, useLayoutEffect } from 'react';
 import {
   ActivityIndicator,
   AccessibilityInfo,
@@ -37,7 +37,7 @@ import {
 } from '../../blue_modules/electrumServer';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import AddressInput from '../../components/AddressInput';
-import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
+import { DismissKeyboardInputAccessory } from '../../components/DismissKeyboardInputAccessory';
 import SegmentedControl from '../../components/SegmentedControl';
 import { SettingsListItem, SettingsSection } from '../../components/SettingsSection';
 import { useTheme } from '../../components/themes';
@@ -62,7 +62,6 @@ type AddElectrumServerState = {
   validationError?: string;
   showLocalNetworkSettings: boolean;
   didSave: boolean;
-  focusedField: 'host' | 'port';
 };
 export const initialAddElectrumServerState: AddElectrumServerState = {
   host: '',
@@ -77,7 +76,6 @@ export const initialAddElectrumServerState: AddElectrumServerState = {
   isValidating: false,
   showLocalNetworkSettings: false,
   didSave: false,
-  focusedField: 'host',
 };
 type AddElectrumServerAction =
   | { type: 'loaded'; history?: ElectrumServerItem[] }
@@ -86,7 +84,6 @@ type AddElectrumServerAction =
   | { type: 'hostChanged' | 'portChanged'; text: string }
   | { type: 'protocolChanged'; useSsl: boolean }
   | { type: 'favoriteChanged'; value: boolean }
-  | { type: 'focused'; field: 'host' | 'port' }
   | { type: 'validationStarted' | 'validationFinished' | 'saved' }
   | { type: 'validationFailed'; error: string; showSettings?: boolean };
 export function addElectrumServerReducer(state: AddElectrumServerState, action: AddElectrumServerAction): AddElectrumServerState {
@@ -111,8 +108,6 @@ export function addElectrumServerReducer(state: AddElectrumServerState, action: 
         loadFailed: true,
         validationError: action.error,
       };
-    case 'focused':
-      return { ...state, focusedField: action.field };
     case 'applyServer':
       return {
         ...edited,
@@ -170,6 +165,9 @@ export function addElectrumServerReducer(state: AddElectrumServerState, action: 
 const AddElectrumServer: React.FC = () => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const accessoryID = useId();
+  const hostAccessoryID = `${accessoryID}-host`;
+  const portAccessoryID = `${accessoryID}-port`;
   const { fontScale } = useWindowDimensions();
   const isMac = Platform.OS === 'ios' && Platform.isMacCatalyst;
   const navigation = useNavigation<NativeStackNavigationProp<AddElectrumServerStackParamList, 'AddElectrumServer'>>();
@@ -187,7 +185,6 @@ const AddElectrumServer: React.FC = () => {
     validationError,
     showLocalNetworkSettings,
     didSave,
-    focusedField,
     loadFailed,
   } = state;
   const numericPort = /^\d+$/.test(portText) ? Number(portText) : undefined;
@@ -598,8 +595,9 @@ const AddElectrumServer: React.FC = () => {
             address={host}
             onChangeText={onHostChange}
             editable={!isLoading && !isValidating}
+            multiline={false}
             keyboardType="default"
-            inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
+            inputAccessoryViewID={hostAccessoryID}
             isLoading={isLoading}
             style={[styles.nativeInput, stylesHook.nativeInput]}
             showScanButton={!isMac && !isValidating}
@@ -608,7 +606,6 @@ const AddElectrumServer: React.FC = () => {
             accessibilityState={{ disabled: isLoading || isValidating }}
             inputRef={hostInput}
             returnKeyType="next"
-            onFocus={() => dispatch({ type: 'focused', field: 'host' })}
             onSubmitEditing={() => portInput.current?.focus()}
           />
           <Text style={[styles.label, stylesHook.fieldLabel]}>
@@ -630,12 +627,11 @@ const AddElectrumServer: React.FC = () => {
               autoCapitalize="none"
               keyboardType="number-pad"
               selectTextOnFocus={portWasAutofilled}
-              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
+              inputAccessoryViewID={portAccessoryID}
               accessibilityLabel={loc.settings.electrum_port_accessibility_label}
               accessibilityHint={loc.settings.electrum_port_accessibility_hint}
               accessibilityState={{ disabled: isLoading || isValidating }}
               returnKeyType="done"
-              onFocus={() => dispatch({ type: 'focused', field: 'port' })}
               onSubmitEditing={Keyboard.dismiss}
             />
           </View>
@@ -671,12 +667,22 @@ const AddElectrumServer: React.FC = () => {
         />
       </SettingsSection>
       {Platform.OS === 'ios' && !isMac ? (
-        <DismissKeyboardInputAccessory
-          onPrevious={() => hostInput.current?.focus()}
-          onNext={() => portInput.current?.focus()}
-          previousDisabled={focusedField === 'host' || isLoading || isValidating}
-          nextDisabled={focusedField === 'port' || isLoading || isValidating}
-        />
+        <>
+          <DismissKeyboardInputAccessory
+            nativeID={hostAccessoryID}
+            onPrevious={() => hostInput.current?.focus()}
+            onNext={() => portInput.current?.focus()}
+            previousDisabled
+            nextDisabled={isLoading || isValidating}
+          />
+          <DismissKeyboardInputAccessory
+            nativeID={portAccessoryID}
+            onPrevious={() => hostInput.current?.focus()}
+            onNext={() => portInput.current?.focus()}
+            previousDisabled={isLoading || isValidating}
+            nextDisabled
+          />
+        </>
       ) : null}
     </ScrollView>
   );

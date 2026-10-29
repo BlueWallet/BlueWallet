@@ -10,6 +10,7 @@ interface AddressInputProps {
   placeholder?: string;
   onChangeText: (text: string) => void;
   editable?: boolean;
+  multiline?: boolean;
   showScanButton?: boolean;
   accessibilityState?: React.ComponentProps<typeof TextInput>['accessibilityState'];
   inputAccessoryViewID?: string;
@@ -45,6 +46,7 @@ const AddressInput = ({
   placeholder = loc.send.details_address,
   onChangeText,
   editable = true,
+  multiline,
   showScanButton = true,
   accessibilityState,
   inputAccessoryViewID,
@@ -81,7 +83,7 @@ const AddressInput = ({
         value={address}
         style={[styles.input, stylesHook.input]}
         editable={!isLoading && editable}
-        multiline={!editable}
+        multiline={multiline ?? !editable}
         inputAccessoryViewID={inputAccessoryViewID}
         clearButtonMode="while-editing"
         onFocus={onFocus}

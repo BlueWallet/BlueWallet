@@ -25,10 +25,6 @@ beforeAll(async () => {
     return result;
   };
 
-  // Detox auto-launches the app before the first beforeAll; cover that launch too.
-  try {
-    await device.setURLBlacklist(URL_BLACKLIST);
-  } catch (e) {
-    console.log('[detox-setup] initial setURLBlacklist failed:', e?.message ?? e);
-  }
+  // The app may not be running yet. Configure synchronization only after a
+  // successful launch; sending setSyncSettings here stalls runner retries.
 });
