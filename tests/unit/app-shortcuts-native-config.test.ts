@@ -30,9 +30,10 @@ describe('native app shortcut configuration', () => {
 
     const shareViewController = readRepositoryFile('ios/ShareExtension/ShareViewController.swift');
     const companionListeners = readRepositoryFile('hooks/useCompanionListeners.ts');
-    expect(shareViewController).toContain('conforms(to: .image)');
     expect(shareViewController).toContain('copyItem(at: sourceURL, to: destinationURL)');
     expect(shareViewController).not.toContain('pngData()');
+    expect(shareViewController).not.toContain('UIImage(contentsOfFile:');
+    expect(shareViewController).not.toContain('detectQRCode');
     expect(companionListeners).toContain("decodedUrl.includes('/shared-images/')");
   });
 

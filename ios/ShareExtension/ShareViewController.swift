@@ -10,10 +10,10 @@ final class ShareViewController: UIViewController {
         super.viewDidAppear(animated)
         guard !hasStartedImport else { return }
         hasStartedImport = true
-        importSharedImage()
+        forwardSharedImageToApp()
     }
 
-    private func importSharedImage() {
+    private func forwardSharedImageToApp() {
         guard let provider = extensionContext?.inputItems
             .compactMap({ $0 as? NSExtensionItem })
             .flatMap({ $0.attachments ?? [] })
@@ -44,19 +44,18 @@ final class ShareViewController: UIViewController {
                    previousName == (previousName as NSString).lastPathComponent {
                     try? FileManager.default.removeItem(at: directory.appendingPathComponent(previousName))
                 }
-                let contentType = provider.registeredTypeIdentifiers
-                    .compactMap(UTType.init)
-                    .first(where: { $0.conforms(to: .image) })
                 let sourceExtension = sourceURL.pathExtension
-                let preferredExtension = contentType?.preferredFilenameExtension
-                let fileExtension = (sourceExtension.isEmpty ? preferredExtension : sourceExtension)?
                     .lowercased()
                     .filter { $0.isLetter || $0.isNumber }
-                let fileName = [UUID().uuidString, fileExtension].compactMap { $0 }.joined(separator: ".")
+                let fileName = [UUID().uuidString, sourceExtension.isEmpty ? nil : sourceExtension]
+                    .compactMap { $0 }
+                    .joined(separator: ".")
                 let destinationURL = directory.appendingPathComponent(fileName)
+
+                // The extension is transport-only. Preserve the provider's bytes and
+                // leave decoding, QR detection, validation, and alerts to BlueWallet.
                 try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
                 defaults.set(fileName, forKey: Self.pendingImageKey)
-                defaults.synchronize()
                 DispatchQueue.main.async { self.extensionContext?.completeRequest(returningItems: nil) }
             } catch {
                 self.finish(with: error)
