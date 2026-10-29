@@ -7,6 +7,7 @@ import NativeLocalNetworkPermission from '../../codegen/NativeLocalNetworkPermis
 import AddElectrumServer, { addElectrumServerReducer, initialAddElectrumServerState } from '../../screen/settings/AddElectrumServer';
 import ElectrumSettings, { electrumSettingsReducer, initialElectrumSettingsState } from '../../screen/settings/ElectrumSettings';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
+import loc from '../../loc';
 
 const navigation = { setParams: jest.fn(), navigate: jest.fn(), goBack: jest.fn(), dispatch: jest.fn(), setOptions: jest.fn() };
 let routeParams: Record<string, unknown> = {};
@@ -66,7 +67,11 @@ jest.mock('react-native-gesture-handler', () => ({ Swipeable: ({ children }: any
 jest.mock('../../components/headerMenuOptions', () => ({ createEllipsisHeaderMenuOptions: () => ({}) }));
 jest.mock('../../screen/ActionSheet', () => ({ __esModule: true, default: { showActionSheetWithOptions: jest.fn() } }));
 jest.mock('../../components/SettingsSection', () => ({
-  SettingsSection: ({ children }: any) => <View>{children}</View>,
+  SettingsSection: ({ children, ...props }: any) => (
+    <View {...props} testID={`section-${props.title}`}>
+      {children}
+    </View>
+  ),
   SettingsFootnote: 'Text',
   SettingsListItem: (props: any) => <View {...props} testID={props.switch?.testID ?? props.testID} />,
 }));
@@ -263,6 +268,64 @@ describe('Add Electrum Server behavior', () => {
 });
 
 describe('Electrum settings lifecycle', () => {
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    routeParams = {};
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    await DefaultPreference.clear(BlueElectrum.ELECTRUM_SERVER_HISTORY);
+    jest.mocked(BlueElectrum.getPreferredServer).mockResolvedValue(undefined);
+  });
+
+  function search(text: string) {
+    const options = navigation.setParams.mock.calls.find(([params]) => params.onSearchTextChange)?.[0];
+    expect(options).toBeDefined();
+    act(() => options.onSearchTextChange(text));
+    return options;
+  }
+
+  it('searches host, transport and port together, and restores rows when cancelled', async () => {
+    await DefaultPreference.set(
+      BlueElectrum.ELECTRUM_SERVER_HISTORY,
+      JSON.stringify([
+        { host: 'saved.example', tcp: 50001 },
+        { host: 'other.example', ssl: 443 },
+      ]),
+    );
+    const screen = render(<ElectrumSettings />);
+    await waitFor(() => expect(screen.getByTestId('ElectrumServer-saved.example-50001')).toBeTruthy());
+    const options = search('  SAVED tcp 50001  ');
+    expect(screen.getByTestId('ElectrumServer-saved.example-50001')).toBeTruthy();
+    expect(screen.queryByTestId('ElectrumServer-other.example-443')).toBeNull();
+    expect(screen.queryByTestId('ElectrumServer-suggested.example-50002')).toBeNull();
+    search('saved.example:50001:t');
+    expect(screen.getByTestId('ElectrumServer-saved.example-50001')).toBeTruthy();
+    search('no-match');
+    expect(screen.queryByTestId('ElectrumServer-saved.example-50001')).toBeNull();
+    expect(screen.getByText(loc.wallets.no_results_found)).toBeTruthy();
+    act(() => options.onSearchCancel());
+    expect(screen.getByTestId('ElectrumServer-saved.example-50001')).toBeTruthy();
+    expect(screen.getByTestId('ElectrumServer-other.example-443')).toBeTruthy();
+    expect(navigation.setOptions).not.toHaveBeenCalled();
+  });
+
+  it('searches the favorite and temporarily expands suggestions without changing their collapsed state', async () => {
+    jest.mocked(BlueElectrum.getPreferredServer).mockResolvedValue({ host: 'favorite.example', tcp: 50001 });
+    const screen = render(<ElectrumSettings />);
+    await waitFor(() => expect(screen.getByTestId('FavoriteElectrumServer-favorite.example-50001')).toBeTruthy());
+    fireEvent(screen.getByTestId(`section-${loc._.suggested}`), 'headerPress');
+    expect(screen.queryByTestId('ElectrumServer-suggested.example-50002')).toBeNull();
+    search('FAVORITE');
+    expect(screen.getByTestId('FavoriteElectrumServer-favorite.example-50001')).toBeTruthy();
+    search('suggested');
+    expect(screen.queryByTestId('FavoriteElectrumServer-favorite.example-50001')).toBeNull();
+    expect(screen.getByTestId('ElectrumServer-suggested.example-50002')).toBeTruthy();
+    const options = search('');
+    expect(screen.queryByTestId('ElectrumServer-suggested.example-50002')).toBeNull();
+    search('suggested');
+    act(() => options.onSearchCancel());
+    expect(screen.queryByTestId('ElectrumServer-suggested.example-50002')).toBeNull();
+  });
+
   it('loads corrupt history, refreshes on connection events, and unsubscribes when unmounted', async () => {
     jest.useFakeTimers();
     const unsubscribe = jest.fn();

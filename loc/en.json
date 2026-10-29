@@ -308,6 +308,7 @@
     "electrum_remove_favorite_server": "Remove Favorite Server",
     "electrum_remove_favorite_short": "Remove",
     "electrum_server_history": "Server History",
+    "electrum_search_servers": "Search servers",
     "electrum_import_server_history": "Import History",
     "electrum_import_success": "Servers imported: {count}.",
     "electrum_import_partial": "Invalid, duplicate, unsupported, or excess entries were safely skipped.",

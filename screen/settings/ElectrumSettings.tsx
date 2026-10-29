@@ -260,6 +260,7 @@ type ElectrumSettingsState = {
   showSuggestedServers: boolean;
   testingServerKey?: string;
   serverTestResults: Record<string, boolean>;
+  searchQuery: string;
 };
 export const initialElectrumSettingsState: ElectrumSettingsState = {
   isLoading: true,
@@ -270,6 +271,7 @@ export const initialElectrumSettingsState: ElectrumSettingsState = {
   isSuggestedExpanded: true,
   showSuggestedServers: true,
   serverTestResults: {},
+  searchQuery: '',
 };
 type ElectrumSettingsAction =
   | { type: 'patch'; value: Partial<ElectrumSettingsState> }
@@ -368,6 +370,16 @@ const ElectrumSettings: React.FC = () => {
   );
   const listRef = useRef<FlatList<ServerListEntry>>(null);
   const operationInProgress = useRef(false);
+
+  const onSearchTextChange = useCallback((text: string) => {
+    dispatch({ type: 'patch', value: { searchQuery: text } });
+  }, []);
+  const onSearchCancel = useCallback(() => {
+    dispatch({ type: 'patch', value: { searchQuery: '' } });
+  }, []);
+  useLayoutEffect(() => {
+    navigation.setParams({ onSearchTextChange, onSearchCancel });
+  }, [navigation, onSearchTextChange, onSearchCancel]);
 
   const presentAlert = useCallback(
     ({ title, message, buttons = [{ text: loc._.ok }] }: { title?: string; message: string; buttons?: AlertButton[] }) => {
@@ -749,12 +761,17 @@ const ElectrumSettings: React.FC = () => {
   }, [host, port, showSuggestedServers, sslPort]);
 
   const serverList = useMemo<ServerListEntry[]>(() => {
+    const query = state.searchQuery.trim().toLowerCase();
+    const matchesSearch = (candidate: ElectrumServerItem) => {
+      const searchableText = `${formatElectrumServer(candidate)} ${candidate.ssl ? 'SSL' : 'TCP'}`.toLowerCase();
+      return query.split(/\s+/).every(term => searchableText.includes(term));
+    };
     const hasFavorite = Boolean(host && (port || sslPort));
     const isConnectedServer = (candidate: ElectrumServerItem) =>
       config.connected === 1 && config.host === candidate.host && String(config.port) === String(candidate.ssl ?? candidate.tcp);
     const historyKeys = new Set(serverHistory.map(serverKey));
     const orderedSuggestedServers = suggestedServers
-      .filter(candidate => !historyKeys.has(serverKey(candidate)))
+      .filter(candidate => !historyKeys.has(serverKey(candidate)) && matchesSearch(candidate))
       .sort((first, second) => Number(isConnectedServer(second)) - Number(isConnectedServer(first)));
     const entries: ServerListEntry[] = [];
     const favoriteServer: ElectrumServerItem | undefined = hasFavorite
@@ -765,7 +782,7 @@ const ElectrumSettings: React.FC = () => {
         }
       : undefined;
 
-    if (favoriteServer) {
+    if (favoriteServer && matchesSearch(favoriteServer)) {
       entries.push({
         type: 'header',
         id: 'favorite-header',
@@ -781,32 +798,33 @@ const ElectrumSettings: React.FC = () => {
       });
     }
 
-    if (orderedSuggestedServers.length > 0 && (!hasFavorite || showSuggestedServers)) {
+    const visibleSuggestedServers = orderedSuggestedServers.filter(
+      suggestedServer => !favoriteServer || serverKey(suggestedServer) !== serverKey(favoriteServer),
+    );
+    if (visibleSuggestedServers.length > 0 && (!hasFavorite || showSuggestedServers)) {
       entries.push({
         type: 'header',
         id: 'suggested-header',
         title: loc._.suggested,
         description: loc.settings.electrum_suggested_description,
       });
-      if (!hasFavorite || isSuggestedExpanded) {
+      if (!hasFavorite || isSuggestedExpanded || query) {
         entries.push(
-          ...orderedSuggestedServers
-            .filter(suggestedServer => !favoriteServer || serverKey(suggestedServer) !== serverKey(favoriteServer))
-            .map((suggestedServer, index, visibleServers) => ({
-              type: 'server' as const,
-              id: `suggested-${suggestedServer.host}-${suggestedServer.ssl ?? suggestedServer.tcp}`,
-              server: suggestedServer,
-              isFirst: index === 0,
-              isLast: index === visibleServers.length - 1,
-              isHistory: false,
-            })),
+          ...visibleSuggestedServers.map((suggestedServer, index, visibleServers) => ({
+            type: 'server' as const,
+            id: `suggested-${suggestedServer.host}-${suggestedServer.ssl ?? suggestedServer.tcp}`,
+            server: suggestedServer,
+            isFirst: index === 0,
+            isLast: index === visibleServers.length - 1,
+            isHistory: false,
+          })),
         );
       }
     }
 
     const history = Array.from(serverHistory).filter(historyServer => {
       const key = serverKey(historyServer);
-      return !favoriteServer || key !== serverKey(favoriteServer);
+      return (!favoriteServer || key !== serverKey(favoriteServer)) && matchesSearch(historyServer);
     });
     if (history.length > 0) {
       entries.push({
@@ -827,7 +845,18 @@ const ElectrumSettings: React.FC = () => {
     }
 
     return entries;
-  }, [config.connected, config.host, config.port, host, isSuggestedExpanded, port, serverHistory, showSuggestedServers, sslPort]);
+  }, [
+    config.connected,
+    config.host,
+    config.port,
+    host,
+    isSuggestedExpanded,
+    port,
+    serverHistory,
+    showSuggestedServers,
+    sslPort,
+    state.searchQuery,
+  ]);
 
   const headerMenuOptions = useMemo(() => {
     const actions = generateToolTipActions();
@@ -1115,7 +1144,7 @@ const ElectrumSettings: React.FC = () => {
     ({ item }: ListRenderItemInfo<ServerListEntry>) => {
       if (item.type === 'header') {
         const isSuggestedHeader = item.id === 'suggested-header';
-        const isCollapsible = isSuggestedHeader && Boolean(host && (port || sslPort));
+        const isCollapsible = isSuggestedHeader && Boolean(host && (port || sslPort)) && !state.searchQuery.trim();
         const iconName = item.id === 'favorite-header' ? 'favorite' : 'electrum';
         return (
           <SettingsSection
@@ -1289,6 +1318,7 @@ const ElectrumSettings: React.FC = () => {
       presentSelectServerAlert,
       removeFavoriteServer,
       serverTestResults,
+      state.searchQuery,
       sslPort,
       stylesHook,
       testServerConnection,
@@ -1315,12 +1345,21 @@ const ElectrumSettings: React.FC = () => {
         keyExtractor={item => item.id}
         keyboardShouldPersistTaps="always"
         automaticallyAdjustContentInsets
+        automaticallyAdjustKeyboardInsets
+        keyboardDismissMode="on-drag"
         contentInsetAdjustmentBehavior="automatic"
         style={stylesHook.list}
         contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 24 }]}
         testID="ElectrumSettingsScrollView"
         accessibilityLabel={loc.settings.electrum_settings_server}
         accessibilityState={{ busy: isLoading }}
+        ListEmptyComponent={
+          !isLoading && state.searchQuery.trim() ? (
+            <SettingsSection>
+              <SettingsFootnote>{loc.wallets.no_results_found}</SettingsFootnote>
+            </SettingsSection>
+          ) : null
+        }
         onAccessibilityEscape={() => navigation.goBack()}
         ListHeaderComponent={
           <>
