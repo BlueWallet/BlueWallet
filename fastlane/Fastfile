@@ -1017,11 +1017,7 @@ platform :ios do
       FileUtils.mkdir_p(derived_data_path)
       FileUtils.mkdir_p(output_dir)
 
-      # Only these targets support Mac Catalyst
-      catalyst_identifiers = [
-        "io.bluewallet.bluewallet",
-        "io.bluewallet.bluewallet.MarketWidget"
-      ]
+      catalyst_identifiers = catalyst_app_identifiers
 
       has_signing_creds = ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty? &&
                           ENV['CATALYST_TEAM_ID'] && !ENV['CATALYST_TEAM_ID'].empty?
