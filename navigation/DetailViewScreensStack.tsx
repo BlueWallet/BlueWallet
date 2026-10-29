@@ -537,8 +537,8 @@ const DetailViewStackScreensStack = () => {
                 unstable_headerRightItems: true,
               })(options, deps),
               headerSearchBarOptions: {
-                hideWhenScrolling: false,
-                placement: 'stacked',
+                hideWhenScrolling: true,
+                placement: 'automatic',
                 placeholder: loc.settings.electrum_search_servers,
                 autoCapitalize: 'none',
                 onChangeText: event => deps.route.params?.onSearchTextChange?.(event.nativeEvent.text),
