@@ -1,4 +1,5 @@
 import React from 'react';
+import { secretTextStyle } from '../helpers/secretsOnScreen';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { useTheme } from './themes';
@@ -12,11 +13,13 @@ export const SquareEnumeratedWordsContentAlign: Record<string, ContentAlignType>
 
 interface SquareEnumeratedWordsProps {
   entries: string[];
+  /** Seed words: end-to-end builds draw them in transparent ink. */
+  secret?: boolean;
   appendNumber: boolean;
   contentAlign: ContentAlignType;
 }
 
-const SquareEnumeratedWords: React.FC<SquareEnumeratedWordsProps> = ({ entries, appendNumber, contentAlign }) => {
+const SquareEnumeratedWords: React.FC<SquareEnumeratedWordsProps> = ({ entries, appendNumber, contentAlign, secret = false }) => {
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     entryTextContainer: {
@@ -33,12 +36,12 @@ const SquareEnumeratedWords: React.FC<SquareEnumeratedWordsProps> = ({ entries, 
   const renderSecret = () => {
     const component = [];
     const entriesObject = entries.entries();
-    for (const [index, secret] of entriesObject) {
+    for (const [index, entry] of entriesObject) {
       if (entries.length > 1) {
-        const text = appendNumber ? `${index + 1}. ${secret}  ` : `${secret}  `;
+        const text = appendNumber ? `${index + 1}. ${entry}  ` : `${entry}  `;
         component.push(
-          <View style={[styles.entryTextContainer, stylesHook.entryTextContainer]} key={`${secret}${index}`}>
-            <Text textBreakStrategy="simple" style={[styles.entryText, stylesHook.entryText]}>
+          <View style={[styles.entryTextContainer, stylesHook.entryTextContainer]} key={`${entry}${index}`}>
+            <Text textBreakStrategy="simple" style={[styles.entryText, stylesHook.entryText, secret ? secretTextStyle : undefined]}>
               {text}
             </Text>
           </View>,
@@ -48,10 +51,10 @@ const SquareEnumeratedWords: React.FC<SquareEnumeratedWordsProps> = ({ entries, 
           <TouchableOpacity
             accessibilityRole="button"
             style={[styles.entryTextContainer, stylesHook.entryTextContainer]}
-            key={`${secret}${index}`}
+            key={`${entry}${index}`}
           >
-            <Text textBreakStrategy="simple" style={[styles.entryText, stylesHook.entryText]}>
-              {secret}
+            <Text textBreakStrategy="simple" style={[styles.entryText, stylesHook.entryText, secret ? secretTextStyle : undefined]}>
+              {entry}
             </Text>
           </TouchableOpacity>,
         );

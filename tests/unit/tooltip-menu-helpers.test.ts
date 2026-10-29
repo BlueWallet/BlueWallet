@@ -58,6 +58,15 @@ describe('TooltipMenu.helpers', () => {
       expect(ids.map(n => n.id)).toEqual(['share', 'delete']);
     });
 
+    it.each(['ios', 'android'] as const)('keeps the zero-valued payment action on %s and dispatches its id', platform => {
+      // PaymentCodesList uses a numeric enum whose first action (Pay) is zero.
+      const { items, ids } = buildMenu([{ id: 0, text: 'Pay this contact' }, share], platform);
+
+      expect(items.map(item => item.title)).toEqual(['Pay this contact', 'Share']);
+      expect(lookupId(ids, [0])).toBe('0');
+      expect(lookupId(ids, [1])).toBe('share');
+    });
+
     it('maps subactions recursively and reflects them in the id-tree', () => {
       const parent: Action = {
         id: 'export',

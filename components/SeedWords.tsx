@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from './themes';
+import { secretTextStyle } from '../helpers/secretsOnScreen';
 import { useLocale } from '@react-navigation/native';
 
 const SeedWords = ({ seed }: { seed: string }) => {
@@ -22,12 +23,12 @@ const SeedWords = ({ seed }: { seed: string }) => {
   });
 
   return (
-    <View style={[styles.secret, stylesHook.secret]}>
+    <View style={[styles.secret, stylesHook.secret]} testID={secretTextStyle ? 'SecretsHidden' : undefined}>
       {words.map((secret, index) => {
         const text = `${index + 1}. ${secret}  `;
         return (
           <View style={[styles.word, stylesHook.word]} key={index}>
-            <Text style={[styles.wortText, stylesHook.wortText]} textBreakStrategy="simple">
+            <Text style={[styles.wortText, stylesHook.wortText, secretTextStyle]} textBreakStrategy="simple">
               {text}
             </Text>
           </View>

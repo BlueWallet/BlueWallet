@@ -1,4 +1,5 @@
 import { useNavigation, RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
+import { secretInputProps, secretTextStyle } from '../../helpers/secretsOnScreen';
 import * as bitcoin from 'bitcoinjs-lib';
 import { sha256 } from '@noble/hashes/sha256';
 import React, { useEffect, useRef, useState } from 'react';
@@ -314,7 +315,8 @@ const ScanQRCode = () => {
             testID="scanQrBackdoorInput"
             multiline
             underlineColorAndroid="transparent"
-            style={[styles.backdoorInput, stylesHook.backdoorInput]}
+            style={[styles.backdoorInput, stylesHook.backdoorInput, secretTextStyle]}
+            {...secretInputProps}
             autoCorrect={false}
             autoCapitalize="none"
             spellCheck={false}
