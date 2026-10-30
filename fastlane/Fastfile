@@ -268,8 +268,10 @@ platform :android do
   desc "Build and sign release APK"
   lane :build_release_apk do |options|
     Dir.chdir(PROJECT_ROOT) do
-      # Allow caller to pass a build_number; otherwise fall back to env or timestamp
-      build_number = options[:build_number] || ENV['BUILD_NUMBER'] || Time.now.to_i.to_s
+      # Android version codes must come from the bounded CI allocator. Falling back
+      # to Unix time makes large jumps and quickly consumes Play Store headroom.
+      build_number = (options[:build_number] || ENV['BUILD_NUMBER']).to_s
+      UI.user_error!("A build_number option or BUILD_NUMBER environment variable is required") if build_number.empty?
       ENV['BUILD_NUMBER'] = build_number
 
       AndroidHelpers.ensure_temp_credentials!(auto: options[:auto_credentials])

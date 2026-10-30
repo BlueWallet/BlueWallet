@@ -78,10 +78,18 @@ jobs:
           ruby-version: 3.4.11
           bundler-cache: true
 
-      - name: Generate Build Number based on timestamp
+      - name: Generate Android version code
         id: build_number
+        env:
+          # Keep new codes above releases produced by the old Unix-timestamp scheme,
+          # then advance by small, deterministic increments for each workflow run.
+          VERSION_CODE_BASE: 1794000000
         run: |
-          NEW_BUILD_NUMBER="$(date +%s)"
+          NEW_BUILD_NUMBER=$((VERSION_CODE_BASE + GITHUB_RUN_NUMBER))
+          if [ "$NEW_BUILD_NUMBER" -gt 2100000000 ]; then
+            echo "Android version code $NEW_BUILD_NUMBER exceeds the Play Store limit" >&2
+            exit 1
+          fi
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
           echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
 
