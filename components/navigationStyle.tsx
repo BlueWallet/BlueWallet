@@ -3,7 +3,7 @@ import type { ParamListBase, RouteProp } from '@react-navigation/native';
 import React from 'react';
 import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
-import { isIOS26OrHigher } from '../blue_modules/environment';
+import { isHandset, isIOS26OrHigher } from '../blue_modules/environment';
 import loc from '../loc';
 import { Theme } from './themes';
 
@@ -173,15 +173,21 @@ const navigationStyle = <P extends ParamListBase = ParamListBase, R extends keyo
         },
       ];
 
+      // headerLeft/headerRight: iOS 17, iOS 18, Android, iPad, and Mac.
+      // unstable_header*Items is the liquid-glass button, and only an iOS 26 phone draws it. Setting it on iPad or Mac breaks the header.
+      const useIOS26HeaderItems = isIOS26OrHigher && isHandset;
+
       if (closeButton === CloseButtonPosition.Right) {
-        headerRight = renderCloseButtonElement;
-        if (isIOS26OrHigher) {
+        if (useIOS26HeaderItems) {
           unstable_headerRightItems = buildUnstableCloseButtonItems;
+        } else {
+          headerRight = renderCloseButtonElement;
         }
       } else if (closeButton === CloseButtonPosition.Left) {
-        headerLeft = renderCloseButtonElement;
-        if (isIOS26OrHigher) {
+        if (useIOS26HeaderItems) {
           unstable_headerLeftItems = buildUnstableCloseButtonItems;
+        } else {
+          headerLeft = renderCloseButtonElement;
         }
       }
       const baseHeaderStyle = {

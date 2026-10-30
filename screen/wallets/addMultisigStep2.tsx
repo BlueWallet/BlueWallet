@@ -54,7 +54,6 @@ const WalletsAddMultisigStep2 = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [vaultKeyData, setVaultKeyData] = useState({
     keyIndex: 1,
-    xpub: '',
     seed: '',
     isLoading: false,
   }); // string rendered in modal
@@ -240,10 +239,11 @@ const WalletsAddMultisigStep2 = () => {
       cosignersCopy.push([w.getSecret(), false, false]);
       const keyIndex = cosignersCopy.length;
       const seed = w.getSecret();
-      const xpub = w.getXpub();
 
       setCosigners(cosignersCopy);
-      setVaultKeyData({ keyIndex, seed, xpub, isLoading: false });
+      // Do not call getXpub() here. It runs mnemonicToSeedSync, and nothing on the Vault Key sheet reads the zpub.
+      // Share uses the cache filled in the timeout below, after the sheet has painted.
+      setVaultKeyData({ keyIndex, seed, isLoading: false });
       navigation.navigate('WalletsAddMultisigVaultKeySheet', {
         keyIndex,
         seed,
@@ -610,7 +610,6 @@ const WalletsAddMultisigStep2 = () => {
                   onPress: () => {
                     setVaultKeyData({
                       keyIndex: el.index,
-                      xpub: '',
                       seed: '',
                       isLoading: true,
                     });

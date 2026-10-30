@@ -203,7 +203,19 @@ const PsbtMultisig = () => {
   if (!psbt) return null;
 
   const navigateToPSBTMultisigQRCode = () => {
-    navigate('PsbtMultisigQRCode', { walletID, psbtBase64: psbt.toBase64(), isShowOpenScanner: confirmEnabled });
+    // At quorum the next signer needs a finalized PSBT. finalizedCopy drops surplus signatures first and throws
+    // when an input still cannot be finalized; stay here in that case so Export does not hand out raw bytes.
+    // Below quorum, share the unfinalized PSBT so another key can still sign.
+    let sharedPsbtBase64 = psbt.toBase64();
+    if (confirmEnabled) {
+      try {
+        sharedPsbtBase64 = wallet.finalizedCopy(psbt).toBase64();
+      } catch (err: unknown) {
+        presentAlert({ message: errorMessage(err) });
+        return;
+      }
+    }
+    navigate('PsbtMultisigQRCode', { walletID, psbtBase64: sharedPsbtBase64, isShowOpenScanner: confirmEnabled });
   };
 
   const renderKey = (index: number) => {

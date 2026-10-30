@@ -1,13 +1,11 @@
-import React from 'react';
-import { Platform, ScrollView, StyleProp, StyleSheet, useWindowDimensions, View, ViewStyle } from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, StyleProp, StyleSheet, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useKeyboard } from '../hooks/useKeyboard';
 
-/** Grabber, in-content header and bottom padding of a compact Android form sheet, kept clear of the keyboard. */
-const ANDROID_SHEET_CHROME = 140;
-/** Never collapse the scroller: at this height part of the form is always on screen and the rest can be scrolled to. */
-const MIN_FORM_HEIGHT = 160;
+/** Grabber, header, and bottom padding that sit outside this scroller. */
+const SHEET_CHROME = 140;
 
 interface SheetKeyboardFormProps {
   style?: StyleProp<ViewStyle>;
@@ -17,39 +15,54 @@ interface SheetKeyboardFormProps {
 /**
  * Form body for a `fitToContents` form sheet whose controls must stay reachable above the keyboard.
  *
- * iOS: a plain View. A ScrollView inside an iOS `fitToContents` form sheet renders the form at the bottom of the
- * sheet, and iOS already moves the sheet with the keyboard and offers the Done accessory.
- *
- * Android: react-native-screens lifts the sheet above the keyboard only as far as the screen allows, and there is
- * no keyboard accessory. The form scrolls inside a ScrollView capped to the space above the keyboard, so the sheet
- * shrinks to fit and the controls under a tall field can be scrolled into view. No `flex: 1`/`flexGrow: 1`, which
- * would make Android `fitToContents` full height.
+ * One scroller on every platform. Its height is the form, capped to the space above the keyboard. `maxHeight` alone
+ * makes an iOS ScrollView report that cap as its height, so fitToContents opens a full sheet and the prompt lands at
+ * the bottom. `flexGrow: 0` so Android `fitToContents` stays content-sized. The first child keeps this ScrollView out
+ * of the chain react-native-screens switches to automatic content insets.
  */
 const SheetKeyboardForm: React.FC<SheetKeyboardFormProps> = ({ style, children }) => {
   const { height: windowHeight } = useWindowDimensions();
   const { height: keyboardHeight, isVisible: isKeyboardVisible } = useKeyboard();
   const insets = useSafeAreaInsets();
+  const [contentHeight, setContentHeight] = useState(0);
 
-  if (Platform.OS !== 'android') {
-    return <View style={style}>{children}</View>;
-  }
-
-  // Edge-to-edge Android keeps the window size when the keyboard opens (insets change instead), so the keyboard is
-  // subtracted once. If a device does shrink the window, the cap is just smaller, never below MIN_FORM_HEIGHT.
-  const spaceAboveKeyboard = windowHeight - (isKeyboardVisible ? keyboardHeight : 0) - insets.top - ANDROID_SHEET_CHROME;
-  const maxHeight = Math.max(spaceAboveKeyboard, MIN_FORM_HEIGHT);
-  const sizeStyle = StyleSheet.create({ cap: { maxHeight } });
+  // Edge-to-edge Android keeps the window size when the keyboard opens, so the keyboard is subtracted once.
+  const spaceAboveKeyboard = windowHeight - (isKeyboardVisible ? keyboardHeight : 0) - insets.top - SHEET_CHROME;
+  const maxHeight = Math.max(spaceAboveKeyboard, 0);
+  const scrollHeight = contentHeight > 0 ? Math.min(contentHeight, maxHeight) : undefined;
+  const stylesHook = StyleSheet.create({
+    scroll: {
+      // ScrollView's own style is flexGrow 1, which makes Android fitToContents full height.
+      flexGrow: 0,
+      flexShrink: 0,
+      ...(scrollHeight !== undefined ? { height: scrollHeight } : {}),
+    },
+  });
 
   return (
-    <ScrollView style={[styles.scroll, sizeStyle.cap]} contentContainerStyle={style} keyboardShouldPersistTaps="handled">
-      {children}
-    </ScrollView>
+    <View>
+      <View collapsable={false} pointerEvents="none" style={styles.scrollGuard} />
+      <ScrollView
+        style={stylesHook.scroll}
+        contentContainerStyle={style}
+        automaticallyAdjustContentInsets={false}
+        contentInsetAdjustmentBehavior="never"
+        keyboardShouldPersistTaps="handled"
+        scrollEnabled={contentHeight > maxHeight}
+        onContentSizeChange={(_width, height) => {
+          if (height > 0) setContentHeight(current => (Math.abs(current - height) < 1 ? current : height));
+        }}
+      >
+        {children}
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  scroll: {
-    flexGrow: 0,
+  scrollGuard: {
+    height: 1,
+    opacity: 0,
   },
 });
 

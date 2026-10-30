@@ -357,7 +357,7 @@ const AddWalletStack = () => {
           // Content must not use flex:1 or Android fitToContents expands to full height.
           sheetAllowedDetents: 'fitToContents',
           sheetGrabberVisible: true,
-          // Android formSheet does not support native headers — title/close are rendered in-content.
+          // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Title and close stay in the content.
           headerShown: Platform.OS === 'ios',
           headerTitle: loc.multisig.vault_advanced_customize,
           headerBackVisible: false,
@@ -380,7 +380,7 @@ const AddWalletStack = () => {
             // Fixed detent so Done can pin to the bottom and the seed grid can center in the middle.
             sheetAllowedDetents: [0.55],
             sheetGrabberVisible: true,
-            // Android formSheet does not support native headers — title/close are rendered in-content.
+            // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Title and close stay in the content.
             headerShown: Platform.OS === 'ios',
             headerBackVisible: false,
             // Close on the right like the other creation sheets. Done stays the primary action.
@@ -402,7 +402,7 @@ const AddWalletStack = () => {
           // Content must not use flex:1 or Android fitToContents expands to full height.
           sheetAllowedDetents: 'fitToContents',
           sheetGrabberVisible: true,
-          // Android formSheet does not support native headers — title/close are rendered in-content.
+          // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Title and close stay in the content.
           headerShown: Platform.OS === 'ios',
           headerTitle: loc.wallets.import_title,
           headerBackVisible: false,
@@ -419,7 +419,7 @@ const AddWalletStack = () => {
           // Content must not use flex:1 or Android fitToContents expands to full height.
           sheetAllowedDetents: 'fitToContents',
           sheetGrabberVisible: true,
-          // Android formSheet does not support native headers — close is rendered in-content.
+          // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Close stays in the content.
           headerShown: Platform.OS === 'ios',
           headerTitle: '',
           headerBackVisible: false,
