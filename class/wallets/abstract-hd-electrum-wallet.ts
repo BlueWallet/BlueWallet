@@ -16,13 +16,14 @@ import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
-import { SilentPayment, UTXOType as SPUTXOType, UTXO as SPUTXO } from 'silent-payments';
+import { SPFactory, UTXOType as SPUTXOType, UTXO as SPUTXO } from 'silent-payments';
 import { isValidBech32Address } from '../../util/isValidBech32Address.ts';
 import loc from '../../loc';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
 const bip47 = BIP47Factory(ecc);
+const SilentPayment = SPFactory(ecc);
 
 type BalanceByIndex = {
   c: number;
