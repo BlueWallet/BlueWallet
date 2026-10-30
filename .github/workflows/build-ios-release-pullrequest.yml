@@ -12,8 +12,6 @@ on:
 
 permissions:
   contents: read
-  issues: write
-  pull-requests: write
 
 concurrency:
   # Release events for a PR supersede older releases from that PR. Unrelated
@@ -69,6 +67,7 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0
+          persist-credentials: false
           ref: ${{ needs.plan.outputs.source_sha }}
 
       - name: Get Latest Commit Details
@@ -281,13 +280,6 @@ jobs:
           echo "project_version=$MARKETING_VERSION" >> $GITHUB_OUTPUT
         working-directory: ios
 
-      - name: Set Up Git Authentication
-        env:
-          ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-        run: |
-          git config --global credential.helper 'cache --timeout=3600'
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
-
       - name: Create Temporary Keychain
         run: bundle exec fastlane ios create_temp_keychain
         env:
@@ -478,6 +470,9 @@ jobs:
   catalyst:
     name: macOS Catalyst
     needs: plan
+    permissions:
+      contents: read
+      issues: write
     if: >-
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
@@ -496,6 +491,9 @@ jobs:
     name: iOS TestFlight
     needs: [plan, build]
     runs-on: macos-26
+    permissions:
+      contents: read
+      issues: write
     if: >-
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
@@ -512,6 +510,8 @@ jobs:
     steps:
       - name: Checkout Project
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
 
       - name: Set Up Ruby
         uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
@@ -530,7 +530,9 @@ jobs:
           path: ./
 
       - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+        env:
+          API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+        run: printf '%s' "$API_KEY_CONTENT" > ./appstore_api_key.json
 
       - name: Set IPA Path Environment Variable
         run: echo "IPA_OUTPUT_PATH=$(pwd)/BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa" >> $GITHUB_ENV

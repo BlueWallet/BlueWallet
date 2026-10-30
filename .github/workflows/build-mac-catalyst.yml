@@ -21,8 +21,6 @@ on:
 
 permissions:
   contents: read
-  issues: write
-  pull-requests: write
 
 concurrency:
   group: catalyst-testflight-${{ inputs.source_sha || github.run_id }}
@@ -33,6 +31,9 @@ jobs:
     name: Build + Upload
     runs-on: macos-15
     timeout-minutes: 360
+    permissions:
+      contents: read
+      issues: write
     steps:
       - name: Validate release attempt
         env:
@@ -47,6 +48,7 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0
+          persist-credentials: false
           ref: ${{ inputs.source_sha || github.sha }}
 
       - name: Setup Node.js
@@ -87,10 +89,12 @@ jobs:
           RCT_USE_PREBUILT_RNCORE: '1'
 
       - name: Create temporary signing keychain
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          security create-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
-          security unlock-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security set-keychain-settings -lut 21600 build.keychain
 
       - name: Create App Store Connect API key
