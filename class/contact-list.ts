@@ -1,10 +1,12 @@
 import BIP47Factory from '@spsina/bip47';
 
-import { SilentPayment } from 'silent-payments';
+import { SPFactory } from 'silent-payments';
 
 import ecc from '../blue_modules/noble_ecc';
 import { concatUint8Arrays } from '../blue_modules/uint8array-extras';
 import * as bitcoin from 'bitcoinjs-lib';
+
+const SilentPayment = SPFactory(ecc);
 
 export class ContactList {
   isBip47PaymentCodeValid(pc: string) {
