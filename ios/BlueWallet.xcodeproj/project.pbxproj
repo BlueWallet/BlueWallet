@@ -10,7 +10,7 @@
 		001E3379238F94755682A739 /* ThumbnailProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E745397267AD62B80F3CA6C3 /* ThumbnailProvider.swift */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040819EDF8BD9C50A9C83E24 /* libPods-BlueWallet.a */; };
-		577A0069C98D178A050CC84F /* QuickLookThumbnail.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 29920A93BCBA9DB4E82EE92D /* QuickLookThumbnail.appex */; platformFilter = ios; };
+		577A0069C98D178A050CC84F /* QuickLookThumbnail.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 29920A93BCBA9DB4E82EE92D /* QuickLookThumbnail.appex */; };
 		5A5F0B31C17BC5D403C83596 /* QuickLookThumbnailing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41506AE5039335113D1905FF /* QuickLookThumbnailing.framework */; };
 		6D2A6464258BA92D0092292B /* Stickers.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D2A6463258BA92D0092292B /* Stickers.xcassets */; };
 		6D2A6468258BA92D0092292B /* Stickers.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 6D2A6461258BA92C0092292B /* Stickers.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -39,7 +39,7 @@
 		782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
 		84E05A842721191B001A0D3A /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 84E05A832721191B001A0D3A /* Settings.bundle */; };
 		B32900000000000000000001 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32900000000000000000003 /* PreviewViewController.swift */; };
-		B32900000000000000000002 /* QuickLookPreview.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B32900000000000000000005 /* QuickLookPreview.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B32900000000000000000002 /* QuickLookPreview.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B32900000000000000000005 /* QuickLookPreview.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B32900000000000000000010 /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B32900000000000000000011 /* QuickLook.framework */; };
 		B409AB062D71E07500BA06F8 /* MenuActionsEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B409AB052D71E07500BA06F8 /* MenuActionsEmitter.swift */; };
 		B40FC3FA29CCD1D00007EBAC /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */; };
@@ -1306,6 +1306,8 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7W54YZ4WU;
+				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = QuickLookThumbnail/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LIBRARY_SEARCH_PATHS = (
@@ -1319,10 +1321,14 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.bluewallet.bluewallet.QuickLookThumbnail";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "match Development io.bluewallet.bluewallet.QuickLookThumbnail catalyst";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,6";
 			};
 			name = Debug;
 		};
@@ -1535,6 +1541,8 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7W54YZ4WU;
+				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = QuickLookThumbnail/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LIBRARY_SEARCH_PATHS = (
@@ -1548,10 +1556,14 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore io.bluewallet.bluewallet.QuickLookThumbnail";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "match AppStore io.bluewallet.bluewallet.QuickLookThumbnail catalyst";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,6";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -1718,6 +1730,8 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7W54YZ4WU;
+				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = QuickLookPreview/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1736,15 +1750,16 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.bluewallet.bluewallet.QuickLookPreview";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "match Development io.bluewallet.bluewallet.QuickLookPreview catalyst";
 				REACT_NATIVE_PATH = "$(SRCROOT)/../node_modules/react-native";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,6";
 			};
 			name = Debug;
 		};
@@ -1761,6 +1776,8 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7W54YZ4WU;
+				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
 				INFOPLIST_FILE = QuickLookPreview/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1779,14 +1796,15 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore io.bluewallet.bluewallet.QuickLookPreview";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "match AppStore io.bluewallet.bluewallet.QuickLookPreview catalyst";
 				REACT_NATIVE_PATH = "$(SRCROOT)/../node_modules/react-native";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,6";
 			};
 			name = Release;
 		};
