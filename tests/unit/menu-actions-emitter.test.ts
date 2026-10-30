@@ -110,8 +110,18 @@ it('sends localized menu titles to the native renderers', () => {
       settings: 'Settings',
       tools: 'Tools',
       add_recipient: 'Add Recipient',
+      transactionMenu: 'Transaction',
       copyTransactionId: 'Copy Transaction ID',
+      copyTransactionHex: 'Copy Tx Hex',
+      bumpFeeRbf: 'Speed Up (RBF)',
+      bumpFeeCpfp: 'Bump Fee (CPFP)',
       accelerateTransaction: 'Speed Up',
+      cancelTransaction: 'Cancel',
+      openTransactionInExplorer: 'View in Browser',
+      shareTransaction: 'Share Transaction',
+      editTransactionNote: 'Note to Self',
+      toggleBlockDetails: 'Block Details',
+      toggleAdvancedDetails: 'Advanced',
       manageWallets: 'Manage Wallets',
     }),
   );
@@ -223,7 +233,22 @@ it('rebuilds the available commands for each focused screen', () => {
         'wallet',
       ),
       hook.result.current.registerMenuActions({ copyAddress: jest.fn() }, 'receive'),
-      hook.result.current.registerMenuActions({ copyTransactionId: jest.fn(), accelerateTransaction: jest.fn() }, 'transaction'),
+      hook.result.current.registerMenuActions(
+        {
+          copyTransactionId: jest.fn(),
+          copyTransactionHex: jest.fn(),
+          bumpFeeRbf: jest.fn(),
+          bumpFeeCpfp: jest.fn(),
+          accelerateTransaction: jest.fn(),
+          cancelTransaction: jest.fn(),
+          openTransactionInExplorer: jest.fn(),
+          shareTransaction: jest.fn(),
+          editTransactionNote: jest.fn(),
+          toggleBlockDetails: jest.fn(),
+          toggleAdvancedDetails: jest.fn(),
+        },
+        'transaction',
+      ),
       hook.result.current.registerMenuActions({ add_recipient: jest.fn(), coin_control: jest.fn() }, 'send'),
     );
   });
@@ -254,7 +279,21 @@ it('rebuilds the available commands for each focused screen', () => {
     'walletDetails',
   ]);
   expectActionsFor('ReceiveDetails', 'receive', [...globalActions, 'backToWallets', 'copyAddress']);
-  expectActionsFor('TransactionStatus', 'transaction', [...globalActions, 'backToWallets', 'copyTransactionId', 'accelerateTransaction']);
+  expectActionsFor('TransactionStatus', 'transaction', [
+    ...globalActions,
+    'backToWallets',
+    'copyTransactionId',
+    'copyTransactionHex',
+    'bumpFeeRbf',
+    'bumpFeeCpfp',
+    'accelerateTransaction',
+    'cancelTransaction',
+    'openTransactionInExplorer',
+    'shareTransaction',
+    'editTransactionNote',
+    'toggleBlockDetails',
+    'toggleAdvancedDetails',
+  ]);
   expectActionsFor('SendDetails', 'send', [...globalActions, 'add_recipient', 'coin_control']);
   expectActionsFor('Settings', 'settings', globalActions);
   expectActionsFor('UnlockWithScreen', 'locked', []);
@@ -334,7 +373,16 @@ it.each([
   ['WalletTransactions', 'walletDetails'],
   ['ReceiveDetails', 'copyAddress'],
   ['TransactionStatus', 'copyTransactionId'],
+  ['TransactionStatus', 'copyTransactionHex'],
+  ['TransactionStatus', 'bumpFeeRbf'],
+  ['TransactionStatus', 'bumpFeeCpfp'],
   ['TransactionStatus', 'accelerateTransaction'],
+  ['TransactionStatus', 'cancelTransaction'],
+  ['TransactionStatus', 'openTransactionInExplorer'],
+  ['TransactionStatus', 'shareTransaction'],
+  ['TransactionStatus', 'editTransactionNote'],
+  ['TransactionStatus', 'toggleBlockDetails'],
+  ['TransactionStatus', 'toggleAdvancedDetails'],
 ] as const)('dispatches %s / %s only while its handler is registered', (screen, action) => {
   setRoute(screen);
   const hook = renderHook(useMenuActions);

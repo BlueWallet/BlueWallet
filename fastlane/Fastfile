@@ -199,6 +199,11 @@ def cached_app_store_connect_login
 end
 
 before_all do |lane, options|
+  if lane_context[SharedValues::PLATFORM_NAME] == :android
+    UI.message('Skipping App Store Connect authentication for Android')
+    next
+  end
+
   if ENV['SKIP_APP_STORE_CONNECT_AUTH'] == '1'
     UI.message('Skipping App Store Connect authentication (SKIP_APP_STORE_CONNECT_AUTH=1)')
     next

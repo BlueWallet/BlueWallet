@@ -54,6 +54,7 @@ import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import SettingsTools from '../screen/settings/SettingsTools';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
+import getTransactionStatusOptions from './helpers/getTransactionStatusOptions';
 import { createSettingsScreenOptions, getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
 import { isDesktop, isIOS26OrHigher } from '../blue_modules/environment';
 import { shouldUseWideLayout } from '../blue_modules/layout';
@@ -71,7 +72,10 @@ type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unst
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
 
-const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
+const UpdatingLabel: React.FC<{
+  containerStyle: object;
+  textStyle: object;
+}> = ({ containerStyle, textStyle }) => {
   const opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -165,7 +169,7 @@ const DetailViewStackScreensStack = () => {
   const navigation = useNavigation();
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
-  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+  const { height: windowHeight, width: windowWidth, fontScale } = useWindowDimensions();
   const isWideLayout = shouldUseWideLayout(windowWidth, windowHeight);
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
@@ -255,7 +259,9 @@ const DetailViewStackScreensStack = () => {
     if (routeNames?.includes('ElectrumSettings')) {
       navigation.navigate('ElectrumSettings');
     } else {
-      navigation.navigate('DetailViewStackScreensStack', { screen: 'ElectrumSettings' });
+      navigation.navigate('DetailViewStackScreensStack', {
+        screen: 'ElectrumSettings',
+      });
     }
   }, [navigation]);
 
@@ -281,7 +287,10 @@ const DetailViewStackScreensStack = () => {
     const renderHeaderLeft = () => {
       if (showOffline) {
         const offlineBg = theme.dark ? theme.colors.darkGray : '#000000';
-        return React.createElement(OfflineModePill, { onPress: navigateToElectrumSettings, backgroundColor: offlineBg });
+        return React.createElement(OfflineModePill, {
+          onPress: navigateToElectrumSettings,
+          backgroundColor: offlineBg,
+        });
       }
       if (showNotConnected) {
         return React.createElement(NotConnectedPill, {
@@ -384,7 +393,10 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Navigator
         UNSTABLE_router={navigationGuardRouter}
         initialRouteName="WalletsList"
-        screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
+        screenOptions={{
+          headerShadowVisible: false,
+          animationTypeForReplace: 'push',
+        }}
       >
         <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
         <DetailViewStack.Screen
@@ -417,13 +429,20 @@ const DetailViewStackScreensStack = () => {
             hash: undefined,
             walletID: undefined,
           }}
-          options={navigationStyle({
-            headerStyle: {
-              backgroundColor: theme.colors.customHeader,
-            },
-            headerTitle: '',
-            headerBackButtonDisplayMode: 'default',
-          })(theme)}
+          options={({ route, navigation: transactionNavigation }) =>
+            navigationStyle({
+              ...getTransactionStatusOptions({
+                route,
+                screenWidth: windowWidth,
+                fontScale,
+                foregroundColor: theme.colors.foregroundColor,
+                secondaryTextColor: theme.colors.alternativeTextColor,
+              }),
+              headerStyle: {
+                backgroundColor: theme.colors.customHeader,
+              },
+            })(theme)({ route, navigation: transactionNavigation })
+          }
         />
         <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
         <DetailViewStack.Screen
@@ -455,7 +474,9 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="LNDViewAdditionalInvoicePreImage"
           component={LNDViewAdditionalInvoicePreImage}
-          options={navigationStyle({ title: loc.lndViewInvoice.additional_info })(theme)}
+          options={navigationStyle({
+            title: loc.lndViewInvoice.additional_info,
+          })(theme)}
         />
 
         <DetailViewStack.Screen name="Broadcast" component={Broadcast} options={settingsScreenOptions(loc.send.create_broadcast)} />

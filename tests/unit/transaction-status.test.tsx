@@ -4,6 +4,17 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { _setSkipUpdateExchangeRate } from '../../blue_modules/currency';
 import TransactionStatus from '../../screen/transactions/TransactionStatus';
 
+const mockUseScreenMenuActions = jest.fn();
+const mockPresentShare = jest.fn();
+jest.mock('../../hooks/useScreenMenuActions', () => ({
+  __esModule: true,
+  default: (...args: unknown[]) => mockUseScreenMenuActions(...args),
+}));
+jest.mock('../../blue_modules/NativeMenuActionsEmitter', () => ({
+  __esModule: true,
+  default: { presentShare: (...args: unknown[]) => mockPresentShare(...args) },
+}));
+
 // TransactionStatus renders fiat amounts via satoshiToLocalCurrency(), which
 // kicks off a real exchange-rate fetch when no rate is cached — leaving a TLS
 // socket open after the run ("Jest did not exit one second after...").
@@ -39,7 +50,11 @@ jest.mock('../../hooks/useWalletSubscribe', () => ({
   default: () => mockWalletSubscribe,
 }));
 
-let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet', key: 'transaction-status-test' };
+let routeParams: any = {
+  hash: 'mock-tx',
+  walletID: 'mock-wallet',
+  key: 'transaction-status-test',
+};
 
 jest.mock('@react-navigation/native', () => {
   const actual = jest.requireActual('@react-navigation/native');
@@ -49,6 +64,7 @@ jest.mock('@react-navigation/native', () => {
     useNavigation: () => ({
       navigate: jest.fn(),
       setOptions: jest.fn(),
+      setParams: jest.fn(),
       goBack: jest.fn(),
       addListener: jest.fn(),
     }),
@@ -100,11 +116,17 @@ jest.mock('react-native-linear-gradient', () => 'LinearGradient');
 
 jest.mock('../../components/BlueCard', () => {
   const { View } = require('react-native');
-  return { __esModule: true, default: ({ children }: { children: React.ReactNode }) => <View>{children}</View> };
+  return {
+    __esModule: true,
+    default: ({ children }: { children: React.ReactNode }) => <View>{children}</View>,
+  };
 });
 jest.mock('../../components/BlueText', () => {
   const { Text } = require('react-native');
-  return { __esModule: true, default: ({ children }: { children: React.ReactNode }) => <Text>{children}</Text> };
+  return {
+    __esModule: true,
+    default: ({ children }: { children: React.ReactNode }) => <Text>{children}</Text>,
+  };
 });
 
 jest.mock('../../components/Button', () => 'Button');
@@ -114,7 +136,9 @@ jest.mock('../../components/BlueSpacing', () => ({
   BlueSpacing10: 'BlueSpacing10',
   BlueSpacing20: 'BlueSpacing20',
 }));
-jest.mock('../../components/BlueLoading', () => ({ BlueLoading: 'BlueLoading' }));
+jest.mock('../../components/BlueLoading', () => ({
+  BlueLoading: 'BlueLoading',
+}));
 jest.mock('../../components/SafeArea', () => ({ children }: { children: React.ReactNode }) => <>{children}</>);
 jest.mock('../../components/SafeAreaScrollView', () => ({ children }: { children: React.ReactNode }) => <>{children}</>);
 
@@ -176,6 +200,7 @@ jest.mock('../../loc', () => ({
       details_outputs: 'outputs',
       details_inputs_count: 'Inputs ({count})',
       details_outputs_count: 'Outputs ({count})',
+      details_share: 'Share Transaction',
       details_view_in_browser: 'view in browser',
       details_note: 'Note',
       details_add_note: 'Add note',
@@ -333,11 +358,16 @@ describe('TransactionStatus regression', () => {
     await waitFor(() => {
       expect(mockStorageState.saveToDisk).toHaveBeenCalledTimes(1);
     });
-    expect(mockStorageState.txMetadata['mock-tx']).toEqual({ memo: 'Saved from alert' });
+    expect(mockStorageState.txMetadata['mock-tx']).toEqual({
+      memo: 'Saved from alert',
+    });
   });
 
   it('renders while transaction metadata is still unavailable', async () => {
-    mockStorageState = { ...mockStorageState, txMetadata: undefined } as unknown as MockStorage;
+    mockStorageState = {
+      ...mockStorageState,
+      txMetadata: undefined,
+    } as unknown as MockStorage;
 
     const { view } = setup(1, 1000);
 
@@ -353,7 +383,21 @@ describe('TransactionStatus regression', () => {
       (txids: string[]) =>
         new Promise(resolve =>
           setTimeout(
-            () => resolve(Object.fromEntries(txids.map(txid => [txid, { hash: txid, value: 1200, confirmations: 1, vin: [], vout: [] }]))),
+            () =>
+              resolve(
+                Object.fromEntries(
+                  txids.map(txid => [
+                    txid,
+                    {
+                      hash: txid,
+                      value: 1200,
+                      confirmations: 1,
+                      vin: [],
+                      vout: [],
+                    },
+                  ]),
+                ),
+              ),
             11000,
           ),
         ),
@@ -379,7 +423,13 @@ describe('TransactionStatus regression', () => {
   it('keeps a hash-only transaction when the watchdog fires during the previous-output lookup', async () => {
     const BlueElectrum = require('../../blue_modules/BlueElectrum');
     jest.useFakeTimers();
-    const row = { hash: 'mock-tx', value: 1200, confirmations: 1, vin: [{ txid: 'prev-tx', vout: 0 }], vout: [] };
+    const row = {
+      hash: 'mock-tx',
+      value: 1200,
+      confirmations: 1,
+      vin: [{ txid: 'prev-tx', vout: 0 }],
+      vout: [],
+    };
     (BlueElectrum.multiGetTransactionByTxid as jest.Mock)
       // the tx itself lands just before the watchdog
       .mockImplementationOnce(() => new Promise(resolve => setTimeout(() => resolve({ 'mock-tx': row }), 9999)))
@@ -387,7 +437,15 @@ describe('TransactionStatus regression', () => {
       .mockImplementationOnce(
         () =>
           new Promise(resolve =>
-            setTimeout(() => resolve({ 'prev-tx': { vout: [{ value: 0.5, scriptPubKey: { addresses: ['bc1qprev'] } }] } }), 5000),
+            setTimeout(
+              () =>
+                resolve({
+                  'prev-tx': {
+                    vout: [{ value: 0.5, scriptPubKey: { addresses: ['bc1qprev'] } }],
+                  },
+                }),
+              5000,
+            ),
           ),
       );
     routeParams = { hash: 'mock-tx' };
@@ -411,7 +469,9 @@ describe('TransactionStatus regression', () => {
   it('shows a hash-only transaction whose electrum row has no vin/vout instead of the loading error', async () => {
     const BlueElectrum = require('../../blue_modules/BlueElectrum');
     (BlueElectrum.multiGetTransactionByTxid as jest.Mock).mockImplementationOnce(() =>
-      Promise.resolve({ 'mock-tx': { hash: 'mock-tx', value: 1200, confirmations: 1 } }),
+      Promise.resolve({
+        'mock-tx': { hash: 'mock-tx', value: 1200, confirmations: 1 },
+      }),
     );
     routeParams = { hash: 'mock-tx' };
     const view = render(<TransactionStatus />);
@@ -424,7 +484,13 @@ describe('TransactionStatus regression', () => {
 
   it('renders an Arkade row as received (not pending) and never queries Electrum for its synthetic id', async () => {
     const BlueElectrum = require('../../blue_modules/BlueElectrum');
-    const arkRow = { txid: 'ark-deadbeef', type: 'bitcoind_tx', value: 1200, walletID: 'mock-wallet', timestamp: 1700000000 };
+    const arkRow = {
+      txid: 'ark-deadbeef',
+      type: 'bitcoind_tx',
+      value: 1200,
+      walletID: 'mock-wallet',
+      timestamp: 1700000000,
+    };
     routeParams = { tx: arkRow, hash: 'ark-deadbeef', walletID: 'mock-wallet' };
 
     const walletMock = {
@@ -456,6 +522,31 @@ describe('TransactionStatus regression', () => {
     await waitFor(() => {
       expect(BlueElectrum.getConfirmedBlockHeight).not.toHaveBeenCalled();
     });
+  });
+
+  it('registers available screen buttons as native menu commands and publishes toggle state', async () => {
+    setup(3, 1000);
+
+    await waitFor(() => {
+      const handlers = mockUseScreenMenuActions.mock.lastCall?.[0];
+      expect(handlers).toEqual(
+        expect.objectContaining({
+          copyTransactionId: expect.any(Function),
+          openTransactionInExplorer: expect.any(Function),
+          shareTransaction: expect.any(Function),
+          editTransactionNote: expect.any(Function),
+          toggleBlockDetails: expect.any(Function),
+          toggleAdvancedDetails: expect.any(Function),
+        }),
+      );
+    });
+    expect(mockUseScreenMenuActions.mock.lastCall?.[2]).toEqual({
+      toggleBlockDetails: { checked: false },
+      toggleAdvancedDetails: { checked: false },
+    });
+
+    mockUseScreenMenuActions.mock.lastCall?.[0].shareTransaction();
+    expect(mockPresentShare).toHaveBeenCalledWith('https://block.explorer/tx/mock-tx', 'txid: mock-tx', 'Share Transaction');
   });
 
   it('fetches and shows block summary after expanding the accordion header', async () => {
@@ -539,7 +630,13 @@ describe('TransactionStatus regression', () => {
 
   it('does not fetch block accordion data for off-chain Ark rows', async () => {
     const BlueElectrum = require('../../blue_modules/BlueElectrum');
-    const arkRow = { txid: 'ark-deadbeef', type: 'bitcoind_tx', value: 1200, walletID: 'mock-wallet', timestamp: 1700000000 };
+    const arkRow = {
+      txid: 'ark-deadbeef',
+      type: 'bitcoind_tx',
+      value: 1200,
+      walletID: 'mock-wallet',
+      timestamp: 1700000000,
+    };
     routeParams = { tx: arkRow, hash: 'ark-deadbeef', walletID: 'mock-wallet' };
 
     const walletMock = {

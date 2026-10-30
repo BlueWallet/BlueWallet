@@ -30,6 +30,13 @@ describe('Localization', () => {
     assert.strictEqual(loc._.never, enValue, 'en strings restored');
   });
 
+  it('falls back to localized shortcut copy when a locale has not translated the new keys yet', async () => {
+    await saveLanguage('ru');
+    assert.strictEqual(loc.menu.shortcut_description, enJson.menu.shortcut_description);
+    assert.strictEqual(loc.menu.shortcut_scope_transaction_rbf, enJson.menu.shortcut_scope_transaction_rbf);
+    await saveLanguage('en');
+  });
+
   it('caches parsed language dictionaries across toggles', async () => {
     // fr_fr is untouched by other tests so we observe the first cache fill, not a residue.
     await saveLanguage('fr_fr');
