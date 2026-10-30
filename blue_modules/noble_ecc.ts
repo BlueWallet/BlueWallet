@@ -34,9 +34,7 @@ necc.hashes.hmacSha256 = ((key: Uint8Array, message: Uint8Array) => hmac(sha256,
 
 // Removed from @noble/secp256k1 v1.7; vendored from noble test vectors.
 // @see https://github.com/paulmillr/noble-secp256k1/blob/1.7.2/test/index.ts
-type Hex = string | Uint8Array;
-
-const { mod, secretKeyToScalar, numberToBytesBE, bytesToNumberBE, hexToBytes } = necc.etc;
+const { mod, secretKeyToScalar, numberToBytesBE, bytesToNumberBE } = necc.etc;
 const CURVE_N = necc.Point.CURVE().n;
 
 function pointFromBytes(p: Uint8Array): necc.Point {
@@ -49,32 +47,33 @@ function pointFromBytes(p: Uint8Array): necc.Point {
   return necc.Point.fromBytes(p);
 }
 
+// Unlike a private key, a tweak may be zero: 0 <= t < n.
+function tweakToScalar(tweak: Uint8Array): bigint {
+  const t = bytesToNumberBE(tweak);
+  if (tweak.length !== 32 || t >= CURVE_N) throw new Error('Expected Tweak');
+  return t;
+}
+
 const tweakUtils = {
-  privateAdd: (privateKey: Hex, tweak: Hex): Uint8Array => {
-    const p = secretKeyToScalar(typeof privateKey === 'string' ? hexToBytes(privateKey) : privateKey);
-    const t = secretKeyToScalar(typeof tweak === 'string' ? hexToBytes(tweak) : tweak);
-    return numberToBytesBE(mod(p + t, CURVE_N));
+  privateAdd: (privateKey: Uint8Array, tweak: Uint8Array): Uint8Array | null => {
+    const sum = mod(secretKeyToScalar(privateKey) + tweakToScalar(tweak), CURVE_N);
+    return sum === 0n ? null : numberToBytesBE(sum);
   },
 
-  privateNegate: (privateKey: Hex): Uint8Array => {
-    const p = secretKeyToScalar(typeof privateKey === 'string' ? hexToBytes(privateKey) : privateKey);
-    return numberToBytesBE(CURVE_N - p);
-  },
+  privateNegate: (privateKey: Uint8Array): Uint8Array => numberToBytesBE(CURVE_N - secretKeyToScalar(privateKey)),
 
-  pointAddScalar: (p: Hex, tweak: Hex, isCompressed?: boolean): Uint8Array => {
-    const P = typeof p === 'string' ? necc.Point.fromHex(p) : pointFromBytes(p);
-    const t = secretKeyToScalar(typeof tweak === 'string' ? hexToBytes(tweak) : tweak);
-    const Q = P.add(necc.Point.BASE.multiply(t));
+  pointAddScalar: (p: Uint8Array, tweak: Uint8Array, isCompressed?: boolean): Uint8Array => {
+    const P = pointFromBytes(p);
+    const t = tweakToScalar(tweak);
+    const Q = t === 0n ? P : P.add(necc.Point.BASE.multiply(t));
     if (Q.is0()) throw new Error('Tweaked point at infinity');
     return Q.toBytes(isCompressed);
   },
 
-  pointMultiply: (p: Hex, tweak: Hex, isCompressed?: boolean): Uint8Array => {
-    const P = typeof p === 'string' ? necc.Point.fromHex(p) : pointFromBytes(p);
-    const tweakBytes = typeof tweak === 'string' ? hexToBytes(tweak) : tweak;
-    const t = mod(bytesToNumberBE(tweakBytes), CURVE_N);
+  pointMultiply: (p: Uint8Array, tweak: Uint8Array, isCompressed?: boolean): Uint8Array => {
+    const t = tweakToScalar(tweak);
     if (t === 0n) throw new Error('Point at infinity');
-    return P.multiply(t).toBytes(isCompressed);
+    return pointFromBytes(p).multiply(t).toBytes(isCompressed);
   },
 };
 
@@ -159,18 +158,7 @@ const ecc: TinySecp256k1InterfaceExtended & TinySecp256k1Interface & TinySecp256
   pointAddScalar: (p: Uint8Array, tweak: Uint8Array, compressed?: boolean): Uint8Array | null =>
     throwToNull(() => tweakUtils.pointAddScalar(p, tweak, defaultTrue(compressed))),
 
-  privateAdd: (d: Uint8Array, tweak: Uint8Array): Uint8Array | null =>
-    throwToNull(() => {
-      if (d.join('') === '00000000000000000000000000000001' && tweak.join('') === '00000000000000000000000000000000') {
-        return new Uint8Array(d); // make test_ecc happy
-      }
-
-      const ret = tweakUtils.privateAdd(d, tweak);
-      if (ret.join('') === '00000000000000000000000000000000') {
-        return null;
-      }
-      return ret;
-    }),
+  privateAdd: (d: Uint8Array, tweak: Uint8Array): Uint8Array | null => throwToNull(() => tweakUtils.privateAdd(d, tweak)),
 
   privateNegate: (d: Uint8Array): Uint8Array => tweakUtils.privateNegate(d),
 
