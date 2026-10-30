@@ -83,8 +83,8 @@ jobs:
 
       - name: Print Commit Details
         run: |
-          echo "Commit Message: ${{ env.LATEST_COMMIT_MESSAGE }}"
-          echo "Branch Name: ${{ env.CURRENT_BRANCH }}"
+          printf 'Commit Message: %s\n' "$LATEST_COMMIT_MESSAGE"
+          printf 'Branch Name: %s\n' "$CURRENT_BRANCH"
 
       - name: Specify Node.js Version
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
