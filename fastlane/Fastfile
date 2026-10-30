@@ -1132,7 +1132,9 @@ platform :ios do
       archived_app = File.join(archive_path, "Products/Applications/BlueWallet.app")
       sandboxed_executables = [
         File.join(archived_app, "Contents/MacOS/BlueWallet"),
-        File.join(archived_app, "Contents/PlugIns/WidgetsExtension.appex/Contents/MacOS/WidgetsExtension")
+        File.join(archived_app, "Contents/PlugIns/WidgetsExtension.appex/Contents/MacOS/WidgetsExtension"),
+        File.join(archived_app, "Contents/PlugIns/QuickLookPreview.appex/Contents/MacOS/QuickLookPreview"),
+        File.join(archived_app, "Contents/PlugIns/QuickLookThumbnail.appex/Contents/MacOS/QuickLookThumbnail")
       ]
       sandboxed_executables.each do |executable|
         next unless should_sign
@@ -1142,7 +1144,7 @@ platform :ios do
           UI.user_error!("App Sandbox entitlement is missing from #{executable}")
         end
       end
-      UI.success("Verified App Sandbox entitlement on the Catalyst app and widget archive") if should_sign
+      UI.success("Verified App Sandbox entitlement on the Catalyst app and extension archives") if should_sign
 
       candidate_paths = []
       candidate_paths << File.join(archive_path, "Products/Applications/BlueWallet.app") if archive_path

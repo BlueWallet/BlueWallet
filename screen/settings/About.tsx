@@ -149,9 +149,6 @@ const About: React.FC = () => {
         <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>
           {getApplicationName()} ver {getVersion()} (build {getBuildNumber() + ' ' + branch})
         </Text>
-        <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>
-          {new Date(Number(getBuildNumber()) * 1000).toUTCString()}
-        </Text>
         <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>{getBundleId()}</Text>
         <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>Unique ID: {getUniqueIdSync()}</Text>
         <View style={styles.copyToClipboard}>
