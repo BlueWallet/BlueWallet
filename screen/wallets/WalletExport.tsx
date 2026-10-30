@@ -12,6 +12,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import HandOffComponent from '../../components/HandOffComponent';
 import QRCode from '../../components/QRCode';
+import { secretTextStyle } from '../../helpers/secretsOnScreen';
 import SeedWords from '../../components/SeedWords';
 import { useTheme } from '../../components/themes';
 import { HandOffActivityType } from '../../components/types';
@@ -34,7 +35,7 @@ const CopyBox: React.FC<{ text: string; onPress: () => void }> = ({ text, onPres
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [pressed && styles.pressed, styles.copyRoot, stylesHook.copyRoot]}>
       <View style={styles.copyLeft}>
-        <BlueText textBreakStrategy="balanced" style={styles.copyText}>
+        <BlueText textBreakStrategy="balanced" style={[styles.copyText, secretTextStyle]}>
           {text}
         </BlueText>
       </View>
@@ -183,7 +184,7 @@ const WalletExport: React.FC = () => {
       <BlueText style={styles.scanText}>{loc.wallets.scan_import}</BlueText>
 
       <View style={styles.qrCodeContainer}>
-        <QRCode isMenuAvailable={false} value={secret} size={qrCodeSize} logoSize={70} />
+        <QRCode isMenuAvailable={false} value={secret} size={qrCodeSize} logoSize={70} isSecret />
       </View>
 
       {/* Do not allow to copy mnemonic */}

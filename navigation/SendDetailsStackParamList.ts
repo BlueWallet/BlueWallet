@@ -42,7 +42,6 @@ export type SendDetailsParams = {
   utxos?: CreateTransactionUtxo[] | null;
   isEditable?: boolean;
   uri?: string;
-  paymentCode?: string;
   selectedFeeRate?: string | undefined;
   selectedFeeType?: NetworkTransactionFeeType;
   addRecipientParams?: {

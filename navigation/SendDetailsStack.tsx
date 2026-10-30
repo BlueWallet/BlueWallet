@@ -2,7 +2,11 @@ import React, { lazy, useMemo } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform } from 'react-native';
 import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
-import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
+import navigationStyle, {
+  CloseButtonPosition,
+  nestedScannerPresentation,
+  withRouteParamHeaderOptions,
+} from '../components/navigationStyle';
 import { isIOS26OrHigher } from '../blue_modules/environment';
 import { useTheme } from '../components/themes';
 import { Action } from '../components/types';
@@ -216,7 +220,7 @@ const SendDetailsStack = () => {
         options={navigationStyle({
           headerShown: false,
           statusBarHidden: true,
-          presentation: 'fullScreenModal',
+          presentation: nestedScannerPresentation,
           headerShadowVisible: false,
         })(theme)}
       />

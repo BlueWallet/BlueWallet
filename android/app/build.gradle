@@ -24,6 +24,10 @@ react {
     // debuggableVariants = ["liteDebug", "liteDebugOptimized", "prodDebug", "prodDebugOptimized"]
 
     /* Bundling */
+    //   End-to-end builds pass their Metro config, which hides secrets on screen (tests/e2e/metro.config.js).
+    if (System.getenv("BUNDLE_CONFIG")) {
+        bundleConfig = file(System.getenv("BUNDLE_CONFIG"))
+    }
     //   A list containing the node command and its flags. Default is just 'node'.
     // nodeExecutableAndArgs = ["node"]
     //

@@ -4,6 +4,9 @@ import React_RCTAppDelegate
 import ReactAppDependencyProvider
 import UserNotifications
 import Bugsnag
+#if CATALYST_E2E
+import Security
+#endif
 
 
 @main
@@ -13,6 +16,24 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     var sceneLaunchOptions: [UIApplication.LaunchOptionsKey: Any]?
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        #if CATALYST_E2E && targetEnvironment(macCatalyst)
+        // Compiled only by tests/e2e-appium/build-catalyst.sh into the isolated test app.
+        let e2eBundleID = Bundle.main.bundleIdentifier!
+        precondition(e2eBundleID.hasSuffix(".e2e"))
+        if ProcessInfo.processInfo.arguments.contains("-e2e-reset") {
+            // This executable has only its dedicated E2E keychain access group.
+            let status = SecItemDelete([kSecClass: kSecClassGenericPassword] as CFDictionary)
+            precondition(status == errSecSuccess || status == errSecItemNotFound, "E2E keychain reset failed: \(status)")
+            let manager = FileManager.default
+            for directory in [FileManager.SearchPathDirectory.documentDirectory, .applicationSupportDirectory, .cachesDirectory] {
+                for url in manager.urls(for: directory, in: .userDomainMask) {
+                    precondition(url.path.contains("/Containers/\(e2eBundleID)/Data/"))
+                    if manager.fileExists(atPath: url.path) { try! manager.removeItem(at: url) }
+                }
+            }
+            UserDefaults.standard.removePersistentDomain(forName: e2eBundleID)
+        }
+        #endif
         var reactLaunchOptions = launchOptions
         if let shortcutItem = launchOptions?[.shortcutItem] as? UIApplicationShortcutItem,
            let url = appLinkURL(for: shortcutItem) {

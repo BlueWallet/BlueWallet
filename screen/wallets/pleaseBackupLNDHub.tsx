@@ -5,6 +5,7 @@ import BlueTextCentered from '../../components/BlueTextCentered';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import QRCode from '../../components/QRCode';
+import { secretTextStyle } from '../../helpers/secretsOnScreen';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -70,9 +71,9 @@ const PleaseBackupLNDHub = () => {
         <BlueSpacing20 />
       </View>
       <BlueSpacing20 />
-      <QRCode value={wallet.getSecret()} size={qrCodeSize} />
+      <QRCode value={wallet.getSecret()} size={qrCodeSize} isSecret />
       <View style={styles.copyText}>
-        <CopyTextToClipboard text={wallet.getSecret()} />
+        <CopyTextToClipboard text={wallet.getSecret()} style={secretTextStyle} />
       </View>
       <BlueSpacing20 />
       <Button onPress={dismiss} title={loc.pleasebackup.ok_lnd} />

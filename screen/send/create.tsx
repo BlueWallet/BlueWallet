@@ -10,6 +10,7 @@ import BlueText from '../../components/BlueText';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { useTheme } from '../../components/themes';
+import { secretInputProps, secretTextStyle } from '../../helpers/secretsOnScreen';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -116,7 +117,8 @@ const SendCreate = () => {
         </>
       ) : null}
       <BlueText style={[styles.cardText, styleHooks.cardText]}>{loc.send.create_this_is_hex}</BlueText>
-      <TextInput testID="TxhexInput" style={styles.cardTx} multiline editable={false} value={tx} />
+      {/* A signed transaction is broadcastable: e2e builds draw it in transparent ink like a seed. */}
+      <TextInput testID="TxhexInput" style={[styles.cardTx, secretTextStyle]} multiline editable={false} value={tx} {...secretInputProps} />
 
       <Pressable
         accessibilityRole="button"
