@@ -1,13 +1,14 @@
 name: BuildReleaseApk
 
 on:
-  pull_request:
-    branches:
-      - master
-    types: [opened, synchronize, reopened, labeled, unlabeled]
-  push:
-    branches:
-      - master
+  workflow_call:
+    inputs:
+      build_number:
+        required: true
+        type: string
+      source_sha:
+        required: true
+        type: string
 
 jobs:
   buildReleaseApk:
@@ -18,6 +19,7 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: "0"
+          ref: ${{ inputs.source_sha }}
 
       - name: Free disk space (Android build)
         shell: bash
@@ -78,20 +80,21 @@ jobs:
           ruby-version: 3.4.11
           bundler-cache: true
 
-      - name: Generate Android version code
+      - name: Validate shared build number
         id: build_number
         env:
-          # Keep new codes above releases produced by the old Unix-timestamp scheme,
-          # then advance by small, deterministic increments for each workflow run.
-          VERSION_CODE_BASE: 1794000000
+          SHARED_BUILD_NUMBER: ${{ inputs.build_number }}
         run: |
-          NEW_BUILD_NUMBER=$((VERSION_CODE_BASE + GITHUB_RUN_NUMBER))
-          if [ "$NEW_BUILD_NUMBER" -gt 2100000000 ]; then
-            echo "Android version code $NEW_BUILD_NUMBER exceeds the Play Store limit" >&2
+          if ! [[ "$SHARED_BUILD_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "Shared build number must contain digits only" >&2
             exit 1
           fi
-          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-          echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
+          if [ "$SHARED_BUILD_NUMBER" -gt 2100000000 ]; then
+            echo "Shared build number $SHARED_BUILD_NUMBER exceeds the Play Store limit" >&2
+            exit 1
+          fi
+          echo "NEW_BUILD_NUMBER=$SHARED_BUILD_NUMBER" >> "$GITHUB_ENV"
+          echo "build_number=$SHARED_BUILD_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: Build and sign APK
         id: build_and_sign_apk

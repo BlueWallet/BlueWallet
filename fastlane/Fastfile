@@ -28,6 +28,7 @@ require 'securerandom'
 
 default_platform(:ios)
 PROJECT_ROOT = File.expand_path("..", __dir__)
+SHARED_BUILD_NUMBER_MAX = 2_100_000_000
 project_root = PROJECT_ROOT
 
 module AndroidHelpers
@@ -272,6 +273,8 @@ platform :android do
       # to Unix time makes large jumps and quickly consumes Play Store headroom.
       build_number = (options[:build_number] || ENV['BUILD_NUMBER']).to_s
       UI.user_error!("A build_number option or BUILD_NUMBER environment variable is required") if build_number.empty?
+      UI.user_error!("Shared build number must contain digits only") unless build_number.match?(/\A\d+\z/)
+      UI.user_error!("Shared build number exceeds Android's #{SHARED_BUILD_NUMBER_MAX} limit") if build_number.to_i > SHARED_BUILD_NUMBER_MAX
       ENV['BUILD_NUMBER'] = build_number
 
       AndroidHelpers.ensure_temp_credentials!(auto: options[:auto_credentials])
@@ -973,6 +976,7 @@ platform :ios do
     build_number = ENV["NEW_BUILD_NUMBER"].to_s
     UI.user_error!("NEW_BUILD_NUMBER is required") if build_number.empty?
     UI.user_error!("NEW_BUILD_NUMBER must contain digits only") unless build_number.match?(/\A\d+\z/)
+    UI.user_error!("NEW_BUILD_NUMBER exceeds Android's #{SHARED_BUILD_NUMBER_MAX} limit") if build_number.to_i > SHARED_BUILD_NUMBER_MAX
     UI.message("Setting build number to #{build_number}...")
 
     # Set the new build number
