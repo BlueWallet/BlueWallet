@@ -234,7 +234,6 @@ function fetchShim(input, init = {}) {
 
     const controller = new StreamController();
     let resolved = false;
-    let req;
 
     const options = {
       method,
@@ -251,7 +250,7 @@ function fetchShim(input, init = {}) {
       // If needed, you can add agent configuration here
     }
 
-    req = client.request(options, res => {
+    const req = client.request(options, res => {
       // Build response headers
       const responseHeaders = new SimpleHeaders(res.headers);
 
@@ -347,4 +346,3 @@ module.exports.fetch = fetchShim;
 module.exports.Headers = SimpleHeaders;
 module.exports.Response = SimpleResponse;
 module.exports.AbortError = AbortError;
-

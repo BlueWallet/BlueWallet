@@ -1,6 +1,7 @@
 import React, { useRef, useCallback, useReducer, useEffect, FC } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Keyboard, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useTheme } from '../components/themes';
+import type { Theme } from '../components/themes';
 import loc, { formatBalance } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
@@ -83,7 +84,7 @@ interface FeeOptionProps {
   disabled?: boolean;
   onPress: () => void;
   formatFee: (fee: number) => string;
-  colors: any;
+  colors: Theme['colors'];
 }
 
 const FeeOption: FC<FeeOptionProps> = ({ label, time, fee, rate, active, disabled, onPress, formatFee, colors }) => {
@@ -150,6 +151,23 @@ const SelectFeeScreen = () => {
   });
 
   const customFeeInputRef = useRef<TextInput>(null);
+  // True from the moment the keyboard starts appearing until it is fully hidden; Keyboard.isVisible() only
+  // flips after keyboardDidShow, so it misses the "still animating in" window.
+  const keyboardShowingRef = useRef(false);
+  useEffect(() => {
+    const subscriptions = [
+      Keyboard.addListener('keyboardWillShow', () => {
+        keyboardShowingRef.current = true;
+      }),
+      Keyboard.addListener('keyboardDidShow', () => {
+        keyboardShowingRef.current = true;
+      }),
+      Keyboard.addListener('keyboardDidHide', () => {
+        keyboardShowingRef.current = false;
+      }),
+    ];
+    return () => subscriptions.forEach(subscription => subscription.remove());
+  }, []);
   const nf = networkTransactionFees;
 
   const stylesHook = StyleSheet.create({
@@ -225,7 +243,27 @@ const SelectFeeScreen = () => {
 
   const navigateWithFee = useCallback(
     (feeRateValue: string, feeType: NetworkTransactionFeeType) => {
-      navigation.popTo('SendDetails', { walletID, selectedFeeRate: feeRateValue, selectedFeeType: feeType }, { merge: true });
+      const popToSendDetails = () =>
+        navigation.popTo('SendDetails', { walletID, selectedFeeRate: feeRateValue, selectedFeeType: feeType }, { merge: true });
+
+      if (!Keyboard.isVisible() && !keyboardShowingRef.current) {
+        popToSendDetails();
+        return;
+      }
+
+      // Resign the input and wait for the keyboard to hide before popping, else it stays orphaned (#9045).
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        subscription.remove();
+        clearTimeout(fallback);
+        popToSendDetails();
+      };
+      const subscription = Keyboard.addListener('keyboardDidHide', finish);
+      const fallback = setTimeout(finish, 1000);
+      customFeeInputRef.current?.blur();
+      Keyboard.dismiss();
     },
     [navigation, walletID],
   );
@@ -322,6 +360,8 @@ const SelectFeeScreen = () => {
                     placeholderTextColor={colors.placeholderTextColor}
                     onChangeText={handleCustomFeeChange}
                     onSubmitEditing={handleCustomFeeSubmit}
+                    // Do not blur inside the key event; navigateWithFee resigns the input itself (#9045).
+                    submitBehavior="submit"
                     onFocus={handleCustomFocus}
                     onBlur={handleCustomFeeBlur}
                     enablesReturnKeyAutomatically

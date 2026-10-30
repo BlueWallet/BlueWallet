@@ -47,6 +47,9 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import Icon from '../../components/Icon';
 import { navigateToWalletsList } from '../../NavigationService';
+import { removeRecentMenuItemsForWallets } from '../../components/Context/recentMenuItems';
+import { errorMessage } from '../../helpers/errorMessage';
+import { AbstractHDWallet } from '../../class/wallets/abstract-hd-wallet';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const IMPORT_NOTES_ACTION_ID = 'import_notes';
@@ -126,13 +129,8 @@ const WalletDetails: React.FC = () => {
   const [metadataNonce, setMetadataNonce] = useState<number>(0);
   const derivationPath = useMemo<string | null>(() => {
     try {
-      // @ts-expect-error: Need to fix later
-      if (wallet.getDerivationPath) {
-        // @ts-expect-error: Need to fix later
-        const path = wallet.getDerivationPath();
-        return path.length > 0 ? path : null;
-      }
-      return null;
+      const path = wallet instanceof AbstractHDWallet || wallet instanceof WatchOnlyWallet ? wallet.getDerivationPath() : undefined;
+      return path && path.length > 0 ? path : null;
     } catch (e) {
       return null;
     }
@@ -149,8 +147,8 @@ const WalletDetails: React.FC = () => {
         try {
           const address = await wallet.getArkAddress();
           setArkAddress(address);
-        } catch (error: any) {
-          setArkAddress(error.message);
+        } catch (error) {
+          setArkAddress(errorMessage(error));
         }
       }
     };
@@ -166,8 +164,8 @@ const WalletDetails: React.FC = () => {
       await (wallet as unknown as LightningArkWallet).restoreSwaps();
       await fetchAndSaveWalletTransactions(wallet.getID());
       presentAlert({ message: loc.wallets.restore_swap_activity_done });
-    } catch (e: any) {
-      presentAlert({ message: e?.message ?? String(e) });
+    } catch (e) {
+      presentAlert({ message: errorMessage(e) });
     } finally {
       setIsRestoringSwaps(false);
     }
@@ -272,12 +270,10 @@ const WalletDetails: React.FC = () => {
       let status = '';
 
       if (wallet.chain === Chain.OFFCHAIN) {
-        hash = transaction.payment_hash ? transaction.payment_hash.toString() : '';
+        const paymentHash = transaction.payment_hash;
+        hash = typeof paymentHash === 'string' ? paymentHash : paymentHash ? uint8ArrayToHex(new Uint8Array(paymentHash.data)) : '';
         memo = memo || transaction.memo || '';
         status = transaction.ispaid ? loc._.success : loc.lnd.expired;
-        if (typeof hash !== 'string' && (hash as any)?.type === 'Buffer' && (hash as any)?.data) {
-          hash = uint8ArrayToHex(new Uint8Array((hash as any).data));
-        }
       }
 
       const date = transaction.timestamp ? new Date(transaction.timestamp * 1000).toString() : '';
@@ -420,9 +416,7 @@ const WalletDetails: React.FC = () => {
     useCallback(() => {
       let cancelled = false;
       if (isMasterFingerPrintVisible && wallet.allowMasterFingerprint && wallet.allowMasterFingerprint()) {
-        // @ts-expect-error: Need to fix later
-        if (wallet.getMasterFingerprintHex && !cancelled) {
-          // @ts-expect-error: Need to fix later
+        if ((wallet instanceof AbstractHDElectrumWallet || wallet instanceof WatchOnlyWallet) && !cancelled) {
           setMasterFingerprint(wallet.getMasterFingerprintHex());
         }
       } else {
@@ -500,11 +494,11 @@ const WalletDetails: React.FC = () => {
       walletID,
     });
   };
-  const navigateToXPub = () =>
-    navigate('WalletXpub', {
-      walletID,
-      xpub: wallet.getXpub(),
-    });
+  const navigateToXPub = () => {
+    const xpub = wallet.getXpub();
+    if (!xpub) return;
+    navigate('WalletXpub', { walletID, xpub });
+  };
 
   const navigateToSignVerify = () =>
     navigate('SignVerifyRoot', {
@@ -567,21 +561,15 @@ const WalletDetails: React.FC = () => {
       wallet._lastBalanceFetch = 0;
     }
 
-    // @ts-expect-error: Need to fix later
-    if (wallet._hdWalletInstance) {
-      // @ts-expect-error: Need to fix later
-      wallet._hdWalletInstance._txs_by_external_index = {};
-      // @ts-expect-error: Need to fix later
-      wallet._hdWalletInstance._txs_by_internal_index = {};
+    if (wallet instanceof WatchOnlyWallet && wallet._hdWalletInstance) {
+      const hd = wallet._hdWalletInstance;
+      hd._txs_by_external_index = {};
+      hd._txs_by_internal_index = {};
 
-      // @ts-expect-error: Need to fix later
-      wallet._hdWalletInstance._balances_by_external_index = {};
-      // @ts-expect-error: Need to fix later
-      wallet._hdWalletInstance._balances_by_internal_index = {};
-      // @ts-expect-error: Need to fix later
-      wallet._hdWalletInstance._lastTxFetch = 0;
-      // @ts-expect-error: Need to fix later
-      wallet._hdWalletInstance._lastBalanceFetch = 0;
+      hd._balances_by_external_index = {};
+      hd._balances_by_internal_index = {};
+      hd._lastTxFetch = 0;
+      hd._lastBalanceFetch = 0;
       presentAlert({ message: msg });
     }
   };
@@ -841,14 +829,15 @@ const WalletDetails: React.FC = () => {
                   onValueChange: async (value: boolean) => {
                     if (wallet.setHideTransactionsInWalletsList) {
                       wallet.setHideTransactionsInWalletsList(!value);
+                      if (!value) removeRecentMenuItemsForWallets(new Set([walletID]));
                       triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
                       setHideTransactionsInWalletsList(!wallet.getHideTransactionsInWalletsList());
                     }
                     try {
                       await saveToDisk();
-                    } catch (error: any) {
+                    } catch (error) {
                       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-                      console.error(error.message);
+                      console.error(errorMessage(error));
                     }
                   },
                 }}

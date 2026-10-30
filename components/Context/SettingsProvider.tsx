@@ -4,12 +4,9 @@ import { isReadClipboardAllowed, setReadClipboardAllowed } from '../../blue_modu
 import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon, setPreferredCurrency } from '../../blue_modules/currency';
 import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import { BlueApp } from '../../class/blue-app';
-import { saveLanguage, STORAGE_KEY } from '../../loc';
+import loc, { isRtlLayoutStale, languageReady, saveLanguage } from '../../loc';
+import presentAlert from '../Alert';
 import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
-import {
-  getEnabled as getIsDeviceQuickActionsEnabled,
-  setEnabled as setIsDeviceQuickActionsEnabled,
-} from '../../hooks/useDeviceQuickActions';
 import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
 import { useStorage } from '../../hooks/context/useStorage';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -17,7 +14,6 @@ import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../Tot
 import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer, normalizeUrl } from '../../models/blockExplorer';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -89,8 +85,6 @@ interface SettingsContextType {
   setIsLegacyURv1EnabledStorage: (value: boolean) => Promise<void>;
   isClipboardGetContentEnabled: boolean;
   setIsClipboardGetContentEnabledStorage: (value: boolean) => Promise<void>;
-  isQuickActionsEnabled: boolean;
-  setIsQuickActionsEnabledStorage: (value: boolean) => Promise<void>;
   isTotalBalanceEnabled: boolean;
   setIsTotalBalanceEnabledStorage: (value: boolean) => Promise<void>;
   totalBalancePreferredUnit: BitcoinUnit;
@@ -118,8 +112,6 @@ const defaultSettingsContext: SettingsContextType = {
   setIsLegacyURv1EnabledStorage: async () => {},
   isClipboardGetContentEnabled: true,
   setIsClipboardGetContentEnabledStorage: async () => {},
-  isQuickActionsEnabled: true,
-  setIsQuickActionsEnabledStorage: async () => {},
   isTotalBalanceEnabled: true,
   setIsTotalBalanceEnabledStorage: async () => {},
   totalBalancePreferredUnit: BitcoinUnit.BTC,
@@ -141,7 +133,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const [isWidgetBalanceDisplayAllowed, setIsWidgetBalanceDisplayAllowed] = useState<boolean>(true);
   const [isLegacyURv1Enabled, setIsLegacyURv1Enabled] = useState<boolean>(false);
   const [isClipboardGetContentEnabled, setIsClipboardGetContentEnabled] = useState<boolean>(true);
-  const [isQuickActionsEnabled, setIsQuickActionsEnabled] = useState<boolean>(true);
   const [isTotalBalanceEnabled, setIsTotalBalanceEnabled] = useState<boolean>(true);
   const [totalBalancePreferredUnit, setTotalBalancePreferredUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
   const [selectedBlockExplorer, setSelectedBlockExplorer] = useState<BlockExplorer>(BLOCK_EXPLORERS.default);
@@ -164,8 +155,12 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         getIsHandOffUseEnabled().then(handOff => {
           setIsHandOffUseEnabledState(handOff);
         }),
-        AsyncStorage.getItem(STORAGE_KEY).then(lang => {
-          setLanguage(lang ?? 'en');
+        languageReady.then(lang => {
+          setLanguage(lang);
+          // Device language changed RTL/LTR behind our back (iOS per-app language, system language).
+          if (isRtlLayoutStale(lang)) {
+            presentAlert({ message: loc.settings.language_isRTL });
+          }
         }),
         isBalanceDisplayAllowed().then(balanceDisplayAllowed => {
           setIsWidgetBalanceDisplayAllowed(balanceDisplayAllowed);
@@ -175,9 +170,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         }),
         isReadClipboardAllowed().then(clipboardEnabled => {
           setIsClipboardGetContentEnabled(clipboardEnabled);
-        }),
-        getIsDeviceQuickActionsEnabled().then(quickActionsEnabled => {
-          setIsQuickActionsEnabled(quickActionsEnabled);
         }),
         getDoNotTrackStorage().then(doNotTrack => {
           setIsDoNotTrackEnabled(doNotTrack);
@@ -301,14 +293,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
     }
   }, []);
 
-  const setIsQuickActionsEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
-    try {
-      await setIsDeviceQuickActionsEnabled(value);
-      setIsQuickActionsEnabled(value);
-    } catch (e) {
-      console.error('Error setting isQuickActionsEnabled:', e);
-    }
-  }, []);
   const setIsTotalBalanceEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
     try {
       await setTotalBalanceViewEnabledStorage(value);
@@ -358,8 +342,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsLegacyURv1EnabledStorage,
       isClipboardGetContentEnabled,
       setIsClipboardGetContentEnabledStorage,
-      isQuickActionsEnabled,
-      setIsQuickActionsEnabledStorage,
       isTotalBalanceEnabled,
       setIsTotalBalanceEnabledStorage,
       totalBalancePreferredUnit,
@@ -386,8 +368,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsLegacyURv1EnabledStorage,
       isClipboardGetContentEnabled,
       setIsClipboardGetContentEnabledStorage,
-      isQuickActionsEnabled,
-      setIsQuickActionsEnabledStorage,
       isTotalBalanceEnabled,
       setIsTotalBalanceEnabledStorage,
       totalBalancePreferredUnit,

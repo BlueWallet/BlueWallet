@@ -89,9 +89,13 @@ const IsItMyAddress: React.FC = () => {
 
   useEffect(() => {
     if (matchingWallets && matchingWallets.length > 0 && scrollViewRef.current && firstWalletRef.current) {
-      firstWalletRef.current.measureLayout(scrollViewRef.current.getInnerViewNode(), (x, y) => {
-        scrollViewRef.current?.scrollTo({ x: 0, y: y - 20, animated: true });
-      });
+      const innerView = scrollViewRef.current.getInnerViewRef();
+      if (!innerView) return;
+      firstWalletRef.current.measureLayout(
+        innerView,
+        (_x, y) => scrollViewRef.current?.scrollTo({ x: 0, y: y - 20, animated: true }),
+        () => console.warn('Unable to measure the matching wallet position'),
+      );
     }
   }, [matchingWallets]);
 

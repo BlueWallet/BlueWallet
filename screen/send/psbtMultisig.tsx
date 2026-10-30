@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation, RouteProp, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -19,18 +20,12 @@ import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { combinePSBTs } from '../../util/combinePSBTs.ts';
+import { errorMessage } from '../../helpers/errorMessage';
+import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 
-type RouteParams = {
-  params: {
-    walletID: string;
-    psbtBase64: string;
-    memo: string;
-    receivedPSBTBase64: string;
-    txhex: string;
-    launchedBy: string;
-  };
-};
+type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'PsbtMultisig'>;
+type RouteProps = RouteProp<SendDetailsStackParamList, 'PsbtMultisig'>;
 
 type DestinationTarget = { address: string; value: number };
 
@@ -107,9 +102,10 @@ const dashType = ({
 
 const PsbtMultisig = () => {
   const { wallets } = useStorage();
-  const { navigate, setParams } = useNavigation();
+  const navigation = useNavigation<NavigationProps>();
+  const { navigate, setParams } = navigation;
   const { colors } = useTheme();
-  const { walletID, psbtBase64, memo, receivedPSBTBase64, txhex, launchedBy } = useRoute<RouteProp<RouteParams>>().params;
+  const { walletID, psbtBase64, memo, receivedPSBTBase64, txhex, launchedBy } = useRoute<RouteProps>().params;
   const wallet = wallets.find(w => w.getID() === walletID) as MultisigHDWallet;
   assert(wallet, 'Internal error: MultisigHDWallet not found');
 
@@ -177,9 +173,9 @@ const PsbtMultisig = () => {
       const combined = combinePSBTs({ psbtBase64: psbt.toBase64(), newPSBTBase64: receivedPSBTBase64 });
       setPsbt(combined);
       setParams({ receivedPSBTBase64: undefined });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error during PSBT combination:', error);
-      presentAlert({ message: error.message });
+      presentAlert({ message: errorMessage(error) });
     }
   }, [receivedPSBTBase64, psbt, setParams]);
 
@@ -196,9 +192,10 @@ const PsbtMultisig = () => {
         tx: txhex,
         recipients: targets,
         satoshiPerByte,
+        psbt,
       });
-    } catch (error: any) {
-      presentAlert({ message: error?.message ?? String(error) });
+    } catch (error: unknown) {
+      presentAlert({ message: errorMessage(error) });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txhex]);
@@ -245,13 +242,14 @@ const PsbtMultisig = () => {
     let finalized: bitcoin.Psbt;
     try {
       finalized = wallet.finalizedCopy(psbt);
-    } catch (err: any) {
-      presentAlert({ message: err?.message ?? String(err) });
+    } catch (err: unknown) {
+      presentAlert({ message: errorMessage(err) });
       return;
     }
 
     if (launchedBy) {
-      navigate(launchedBy, { psbt: finalized });
+      // The requester (for example an LN channel open) lives outside this stack.
+      navigation.dispatch(CommonActions.navigate({ name: launchedBy, params: { psbt: finalized } }));
       return;
     }
 
@@ -267,9 +265,10 @@ const PsbtMultisig = () => {
         tx,
         recipients: targets,
         satoshiPerByte,
+        psbt: finalized,
       });
-    } catch (error: any) {
-      presentAlert({ message: error?.message ?? String(error) });
+    } catch (error: unknown) {
+      presentAlert({ message: errorMessage(error) });
     }
   };
 

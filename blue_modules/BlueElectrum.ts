@@ -9,6 +9,7 @@ import type { LegacyWallet as LegacyWalletT } from '../class/wallets/legacy-wall
 import type { SegwitBech32Wallet as SegwitBech32WalletT } from '../class/wallets/segwit-bech32-wallet';
 import type { SegwitP2SHWallet as SegwitP2SHWalletT } from '../class/wallets/segwit-p2sh-wallet';
 import type { TaprootWallet as TaprootWalletT } from '../class/wallets/taproot-wallet';
+import type { Utxo } from '../class/wallets/types';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
 import { GROUP_IO_BLUEWALLET } from './currency';
@@ -16,19 +17,11 @@ import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { triggerWarningHapticFeedback } from './hapticFeedback';
 import { AlertButton } from 'react-native';
 import { uint8ArrayToHex, stringToUint8Array, hexToUint8Array } from './uint8array-extras/index';
+import { errorMessage } from '../helpers/errorMessage';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
 const tls = require('tls');
-
-type Utxo = {
-  height: number;
-  value: number;
-  address: string;
-  txid: string;
-  vout: number;
-  wif?: string;
-};
 
 export type ElectrumTransaction = {
   txid: string;
@@ -38,6 +31,7 @@ export type ElectrumTransaction = {
   vsize: number;
   weight: number;
   locktime: number;
+  fee?: number;
   vin: {
     txid: string;
     vout: number;
@@ -575,8 +569,11 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
 
       setConnectionState('disconnected');
       if (ensureInFlightShowAlert) {
+        // Wait until the async disabled-preference check has completed and the alert has actually
+        // been presented. Coalesced refresh callers may need to register dismissal work before
+        // this ensureConnected() promise resolves.
         // eslint-disable-next-line @typescript-eslint/no-use-before-define -- defined later in file
-        presentNetworkErrorAlert(lastPeer);
+        await presentNetworkErrorAlert(lastPeer);
       }
       return false;
     } finally {
@@ -657,7 +654,7 @@ async function presentNetworkErrorAlert(usingPeer?: Peer, allowRepeat = false) {
     return;
   }
 
-  presentAlert({
+  await presentAlert({
     allowRepeat,
     title: loc.errors.network,
     message: loc.formatString(
@@ -677,15 +674,14 @@ async function presentNetworkErrorAlert(usingPeer?: Peer, allowRepeat = false) {
       },
       {
         text: loc.settings.electrum_reset,
-        onPress: () => {
-          presentResetToDefaultsAlert().then(result => {
-            if (result) {
-              forceDisconnect();
-              setTimeout(() => {
-                ensureConnected({ showAlertOnFailure: true }).catch(() => {});
-              }, 500);
-            }
-          });
+        onPress: async () => {
+          const result = await presentResetToDefaultsAlert();
+          if (result) {
+            forceDisconnect();
+            setTimeout(() => {
+              ensureConnected({ showAlertOnFailure: true }).catch(() => {});
+            }, 500);
+          }
         },
         style: 'destructive',
       },
@@ -930,15 +926,15 @@ export const getTransactionsFullByAddress = async (address: string): Promise<Ele
     let full;
     try {
       full = await mainClient.blockchainTransaction_get(tx.tx_hash, true);
-    } catch (error: any) {
-      if (String(error?.message ?? error).startsWith('verbose transactions are currently unsupported')) {
+    } catch (error) {
+      if (errorMessage(error).startsWith('verbose transactions are currently unsupported')) {
         // apparently, stupid esplora instead of returning txhex when it cant return verbose tx started
         // throwing a proper exception. lets fetch txhex manually and decode on our end
         const txhex = await mainClient.blockchainTransaction_get(tx.tx_hash, false);
         full = txhexToElectrumTransaction(txhex);
       } else {
         // nope, its something else
-        throw new Error(String(error?.message ?? error));
+        throw new Error(errorMessage(error));
       }
     }
     full.address = address;
@@ -947,15 +943,15 @@ export const getTransactionsFullByAddress = async (address: string): Promise<Ele
       let prevTxForVin;
       try {
         prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
-      } catch (error: any) {
-        if (String(error?.message ?? error).startsWith('verbose transactions are currently unsupported')) {
+      } catch (error) {
+        if (errorMessage(error).startsWith('verbose transactions are currently unsupported')) {
           // apparently, stupid esplora instead of returning txhex when it cant return verbose tx started
           // throwing a proper exception. lets fetch txhex manually and decode on our end
           const txhex = await mainClient.blockchainTransaction_get(input.txid, false);
           prevTxForVin = txhexToElectrumTransaction(txhex);
         } else {
           // nope, its something else
-          throw new Error(String(error?.message ?? error));
+          throw new Error(errorMessage(error));
         }
       }
       if (prevTxForVin && prevTxForVin.vout && prevTxForVin.vout[input.vout]) {
@@ -1042,9 +1038,17 @@ export const multiGetBalanceByAddress = async (addresses: string[], batchsize: n
   return ret;
 };
 
+/** raw row of blockchain.scripthash.listunspent */
+type ElectrumUnspent = {
+  tx_hash: string;
+  tx_pos: number;
+  height: number;
+  value: number;
+};
+
 export const multiGetUtxoByAddress = async function (addresses: string[], batchsize: number = 100): Promise<Record<string, Utxo[]>> {
   if (!mainClient) throw new Error('Electrum client is not connected');
-  const ret: Record<string, any> = {};
+  const ret: Record<string, Utxo[]> = {};
 
   const chunks = splitIntoChunks(addresses, batchsize);
   for (const chunk of chunks) {
@@ -1058,7 +1062,7 @@ export const multiGetUtxoByAddress = async function (addresses: string[], batchs
       scripthash2addr[reversedHash] = addr;
     }
 
-    let results = [];
+    let results: { param: string; result: ElectrumUnspent[] }[] = [];
 
     if (disableBatching) {
       // ElectrumPersonalServer doesnt support `blockchain.scripthash.listunspent`
@@ -1069,14 +1073,14 @@ export const multiGetUtxoByAddress = async function (addresses: string[], batchs
     }
 
     for (const utxos of results) {
-      ret[scripthash2addr[utxos.param]] = utxos.result;
-      for (const utxo of ret[scripthash2addr[utxos.param]]) {
-        utxo.address = scripthash2addr[utxos.param];
-        utxo.txid = utxo.tx_hash;
-        utxo.vout = utxo.tx_pos;
-        delete utxo.tx_pos;
-        delete utxo.tx_hash;
-      }
+      const address = scripthash2addr[utxos.param];
+      ret[address] = utxos.result.map(u => ({
+        address,
+        txid: u.tx_hash,
+        vout: u.tx_pos,
+        height: u.height,
+        value: u.value,
+      }));
     }
   }
 
@@ -1208,8 +1212,8 @@ export async function multiGetTransactionByTxid<T extends boolean>(
           const txid = index2txid[resultIndex];
           results.push({ result: tx, param: txid });
         }
-      } catch (error: any) {
-        if (String(error?.message ?? error).startsWith('verbose transactions are currently unsupported')) {
+      } catch (error) {
+        if (errorMessage(error).startsWith('verbose transactions are currently unsupported')) {
           // electrs-esplora. cant use verbose, so fetching txs one by one and decoding locally
           for (const txid of chunk) {
             try {
@@ -1414,9 +1418,9 @@ export const broadcastV2 = async function (hex: string): Promise<string> {
   if (!mainClient) throw new Error('Electrum client is not connected');
   try {
     return await mainClient.blockchainTransaction_broadcast(hex);
-  } catch (error: any) {
+  } catch (error) {
     // electrum-client rejects JSON-RPC errors as `{ code, message }`, not Error
-    throw new Error(error?.message || String(error));
+    throw new Error(errorMessage(error) || String(error));
   }
 };
 
@@ -1630,8 +1634,8 @@ export async function getBlockTimestamps(heights: number[]): Promise<Record<numb
   return result;
 }
 
-const splitIntoChunks = function (arr: any[], chunkSize: number) {
-  const groups = [];
+const splitIntoChunks = function <T>(arr: T[], chunkSize: number): T[][] {
+  const groups: T[][] = [];
   let i;
   for (i = 0; i < arr.length; i += chunkSize) {
     groups.push(arr.slice(i, i + chunkSize));

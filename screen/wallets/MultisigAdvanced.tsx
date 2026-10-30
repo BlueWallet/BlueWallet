@@ -7,6 +7,7 @@ import Icon from '../../components/Icon';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { SettingsListItem, SettingsSection } from '../../components/SettingsSection';
 import { useTheme } from '../../components/themes';
+import type { Theme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
@@ -69,7 +70,7 @@ interface QuorumSelectorProps {
   n: number;
   onMChange: (m: number) => void;
   onNChange: (n: number) => void;
-  colors: any;
+  colors: Theme['colors'];
 }
 
 const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, colors }) => {

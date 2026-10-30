@@ -7,6 +7,55 @@ When upstream ships an equivalent fix, drop the patch here and bump the dependen
 
 ---
 
+## `scripts/normalize-catalyst-framework.sh`
+
+This build-time workaround is invoked from `ios/Podfile`, rather than applied
+through `patch-package`. The Podfile inserts it into CocoaPods' framework
+embedding script after the framework is copied and before its binary is stripped
+and signed.
+
+React Native's prebuilt Mac Catalyst frameworks can contain dereferenced copies
+of versioned framework symlinks. With React Native 0.88, `React.framework` also
+contains regular `Headers`, `Modules`, `PrivacyInfo.xcprivacy`, and resource
+bundles at its root. That layout fails macOS framework signing with:
+
+```text
+unsealed contents present in the root directory of an embedded framework
+```
+
+This caused Catalyst archives to fail in `[CP] Embed Pods Frameworks` while
+CocoaPods signed `React.framework`, before TestFlight upload could start.
+
+The script repairs `Versions/Current`, restores root symlinks to the canonical
+contents under `Versions/A`, moves headers and modules into that version, and
+places the privacy manifest and resource bundles in `Versions/A/Resources`.
+It runs only for Mac Catalyst frameworks that have `Versions/A`, changes only
+the embedded build copy, and is safe to run repeatedly. Downloaded frameworks
+and iOS device/simulator builds are left unchanged.
+
+Validated locally with a full Catalyst build and Apple Distribution signing plus
+strict signature verification of the embedded React, ReactNativeDependencies,
+and Hermes frameworks.
+
+Remove the script and its Podfile integration when the upstream prebuilt
+frameworks preserve the correct versioned macOS layout. After upgrading React
+Native or CocoaPods, verify a clean Catalyst build and signing of all embedded
+frameworks; the hook depends on CocoaPods' generated embedding script structure.
+
+---
+
+## `@bugsnag+react-native+9.1.0.patch`
+
+Removes the package's Android `consumerProguardFiles 'proguard-rules.pro'`
+declaration. The published package does not include that file, and Android
+Gradle Plugin 9 treats the missing consumer rules file as a build error.
+
+Remove when `@bugsnag/react-native` either ships the referenced file or stops
+declaring it. Re-check both the release APK and Android Detox builds after an
+upgrade.
+
+---
+
 ## `react-native-background-fetch+4.4.2.patch`
 
 Uses the package's bundled `TSBackgroundFetch.xcframework`, which includes
@@ -21,7 +70,13 @@ upgrading, verify the bundled framework still supports all three destinations.
 
 ## `react-native-notifications+5.2.2.patch`
 
-**What:** rewrites `FcmToken.sendTokenToJS()` (Android) to obtain the
+**What:** updates the Android library for React Native 0.88 and AGP 9:
+
+- enables `buildConfig` generation explicitly;
+- replaces the deprecated default `proguard-android.txt` rules with
+  `proguard-android-optimize.txt`;
+- changes the autolinking package expression to use `getApplication()`; and
+- rewrites `FcmToken.sendTokenToJS()` to obtain the
 `ReactContext` from `ReactHost` first (bridgeless / New Architecture),
 falling back to `ReactInstanceManager` only if that fails — and wraps
 both lookups in `try/catch`.
@@ -79,7 +134,21 @@ version and re-confirm the hunks still apply (`npx patch-package`).
 
 ---
 
-## `react-native-screens+4.27.0.patch`
+## `react-native-reanimated+4.7.1.patch`
+
+Guards the AppKit import in `REAReducedMotion.h` so it is used only when UIKit
+accessibility is unavailable. Mac Catalyst exposes AppKit headers as well as
+UIKit, but reduced-motion handling must use `UIAccessibility` there. Importing
+both frameworks causes conflicting platform declarations during Catalyst
+compilation.
+
+Remove when upstream makes the reduced-motion header distinguish Catalyst from
+native macOS. This patch must contain only the header change; never regenerate
+it while Reanimated's Android `.cxx` build cache exists under `node_modules`.
+
+---
+
+## `react-native-screens+4.30.0.patch`
 
 **What:** two hunks in `RNSBarButtonItem.mm`:
 

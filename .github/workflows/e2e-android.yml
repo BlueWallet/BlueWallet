@@ -69,7 +69,7 @@ jobs:
           android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
 
     - name: Upload APKs
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: bluewallet-android-apks
         path: bluewallet-android-apks.tar.gz
@@ -127,7 +127,7 @@ jobs:
         sudo udevadm trigger --name-match=kvm
 
     - name: Download APKs
-      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
       with:
         name: bluewallet-android-apks
 
@@ -144,9 +144,17 @@ jobs:
         enable-hw-keyboard: true
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
         arch: x86_64
-        script: npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 4 --reuse --artifacts-location ${{ github.workspace }}/artifacts
+        script: |
+          # Quickstep can ANR during emulator boot and leave a focus-stealing
+          # system dialog over every test. Stop it before launching BlueWallet.
+          adb shell settings put global hide_error_dialogs 1
+          adb shell am force-stop com.android.launcher3
+          # An app can still ANR right after this, and the setting above does not close a dialog
+          # already shown. CLOSE_SYSTEM_DIALOGS does.
+          for i in 1 2 3 4 5 6; do adb shell dumpsys window | grep -q "Application Not Responding" && echo "::warning::ANR dialog at boot, closing it" && adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS > /dev/null; sleep 5; done; true
+          npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 4 --reuse --artifacts-location ${{ github.workspace }}/artifacts
 
-    - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       if: failure()
       with:
         name: e2e-android-videos

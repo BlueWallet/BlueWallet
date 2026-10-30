@@ -1,10 +1,15 @@
-import { AztecoVoucher } from '../class/azteco';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { LightningTransaction, TWallet } from '../class/wallets/types';
-import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
+import type { NavigatorScreenParams } from '@react-navigation/native';
+import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
-import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
-import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
+import { SelectWalletParams, SendDetailsParams, SendDetailsStackParamList, SuccessParams } from './SendDetailsStackParamList';
+import { ReceiveDetailsStackParamList } from './ReceiveDetailsStackParamList';
+import type { AddWalletStackParamList } from './AddWalletStack';
+import type { AztecoRedeemStackParamList } from './AztecoRedeemStack';
+import type { DrawerParamList } from './DrawerParamList';
+import type { ExportMultisigCoordinationSetupStackRootParamList } from './ExportMultisigCoordinationSetupStack';
+import type { LNDCreateInvoiceStackParamList, ScanLNDInvoiceStackParamList } from './LNDStackParamsList';
+import type { SignVerifyStackParamList } from './SignVerifyStack';
 import { ClipboardPaymentKind } from '../blue_modules/clipboardPayment';
 
 export type ScanQRCodeParamList = {
@@ -18,7 +23,6 @@ export type ScanQRCodeParamList = {
   showFileImportButton?: boolean;
   backdoorVisible?: boolean;
   orientation?: 'portrait';
-  animatedQRCodeData?: Record<string, any>;
 };
 
 type VaultKeyData = {
@@ -33,75 +37,54 @@ type VaultKeyData = {
   exportString?: string;
 };
 
-type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']>;
-type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
+export type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']>;
+export type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 
 export type DetailViewStackParamList = {
-  DrawerRoot: undefined;
+  DrawerRoot: NavigatorScreenParams<DrawerParamList> | undefined;
   UnlockWithScreen: undefined;
   KeyboardShortcuts: undefined;
   WalletsList: { onBarScanned?: string };
   WalletTransactions: {
     isLoading?: boolean;
     walletID: string;
-    walletType: string;
+    walletType?: string;
     onBarScanned?: string;
     headerIsScrolled?: boolean;
     headerWalletLabel?: string;
     headerWalletBalance?: string;
   };
   WalletDetails: { walletID: string };
-  // TODO: type tx properly once Transaction and ElectrumTransaction are unified
-  TransactionStatus: { hash: string; walletID: string; tx?: any };
+  TransactionStatus: { hash: string; walletID: string; tx?: Transaction };
   CPFP: {
     wallet: TWallet | null;
     txid: string;
   };
   RBFBumpFee: { txid: string; wallet: TWallet | null };
   RBFCancel: { txid: string; wallet: TWallet | null };
-  SelectWallet: {
-    chainType?: Chain;
-    onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
-    availableWallets?: TWallet[];
-    noWalletExplanationText?: string;
-    onChainRequireSend?: boolean;
-    selectedWalletID?: string; // Add this parameter to scroll to a specific wallet
-  };
-  LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
-  LNDViewAdditionalInvoiceInformation: { invoiceId: string };
-  LNDViewAdditionalInvoicePreImage: { invoiceId: string };
-  Broadcast: object;
-  IsItMyAddress: object;
+  SelectWallet: SelectWalletParams;
+  AppShortcut: { selectionMode: 'send' | 'receive' | 'scan' };
+  LNDViewInvoice: { invoice: LightningTransaction | string; walletID: string };
+  LNDViewAdditionalInvoicePreImage: { preImageData: string };
+  Broadcast: undefined;
+  IsItMyAddress: undefined;
   GenerateWord: undefined;
-  LnurlPay: undefined;
+  LnurlPay: { lnurl: string; walletID: string };
   LnurlPaySuccess: {
     paymentHash: string;
     justPaid: boolean;
     fromWalletID: string;
   };
-  LnurlAuth: undefined;
-  Success: undefined;
+  LnurlAuth: { lnurl: string; walletID: string };
+  Success: SuccessParams;
   WalletAddresses: { walletID: string };
-  AddWalletRoot: undefined;
-  SendDetailsRoot: SendDetailsParams;
-  LNDCreateInvoiceRoot: undefined;
-  ScanLNDInvoiceRoot: {
-    screen: string;
-    params: {
-      paymentHash: string;
-      fromWalletID: string;
-      justPaid: boolean;
-    };
-  };
-  AztecoRedeemRoot: {
-    screen: string;
-    params: {
-      aztecoVoucher: AztecoVoucher;
-    };
-  };
-  AztecoRedeem: { aztecoVoucher: AztecoVoucher };
-  WalletExport: undefined;
-  ExportMultisigCoordinationSetupRoot: undefined;
+  AddWalletRoot: NavigatorScreenParams<AddWalletStackParamList> | undefined;
+  SendDetailsRoot: NavigatorScreenParams<SendDetailsStackParamList> | SendDetailsParams;
+  LNDCreateInvoiceRoot: NavigatorScreenParams<LNDCreateInvoiceStackParamList>;
+  ScanLNDInvoiceRoot: NavigatorScreenParams<ScanLNDInvoiceStackParamList>;
+  AztecoRedeemRoot: NavigatorScreenParams<AztecoRedeemStackParamList>;
+  WalletExport: { walletID: string };
+  ExportMultisigCoordinationSetupRoot: NavigatorScreenParams<ExportMultisigCoordinationSetupStackRootParamList>;
   Settings: undefined;
   Currency: undefined;
   GeneralSettings: undefined;
@@ -109,22 +92,24 @@ export type DetailViewStackParamList = {
   NetworkSettings: undefined;
   About: undefined;
   // DefaultView: undefined; // Commented out - not accessible from UI
-  ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string; headerRight?: HeaderRightRenderer | null };
+  // server: "host:port:t|s" as the setelectrumserver deeplink sends it
+  ElectrumSettings: { server?: string; onBarScanned?: string; headerRight?: HeaderRightRenderer | null } | undefined;
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;
   Language: undefined;
-  LightningSettings: {
-    url?: string;
-    onBarScanned?: string;
-  };
+  LightningSettings:
+    | {
+        url?: string;
+        onBarScanned?: string;
+      }
+    | undefined;
   NotificationSettings: undefined;
   SelfTest: undefined;
   ReleaseNotes: undefined;
   SettingsTools: undefined;
   ViewEditMultisigCosigners: {
     walletID: string;
-    cosigners: string[];
     headerRight?: HeaderRightRenderer | null;
     sheetAction?: string;
     sheetImportText?: string;
@@ -144,46 +129,14 @@ export type DetailViewStackParamList = {
     cosignerXpubURv2: string;
     exportFilename: string;
   };
-  WalletXpub: { walletID: string; xpub: string };
-  SignVerifyRoot: {
-    screen: 'SignVerify';
-    params: {
-      walletID: string;
-      address: string;
-    };
-  };
-  ReceiveDetails: {
-    walletID?: string;
-    address: string;
-    allowBIP47?: boolean;
-    isBIP47Enabled?: boolean;
-    toggleBIP47RequestedAt?: number;
-    headerLeft?: HeaderLeftRenderer;
-    headerRight?: HeaderRightRenderer;
-    headerBackVisible?: boolean;
-  };
-  ReceiveCustomAmount: {
-    address: string;
-    currentLabel?: string;
-    currentAmount?: string;
-    currentUnit?: BitcoinUnit;
-    preferredUnit?: BitcoinUnit;
-  };
-  ReceiveMoreOptions: {
-    address: string;
-    currentLabel?: string;
-    currentAmount?: string;
-    currentUnit?: BitcoinUnit;
-    preferredUnit?: BitcoinUnit;
-  };
-  ReceiveAddressLabel: {
-    address: string;
-  };
+  WalletXpub: { walletID?: string; xpub: string };
+  SignVerifyRoot: NavigatorScreenParams<SignVerifyStackParamList>;
+  ReceiveDetails: ReceiveDetailsStackParamList['ReceiveDetails'];
+  ReceiveCustomAmount: ReceiveDetailsStackParamList['ReceiveCustomAmount'];
+  ReceiveMoreOptions: ReceiveDetailsStackParamList['ReceiveMoreOptions'];
+  ReceiveAddressLabel: ReceiveDetailsStackParamList['ReceiveAddressLabel'];
   ScanQRCode: ScanQRCodeParamList;
-  PaymentCodeList: {
-    paymentCode: string;
-    walletID: string;
-  };
+  PaymentCodeList: { walletID: string };
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
   ManageWallets: undefined;
   ClipboardDetected: {

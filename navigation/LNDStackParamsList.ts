@@ -1,32 +1,29 @@
-import { TWallet } from '../class/wallets/types';
-import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
-import { ScanQRCodeParamList } from './DetailViewStackParamList';
-import { TNavigationWrapper } from './SendDetailsStackParamList';
+import { DetailViewStackParamList, ScanQRCodeParamList } from './DetailViewStackParamList';
+import { SelectWalletParams, SuccessParams } from './SendDetailsStackParamList';
 
 export type LNDStackParamsList = {
   ScanLNDInvoice: {
-    walletID: string | undefined;
-    uri: string | undefined;
-    onBarScanned: string | undefined;
+    walletID?: string;
+    uri?: string;
+    onBarScanned?: string;
+    openScanner?: boolean;
   };
-  LnurlPay: {
-    lnurl: string;
-    walletID: string;
-  };
-  LnurlPaySuccess: undefined;
+  LnurlPay: DetailViewStackParamList['LnurlPay'];
+  LnurlPaySuccess: DetailViewStackParamList['LnurlPaySuccess'];
   ScanQRCode: ScanQRCodeParamList;
-  SelectWallet: {
-    chainType?: Chain;
-    onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
-    availableWallets?: TWallet[];
-    noWalletExplanationText?: string;
-    onChainRequireSend?: boolean;
-  };
-  Success: {
-    amount?: number;
-    fee?: number;
-    invoiceDescription?: string;
-    amountUnit: BitcoinUnit;
-    txid?: string;
-  };
+  SelectWallet: SelectWalletParams;
+  Success: SuccessParams;
+  LNDCreateInvoice: { walletID?: string; uri?: string };
+  LNDViewInvoice: DetailViewStackParamList['LNDViewInvoice'];
+  LNDViewAdditionalInvoicePreImage: DetailViewStackParamList['LNDViewAdditionalInvoicePreImage'];
 };
+
+export type ScanLNDInvoiceStackParamList = Pick<
+  LNDStackParamsList,
+  'ScanLNDInvoice' | 'SelectWallet' | 'Success' | 'LnurlPay' | 'LnurlPaySuccess' | 'ScanQRCode'
+>;
+
+export type LNDCreateInvoiceStackParamList = Pick<
+  LNDStackParamsList,
+  'LNDCreateInvoice' | 'SelectWallet' | 'LNDViewInvoice' | 'LNDViewAdditionalInvoicePreImage' | 'ScanQRCode'
+>;
