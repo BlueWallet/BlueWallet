@@ -5,6 +5,41 @@ const repositoryRoot = path.join(__dirname, '../..');
 const readRepositoryFile = (relativePath: string) => readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
 
 describe('native app shortcut configuration', () => {
+  it('does not register BlueWallet as an image viewer on iOS or Android', () => {
+    const infoPlist = readRepositoryFile('ios/BlueWallet/Info.plist');
+    const androidManifest = readRepositoryFile('android/app/src/main/AndroidManifest.xml');
+    const androidViewFilters = androidManifest
+      .match(/<intent-filter[^>]*>[\s\S]*?<\/intent-filter>/g)
+      ?.filter(intentFilter => intentFilter.includes('android.intent.action.VIEW'));
+
+    expect(infoPlist).not.toMatch(/<string>public\.(?:image|jpeg|png|heic)<\/string>/);
+    expect(androidViewFilters?.join('\n')).not.toContain('android:mimeType="image/');
+    expect(androidViewFilters?.join('\n')).not.toContain('android:pathPattern=".*\\\\.*"');
+  });
+
+  it('registers image receiving as a share service on iOS and Android', () => {
+    const shareExtensionInfo = readRepositoryFile('ios/ShareExtension/Info.plist');
+    const androidManifest = readRepositoryFile('android/app/src/main/AndroidManifest.xml');
+    const androidSendFilters = androidManifest
+      .match(/<intent-filter[^>]*>[\s\S]*?<\/intent-filter>/g)
+      ?.filter(intentFilter => intentFilter.includes('android.intent.action.SEND'));
+
+    expect(shareExtensionInfo).toContain('<string>com.apple.share-services</string>');
+    expect(shareExtensionInfo).toContain('<key>NSExtensionActivationSupportsImageWithMaxCount</key>');
+    expect(shareExtensionInfo).toContain('<key>CFBundleIdentifier</key>');
+    expect(shareExtensionInfo).toContain('<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>');
+    expect(shareExtensionInfo).toContain('<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>');
+    expect(androidSendFilters?.some(intentFilter => intentFilter.includes('android:mimeType="image/*"'))).toBe(true);
+
+    const shareViewController = readRepositoryFile('ios/ShareExtension/ShareViewController.swift');
+    const companionListeners = readRepositoryFile('hooks/useCompanionListeners.ts');
+    expect(shareViewController).toContain('copyItem(at: sourceURL, to: destinationURL)');
+    expect(shareViewController).not.toContain('pngData()');
+    expect(shareViewController).not.toContain('UIImage(contentsOfFile:');
+    expect(shareViewController).not.toContain('detectQRCode');
+    expect(companionListeners).toContain("decodedUrl.includes('/shared-images/')");
+  });
+
   it('limits Android browsable links to the static BlueWallet shortcut routes', () => {
     const manifest = readRepositoryFile('android/app/src/main/AndroidManifest.xml');
     const browsableFilters = manifest

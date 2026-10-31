@@ -9,15 +9,20 @@ import Bugsnag
 @main
 class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
+    private static let appGroup = "group.io.bluewallet.bluewallet"
+    private static let pendingImageKey = "pendingSharedImageFilename"
     private var userDefaultsGroup: UserDefaults?
     var sceneLaunchOptions: [UIApplication.LaunchOptionsKey: Any]?
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        var reactLaunchOptions = launchOptions
+        var reactLaunchOptions = launchOptions ?? [:]
         if let shortcutItem = launchOptions?[.shortcutItem] as? UIApplicationShortcutItem,
            let url = appLinkURL(for: shortcutItem) {
-            reactLaunchOptions?[.url] = url
-            reactLaunchOptions?.removeValue(forKey: .shortcutItem)
+            reactLaunchOptions[.url] = url
+            reactLaunchOptions.removeValue(forKey: .shortcutItem)
+        }
+        if reactLaunchOptions[.url] == nil, let sharedImageURL = consumePendingSharedImageURL() {
+            reactLaunchOptions[.url] = sharedImageURL
         }
         sceneLaunchOptions = reactLaunchOptions
         automaticallyLoadReactNativeWindow = false
@@ -341,6 +346,23 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         return RCTLinkingManager.application(app, open: url, options: options)
+    }
+
+    func consumePendingSharedImageURL() -> URL? {
+        guard let defaults = UserDefaults(suiteName: Self.appGroup),
+              let requestedName = defaults.string(forKey: Self.pendingImageKey),
+              requestedName == (requestedName as NSString).lastPathComponent,
+              let container = FileManager.default.containerURL(
+                  forSecurityApplicationGroupIdentifier: Self.appGroup
+              ) else {
+            return nil
+        }
+
+        defaults.removeObject(forKey: Self.pendingImageKey)
+        let imageURL = container
+            .appendingPathComponent("shared-images", isDirectory: true)
+            .appendingPathComponent(requestedName)
+        return FileManager.default.fileExists(atPath: imageURL.path) ? imageURL : nil
     }
 
     override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {

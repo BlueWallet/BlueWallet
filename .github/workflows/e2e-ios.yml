@@ -134,6 +134,35 @@ jobs:
           }
           build || build
 
+      - name: Run iOS image share UI test
+        working-directory: ios
+        env:
+          RCT_NO_LAUNCH_PACKAGER: "1"
+          CCACHE_BINARY: /opt/homebrew/bin/ccache
+        run: |
+          set -eo pipefail
+          SIMULATOR_UDID=$(xcrun simctl list devices available -j | ruby -rjson -e '
+            devices = JSON.parse(STDIN.read).fetch("devices").values.flatten
+            device = devices.find { |candidate| candidate.fetch("name", "").start_with?("iPhone") }
+            abort "No available iPhone simulator" unless device
+            puts device.fetch("udid")
+          ')
+          xcrun simctl boot "$SIMULATOR_UDID" 2>/dev/null || true
+          xcrun simctl bootstatus "$SIMULATOR_UDID" -b
+          BITCOIN_QR_IMAGE="${RUNNER_TEMP}/bluewallet-bitcoin-qr.png"
+          xcrun swift ../tests/e2e/generate-bitcoin-qr.swift "$BITCOIN_QR_IMAGE"
+          xcrun simctl addmedia "$SIMULATOR_UDID" "$BITCOIN_QR_IMAGE"
+          xcodebuild \
+            -workspace BlueWallet.xcworkspace \
+            -scheme BlueWallet \
+            -configuration "${BUILD_CONFIGURATION}" \
+            -destination "platform=iOS Simulator,id=${SIMULATOR_UDID}" \
+            -derivedDataPath build \
+            -only-testing:BlueWalletUITests/ImageShareExtensionUITests \
+            CLANG_ENABLE_EXPLICIT_MODULES=NO \
+            SWIFT_ENABLE_EXPLICIT_MODULES=NO \
+            test
+
       - name: ccache stats
         if: always()
         run: ccache -s || true

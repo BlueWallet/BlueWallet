@@ -38,6 +38,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         RCTLinkingManager.scene(scene, openURLContexts: URLContexts)
     }
 
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+              let sharedImageURL = appDelegate.consumePendingSharedImageURL() else { return }
+        _ = RCTLinkingManager.application(UIApplication.shared, open: sharedImageURL, options: [:])
+    }
+
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return
