@@ -612,11 +612,29 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       return;
     }
 
-    await device.launchApp({ newInstance: true });
-
-    await device.openURL({
-      url: 'bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7?amount=0.0001&label=Yo',
-    });
+    if (device.getPlatform() === 'ios') {
+      await device.launchApp({ newInstance: true, launchArgs: { detoxEnableSynchronization: '0' } });
+    } else {
+      await device.launchApp({ newInstance: true });
+    }
+    await waitForId('WalletsList');
+    const url = 'bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7?amount=0.0001&label=Yo';
+    if (device.getPlatform() === 'ios') {
+      await device.sendToHome();
+      require('child_process').execFileSync('xcrun', ['simctl', 'openurl', device.id, url]);
+      await new Promise(resolve => setTimeout(resolve, 1_000));
+      const XCUITestRunner = require('detox/src/ios/XCUITestRunner');
+      const springboardRunner = new XCUITestRunner({
+        runtimeDevice: { id: device.id, _bundleId: 'com.apple.springboard' },
+      });
+      await springboardRunner.execute({
+        params: ['275', '475'],
+        type: 'systemAction',
+        systemAction: 'coordinateTap',
+      });
+    } else {
+      await device.openURL({ url });
+    }
     await waitForId('chooseFee');
 
     // Wait for the send screen to load after deep link
