@@ -128,16 +128,24 @@ export class BlueApp {
     return BlueApp.storageKeychainService(BlueApp.KEYCHAIN_RETENTION_KEY);
   }
 
+  static storageKeychainUsername(key: string, value: string): string {
+    return `${key}:${uint8ArrayToHex(sha256(value))}`;
+  }
+
   private async readKeychainItem(key: string): Promise<string | null> {
     const credentials = await Keychain.getGenericPassword({
       service: BlueApp.storageKeychainService(key),
     });
-    return credentials ? credentials.password : null;
+    if (!credentials) return null;
+    if (credentials.username !== BlueApp.storageKeychainUsername(key, credentials.password)) {
+      throw new Error(`Keychain integrity verification failed for ${key}`);
+    }
+    return credentials.password;
   }
 
   private async writeKeychainItem(key: string, value: string): Promise<void> {
     const service = BlueApp.storageKeychainService(key);
-    await Keychain.setGenericPassword(key, value, {
+    await Keychain.setGenericPassword(BlueApp.storageKeychainUsername(key, value), value, {
       service,
       accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
     });
@@ -169,10 +177,34 @@ export class BlueApp {
     return legacyValue;
   }
 
+  private async migratePreferenceKey(key: string): Promise<string | null> {
+    const currentValue = await AsyncStorage.getItem(key);
+    const legacyValue = await getLegacySecureValue(key);
+
+    if (currentValue !== null) {
+      if (legacyValue === currentValue) {
+        await this.cleanupLegacySecureValue(key);
+      } else if (legacyValue !== null) {
+        // The values may come from different generations. Keep both rather than
+        // guessing which one is newer and deleting the only recoverable copy.
+        console.warn(`Conflicting preference values found while migrating ${key}; preserving legacy value`);
+      }
+      return currentValue;
+    }
+
+    if (legacyValue === null) return null;
+
+    await AsyncStorage.setItem(key, legacyValue);
+    const storedValue = await AsyncStorage.getItem(key);
+    if (storedValue !== legacyValue) throw new Error(`Unable to verify migrated preference value for ${key}`);
+
+    await this.cleanupLegacySecureValue(key);
+    return legacyValue;
+  }
+
   isKeychainRetentionEnabled = async (): Promise<boolean> => {
     if (Platform.OS !== 'ios') return false;
-    const credentials = await Keychain.getGenericPassword({ service: BlueApp.keychainRetentionService() });
-    return !credentials || credentials.password !== 'false';
+    return (await this.readKeychainItem(BlueApp.KEYCHAIN_RETENTION_KEY)) !== 'false';
   };
 
   setKeychainRetentionEnabled = async (enabled: boolean): Promise<void> => {
@@ -195,13 +227,7 @@ export class BlueApp {
     await AsyncStorage.setItem(BlueApp.KEYCHAIN_INSTALL_MARKER, '1');
   }
 
-  async migrateKeys() {
-    if (!isReactNative) return;
-
-    // Run before reading or migrating wallet data so an opted-out reinstall
-    // cannot restore values retained by iOS from the previous installation.
-    await this.applyKeychainRetentionPolicy();
-
+  private async migrateSecureStorageKeys(): Promise<void> {
     for (const key of BlueApp.secureStorageKeys) {
       try {
         await this.migrateSecureStorageKey(key);
@@ -210,17 +236,27 @@ export class BlueApp {
         console.warn(`Failed to migrate secure-storage key ${key}:`, error);
       }
     }
+  }
 
+  private async migratePreferenceKeys(): Promise<void> {
     for (const key of BlueApp.keys2migrate) {
       try {
-        const currentValue = await AsyncStorage.getItem(key);
-        const legacyValue = await getLegacySecureValue(key);
-        if (currentValue === null && legacyValue !== null) await AsyncStorage.setItem(key, legacyValue);
-        if (legacyValue !== null) await removeLegacySecureValue(key);
+        await this.migratePreferenceKey(key);
       } catch (error) {
         console.warn(`Failed to migrate preference key ${key}:`, error);
       }
     }
+  }
+
+  async migrateKeys() {
+    if (!isReactNative) return;
+
+    // Run before reading or migrating wallet data so an opted-out reinstall
+    // cannot restore values retained by iOS from the previous installation.
+    await this.applyKeychainRetentionPolicy();
+
+    await this.migrateSecureStorageKeys();
+    await this.migratePreferenceKeys();
   }
 
   /**
