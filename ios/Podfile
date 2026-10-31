@@ -43,6 +43,18 @@ post_install do |installer|
     :mac_catalyst_enabled => true,
     :ccache_enabled => ENV['USE_CCACHE'] == '1',
   )
+
+  # React Native expresses this path through PODS_ROOT, but extension targets
+  # do not inherit PODS_ROOT from the app's Pods xcconfig. When ccache is
+  # enabled, their linker path consequently collapses to /../../node_modules.
+  # Keep the user project path based on SRCROOT after React Native configures it.
+  installer.aggregate_targets.map(&:user_project).uniq(&:path).each do |user_project|
+    user_project.build_configurations.each do |config|
+      config.build_settings['REACT_NATIVE_PATH'] = '$(SRCROOT)/../node_modules/react-native'
+    end
+    user_project.save
+  end
+
   # Resource bundles can retain older deployment targets after React Native's
   # post-install step. Keep every pod target within the supported iOS range.
   minimum_ios_version = Gem::Version.new(min_ios_version_supported)
