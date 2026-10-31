@@ -51,6 +51,8 @@ describe('native app shortcut configuration', () => {
     expect(sceneDelegate).toContain('connectionOptions: connectionOptions');
     expect(sceneDelegate).toContain('RCTLinkingManager.scene(scene, openURLContexts: URLContexts)');
     expect(sceneDelegate).toContain('RCTLinkingManager.scene(scene, continue: userActivity)');
+    expect(sceneDelegate).toContain('RCTContentDidAppearNotification');
+    expect(sceneDelegate).toContain('pendingURLContexts.formUnion(URLContexts)');
     expect(appDelegate).toContain('class AppDelegate: UIResponder, UIApplicationDelegate');
     expect(appDelegate).not.toContain('class AppDelegate: RCTAppDelegate');
   });

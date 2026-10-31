@@ -6,6 +6,9 @@ import UIKit
 class SceneDelegate: RCTDefaultReactNativeFactoryDelegate, UIWindowSceneDelegate {
     var window: UIWindow?
     var reactNativeFactory: RCTReactNativeFactory?
+    private var reactContentDidAppear = false
+    private var pendingURLContexts = Set<UIOpenURLContext>()
+    private var contentDidAppearObserver: NSObjectProtocol?
 
     func scene(
         _ scene: UIScene,
@@ -18,6 +21,15 @@ class SceneDelegate: RCTDefaultReactNativeFactoryDelegate, UIWindowSceneDelegate
         dependencyProvider = RCTAppDependencyProvider()
         reactNativeFactory = RCTReactNativeFactory(delegate: self)
         window = UIWindow(windowScene: windowScene)
+        contentDidAppearObserver = NotificationCenter.default.addObserver(
+            forName: NSNotification.Name(RCTContentDidAppearNotification),
+            object: nil,
+            queue: .main
+        ) { [weak self, weak scene] _ in
+            guard let self, let scene else { return }
+            reactContentDidAppear = true
+            forwardPendingURLContexts(to: scene)
+        }
         reactNativeFactory?.startReactNative(
             withModuleName: "BlueWallet",
             in: window,
@@ -37,6 +49,10 @@ class SceneDelegate: RCTDefaultReactNativeFactoryDelegate, UIWindowSceneDelegate
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard reactContentDidAppear else {
+            pendingURLContexts.formUnion(URLContexts)
+            return
+        }
         RCTLinkingManager.scene(scene, openURLContexts: URLContexts)
     }
 
@@ -66,5 +82,17 @@ class SceneDelegate: RCTDefaultReactNativeFactoryDelegate, UIWindowSceneDelegate
         #else
         Bundle.main.url(forResource: "main", withExtension: "jsbundle")
         #endif
+    }
+
+    private func forwardPendingURLContexts(to scene: UIScene) {
+        guard !pendingURLContexts.isEmpty else { return }
+        RCTLinkingManager.scene(scene, openURLContexts: pendingURLContexts)
+        pendingURLContexts.removeAll()
+    }
+
+    deinit {
+        if let contentDidAppearObserver {
+            NotificationCenter.default.removeObserver(contentDidAppearObserver)
+        }
     }
 }
