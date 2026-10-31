@@ -1,14 +1,17 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 import { useTheme } from './themes';
 
-interface HeaderRightButtonProps {
-  disabled: boolean;
+export interface HeaderRightButtonProps {
+  disabled?: boolean;
   onPress?: () => void;
   title: string;
   testID?: string;
 }
+
+type HeaderRightButtonOptions = Pick<NativeStackNavigationOptions, 'headerRight' | 'unstable_headerRightItems'>;
 
 const HeaderRightButton: React.FC<HeaderRightButtonProps> = ({ disabled, onPress, title, testID }) => {
   const { colors } = useTheme();
@@ -25,6 +28,21 @@ const HeaderRightButton: React.FC<HeaderRightButtonProps> = ({ disabled, onPress
     </TouchableOpacity>
   );
 };
+
+export const createHeaderRightButtonOptions = (props: HeaderRightButtonProps): HeaderRightButtonOptions => ({
+  headerRight: () => <HeaderRightButton {...props} />,
+  unstable_headerRightItems: () => [
+    {
+      type: 'button',
+      label: props.title,
+      icon: { type: 'sfSymbol', name: 'checkmark' },
+      onPress: props.onPress ?? (() => undefined),
+      ...(props.disabled !== undefined ? { disabled: props.disabled } : {}),
+      identifier: props.testID,
+      accessibilityLabel: props.title,
+    },
+  ],
+});
 
 const styles = StyleSheet.create({
   save: {
