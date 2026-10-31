@@ -3,6 +3,7 @@ import type { ParamListBase, RouteProp } from '@react-navigation/native';
 import React from 'react';
 import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
+import { isHandset, isIOS26OrHigher } from '../blue_modules/environment';
 import loc from '../loc';
 import { Theme } from './themes';
 
@@ -19,7 +20,9 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    marginLeft: 22,
+  },
+  buttonFormSheetLeft: {
+    marginLeft: 16,
   },
 });
 
@@ -119,8 +122,9 @@ const navigationStyle = <P extends ParamListBase = ParamListBase, R extends keyo
       if (!navigation) return opts; // static navigation config only; never the case with our navigators
       const isFirstRouteInStack = navigation.getState().index === 0;
       const params: HeaderParams | undefined = route.params;
-      const isModal = params?.presentation === 'modal' || params?.presentation === 'transparentModal';
-      const isFormSheet = params?.presentation === 'formSheet';
+      const presentation = params?.presentation ?? opts.presentation;
+      const isModal = presentation === 'modal' || presentation === 'transparentModal';
+      const isFormSheet = presentation === 'formSheet';
 
       const closeButton =
         closeButtonIfFirstInStack && isFirstRouteInStack
@@ -142,7 +146,15 @@ const navigationStyle = <P extends ParamListBase = ParamListBase, R extends keyo
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel={loc._.close}
-          style={isFormSheet ? [styles.buttonFormSheet, { backgroundColor: theme.colors.lightButton }] : styles.button}
+          style={
+            isFormSheet
+              ? [
+                  styles.buttonFormSheet,
+                  closeButton === CloseButtonPosition.Left && styles.buttonFormSheetLeft,
+                  { backgroundColor: theme.colors.lightButton },
+                ]
+              : styles.button
+          }
           onPress={handleClose}
           testID="NavigationCloseButton"
         >
@@ -161,12 +173,22 @@ const navigationStyle = <P extends ParamListBase = ParamListBase, R extends keyo
         },
       ];
 
+      // headerLeft/headerRight: iOS 17, iOS 18, Android, iPad, and Mac.
+      // unstable_header*Items is the liquid-glass button, and only an iOS 26 phone draws it. Setting it on iPad or Mac breaks the header.
+      const useIOS26HeaderItems = isIOS26OrHigher && isHandset;
+
       if (closeButton === CloseButtonPosition.Right) {
-        headerRight = renderCloseButtonElement;
-        unstable_headerRightItems = buildUnstableCloseButtonItems;
+        if (useIOS26HeaderItems) {
+          unstable_headerRightItems = buildUnstableCloseButtonItems;
+        } else {
+          headerRight = renderCloseButtonElement;
+        }
       } else if (closeButton === CloseButtonPosition.Left) {
-        headerLeft = renderCloseButtonElement;
-        unstable_headerLeftItems = buildUnstableCloseButtonItems;
+        if (useIOS26HeaderItems) {
+          unstable_headerLeftItems = buildUnstableCloseButtonItems;
+        } else {
+          headerLeft = renderCloseButtonElement;
+        }
       }
       const baseHeaderStyle = {
         headerShadowVisible: false,

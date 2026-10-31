@@ -134,6 +134,26 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return this._cosigners.length;
   }
 
+  /**
+   * Editable copy of the already-parsed cosigners.
+   * Round-tripping through getSecret()/setSecret() re-runs BIP39 for every seed.
+   */
+  cloneCosigners(): MultisigHDWallet {
+    const clone = new MultisigHDWallet();
+    const label = this.getLabel();
+    if (label) clone.setLabel(label);
+    clone.setM(this.getM());
+    clone._derivationPath = this._derivationPath;
+    clone._isNativeSegwit = this._isNativeSegwit;
+    clone._isWrappedSegwit = this._isWrappedSegwit;
+    clone._isLegacy = this._isLegacy;
+    clone._cosigners = this._cosigners.slice();
+    clone._cosignersFingerprints = this._cosignersFingerprints.slice();
+    clone._cosignersCustomPaths = this._cosignersCustomPaths.slice();
+    clone._cosignersPassphrases = this._cosignersPassphrases.slice();
+    return clone;
+  }
+
   setDerivationPath(path: string) {
     this._derivationPath = path;
     switch (this._derivationPath) {
@@ -1191,6 +1211,58 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   /**
+   * Drops partial signatures beyond the quorum, in place. bitcoinjs refuses to finalize an input with more
+   * signatures than M ("Too many signatures"), but any M valid signatures are enough, so the surplus is just removed.
+   * Signatures by keys that are not in the input's script are dropped first.
+   */
+  _dropSurplusSignatures(psbt: Psbt) {
+    const m = this.getM();
+    for (let cc = 0; cc < psbt.inputCount; cc++) {
+      const input = psbt.data.inputs[cc];
+      if (MultisigHDWallet._isPsbtInputFinalized(input) || !input.partialSig || input.partialSig.length <= m) continue;
+
+      const inScript = input.partialSig.filter(({ pubkey }) => {
+        try {
+          return psbt.inputHasPubkey(cc, pubkey);
+        } catch (_) {
+          return true; // cannot verify against the script, keep it and let finalize decide
+        }
+      });
+      input.partialSig = inScript.slice(0, m);
+    }
+  }
+
+  /**
+   * Returns a finalized copy and leaves the passed PSBT untouched. Surplus signatures are dropped first, so an
+   * over-signed PSBT finalizes too. Throws when an input cannot be finalized (missing script, missing UTXO, too few
+   * signatures). Finalizing in place is not safe: bitcoinjs finalizes input by input, so a throw on a later input
+   * leaves the earlier ones finalized with their `partialSig` already deleted
+   */
+  finalizedCopy(psbt: Psbt): Psbt {
+    const copy = psbt.clone();
+    this._dropSurplusSignatures(copy);
+    MultisigHDWallet.finalizeUnfinalizedInputs(copy);
+    return copy;
+  }
+
+  /**
+   * What importing a PSBT to co-sign does with it. Never modifies the passed PSBT.
+   * - Quorum already reached: a finalized copy, without adding a signature (another one would only be surplus).
+   * - Below quorum and this vault holds keys: a copy with our signatures, finalized if that reaches the quorum.
+   * - Below quorum and watch-only: the PSBT as it is, to review or export.
+   * Finalize errors throw, so the caller alerts instead of presenting a PSBT that can never be finalized.
+   */
+  prepareImportedPsbt(psbt: Psbt): Psbt {
+    if (this.calculateHowManySignaturesWeHaveFromPsbt(psbt) >= this.getM()) return this.finalizedCopy(psbt);
+    if (this.howManySignaturesCanWeMake() > 0) {
+      const copy = psbt.clone();
+      this.cosignPsbt(copy);
+      return copy;
+    }
+    return psbt;
+  }
+
+  /**
    * Number of signatures that every input has, i.e. the least signed input decides
    */
   calculateHowManySignaturesWeHaveFromPsbt(psbt: Psbt) {
@@ -1272,6 +1344,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
 
     if (this.calculateHowManySignaturesWeHaveFromPsbt(psbt) >= this.getM()) {
+      // an input that arrived with more signatures than M would make finalize throw; any M of them are enough
+      this._dropSurplusSignatures(psbt);
       MultisigHDWallet.finalizeUnfinalizedInputs(psbt);
       return { tx: psbt.extractTransaction() };
     }

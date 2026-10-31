@@ -863,14 +863,23 @@ const SendDetails = () => {
       try {
         const base64 = base64arg || (await fs.openSignedTransaction());
         if (!base64) return;
-        const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
+        let psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
-        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0) {
-          setIsLoading(true);
-          await sleep(100);
-          (wallet as MultisigHDWallet).cosignPsbt(psbt);
-          setIsLoading(false);
-          await sleep(100);
+        const multisig = wallet as MultisigHDWallet;
+        if (multisig) {
+          // Finalize at quorum, otherwise add our signatures (see prepareImportedPsbt, covered by unit tests).
+          // Signing derives seeds, so show the spinner for it.
+          const willSign =
+            multisig.calculateHowManySignaturesWeHaveFromPsbt(psbt) < multisig.getM() && multisig.howManySignaturesCanWeMake() > 0;
+          if (willSign) {
+            setIsLoading(true);
+            await sleep(100);
+          }
+          psbt = multisig.prepareImportedPsbt(psbt);
+          if (willSign) {
+            setIsLoading(false);
+            await sleep(100);
+          }
         }
 
         if (wallet) {

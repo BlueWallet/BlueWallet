@@ -1,20 +1,69 @@
-import React, { useCallback, FC } from 'react';
-import { StyleSheet, Text, View, Pressable, Platform } from 'react-native';
-import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React, { useCallback, useEffect, useRef, useState, FC } from 'react';
+import { Image, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import Icon from '../../components/Icon';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
-import ListItem from '../../components/ListItem';
-import SafeArea from '../../components/SafeArea';
+import { SettingsListItem, SettingsSection } from '../../components/SettingsSection';
 import { useTheme } from '../../components/themes';
 import type { Theme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
-import HeaderRightButton from '../../components/HeaderRightButton';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 
-type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'MultisigAdvanced'>;
 type RouteProps = RouteProp<AddWalletStackParamList, 'MultisigAdvanced'>;
+
+const DIGIT_SLIDE_DISTANCE = 28;
+
+interface AnimatedQuorumValueProps {
+  value: number;
+  color: string;
+}
+
+const AnimatedQuorumValue: FC<AnimatedQuorumValueProps> = ({ value, color }) => {
+  const [displayedValue, setDisplayedValue] = useState(value);
+  const previousValue = useRef(value);
+  const translateY = useSharedValue(0);
+  const opacity = useSharedValue(1);
+  const scale = useSharedValue(1);
+
+  const commitValue = useCallback((next: number) => {
+    setDisplayedValue(next);
+  }, []);
+
+  useEffect(() => {
+    if (previousValue.current === value) return;
+
+    const increasing = value > previousValue.current;
+    previousValue.current = value;
+    const exitTo = increasing ? -DIGIT_SLIDE_DISTANCE : DIGIT_SLIDE_DISTANCE;
+    const enterFrom = increasing ? DIGIT_SLIDE_DISTANCE : -DIGIT_SLIDE_DISTANCE;
+
+    opacity.value = withTiming(0, { duration: 90, easing: Easing.out(Easing.quad) });
+    translateY.value = withTiming(exitTo, { duration: 90, easing: Easing.out(Easing.quad) }, finished => {
+      if (!finished) return;
+      runOnJS(commitValue)(value);
+      translateY.value = enterFrom;
+      opacity.value = 0;
+      scale.value = 0.92;
+      opacity.value = withTiming(1, { duration: 140, easing: Easing.out(Easing.quad) });
+      translateY.value = withSpring(0, { damping: 16, stiffness: 220, mass: 0.8 });
+      scale.value = withSequence(withSpring(1.04, { damping: 12, stiffness: 260 }), withSpring(1, { damping: 14, stiffness: 220 }));
+    });
+  }, [value, commitValue, opacity, translateY, scale]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: translateY.value }, { scale: scale.value }],
+  }));
+
+  return (
+    <View style={styles.digitSlot}>
+      <Animated.Text style={[styles.textM, styles.digitText, { color }, animatedStyle]}>{displayedValue}</Animated.Text>
+    </View>
+  );
+};
 
 interface QuorumSelectorProps {
   m: number;
@@ -62,7 +111,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
             color={n === m || m === 7 ? colors.buttonDisabledTextColor : '#007AFF'}
           />
         </Pressable>
-        <Text style={[styles.textM, { color: colors.outputValue }]}>{m}</Text>
+        <AnimatedQuorumValue value={m} color={colors.outputValue} />
         <Pressable
           accessibilityRole="button"
           onPress={decreaseM}
@@ -86,7 +135,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
         >
           <Icon name="keyboard-arrow-up" size={22} type="material" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
         </Pressable>
-        <Text style={[styles.textM, { color: colors.outputValue }]}>{n}</Text>
+        <AnimatedQuorumValue value={n} color={colors.outputValue} />
         <Pressable
           accessibilityRole="button"
           onPress={decreaseN}
@@ -104,75 +153,55 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
 interface FormatSelectorProps {
   format: string;
   onFormatChange: (format: string) => void;
-  colors: Theme['colors'];
 }
 
-const FormatSelector: FC<FormatSelectorProps> = ({ format, onFormatChange, colors }) => {
-  const isP2wsh = useCallback(() => format === MultisigHDWallet.FORMAT_P2WSH, [format]);
-  const isP2shP2wsh = useCallback(
-    () => format === MultisigHDWallet.FORMAT_P2SH_P2WSH || format === MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT,
-    [format],
-  );
-  const isP2sh = useCallback(() => format === MultisigHDWallet.FORMAT_P2SH, [format]);
-
-  const setFormatP2wsh = useCallback(() => onFormatChange(MultisigHDWallet.FORMAT_P2WSH), [onFormatChange]);
-  const setFormatP2shP2wsh = useCallback(() => onFormatChange(MultisigHDWallet.FORMAT_P2SH_P2WSH), [onFormatChange]);
-  const setFormatP2sh = useCallback(() => onFormatChange(MultisigHDWallet.FORMAT_P2SH), [onFormatChange]);
-
-  const getItemStyle = useCallback(
-    (isSelected: boolean) => [
-      styles.borderRadius6,
-      styles.item,
-      isSelected ? { paddingHorizontal: 8, backgroundColor: colors.elevated } : { paddingHorizontal: 8, backgroundColor: 'transparent' },
-    ],
-    [colors.elevated],
-  );
+const FormatSelector: FC<FormatSelectorProps> = ({ format, onFormatChange }) => {
+  const isP2wsh = format === MultisigHDWallet.FORMAT_P2WSH;
+  const isP2shP2wsh = format === MultisigHDWallet.FORMAT_P2SH_P2WSH || format === MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT;
+  const isP2sh = format === MultisigHDWallet.FORMAT_P2SH;
 
   return (
     <>
-      <ListItem
-        bottomDivider={false}
-        onPress={setFormatP2wsh}
+      <SettingsListItem
+        onPress={() => onFormatChange(MultisigHDWallet.FORMAT_P2WSH)}
         title={`${loc.multisig.native_segwit_title} (${MultisigHDWallet.FORMAT_P2WSH})`}
-        checkmark={isP2wsh()}
-        containerStyle={getItemStyle(isP2wsh())}
+        checkmark={isP2wsh}
+        bottomDivider
       />
-      <ListItem
-        bottomDivider={false}
-        onPress={setFormatP2shP2wsh}
+      <SettingsListItem
+        onPress={() => onFormatChange(MultisigHDWallet.FORMAT_P2SH_P2WSH)}
         title={`${loc.multisig.wrapped_segwit_title} (${MultisigHDWallet.FORMAT_P2SH_P2WSH})`}
-        checkmark={isP2shP2wsh()}
-        containerStyle={getItemStyle(isP2shP2wsh())}
+        checkmark={isP2shP2wsh}
+        bottomDivider
       />
-      <ListItem
-        bottomDivider={false}
-        onPress={setFormatP2sh}
+      <SettingsListItem
+        onPress={() => onFormatChange(MultisigHDWallet.FORMAT_P2SH)}
         title={`${loc.multisig.legacy_title} (${MultisigHDWallet.FORMAT_P2SH})`}
-        checkmark={isP2sh()}
-        containerStyle={getItemStyle(isP2sh())}
+        checkmark={isP2sh}
+        bottomDivider={false}
       />
     </>
   );
 };
 
 const MultisigAdvanced: React.FC = () => {
-  const { colors } = useTheme();
-  const navigation = useNavigation<NavigationProps>();
+  const { colors, closeImage } = useTheme();
+  const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const route = useRoute<RouteProps>();
   const { m, n, format, onSave } = route.params;
 
-  const [currentM, setCurrentM] = React.useState(m);
-  const [currentN, setCurrentN] = React.useState(n);
-  const [currentFormat, setCurrentFormat] = React.useState(format);
-
-  const isValidSelection = React.useMemo(() => {
-    return currentM >= 2 && currentM <= 7 && currentN >= currentM && currentN <= 7;
-  }, [currentM, currentN]);
+  const [currentM, setCurrentM] = useState(m);
+  const [currentN, setCurrentN] = useState(n);
+  const [currentFormat, setCurrentFormat] = useState(format);
+  const [isWalletTypeExpanded, setIsWalletTypeExpanded] = useState(false);
 
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
-      flex: 1,
+      // Android form sheets often report insets.bottom as 0. iOS form sheets often report a huge one,
+      // and fitToContents would grow to include it.
+      paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom, 24) + 16 : 16,
     },
     textHeader: {
       color: colors.outputValue,
@@ -180,135 +209,161 @@ const MultisigAdvanced: React.FC = () => {
     textSubtitle: {
       color: colors.alternativeTextColor,
     },
+    headerTitle: {
+      color: colors.foregroundColor,
+    },
+    closeButton: {
+      backgroundColor: colors.lightButton,
+    },
   });
 
-  const handleSave = useCallback(() => {
-    onSave(currentM, currentN, currentFormat);
-    navigation.goBack();
-  }, [onSave, currentM, currentN, currentFormat, navigation]);
-
-  const SaveButton = useCallback(
-    () => <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!isValidSelection} testID="ModalDoneButton" />,
-    [handleSave, isValidSelection],
+  const handleMChange = useCallback(
+    (nextM: number) => {
+      setCurrentM(nextM);
+      onSave(nextM, currentN, currentFormat);
+    },
+    [onSave, currentN, currentFormat],
   );
 
-  const renderHeaderRight = useCallback(() => SaveButton(), [SaveButton]);
+  const handleNChange = useCallback(
+    (nextN: number) => {
+      setCurrentN(nextN);
+      onSave(currentM, nextN, currentFormat);
+    },
+    [onSave, currentM, currentFormat],
+  );
 
-  React.useLayoutEffect(() => {
-    if (Platform.OS !== 'android') {
-      navigation.setOptions({
-        headerRight: renderHeaderRight,
-      });
-    }
-  }, [navigation, renderHeaderRight]);
+  const handleFormatChange = useCallback(
+    (nextFormat: string) => {
+      setCurrentFormat(nextFormat);
+      onSave(currentM, currentN, nextFormat);
+    },
+    [onSave, currentM, currentN],
+  );
 
   return (
-    <SafeArea style={stylesHook.root}>
+    <View style={stylesHook.root}>
       {Platform.OS === 'android' && (
         <View style={styles.androidHeader}>
-          <View style={styles.androidHeaderContent}>
-            <Pressable
-              onPress={() => navigation.goBack()}
-              style={({ pressed }) => [pressed && styles.pressed, styles.androidBackButton]}
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
-            >
-              <Icon name="arrow-back" type="material" size={24} color={colors.foregroundColor} />
-            </Pressable>
-            <Text style={[styles.androidHeaderTitle, { color: colors.foregroundColor }]}>{loc.multisig.multisig_vault}</Text>
-            <View style={styles.androidSaveButton}>
-              <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!isValidSelection} testID="ModalDoneButton" />
-            </View>
-          </View>
+          <Text style={[styles.headerTitle, stylesHook.headerTitle]} accessibilityRole="header">
+            {loc.multisig.vault_advanced_customize}
+          </Text>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={loc._.close}
+            style={[styles.androidCloseButton, stylesHook.closeButton]}
+            onPress={() => navigation.goBack()}
+            testID="NavigationCloseButton"
+          >
+            <Image source={closeImage} />
+          </TouchableOpacity>
         </View>
       )}
       <View style={styles.container}>
         <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
         <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>
-        <QuorumSelector m={currentM} n={currentN} onMChange={setCurrentM} onNChange={setCurrentN} colors={colors} />
+        <QuorumSelector m={currentM} n={currentN} onMChange={handleMChange} onNChange={handleNChange} colors={colors} />
 
         <BlueSpacing20 />
 
-        <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.wallet_type}</Text>
-        <BlueSpacing20 />
-        <FormatSelector format={currentFormat} onFormatChange={setCurrentFormat} colors={colors} />
+        <SettingsSection
+          title={loc.multisig.wallet_type}
+          containerStyle={styles.walletTypeSection}
+          onHeaderPress={() => setIsWalletTypeExpanded(prev => !prev)}
+          headerRight={
+            <Icon
+              name={isWalletTypeExpanded ? 'chevron-up' : 'chevron-down'}
+              type="font-awesome"
+              size={16}
+              color={colors.alternativeTextColor}
+            />
+          }
+        >
+          {isWalletTypeExpanded ? <FormatSelector format={currentFormat} onFormatChange={handleFormatChange} /> : null}
+        </SettingsSection>
       </View>
-    </SafeArea>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    flex: 1,
-  },
   androidHeader: {
-    backgroundColor: 'transparent',
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#e1e1e1',
-  },
-  androidHeaderContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    height: 56,
+    paddingTop: 12,
+    paddingBottom: 8,
   },
-  androidBackButton: {
-    padding: 8,
-    minWidth: 40,
-  },
-  androidHeaderTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 18,
+  headerTitle: {
+    fontSize: 16,
     fontWeight: '600',
-    marginHorizontal: 16,
+    flex: 1,
   },
-  androidSaveButton: {
-    minWidth: 40,
-    alignItems: 'flex-end',
+  androidCloseButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
   },
-  item: {
-    paddingHorizontal: 0,
+  container: {
+    paddingTop: 20,
   },
-  borderRadius6: {
-    borderRadius: 6,
-    minHeight: 54,
+  walletTypeSection: {
+    marginBottom: 0,
   },
   column: {
-    paddingRight: 20,
-    paddingLeft: 20,
+    width: 56,
+    alignItems: 'center',
+    marginHorizontal: 12,
   },
   chevron: {
-    paddingBottom: 10,
-    paddingTop: 10,
-    fontSize: 24,
+    width: 56,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   columnOf: {
-    paddingRight: 20,
-    paddingLeft: 20,
+    width: 48,
+    alignItems: 'center',
     justifyContent: 'center',
+  },
+  digitSlot: {
+    width: 56,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   textM: {
     fontSize: 50,
     fontWeight: '700',
   },
+  digitText: {
+    width: 56,
+    textAlign: 'center',
+    lineHeight: 60,
+  },
   textOf: {
     fontSize: 30,
     color: '#9AA0AA',
+    textAlign: 'center',
   },
   textHeader: {
     fontSize: 18,
     fontWeight: 'bold',
+    paddingHorizontal: 20,
   },
   textSubtitle: {
     fontSize: 13,
     fontWeight: '500',
     marginTop: 4,
+    paddingHorizontal: 20,
   },
   rowCenter: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 30,
   },

@@ -2,7 +2,6 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 
 import Confirm from '../../screen/send/Confirm';
-import MultisigAdvanced from '../../screen/wallets/MultisigAdvanced';
 
 let routeParams: any = {};
 
@@ -140,7 +139,6 @@ jest.mock('../../loc', () => ({
     units: { BTC: 'BTC' },
     _: { of: '{number}/{total}' },
     errors: { network: 'network', broadcast: 'broadcast' },
-    multisig: { of: 'of' },
   },
   formatBalance: (value: number) => String(value),
   formatBalanceWithoutSuffix: (value: number) => String(value),
@@ -174,27 +172,6 @@ describe('Header options regression guards', () => {
     });
 
     screen.rerender(<Confirm />);
-
-    await waitFor(() => {
-      expect(setOptionsMock).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  it('sets MultisigAdvanced headerRight only once across same-props rerenders', async () => {
-    routeParams = {
-      m: 2,
-      n: 3,
-      format: 0,
-      onSave: jest.fn(),
-    };
-
-    const screen = render(<MultisigAdvanced />);
-
-    await waitFor(() => {
-      expect(setOptionsMock).toHaveBeenCalledTimes(1);
-    });
-
-    screen.rerender(<MultisigAdvanced />);
 
     await waitFor(() => {
       expect(setOptionsMock).toHaveBeenCalledTimes(1);

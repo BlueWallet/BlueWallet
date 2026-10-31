@@ -1,7 +1,8 @@
 import React from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { Image, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import BlueTextCentered from '../../components/BlueTextCentered';
@@ -12,12 +13,38 @@ import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 const ViewEditMultisigShareCosignerSheet = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigShareCosignerSheet'>>();
   const route = useRoute<RouteProp<DetailViewStackParamList, 'ViewEditMultisigShareCosignerSheet'>>();
-  const { colors } = useTheme();
+  const { colors, closeImage } = useTheme();
+  const insets = useSafeAreaInsets();
   const { cosignerXpub, cosignerXpubURv2 } = route.params;
 
+  const stylesHook = StyleSheet.create({
+    root: {
+      backgroundColor: colors.elevated,
+      // Android form sheets often report insets.bottom as 0. iOS form sheets often report a huge one.
+      paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom, 24) + 8 : 16,
+    },
+    closeButton: {
+      backgroundColor: colors.lightButton,
+    },
+  });
+
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.elevated }]} edges={['bottom', 'left', 'right']}>
+    <View style={stylesHook.root}>
+      {Platform.OS === 'android' && (
+        <View style={styles.androidHeader}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={loc._.close}
+            style={[styles.androidCloseButton, stylesHook.closeButton]}
+            onPress={() => navigation.goBack()}
+            testID="NavigationCloseButton"
+          >
+            <Image source={closeImage} />
+          </TouchableOpacity>
+        </View>
+      )}
       <View style={styles.content}>
         <BlueTextCentered>
           {Platform.OS === 'ios'
@@ -26,33 +53,41 @@ const ViewEditMultisigShareCosignerSheet = () => {
         </BlueTextCentered>
         <BlueSpacing20 />
         <View style={styles.qrContainer}>
-          <QRCode value={cosignerXpubURv2} size={260} />
+          <QRCode value={cosignerXpubURv2} size={220} />
         </View>
-        <BlueSpacing20 />
         <View style={styles.copyText}>
           <CopyTextToClipboard text={cosignerXpub} truncated={false} />
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
+  androidHeader: {
+    alignItems: 'flex-end',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+  },
+  androidCloseButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
   },
   content: {
-    flex: 1,
-    padding: 22,
+    paddingHorizontal: 22,
+    paddingTop: 8,
     alignItems: 'center',
-    justifyContent: 'center',
   },
   qrContainer: {
     alignItems: 'center',
   },
   copyText: {
-    marginVertical: 32,
+    marginTop: 20,
     paddingHorizontal: 16,
+    alignSelf: 'stretch',
   },
 });
 
