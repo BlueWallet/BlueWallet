@@ -1955,7 +1955,7 @@ PODS:
     - React-perflogger (= 0.88.1)
     - React-utils (= 0.88.1)
     - ReactNativeDependencies
-  - ReactNativeCameraKit (18.0.0):
+  - ReactNativeCameraKit (18.0.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2970,7 +2970,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 2dbb2d65f3a487b8a69449f5b1b12b44656d2204
   ReactCodegen: dcf5a4f7b5fddbe2371c5c6715f5761cf081437c
   ReactCommon: b63ce798b898ed77c6cfdeb80b18080161f52ed5
-  ReactNativeCameraKit: dca102025b429e5aaaede4ba3018a9b53f0a3c71
+  ReactNativeCameraKit: 828fb284226257b33c5cb3c2dec17f4a97dc88c9
   ReactNativeDependencies: a5164c3ebbe90d992022b5d9cbabbf770a6d7d05
   RealmJS: 1c37c6bdfe060f4caa0f9175aa0eedb962622ee1
   RNBackgroundFetch: 7f3ec0a9cc568fca8653762e120bc0a44bfe4132
