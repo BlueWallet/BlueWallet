@@ -2,8 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sha256 } from '@noble/hashes/sha256';
 import DefaultPreference from 'react-native-default-preference';
 import RNFS from 'react-native-fs';
-import Keychain from 'react-native-keychain';
-import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
+import Keychain, { ACCESSIBLE } from 'react-native-keychain';
 import Realm from 'realm';
 
 import * as encryption from '../blue_modules/encryption';
@@ -31,6 +30,7 @@ import { hexToUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-ext
 import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
 import { TaprootWallet } from './wallets/taproot-wallet';
 import { errorMessage } from '../helpers/errorMessage';
+import { getLegacySecureValue, removeLegacySecureValue } from '../blue_modules/legacy-secure-storage';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -88,10 +88,12 @@ export class BlueApp {
   static LNDHUB = 'lndhub';
   static DO_NOT_TRACK = 'donottrack';
   static HANDOFF_STORAGE_KEY = 'HandOff';
+  static STORAGE_KEYCHAIN_SERVICE_PREFIX = 'BlueWalletStorage.';
 
   private static _instance: BlueApp | null = null;
 
   static keys2migrate = [BlueApp.HANDOFF_STORAGE_KEY, BlueApp.DO_NOT_TRACK];
+  static secureStorageKeys = ['data', BlueApp.FLAG_ENCRYPTED, 'Biometrics'];
 
   public cachedPassword?: false | string;
   public tx_metadata: TTXMetadata;
@@ -115,45 +117,102 @@ export class BlueApp {
     return BlueApp._instance;
   }
 
+  static storageKeychainService(key: string): string {
+    return `${BlueApp.STORAGE_KEYCHAIN_SERVICE_PREFIX}${key}`;
+  }
+
+  private async readKeychainItem(key: string): Promise<string | null> {
+    const credentials = await Keychain.getGenericPassword({
+      service: BlueApp.storageKeychainService(key),
+    });
+    return credentials ? credentials.password : null;
+  }
+
+  private async writeKeychainItem(key: string, value: string): Promise<void> {
+    const service = BlueApp.storageKeychainService(key);
+    await Keychain.setGenericPassword(key, value, {
+      service,
+      accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+    });
+    const storedValue = await this.readKeychainItem(key);
+    if (storedValue !== value) throw new Error(`Unable to verify Keychain value for ${key}`);
+  }
+
+  private async cleanupLegacySecureValue(key: string): Promise<void> {
+    try {
+      await removeLegacySecureValue(key);
+    } catch (error) {
+      // Cleanup can be retried later and must not override a verified Keychain value.
+      console.warn(`Failed to remove legacy secure-storage key ${key}:`, error);
+    }
+  }
+
+  private async migrateSecureStorageKey(key: string): Promise<string | null> {
+    const currentValue = await this.readKeychainItem(key);
+    if (currentValue !== null) {
+      await this.cleanupLegacySecureValue(key);
+      return currentValue;
+    }
+
+    const legacyValue = await getLegacySecureValue(key);
+    if (legacyValue === null) return null;
+
+    await this.writeKeychainItem(key, legacyValue);
+    await this.cleanupLegacySecureValue(key);
+    return legacyValue;
+  }
+
   async migrateKeys() {
-    // do not migrate keys if we are not in RN env
-    if (!isReactNative) {
-      return;
+    if (!isReactNative) return;
+
+    for (const key of BlueApp.secureStorageKeys) {
+      try {
+        await this.migrateSecureStorageKey(key);
+      } catch (error) {
+        // Keep the legacy value intact so a later launch can retry safely.
+        console.warn(`Failed to migrate secure-storage key ${key}:`, error);
+      }
     }
 
     for (const key of BlueApp.keys2migrate) {
       try {
-        const value = await RNSecureKeyStore.get(key);
-        if (value) {
-          await AsyncStorage.setItem(key, value);
-          await RNSecureKeyStore.remove(key);
-        }
-      } catch (_) {}
+        const currentValue = await AsyncStorage.getItem(key);
+        const legacyValue = await getLegacySecureValue(key);
+        if (currentValue === null && legacyValue !== null) await AsyncStorage.setItem(key, legacyValue);
+        if (legacyValue !== null) await removeLegacySecureValue(key);
+      } catch (error) {
+        console.warn(`Failed to migrate preference key ${key}:`, error);
+      }
     }
   }
 
   /**
-   * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
-   * used for cli/tests
+   * Wrapper for secure storage. AsyncStorage is used only by CLI/tests.
    */
-  setItem = (key: string, value: string): Promise<void> => {
+  setItem = async (key: string, value: string): Promise<void> => {
     if (isReactNative) {
-      return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
-    } else {
-      return AsyncStorage.setItem(key, value);
+      await this.writeKeychainItem(key, value);
+      await this.cleanupLegacySecureValue(key);
+      return;
     }
+    await AsyncStorage.setItem(key, value);
   };
 
   /**
-   * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
-   * used for cli/tests
+   * Wrapper for secure storage. Reads and removes a legacy value on first access.
    */
-  getItem = (key: string): Promise<string | null> => {
+  getItem = async (key: string): Promise<string | null> => {
     if (isReactNative) {
-      return RNSecureKeyStore.get(key);
-    } else {
-      return AsyncStorage.getItem(key);
+      try {
+        return await this.migrateSecureStorageKey(key);
+      } catch (error) {
+        // A failed Keychain write must not make existing wallets unreadable.
+        const legacyValue = await getLegacySecureValue(key);
+        if (legacyValue !== null) return legacyValue;
+        throw error;
+      }
     }
+    return AsyncStorage.getItem(key);
   };
 
   getItemWithFallbackToRealm = async (key: string): Promise<string | null> => {
@@ -650,7 +709,7 @@ export class BlueApp {
       for (const key of this.wallets) {
         if (typeof key === 'boolean') continue;
         key.prepareForSerialization();
-        const keyCloned = Object.assign({}, key); // stripped-down version of a wallet to save to secure keystore
+        const keyCloned = Object.assign({}, key); // stripped-down version of a wallet to save to secure storage
         if ('_hdWalletInstance' in key) {
           const k = keyCloned as WatchOnlyWallet;
           k._hdWalletInstance = Object.assign({}, key._hdWalletInstance);

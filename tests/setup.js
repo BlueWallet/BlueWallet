@@ -60,10 +60,6 @@ jest.mock('react-native-capture-protection', () => ({
   },
 }));
 
-jest.mock('react-native-secure-key-store', () => {
-  return {};
-});
-
 jest.mock('react-native-notifications', () => {
   return {};
 });
