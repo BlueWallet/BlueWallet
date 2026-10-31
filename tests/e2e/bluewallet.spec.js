@@ -24,6 +24,7 @@ import {
   waitForKeyboardToClose,
   waitForText,
   waitForLabel,
+  waitForSwitchValue,
 } from './helperz';
 
 // if loglevel is set to `error`, this kind of logging will still get through
@@ -126,6 +127,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // security
     await element(by.id('SecurityButton')).tap();
+    if (device.getPlatform() === 'ios') {
+      await waitForId('KeychainRetentionSwitch');
+      await waitForSwitchValue('KeychainRetentionSwitch', true);
+      await element(by.id('KeychainRetentionSwitch')).tap();
+      await waitForSwitchValue('KeychainRetentionSwitch', false);
+      await element(by.id('KeychainRetentionSwitch')).tap();
+      await waitForSwitchValue('KeychainRetentionSwitch', true);
+    }
     await goBack();
 
     // network
