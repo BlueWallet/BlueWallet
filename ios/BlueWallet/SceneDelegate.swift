@@ -1,9 +1,14 @@
 import React
 import React_RCTAppDelegate
+import ReactAppDependencyProvider
 import UIKit
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+class SceneDelegate: RCTDefaultReactNativeFactoryDelegate, UIWindowSceneDelegate {
     var window: UIWindow?
+    var reactNativeFactory: RCTReactNativeFactory?
+    private var reactContentDidAppear = false
+    private var pendingURLContexts = Set<UIOpenURLContext>()
+    private var contentDidAppearObserver: NSObjectProtocol?
 
     func scene(
         _ scene: UIScene,
@@ -13,36 +18,50 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = scene as? UIWindowScene else {
             return
         }
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
+        dependencyProvider = RCTAppDependencyProvider()
+        reactNativeFactory = RCTReactNativeFactory(delegate: self)
+        window = UIWindow(windowScene: windowScene)
+        contentDidAppearObserver = NotificationCenter.default.addObserver(
+            forName: NSNotification.Name.RCTContentDidAppear,
+            object: nil,
+            queue: .main
+        ) { [weak self, weak scene] _ in
+            guard let self, let scene else { return }
+            reactContentDidAppear = true
+            forwardPendingURLContexts(to: scene)
         }
-
-        let window = UIWindow(windowScene: windowScene)
-        self.window = window
-        appDelegate.window = window
-
-        appDelegate.reactNativeFactory.startReactNative(
-            withModuleName: appDelegate.moduleName ?? "BlueWallet",
+        reactNativeFactory?.startReactNative(
+            withModuleName: "BlueWallet",
             in: window,
-            initialProperties: appDelegate.initialProps,
-            launchOptions: launchOptions(from: connectionOptions, fallback: appDelegate.sceneLaunchOptions, appDelegate: appDelegate)
+            connectionOptions: connectionOptions
         )
 
-        // Custom Handoff activities are stored for JS; Linking cold-starts use launchOptions above.
-        for userActivity in connectionOptions.userActivities {
-            _ = appDelegate.application(UIApplication.shared, continue: userActivity, restorationHandler: { _ in })
+        if let shortcutItem = connectionOptions.shortcutItem,
+           let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+            appDelegate.openShortcutLink(shortcutItem, in: windowScene, completionHandler: { _ in })
+        }
+
+        if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+            for userActivity in connectionOptions.userActivities where userActivity.activityType != NSUserActivityTypeBrowsingWeb {
+                _ = appDelegate.application(UIApplication.shared, continue: userActivity, restorationHandler: { _ in })
+            }
         }
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard reactContentDidAppear else {
+            pendingURLContexts.formUnion(URLContexts)
+            return
+        }
         RCTLinkingManager.scene(scene, openURLContexts: URLContexts)
     }
 
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
+        if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
+            RCTLinkingManager.scene(scene, continue: userActivity)
+        } else if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+            _ = appDelegate.application(UIApplication.shared, continue: userActivity, restorationHandler: { _ in })
         }
-        _ = appDelegate.application(UIApplication.shared, continue: userActivity, restorationHandler: { _ in })
     }
 
     func windowScene(
@@ -57,30 +76,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         appDelegate.openShortcutLink(shortcutItem, in: windowScene, completionHandler: completionHandler)
     }
 
-    private func launchOptions(
-        from connectionOptions: UIScene.ConnectionOptions,
-        fallback: [UIApplication.LaunchOptionsKey: Any]?,
-        appDelegate: AppDelegate
-    ) -> [UIApplication.LaunchOptionsKey: Any]? {
-        var options = fallback ?? [:]
+    override func bundleURL() -> URL? {
+        #if DEBUG
+        RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
+        #else
+        Bundle.main.url(forResource: "main", withExtension: "jsbundle")
+        #endif
+    }
 
-        if let url = connectionOptions.urlContexts.first?.url {
-            options[.url] = url
+    private func forwardPendingURLContexts(to scene: UIScene) {
+        guard !pendingURLContexts.isEmpty else { return }
+        RCTLinkingManager.scene(scene, openURLContexts: pendingURLContexts)
+        pendingURLContexts.removeAll()
+    }
+
+    deinit {
+        if let contentDidAppearObserver {
+            NotificationCenter.default.removeObserver(contentDidAppearObserver)
         }
-
-        if let activity = connectionOptions.userActivities.first {
-            options[.userActivityType] = activity.activityType
-            options[.userActivityDictionary] = [
-                UIApplication.LaunchOptionsKey.userActivityType: activity.activityType,
-                "UIApplicationLaunchOptionsUserActivityKey": activity,
-            ]
-        }
-
-        if let shortcutItem = connectionOptions.shortcutItem,
-           let url = appDelegate.appLinkURL(for: shortcutItem) {
-            options[.url] = url
-        }
-
-        return options.isEmpty ? nil : options
     }
 }
