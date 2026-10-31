@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import assert from 'assert';
 
@@ -9,6 +8,171 @@ import { CreateTransactionUtxo } from './wallets/types.ts';
 import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
 import { isUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import type { ElectrumTransaction } from '../blue_modules/BlueElectrum';
+import ecc from '../blue_modules/noble_ecc';
+
+/**
+ * Thrown when data from Electrum server about a transaction can't be verified (wrong txid, invalid signature on our
+ * input etc). Such transaction must not be used as a base for RBF/CPFP.
+ */
+export class TxVerificationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TxVerificationError';
+  }
+}
+
+export const isTxVerificationError = (error: unknown): boolean =>
+  error instanceof TxVerificationError || (error instanceof Error && error.name === 'TxVerificationError');
+
+/**
+ * Thrown when a transaction checks out, but this wallet can't build a replacement (RBF) for it, e.g. it spends coins
+ * this wallet doesn't control or has an output we can't recreate. Also thrown for CPFP when size of the transaction
+ * can't be verified.
+ */
+export class TxNotReplaceableError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TxNotReplaceableError';
+  }
+}
+
+export const isTxNotReplaceableError = (error: unknown): boolean =>
+  error instanceof TxNotReplaceableError || (error instanceof Error && error.name === 'TxNotReplaceableError');
+
+/**
+ * Decodes raw tx hex that came from Electrum server (or its cache). Garbage is treated as unverifiable server data, so
+ * callers can drop the cached copy and refetch.
+ */
+function decodeServerTxhex(hex: string): bitcoin.Transaction {
+  try {
+    return bitcoin.Transaction.fromHex(hex);
+  } catch (_) {
+    throw new TxVerificationError('Electrum server returned a transaction that cannot be decoded');
+  }
+}
+
+/**
+ * Max witness bytes of a p2wpkh input in a transaction that can be in the mempool (and we only CPFP unconfirmed ones):
+ * 1 byte items count + 1+72 bytes signature + 1+33 bytes pubkey. DER signature is at most 71 bytes (33 bytes R, 32 bytes
+ * S, since relay policy requires low S) plus 1 sighash byte, and relay policy requires compressed pubkeys in segwit.
+ */
+const P2WPKH_MAX_WITNESS_BYTES = 108;
+
+const varIntLength = (n: number): number => (n < 0xfd ? 1 : n <= 0xffff ? 3 : n <= 0xffffffff ? 5 : 9);
+
+const witnessByteLength = (witness: Uint8Array[]): number =>
+  varIntLength(witness.length) + witness.reduce((sum, item) => sum + varIntLength(item.length) + item.length, 0);
+
+const isP2wpkhScript = (script: Uint8Array): boolean => script.length === 22 && script[0] === 0x00 && script[1] === 0x14;
+
+const isP2trScript = (script: Uint8Array): boolean => script.length === 34 && script[0] === 0x51 && script[1] === 0x20;
+
+const isP2shScript = (script: Uint8Array): boolean =>
+  script.length === 23 && script[0] === 0xa9 && script[1] === 0x14 && script[22] === 0x87;
+
+/** Segwit output script (BIP141): version opcode (OP_0..OP_16) followed by a single 2..40 bytes push */
+const isWitnessProgram = (script: Uint8Array): boolean =>
+  script.length >= 4 &&
+  script.length <= 42 &&
+  (script[0] === 0x00 || (script[0] >= 0x51 && script[0] <= 0x60)) &&
+  script[1] === script.length - 2;
+
+/** Address of an output script, or undefined if it has none (e.g. OP_RETURN) */
+const outputScriptToAddress = (script: Uint8Array): string | undefined => {
+  try {
+    return bitcoin.address.fromOutputScript(script);
+  } catch (_) {
+    return undefined;
+  }
+};
+
+/**
+ * Checks that input `inIndex` of `tx` is a valid P2WPKH spend of `prevOutScript` worth `value` sats.
+ * Electrum servers are not trusted to tell us the truth about unconfirmed transactions: a malicious server
+ * can show us a conflicting tx with our inputs (and our copied witness) but with outputs paying the attacker.
+ * Such tx has invalid signatures, so we must never build a replacement (RBF) based on it.
+ * See GHSA-6jp4-8v48-cc5v (spesmilo/electrum).
+ */
+function isValidP2wpkhSpend(tx: bitcoin.Transaction, inIndex: number, prevOutScript: Uint8Array, value: bigint): boolean {
+  try {
+    const inp = tx.ins[inIndex];
+    if (inp.script.length !== 0 || inp.witness.length !== 2) return false;
+    const [sig, pubkey] = inp.witness;
+    const expectedOutput = bitcoin.payments.p2wpkh({ pubkey }).output;
+    if (!expectedOutput || uint8ArrayToHex(expectedOutput) !== uint8ArrayToHex(prevOutScript)) return false;
+    const { signature, hashType } = bitcoin.script.signature.decode(sig);
+    if (hashType !== bitcoin.Transaction.SIGHASH_ALL) return false;
+    const scriptCode = bitcoin.payments.p2pkh({ pubkey }).output;
+    if (!scriptCode) return false;
+    const hash = tx.hashForWitnessV0(inIndex, scriptCode, value, hashType);
+    return ecc.verify(hash, pubkey, signature);
+  } catch (_) {
+    return false;
+  }
+}
+
+const TAPROOT_SIGHASH_TYPES = [0x01, 0x02, 0x03, 0x81, 0x82, 0x83];
+
+/**
+ * Checks that input `inIndex` of `tx` is a valid taproot key-path spend: its witness is a single schnorr signature (so
+ * no annex and no script) by the output key of `prevOutScripts[inIndex]`. Taproot sighash commits to all prevouts.
+ */
+function isValidP2trKeyPathSpend(tx: bitcoin.Transaction, inIndex: number, prevOutScripts: Uint8Array[], values: bigint[]): boolean {
+  try {
+    const inp = tx.ins[inIndex];
+    if (inp.script.length !== 0 || inp.witness.length !== 1) return false;
+    const sig = inp.witness[0];
+    let hashType = bitcoin.Transaction.SIGHASH_DEFAULT;
+    if (sig.length === 65) {
+      hashType = sig[64];
+      if (!TAPROOT_SIGHASH_TYPES.includes(hashType)) return false;
+    } else if (sig.length !== 64) {
+      return false;
+    }
+    const hash = tx.hashForWitnessV1(inIndex, prevOutScripts, values, hashType);
+    return ecc.verifySchnorr?.(hash, prevOutScripts[inIndex].subarray(2), sig.subarray(0, 64)) === true;
+  } catch (_) {
+    return false;
+  }
+}
+
+/**
+ * Witness bytes (including items count) of input `inIndex` of `tx` that is not ours, to be used for size of the
+ * transaction. Witness is not covered by txid, so the one server sent can be shrunk or padded: it is only used when
+ * its signature checks out. Size is taken from the (txid-covered) previous output script instead:
+ * * p2wpkh, p2sh-p2wpkh - max size of such witness, server's witness is ignored (scriptSig of p2sh-p2wpkh is covered
+ *   by txid, so its non-witness part is exact)
+ * * p2tr - exact size, but only for a valid key-path spend
+ * * not segwit - 0, consensus requires its witness to be empty (its scriptSig is covered by txid)
+ *
+ * @returns {number|null} null when real size cant be known (p2wsh, p2sh-p2wsh, p2tr script path, invalid signature
+ * etc)
+ */
+function foreignInputWitnessBytes(tx: bitcoin.Transaction, inIndex: number, prevOuts: bitcoin.TxOutput[]): number | null {
+  const script = prevOuts[inIndex].script;
+  if (isP2wpkhScript(script)) return P2WPKH_MAX_WITNESS_BYTES;
+  if (isP2trScript(script)) {
+    const scripts = prevOuts.map(o => o.script);
+    const values = prevOuts.map(o => o.value);
+    return isValidP2trKeyPathSpend(tx, inIndex, scripts, values) ? witnessByteLength(tx.ins[inIndex].witness) : null;
+  }
+  if (isWitnessProgram(script)) return null; // p2wsh or unknown segwit version
+  if (isP2shScript(script)) {
+    const scriptSig = tx.ins[inIndex].script;
+    const chunks = bitcoin.script.decompile(scriptSig);
+    const redeemScript = chunks?.[chunks.length - 1];
+    if (!(redeemScript instanceof Uint8Array)) return null;
+    // p2sh-p2wpkh: scriptSig is exactly a push of p2wpkh program (BIP141) whose hash is in the previous output
+    const isP2shP2wpkh =
+      chunks!.length === 1 &&
+      scriptSig.length === redeemScript.length + 1 &&
+      isP2wpkhScript(redeemScript) &&
+      uint8ArrayToHex(bitcoin.crypto.hash160(redeemScript)) === uint8ArrayToHex(script.subarray(2, 22));
+    if (isP2shP2wpkh) return P2WPKH_MAX_WITNESS_BYTES;
+    if (isWitnessProgram(redeemScript)) return null; // p2sh-p2wsh or other wrapped segwit
+  }
+  return 0;
+}
 
 /**
  * Represents transaction of a BIP84 wallet.
@@ -57,10 +221,26 @@ export class HDSegwitBech32Transaction {
    */
   async _fetchTxhexAndDecode() {
     assert(this._txid, 'this._txid must be a string');
+    try {
+      await this._fetchTxhexAndDecodeOnce();
+    } catch (error) {
+      if (!isTxVerificationError(error)) throw error;
+      // bad copy might come from cache (e.g. saved while connected to a malicious server), retrying with a fresh one
+      await BlueElectrum.forgetCachedTransactions([this._txid]);
+      await this._fetchTxhexAndDecodeOnce();
+    }
+  }
+
+  async _fetchTxhexAndDecodeOnce() {
+    assert(this._txid, 'this._txid must be a string');
     const hexes = await BlueElectrum.multiGetTransactionByTxid([this._txid], false, 10);
-    this._txhex = hexes[this._txid];
-    if (!this._txhex) throw new Error("Transaction can't be found in mempool");
-    this._txDecoded = bitcoin.Transaction.fromHex(this._txhex);
+    const hex = hexes[this._txid];
+    if (!hex) throw new Error("Transaction can't be found in mempool");
+    if (typeof hex !== 'string') throw new TxVerificationError('Electrum server did not return raw transaction');
+    const decoded = decodeServerTxhex(hex);
+    if (decoded.getId() !== this._txid) throw new TxVerificationError('Electrum server returned a transaction with unexpected txid');
+    this._txhex = hex;
+    this._txDecoded = decoded;
   }
 
   /**
@@ -162,34 +342,112 @@ export class HDSegwitBech32Transaction {
    * * targets - destination(s) of funds (outputs we do not control)
    * * unconfirmedUtxos - UTXOs created by this transaction (only the ones we control)
    *
-   * @returns {Promise<{fee: number, utxos: Array, unconfirmedUtxos: Array, changeAmount: number, feeRate: number, targets: Array}>}
+   * Throws `TxVerificationError` if data from Electrum server can't be verified. With `replacement` set ('bump' or
+   * 'cancel') it also throws `TxNotReplaceableError` if this wallet can't build such RBF replacement. Without it (CPFP)
+   * it throws `TxNotReplaceableError` if size of the transaction can't be verified (see `foreignInputWitnessBytes()`).
+   *
+   * @param replacement {'bump'|'cancel'|undefined} set when info is needed for an RBF replacement (not for CPFP)
+   * @returns {Promise<{fee: number, utxos: Array, unconfirmedUtxos: Array, changeAmount: number, feeRate: number, vsize: number, witnessUnverifiable: boolean, targets: Array}>}
    */
-  async getInfo() {
+  async getInfo(replacement?: 'bump' | 'cancel') {
+    let info;
+    try {
+      info = await this._getInfo();
+    } catch (error) {
+      if (!isTxVerificationError(error) || !this._txDecoded) throw error;
+      // bad copies of this tx or its parents might come from cache (e.g. saved while connected to a malicious server).
+      // dropping them and retrying once with fresh data from the server:
+      const txids = this._txDecoded.ins.map(inp => uint8ArrayToHex(new Uint8Array(inp.hash).reverse()));
+      if (this._txid) {
+        txids.push(this._txid);
+        this._txDecoded = undefined;
+        this._txhex = null;
+      }
+      await BlueElectrum.forgetCachedTransactions(txids);
+      info = await this._getInfo();
+    }
+
+    if (!replacement && info.witnessUnverifiable) {
+      // CPFP needs real size of this tx, but witness is not covered by txid and size of some input could not be
+      // verified. a bad copy might come from cache, so trying a fresh one once (also drops cached raw hex). if size
+      // still cant be verified we cant price CPFP, refusing
+      if (this._txid) {
+        await BlueElectrum.forgetCachedTransactions([this._txid]);
+        this._txDecoded = undefined;
+        this._txhex = null;
+        info = await this._getInfo();
+      }
+      if (info.witnessUnverifiable) {
+        throw new TxNotReplaceableError("Transaction has an input witness that can't be verified, cannot calculate its size");
+      }
+    }
+
+    if (replacement) {
+      // RBF replacement re-spends the same inputs, so we must own (and be able to sign) all of them
+      if (info.utxos.length !== this._txDecoded!.ins.length) {
+        throw new TxNotReplaceableError('Not all inputs of this transaction are ours, cannot replace it');
+      }
+      // bump re-creates all outputs, but only the ones paying to an address are supported (e.g. not OP_RETURN)
+      if (replacement === 'bump' && info.targets.length + info.unconfirmedUtxos.length !== this._txDecoded!.outs.length) {
+        throw new TxNotReplaceableError('Unsupported output in transaction');
+      }
+    }
+
+    return info;
+  }
+
+  async _getInfo() {
     if (!this._wallet) throw new Error('Wallet required for this method');
-    const remoteTx = this._remoteTx ?? (await this._fetchRemoteTx());
     if (!this._txDecoded) await this._fetchTxhexAndDecode();
     assert(this._txDecoded, 'could not fetch tx and decode');
+    const txid = this._txid || this._txDecoded.getId();
 
     const prevInputs = [];
     for (const inp of this._txDecoded.ins) {
       prevInputs.push(uint8ArrayToHex(new Uint8Array(inp.hash).reverse()));
     }
 
-    const prevTransactions = await BlueElectrum.multiGetTransactionByTxid(prevInputs, true);
+    // fetching raw hex (not server-decoded json) so we can check it against txid
+    const prevTxHexes = await BlueElectrum.multiGetTransactionByTxid(prevInputs, false);
+    const prevTransactions: Record<string, bitcoin.Transaction> = {};
+    for (const [prevTxid, hex] of Object.entries(prevTxHexes)) {
+      if (typeof hex !== 'string') continue; // not raw hex, cant check it. such input is refused below
+      const decoded = decodeServerTxhex(hex);
+      if (decoded.getId() !== prevTxid) throw new TxVerificationError('Electrum server returned a transaction with unexpected txid');
+      prevTransactions[prevTxid] = decoded;
+    }
+
+    // previous outputs of all inputs (amounts and scripts are covered by txids)
+    const prevOuts = this._txDecoded.ins.map(inp => {
+      const prevOut = prevTransactions[uint8ArrayToHex(new Uint8Array(inp.hash).reverse())]?.outs[inp.index];
+      // without previous output we dont know how much went in, so fee (and feerate) would be wrong, possibly negative
+      if (!prevOut) throw new TxVerificationError('Electrum server did not return previous transaction of an input');
+      return prevOut;
+    });
 
     // fetched, now lets count how much satoshis went in
     let wentIn = 0;
     const utxos: CreateTransactionUtxo[] = [];
-    for (const inp of this._txDecoded.ins) {
+    const witnessBytes: Array<number | null> = []; // per input, for size of this tx. null if it cant be known
+    for (let i = 0; i < this._txDecoded.ins.length; i++) {
+      const inp = this._txDecoded.ins[i];
       const reversedHash = uint8ArrayToHex(new Uint8Array(inp.hash).reverse());
-      if (prevTransactions[reversedHash] && prevTransactions[reversedHash].vout && prevTransactions[reversedHash].vout[inp.index]) {
-        let value = prevTransactions[reversedHash].vout[inp.index].value;
-        value = new BigNumber(value).multipliedBy(100000000).toNumber();
-        wentIn += value;
-        const witness = inp.witness[inp.witness.length - 1];
-        const address = String(SegwitBech32Wallet.witnessToAddress(isUint8Array(witness) ? uint8ArrayToHex(witness) : witness));
-        utxos.push({ vout: inp.index, value, txid: reversedHash, address });
+      const prevOut = prevOuts[i];
+      const value = Number(prevOut.value);
+      wentIn += value;
+
+      const address = outputScriptToAddress(prevOut.script);
+      if (!address || !this._wallet.weOwnAddress(address)) {
+        // not our input, nothing to verify (e.g. incoming tx). its witness is not trusted for size
+        witnessBytes.push(foreignInputWitnessBytes(this._txDecoded, i, prevOuts));
+        continue;
       }
+
+      if (!isValidP2wpkhSpend(this._txDecoded, i, prevOut.script, prevOut.value)) {
+        throw new TxVerificationError('Transaction has invalid signature on our input, it was not created by this wallet');
+      }
+      witnessBytes.push(witnessByteLength(inp.witness)); // signature checked, so this witness is real
+      utxos.push({ vout: inp.index, value, txid: reversedHash, address });
     }
 
     // counting how much went into actual outputs
@@ -200,39 +458,53 @@ export class HDSegwitBech32Transaction {
     }
 
     const fee = wentIn - wasSpent;
-    let feeRate = Math.floor(fee / this._txDecoded.virtualSize());
-    if (feeRate === 0) feeRate = 1;
+    // amounts are bound by txids, so negative fee means server data is wrong. zero fee is fine (e.g. package relay)
+    if (fee < 0) throw new TxVerificationError('Transaction fee is negative');
+    const witnessUnverifiable = witnessBytes.some(bytes => bytes === null);
+    const vsize = this._getVsizeForFeerate(witnessBytes);
+    const feeRate = Math.floor(fee / vsize);
 
-    // lets take a look at change
+    // lets take a look at change, and outputs we own that current transaction creates (can be used in CPFP).
+    // outputs are taken from the (txid-checked) raw tx, not from the server-decoded json
     let changeAmount = 0;
     const targets: { value?: number; address: string }[] = [];
-    for (const outp of remoteTx.vout) {
-      const address = outp.scriptPubKey.addresses[0];
-      const value = new BigNumber(outp.value).multipliedBy(100000000).toNumber();
-      if (this._wallet.weOwnAddress(address)) {
-        changeAmount += value;
-      } else {
-        // this is target
-        targets.push({ value, address });
-      }
-    }
-
-    // lets find outputs we own that current transaction creates. can be used in CPFP
     const unconfirmedUtxos = [];
-    for (const outp of remoteTx.vout) {
-      const address = outp.scriptPubKey.addresses[0];
-      const value = new BigNumber(outp.value).multipliedBy(100000000).toNumber();
-      if (this._wallet.weOwnAddress(address)) {
-        unconfirmedUtxos.push({
-          vout: outp.n,
-          value,
-          txid: this._txid || this._txDecoded.getId(),
-          address,
-        });
+    for (let n = 0; n < this._txDecoded.outs.length; n++) {
+      const outp = this._txDecoded.outs[n];
+      const value = Number(outp.value);
+      const address = outputScriptToAddress(outp.script);
+
+      if (address && this._wallet.weOwnAddress(address)) {
+        changeAmount += value;
+        unconfirmedUtxos.push({ vout: n, value, txid, address });
+      } else {
+        // this is target. outputs without address (e.g. OP_RETURN) are skipped, RBF bump refuses such txs
+        if (address) targets.push({ value, address });
       }
     }
 
-    return { fee, feeRate, targets, changeAmount, utxos, unconfirmedUtxos };
+    return { fee, feeRate, vsize, witnessUnverifiable, targets, changeAmount, utxos, unconfirmedUtxos };
+  }
+
+  /**
+   * Virtual size of this transaction, to be used for feerate calculations. Witness is not covered by txid, so the one
+   * server sent can be shrunk or padded, and its size is not used directly: non-witness part is covered by txid, and
+   * witness size of each input is given by the caller (see `foreignInputWitnessBytes()`). When all of them are known,
+   * this is the real vsize, or a bit bigger for p2wpkh inputs that are not ours (at most 1 vbyte per such input).
+   *
+   * @param witnessBytes witness bytes (with items count) of each input, 0 for a non-segwit input. null if not known:
+   * served witness is counted then, so the result is not reliable (CPFP refuses such tx, RBF needs all inputs ours)
+   */
+  _getVsizeForFeerate(witnessBytes: Array<number | null>): number {
+    assert(this._txDecoded, 'transaction not decoded');
+    const tx = this._txDecoded;
+    const sizes = tx.ins.map((inp, i) => witnessBytes[i] ?? witnessByteLength(inp.witness));
+    let weight = tx.byteLength(false) * 4;
+    if (sizes.some(bytes => bytes > 0)) {
+      weight += 2; // segwit marker & flag
+      for (const bytes of sizes) weight += Math.max(bytes, 1); // non-segwit input still has 1 byte (empty items count)
+    }
+    return Math.max(1, Math.ceil(weight / 4));
   }
 
   /**
@@ -293,7 +565,12 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._txDecoded) await this._fetchTxhexAndDecode();
 
+    assert(this._txDecoded, 'could not fetch tx and decode');
+
     if (await this.thereAreUnknownInputsInTx()) return false;
+
+    // bump re-creates all outputs, but only the ones paying to an address are supported (same as `getInfo('bump')`)
+    if (this._txDecoded.outs.some(outp => !outputScriptToAddress(outp.script))) return false;
 
     return true;
   }
@@ -310,7 +587,7 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
-    const { feeRate, utxos } = await this.getInfo();
+    const { feeRate, utxos } = await this.getInfo('cancel');
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     const myAddress = await this._wallet.getChangeAddressAsync();
@@ -348,7 +625,7 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
-    const { feeRate, targets, changeAmount, utxos } = await this.getInfo();
+    const { feeRate, targets, changeAmount, utxos } = await this.getInfo('bump');
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     const myAddress = await this._wallet.getChangeAddressAsync();
@@ -391,7 +668,7 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
-    const { feeRate, fee: oldFee, unconfirmedUtxos } = await this.getInfo();
+    const { feeRate, fee: oldFee, vsize: oldVsize, unconfirmedUtxos } = await this.getInfo();
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     const myAddress = await this._wallet.getChangeAddressAsync();
@@ -401,12 +678,14 @@ export class HDSegwitBech32Transaction {
     const targetFeeRate = 2 * newFeerate - feeRate;
 
     let add = 0;
+    let maxFeeRate = Infinity;
     let tx: bitcoin.Transaction | undefined, inputs: CoinSelectReturnInput[], outputs: CoinSelectOutput[], fee: number;
     while (add <= 128) {
+      const childFeeRate = Math.min(targetFeeRate + add, maxFeeRate);
       const createdTx = this._wallet.createTransaction(
         unconfirmedUtxos,
         [{ address: myAddress }],
-        targetFeeRate + add,
+        childFeeRate,
         myAddress,
         HDSegwitBech32Wallet.defaultRBFSequence,
       );
@@ -415,14 +694,16 @@ export class HDSegwitBech32Transaction {
       outputs = createdTx.outputs;
       fee = createdTx.fee;
       assert(tx, 'tx is createCPFPbumpFee() is undefined');
-      const combinedFeeRate = (oldFee + fee) / (this._txDecoded!.virtualSize() + tx.virtualSize()); // avg
-      if (combinedFeeRate < newFeerate) {
-        add *= 2;
-        if (!add) add = 2;
-      } else {
-        // reached target feerate
-        break;
-      }
+      const combinedFeeRate = (oldFee + fee) / (oldVsize + tx.virtualSize()); // avg
+      if (combinedFeeRate >= newFeerate) break; // reached target feerate
+      if (childFeeRate >= maxFeeRate) break; // child alone already pays for the whole package, no point paying more
+      // child paying `fullPackageFeeRate` covers newFeerate for both txs even if parent paid nothing, so there is no
+      // reason to go way above it. bound is loose (x2) so normal CPFP stays exactly as it was, it only stops runaway
+      const fullPackageFeeRate = Math.ceil((newFeerate * (oldVsize + tx.virtualSize())) / tx.virtualSize());
+      maxFeeRate = Math.max(targetFeeRate, 2 * fullPackageFeeRate + 2);
+      if (childFeeRate >= maxFeeRate) break;
+      add *= 2;
+      if (!add) add = 2;
     }
 
     // Non-null assertions are safe here because the while loop always runs at least once (add starts at 0)
