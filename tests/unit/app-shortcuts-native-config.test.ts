@@ -43,9 +43,15 @@ describe('native app shortcut configuration', () => {
     expect(appDelegate).toContain('if #available(iOS 16.4, visionOS 1.0, *)');
   });
 
-  it('forwards scene user activities to React Native only once', () => {
+  it('uses the React Native 0.88 SceneDelegate entry points', () => {
     const sceneDelegate = readRepositoryFile('ios/BlueWallet/SceneDelegate.swift');
+    const appDelegate = readRepositoryFile('ios/BlueWallet/AppDelegate.swift');
 
-    expect(sceneDelegate).not.toContain('RCTLinkingManager.scene(scene, continue: userActivity)');
+    expect(sceneDelegate).toContain('class SceneDelegate: RCTDefaultReactNativeFactoryDelegate, UIWindowSceneDelegate');
+    expect(sceneDelegate).toContain('connectionOptions: connectionOptions');
+    expect(sceneDelegate).toContain('RCTLinkingManager.scene(scene, openURLContexts: URLContexts)');
+    expect(sceneDelegate).toContain('RCTLinkingManager.scene(scene, continue: userActivity)');
+    expect(appDelegate).toContain('class AppDelegate: UIResponder, UIApplicationDelegate');
+    expect(appDelegate).not.toContain('class AppDelegate: RCTAppDelegate');
   });
 });

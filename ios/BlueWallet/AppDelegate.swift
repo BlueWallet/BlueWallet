@@ -1,26 +1,15 @@
 import UIKit
 import React
-import React_RCTAppDelegate
-import ReactAppDependencyProvider
 import UserNotifications
 import Bugsnag
 
 
 @main
-class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
     private var userDefaultsGroup: UserDefaults?
-    var sceneLaunchOptions: [UIApplication.LaunchOptionsKey: Any]?
 
-    override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        var reactLaunchOptions = launchOptions
-        if let shortcutItem = launchOptions?[.shortcutItem] as? UIApplicationShortcutItem,
-           let url = appLinkURL(for: shortcutItem) {
-            reactLaunchOptions?[.url] = url
-            reactLaunchOptions?.removeValue(forKey: .shortcutItem)
-        }
-        sceneLaunchOptions = reactLaunchOptions
-        automaticallyLoadReactNativeWindow = false
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         clearFilesIfNeeded()
 
         if #available(iOS 16.4, visionOS 1.0, *) {
@@ -57,39 +46,13 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
       #endif
         }
 
-        self.moduleName = "BlueWallet"
-        self.dependencyProvider = RCTAppDependencyProvider()
-        self.initialProps = [:]
-
         RNNotifications.startMonitorNotifications()
         RNNotifications.addNativeDelegate(self)
 
         setupUserDefaultsListener()
         registerNotificationCategories()
         
-        return super.application(application, didFinishLaunchingWithOptions: reactLaunchOptions)
-    }
-
-    override func application(
-        _ application: UIApplication,
-        configurationForConnecting connectingSceneSession: UISceneSession,
-        options: UIScene.ConnectionOptions
-    ) -> UISceneConfiguration {
-        let configuration = UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
-        configuration.delegateClass = SceneDelegate.self
-        return configuration
-    }
-
-    override func sourceURL(for bridge: RCTBridge) -> URL? {
-        return bundleURL()
-    }
-
-    override func bundleURL() -> URL? {
-        #if DEBUG
-        return RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
-        #else
-        return Bundle.main.url(forResource: "main", withExtension: "jsbundle")
-        #endif
+        return true
     }
 
     private func registerNotificationCategories() {
@@ -312,7 +275,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         }
     }
 
-    override func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
       let activityType = userActivity.activityType
       guard !activityType.isEmpty else {
             print("[Handoff] Invalid or missing userActivity")
@@ -339,19 +302,19 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         return false
     }
 
-    override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         return RCTLinkingManager.application(app, open: url, options: options)
     }
 
-    override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         RNNotifications.didRegisterForRemoteNotifications(withDeviceToken: deviceToken)
     }
 
-    override func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         RNNotifications.didFailToRegisterForRemoteNotificationsWithError(error)
     }
 
-    override func application(
+    func application(
         _ application: UIApplication,
         didReceiveRemoteNotification userInfo: [AnyHashable: Any],
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
@@ -359,14 +322,14 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         RNNotifications.didReceiveBackgroundNotification(userInfo, withCompletionHandler: completionHandler)
     }
 
-    override func applicationWillTerminate(_ application: UIApplication) {
+    func applicationWillTerminate(_ application: UIApplication) {
         userDefaultsGroup?.removeObject(forKey: "onUserActivityOpen")
 
         RNNotifications.removeNativeDelegate(self)
         UserDefaults.standard.removeObserver(self, forKeyPath: "deviceUID")
     }
 
-    override func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+    func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
         openShortcutLink(shortcutItem, completionHandler: completionHandler)
     }
 
@@ -380,10 +343,13 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             return
         }
 
-        if let scene = scene ?? window.windowScene {
+        let targetScene = scene ?? UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first
+        if let targetScene {
             let activity = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
             activity.webpageURL = url
-            RCTLinkingManager.scene(scene, continue: activity)
+            RCTLinkingManager.scene(targetScene, continue: activity)
             completionHandler(true)
             return
         }
