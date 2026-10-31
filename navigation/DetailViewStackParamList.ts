@@ -2,6 +2,7 @@ import type { NativeStackNavigationOptions } from '@react-navigation/native-stac
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
+import { ElectrumServerItem } from '../blue_modules/electrumServer';
 import { SelectWalletParams, SendDetailsParams, SendDetailsStackParamList, SuccessParams } from './SendDetailsStackParamList';
 import { ReceiveDetailsStackParamList } from './ReceiveDetailsStackParamList';
 import type { AddWalletStackParamList } from './AddWalletStack';
@@ -11,6 +12,7 @@ import type { ExportMultisigCoordinationSetupStackRootParamList } from './Export
 import type { LNDCreateInvoiceStackParamList, ScanLNDInvoiceStackParamList } from './LNDStackParamsList';
 import type { SignVerifyStackParamList } from './SignVerifyStack';
 import { ClipboardPaymentKind } from '../blue_modules/clipboardPayment';
+import type { AddElectrumServerStackParamList } from './AddElectrumServerStackParamList';
 
 export type ScanQRCodeParamList = {
   cameraStatusGranted?: boolean;
@@ -39,6 +41,7 @@ type VaultKeyData = {
 
 export type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']>;
 export type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
+export type HeaderRightItems = NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>;
 
 export type DetailViewStackParamList = {
   DrawerRoot: NavigatorScreenParams<DrawerParamList> | undefined;
@@ -92,8 +95,18 @@ export type DetailViewStackParamList = {
   NetworkSettings: undefined;
   About: undefined;
   // DefaultView: undefined; // Commented out - not accessible from UI
-  // server: "host:port:t|s" as the setelectrumserver deeplink sends it
-  ElectrumSettings: { server?: string; onBarScanned?: string; headerRight?: HeaderRightRenderer | null } | undefined;
+  ElectrumSettings:
+    | {
+        server?: ElectrumServerItem;
+        serverHistoryImport?: string;
+        onSearchTextChange?: (text: string) => void;
+        onSearchCancel?: () => void;
+        onBarScanned?: string;
+        headerRight?: HeaderRightRenderer | null;
+        unstable_headerRightItems?: HeaderRightItems;
+      }
+    | undefined;
+  AddElectrumServerRoot: NavigatorScreenParams<AddElectrumServerStackParamList> | undefined;
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;

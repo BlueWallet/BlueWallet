@@ -37,7 +37,7 @@ export const createEllipsisHeaderMenuOptions = ({
     : mapActionsToNativeHeaderMenuItems(actions as Action[], onPressMenuItem);
 
   return {
-    headerRight: () => React.createElement(HeaderMenuButton, { onPressMenuItem, actions, disabled }),
+    headerRight: () => React.createElement(HeaderMenuButton, { onPressMenuItem, actions, disabled, title }),
     unstable_headerRightItems: () => [
       {
         type: 'menu',

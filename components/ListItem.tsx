@@ -1,5 +1,9 @@
 import React, { useMemo } from 'react';
 import {
+  AccessibilityActionEvent,
+  AccessibilityActionInfo,
+  AccessibilityRole,
+  AccessibilityState,
   ActivityIndicator,
   Pressable,
   StyleProp,
@@ -21,6 +25,8 @@ import { useTheme } from './themes';
 export const TX_ROW_BASE_HEIGHT = 64;
 
 export interface ListItemProps {
+  accessible?: boolean;
+  accessibilityRole?: AccessibilityRole;
   accessibilityLabel?: string;
   accessibilityHint?: string;
   leftAvatar?: React.JSX.Element;
@@ -34,20 +40,28 @@ export interface ListItemProps {
   switch?: SwitchProps;
   title: string;
   titleStyle?: StyleProp<TextStyle>;
+  titleSelectable?: boolean;
   subtitle?: string | React.ReactNode;
   subtitleNumberOfLines?: number;
+  subtitleSelectable?: boolean;
   rightTitle?: string;
   rightTitleStyle?: StyleProp<TextStyle>;
   rightTitleSelectable?: boolean;
   rightSubtitle?: string | React.ReactNode;
   rightSubtitleStyle?: StyleProp<TextStyle>;
+  rightElement?: React.ReactNode;
   chevron?: boolean;
   checkmark?: boolean;
   isLoading?: boolean;
+  accessibilityState?: AccessibilityState;
+  accessibilityActions?: ReadonlyArray<AccessibilityActionInfo>;
+  onAccessibilityAction?: (event: AccessibilityActionEvent) => void;
 }
 
 const ListItem: React.FC<ListItemProps> = React.memo(
   ({
+    accessible,
+    accessibilityRole,
     leftAvatar,
     accessibilityLabel,
     accessibilityHint,
@@ -61,16 +75,22 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     switch: switchProps,
     title,
     titleStyle,
+    titleSelectable,
     subtitle,
     subtitleNumberOfLines,
+    subtitleSelectable,
     rightTitle,
     rightTitleStyle,
     rightTitleSelectable,
     rightSubtitle,
     rightSubtitleStyle,
+    rightElement,
     chevron,
     checkmark,
     isLoading,
+    accessibilityState,
+    accessibilityActions,
+    onAccessibilityAction,
   }: ListItemProps) => {
     const { colors } = useTheme();
     const { direction } = useLocale();
@@ -127,12 +147,21 @@ const ListItem: React.FC<ListItemProps> = React.memo(
             <View style={styles.width16} />
           </View>
         )}
-        <View style={styles.content}>
-          <Text style={[stylesHook.title, titleStyle]} numberOfLines={0} accessibilityRole="text">
+        <View
+          style={styles.content}
+          accessibilityElementsHidden={Boolean(switchProps)}
+          importantForAccessibility={switchProps ? 'no-hide-descendants' : 'auto'}
+        >
+          <Text style={[stylesHook.title, titleStyle]} numberOfLines={0} accessibilityRole="text" selectable={titleSelectable}>
             {title}
           </Text>
           {subtitle ? (
-            <Text numberOfLines={switchProps ? 0 : (subtitleNumberOfLines ?? 1)} accessibilityRole="text" style={stylesHook.subtitle}>
+            <Text
+              numberOfLines={switchProps ? 0 : (subtitleNumberOfLines ?? 1)}
+              accessibilityRole="text"
+              selectable={subtitleSelectable}
+              style={stylesHook.subtitle}
+            >
               {subtitle}
             </Text>
           ) : null}
@@ -165,6 +194,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
           <ActivityIndicator accessibilityRole="progressbar" />
         ) : (
           <>
+            {rightElement}
             {chevron ? (
               <Icon name={isRtl ? 'angle-left' : 'angle-right'} type="font-awesome" color={colors.alternativeTextColor} size={18} />
             ) : null}
@@ -172,8 +202,13 @@ const ListItem: React.FC<ListItemProps> = React.memo(
               <Switch
                 {...memoizedSwitchProps}
                 testID={resolvedSwitchTestID}
-                accessibilityLabel={title}
-                accessibilityHint={typeof subtitle === 'string' ? subtitle : undefined}
+                accessibilityLabel={memoizedSwitchProps?.accessibilityLabel ?? title}
+                accessibilityHint={memoizedSwitchProps?.accessibilityHint ?? (typeof subtitle === 'string' ? subtitle : undefined)}
+                accessibilityState={{
+                  ...memoizedSwitchProps?.accessibilityState,
+                  checked: Boolean(memoizedSwitchProps?.value),
+                  disabled: Boolean(memoizedSwitchProps?.disabled),
+                }}
                 style={styles.margin16}
                 accessible
                 accessibilityRole="switch"
@@ -191,7 +226,17 @@ const ListItem: React.FC<ListItemProps> = React.memo(
 
     if (!onPress) {
       return (
-        <View testID={testID} style={[stylesHook.containerStyle, stylesHook.divider, containerStyle, disabled && styles.disabled]}>
+        <View
+          accessible={accessible}
+          accessibilityRole={accessibilityRole}
+          testID={testID}
+          accessibilityLabel={accessibilityLabel}
+          accessibilityHint={accessibilityHint}
+          accessibilityState={accessibilityState}
+          accessibilityActions={accessibilityActions}
+          onAccessibilityAction={onAccessibilityAction}
+          style={[stylesHook.containerStyle, stylesHook.divider, containerStyle, disabled && styles.disabled]}
+        >
           {renderContent()}
         </View>
       );
@@ -202,11 +247,13 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         testID={testID}
         onPress={onPress}
         disabled={disabled}
-        accessible
-        accessibilityRole="button"
+        accessible={accessible ?? true}
+        accessibilityRole={accessibilityRole ?? 'button'}
         accessibilityLabel={accessibilityLabel ?? title}
         accessibilityHint={accessibilityHint}
-        accessibilityState={{ disabled: !!disabled }}
+        accessibilityState={{ ...accessibilityState, disabled: accessibilityState?.disabled ?? !!disabled }}
+        accessibilityActions={accessibilityActions}
+        onAccessibilityAction={onAccessibilityAction}
         android_ripple={enableFeedback ? { color: colors.androidRippleColor } : undefined}
         style={({ pressed }) => [
           stylesHook.containerStyle,
@@ -227,6 +274,7 @@ export default ListItem;
 const styles = StyleSheet.create({
   margin16: {
     marginLeft: 16,
+    alignSelf: 'center',
   },
   width16: { width: 16 },
   contentRow: {

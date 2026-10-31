@@ -529,9 +529,23 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ElectrumSettings"
           component={ElectrumSettings}
-          options={navigationStyle(
+          options={navigationStyle<DetailViewStackParamList, 'ElectrumSettings'>(
             getSettingsHeaderOptions(loc.settings.electrum_settings_server, theme),
-            withRouteParamHeaderOptions({ headerRight: true }),
+            (options, deps) => ({
+              ...withRouteParamHeaderOptions<DetailViewStackParamList, 'ElectrumSettings'>({
+                headerRight: true,
+                unstable_headerRightItems: true,
+              })(options, deps),
+              headerSearchBarOptions: {
+                hideWhenScrolling: true,
+                placement: 'automatic',
+                placeholder: loc.settings.electrum_search_servers,
+                autoCapitalize: 'none',
+                onChangeText: event => deps.route.params?.onSearchTextChange?.(event.nativeEvent.text),
+                onCancelButtonPress: () => deps.route.params?.onSearchCancel?.(),
+                onClose: () => deps.route.params?.onSearchCancel?.(),
+              },
+            }),
           )(theme)}
           initialParams={{ server: undefined }}
         />

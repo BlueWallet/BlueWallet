@@ -3,7 +3,7 @@ import { NativeSyntheticEvent, Platform, Pressable, StyleProp, StyleSheet, View,
 import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
 import { ToolTipMenuProps } from './types';
 import { useSettings } from '../hooks/context/useSettings';
-import { buildMenu, lookupId } from './TooltipMenu.helpers';
+import { buildMenu, lookupId, lookupUniqueIdByTitle } from './TooltipMenu.helpers';
 
 const ToolTipMenu = (props: ToolTipMenuProps) => {
   const {
@@ -35,9 +35,12 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
       const path = indexPath?.length ? indexPath : typeof index === 'number' ? [index] : [];
       const id = lookupId(ids, path);
       if (id !== undefined) onPressMenuItem(id);
-      else if (name) onPressMenuItem(name); // last-resort fallback
+      else if (name) {
+        const fallbackId = lookupUniqueIdByTitle(items, ids, name);
+        if (fallbackId !== undefined) onPressMenuItem(fallbackId);
+      }
     },
-    [ids, onPressMenuItem],
+    [ids, items, onPressMenuItem],
   );
 
   if (disabled || actions.length === 0) return null;

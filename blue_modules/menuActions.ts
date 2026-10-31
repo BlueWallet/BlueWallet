@@ -5,6 +5,15 @@ export type ScreenMenuAction =
   | 'walletDetails'
   | 'copyAddress'
   | 'copyTransactionId'
+  | 'addElectrumServer'
+  | 'resetElectrumSettings'
+  | 'toggleSuggestedElectrumServers'
+  | 'toggleElectrumOffline'
+  | 'copyConnectedElectrumServer'
+  | 'removeFavoriteElectrumServer'
+  | 'focusElectrumHost'
+  | 'focusElectrumPort'
+  | 'saveElectrumServer'
   | 'accelerateTransaction'
   | 'add_recipient'
   | 'remove_recipient'
@@ -34,7 +43,19 @@ export type MenuActionHandlers = Partial<Record<ScreenMenuAction, () => void>>;
 export type MenuActionState = { disabled?: boolean; checked?: boolean };
 export type MenuActionStates = Partial<Record<ScreenMenuAction, MenuActionState>>;
 
-export type MenuActionTitles = Record<MenuAction | 'tools' | 'openRecent' | 'noRecent' | 'unlockRecent', string>;
+export type MenuActionTitles = Record<
+  | MenuAction
+  | 'tools'
+  | 'openRecent'
+  | 'noRecent'
+  | 'unlockRecent'
+  | 'electrumServerMenu'
+  | 'electrumConnectionMenu'
+  | 'electrumViewMenu'
+  | 'electrumFavoriteMenu'
+  | 'electrumInputMenu',
+  string
+>;
 
 const sendDetailsActionAliases: Readonly<Record<string, ScreenMenuAction>> = {
   AddRecipient: 'add_recipient',
@@ -47,6 +68,15 @@ const screenActions: Record<string, readonly ScreenMenuAction[]> = {
   WalletTransactions: ['reloadTransactions', 'send', 'receive', 'walletDetails'],
   ReceiveDetails: ['copyAddress'],
   TransactionStatus: ['copyTransactionId', 'accelerateTransaction'],
+  ElectrumSettings: [
+    'addElectrumServer',
+    'resetElectrumSettings',
+    'toggleSuggestedElectrumServers',
+    'toggleElectrumOffline',
+    'copyConnectedElectrumServer',
+    'removeFavoriteElectrumServer',
+  ],
+  AddElectrumServer: ['saveElectrumServer', 'focusElectrumHost', 'focusElectrumPort'],
   SendDetails: [
     'add_recipient',
     'remove_recipient',
@@ -100,9 +130,17 @@ export const menuShortcuts: readonly { title: string; key: string; where: string
   { title: 'Copy Transaction ID', key: 'Shift+C', where: 'Transaction details, when an ID is available' },
   { title: 'Speed Up', key: 'Shift+U', where: 'Transaction details, when external acceleration is available' },
   { title: 'Back to Wallets', key: 'Shift+W', where: 'Wallet detail screens' },
+  { title: 'Add Electrum Server…', key: 'N', where: 'Electrum settings' },
+  { title: 'Confirm Electrum Server', key: 'Return', where: 'Add Electrum Server' },
+  { title: 'Focus Server Address', key: 'Option+1', where: 'Add Electrum Server', platform: 'ios' },
+  { title: 'Focus Server Port', key: 'Option+2', where: 'Add Electrum Server', platform: 'ios' },
+  { title: 'Work Offline', key: 'Shift+O', where: 'Electrum settings', platform: 'ios' },
+  { title: 'Copy Connected Server', key: 'Shift+C', where: 'Electrum settings, when connected', platform: 'ios' },
+  { title: 'Toggle Suggested Servers', key: 'Shift+E', where: 'Electrum settings' },
+  { title: 'Reset Electrum Settings…', key: 'Option+R', where: 'Electrum settings' },
   { title: 'Is it my address?', key: 'Shift+I', where: 'Anywhere after unlocking' },
   { title: 'Broadcast Transaction', key: 'Shift+B', where: 'Anywhere after unlocking' },
-  { title: 'Seed final word', key: 'Shift+G', where: 'Anywhere after unlocking' },
+  { title: 'Seed final word', key: 'Option+G', where: 'Anywhere after unlocking' },
   { title: 'Add Recipient', key: 'Alt+A', where: 'Send details' },
   { title: 'Remove Recipient', key: 'Alt+R', where: 'Send details' },
   { title: 'Remove All Recipients', key: 'Alt+Shift+R', where: 'Send details' },

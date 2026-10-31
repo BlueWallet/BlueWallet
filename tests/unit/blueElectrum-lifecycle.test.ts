@@ -14,7 +14,7 @@ import { runAfterAlertDismissed } from '../../components/Alert';
 // Jest hoists these above the import above. The factories close over `globalThis`
 // so the test body can swap implementations per-test without re-mocking.
 jest.mock('electrum-client', () => {
-  return jest.fn().mockImplementation(() => (globalThis as any).__createNextFakeClient());
+  return jest.fn().mockImplementation((...args: unknown[]) => (globalThis as any).__createNextFakeClient(...args));
 });
 
 jest.mock('../../components/Alert', () => {
@@ -93,8 +93,8 @@ function makeFakeClient(host = 'fake.host', port = 50002): FakeClient {
 
 const created: FakeClient[] = [];
 let rejectConnections = false;
-(globalThis as any).__createNextFakeClient = () => {
-  const c = makeFakeClient();
+(globalThis as any).__createNextFakeClient = (_net: unknown, _tls: unknown, port: number, host: string) => {
+  const c = makeFakeClient(host, port);
   if (rejectConnections) c.initElectrum.mockRejectedValue(new Error('connection failed'));
   created.push(c);
   return c;
@@ -112,6 +112,10 @@ function resolveLastConnect() {
 }
 
 describe('BlueElectrum lifecycle', () => {
+  afterAll(() => {
+    BlueElectrum.forceDisconnect();
+  });
+
   beforeEach(async () => {
     BlueElectrum.forceDisconnect();
     await BlueElectrum.setDisabled(false);
@@ -191,6 +195,42 @@ describe('BlueElectrum lifecycle', () => {
     });
   });
 
+  describe('random suggested server selection', () => {
+    it('disconnects and starts from the randomly selected built-in peer', async () => {
+      const random = jest.spyOn(Math, 'random').mockReturnValue(0);
+      try {
+        const connection = BlueElectrum.connectToRandomSuggestedServer();
+        await flush();
+
+        expect(created).toHaveLength(1);
+        expect(created[0].host).toBe(BlueElectrum.suggestedServers[0].host);
+        expect(created[0].port).toBe(BlueElectrum.suggestedServers[0].ssl ?? BlueElectrum.suggestedServers[0].tcp);
+        resolveLastConnect();
+        await expect(connection).resolves.toBe(true);
+      } finally {
+        random.mockRestore();
+      }
+    });
+
+    it('waits for an aborted in-flight connection before starting the replacement', async () => {
+      const originalConnection = BlueElectrum.ensureConnected();
+      await flush();
+      expect(created).toHaveLength(1);
+
+      const replacement = BlueElectrum.connectToRandomSuggestedServer();
+      await flush();
+      expect(created).toHaveLength(1);
+
+      resolveLastConnect();
+      await expect(originalConnection).resolves.toBe(false);
+      await flush();
+      expect(created).toHaveLength(2);
+
+      resolveLastConnect();
+      await expect(replacement).resolves.toBe(true);
+    });
+  });
+
   describe('setDisabled(true) during in-flight connect', () => {
     it('bumps generation, tears down the socket, leaves state "disabled"', async () => {
       const p = BlueElectrum.ensureConnected();
@@ -237,6 +277,63 @@ describe('BlueElectrum lifecycle', () => {
 
       expect(ok).toBe(false);
       expect(BlueElectrum.getConnectionState()).toBe('disconnected');
+    });
+  });
+
+  describe('connection validation', () => {
+    it('only classifies explicit incomplete-sync errors', () => {
+      expect(BlueElectrum.isElectrumServerSyncingError(new Error('backend is not yet synchronized'))).toBe(true);
+      expect(BlueElectrum.isElectrumServerSyncingError({ message: 'index sync is incomplete' })).toBe(true);
+      expect(BlueElectrum.isElectrumServerSyncingError(new Error('sync is complete'))).toBe(false);
+      expect(BlueElectrum.isElectrumServerSyncingError(new Error('server is busy'))).toBe(false);
+    });
+
+    it('explains when the Electrum server reports that it is still syncing', async () => {
+      const validationPromise = BlueElectrum.validateConnection('syncing.local', 50001);
+      created[0].server_ping.mockRejectedValueOnce({ code: -1, message: 'the server is still syncing' });
+      created[0].initElectrumDeferred.resolve(['Fulcrum 1.10.0', '1.4']);
+
+      await expect(validationPromise).resolves.toEqual({
+        success: false,
+        error: 'This Electrum server has not finished syncing. Wait for it to finish and try again.',
+      });
+      expect(created[0].close).toHaveBeenCalledTimes(1);
+    });
+
+    it('adds actionable context to JSON-RPC errors from the Electrum client', async () => {
+      const validationPromise = BlueElectrum.validateConnection('broken.local', 50001);
+      created[0].server_ping.mockRejectedValueOnce({ code: -32603, message: 'database unavailable' });
+      created[0].initElectrumDeferred.resolve(['Fulcrum 1.10.0', '1.4']);
+
+      await expect(validationPromise).resolves.toEqual({
+        success: false,
+        error: 'The server at broken.local:50001 returned an error: database unavailable\n\nCheck the server’s status and try again.',
+      });
+    });
+
+    it.each([
+      ['getaddrinfo ENOTFOUND missing.example', 'could not be found'],
+      ['connect ECONNREFUSED', 'refused the connection'],
+      ['certificate has expired', 'secure connection'],
+      ['ENETUNREACH', 'could not reach'],
+      ['read ECONNRESET', 'closed the connection'],
+      ['invalid JSON response', 'compatible Electrum response'],
+    ])('turns %s into useful connection guidance', (message, expected) => {
+      expect(BlueElectrum.formatElectrumConnectionError(new Error(message), 'example.com', undefined, 50002)).toContain(expected);
+    });
+
+    it('accepts an Electrum endpoint during discovery even when its backend is not ready to answer ping', async () => {
+      const validationPromise = BlueElectrum.validateConnection('syncing.local', 50001, undefined, { requirePing: false });
+      created[0].server_ping.mockRejectedValue(new Error('backend is still syncing'));
+      created[0].initElectrumDeferred.resolve(['Fulcrum 1.10.0', '1.4']);
+      await expect(validationPromise).resolves.toEqual({ success: true });
+
+      expect(created[0].initElectrum).toHaveBeenCalledWith(
+        { client: 'bluewallet', version: '1.4' },
+        expect.objectContaining({ maxRetry: 0 }),
+      );
+      expect(created[0].server_ping).not.toHaveBeenCalled();
+      expect(created[0].close).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -297,7 +394,9 @@ describe('BlueElectrum lifecycle', () => {
     it('returns null for implausible height without caching', async () => {
       const client = await connectAtTip(1000);
 
-      client.blockchainTransaction_get.mockResolvedValue({ confirmations: 2000 });
+      client.blockchainTransaction_get.mockResolvedValue({
+        confirmations: 2000,
+      });
 
       const result = await BlueElectrum.getConfirmedBlockHeight('deadbeef');
       expect(result).toBeNull();

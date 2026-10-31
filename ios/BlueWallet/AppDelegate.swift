@@ -326,7 +326,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         userDefaultsGroup?.setValue(userActivityData, forKey: "onUserActivityOpen")
 
-        if ["io.bluewallet.bluewallet.receiveonchain", "io.bluewallet.bluewallet.xpub", "io.bluewallet.bluewallet.blockexplorer"].contains(activityType) {
+        if ["io.bluewallet.bluewallet.receiveonchain", "io.bluewallet.bluewallet.xpub", "io.bluewallet.bluewallet.blockexplorer", "io.bluewallet.bluewallet.electrumserverhistory"].contains(activityType) {
           EventEmitter.shared()?.sendUserActivity(userActivityData)
             return true
         }
@@ -462,6 +462,78 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             }
         }
 
+        let electrumMenuID = UIMenu.Identifier("io.bluewallet.electrum")
+        builder.remove(menu: electrumMenuID)
+        let electrumPrimaryCommands = [
+            actions.contains("addElectrumServer")
+                ? UIKeyCommand(title: "Add Server…", action: #selector(addElectrumServerMenuAction), input: "n", modifierFlags: .command)
+                : nil,
+            actions.contains("saveElectrumServer")
+                ? UIKeyCommand(title: "Save Server", action: #selector(saveElectrumServerMenuAction), input: "\r", modifierFlags: .command)
+                : nil
+        ].compactMap { $0 }
+        for command in electrumPrimaryCommands {
+            let action = command.action == #selector(saveElectrumServerMenuAction) ? "saveElectrumServer" : "addElectrumServer"
+            command.title = MenuActionsController.shared.title(for: action, fallback: action == "saveElectrumServer" ? "Confirm" : "Add Server…")
+            command.image = UIImage(systemName: action == "saveElectrumServer" ? "checkmark" : "plus")
+            command.attributes = MenuActionsController.shared.actionStates[action]?.disabled == true ? .disabled : []
+        }
+        let suggestedServersCommand: UIKeyCommand? = actions.contains("toggleSuggestedElectrumServers")
+            ? UIKeyCommand(title: MenuActionsController.shared.title(for: "toggleSuggestedElectrumServers", fallback: "Show Suggested Servers"),
+                           action: #selector(toggleSuggestedElectrumServersMenuAction), input: "e", modifierFlags: [.command, .shift])
+            : nil
+        if let suggestedServersCommand {
+            let state = MenuActionsController.shared.actionStates["toggleSuggestedElectrumServers"]
+            suggestedServersCommand.state = state?.checked == true ? .on : .off
+            suggestedServersCommand.attributes = state?.disabled == true ? .disabled : []
+        }
+        let electrumViewCommands = [
+            suggestedServersCommand,
+            actions.contains("resetElectrumSettings")
+                ? UIKeyCommand(title: "Reset Electrum Settings…", action: #selector(resetElectrumSettingsMenuAction), input: "r", modifierFlags: [.command, .alternate])
+                : nil
+        ].compactMap { $0 }
+        for command in electrumViewCommands where command.action == #selector(resetElectrumSettingsMenuAction) {
+            command.attributes = MenuActionsController.shared.actionStates["resetElectrumSettings"]?.disabled == true ? .disabled : []
+        }
+        let electrumCommand: (String, String, String, String?, UIKeyModifierFlags) -> UICommand? = { action, fallback, symbol, input, modifiers in
+            guard actions.contains(action) else { return nil }
+            let title = MenuActionsController.shared.title(for: action, fallback: fallback)
+            let command: UICommand
+            if let input {
+                command = UIKeyCommand(title: title, image: UIImage(systemName: symbol), action: #selector(self.electrumServerMenuAction),
+                                       input: input, modifierFlags: modifiers, propertyList: action)
+            } else {
+                command = UICommand(title: title, image: UIImage(systemName: symbol), action: #selector(self.electrumServerMenuAction), propertyList: action)
+            }
+            let state = MenuActionsController.shared.actionStates[action]
+            command.attributes = state?.disabled == true ? .disabled : []
+            if action == "removeFavoriteElectrumServer" { command.attributes.insert(.destructive) }
+            if let checked = state?.checked { command.state = checked ? .on : .off }
+            return command
+        }
+        let electrumConnectionCommands = [
+            electrumCommand("toggleElectrumOffline", "Work Offline", "network.slash", "o", [.command, .shift]),
+            electrumCommand("copyConnectedElectrumServer", "Copy Connected Server", "doc.on.doc", "c", [.command, .shift])
+        ].compactMap { $0 }
+        let electrumFavoriteCommands = [
+            electrumCommand("removeFavoriteElectrumServer", "Remove Favorite Server", "star.slash", nil, [])
+        ].compactMap { $0 }
+        let electrumInputCommands = [
+            electrumCommand("focusElectrumHost", "Focus Server Address", "text.cursor", "1", [.command, .alternate]),
+            electrumCommand("focusElectrumPort", "Focus Server Port", "number", "2", [.command, .alternate])
+        ].compactMap { $0 }
+        let electrumGroups = [
+            electrumPrimaryCommands.isEmpty ? nil : UIMenu(title: "", options: .displayInline, children: electrumPrimaryCommands),
+            electrumConnectionCommands.isEmpty ? nil : UIMenu(title: MenuActionsController.shared.title(for: "electrumConnectionMenu", fallback: "Connection"), options: .displayInline, children: electrumConnectionCommands),
+            electrumViewCommands.isEmpty ? nil : UIMenu(title: MenuActionsController.shared.title(for: "electrumViewMenu", fallback: "View"), options: .displayInline, children: electrumViewCommands),
+            electrumFavoriteCommands.isEmpty ? nil : UIMenu(title: MenuActionsController.shared.title(for: "electrumFavoriteMenu", fallback: "Favorite Server"), options: .displayInline, children: electrumFavoriteCommands),
+            electrumInputCommands.isEmpty ? nil : UIMenu(title: MenuActionsController.shared.title(for: "electrumInputMenu", fallback: "Input"), options: .displayInline, children: electrumInputCommands)
+        ].compactMap { $0 }
+        if !electrumGroups.isEmpty {
+            builder.insertSibling(UIMenu(title: MenuActionsController.shared.title(for: "electrumServerMenu", fallback: "Server"), identifier: electrumMenuID, children: electrumGroups), afterMenu: .file)
+        }
+
         let sendDetailsMenuID = UIMenu.Identifier("io.bluewallet.sendDetails")
         builder.remove(menu: sendDetailsMenuID)
         let sendDetailsCommands: [(String, String, String, String, UIKeyModifierFlags)] = [
@@ -562,7 +634,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
                              input: "b", modifierFlags: [.command, .shift]),
                 UIKeyCommand(title: MenuActionsController.shared.title(for: "generateWord", fallback: "Seed final word"),
                              image: UIImage(systemName: "key"), action: #selector(generateWordMenuAction),
-                             input: "g", modifierFlags: [.command, .shift])
+                             input: "g", modifierFlags: [.command, .alternate])
             ]
             builder.insertSibling(UIMenu(title: MenuActionsController.shared.title(for: "tools", fallback: "Tools"),
                                          image: UIImage(systemName: "wrench.and.screwdriver"),
@@ -652,6 +724,27 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     @objc func copyTransactionIdMenuAction(_ keyCommand: UIKeyCommand) {
         MenuActionsController.shared.perform("copyTransactionId")
+    }
+
+    @objc func addElectrumServerMenuAction(_ keyCommand: UIKeyCommand) {
+      MenuActionsController.shared.perform("addElectrumServer")
+    }
+
+    @objc func saveElectrumServerMenuAction(_ keyCommand: UIKeyCommand) {
+      MenuActionsController.shared.perform("saveElectrumServer")
+    }
+
+    @objc func toggleSuggestedElectrumServersMenuAction(_ keyCommand: UIKeyCommand) {
+      MenuActionsController.shared.perform("toggleSuggestedElectrumServers")
+    }
+
+    @objc func resetElectrumSettingsMenuAction(_ keyCommand: UIKeyCommand) {
+      MenuActionsController.shared.perform("resetElectrumSettings")
+    }
+
+    @objc func electrumServerMenuAction(_ command: UICommand) {
+      guard let action = command.propertyList as? String else { return }
+      MenuActionsController.shared.perform(action)
     }
 
     @objc func keyboardShortcutsMenuAction(_ keyCommand: UIKeyCommand) {

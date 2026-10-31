@@ -1,475 +1,923 @@
-import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Dimensions, Keyboard, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { useFocusEffect, useNavigation, RouteProp, useRoute } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Clipboard from '@react-native-clipboard/clipboard';
+import Ionicons from '@react-native-vector-icons/ionicons';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useReducer } from 'react';
+import {
+  ActivityIndicator,
+  AccessibilityInfo,
+  AlertButton,
+  FlatList,
+  findNodeHandle,
+  ListRenderItemInfo,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
+import NativeLocalNetworkPermission from '../../codegen/NativeLocalNetworkPermission';
+import { Swipeable } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { hardcodedPeers, presentResetToDefaultsAlert, suggestedServers } from '../../blue_modules/BlueElectrum';
+import { presentResetToDefaultsAlert, suggestedServers } from '../../blue_modules/BlueElectrum';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
+import {
+  ElectrumServerItem,
+  createElectrumServerHistoryDeepLink,
+  electrumServersForHandoff,
+  electrumServerKey,
+  formatElectrumServer,
+  isLocalElectrumHost,
+  parseElectrumServer,
+  parseElectrumServerDocumentResult,
+  serializeElectrumServerDocument,
+  uniqueElectrumServers,
+} from '../../blue_modules/electrumServer';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import AddressInput from '../../components/AddressInput';
-import presentAlert from '../../components/Alert';
-import Button from '../../components/Button';
-import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
-import {
-  DoneAndDismissKeyboardInputAccessory,
-  DoneAndDismissKeyboardInputAccessoryViewID,
-} from '../../components/DoneAndDismissKeyboardInputAccessory';
-import HeaderMenuButton from '../../components/HeaderMenuButton';
-import {
-  SettingsSection,
-  SettingsListItem,
-  SettingsScrollView,
-  SettingsFootnote,
-  settingsCardContent,
-} from '../../components/SettingsSection';
+import HandOffComponent from '../../components/HandOffComponent';
+import ToolTipMenu from '../../components/TooltipMenu';
+import { createEllipsisHeaderMenuOptions } from '../../components/headerMenuOptions';
+import { SettingsSection, SettingsListItem, SettingsFootnote } from '../../components/SettingsSection';
 import { useTheme } from '../../components/themes';
-import { Action } from '../../components/types';
+import { Action, HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useKeyboard } from '../../hooks/useKeyboard';
+import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import ActionSheet from '../ActionSheet';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
-export interface ElectrumServerItem {
-  host: string;
-  tcp?: number;
-  ssl?: number;
-}
+export type { ElectrumServerItem } from '../../blue_modules/electrumServer';
 
-const SET_PREFERRED_PREFIX = 'set_preferred_';
+type ServerListEntry =
+  | { type: 'header'; id: string; title: string; description?: string }
+  | {
+      type: 'server';
+      id: string;
+      server: ElectrumServerItem;
+      isFirst: boolean;
+      isLast: boolean;
+      isHistory: boolean;
+    };
+
+const ADD_SERVER_ACTION_ID = 'add_electrum_server';
+const SHOW_SUGGESTED_SERVERS_ACTION_ID = 'show_suggested_electrum_servers';
+const SHOW_SUGGESTED_SERVERS_STORAGE_KEY = 'electrum_show_suggested_servers';
+const serverKey = electrumServerKey;
+
+const copyServerText = (text: string) => {
+  Clipboard.setString(text);
+  AccessibilityInfo.announceForAccessibilityWithOptions(loc._.copied, { queue: true });
+};
+
+const SwipeableServerRow: React.FC<{
+  children: React.ReactNode;
+  onTest?: () => void;
+  testID: string;
+  isLast?: boolean;
+  onDelete?: () => void;
+  onRemoveFavorite?: () => void;
+  onCopy?: () => void;
+  deleteTestID?: string;
+  removeFavoriteTestID?: string;
+  copyTestID?: string;
+  menuTitle: string;
+}> = ({
+  children,
+  onTest,
+  onDelete,
+  onRemoveFavorite,
+  onCopy,
+  testID,
+  isLast,
+  deleteTestID,
+  removeFavoriteTestID,
+  copyTestID,
+  menuTitle,
+}) => {
+  const swipeableRef = useRef<Swipeable>(null);
+  const [actionsOpen, setActionsOpen] = useReducer((_current: boolean, next: boolean) => next, false);
+  const performAction = (action?: () => void) => {
+    swipeableRef.current?.close();
+    action?.();
+  };
+
+  const menuActions: Action[] = [
+    ...(onTest
+      ? [
+          {
+            id: 'test',
+            text: loc.settings.electrum_test_connection,
+            image: Platform.OS === 'ios' ? 'waveform.path.ecg' : undefined,
+          },
+        ]
+      : []),
+    ...(onDelete
+      ? [
+          {
+            id: 'delete',
+            text: loc.wallets.details_delete,
+            image: Platform.OS === 'ios' ? 'trash' : undefined,
+            destructive: true,
+          },
+        ]
+      : []),
+    ...(onRemoveFavorite
+      ? [
+          {
+            id: 'removeFavorite',
+            text: loc.settings.electrum_remove_favorite_server,
+            image: Platform.OS === 'ios' ? 'star.slash' : undefined,
+            destructive: true,
+          },
+        ]
+      : []),
+    ...(onCopy
+      ? [
+          {
+            id: 'copy',
+            text: loc.settings.electrum_copy_server,
+            image: Platform.OS === 'ios' ? 'doc.on.doc' : undefined,
+          },
+        ]
+      : []),
+  ];
+  const menuActionGroups = [menuActions.filter(action => !action.destructive), menuActions.filter(action => action.destructive)].filter(
+    group => group.length > 0,
+  );
+
+  const renderRightActions = () => (
+    <View
+      style={styles.swipeActionsContainer}
+      accessibilityElementsHidden={!actionsOpen}
+      importantForAccessibility={actionsOpen ? 'auto' : 'no-hide-descendants'}
+    >
+      {onTest ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={loc.settings.electrum_test_connection}
+          accessibilityHint={loc.settings.electrum_testing_server}
+          testID={testID}
+          onPress={() => performAction(onTest)}
+          style={styles.testAction}
+        >
+          <Ionicons accessible={false} name="pulse-outline" color="#FFFFFF" size={21} />
+          <Text accessible={false} style={styles.swipeActionText}>
+            {loc.settings.electrum_test}
+          </Text>
+        </Pressable>
+      ) : null}
+      {onDelete ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={loc.wallets.details_delete}
+          testID={deleteTestID}
+          onPress={() => performAction(onDelete)}
+          style={({ pressed }) => [styles.deleteAction, pressed && styles.deleteActionPressed]}
+        >
+          <Ionicons accessible={false} name="trash-outline" color="#FFFFFF" size={21} />
+          <Text accessible={false} style={styles.swipeActionText}>
+            {loc.wallets.details_delete}
+          </Text>
+        </Pressable>
+      ) : null}
+      {onRemoveFavorite ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={loc.settings.electrum_remove_favorite_server}
+          testID={removeFavoriteTestID}
+          onPress={() => performAction(onRemoveFavorite)}
+          style={({ pressed }) => [styles.deleteAction, pressed && styles.deleteActionPressed]}
+        >
+          <Ionicons accessible={false} name="star-outline" color="#FFFFFF" size={21} />
+          <Text accessible={false} numberOfLines={1} style={styles.swipeActionText}>
+            {loc.settings.electrum_remove_favorite_short}
+          </Text>
+        </Pressable>
+      ) : null}
+      {onCopy ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={loc.settings.electrum_copy_server}
+          testID={copyTestID}
+          onPress={() => performAction(onCopy)}
+          style={styles.copyAction}
+        >
+          <Ionicons accessible={false} name="copy-outline" color="#FFFFFF" size={21} />
+          <Text accessible={false} style={styles.swipeActionText}>
+            {loc.settings.electrum_copy}
+          </Text>
+        </Pressable>
+      ) : null}
+    </View>
+  );
+
+  if (menuActions.length === 0) {
+    return <View style={isLast && styles.serverRowGroupLast}>{children}</View>;
+  }
+
+  return (
+    <View style={isLast && styles.serverRowGroupLast}>
+      <Swipeable
+        ref={swipeableRef}
+        friction={2}
+        rightThreshold={40}
+        overshootRight={false}
+        renderRightActions={renderRightActions}
+        onSwipeableOpen={() => setActionsOpen(true)}
+        onSwipeableClose={() => setActionsOpen(false)}
+      >
+        <ToolTipMenu
+          title={menuTitle}
+          actions={menuActionGroups}
+          onPressMenuItem={id =>
+            performAction(id === 'delete' ? onDelete : id === 'removeFavorite' ? onRemoveFavorite : id === 'copy' ? onCopy : onTest)
+          }
+          shouldOpenOnLongPress
+          style={styles.serverContextMenu}
+        >
+          {children}
+        </ToolTipMenu>
+      </Swipeable>
+    </View>
+  );
+};
+
+type ElectrumSettingsState = {
+  isLoading: boolean;
+  serverHistory: ElectrumServerItem[];
+  config: { connected?: number; host?: string; port?: string };
+  host: string;
+  port?: number;
+  sslPort?: number;
+  serverBanner: string;
+  isSuggestedExpanded: boolean;
+  showSuggestedServers: boolean;
+  testingServerKey?: string;
+  serverTestResults: Record<string, boolean>;
+  searchQuery: string;
+};
+export const initialElectrumSettingsState: ElectrumSettingsState = {
+  isLoading: true,
+  serverHistory: [],
+  config: {},
+  host: '',
+  serverBanner: '',
+  isSuggestedExpanded: true,
+  showSuggestedServers: true,
+  serverTestResults: {},
+  searchQuery: '',
+};
+type ElectrumSettingsAction =
+  | { type: 'patch'; value: Partial<ElectrumSettingsState> }
+  | {
+      type: 'loaded';
+      favorite?: ElectrumServerItem;
+      history: ElectrumServerItem[];
+      config: ElectrumSettingsState['config'];
+      showSuggested: boolean;
+    }
+  | { type: 'toggleSuggested' }
+  | { type: 'testStarted'; key: string }
+  | { type: 'testFinished'; key: string; success: boolean }
+  | { type: 'favoriteRemoved'; history: ElectrumServerItem[] };
+export function electrumSettingsReducer(state: ElectrumSettingsState, action: ElectrumSettingsAction): ElectrumSettingsState {
+  switch (action.type) {
+    case 'patch':
+      return { ...state, ...action.value };
+    case 'loaded':
+      return {
+        ...state,
+        isLoading: false,
+        host: action.favorite?.host ?? '',
+        port: action.favorite?.tcp,
+        sslPort: action.favorite?.ssl,
+        serverHistory: action.history,
+        config: action.config,
+        showSuggestedServers: action.showSuggested,
+        isSuggestedExpanded: action.favorite ? state.isSuggestedExpanded : true,
+      };
+    case 'toggleSuggested':
+      return { ...state, isSuggestedExpanded: !state.isSuggestedExpanded };
+    case 'favoriteRemoved':
+      return {
+        ...state,
+        host: '',
+        port: undefined,
+        sslPort: undefined,
+        serverHistory: action.history,
+        showSuggestedServers: true,
+        isSuggestedExpanded: true,
+      };
+    case 'testStarted': {
+      const results = { ...state.serverTestResults };
+      delete results[action.key];
+      return {
+        ...state,
+        testingServerKey: action.key,
+        serverTestResults: results,
+      };
+    }
+    case 'testFinished':
+      return {
+        ...state,
+        testingServerKey: undefined,
+        serverTestResults: {
+          ...state.serverTestResults,
+          [action.key]: action.success,
+        },
+      };
+  }
+}
 
 const ElectrumSettings: React.FC = () => {
   const { colors } = useTheme();
-  const params = useRoute<RouteProps>().params;
-  const server = params?.server;
+  const insets = useSafeAreaInsets();
+  const params = useRoute<RouteProps>().params as DetailViewStackParamList['ElectrumSettings'];
+  const { server, serverHistoryImport } = params ?? {};
   const navigation = useNavigation();
-  const [isLoading, setIsLoading] = useState(true);
-  const [serverHistory, setServerHistory] = useState<Set<ElectrumServerItem>>(new Set());
-  const [config, setConfig] = useState<{ connected?: number; host?: string; port?: string }>({});
-  const [host, setHost] = useState<string>('');
-  const [port, setPort] = useState<number | undefined>();
-  const [sslPort, setSslPort] = useState<number | undefined>(undefined);
-  const [serverBanner, setServerBanner] = useState<string>('');
-  const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
-  const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
-  const { setIsElectrumDisabled, isElectrumDisabled } = useSettings();
-  const scrollViewRef = useRef<ScrollView>(null);
-  const hostInputRef = useRef<View>(null);
-  const portInputRef = useRef<View>(null);
-  const focusedFieldRef = useRef<'host' | 'port' | null>(null);
-  const scrollYRef = useRef<number>(0);
+  const [state, dispatch] = useReducer(electrumSettingsReducer, initialElectrumSettingsState);
+  const {
+    isLoading,
+    serverHistory,
+    config,
+    host,
+    port,
+    sslPort,
+    serverBanner,
+    isSuggestedExpanded,
+    showSuggestedServers,
+    testingServerKey,
+    serverTestResults,
+  } = state;
+  const { setIsElectrumDisabled, isElectrumDisabled, isHandOffUseEnabled } = useSettings();
+  const handoffServers = useMemo(() => {
+    const favoriteServer = host && (port || sslPort) ? { host, ...(sslPort ? { ssl: sslPort } : { tcp: port }) } : undefined;
+    return electrumServersForHandoff(Array.from(serverHistory), favoriteServer);
+  }, [host, port, serverHistory, sslPort]);
+  const handoffServerHistoryDocument = useMemo(
+    () => (handoffServers.length > 0 ? serializeElectrumServerDocument(handoffServers) : ''),
+    [handoffServers],
+  );
+  const handoffServerHistoryDeepLink = useMemo(
+    () => (handoffServers.length > 0 ? createElectrumServerHistoryDeepLink(handoffServers) : ''),
+    [handoffServers],
+  );
+  const listRef = useRef<FlatList<ServerListEntry>>(null);
+  const operationInProgress = useRef(false);
 
-  const { height: keyboardHeight, isVisible: isKeyboardVisible } = useKeyboard();
-  const androidKeyboardInset = Platform.OS === 'android' && isKeyboardVisible ? keyboardHeight + 24 : 0;
+  const onSearchTextChange = useCallback((text: string) => {
+    dispatch({ type: 'patch', value: { searchQuery: text } });
+  }, []);
+  const onSearchCancel = useCallback(() => {
+    dispatch({ type: 'patch', value: { searchQuery: '' } });
+  }, []);
+  useLayoutEffect(() => {
+    navigation.setParams({ onSearchTextChange, onSearchCancel });
+  }, [navigation, onSearchTextChange, onSearchCancel]);
 
-  const scrollFocusedFieldIntoView = useCallback(
-    (field?: 'host' | 'port') => {
-      if (Platform.OS !== 'android') return;
-      if (field) {
-        focusedFieldRef.current = field;
-      }
-      const targetField = focusedFieldRef.current;
-      if (!targetField || keyboardHeight <= 0) return;
-
-      const targetRef = targetField === 'host' ? hostInputRef : portInputRef;
-      if (!targetRef.current) return;
-
-      const onMeasure = (pageY: number, height: number) => {
-        const windowHeight = Dimensions.get('window').height;
-        const keyboardTop = windowHeight - keyboardHeight;
-        const inputBottom = pageY + height;
-        if (inputBottom > keyboardTop) {
-          const overlap = inputBottom - keyboardTop;
-          const targetScrollY = scrollYRef.current + overlap;
-          scrollViewRef.current?.scrollTo({ y: targetScrollY, animated: true });
-        } else if (pageY < 0) {
-          const targetScrollY = Math.max(0, scrollYRef.current + pageY);
-          scrollViewRef.current?.scrollTo({ y: targetScrollY, animated: true });
-        }
-      };
-
-      if (targetRef.current.measureInWindow) {
-        targetRef.current.measureInWindow((_x, y, _width, height) => {
-          onMeasure(y, height);
-        });
-      } else if (targetRef.current.measure) {
-        targetRef.current.measure((_x, _y, _width, height, _pageX, pageY) => {
-          onMeasure(pageY, height);
-        });
-      }
+  const presentAlert = useCallback(
+    ({ title, message, buttons = [{ text: loc._.ok }] }: { title?: string; message: string; buttons?: AlertButton[] }) => {
+      const anchor = findNodeHandle(listRef.current);
+      if (anchor === null) return;
+      const cancelButtonIndex = buttons.findIndex(button => button.style === 'cancel');
+      const destructiveButtonIndex = buttons.findIndex(button => button.style === 'destructive');
+      ActionSheet.showActionSheetWithOptions(
+        {
+          anchor,
+          title,
+          message,
+          options: buttons.map(button => button.text ?? ''),
+          cancelButtonIndex: cancelButtonIndex >= 0 ? cancelButtonIndex : undefined,
+          destructiveButtonIndex: destructiveButtonIndex >= 0 ? destructiveButtonIndex : undefined,
+        },
+        buttonIndex => buttons[buttonIndex]?.onPress?.(),
+      );
     },
-    [keyboardHeight],
+    [],
   );
 
-  useEffect(() => {
-    if (Platform.OS === 'android' && isKeyboardVisible && keyboardHeight > 0) {
-      scrollFocusedFieldIntoView();
-    }
-  }, [isKeyboardVisible, keyboardHeight, scrollFocusedFieldIntoView]);
-  const [savedServer, setSavedServer] = useState<{ host: string; tcp: string; ssl: string }>({
-    host: '',
-    tcp: '',
-    ssl: '',
-  });
+  useFocusEffect(
+    useCallback(() => {
+      const releaseSuppression = BlueElectrum.suppressNetworkErrorAlerts();
+      return releaseSuppression;
+    }, []),
+  );
 
   const stylesHook = StyleSheet.create({
-    inputWrap: {
-      borderColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
-    containerConnected: {
-      backgroundColor: colors.feeLabel,
-    },
-    containerDisconnected: {
-      backgroundColor: colors.redBG,
-    },
-    textConnected: {
-      color: colors.feeValue,
-    },
-    textDisconnected: {
-      color: colors.redText,
-    },
-    hostname: {
-      color: colors.foregroundColor,
-    },
-    inputText: {
-      color: colors.foregroundColor,
-    },
-    usePort: {
-      color: colors.foregroundColor,
-    },
     bannerText: {
       color: colors.foregroundColor,
     },
+    statusIcon: {
+      backgroundColor: config.connected === 1 ? colors.receiveBackground : colors.redBG,
+    },
+    statusIconGlyph: {
+      color: config.connected === 1 ? colors.receiveText : colors.redText,
+    },
+    serverRow: {
+      backgroundColor: colors.cardSectionBackground,
+    },
+    preferredServerTitle: {
+      color: colors.alternativeTextColor2,
+    },
+    selectedServerRow: {
+      backgroundColor: Platform.OS === 'android' ? colors.buttonBackgroundColor : colors.cardSectionBackground,
+    },
+    list: {
+      backgroundColor: colors.background,
+    },
   });
 
-  const configIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
-
+  const fetchGeneration = useRef(0);
+  const focused = useRef(false);
   const fetchData = useCallback(async () => {
-    const preferredServer = await BlueElectrum.getPreferredServer();
-    const savedHost = preferredServer?.host;
-    const savedPort = preferredServer?.tcp ? Number(preferredServer.tcp) : undefined;
-    const savedSslPort = preferredServer?.ssl ? Number(preferredServer.ssl) : undefined;
-    const serverHistoryStr = (await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY)) as string;
-
-    const parsedServerHistory: ElectrumServerItem[] = serverHistoryStr ? JSON.parse(serverHistoryStr) : [];
-
-    const newServerHistoryArray: ElectrumServerItem[] = [];
-    for (const item of parsedServerHistory) {
-      const existing = newServerHistoryArray.find(s => s.host === item.host && s.tcp === item.tcp && s.ssl === item.ssl);
-      if (!existing) {
-        newServerHistoryArray.push(item);
-      }
-    }
-
-    const filteredServerHistory = new Set(
-      newServerHistoryArray.filter(
-        v =>
-          v.host &&
-          (v.tcp || v.ssl) &&
-          !suggestedServers.some(s => s.host === v.host && s.tcp === v.tcp && s.ssl === v.ssl) &&
-          !hardcodedPeers.some(peer => peer.host === v.host && peer.tcp === v.tcp && peer.ssl === v.ssl),
-      ),
-    );
-
-    setHost(savedHost || '');
-    setPort(savedPort);
-    setSslPort(savedSslPort);
-    setServerHistory(filteredServerHistory);
-
-    setConfig(await BlueElectrum.getConfig());
-    configIntervalRef.current = setInterval(async () => {
-      setConfig(await BlueElectrum.getConfig());
-    }, 500);
-
-    setSavedServer({
-      host: savedHost || '',
-      tcp: savedPort ? savedPort.toString() : '',
-      ssl: savedSslPort ? savedSslPort.toString() : '',
+    const generation = ++fetchGeneration.current;
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const [favorite, historyValue, currentConfig] = await Promise.all([
+      BlueElectrum.getPreferredServer(),
+      DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY),
+      BlueElectrum.getConfig(),
+    ]);
+    const history = typeof historyValue === 'string' ? parseElectrumServerDocumentResult(historyValue).servers : [];
+    const showSuggested = favorite ? (await AsyncStorage.getItem(SHOW_SUGGESTED_SERVERS_STORAGE_KEY)) !== 'false' : true;
+    if (!favorite) await AsyncStorage.removeItem(SHOW_SUGGESTED_SERVERS_STORAGE_KEY);
+    if (!focused.current || generation !== fetchGeneration.current) return;
+    dispatch({
+      type: 'loaded',
+      favorite,
+      history,
+      config: currentConfig,
+      showSuggested,
     });
-
-    setIsLoading(false);
-
-    return () => {
-      if (configIntervalRef.current) clearInterval(configIntervalRef.current);
-    };
   }, []);
-
-  useEffect(() => {
-    fetchData();
-    return () => {
-      if (configIntervalRef.current) clearInterval(configIntervalRef.current);
-    };
-  }, [fetchData]);
+  useFocusEffect(
+    useCallback(() => {
+      focused.current = true;
+      let active = true;
+      let refreshGeneration = 0;
+      const refreshConfig = async () => {
+        const generation = ++refreshGeneration;
+        try {
+          const currentConfig = await BlueElectrum.getConfig();
+          if (active && generation === refreshGeneration) dispatch({ type: 'patch', value: { config: currentConfig } });
+        } catch (error) {
+          console.warn('[electrum] Failed to refresh connection status:', error);
+        }
+      };
+      const unsubscribe = BlueElectrum.subscribeConnectionState(() => {
+        refreshConfig();
+      });
+      fetchData()
+        .catch(error => {
+          if (active) {
+            dispatch({ type: 'patch', value: { isLoading: false } });
+            presentAlert({
+              message: error instanceof Error ? error.message : String(error),
+            });
+          }
+        })
+        .finally(() => {
+          if (active) refreshConfig();
+        });
+      return () => {
+        active = false;
+        focused.current = false;
+        fetchGeneration.current += 1;
+        unsubscribe();
+      };
+    }, [fetchData, presentAlert]),
+  );
 
   // Fetch banner when connected
   useEffect(() => {
+    let active = true;
+    dispatch({ type: 'patch', value: { serverBanner: '' } });
     if (config.connected === 1 && config.host && !isElectrumDisabled) {
       BlueElectrum.getServerBanner()
-        .then(setServerBanner)
-        .catch(() => setServerBanner(''));
-    } else {
-      setServerBanner('');
+        .then(banner => {
+          if (active) dispatch({ type: 'patch', value: { serverBanner: banner } });
+        })
+        .catch(() => undefined);
     }
+    return () => {
+      active = false;
+    };
   }, [config.connected, config.host, config.port, isElectrumDisabled]);
 
-  useEffect(() => {
-    if (server) {
-      triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
-      Alert.alert(
-        loc.formatString(loc.settings.set_electrum_server_as_default, { server }),
-        '',
-        [
-          {
-            text: loc._.ok,
-            onPress: () => {
-              onBarScanned(server);
-            },
-            style: 'default',
-          },
-          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-        ],
-        { cancelable: false },
-      );
-    }
-  }, [server]);
-
-  const save = useCallback(
-    async (v?: ElectrumServerItem) => {
-      Keyboard.dismiss();
-      setIsLoading(true);
-
+  const saveFavorite = useCallback(
+    async (value: ElectrumServerItem) => {
+      if (operationInProgress.current) return;
+      operationInProgress.current = true;
+      dispatch({ type: 'patch', value: { isLoading: true } });
       try {
-        const serverHost = v?.host || host;
-        const serverPort = v?.tcp ? v.tcp.toString() : port?.toString() || '';
-        const serverSslPort = v?.ssl ? v.ssl.toString() : sslPort?.toString() || '';
-
-        if (serverHost && (serverPort || serverSslPort)) {
-          const testConnect = await BlueElectrum.testConnection(serverHost, Number(serverPort), Number(serverSslPort));
-          if (!testConnect) {
-            return presentAlert({
-              message: serverHost.endsWith('.onion') ? loc.settings.electrum_error_connect_tor : loc.settings.electrum_error_connect,
-            });
-          }
-          await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-
-          await DefaultPreference.clear(BlueElectrum.ELECTRUM_HOST);
-          await DefaultPreference.clear(BlueElectrum.ELECTRUM_TCP_PORT);
-          await DefaultPreference.clear(BlueElectrum.ELECTRUM_SSL_PORT);
-
-          await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, serverHost);
-          await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, serverPort);
-          await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, serverSslPort);
-
-          const serverExistsInHistory = Array.from(serverHistory).some(
-            s => s.host === serverHost && s.tcp === Number(serverPort) && s.ssl === Number(serverSslPort),
-          );
-
-          if (!serverExistsInHistory && (serverPort || serverSslPort) && !hardcodedPeers.some(peer => peer.host === serverHost)) {
-            const newServerHistory = new Set(serverHistory);
-            newServerHistory.add({ host: serverHost, tcp: Number(serverPort), ssl: Number(serverSslPort) });
-            await DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(Array.from(newServerHistory)));
-            setServerHistory(newServerHistory);
-          }
-        } else {
-          throw new Error(loc.settings.electrum_error_connect);
+        const candidate = parseElectrumServer(formatElectrumServer(value));
+        if (!candidate) throw new Error(loc.settings.electrum_error_connect);
+        if (Platform.OS === 'ios' && isLocalElectrumHost(candidate.host)) {
+          const granted = await NativeLocalNetworkPermission?.requestLocalNetworkAccess();
+          if (!granted) throw new Error(loc.settings.electrum_local_server_unavailable);
         }
-
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        presentAlert({ message: loc.settings.electrum_saved });
-
+        const validation = await BlueElectrum.validateConnection(candidate.host, candidate.tcp, candidate.ssl);
+        if (!validation.success) throw new Error(validation.error || loc.settings.electrum_error_connect);
+        if (!focused.current) return;
+        await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+        const historyValue = await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY);
+        const previousFavorite = await BlueElectrum.getPreferredServer();
+        const history = uniqueElectrumServers([
+          ...parseElectrumServerDocumentResult(typeof historyValue === 'string' ? historyValue : '').servers,
+          ...(previousFavorite ? [previousFavorite] : []),
+          candidate,
+        ]);
+        await DefaultPreference.setMultiple({
+          [BlueElectrum.ELECTRUM_SERVER_HISTORY]: JSON.stringify(history),
+          [BlueElectrum.ELECTRUM_TCP_PORT]: candidate.tcp?.toString() ?? '',
+          [BlueElectrum.ELECTRUM_SSL_PORT]: candidate.ssl?.toString() ?? '',
+          [BlueElectrum.ELECTRUM_HOST]: candidate.host,
+        });
         await fetchData();
+        if (!(await BlueElectrum.isDisabled())) {
+          BlueElectrum.forceDisconnect();
+          BlueElectrum.ensureConnected().catch(error => console.warn('[electrum] Reconnect failed:', error));
+        }
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       } catch (error) {
+        presentAlert({
+          message: error instanceof Error ? error.message : String(error),
+        });
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: (error as Error).message });
       } finally {
-        setIsLoading(false);
+        operationInProgress.current = false;
+        dispatch({ type: 'patch', value: { isLoading: false } });
       }
     },
-    [host, port, sslPort, fetchData, serverHistory],
+    [fetchData, presentAlert],
   );
 
-  const selectServer = useCallback(
-    (value: string) => {
-      const parsedServer = JSON.parse(value) as ElectrumServerItem;
-      setHost(parsedServer.host);
-      setPort(parsedServer.tcp);
-      setSslPort(parsedServer.ssl);
-      save(parsedServer);
-    },
-    [save],
-  );
+  const handledServer = useRef<ElectrumServerItem | undefined>(undefined);
+  useEffect(() => {
+    if (!server || isLoading || handledServer.current === server) return;
+    handledServer.current = server;
+    navigation.setParams({ server: undefined });
+    presentAlert({
+      title: loc.settings.electrum_favorite_server,
+      message: loc.formatString(loc.settings.set_as_favorite_electrum, {
+        host: server.host,
+        port: String(server.ssl ?? server.tcp),
+      }),
+      buttons: [
+        { text: loc._.cancel, style: 'cancel' },
+        {
+          text: loc._.ok,
+          onPress: () => {
+            saveFavorite(server);
+          },
+        },
+      ],
+    });
+  }, [isLoading, navigation, presentAlert, saveFavorite, server]);
+
+  useEffect(() => {
+    if (!params?.onBarScanned) return;
+    const scannedServer = parseElectrumServer(params.onBarScanned);
+    navigation.setParams({ onBarScanned: undefined });
+    if (scannedServer)
+      navigation.navigate('AddElectrumServerRoot', {
+        screen: 'AddElectrumServer',
+        params: { server: scannedServer },
+      });
+  }, [navigation, params?.onBarScanned]);
 
   const presentSelectServerAlert = useCallback(
     (value: ElectrumServerItem) => {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
-      Alert.alert(
-        loc.settings.electrum_preferred_server,
-        loc.formatString(loc.settings.set_as_preferred_electrum, { host: value.host, port: String(value.ssl ?? value.tcp) }),
-        [
+      presentAlert({
+        title: loc.settings.electrum_favorite_server,
+        message: loc.formatString(loc.settings.set_as_favorite_electrum, {
+          host: value.host,
+          port: String(value.ssl ?? value.tcp),
+        }),
+        buttons: [
           {
             text: loc._.ok,
             onPress: () => {
-              selectServer(JSON.stringify(value));
+              saveFavorite(value);
             },
             style: 'default',
           },
           { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
         ],
-        { cancelable: false },
-      );
+      });
     },
-    [selectServer],
+    [presentAlert, saveFavorite],
   );
 
-  const onPressMenuItem = useCallback(
-    (id: string) => {
-      if (id.startsWith(SET_PREFERRED_PREFIX)) {
-        const rawServer = JSON.parse(id.replace(SET_PREFERRED_PREFIX, ''));
-        presentSelectServerAlert(rawServer);
-      } else {
-        switch (id) {
-          case CommonToolTipActions.ResetToDefault.id:
-            presentResetToDefaultsAlert().then(reset => {
-              if (reset) {
-                triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-                presentAlert({ message: loc.settings.electrum_saved });
-                fetchData();
-              }
-            });
-            break;
-          default:
-            try {
-              selectServer(id);
-            } catch (error) {
-              console.warn('Unknown menu item selected:', id);
-            }
-            break;
+  const importServerHistoryData = useCallback(
+    async (data: string) => {
+      if (operationInProgress.current) return;
+      operationInProgress.current = true;
+      dispatch({ type: 'patch', value: { isLoading: true } });
+      try {
+        const result = parseElectrumServerDocumentResult(data);
+        if (result.tooLarge) throw new Error(loc.settings.electrum_import_too_large);
+        if (result.incompatibleVersion !== undefined) {
+          throw new Error(
+            loc.formatString(loc.settings.electrum_import_incompatible, {
+              version: String(result.incompatibleVersion),
+            }),
+          );
         }
+        if (result.servers.length === 0) throw new Error(loc.settings.electrum_import_no_valid_servers);
+
+        await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+        const historyValue = await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY);
+        const currentHistory = parseElectrumServerDocumentResult(typeof historyValue === 'string' ? historyValue : '').servers;
+        const favorite = await BlueElectrum.getPreferredServer();
+        const existingKeys = new Set([...currentHistory, ...suggestedServers, ...(favorite ? [favorite] : [])].map(electrumServerKey));
+        const newServers = result.servers.filter(importedServer => !existingKeys.has(electrumServerKey(importedServer)));
+        if (newServers.length === 0) {
+          presentAlert({ message: loc.settings.electrum_import_no_changes });
+          return;
+        }
+        const mergedServers = uniqueElectrumServers([...currentHistory, ...newServers]);
+
+        await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+        await DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(mergedServers));
+        await fetchData();
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        const skippedEntries = result.rejectedEntries + result.duplicateEntries + (result.servers.length - newServers.length);
+        const importedMessage = loc.formatString(loc.settings.electrum_import_success, { count: String(newServers.length) });
+        presentAlert({
+          message:
+            skippedEntries > 0 || result.truncated || result.recoveredFromCorruption
+              ? `${importedMessage}\n\n${loc.settings.electrum_import_partial}`
+              : importedMessage,
+        });
+      } catch (error) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: (error as Error).message });
+      } finally {
+        operationInProgress.current = false;
+        dispatch({ type: 'patch', value: { isLoading: false } });
       }
     },
-    [presentSelectServerAlert, fetchData, selectServer],
+    [fetchData, presentAlert],
   );
 
-  const isPreferred = useCallback(
+  const handledServerHistoryImport = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (
+      Platform.OS !== 'ios' ||
+      !isHandOffUseEnabled ||
+      isLoading ||
+      !serverHistoryImport ||
+      handledServerHistoryImport.current === serverHistoryImport
+    )
+      return;
+    handledServerHistoryImport.current = serverHistoryImport;
+    presentAlert({
+      title: loc.settings.electrum_handoff_import_title,
+      message: loc.settings.electrum_handoff_import_description,
+      buttons: [
+        { text: loc._.cancel, style: 'cancel' },
+        {
+          text: loc.settings.electrum_import_server_history,
+          onPress: () => importServerHistoryData(serverHistoryImport),
+        },
+      ],
+    });
+  }, [importServerHistoryData, isHandOffUseEnabled, isLoading, presentAlert, serverHistoryImport]);
+
+  const onPressMenuItem = useCallback(
+    async (id: string) => {
+      if (operationInProgress.current) return;
+      try {
+        if (id === ADD_SERVER_ACTION_ID) {
+          navigation.navigate('AddElectrumServerRoot');
+        } else if (id === SHOW_SUGGESTED_SERVERS_ACTION_ID) {
+          const nextValue = !showSuggestedServers;
+          await AsyncStorage.setItem(SHOW_SUGGESTED_SERVERS_STORAGE_KEY, String(nextValue));
+          dispatch({
+            type: 'patch',
+            value: { showSuggestedServers: nextValue },
+          });
+        } else if (id === CommonToolTipActions.ResetToDefault.id) {
+          const reset = await presentResetToDefaultsAlert(presentAlert);
+          if (reset) {
+            dispatch({ type: 'favoriteRemoved', history: serverHistory });
+            await AsyncStorage.removeItem(SHOW_SUGGESTED_SERVERS_STORAGE_KEY);
+            await BlueElectrum.setDisabled(false);
+            setIsElectrumDisabled(false);
+            triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+            presentAlert({ message: loc.settings.electrum_saved });
+            await fetchData();
+            await BlueElectrum.connectToRandomSuggestedServer();
+          }
+        }
+      } catch (error) {
+        presentAlert({
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
+    },
+    [fetchData, navigation, presentAlert, serverHistory, setIsElectrumDisabled, showSuggestedServers],
+  );
+
+  const isFavorite = useCallback(
     (value: ElectrumServerItem) => {
-      return value.host === host && ((sslPort !== undefined && value.ssl === sslPort) || (sslPort === undefined && value.tcp === port));
+      return Boolean(host && (port || sslPort)) && serverKey(value) === serverKey({ host, tcp: port, ssl: sslPort });
     },
     [host, port, sslPort],
   );
 
-  type TCreateServerActionParameters = {
-    value: ElectrumServerItem;
-    seenHosts: Set<string>;
-    isConnectedTo?: boolean;
-    isSuggested?: boolean;
-  };
-  const createServerAction = useCallback(
-    ({ value, seenHosts, isConnectedTo = false, isSuggested = false }: TCreateServerActionParameters) => {
-      const hostKey = `${value.host}:${value.tcp ?? ''}:${value.ssl ?? ''}`;
-
-      seenHosts.add(hostKey);
-      return {
-        id: `${SET_PREFERRED_PREFIX}${JSON.stringify(value)}`,
-        text: Platform.OS === 'android' ? `${value.host}:${value.ssl ?? value.tcp}` : value.host,
-        icon: isPreferred(value) ? { iconValue: Platform.OS === 'ios' ? 'star.fill' : 'star_off' } : undefined,
-        menuState: isConnectedTo,
-        disabled: isPreferred(value),
-        subtitle: value.ssl ? `${loc._.ssl_port}: ${value.ssl}` : `${loc._.port}: ${value.tcp}`,
-      } as Action;
-    },
-    [isPreferred],
-  );
-
   const generateToolTipActions = useCallback(() => {
-    const determineConnectedServer = (): string | null => {
-      const allServers = [...suggestedServers, ...Array.from(serverHistory)];
-      for (const value of allServers) {
-        const isThisConnected = config?.host === value.host && (config.port === value.tcp || config.port === value.ssl);
-        if (isThisConnected && isPreferred(value)) return JSON.stringify(value);
-      }
-      for (const value of allServers) {
-        const isThisConnected = config?.host === value.host && (config.port === value.tcp || config.port === value.ssl);
-        if (isThisConnected) return JSON.stringify(value);
-      }
-      return null;
+    const resetToDefaults = { ...CommonToolTipActions.ResetToDefault };
+    resetToDefaults.hidden = !host || (!port && !sslPort);
+    return [
+      [
+        {
+          id: ADD_SERVER_ACTION_ID,
+          text: loc.settings.electrum_add_server,
+          icon: { iconValue: Platform.OS === 'ios' ? 'plus' : 'ic_input_add' },
+        },
+      ],
+      [resetToDefaults],
+      ...(host && (port || sslPort)
+        ? [
+            [
+              {
+                id: SHOW_SUGGESTED_SERVERS_ACTION_ID,
+                text: loc.settings.electrum_show_suggested_servers,
+                image: Platform.OS === 'ios' ? 'server.rack' : undefined,
+                menuState: showSuggestedServers,
+              },
+            ],
+          ]
+        : []),
+    ] as Action[][];
+  }, [host, port, showSuggestedServers, sslPort]);
+
+  const serverList = useMemo<ServerListEntry[]>(() => {
+    const query = state.searchQuery.trim().toLowerCase();
+    const matchesSearch = (candidate: ElectrumServerItem) => {
+      const searchableText = `${formatElectrumServer(candidate)} ${candidate.ssl ? 'SSL' : 'TCP'}`.toLowerCase();
+      return query.split(/\s+/).every(term => searchableText.includes(term));
     };
+    const hasFavorite = Boolean(host && (port || sslPort));
+    const isConnectedServer = (candidate: ElectrumServerItem) =>
+      config.connected === 1 && config.host === candidate.host && String(config.port) === String(candidate.ssl ?? candidate.tcp);
+    const historyKeys = new Set(serverHistory.map(serverKey));
+    const orderedSuggestedServers = suggestedServers
+      .filter(candidate => !historyKeys.has(serverKey(candidate)) && matchesSearch(candidate))
+      .sort((first, second) => Number(isConnectedServer(second)) - Number(isConnectedServer(first)));
+    const entries: ServerListEntry[] = [];
+    const favoriteServer: ElectrumServerItem | undefined = hasFavorite
+      ? {
+          host,
+          ...(port ? { tcp: port } : {}),
+          ...(sslPort ? { ssl: sslPort } : {}),
+        }
+      : undefined;
 
-    const connectedServer = config?.connected ? determineConnectedServer() : null;
-
-    const seenHosts = new Set<string>();
-    let preferredServerFound = false;
-    let connectedServerFound = false;
-
-    const mapServers = (servers: ElectrumServerItem[], isSuggested: boolean) => {
-      return servers
-        .map(value => {
-          const isConnectedTo = !connectedServerFound && connectedServer === JSON.stringify(value);
-          if (isConnectedTo) connectedServerFound = true;
-
-          const isPreferredServer = !preferredServerFound && isPreferred(value);
-          if (isPreferredServer) preferredServerFound = true;
-
-          return createServerAction({
-            value,
-            seenHosts,
-            isConnectedTo,
-            isSuggested,
-          });
-        })
-        .filter((action): action is Action => action !== null);
-    };
-
-    const suggestedServersAction: Action = {
-      id: 'suggested_servers',
-      text: loc._.suggested,
-      displayInline: true,
-      subtitle: loc.settings.electrum_suggested_description,
-      subactions: mapServers(suggestedServers, true),
-    };
-
-    const actions: Action[] = [];
-    actions.push(suggestedServersAction);
-
-    if (serverHistory.size > 0) {
-      const serverSubactions: Action[] = mapServers(Array.from(serverHistory), false);
-
-      actions.push({
-        id: 'server_history',
-        text: loc.settings.electrum_history,
-        displayInline: serverHistory.size <= 5 && serverHistory.size > 0,
-        subactions: serverSubactions,
-        hidden: serverHistory.size === 0,
+    if (favoriteServer && matchesSearch(favoriteServer)) {
+      entries.push({
+        type: 'header',
+        id: 'favorite-header',
+        title: loc.settings.electrum_favorite_server,
+      });
+      entries.push({
+        type: 'server',
+        id: `favorite-${serverKey(favoriteServer)}`,
+        server: favoriteServer,
+        isFirst: true,
+        isLast: true,
+        isHistory: false,
       });
     }
 
-    const resetToDefaults = { ...CommonToolTipActions.ResetToDefault };
-    resetToDefaults.hidden = !host && serverHistory.size === 0;
-    actions.push(resetToDefaults);
+    const visibleSuggestedServers = orderedSuggestedServers.filter(
+      suggestedServer => !favoriteServer || serverKey(suggestedServer) !== serverKey(favoriteServer),
+    );
+    if (visibleSuggestedServers.length > 0 && (!hasFavorite || showSuggestedServers)) {
+      entries.push({
+        type: 'header',
+        id: 'suggested-header',
+        title: loc._.suggested,
+        description: loc.settings.electrum_suggested_description,
+      });
+      if (!hasFavorite || isSuggestedExpanded || query) {
+        entries.push(
+          ...visibleSuggestedServers.map((suggestedServer, index, visibleServers) => ({
+            type: 'server' as const,
+            id: `suggested-${suggestedServer.host}-${suggestedServer.ssl ?? suggestedServer.tcp}`,
+            server: suggestedServer,
+            isFirst: index === 0,
+            isLast: index === visibleServers.length - 1,
+            isHistory: false,
+          })),
+        );
+      }
+    }
 
-    return actions;
-  }, [config?.connected, config?.host, config.port, createServerAction, host, isPreferred, serverHistory]);
-
-  const HeaderRight = useMemo(
-    () => <HeaderMenuButton actions={generateToolTipActions()} onPressMenuItem={onPressMenuItem} />,
-    [onPressMenuItem, generateToolTipActions],
-  );
-
-  const renderHeaderRight = useCallback(() => HeaderRight, [HeaderRight]);
-
-  useEffect(() => {
-    const nextHeaderRight = isElectrumDisabled ? null : renderHeaderRight;
-    navigation.setOptions({
-      headerRight: nextHeaderRight,
+    const history = Array.from(serverHistory).filter(historyServer => {
+      const key = serverKey(historyServer);
+      return (!favoriteServer || key !== serverKey(favoriteServer)) && matchesSearch(historyServer);
     });
-  }, [isElectrumDisabled, navigation, renderHeaderRight]);
+    if (history.length > 0) {
+      entries.push({
+        type: 'header',
+        id: 'history-header',
+        title: loc.settings.electrum_server_history,
+      });
+      entries.push(
+        ...history.map((historyServer, index) => ({
+          type: 'server' as const,
+          id: `history-${historyServer.host}-${historyServer.ssl ?? historyServer.tcp}`,
+          server: historyServer,
+          isFirst: index === 0,
+          isLast: index === history.length - 1,
+          isHistory: true,
+        })),
+      );
+    }
+
+    return entries;
+  }, [
+    config.connected,
+    config.host,
+    config.port,
+    host,
+    isSuggestedExpanded,
+    port,
+    serverHistory,
+    showSuggestedServers,
+    sslPort,
+    state.searchQuery,
+  ]);
+
+  const headerMenuOptions = useMemo(() => {
+    const actions = generateToolTipActions();
+    const visibleActions = actions.flat().filter(action => !action.hidden);
+
+    if (visibleActions.length === 1) {
+      const action = visibleActions[0];
+      const actionId = String(action.id);
+      return {
+        // eslint-disable-next-line react/no-unstable-nested-components -- React Navigation headerRight expects a render function
+        headerRight: () => (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={action.text}
+            accessibilityState={{ disabled: action.disabled }}
+            testID={actionId}
+            disabled={action.disabled}
+            hitSlop={8}
+            onPress={() => onPressMenuItem(actionId)}
+            style={({ pressed }) => [styles.directHeaderAction, pressed && styles.pressed]}
+          >
+            <Ionicons accessible={false} name="add" size={26} color={colors.primary} />
+          </Pressable>
+        ),
+        unstable_headerRightItems: () => [
+          {
+            type: 'button' as const,
+            label: action.text,
+            ...(Platform.OS === 'ios' ? { icon: { type: 'sfSymbol' as const, name: 'plus' as const } } : {}),
+            identifier: actionId,
+            accessibilityLabel: action.text,
+            disabled: Boolean(action.disabled),
+            onPress: () => onPressMenuItem(actionId),
+          },
+        ],
+      };
+    }
+
+    const menuIdentifier = `ElectrumHeaderMenu-${visibleActions
+      .map(action => `${String(action.id)}:${action.menuState === true ? 'on' : action.menuState === false ? 'off' : 'none'}`)
+      .join('|')}`;
+
+    return createEllipsisHeaderMenuOptions({
+      actions,
+      onPressMenuItem,
+      preserveGroups: true,
+      identifier: menuIdentifier,
+    });
+  }, [colors.primary, generateToolTipActions, onPressMenuItem]);
+
+  useLayoutEffect(() => {
+    navigation.setParams({
+      headerRight: headerMenuOptions.headerRight,
+      unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems,
+    });
+  }, [headerMenuOptions, navigation]);
 
   const checkServer = async () => {
-    setIsLoading(true);
+    if (operationInProgress.current) return;
+    operationInProgress.current = true;
+    dispatch({ type: 'patch', value: { isLoading: true } });
     try {
       const features = await BlueElectrum.serverFeatures();
       triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
@@ -477,289 +925,580 @@ const ElectrumSettings: React.FC = () => {
     } catch (error) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ message: (error as Error).message });
-    }
-    setIsLoading(false);
-  };
-
-  const onBarScanned = (value: string) => {
-    let v = value;
-    if (value && DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value)) {
-      v = DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value) as string;
-    }
-    const [scannedHost, scannedPort, type] = v?.split(':') ?? [];
-    setHost(scannedHost);
-    if (type === 's') {
-      setSslPort(Number(scannedPort));
-      setPort(undefined);
-    } else {
-      setPort(Number(scannedPort));
-      setSslPort(undefined);
-    }
-  };
-
-  useEffect(() => {
-    const data = params?.onBarScanned;
-    if (data) {
-      onBarScanned(data);
-      navigation.setParams({ onBarScanned: undefined });
-    }
-  }, [navigation, params?.onBarScanned]);
-
-  const onSSLPortChange = (value: boolean) => {
-    Keyboard.dismiss();
-    if (value) {
-      setSslPort(port);
-      setPort(undefined);
-    } else {
-      setPort(sslPort);
-      setSslPort(undefined);
+    } finally {
+      operationInProgress.current = false;
+      dispatch({ type: 'patch', value: { isLoading: false } });
     }
   };
 
   const onElectrumConnectionEnabledSwitchChange = async (value: boolean) => {
+    if (operationInProgress.current) return;
+    operationInProgress.current = true;
+    dispatch({ type: 'patch', value: { isLoading: true } });
     try {
       triggerSelectionHapticFeedback();
       await BlueElectrum.setDisabled(value);
       setIsElectrumDisabled(value);
+      AccessibilityInfo.announceForAccessibilityWithOptions(
+        value ? loc.settings.electrum_offline_enabled : loc.settings.electrum_offline_disabled,
+        { queue: true },
+      );
     } catch (error) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ message: (error as Error).message });
+    } finally {
+      operationInProgress.current = false;
+      dispatch({ type: 'patch', value: { isLoading: false } });
     }
   };
 
-  const preferredServerIsEmpty = !host || (!port && !sslPort);
-  const saveDisabled: boolean =
-    preferredServerIsEmpty ||
-    (host === savedServer.host &&
-      ((savedServer.tcp !== '' && port?.toString() === savedServer.tcp) ||
-        (savedServer.ssl !== '' && sslPort?.toString() === savedServer.ssl)));
+  const renderConnectionStatus = () => {
+    const isConnected = config.connected === 1;
+    const connectedEndpoint = isConnected && config.host && config.port ? `${config.host}:${config.port}` : undefined;
 
-  const renderElectrumSettings = () => {
     return (
       <>
         <SettingsSection title={loc.settings.electrum_status}>
-          <View style={settingsCardContent}>
-            <View style={styles.connectWrap}>
-              <View style={[styles.container, config.connected === 1 ? stylesHook.containerConnected : stylesHook.containerDisconnected]}>
-                <Text
-                  style={[styles.textConnectionStatus, config.connected === 1 ? stylesHook.textConnected : stylesHook.textDisconnected]}
-                >
-                  {config.connected === 1 ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}
-                </Text>
+          <SettingsListItem
+            accessible
+            title={isConnected ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}
+            subtitle={connectedEndpoint}
+            subtitleSelectable
+            subtitleNumberOfLines={0}
+            onPress={isConnected ? checkServer : undefined}
+            disabled={isLoading || !isConnected}
+            accessibilityLabel={`${loc.settings.electrum_status}: ${isConnected ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}${connectedEndpoint ? `. ${connectedEndpoint}` : ''}`}
+            accessibilityHint={loc.settings.electrum_status_hint}
+            accessibilityState={{
+              disabled: isLoading || !isConnected,
+              busy: isLoading,
+            }}
+            isLoading={isLoading}
+            bottomDivider={serverBanner.length > 0}
+            leftAvatar={
+              <View importantForAccessibility="no" style={[styles.statusIcon, stylesHook.statusIcon]}>
+                <Ionicons name={isConnected ? 'checkmark-circle' : 'alert-circle'} size={22} style={stylesHook.statusIconGlyph} />
               </View>
+            }
+            containerStyle={styles.statusRow}
+          />
+          {serverBanner.length > 0 && (
+            <View style={styles.bannerContainer}>
+              <Text style={[styles.bannerText, stylesHook.bannerText]} selectable>
+                {serverBanner}
+              </Text>
             </View>
-            <Text style={[styles.hostname, stylesHook.hostname]} onPress={checkServer} selectable>
-              {config.host}:{config.port}
-            </Text>
-
-            {serverBanner.length > 0 && <Text style={[styles.bannerText, stylesHook.bannerText]}>{serverBanner}</Text>}
-          </View>
+          )}
         </SettingsSection>
-
-        <SettingsSection title={loc.settings.electrum_preferred_server}>
-          <View style={settingsCardContent}>
-            <SettingsFootnote>{loc.settings.electrum_preferred_server_description}</SettingsFootnote>
-
-            <View ref={hostInputRef} style={styles.inputGroupSpacing}>
-              <AddressInput
-                testID="HostInput"
-                placeholder={loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' })}
-                address={host}
-                onChangeText={text => setHost(text.trim())}
-                editable={!isLoading}
-                keyboardType="default"
-                onBlur={() => {
-                  if (focusedFieldRef.current === 'host') {
-                    focusedFieldRef.current = null;
-                  }
-                  setIsAndroidAddressKeyboardVisible(false);
-                }}
-                onFocus={() => {
-                  focusedFieldRef.current = 'host';
-                  setIsAndroidAddressKeyboardVisible(true);
-                  if (Platform.OS === 'android' && isKeyboardVisible && keyboardHeight > 0) {
-                    scrollFocusedFieldIntoView('host');
-                  }
-                }}
-                inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
-                isLoading={isLoading}
-              />
-            </View>
-
-            <View style={styles.portWrap}>
-              <View ref={portInputRef} style={[styles.inputWrap, stylesHook.inputWrap]}>
-                <TextInput
-                  placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
-                  value={sslPort?.toString() === '' || sslPort === undefined ? port?.toString() || '' : sslPort?.toString() || ''}
-                  onChangeText={text => {
-                    const parsed = Number(text.trim());
-                    if (Number.isNaN(parsed)) {
-                      sslPort === undefined ? setPort(undefined) : setSslPort(undefined);
-                      return;
-                    }
-                    sslPort === undefined ? setPort(parsed) : setSslPort(parsed);
-                  }}
-                  numberOfLines={1}
-                  style={[styles.inputText, stylesHook.inputText]}
-                  editable={!isLoading}
-                  placeholderTextColor="#81868e"
-                  underlineColorAndroid="transparent"
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  keyboardType="number-pad"
-                  inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
-                  testID="PortInput"
-                  onFocus={() => {
-                    focusedFieldRef.current = 'port';
-                    setIsAndroidNumericKeyboardFocused(true);
-                    if (Platform.OS === 'android' && isKeyboardVisible && keyboardHeight > 0) {
-                      scrollFocusedFieldIntoView('port');
-                    }
-                  }}
-                  onBlur={() => {
-                    if (focusedFieldRef.current === 'port') {
-                      focusedFieldRef.current = null;
-                    }
-                    setIsAndroidNumericKeyboardFocused(false);
-                  }}
-                />
-              </View>
-              <Text style={[styles.usePort, stylesHook.usePort]}>{loc.settings.use_ssl}</Text>
-              <Switch
-                testID="SSLPortInput"
-                value={sslPort !== undefined}
-                onValueChange={onSSLPortChange}
-                disabled={host?.endsWith('.onion') || isLoading || host === '' || (port === undefined && sslPort === undefined)}
-              />
-            </View>
-
-            <View style={styles.buttonContainer}>
-              <Button disabled={saveDisabled} testID="Save" onPress={save} title={loc.settings.save} />
-            </View>
-          </View>
-        </SettingsSection>
-
-        {Platform.select({
-          ios: <DismissKeyboardInputAccessory />,
-          android: isAndroidNumericKeyboardFocused && <DismissKeyboardInputAccessory />,
-        })}
-
-        {Platform.select({
-          ios: (
-            <DoneAndDismissKeyboardInputAccessory
-              onClearTapped={() => setHost('')}
-              onPasteTapped={text => {
-                setHost(text);
-                Keyboard.dismiss();
-              }}
-            />
-          ),
-          android: isAndroidAddressKeyboardVisible && (
-            <DoneAndDismissKeyboardInputAccessory
-              onClearTapped={() => {
-                setHost('');
-                Keyboard.dismiss();
-              }}
-              onPasteTapped={text => {
-                setHost(text);
-                Keyboard.dismiss();
-              }}
-            />
-          ),
-        })}
       </>
     );
   };
 
-  return (
-    <SettingsScrollView
-      ref={scrollViewRef}
-      keyboardShouldPersistTaps="always"
-      automaticallyAdjustContentInsets
-      contentInsetAdjustmentBehavior="automatic"
-      automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
-      floatingButtonHeight={androidKeyboardInset}
-      onScroll={event => {
-        scrollYRef.current = event.nativeEvent.contentOffset.y;
-      }}
-      scrollEventThrottle={16}
-      testID="ElectrumSettingsScrollView"
-    >
-      <SettingsSection>
+  const deleteServerFromHistory = useCallback(
+    async (serverToDelete: ElectrumServerItem) => {
+      if (operationInProgress.current) return;
+      operationInProgress.current = true;
+      dispatch({ type: 'patch', value: { isLoading: true } });
+      try {
+        await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+        const value = await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY);
+        const remainingServers = parseElectrumServerDocumentResult(typeof value === 'string' ? value : '').servers.filter(
+          candidate => serverKey(candidate) !== serverKey(serverToDelete),
+        );
+        await DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(remainingServers));
+        dispatch({ type: 'patch', value: { serverHistory: remainingServers } });
+        AccessibilityInfo.announceForAccessibilityWithOptions(loc.settings.electrum_history_removed, { queue: true });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      } catch (error) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: (error as Error).message });
+      } finally {
+        operationInProgress.current = false;
+        dispatch({ type: 'patch', value: { isLoading: false } });
+      }
+    },
+    [presentAlert],
+  );
+
+  const removeFavoriteServer = useCallback(
+    async (favoriteServer: ElectrumServerItem) => {
+      if (operationInProgress.current) return;
+      operationInProgress.current = true;
+      dispatch({ type: 'patch', value: { isLoading: true } });
+      try {
+        await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+        const value = await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY);
+        const history = parseElectrumServerDocumentResult(typeof value === 'string' ? value : '').servers;
+        const updatedHistory = uniqueElectrumServers([...history, favoriteServer]);
+        await DefaultPreference.setMultiple({
+          [BlueElectrum.ELECTRUM_SERVER_HISTORY]: JSON.stringify(updatedHistory),
+          [BlueElectrum.ELECTRUM_HOST]: '',
+          [BlueElectrum.ELECTRUM_TCP_PORT]: '',
+          [BlueElectrum.ELECTRUM_SSL_PORT]: '',
+        });
+        await AsyncStorage.removeItem(SHOW_SUGGESTED_SERVERS_STORAGE_KEY);
+
+        dispatch({ type: 'favoriteRemoved', history: updatedHistory });
+        AccessibilityInfo.announceForAccessibilityWithOptions(loc.settings.electrum_favorite_removed, { queue: true });
+        await fetchData();
+        if (!(await BlueElectrum.isDisabled()))
+          BlueElectrum.connectToRandomSuggestedServer().catch(error => console.warn('[electrum] Reconnect failed:', error));
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      } catch (error) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: (error as Error).message });
+      } finally {
+        operationInProgress.current = false;
+        dispatch({ type: 'patch', value: { isLoading: false } });
+      }
+    },
+    [fetchData, presentAlert],
+  );
+
+  const testServerConnection = useCallback(
+    async (serverToTest: ElectrumServerItem) => {
+      const key = serverKey(serverToTest);
+      const serverPort = serverToTest.ssl ?? serverToTest.tcp;
+      const endpoint = `${serverToTest.host}:${serverPort}`;
+      if (operationInProgress.current) return;
+      operationInProgress.current = true;
+      dispatch({ type: 'testStarted', key });
+      AccessibilityInfo.announceForAccessibilityWithOptions(`${loc.settings.electrum_testing_server}. ${serverToTest.host}`, {
+        queue: true,
+      });
+      let success = false;
+      try {
+        if (Platform.OS === 'ios' && isLocalElectrumHost(serverToTest.host)) {
+          if (!(await NativeLocalNetworkPermission?.requestLocalNetworkAccess()))
+            throw new Error(loc.settings.electrum_local_server_unavailable);
+        }
+        const result = await BlueElectrum.validateConnection(serverToTest.host, serverToTest.tcp, serverToTest.ssl);
+        success = result.success;
+        if (focused.current)
+          presentAlert({
+            title: success ? loc.settings.electrum_connection_successful : loc.settings.electrum_validation_failed,
+            message: success ? endpoint : result.error || loc.settings.electrum_error_connect,
+          });
+      } catch (error) {
+        if (focused.current)
+          presentAlert({
+            message: error instanceof Error ? error.message : String(error),
+          });
+      } finally {
+        operationInProgress.current = false;
+        dispatch({ type: 'testFinished', key, success });
+        triggerHapticFeedback(success ? HapticFeedbackTypes.NotificationSuccess : HapticFeedbackTypes.NotificationError);
+      }
+    },
+    [presentAlert],
+  );
+
+  const menuBusy = isLoading || Boolean(testingServerKey);
+  const hasFavorite = Boolean(host && (port || sslPort));
+  useScreenMenuActions(
+    {
+      addElectrumServer: () => {
+        if (!menuBusy) navigation.navigate('AddElectrumServerRoot');
+      },
+      resetElectrumSettings: hasFavorite ? () => onPressMenuItem(CommonToolTipActions.ResetToDefault.id) : undefined,
+      toggleSuggestedElectrumServers: hasFavorite ? () => onPressMenuItem(SHOW_SUGGESTED_SERVERS_ACTION_ID) : undefined,
+      toggleElectrumOffline: () => onElectrumConnectionEnabledSwitchChange(!isElectrumDisabled),
+      copyConnectedElectrumServer: () => {
+        if (isElectrumDisabled || config.connected !== 1 || !config.host || !config.port) return;
+        const matchingServer = [...serverHistory, ...suggestedServers, ...(hasFavorite ? [{ host, tcp: port, ssl: sslPort }] : [])].find(
+          candidate => candidate.host === config.host && String(candidate.ssl ?? candidate.tcp) === String(config.port),
+        );
+        copyServerText(matchingServer ? formatElectrumServer(matchingServer) : `${config.host}:${config.port}`);
+      },
+      removeFavoriteElectrumServer: hasFavorite ? () => removeFavoriteServer({ host, tcp: port, ssl: sslPort }) : undefined,
+    },
+    undefined,
+    {
+      addElectrumServer: { disabled: menuBusy },
+      resetElectrumSettings: { disabled: menuBusy },
+      toggleSuggestedElectrumServers: { checked: showSuggestedServers, disabled: menuBusy },
+      toggleElectrumOffline: { checked: isElectrumDisabled, disabled: menuBusy },
+      copyConnectedElectrumServer: { disabled: isElectrumDisabled || config.connected !== 1 || !config.host || !config.port },
+      removeFavoriteElectrumServer: { disabled: menuBusy },
+    },
+  );
+
+  const previousConnection = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    if (
+      focused.current &&
+      !isLoading &&
+      !isElectrumDisabled &&
+      previousConnection.current !== undefined &&
+      config.connected !== previousConnection.current
+    ) {
+      AccessibilityInfo.announceForAccessibilityWithOptions(
+        config.connected === 1 ? loc.settings.electrum_connected : loc.settings.electrum_connected_not,
+        { queue: true },
+      );
+    }
+    previousConnection.current = config.connected;
+  }, [config.connected, isElectrumDisabled, isLoading]);
+
+  const renderServerEntry = useCallback(
+    ({ item }: ListRenderItemInfo<ServerListEntry>) => {
+      if (item.type === 'header') {
+        const isSuggestedHeader = item.id === 'suggested-header';
+        const isCollapsible = isSuggestedHeader && Boolean(host && (port || sslPort)) && !state.searchQuery.trim();
+        const iconName = item.id === 'favorite-header' ? 'favorite' : 'electrum';
+        return (
+          <SettingsSection
+            title={item.title}
+            iconName={iconName}
+            onHeaderPress={isCollapsible ? () => dispatch({ type: 'toggleSuggested' }) : undefined}
+            headerAccessibilityLabel={
+              isCollapsible
+                ? `${item.title}. ${isSuggestedExpanded ? loc.settings.electrum_collapse_suggested_servers : loc.settings.electrum_expand_suggested_servers}`
+                : undefined
+            }
+            headerAccessibilityState={isCollapsible ? { expanded: isSuggestedExpanded } : undefined}
+            containerStyle={[styles.serverSectionHeader, isCollapsible && !isSuggestedExpanded && styles.collapsedSectionHeader]}
+            headerRight={
+              isCollapsible ? (
+                <View accessible={false} testID="ToggleSuggestedServers" style={styles.disclosureButton}>
+                  <Ionicons
+                    accessible={false}
+                    name={isSuggestedExpanded ? 'chevron-up' : 'chevron-down'}
+                    size={20}
+                    color={colors.alternativeTextColor}
+                  />
+                </View>
+              ) : null
+            }
+          >
+            {item.description && (!isCollapsible || isSuggestedExpanded) ? (
+              <View style={styles.serverSectionDescription}>
+                <SettingsFootnote>{item.description}</SettingsFootnote>
+              </View>
+            ) : null}
+          </SettingsSection>
+        );
+      }
+
+      const serverPort = item.server.ssl ?? item.server.tcp;
+      const itemServerKey = serverKey(item.server);
+      const favorite = isFavorite(item.server);
+      const connected =
+        !isElectrumDisabled && config.connected === 1 && config.host === item.server.host && String(config.port) === String(serverPort);
+      const isTesting = testingServerKey === itemServerKey;
+      const testResult = serverTestResults[itemServerKey];
+      const canTest = !isLoading && !testingServerKey && (!favorite || isElectrumDisabled);
+      const rowDisabled = isLoading || Boolean(testingServerKey);
+      const protocol = item.server.ssl ? 'SSL' : 'TCP';
+      const serverAccessibilityLabel = `${item.server.host}, ${protocol} ${serverPort}${favorite ? `, ${loc.settings.electrum_favorite_server}` : ''}${connected ? `, ${loc.settings.electrum_connected}` : ''}${testResult === true ? `, ${loc.settings.electrum_connection_successful}` : ''}${testResult === false ? `, ${loc.settings.electrum_validation_failed}` : ''}`;
+
+      const row = (
         <SettingsListItem
-          title={loc.settings.electrum_offline_mode}
-          subtitle={loc.settings.electrum_offline_description}
-          switch={{
-            onValueChange: onElectrumConnectionEnabledSwitchChange,
-            value: isElectrumDisabled,
-            testID: 'ElectrumConnectionEnabledSwitch',
+          accessible
+          accessibilityRole={favorite ? 'text' : 'button'}
+          testID={`${favorite ? 'FavoriteElectrumServer' : 'ElectrumServer'}-${item.server.host}-${serverPort}`}
+          title={item.server.host}
+          titleStyle={favorite ? stylesHook.preferredServerTitle : undefined}
+          titleSelectable={!item.isHistory}
+          subtitle={`${protocol}: ${serverPort}`}
+          subtitleSelectable={!item.isHistory}
+          subtitleNumberOfLines={0}
+          accessibilityLabel={serverAccessibilityLabel}
+          accessibilityHint={
+            favorite
+              ? loc.settings.electrum_row_actions_hint
+              : Platform.OS === 'ios' && Platform.isMacCatalyst
+                ? loc.settings.electrum_server_row_hint_mac
+                : loc.settings.electrum_server_row_hint
+          }
+          disabled={rowDisabled}
+          accessibilityState={{
+            selected: favorite,
+            disabled: rowDisabled,
+            busy: isTesting,
           }}
-          bottomDivider={false}
+          accessibilityActions={[
+            { name: 'copy', label: loc.settings.electrum_copy_server },
+            ...(favorite && !rowDisabled
+              ? [
+                  {
+                    name: 'removeFavorite',
+                    label: loc.settings.electrum_remove_favorite_server,
+                  },
+                ]
+              : []),
+            ...(canTest ? [{ name: 'test', label: loc.settings.electrum_test_connection }] : []),
+            ...(item.isHistory && !rowDisabled ? [{ name: 'delete', label: loc.wallets.details_delete }] : []),
+          ]}
+          onAccessibilityAction={event => {
+            if (event.nativeEvent.actionName === 'copy') {
+              copyServerText(formatElectrumServer(item.server));
+              return;
+            }
+            if (rowDisabled) return;
+            if (event.nativeEvent.actionName === 'removeFavorite' && favorite) {
+              removeFavoriteServer(item.server);
+            } else if (event.nativeEvent.actionName === 'test' && canTest) {
+              testServerConnection(item.server);
+            } else if (event.nativeEvent.actionName === 'delete' && item.isHistory) {
+              deleteServerFromHistory(item.server);
+            }
+          }}
+          rightElement={
+            isTesting ? (
+              <ActivityIndicator accessibilityLabel={loc.settings.electrum_testing_server} color={colors.primary} />
+            ) : connected ? (
+              <View importantForAccessibility="no" style={styles.connectedIcon}>
+                <Ionicons name="link" size={20} color={colors.receiveText} />
+              </View>
+            ) : testResult !== undefined ? (
+              <View importantForAccessibility="no" style={styles.connectedIcon}>
+                <Ionicons
+                  name={testResult ? 'checkmark-circle' : 'close-circle'}
+                  size={20}
+                  color={testResult ? colors.receiveText : colors.redText}
+                />
+              </View>
+            ) : undefined
+          }
+          leftAvatar={
+            Platform.OS === 'android' ? (
+              <Ionicons
+                name={favorite ? 'radio-button-on' : 'radio-button-off'}
+                size={24}
+                color={favorite ? colors.alternativeTextColor2 : colors.alternativeTextColor}
+              />
+            ) : undefined
+          }
+          onPress={rowDisabled || favorite ? undefined : () => presentSelectServerAlert(item.server)}
+          bottomDivider={!item.isLast}
+          containerStyle={[
+            styles.serverRow,
+            stylesHook.serverRow,
+            favorite && stylesHook.selectedServerRow,
+            item.isFirst && styles.serverRowFirst,
+            item.isLast && styles.serverRowLast,
+          ]}
         />
-      </SettingsSection>
-      {!isElectrumDisabled && renderElectrumSettings()}
-    </SettingsScrollView>
+      );
+
+      return (
+        <SwipeableServerRow
+          testID={`TestElectrumServer-${item.server.host}-${serverPort}`}
+          copyTestID={`CopyElectrumServer-${item.server.host}-${serverPort}`}
+          menuTitle={`${item.server.host}:${serverPort}`}
+          onTest={canTest ? () => testServerConnection(item.server) : undefined}
+          onCopy={() => copyServerText(formatElectrumServer(item.server))}
+          onRemoveFavorite={favorite && !rowDisabled ? () => removeFavoriteServer(item.server) : undefined}
+          isLast={item.isLast}
+          removeFavoriteTestID={favorite ? `RemoveFavoriteElectrumServer-${item.server.host}-${serverPort}` : undefined}
+          deleteTestID={item.isHistory ? `DeleteElectrumServer-${item.server.host}-${serverPort}` : undefined}
+          onDelete={item.isHistory && !rowDisabled ? () => deleteServerFromHistory(item.server) : undefined}
+        >
+          {row}
+        </SwipeableServerRow>
+      );
+    },
+    [
+      colors.alternativeTextColor,
+      colors.alternativeTextColor2,
+      colors.primary,
+      colors.redText,
+      colors.receiveText,
+      config.connected,
+      config.host,
+      config.port,
+      deleteServerFromHistory,
+      isLoading,
+      isFavorite,
+      isElectrumDisabled,
+      isSuggestedExpanded,
+      host,
+      port,
+      presentSelectServerAlert,
+      removeFavoriteServer,
+      serverTestResults,
+      state.searchQuery,
+      sslPort,
+      stylesHook,
+      testServerConnection,
+      testingServerKey,
+    ],
+  );
+
+  return (
+    <>
+      {Platform.OS === 'ios' && isHandOffUseEnabled && handoffServerHistoryDocument ? (
+        <HandOffComponent
+          title={loc.settings.electrum_handoff_export}
+          type={HandOffActivityType.ElectrumServerHistory}
+          userInfo={{
+            serverHistory: handoffServerHistoryDocument,
+            deepLink: handoffServerHistoryDeepLink,
+          }}
+        />
+      ) : null}
+      <FlatList
+        ref={listRef}
+        data={serverList}
+        renderItem={renderServerEntry}
+        keyExtractor={item => item.id}
+        keyboardShouldPersistTaps="always"
+        automaticallyAdjustContentInsets
+        automaticallyAdjustKeyboardInsets
+        keyboardDismissMode="on-drag"
+        contentInsetAdjustmentBehavior="automatic"
+        style={stylesHook.list}
+        contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 24 }]}
+        testID="ElectrumSettingsScrollView"
+        accessibilityLabel={loc.settings.electrum_settings_server}
+        accessibilityState={{ busy: isLoading }}
+        ListEmptyComponent={
+          !isLoading && state.searchQuery.trim() ? (
+            <SettingsSection>
+              <SettingsFootnote>{loc.wallets.no_results_found}</SettingsFootnote>
+            </SettingsSection>
+          ) : null
+        }
+        onAccessibilityEscape={() => navigation.goBack()}
+        ListHeaderComponent={
+          <>
+            <SettingsSection title={loc.settings.electrum_offline_mode} iconName="offline">
+              <SettingsListItem
+                title={loc.settings.electrum_work_offline}
+                subtitle={loc.settings.electrum_offline_description}
+                switch={{
+                  onValueChange: onElectrumConnectionEnabledSwitchChange,
+                  value: isElectrumDisabled,
+                  disabled: isLoading || Boolean(testingServerKey),
+                  testID: 'ElectrumConnectionEnabledSwitch',
+                }}
+                bottomDivider={false}
+              />
+            </SettingsSection>
+            {!isElectrumDisabled && renderConnectionStatus()}
+          </>
+        }
+      />
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  connectWrap: {
-    width: 'auto',
-    height: 34,
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    flexDirection: 'row',
+  listContent: {
+    paddingTop: Platform.select({ ios: 20, default: 16 }),
   },
-  hostname: {
-    textAlign: 'center',
-  },
-  container: {
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingLeft: 16,
-    paddingRight: 16,
-    borderRadius: 20,
-  },
-  inputWrap: {
-    flex: 1,
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  portWrap: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 12,
-  },
-  inputText: {
-    flex: 1,
-    marginHorizontal: 8,
-    minHeight: 36,
+  statusIcon: {
+    width: 36,
     height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  textConnectionStatus: {
-    fontWeight: 'bold',
+  statusRow: {
+    minHeight: Platform.select({ ios: 60, default: 64 }),
   },
-  usePort: {
-    marginHorizontal: 14,
+
+  directHeaderAction: {
+    minWidth: 44,
+    minHeight: 44,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  inputGroupSpacing: {
-    marginTop: 12,
+
+  pressed: {
+    opacity: 0.6,
   },
-  buttonContainer: {
-    marginTop: 12,
+
+  bannerContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
   bannerText: {
-    marginTop: 16,
-    alignSelf: 'center',
     fontFamily: 'monospace',
-    marginBottom: 4,
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  serverSectionHeader: {
+    marginBottom: 0,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  collapsedSectionHeader: {
+    marginBottom: 24,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  disclosureButton: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  serverSectionDescription: {
+    paddingHorizontal: 16,
+    paddingTop: 2,
+    paddingBottom: 16,
+  },
+  serverRow: {
+    marginHorizontal: 16,
+    minHeight: Platform.select({ ios: 44, default: 56 }),
+  },
+  connectedIcon: {
+    marginLeft: 10,
+  },
+  serverRowFirst: {
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+  },
+  serverRowLast: {
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    overflow: 'hidden',
+  },
+  serverRowGroupLast: {
+    marginBottom: Platform.select({ ios: 32, default: 24 }),
+  },
+  swipeActionsContainer: {
+    flexDirection: 'row',
+    marginRight: 16,
+    marginBottom: 0,
+  },
+  serverContextMenu: {
+    width: '100%',
+  },
+  testAction: {
+    width: Platform.select({ ios: 88, default: 96 }),
+    height: '100%',
+    backgroundColor: Platform.select({ ios: '#007AFF', default: '#0061A4' }),
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  deleteAction: {
+    width: Platform.select({ ios: 88, default: 96 }),
+    height: '100%',
+    backgroundColor: Platform.select({ ios: '#FF3B30', default: '#B3261E' }),
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  copyAction: {
+    width: Platform.select({ ios: 88, default: 96 }),
+    height: '100%',
+    backgroundColor: Platform.select({ ios: '#5856D6', default: '#6750A4' }),
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  deleteActionPressed: {
+    opacity: 0.78,
+  },
+  swipeActionText: {
+    color: '#FFFFFF',
+    fontSize: Platform.select({ ios: 13, default: 14 }),
+    fontWeight: '600',
   },
 });
 

@@ -50,6 +50,9 @@ const Broadcast: React.FC = () => {
     Keyboard.dismiss();
     setBroadcastResult(BROADCAST_RESULT.pending);
     try {
+      // Reject malformed transaction data locally instead of waiting for an
+      // Electrum connection that cannot make the payload valid.
+      const parsedTransaction = txHex ? bitcoin.Transaction.fromHex(txHex) : undefined;
       if (!(await BlueElectrum.ensureConnected())) {
         throw new Error(loc.errors.network);
       }
@@ -57,8 +60,7 @@ const Broadcast: React.FC = () => {
       if (txHex) {
         const result = await walletObj.broadcastTx(txHex);
         if (result) {
-          const newTx = bitcoin.Transaction.fromHex(txHex);
-          const txid = newTx.getId();
+          const txid = parsedTransaction!.getId();
           setTx(txid);
 
           setBroadcastResult(BROADCAST_RESULT.success);
