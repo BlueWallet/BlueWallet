@@ -11,6 +11,8 @@ import {
   helperImportWallet,
   scanText,
   setCustomFeeRate,
+  tapId,
+  tapIdRepeatedly,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
   tapAndTapAgainIfTextIsNotVisible,
@@ -96,7 +98,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     const transactionFee = await extractTextFromElementById('TransactionFee');
     assert.ok(transactionFee.startsWith('Fee: 0.00000292 BTC'), 'Unexpected tx fee: ' + transactionFee);
-    await element(by.id('TransactionDetailsButton')).tap();
+    await tapId('TransactionDetailsButton');
 
     let txhex = await extractTextFromElementById('TxhexInput');
 
@@ -125,7 +127,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // created. verifying:
     await waitForId('TransactionValue');
     await waitForId('PayjoinSwitch');
-    await element(by.id('TransactionDetailsButton')).tap();
+    await tapId('TransactionDetailsButton');
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
@@ -146,7 +148,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // created. verifying:
     await waitForId('TransactionValue');
     // dont verify payjoin since we scanned different address that didnt have `&pj=xxxxxx`
-    await element(by.id('TransactionDetailsButton')).tap();
+    await tapId('TransactionDetailsButton');
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
@@ -170,7 +172,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('CreateTransactionButton')).tap();
     // created. verifying:
     await waitForId('TransactionValue');
-    await element(by.id('TransactionDetailsButton')).tap();
+    await tapId('TransactionDetailsButton');
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(transaction.outs.length, 2);
@@ -254,7 +256,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // Creating and verifying. tx should have 3 outputs
     await element(by.id('CreateTransactionButton')).tap();
     await waitForId('TransactionDetailsButton');
-    await element(by.id('TransactionDetailsButton')).tap();
+    await tapId('TransactionDetailsButton');
     const txhex = await extractTextFromElementById('TxhexInput');
     const transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(transaction.outs.length, 3);
@@ -298,7 +300,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('CreateTransactionButton')).tap();
     // created. verifying:
     await waitForId('TransactionDetailsButton');
-    await element(by.id('TransactionDetailsButton')).tap();
+    await tapId('TransactionDetailsButton');
     let txhex = await extractTextFromElementById('TxhexInput');
     let transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(transaction.outs.length, 1, 'should be single output, no change');
@@ -316,7 +318,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('CreateTransactionButton')).tap();
     // created. verifying:
     await waitForId('TransactionDetailsButton');
-    await element(by.id('TransactionDetailsButton')).tap();
+    await tapId('TransactionDetailsButton');
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(transaction.outs.length, 2, 'should be single output, no change');
@@ -520,7 +522,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await setCustomFeeRate(1);
     await element(by.id('CreateTransactionButton')).tap();
     await waitForId('TransactionDetailsButton');
-    await element(by.id('TransactionDetailsButton')).tap();
+    await tapId('TransactionDetailsButton');
 
     const txhex1 = await extractTextFromElementById('TxhexInput');
     const tx1 = bitcoin.Transaction.fromHex(txhex1);
@@ -555,7 +557,13 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // rename test: tap edit, enter new name in prompt, tap OK
     await element(by.id('WalletNameEditButton')).tap();
     await typeTextIntoAlertInput('testname');
-    await element(by.text('OK')).tap();
+    // The alert button is replaced as the dialog closes, so Espresso often reports
+    // Index -1 even though the rename already landed.
+    try {
+      await element(by.text('OK')).tap();
+    } catch (err) {
+      if (!String(err?.message || err).includes('Index -1 out of bounds')) throw err;
+    }
     await waitForKeyboardToClose();
     await goBack();
     await waitForText('testname');
@@ -719,7 +727,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await setCustomFeeRate(1);
     await element(by.id('CreateTransactionButton')).tap();
     await waitForId('TransactionDetailsButton');
-    await element(by.id('TransactionDetailsButton')).tap();
+    await tapId('TransactionDetailsButton');
 
     const txhex1 = await extractTextFromElementById('TxhexInput');
     const tx1 = bitcoin.Transaction.fromHex(txhex1);
@@ -757,7 +765,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await setCustomFeeRate(1);
     await element(by.id('CreateTransactionButton')).tap();
     await waitForId('TransactionDetailsButton');
-    await element(by.id('TransactionDetailsButton')).tap();
+    await tapId('TransactionDetailsButton');
 
     const txhex2 = await extractTextFromElementById('TxhexInput');
     const tx2 = bitcoin.Transaction.fromHex(txhex2);
@@ -791,9 +799,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('WalletDetails')).tap();
 
     // tapping backdoor button to purge txs and balance:
-    for (let c = 0; c <= 10; c++) {
-      await element(by.id('PurgeBackdoorButton')).tap();
-    }
+    await tapIdRepeatedly('PurgeBackdoorButton', 11);
 
     await waitForText('OK');
     await tapIfTextPresent('OK');
@@ -834,9 +840,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('WalletDetails')).tap();
 
     // tapping backdoor button to purge txs and balance:
-    for (let c = 0; c <= 10; c++) {
-      await element(by.id('PurgeBackdoorButton')).tap();
-    }
+    await tapIdRepeatedly('PurgeBackdoorButton', 11);
 
     await waitForText('OK');
     await tapIfTextPresent('OK');

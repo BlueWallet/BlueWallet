@@ -9,14 +9,32 @@
 //
 // Tell Detox to ignore that endpoint. The blacklist is process-scoped on
 // iOS, so we re-apply it after every launchApp.
-const URL_BLACKLIST = ['.*arkade\\.computer/v1/indexer/script/subscription.*', '.*groundcontrol-bluewallet\\.herokuapp\\.com.*'];
+const URL_BLACKLIST = [
+  '.*arkade\\.computer/v1/indexer/script/subscription.*',
+  // Current push host. The herokuapp name below is the previous one; either
+  // request never completes fast enough for Detox idle and stalls the suite.
+  '.*groundcontrol\\.bluewallet\\.io.*',
+  '.*groundcontrol-bluewallet\\.herokuapp\\.com.*',
+];
 
 beforeAll(async () => {
   if (typeof device === 'undefined' || !device?.launchApp) return;
 
   const originalLaunchApp = device.launchApp.bind(device);
   device.launchApp = async (...args) => {
-    const result = await originalLaunchApp(...args);
+    const run = () => originalLaunchApp(...args);
+    let result;
+    try {
+      result = await run();
+    } catch (e) {
+      // Android 16 + Espresso TestLooperManager crashes mqt_v_native while
+      // checking idle (MessageHeap). A second launch starts a fresh process.
+      const message = String(e?.message || e);
+      if (!/MessageHeap|Failed to run application|TestLooperManager/.test(message)) throw e;
+      console.log('[detox-setup] retrying launchApp after Android looper crash');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      result = await run();
+    }
     try {
       await device.setURLBlacklist(URL_BLACKLIST);
     } catch (e) {
