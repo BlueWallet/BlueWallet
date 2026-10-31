@@ -22,7 +22,7 @@ class SceneDelegate: RCTDefaultReactNativeFactoryDelegate, UIWindowSceneDelegate
         reactNativeFactory = RCTReactNativeFactory(delegate: self)
         window = UIWindow(windowScene: windowScene)
         contentDidAppearObserver = NotificationCenter.default.addObserver(
-            forName: RCTContentDidAppearNotification,
+            forName: NSNotification.Name.RCTContentDidAppear,
             object: nil,
             queue: .main
         ) { [weak self, weak scene] _ in
