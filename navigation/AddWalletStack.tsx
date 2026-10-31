@@ -1,11 +1,10 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
 import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
 import { Action } from '../components/types';
-import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { isIOS26OrHigher } from '../blue_modules/environment';
 import { useTheme } from '../components/themes';
 import { HDLegacyP2PKHWallet } from '../class/wallets/hd-legacy-p2pkh-wallet';
@@ -16,7 +15,7 @@ import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { withLazySuspense } from './LazyLoadingIndicator';
-import { HeaderRightRenderer, ScanQRCodeParamList } from './DetailViewStackParamList';
+import { ScanQRCodeParamList } from './DetailViewStackParamList';
 import { navigationGuardRouter } from './navigationGuard';
 
 export type AddWalletStackParamList = {
@@ -26,8 +25,6 @@ export type AddWalletStackParamList = {
     words?: number;
     selectedIndex?: number;
     selectedWalletType?: Chain | 'VAULT' | 'ARK';
-    headerRight?: HeaderRightRenderer;
-    statusBarStyle?: NativeStackNavigationOptions['statusBarStyle'];
   };
   ImportWallet?: {
     label?: string;
@@ -36,7 +33,6 @@ export type AddWalletStackParamList = {
     askPassphraseMenuState?: boolean;
     searchAccountsMenuState?: boolean;
     clearClipboardMenuState?: boolean;
-    headerRight?: HeaderRightRenderer;
   };
   ImportWalletDiscovery: {
     importText: string;
@@ -66,7 +62,6 @@ export type AddWalletStackParamList = {
     n: number;
     format: string;
     onSave: (m: number, n: number, format: string) => void;
-    headerRight?: HeaderRightRenderer;
   };
   WalletsAddMultisigStep2: {
     m: number;
@@ -74,10 +69,9 @@ export type AddWalletStackParamList = {
     walletLabel: string;
     format: string;
     onBarScanned?: string;
-    sheetAction?: string;
+    sheetAction?: 'importMnemonic';
     sheetImportText?: string;
     sheetAskPassphrase?: boolean;
-    headerRight?: HeaderRightRenderer;
   };
   WalletsAddMultisigVaultKeySheet: {
     keyIndex: number;
@@ -348,22 +342,19 @@ const AddWalletStack = () => {
       <Stack.Screen
         name="MultisigAdvanced"
         component={MultisigAdvancedComponent}
-        options={navigationStyle(
-          {
-            title: loc.multisig.vault_advanced_customize,
-            presentation: 'formSheet',
-            sheetAllowedDetents: multisigSheetAllowedDetents,
-            sheetGrabberVisible: true,
-            headerShown: true,
-            headerTitle: loc.multisig.vault_advanced_customize,
-          },
-          withRouteParamHeaderOptions({ headerRight: true }),
-        )(theme)}
+        options={navigationStyle({
+          title: loc.multisig.vault_advanced_customize,
+          presentation: 'formSheet',
+          sheetAllowedDetents: multisigSheetAllowedDetents,
+          sheetGrabberVisible: true,
+          headerShown: true,
+          headerTitle: loc.multisig.vault_advanced_customize,
+        })(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisigStep2"
         component={WalletsAddMultisigStep2Component}
-        options={navigationStyle({ title: '', gestureEnabled: false }, withRouteParamHeaderOptions({ headerRight: true }))(theme)}
+        options={navigationStyle({ title: '', gestureEnabled: false })(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisigVaultKeySheet"

@@ -16,9 +16,9 @@
 //   would tie a stable handle to the OS-visible record.
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AppState, Platform } from 'react-native';
+import { AppState, AppStateStatus, Platform } from 'react-native';
 import { Notification, Notifications } from 'react-native-notifications';
-import { checkNotifications, RESULTS } from 'react-native-permissions';
+import { checkNotifications, PermissionStatus, RESULTS } from 'react-native-permissions';
 
 import { isChainSwapClaimable, isChainSwapRefundable, isReverseSwapClaimable, isSubmarineSwapRefundable } from '@arkade-os/boltz-swap';
 import type { BoltzSwap } from '@arkade-os/boltz-swap';
@@ -71,11 +71,11 @@ const titleFor = (): string => loc.lndViewInvoice.notification_action_title;
 const bodyFor = (action: ArkSwapNotificationAction): string =>
   action === 'claim' ? loc.lndViewInvoice.notification_claim_body : loc.lndViewInvoice.notification_refund_body;
 
-let appStateOverrideForTest: string | null = null;
-let permissionResultOverrideForTest: string | null = null;
+let appStateOverrideForTest: AppStateStatus | null = null;
+let permissionResultOverrideForTest: PermissionStatus | null = null;
 let optOutFlagOverrideForTest: string | null | undefined;
 
-function currentAppState(): string {
+function currentAppState(): AppStateStatus {
   return appStateOverrideForTest ?? AppState.currentState;
 }
 
@@ -152,10 +152,10 @@ export const __testing__ = {
   resetChannel: (): void => {
     channelEnsured = false;
   },
-  setAppStateForTest: (state: string | null): void => {
+  setAppStateForTest: (state: AppStateStatus | null): void => {
     appStateOverrideForTest = state;
   },
-  setPermissionResultForTest: (result: string | null): void => {
+  setPermissionResultForTest: (result: PermissionStatus | null): void => {
     permissionResultOverrideForTest = result;
   },
   setOptOutFlagForTest: (value: string | null | undefined): void => {

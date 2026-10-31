@@ -221,7 +221,7 @@ const LNDViewInvoice = () => {
   // list isn't blank) and that placeholder must never surface here as
   // "For: BlueWallet". "Send to Arkade address" is the SDK's hardcoded default
   // for a memo-less reverse swap, so it counts as "no description" too.
-  const decodeForDisplay = (paymentRequest?: string): { amountSats?: number; description?: string } => {
+  const decodeForDisplay = (paymentRequest: string): { amountSats?: number; description?: string } => {
     if (!paymentRequest) return {};
     try {
       const d = wallet?.decodeInvoice(paymentRequest);
@@ -236,7 +236,7 @@ const LNDViewInvoice = () => {
     if (typeof invoice === 'object') {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-      const invoiceExpiration = invoice?.timestamp && invoice?.expire_time ? invoice.timestamp + invoice.expire_time : undefined;
+      const invoiceExpiration = invoice.timestamp && invoice.expire_time ? invoice.timestamp + invoice.expire_time : undefined;
 
       // Settlement wins over any claim/refund CTA. The SDK auto-claims
       // reverse swaps as soon as Boltz funds the VHTLC, so a stale
@@ -248,7 +248,7 @@ const LNDViewInvoice = () => {
         let amount = 0;
         let description;
         let invoiceDate;
-        if (invoice.type === 'paid_invoice' && invoice?.value) {
+        if (invoice.type === 'paid_invoice' && invoice.value) {
           amount = invoice.value;
         } else if (invoice.type === 'user_invoice' && invoice.amt) {
           amount = invoice.amt;

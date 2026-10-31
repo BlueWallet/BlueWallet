@@ -7,7 +7,7 @@ import {
   NotificationCompletion,
   Notifications,
 } from 'react-native-notifications';
-import { checkNotifications, requestNotifications, RESULTS } from 'react-native-permissions';
+import { checkNotifications, PermissionStatus, requestNotifications, RESULTS } from 'react-native-permissions';
 import type { BoltzReverseSwap } from '@arkade-os/boltz-swap';
 import loc from '../loc';
 import { arkadePaymentPushUri, groundControlUri } from './constants';
@@ -20,7 +20,7 @@ const ANDROID_NOTIFICATION_CHANNEL_ID = 'channel_01';
 export const NOTIFICATIONS_NO_AND_DONT_ASK_FLAG = 'NOTIFICATIONS_NO_AND_DONT_ASK_FLAG';
 const baseURI = groundControlUri;
 let notificationSubscriptions: EmitterSubscription[] = [];
-let onProcessNotificationsHandler: undefined | (() => void | Promise<void>);
+let onProcessNotificationsHandler: undefined | (() => Promise<boolean>);
 const handledNotificationKeys = new Set<string>();
 let pendingRegistrationPromise: Promise<boolean> | null = null;
 let pendingRegistrationResolve: ((value: boolean) => void) | null = null;
@@ -195,7 +195,7 @@ export const checkNotificationPermissionStatus = async () => {
 };
 
 // Listener to monitor notification permission status changes while app is running
-let currentPermissionStatus = 'unavailable';
+let currentPermissionStatus: PermissionStatus = 'unavailable';
 const handleAppStateChange = async (nextAppState: AppStateStatus) => {
   try {
     if (nextAppState === 'active') {
@@ -557,7 +557,7 @@ const _setPushToken = async (token: TPushToken) => {
  *
  * @returns {Promise<boolean>} whether successfully registered for remote push notifications
  */
-const configureNotifications = async (onProcessNotifications?: () => void): Promise<boolean> => {
+const configureNotifications = async (onProcessNotifications?: () => Promise<boolean>): Promise<boolean> => {
   console.log('configureNotifications()');
   if (onProcessNotifications) {
     onProcessNotificationsHandler = onProcessNotifications;
@@ -633,10 +633,10 @@ const configureNotifications = async (onProcessNotifications?: () => void): Prom
 
 export const isNotificationsCapable = hasGmsSync() || hasHmsSync() || Platform.OS !== 'android';
 
-export const getPushToken = async (): Promise<TPushToken> => {
+export const getPushToken = async (): Promise<TPushToken | null> => {
   try {
     const token = await AsyncStorage.getItem(PUSH_TOKEN);
-    return JSON.parse(String(token)) as TPushToken;
+    return JSON.parse(String(token)) as TPushToken | null;
   } catch (e) {
     console.error(e);
     AsyncStorage.removeItem(PUSH_TOKEN);
@@ -798,7 +798,7 @@ export const getStoredNotifications = async (): Promise<TPayload[]> => {
 };
 
 // on app launch (load module):
-export const initializeNotifications = async (onProcessNotifications?: () => void) => {
+export const initializeNotifications = async (onProcessNotifications?: () => Promise<boolean>) => {
   console.log('initializeNotifications: Starting initialization');
 
   try {

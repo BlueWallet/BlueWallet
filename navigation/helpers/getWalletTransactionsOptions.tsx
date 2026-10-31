@@ -121,18 +121,15 @@ const navigateToWalletDetails = (walletID: string) => {
 /** Material "more" button for WalletTransactions header on Android. */
 export const createWalletDetailsHeaderRight = ({
   walletID,
-  isLoading = false,
   iconColor = HERO_HEADER_ICON_COLOR,
 }: {
   walletID: string;
-  isLoading?: boolean;
   iconColor?: string;
 }): (() => React.ReactElement) => {
   return () => (
     <TouchableOpacity
       accessibilityRole="button"
       testID="WalletDetails"
-      disabled={isLoading}
       style={styles.walletDetails}
       hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
       onPress={() => navigateToWalletDetails(walletID)}
@@ -143,13 +140,7 @@ export const createWalletDetailsHeaderRight = ({
 };
 
 /** Native toolbar ellipsis for WalletTransactions on iOS. */
-export const createWalletDetailsHeaderRightItems = ({
-  isLoading = false,
-  walletID,
-}: {
-  isLoading?: boolean;
-  walletID: string;
-}): (() => NativeStackHeaderItem[]) => {
+export const createWalletDetailsHeaderRightItems = ({ walletID }: { walletID: string }): (() => NativeStackHeaderItem[]) => {
   return () => [
     {
       type: 'button',
@@ -159,7 +150,6 @@ export const createWalletDetailsHeaderRightItems = ({
       accessibilityLabel: 'WalletDetails',
       sharesBackground: false,
       onPress: () => navigateToWalletDetails(walletID),
-      disabled: isLoading,
     },
   ];
 };
@@ -190,7 +180,7 @@ const getWalletTransactionsOptions = ({
   headerTintColor: string;
   dark: boolean;
 }): NativeStackNavigationOptions => {
-  const { isLoading = false, walletID } = route.params;
+  const { walletID } = route.params;
   const isScrolled = route.params.headerIsScrolled ?? false;
   const base = getWalletTransactionsBaseOptions();
   const { titleInsetRight } = getScrolledHeaderTitleLayout(screenWidth);
@@ -243,7 +233,6 @@ const getWalletTransactionsOptions = ({
       ...options,
       headerRight: undefined,
       unstable_headerRightItems: createWalletDetailsHeaderRightItems({
-        isLoading,
         walletID,
       }),
     };
@@ -253,7 +242,6 @@ const getWalletTransactionsOptions = ({
     ...options,
     headerRight: createWalletDetailsHeaderRight({
       walletID,
-      isLoading,
       iconColor: isScrolled && Platform.OS === 'ios' ? headerTintColor : HERO_HEADER_ICON_COLOR,
     }),
   };

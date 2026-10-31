@@ -33,7 +33,7 @@ import { errorMessage } from '../helpers/errorMessage';
 /**
  * Hook that initializes all companion listeners and functionality without rendering a component
  */
-const useCompanionListeners = (skipIfNotInitialized = true) => {
+const useCompanionListeners = () => {
   const {
     wallets,
     addWallet,
@@ -50,7 +50,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
   // We need to call hooks unconditionally before any conditional logic
   // We'll use this check inside the effects to conditionally run logic
-  const shouldActivateListeners = !skipIfNotInitialized || walletsInitialized;
+  const shouldActivateListeners = walletsInitialized;
   const { isClipboardGetContentEnabled } = useSettings();
 
   const { onLeaveForeground, onEnterForeground } = useClipboardDetection(shouldActivateListeners && isClipboardGetContentEnabled);

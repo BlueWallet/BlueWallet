@@ -28,8 +28,8 @@ const ImportWallet = () => {
   const navigation = useNavigation<NavigationProps>();
   const { colors } = useTheme();
   const route = useRoute<RouteProps>();
-  const label = route?.params?.label ?? '';
-  const triggerImport = route?.params?.triggerImport ?? false;
+  const label = route.params?.label ?? '';
+  const triggerImport = route.params?.triggerImport ?? false;
   const [importText, setImportText] = useState<string>(label);
   // Native caret is the source of truth. Do not bind selection={} on this Android
   // multiline field — a fully controlled cursor jumps. Chips use refs, onChangeText
@@ -174,11 +174,9 @@ const ImportWallet = () => {
   }, [importMnemonic, onBlur]);
 
   const onBarScanned = useCallback(
-    (value: string | { data: string }) => {
-      // no objects here, only strings
-      const newValue: string = typeof value !== 'string' ? value.data + '' : value;
-      commitImportText(newValue, newValue.length);
-      setTimeout(() => importMnemonic(newValue), 500);
+    (value: string) => {
+      commitImportText(value, value.length);
+      setTimeout(() => importMnemonic(value), 500);
     },
     [commitImportText, importMnemonic],
   );

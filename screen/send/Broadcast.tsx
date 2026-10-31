@@ -28,7 +28,7 @@ const Broadcast: React.FC = () => {
   const [tx, setTx] = useState<string | undefined>();
   const [txHex, setTxHex] = useState<string | undefined>();
   const { colors } = useTheme();
-  const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
+  const [broadcastResult, setBroadcastResult] = useState<(typeof BROADCAST_RESULT)[keyof typeof BROADCAST_RESULT]>(BROADCAST_RESULT.none);
   const { selectedBlockExplorer } = useSettings();
 
   const handleScannedData = useCallback((scannedData: string) => {

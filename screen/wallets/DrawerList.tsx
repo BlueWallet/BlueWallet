@@ -18,7 +18,6 @@ enum WalletActionType {
   SetWallets = 'SET_WALLETS',
   SelectWallet = 'SELECT_WALLET',
   SetFocus = 'SET_FOCUS',
-  Navigate = 'NAVIGATE',
   WalletAdded = 'WALLET_ADDED',
   WalletRemoved = 'WALLET_REMOVED',
 }
@@ -34,12 +33,6 @@ interface SelectWalletAction {
   type: WalletActionType.SelectWallet;
   walletID: string;
   walletType: string;
-}
-
-interface NavigateAction {
-  type: WalletActionType.Navigate;
-  screen: string;
-  params: Record<string, unknown>;
 }
 
 interface SetFocusAction {
@@ -60,7 +53,7 @@ interface WalletRemovedAction {
   type: WalletActionType.WalletRemoved;
 }
 
-type WalletAction = SetWalletsAction | SelectWalletAction | SetFocusAction | NavigateAction | WalletAddedAction | WalletRemovedAction;
+type WalletAction = SetWalletsAction | SelectWalletAction | SetFocusAction | WalletAddedAction | WalletRemovedAction;
 
 const walletReducer = (state: WalletState, action: WalletAction): WalletState => {
   switch (action.type) {
@@ -208,8 +201,8 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
   }, [wallets, isFocused]);
 
   const handleClick = useCallback(
-    (item?: TWallet) => {
-      if (item?.getID) {
+    (item: TWallet) => {
+      if (item.getID) {
         const walletID = item.getID();
         const walletType = item.type;
         dispatch({ type: WalletActionType.SelectWallet, walletID, walletType });

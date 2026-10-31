@@ -266,7 +266,7 @@ export async function isDisabled(): Promise<boolean> {
   return !!result;
 }
 
-export async function setDisabled(disabled = true) {
+export async function setDisabled(disabled: boolean) {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   console.log('[electrum] Setting Electrum connection disabled state to:', disabled);
   const result = await DefaultPreference.set(ELECTRUM_CONNECTION_DISABLED, disabled ? '1' : '');
@@ -867,8 +867,8 @@ export function txhexToElectrumTransaction(txhex: string): ElectrumTransactionWi
   let n = 0;
   for (const out of tx.outs) {
     const value = new BigNumber(out.value).dividedBy(100000000).toNumber();
-    let address: false | string = false;
-    let type: false | string = false;
+    let address: string | false;
+    let type: string;
 
     // Lazy require to avoid the module-scope cycle described above. These
     // modules are fully loaded by the time this function is actually invoked.

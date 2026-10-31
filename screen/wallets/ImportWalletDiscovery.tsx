@@ -28,7 +28,7 @@ type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
 
 type WalletEntry = {
-  wallet: TWallet | THDWalletForWatchOnly;
+  wallet: TWallet;
   subtitle: string;
   id: string;
 };
@@ -74,7 +74,7 @@ const ImportWalletDiscovery: React.FC = () => {
   });
 
   const saveWallet = useCallback(
-    (wallet: TWallet | THDWalletForWatchOnly) => {
+    (wallet: TWallet) => {
       if (importing.current) return;
       importing.current = true;
       addAndSaveWallet(wallet);
@@ -91,7 +91,7 @@ const ImportWalletDiscovery: React.FC = () => {
   useEffect(() => {
     const onProgress = (data: string) => setProgress(data);
 
-    const onWallet = (wallet: TWallet | THDWalletForWatchOnly) => {
+    const onWallet = (wallet: TWallet) => {
       const id = wallet.getID();
       let subtitle: string | undefined;
 
@@ -260,7 +260,7 @@ const ImportWalletDiscovery: React.FC = () => {
         )}
         <BlueSpacing10 />
         <View style={styles.buttonContainer}>
-          <Button disabled={wallets?.length === 0} title={loc.wallets.import_do_import} onPress={handleSave} />
+          <Button disabled={wallets.length === 0} title={loc.wallets.import_do_import} onPress={handleSave} />
         </View>
       </View>
     </SafeArea>
