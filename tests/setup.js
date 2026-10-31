@@ -552,6 +552,7 @@ jest.mock('react-native-keychain', () => {
       const svc = (options && options.service) || '__default__';
       return mockKeychainCreds.delete(svc);
     }),
+    getAllGenericPasswordServices: jest.fn(async () => [...mockKeychainCreds.keys()]),
     // Default to the strongest level so the adapter's preflight selects
     // SECURE_HARDWARE in the happy path. Tests override per-case via
     // mockResolvedValueOnce when they need a downgrade scenario.

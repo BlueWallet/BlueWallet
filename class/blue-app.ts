@@ -3,6 +3,7 @@ import { sha256 } from '@noble/hashes/sha256';
 import DefaultPreference from 'react-native-default-preference';
 import RNFS from 'react-native-fs';
 import Keychain, { ACCESSIBLE } from 'react-native-keychain';
+import { Platform } from 'react-native';
 import Realm from 'realm';
 
 import * as encryption from '../blue_modules/encryption';
@@ -89,6 +90,8 @@ export class BlueApp {
   static DO_NOT_TRACK = 'donottrack';
   static HANDOFF_STORAGE_KEY = 'HandOff';
   static STORAGE_KEYCHAIN_SERVICE_PREFIX = 'BlueWalletStorage.';
+  static KEYCHAIN_RETENTION_KEY = 'retain_keychain_after_uninstall';
+  static KEYCHAIN_INSTALL_MARKER = 'BlueWalletKeychainInstallMarker';
 
   private static _instance: BlueApp | null = null;
 
@@ -119,6 +122,10 @@ export class BlueApp {
 
   static storageKeychainService(key: string): string {
     return `${BlueApp.STORAGE_KEYCHAIN_SERVICE_PREFIX}${key}`;
+  }
+
+  static keychainRetentionService(): string {
+    return BlueApp.storageKeychainService(BlueApp.KEYCHAIN_RETENTION_KEY);
   }
 
   private async readKeychainItem(key: string): Promise<string | null> {
@@ -162,8 +169,38 @@ export class BlueApp {
     return legacyValue;
   }
 
+  isKeychainRetentionEnabled = async (): Promise<boolean> => {
+    if (Platform.OS !== 'ios') return false;
+    const credentials = await Keychain.getGenericPassword({ service: BlueApp.keychainRetentionService() });
+    return !credentials || credentials.password !== 'false';
+  };
+
+  setKeychainRetentionEnabled = async (enabled: boolean): Promise<void> => {
+    if (Platform.OS !== 'ios') return;
+    await this.writeKeychainItem(BlueApp.KEYCHAIN_RETENTION_KEY, String(enabled));
+  };
+
+  private async applyKeychainRetentionPolicy(): Promise<void> {
+    if (Platform.OS !== 'ios') return;
+    if ((await AsyncStorage.getItem(BlueApp.KEYCHAIN_INSTALL_MARKER)) !== null) return;
+
+    if (!(await this.isKeychainRetentionEnabled())) {
+      const retentionService = BlueApp.keychainRetentionService();
+      const services = await Keychain.getAllGenericPasswordServices();
+      for (const service of services) {
+        if (service !== retentionService) await Keychain.resetGenericPassword({ service });
+      }
+    }
+
+    await AsyncStorage.setItem(BlueApp.KEYCHAIN_INSTALL_MARKER, '1');
+  }
+
   async migrateKeys() {
     if (!isReactNative) return;
+
+    // Run before reading or migrating wallet data so an opted-out reinstall
+    // cannot restore values retained by iOS from the previous installation.
+    await this.applyKeychainRetentionPolicy();
 
     for (const key of BlueApp.secureStorageKeys) {
       try {

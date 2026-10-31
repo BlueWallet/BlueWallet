@@ -1,4 +1,5 @@
 import { BlueApp } from '../../class/blue-app';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const mockLegacyValues = new Map<string, string>();
 const mockRemoveLegacySecureValue = jest.fn(async (key: string) => mockLegacyValues.delete(key));
@@ -12,12 +13,15 @@ const Keychain = require('react-native-keychain');
 
 type MigrationAccess = {
   migrateSecureStorageKey(key: string): Promise<string | null>;
+  applyKeychainRetentionPolicy(): Promise<void>;
+  setKeychainRetentionEnabled(enabled: boolean): Promise<void>;
 };
 
 describe('secure storage Keychain migration', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     mockLegacyValues.clear();
     mockRemoveLegacySecureValue.mockClear();
+    await AsyncStorage.clear();
     Keychain.__mockKeychainHelpers.reset();
     Keychain.setGenericPassword.mockClear();
     Keychain.getGenericPassword.mockClear();
@@ -76,5 +80,55 @@ describe('secure storage Keychain migration', () => {
 
   it('uses isolated Keychain services for each secure-storage key', () => {
     expect(BlueApp.storageKeychainService('data')).not.toBe(BlueApp.storageKeychainService(BlueApp.FLAG_ENCRYPTED));
+  });
+
+  it('enables iOS Keychain retention by default', async () => {
+    const app = new BlueApp();
+
+    await expect(app.isKeychainRetentionEnabled()).resolves.toBe(true);
+  });
+
+  it('stores the iOS Keychain retention preference outside wallet services', async () => {
+    const app = new BlueApp();
+
+    await app.setKeychainRetentionEnabled(false);
+
+    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.keychainRetentionService())?.password).toBe('false');
+    expect(BlueApp.keychainRetentionService()).not.toBe(BlueApp.storageKeychainService('data'));
+  });
+
+  it('keeps retained Keychain services on a fresh install by default', async () => {
+    const app = new BlueApp() as unknown as MigrationAccess;
+    await Keychain.setGenericPassword('data', 'wallet-data', { service: BlueApp.storageKeychainService('data') });
+
+    await app.applyKeychainRetentionPolicy();
+
+    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.storageKeychainService('data'))?.password).toBe('wallet-data');
+    await expect(AsyncStorage.getItem(BlueApp.KEYCHAIN_INSTALL_MARKER)).resolves.toBe('1');
+  });
+
+  it('clears retained Keychain services on a fresh install after opt-out', async () => {
+    const app = new BlueApp() as unknown as MigrationAccess;
+    await app.setKeychainRetentionEnabled(false);
+    await Keychain.setGenericPassword('data', 'wallet-data', { service: BlueApp.storageKeychainService('data') });
+    await Keychain.setGenericPassword('realm', 'realm-key', { service: 'realm_encryption_key' });
+
+    await app.applyKeychainRetentionPolicy();
+
+    expect(Keychain.__mockKeychainHelpers.store.has(BlueApp.storageKeychainService('data'))).toBe(false);
+    expect(Keychain.__mockKeychainHelpers.store.has('realm_encryption_key')).toBe(false);
+    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.keychainRetentionService())?.password).toBe('false');
+    await expect(AsyncStorage.getItem(BlueApp.KEYCHAIN_INSTALL_MARKER)).resolves.toBe('1');
+  });
+
+  it('does not clear Keychain services during the same installation', async () => {
+    const app = new BlueApp() as unknown as MigrationAccess;
+    await app.setKeychainRetentionEnabled(false);
+    await AsyncStorage.setItem(BlueApp.KEYCHAIN_INSTALL_MARKER, '1');
+    await Keychain.setGenericPassword('data', 'wallet-data', { service: BlueApp.storageKeychainService('data') });
+
+    await app.applyKeychainRetentionPolicy();
+
+    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.storageKeychainService('data'))?.password).toBe('wallet-data');
   });
 });
