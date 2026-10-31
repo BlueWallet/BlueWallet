@@ -89,6 +89,10 @@ jobs:
             echo "Shared build number must contain digits only" >&2
             exit 1
           fi
+          if [ "$SHARED_BUILD_NUMBER" -eq 0 ]; then
+            echo "Shared build number must be positive" >&2
+            exit 1
+          fi
           if [ "$SHARED_BUILD_NUMBER" -gt 2100000000 ]; then
             echo "Shared build number $SHARED_BUILD_NUMBER exceeds the Play Store limit" >&2
             exit 1

@@ -274,6 +274,7 @@ platform :android do
       build_number = (options[:build_number] || ENV['BUILD_NUMBER']).to_s
       UI.user_error!("A build_number option or BUILD_NUMBER environment variable is required") if build_number.empty?
       UI.user_error!("Shared build number must contain digits only") unless build_number.match?(/\A\d+\z/)
+      UI.user_error!("Shared build number must be positive") if build_number.to_i.zero?
       UI.user_error!("Shared build number exceeds Android's #{SHARED_BUILD_NUMBER_MAX} limit") if build_number.to_i > SHARED_BUILD_NUMBER_MAX
       ENV['BUILD_NUMBER'] = build_number
 
@@ -976,7 +977,7 @@ platform :ios do
     build_number = ENV["NEW_BUILD_NUMBER"].to_s
     UI.user_error!("NEW_BUILD_NUMBER is required") if build_number.empty?
     UI.user_error!("NEW_BUILD_NUMBER must contain digits only") unless build_number.match?(/\A\d+\z/)
-    UI.user_error!("NEW_BUILD_NUMBER exceeds Android's #{SHARED_BUILD_NUMBER_MAX} limit") if build_number.to_i > SHARED_BUILD_NUMBER_MAX
+    UI.user_error!("NEW_BUILD_NUMBER must be positive") if build_number.to_i.zero?
     UI.message("Setting build number to #{build_number}...")
 
     # Set the new build number
