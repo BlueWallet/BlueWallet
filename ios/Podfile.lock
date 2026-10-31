@@ -1553,8 +1553,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-secure-key-store (2.0.10):
-    - React-Core
   - react-native-tcp-socket (6.4.3):
     - CocoaAsyncSocket
     - React-Core
@@ -2536,7 +2534,6 @@ DEPENDENCIES:
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-notifications (from `../node_modules/react-native-notifications`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
-  - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - "react-native-vector-icons-entypo (from `../node_modules/@react-native-vector-icons/entypo`)"
   - "react-native-vector-icons-fontawesome (from `../node_modules/@react-native-vector-icons/fontawesome`)"
@@ -2730,8 +2727,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-notifications"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
-  react-native-secure-key-store:
-    :path: "../node_modules/react-native-secure-key-store"
   react-native-tcp-socket:
     :path: "../node_modules/react-native-tcp-socket"
   react-native-vector-icons-entypo:
@@ -2926,7 +2921,6 @@ SPEC CHECKSUMS:
   react-native-image-picker: 56de6c74b8bb4d3a2572ae4952420d188bdf0beb
   react-native-notifications: e2d3c022d6077de7e420ba5c01b4bd9464f3941d
   react-native-safe-area-context: b1c9f15a36e597e9cef4c5526e209ef2645bc2e0
-  react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: e502f7c50922acc808015ce3fe54bb96fae75bf8
   react-native-vector-icons-entypo: 74c1762da06bccffb7f7c3a3a0142c90251fdcdd
   react-native-vector-icons-fontawesome: c293d5990f222b3e2bb655aa8ab059481a6282e5
