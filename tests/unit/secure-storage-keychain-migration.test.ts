@@ -26,7 +26,8 @@ type MigrationAccess = {
 const asMigrationAccess = (app = new BlueApp()): MigrationAccess => app as unknown as MigrationAccess;
 
 const seedKeychainValue = async (key: string, value: string): Promise<void> => {
-  await Keychain.setGenericPassword(BlueApp.storageKeychainUsername(key, value), value, {
+  const encodedValue = BlueApp.encodeKeychainValue(value);
+  await Keychain.setGenericPassword(BlueApp.encodedStorageKeychainUsername(key, encodedValue), encodedValue, {
     service: BlueApp.storageKeychainService(key),
   });
 };
@@ -34,6 +35,7 @@ const seedKeychainValue = async (key: string, value: string): Promise<void> => {
 const resetKeychainMocks = (): void => {
   Keychain.__mockKeychainHelpers.reset();
   Keychain.setGenericPassword.mockReset().mockImplementation(async (username: string, password: string, options: { service?: string }) => {
+    if (!username || !password) throw new Error('you passed empty or null username/password');
     const service = options?.service ?? '__default__';
     Keychain.__mockKeychainHelpers.store.set(service, { username, password, service });
     return true;
@@ -71,12 +73,13 @@ describe('secure storage Keychain migration', () => {
 
     await expect(app.migrateSecureStorageKey(key)).resolves.toBe(legacyValue);
 
+    const encodedValue = BlueApp.encodeKeychainValue(legacyValue);
     expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.storageKeychainService(key))).toEqual({
-      username: BlueApp.storageKeychainUsername(key, legacyValue),
-      password: legacyValue,
+      username: BlueApp.encodedStorageKeychainUsername(key, encodedValue),
+      password: encodedValue,
       service: BlueApp.storageKeychainService(key),
     });
-    expect(Keychain.setGenericPassword).toHaveBeenCalledWith(BlueApp.storageKeychainUsername(key, legacyValue), legacyValue, {
+    expect(Keychain.setGenericPassword).toHaveBeenCalledWith(BlueApp.encodedStorageKeychainUsername(key, encodedValue), encodedValue, {
       service: BlueApp.storageKeychainService(key),
       accessible: 'AccessibleWhenUnlockedThisDeviceOnly',
     });
@@ -186,6 +189,19 @@ describe('secure storage Keychain migration', () => {
     expect(Keychain.setGenericPassword).not.toHaveBeenCalled();
   });
 
+  it('reads the raw integrity-tagged format from early migration builds without rewriting or losing it', async () => {
+    const value = 'early-build-wallet-data';
+    Keychain.__mockKeychainHelpers.store.set(BlueApp.storageKeychainService('data'), {
+      username: BlueApp.storageKeychainUsername('data', value),
+      password: value,
+      service: BlueApp.storageKeychainService('data'),
+    });
+    const app = asMigrationAccess();
+
+    await expect(app.migrateSecureStorageKey('data')).resolves.toBe(value);
+    expect(Keychain.setGenericPassword).not.toHaveBeenCalled();
+  });
+
   it('keeps both verified Keychain and legacy copies when cleanup fails, then safely retries cleanup', async () => {
     mockLegacyValues.set('data', 'wallet-data');
     mockRemoveLegacySecureValue.mockRejectedValueOnce(new Error('Legacy cleanup unavailable'));
@@ -207,7 +223,9 @@ describe('secure storage Keychain migration', () => {
     await expect(app.migrateSecureStorageKey('data')).resolves.toBe('wallet-data');
 
     expect(mockLegacyValues.has('data')).toBe(false);
-    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.storageKeychainService('data'))?.password).toBe('wallet-data');
+    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.storageKeychainService('data'))?.password).toBe(
+      BlueApp.encodeKeychainValue('wallet-data'),
+    );
   });
 
   it('isolates secure keys and continues migrating later keys after one key fails', async () => {
@@ -222,8 +240,12 @@ describe('secure storage Keychain migration', () => {
     expect(mockLegacyValues.get('data')).toBe('wallet-data');
     expect(mockLegacyValues.has(BlueApp.FLAG_ENCRYPTED)).toBe(false);
     expect(mockLegacyValues.has('Biometrics')).toBe(false);
-    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.storageKeychainService(BlueApp.FLAG_ENCRYPTED))?.password).toBe('1');
-    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.storageKeychainService('Biometrics'))?.password).toBe('enabled');
+    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.storageKeychainService(BlueApp.FLAG_ENCRYPTED))?.password).toBe(
+      BlueApp.encodeKeychainValue('1'),
+    );
+    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.storageKeychainService('Biometrics'))?.password).toBe(
+      BlueApp.encodeKeychainValue('enabled'),
+    );
   });
 
   it('uses isolated Keychain services and integrity tags for every secure-storage key', () => {
@@ -342,9 +364,10 @@ describe('iOS Keychain retention policy', () => {
 
     await app.setKeychainRetentionEnabled(false);
 
+    const encodedValue = BlueApp.encodeKeychainValue('false');
     expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.keychainRetentionService())).toEqual({
-      username: BlueApp.storageKeychainUsername(BlueApp.KEYCHAIN_RETENTION_KEY, 'false'),
-      password: 'false',
+      username: BlueApp.encodedStorageKeychainUsername(BlueApp.KEYCHAIN_RETENTION_KEY, encodedValue),
+      password: encodedValue,
       service: BlueApp.keychainRetentionService(),
     });
     expect(BlueApp.keychainRetentionService()).not.toBe(BlueApp.storageKeychainService('data'));
@@ -367,7 +390,9 @@ describe('iOS Keychain retention policy', () => {
 
     await app.applyKeychainRetentionPolicy();
 
-    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.storageKeychainService('data'))?.password).toBe('wallet-data');
+    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.storageKeychainService('data'))?.password).toBe(
+      BlueApp.encodeKeychainValue('wallet-data'),
+    );
     await expect(AsyncStorage.getItem(BlueApp.KEYCHAIN_INSTALL_MARKER)).resolves.toBe('1');
   });
 
@@ -381,7 +406,9 @@ describe('iOS Keychain retention policy', () => {
 
     expect(Keychain.__mockKeychainHelpers.store.has(BlueApp.storageKeychainService('data'))).toBe(false);
     expect(Keychain.__mockKeychainHelpers.store.has('realm_encryption_key')).toBe(false);
-    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.keychainRetentionService())?.password).toBe('false');
+    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.keychainRetentionService())?.password).toBe(
+      BlueApp.encodeKeychainValue('false'),
+    );
     await expect(AsyncStorage.getItem(BlueApp.KEYCHAIN_INSTALL_MARKER)).resolves.toBe('1');
   });
 
@@ -427,7 +454,9 @@ describe('iOS Keychain retention policy', () => {
 
     await app.applyKeychainRetentionPolicy();
 
-    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.storageKeychainService('data'))?.password).toBe('wallet-data');
+    expect(Keychain.__mockKeychainHelpers.store.get(BlueApp.storageKeychainService('data'))?.password).toBe(
+      BlueApp.encodeKeychainValue('wallet-data'),
+    );
     expect(Keychain.resetGenericPassword).not.toHaveBeenCalled();
   });
 });

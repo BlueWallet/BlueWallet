@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer } from 'react';
+import React, { useCallback, useReducer } from 'react';
 import { Alert, Platform, StyleSheet, Text } from 'react-native';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
@@ -74,26 +74,38 @@ const EncryptStorage = () => {
   const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useNavigation();
-  const initializeState = useCallback(async () => {
-    const isStorageEncryptedSwitchEnabled = await isStorageEncrypted();
-    const isDeviceBiometricCapableSync = await isDeviceBiometricCapable();
-    const keychainRetentionEnabled = await BlueApp.isKeychainRetentionEnabled();
-    dispatch({ type: ActionType.SetStorageEncryptedSwitch, payload: isStorageEncryptedSwitchEnabled });
-    dispatch({ type: ActionType.SetDeviceBiometricCapable, payload: isDeviceBiometricCapableSync });
-    dispatch({ type: ActionType.SetKeychainRetentionEnabled, payload: keychainRetentionEnabled });
-    dispatch({ type: ActionType.SetLoading, payload: false });
-  }, [isStorageEncrypted, isDeviceBiometricCapable]);
-
-  useEffect(() => {
-    initializeState();
-  }, [initializeState]);
-
   useFocusEffect(
     useCallback(() => {
-      initializeState();
-      dispatch({ type: ActionType.SetLoading, payload: false });
+      let isActive = true;
+
+      dispatch({ type: ActionType.SetLoading, payload: true });
       dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
-    }, [initializeState]),
+
+      const initializeState = async () => {
+        try {
+          const [isStorageEncryptedSwitchEnabled, isDeviceBiometricCapableSync, keychainRetentionEnabled] = await Promise.all([
+            isStorageEncrypted(),
+            isDeviceBiometricCapable(),
+            BlueApp.isKeychainRetentionEnabled(),
+          ]);
+          if (!isActive) return;
+
+          dispatch({ type: ActionType.SetStorageEncryptedSwitch, payload: isStorageEncryptedSwitchEnabled });
+          dispatch({ type: ActionType.SetDeviceBiometricCapable, payload: isDeviceBiometricCapableSync });
+          dispatch({ type: ActionType.SetKeychainRetentionEnabled, payload: keychainRetentionEnabled });
+        } catch (error) {
+          if (isActive) Alert.alert(loc.errors.error, errorMessage(error));
+        } finally {
+          if (isActive) dispatch({ type: ActionType.SetLoading, payload: false });
+        }
+      };
+
+      initializeState();
+
+      return () => {
+        isActive = false;
+      };
+    }, [isStorageEncrypted, isDeviceBiometricCapable]),
   );
 
   const handleDecryptStorage = async () => {
@@ -217,9 +229,10 @@ const EncryptStorage = () => {
             switch={{
               value: state.keychainRetentionEnabled,
               onValueChange: onKeychainRetentionSwitch,
-              disabled: state.currentLoadingSwitch !== null,
+              disabled: state.isLoading || state.currentLoadingSwitch !== null,
               testID: 'KeychainRetentionSwitch',
             }}
+            isLoading={state.isLoading}
             testID="KeychainRetention"
             bottomDivider={false}
           />

@@ -27,7 +27,14 @@ import { ExtendedTransaction, Transaction, TWallet } from './wallets/types';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import { getLNDHub } from '../helpers/lndHub';
 import { LightningArkWallet } from './wallets/lightning-ark-wallet.ts';
-import { hexToUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
+import {
+  base64ToUint8Array,
+  hexToUint8Array,
+  stringToUint8Array,
+  uint8ArrayToBase64,
+  uint8ArrayToHex,
+  uint8ArrayToString,
+} from '../blue_modules/uint8array-extras';
 import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
 import { TaprootWallet } from './wallets/taproot-wallet';
 import { errorMessage } from '../helpers/errorMessage';
@@ -92,6 +99,7 @@ export class BlueApp {
   static STORAGE_KEYCHAIN_SERVICE_PREFIX = 'BlueWalletStorage.';
   static KEYCHAIN_RETENTION_KEY = 'retain_keychain_after_uninstall';
   static KEYCHAIN_INSTALL_MARKER = 'BlueWalletKeychainInstallMarker';
+  static KEYCHAIN_VALUE_PREFIX = 'base64-v1:';
 
   private static _instance: BlueApp | null = null;
 
@@ -132,20 +140,44 @@ export class BlueApp {
     return `${key}:${uint8ArrayToHex(sha256(value))}`;
   }
 
+  static encodedStorageKeychainUsername(key: string, encodedValue: string): string {
+    return `${key}:v1:${uint8ArrayToHex(sha256(encodedValue))}`;
+  }
+
+  static encodeKeychainValue(value: string): string {
+    return `${BlueApp.KEYCHAIN_VALUE_PREFIX}${uint8ArrayToBase64(stringToUint8Array(value))}`;
+  }
+
+  static decodeKeychainValue(encodedValue: string): string {
+    if (!encodedValue.startsWith(BlueApp.KEYCHAIN_VALUE_PREFIX)) throw new Error('Unsupported Keychain value encoding');
+    const value = uint8ArrayToString(base64ToUint8Array(encodedValue.slice(BlueApp.KEYCHAIN_VALUE_PREFIX.length)));
+    if (BlueApp.encodeKeychainValue(value) !== encodedValue) throw new Error('Invalid Keychain value encoding');
+    return value;
+  }
+
   private async readKeychainItem(key: string): Promise<string | null> {
     const credentials = await Keychain.getGenericPassword({
       service: BlueApp.storageKeychainService(key),
     });
     if (!credentials) return null;
-    if (credentials.username !== BlueApp.storageKeychainUsername(key, credentials.password)) {
-      throw new Error(`Keychain integrity verification failed for ${key}`);
+
+    if (credentials.username === BlueApp.encodedStorageKeychainUsername(key, credentials.password)) {
+      try {
+        return BlueApp.decodeKeychainValue(credentials.password);
+      } catch {
+        throw new Error(`Keychain integrity verification failed for ${key}`);
+      }
     }
-    return credentials.password;
+    // Read values written by early builds of the migration branch so updating
+    // those builds cannot strand wallet data in Keychain.
+    if (credentials.username === BlueApp.storageKeychainUsername(key, credentials.password)) return credentials.password;
+    throw new Error(`Keychain integrity verification failed for ${key}`);
   }
 
   private async writeKeychainItem(key: string, value: string): Promise<void> {
     const service = BlueApp.storageKeychainService(key);
-    await Keychain.setGenericPassword(BlueApp.storageKeychainUsername(key, value), value, {
+    const encodedValue = BlueApp.encodeKeychainValue(value);
+    await Keychain.setGenericPassword(BlueApp.encodedStorageKeychainUsername(key, encodedValue), encodedValue, {
       service,
       accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
     });
