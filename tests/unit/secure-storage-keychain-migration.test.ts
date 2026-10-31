@@ -353,6 +353,19 @@ describe('iOS Keychain retention policy', () => {
     resetKeychainMocks();
   });
 
+  it('reports retention availability only when the required native Keychain APIs are present', () => {
+    const app = new BlueApp();
+    const getAllGenericPasswordServices = Keychain.getAllGenericPasswordServices;
+
+    expect(app.isKeychainRetentionSupported()).toBe(true);
+    try {
+      Keychain.getAllGenericPasswordServices = undefined;
+      expect(app.isKeychainRetentionSupported()).toBe(false);
+    } finally {
+      Keychain.getAllGenericPasswordServices = getAllGenericPasswordServices;
+    }
+  });
+
   it('enables iOS Keychain retention by default', async () => {
     const app = new BlueApp();
 

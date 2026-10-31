@@ -3,12 +3,14 @@ import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 const mockIsKeychainRetentionEnabled = jest.fn<Promise<boolean>, []>();
 const mockSetKeychainRetentionEnabled = jest.fn<Promise<void>, [boolean]>();
+const mockIsKeychainRetentionSupported = jest.fn(() => true);
 const mockIsStorageEncrypted = jest.fn(async () => false);
 const mockIsDeviceBiometricCapable = jest.fn(async () => false);
 
 jest.mock('../../class/blue-app', () => ({
   BlueApp: {
     getInstance: () => ({
+      isKeychainRetentionSupported: mockIsKeychainRetentionSupported,
       isKeychainRetentionEnabled: mockIsKeychainRetentionEnabled,
       setKeychainRetentionEnabled: mockSetKeychainRetentionEnabled,
     }),
@@ -74,6 +76,7 @@ const EncryptStorage = require('../../screen/settings/EncryptStorage').default;
 describe('EncryptStorage Keychain retention setting', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockIsKeychainRetentionSupported.mockReturnValue(true);
     mockSetKeychainRetentionEnabled.mockResolvedValue();
   });
 
@@ -98,5 +101,16 @@ describe('EncryptStorage Keychain retention setting', () => {
 
     await waitFor(() => expect(mockSetKeychainRetentionEnabled).toHaveBeenCalledWith(false));
     await waitFor(() => expect(screen.getByTestId('KeychainRetentionSwitch').props.value).toBe(false));
+  });
+
+  it('does not render or read the setting when uninstall retention is unavailable', async () => {
+    mockIsKeychainRetentionSupported.mockReturnValue(false);
+    mockIsKeychainRetentionEnabled.mockResolvedValue(true);
+
+    const screen = render(<EncryptStorage />);
+
+    await waitFor(() => expect(mockIsKeychainRetentionSupported).toHaveBeenCalled());
+    expect(screen.queryByTestId('KeychainRetentionSwitch')).toBeNull();
+    expect(mockIsKeychainRetentionEnabled).not.toHaveBeenCalled();
   });
 });

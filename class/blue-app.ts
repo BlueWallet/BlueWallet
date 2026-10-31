@@ -155,6 +155,17 @@ export class BlueApp {
     return value;
   }
 
+  isKeychainRetentionSupported = (): boolean => {
+    // Keychain does not expose a runtime probe for uninstall persistence. iOS is
+    // currently the only supported native contract, and cleanup also requires
+    // enumerating and resetting individual services.
+    return (
+      Platform.OS === 'ios' &&
+      typeof Keychain.getAllGenericPasswordServices === 'function' &&
+      typeof Keychain.resetGenericPassword === 'function'
+    );
+  };
+
   private async readKeychainItem(key: string): Promise<string | null> {
     const credentials = await Keychain.getGenericPassword({
       service: BlueApp.storageKeychainService(key),
@@ -235,17 +246,17 @@ export class BlueApp {
   }
 
   isKeychainRetentionEnabled = async (): Promise<boolean> => {
-    if (Platform.OS !== 'ios') return false;
+    if (!this.isKeychainRetentionSupported()) return false;
     return (await this.readKeychainItem(BlueApp.KEYCHAIN_RETENTION_KEY)) !== 'false';
   };
 
   setKeychainRetentionEnabled = async (enabled: boolean): Promise<void> => {
-    if (Platform.OS !== 'ios') return;
+    if (!this.isKeychainRetentionSupported()) return;
     await this.writeKeychainItem(BlueApp.KEYCHAIN_RETENTION_KEY, String(enabled));
   };
 
   private async applyKeychainRetentionPolicy(): Promise<void> {
-    if (Platform.OS !== 'ios') return;
+    if (!this.isKeychainRetentionSupported()) return;
     if ((await AsyncStorage.getItem(BlueApp.KEYCHAIN_INSTALL_MARKER)) !== null) return;
 
     if (!(await this.isKeychainRetentionEnabled())) {

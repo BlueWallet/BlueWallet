@@ -15,6 +15,7 @@ enum ActionType {
   SetLoading = 'SET_LOADING',
   SetStorageEncryptedSwitch = 'SET_STORAGE_ENCRYPTED_SWITCH',
   SetDeviceBiometricCapable = 'SET_DEVICE_BIOMETRIC_CAPABLE',
+  SetKeychainRetentionSupported = 'SET_KEYCHAIN_RETENTION_SUPPORTED',
   SetKeychainRetentionEnabled = 'SET_KEYCHAIN_RETENTION_ENABLED',
   SetCurrentLoadingSwitch = 'SET_CURRENT_LOADING_SWITCH',
   SetModalType = 'SET_MODAL_TYPE',
@@ -26,6 +27,7 @@ type Action =
         | ActionType.SetLoading
         | ActionType.SetStorageEncryptedSwitch
         | ActionType.SetDeviceBiometricCapable
+        | ActionType.SetKeychainRetentionSupported
         | ActionType.SetKeychainRetentionEnabled;
       payload: boolean;
     }
@@ -36,6 +38,7 @@ interface State {
   isLoading: boolean;
   storageIsEncryptedSwitchEnabled: boolean;
   deviceBiometricCapable: boolean;
+  keychainRetentionSupported: boolean;
   keychainRetentionEnabled: boolean;
   currentLoadingSwitch: string | null;
   modalType: keyof typeof MODAL_TYPES;
@@ -45,6 +48,7 @@ const initialState: State = {
   isLoading: true,
   storageIsEncryptedSwitchEnabled: false,
   deviceBiometricCapable: false,
+  keychainRetentionSupported: false,
   keychainRetentionEnabled: true,
   currentLoadingSwitch: null,
   modalType: MODAL_TYPES.ENTER_PASSWORD,
@@ -58,6 +62,8 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, storageIsEncryptedSwitchEnabled: action.payload };
     case ActionType.SetDeviceBiometricCapable:
       return { ...state, deviceBiometricCapable: action.payload };
+    case ActionType.SetKeychainRetentionSupported:
+      return { ...state, keychainRetentionSupported: action.payload };
     case ActionType.SetKeychainRetentionEnabled:
       return { ...state, keychainRetentionEnabled: action.payload };
     case ActionType.SetCurrentLoadingSwitch:
@@ -83,15 +89,17 @@ const EncryptStorage = () => {
 
       const initializeState = async () => {
         try {
+          const keychainRetentionSupported = BlueApp.isKeychainRetentionSupported();
           const [isStorageEncryptedSwitchEnabled, isDeviceBiometricCapableSync, keychainRetentionEnabled] = await Promise.all([
             isStorageEncrypted(),
             isDeviceBiometricCapable(),
-            BlueApp.isKeychainRetentionEnabled(),
+            keychainRetentionSupported ? BlueApp.isKeychainRetentionEnabled() : Promise.resolve(false),
           ]);
           if (!isActive) return;
 
           dispatch({ type: ActionType.SetStorageEncryptedSwitch, payload: isStorageEncryptedSwitchEnabled });
           dispatch({ type: ActionType.SetDeviceBiometricCapable, payload: isDeviceBiometricCapableSync });
+          dispatch({ type: ActionType.SetKeychainRetentionSupported, payload: keychainRetentionSupported });
           dispatch({ type: ActionType.SetKeychainRetentionEnabled, payload: keychainRetentionEnabled });
         } catch (error) {
           if (isActive) Alert.alert(loc.errors.error, errorMessage(error));
@@ -211,7 +219,7 @@ const EncryptStorage = () => {
             testID: 'EncyptedAndPasswordProtectedSwitch',
           }}
           isLoading={state.currentLoadingSwitch === 'encrypt' && state.isLoading}
-          bottomDivider={state.storageIsEncryptedSwitchEnabled || Platform.OS === 'ios'}
+          bottomDivider={state.storageIsEncryptedSwitchEnabled || state.keychainRetentionSupported}
         />
         {state.storageIsEncryptedSwitchEnabled && (
           <SettingsListItem
@@ -219,10 +227,10 @@ const EncryptStorage = () => {
             title={loc.settings.plausible_deniability}
             chevron
             testID="PlausibleDeniabilityButton"
-            bottomDivider={Platform.OS === 'ios'}
+            bottomDivider={state.keychainRetentionSupported}
           />
         )}
-        {Platform.OS === 'ios' && (
+        {state.keychainRetentionSupported && (
           <SettingsListItem
             title={loc.settings.keychain_retention}
             subtitle={loc.settings.keychain_retention_expl}
