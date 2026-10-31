@@ -5,7 +5,7 @@ on:
     branches:
       - master
   pull_request:
-    types: [opened, reopened, synchronize, labeled]
+    types: [opened, reopened, synchronize, labeled, unlabeled]
     branches:
       - master
   workflow_dispatch:
@@ -30,9 +30,11 @@ concurrency:
 jobs:
   plan:
     name: Plan Release
+    if: github.event.action != 'unlabeled'
     runs-on: ubuntu-latest
     outputs:
       build_number: ${{ steps.release.outputs.build_number }}
+      apple_build_number: ${{ steps.release.outputs.apple_build_number }}
       source_sha: ${{ steps.release.outputs.source_sha }}
       allocation_attempt: ${{ steps.release.outputs.allocation_attempt }}
     steps:
@@ -40,13 +42,36 @@ jobs:
         id: release
         env:
           SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          # Above the existing Apple/Android high-water marks while leaving room
+          # under Android's 2,100,000,000 version-code ceiling.
+          BUILD_NUMBER_BASE: 1904000000
+          # Apple previously accepted 13-digit builds, so preserve that monotonic
+          # sequence while retaining a one-to-one mapping to the Android code.
+          APPLE_BUILD_NUMBER_OFFSET: 6800000000000
         run: |
-          # Keep the value above previously uploaded 13-digit builds. Generating it
-          # when the run starts makes re-runs newer instead of replaying run_id.
-          BUILD_NUMBER=$((5000000000000 + $(date +%s%3N)))
+          if [ "$GITHUB_RUN_ATTEMPT" -gt 9 ]; then
+            echo '::error::Shared build-number allocation supports up to 9 attempts per workflow run.'
+            exit 1
+          fi
+          BUILD_NUMBER=$((BUILD_NUMBER_BASE + GITHUB_RUN_NUMBER * 10 + GITHUB_RUN_ATTEMPT))
+          if [ "$BUILD_NUMBER" -gt 2100000000 ]; then
+            echo "::error::Shared build number $BUILD_NUMBER exceeds the Android limit."
+            exit 1
+          fi
+          APPLE_BUILD_NUMBER=$((APPLE_BUILD_NUMBER_OFFSET + BUILD_NUMBER))
           echo "build_number=${BUILD_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "apple_build_number=${APPLE_BUILD_NUMBER}" >> "$GITHUB_OUTPUT"
           echo "source_sha=${SOURCE_SHA}" >> "$GITHUB_OUTPUT"
           echo "allocation_attempt=${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+
+  android:
+    name: Android
+    needs: plan
+    uses: ./.github/workflows/build-release-apk.yml
+    with:
+      build_number: ${{ needs.plan.outputs.build_number }}
+      source_sha: ${{ needs.plan.outputs.source_sha }}
+    secrets: inherit
 
   build:
     name: iOS Build
@@ -62,7 +87,7 @@ jobs:
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
       MATCH_READONLY: "true"
-      NEW_BUILD_NUMBER: ${{ needs.plan.outputs.build_number }}
+      NEW_BUILD_NUMBER: ${{ needs.plan.outputs.apple_build_number }}
 
     steps:
       - name: Checkout Project
@@ -487,7 +512,7 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'testflight'))
     uses: ./.github/workflows/build-mac-catalyst.yml
     with:
-      build_number: ${{ needs.plan.outputs.build_number }}
+      build_number: ${{ needs.plan.outputs.apple_build_number }}
       source_sha: ${{ needs.plan.outputs.source_sha }}
       allocation_attempt: ${{ needs.plan.outputs.allocation_attempt }}
     secrets: inherit

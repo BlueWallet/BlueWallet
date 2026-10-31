@@ -15,9 +15,9 @@ on:
   workflow_dispatch:
     inputs:
       build_number:
-        description: Optional build number override
+        description: Shared build number allocated by the Apple release workflow
         type: string
-        required: false
+        required: true
 
 permissions:
   contents: read
@@ -103,7 +103,15 @@ jobs:
         env:
           REQUESTED_BUILD_NUMBER: ${{ inputs.build_number }}
         run: |
-          BUILD_NUMBER="${REQUESTED_BUILD_NUMBER:-$(ruby -e 'puts 5_000_000_000_000 + (Time.now.to_r * 1000).to_i')}"
+          if ! [[ "$REQUESTED_BUILD_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo '::error::A numeric shared build number is required.'
+            exit 1
+          fi
+          if [ "$REQUESTED_BUILD_NUMBER" -eq 0 ]; then
+            echo '::error::The shared Apple build number must be positive.'
+            exit 1
+          fi
+          BUILD_NUMBER="$REQUESTED_BUILD_NUMBER"
           export NEW_BUILD_NUMBER="$BUILD_NUMBER"
           echo "NEW_BUILD_NUMBER=${BUILD_NUMBER}" >> "$GITHUB_ENV"
           echo "build_number=${BUILD_NUMBER}" >> "$GITHUB_OUTPUT"
