@@ -1,0 +1,34 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "APP_SHORTCUT_MANAGE_WALLETS" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Manage Wallets" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Administrar carteras" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Gérer les portefeuilles" } }
+      }
+    },
+    "APP_SHORTCUT_RECEIVE" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Receive" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Recibir" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Recevoir" } }
+      }
+    },
+    "APP_SHORTCUT_SCAN" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Escanear" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Scanner" } }
+      }
+    },
+    "APP_SHORTCUT_SEND" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Send" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Enviar" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Envoyer" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

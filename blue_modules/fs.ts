@@ -11,14 +11,15 @@ import loc from '../loc';
 import { isDesktop } from './environment';
 import { readFile } from './react-native-bw-file-access';
 import { base64ToUint8Array, uint8ArrayToString } from './uint8array-extras/index';
+import { errorMessage } from '../helpers/errorMessage';
 
 const _sanitizeFileName = (fileName: string) => {
   // Remove any path delimiters and non-alphanumeric characters except for -, _, and .
   return fileName.replace(/[^a-zA-Z0-9\-_.]/g, '');
 };
 
-export const isCancel = (err: any): boolean => {
-  return err.code && err.code === errorCodes.OPERATION_CANCELED;
+export const isCancel = (err: unknown): boolean => {
+  return typeof err === 'object' && err !== null && 'code' in err && err.code === errorCodes.OPERATION_CANCELED;
 };
 
 export const encodeCsvRow = (values: Array<string | number>): string =>
@@ -169,8 +170,8 @@ const _safeUnlink = async (filePath: string) => {
 
       await RNFS.unlink(candidate);
       return;
-    } catch (error: any) {
-      const message = String(error?.message || '').toLowerCase();
+    } catch (error) {
+      const message = String(errorMessage(error) || '').toLowerCase();
       const notFound = message.includes('no such file') || message.includes('does not exist') || message.includes('enoent');
 
       if (notFound) {
@@ -253,12 +254,12 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
       saveToFiles: isDesktop || !showShareDialog,
       failOnCancel: false,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.log(error);
     // If user cancels sharing, we dont want to show an error. for some reason we get 'CANCELLED' string as error
-    const errorMessage = typeof error === 'string' ? error : error?.message;
-    if (errorMessage !== 'CANCELLED') {
-      presentAlert({ message: errorMessage });
+    const message = errorMessage(error);
+    if (message !== 'CANCELLED') {
+      presentAlert({ message });
     }
   } finally {
     await _safeUnlink(filePath);
@@ -296,12 +297,12 @@ export const writeFileAndExport = async function (fileName: string, contents: st
     const filePath = _createTempExportPath(sanitizedFileName);
     await RNFS.writeFile(filePath, contents);
     await _shareOpen(filePath, true);
-  } catch (error: any) {
+  } catch (error) {
     if (isCancel(error)) {
       return;
     }
     console.error(error);
-    presentAlert({ message: error.message });
+    presentAlert({ message: errorMessage(error) });
   }
 };
 
@@ -360,7 +361,7 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
     }
 
     return undefined;
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
     throw error;
   }
@@ -383,9 +384,9 @@ export const showFilePickerAndReadFile = async function (): Promise<{ data: stri
 
     const file = await RNFS.readFile(fileCopyUri);
     return { data: file, uri: fileCopyUri };
-  } catch (err: any) {
+  } catch (err) {
     if (!isCancel(err)) {
-      presentAlert({ message: err.message });
+      presentAlert({ message: errorMessage(err) });
     }
     return { data: false, uri: false };
   }

@@ -29,6 +29,7 @@ import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import { navigateToWalletsList } from '../../NavigationService';
 import DraggableFile from '../../components/DraggableFile';
+import { errorMessage } from '../../helpers/errorMessage';
 
 type RouteParams = RouteProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
 type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
@@ -54,11 +55,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [isVaultKeyIndexDataLoading, setIsVaultKeyIndexDataLoading] = useState<number | undefined>(undefined);
   const [askPassphrase, setAskPassphrase] = useState(false);
   const [walletData, setWalletData] = useState<TWallet[]>([]);
-  /* discardChangesRef is only so the action sheet can be shown on mac catalyst when a
-    user tries to leave the screen with unsaved changes.
-    Why the container view ? It was the easiest to get the ref for. No other reason.
-  */
-  const discardChangesRef = useRef<View>(null);
+  const saveButtonRef = useRef<React.ElementRef<typeof Button>>(null);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -77,10 +74,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
   });
 
   usePreventRemove(!isSaveButtonDisabled, ({ data }) => {
-    if (isDesktop) {
-      if (!discardChangesRef.current) return dispatch(data.action);
-      const anchor = findNodeHandle(discardChangesRef.current);
-      if (!anchor) return dispatch(data.action);
+    const anchor = isDesktop && saveButtonRef.current ? findNodeHandle(saveButtonRef.current) : null;
+
+    if (anchor) {
       ActionSheet.showActionSheetWithOptions(
         {
           options: [loc._.cancel, loc._.ok],
@@ -95,16 +91,17 @@ const ViewEditMultisigCosigners: React.FC = () => {
           }
         },
       );
-    } else {
-      Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
-        { text: loc._.cancel, style: 'cancel', onPress: () => {} },
-        {
-          text: loc._.ok,
-          style: 'default',
-          onPress: () => dispatch(data.action),
-        },
-      ]);
+      return;
     }
+
+    Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
+      { text: loc._.cancel, style: 'cancel', onPress: () => {} },
+      {
+        text: loc._.ok,
+        style: 'default',
+        onPress: () => dispatch(data.action),
+      },
+    ]);
   });
 
   const onSave = async () => {
@@ -139,10 +136,10 @@ const ViewEditMultisigCosigners: React.FC = () => {
         setTimeout(() => {
           navigateToWalletsList();
         }, 500);
-      } catch (error: any) {
+      } catch (error) {
         setIsLoading(false);
         setParams({ headerRight: undefined });
-        presentAlert({ message: error?.message ?? String(error) });
+        presentAlert({ message: errorMessage(error) });
       }
     }, 100);
   };
@@ -201,7 +198,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     }, [walletID]),
   );
 
-  const _renderKeyItem = (el: ListRenderItemInfo<any>) => {
+  const _renderKeyItem = (el: ListRenderItemInfo<TWallet>) => {
     if (!wallet) {
       // failsafe
       return null;
@@ -440,9 +437,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
         return presentAlert({ message: loc.multisig.invalid_mnemonics });
       try {
         wallet.replaceCosignerXpubWithSeed(cosignerNum, hd.getSecret(), passphrase);
-      } catch (e: any) {
+      } catch (e) {
         console.log(e);
-        return presentAlert({ message: e.message });
+        return presentAlert({ message: errorMessage(e) });
       }
 
       setWallet(wallet);
@@ -466,8 +463,8 @@ const ViewEditMultisigCosigners: React.FC = () => {
       if (shouldAskPassphrase) {
         try {
           passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
-        } catch (e: any) {
-          if (e.message === 'Cancel Pressed') {
+        } catch (e) {
+          if (errorMessage(e) === 'Cancel Pressed') {
             setIsLoading(false);
             return;
           }
@@ -483,9 +480,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
     return new Promise((resolve, reject) => {
       try {
         wallet?.replaceCosignerSeedWithXpub(index);
-      } catch (e: any) {
+      } catch (e) {
         reject(e);
-        return presentAlert({ message: e.message });
+        return presentAlert({ message: errorMessage(e) });
       }
       setWallet(wallet);
       setIsSaveButtonDisabled(false);
@@ -558,11 +555,17 @@ const ViewEditMultisigCosigners: React.FC = () => {
   };
 
   const footer = (
-    <Button testID="VaultCosignersSave" disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />
+    <Button
+      ref={saveButtonRef}
+      testID="VaultCosignersSave"
+      disabled={vaultKeyData.isLoading || isSaveButtonDisabled}
+      title={loc._.save}
+      onPress={onSave}
+    />
   );
 
   return (
-    <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
+    <View style={[styles.root, stylesHook.root]}>
       <FlatList
         testID="ViewEditMultisigCosignersFlatList"
         ListHeaderComponent={tipKeys}

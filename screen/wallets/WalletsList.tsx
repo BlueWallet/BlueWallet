@@ -1,12 +1,22 @@
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { Alert, findNodeHandle, Image, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import {
+  Alert,
+  findNodeHandle,
+  Image,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+} from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop, isIOS26OrHigher } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
+import { ExtendedTransaction, TWallet } from '../../class/wallets/types';
 import presentAlert, { runAfterAlertDismissed } from '../../components/Alert';
 import { FButton, FContainer, FloatButtonsBottomFade, getFloatingButtonReservedHeight } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
@@ -17,12 +27,12 @@ import WalletsCarousel, {
   CarouselListRefType,
   getWalletCarouselHeight,
 } from '../../components/WalletsCarousel';
-import { useSizeClass, SizeClass } from '../../blue_modules/sizeClass';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { shouldUseWideLayout } from '../../blue_modules/layout';
 import { ConnectionPollContext } from '../../navigation/ConnectionPollContext';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { RootParamList } from '../../navigation/RootParamList';
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -31,6 +41,7 @@ import SafeAreaSectionList from '../../components/SafeAreaSectionList';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import FileDropTarget from '../../components/FileDropTarget';
+import { errorMessage } from '../../helpers/errorMessage';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 const SECTION_HEADER_BASE_HEIGHT = 56;
@@ -38,9 +49,10 @@ const SECTION_HEADER_BASE_HEIGHT = 56;
 /** Electrum `ping` while the list is visible; detects mid-session drops without polling when user is elsewhere. */
 const ELECTRUM_HEALTH_POLL_WHILE_WALLETS_LIST_FOCUSED_MS = 30_000;
 
+type WalletsListItem = ExtendedTransaction | string;
 type SectionData = {
   key: string;
-  data: Transaction[] | string[];
+  data: WalletsListItem[];
 };
 
 enum ActionTypes {
@@ -101,18 +113,18 @@ function reducer(state: WalletListState, action: WalletListAction) {
   }
 }
 
-type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'WalletsList'>;
+type NavigationProps = NativeStackNavigationProp<RootParamList, 'WalletsList'>;
 
 const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isLoading } = state;
-  const { sizeClass, isLarge } = useSizeClass();
   const walletsCarousel = useRef<CarouselListRefType>(null);
   const connectionPoll = useContext(ConnectionPollContext);
   const currentWalletIndex = useRef<number>(0);
   const { wallets, getTransactions, refreshAllWalletTransactions } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
-  const { width, fontScale } = useWindowDimensions();
+  const { height, width, fontScale } = useWindowDimensions();
+  const isWideLayout = shouldUseWideLayout(width, height);
   const insets = useSafeAreaInsets();
   const carouselHeight = getWalletCarouselHeight(fontScale);
   const transactionItemHeight = Math.round(TX_ROW_BASE_HEIGHT * fontScale);
@@ -131,7 +143,7 @@ const WalletsList: React.FC = () => {
     },
     listHeaderBack: {
       backgroundColor: colors.background,
-      paddingTop: sizeClass === SizeClass.Large ? 8 : 0,
+      paddingTop: isWideLayout ? 8 : 0,
       minHeight: sectionHeaderHeight,
     },
     listHeaderText: {
@@ -206,23 +218,22 @@ const WalletsList: React.FC = () => {
 
   useEffect(() => {
     // new wallet added - no longer auto-scrolls
-    if (!isLarge) {
+    if (!isWideLayout) {
       // Just update the count, no scrolling
       walletsCount.current = wallets.length;
     }
-  }, [isLarge, wallets]);
+  }, [isWideLayout, wallets]);
 
   const onBarScanned = useCallback(
-    (value: any) => {
+    (value: string | undefined) => {
       if (!value) return;
       try {
         DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          // @ts-ignore: for now
           navigation.navigate(...completionValue);
         });
-      } catch (e: any) {
-        Alert.alert(loc.send.details_scan_error, e.message);
+      } catch (e) {
+        Alert.alert(loc.send.details_scan_error, errorMessage(e));
       }
     },
     [navigation],
@@ -260,7 +271,7 @@ const WalletsList: React.FC = () => {
   );
 
   const onSnapToItem = useCallback(
-    (e: { nativeEvent: { contentOffset: any } }) => {
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (!isFocused) return;
 
       const contentOffset = e.nativeEvent.contentOffset;
@@ -334,22 +345,22 @@ const WalletsList: React.FC = () => {
   }, [handleClick, handleLongPress, isFocused, onSnapToItem, wallets]);
 
   const renderSectionItem = useCallback(
-    (item: { section: any; item: ExtendedTransaction }) => {
+    (item: { section: SectionData; item: WalletsListItem }) => {
       switch (item.section.key) {
         case WalletsListSections.CAROUSEL:
-          return sizeClass === SizeClass.Large ? null : renderWalletsCarousel();
+          return isWideLayout ? null : renderWalletsCarousel();
         case WalletsListSections.TRANSACTIONS:
-          return renderTransactionListsRow(item.item);
+          return typeof item.item === 'string' ? null : renderTransactionListsRow(item.item);
         default:
           return null;
       }
     },
-    [sizeClass, renderTransactionListsRow, renderWalletsCarousel],
+    [isWideLayout, renderTransactionListsRow, renderWalletsCarousel],
   );
 
   const renderSectionHeader = useCallback(
-    (section: { section: { key: any } }) => {
-      if (sizeClass === SizeClass.Large) {
+    (section: { section: SectionData }) => {
+      if (isWideLayout) {
         return null;
       }
 
@@ -380,7 +391,7 @@ const WalletsList: React.FC = () => {
       }
     },
     [
-      sizeClass,
+      isWideLayout,
       isTotalBalanceEnabled,
       renderListHeaderComponent,
       stylesHook.listHeaderBack,
@@ -391,7 +402,7 @@ const WalletsList: React.FC = () => {
   );
 
   const renderSectionFooter = useCallback(
-    (section: { section: { key: any } }) => {
+    (section: { section: SectionData }) => {
       switch (section.section.key) {
         case WalletsListSections.TRANSACTIONS:
           if (dataSource.length === 0 && !isLoading) {
@@ -476,7 +487,7 @@ const WalletsList: React.FC = () => {
     }
   }, [onScanButtonPressed, scanImage, sendButtonLongPress, wallets.length]);
 
-  const sectionListKeyExtractor = useCallback((item: any, index: any) => {
+  const sectionListKeyExtractor = useCallback((item: WalletsListItem, index: number) => {
     if (typeof item === 'string') return item;
     const txKey = item?.hash || item?.txid;
     if (txKey && item?.walletID) return `${txKey}_${item.walletID}`;
@@ -487,7 +498,7 @@ const WalletsList: React.FC = () => {
 
   const sections: SectionData[] = useMemo(() => {
     // On large screens, only show transactions section
-    if (sizeClass === SizeClass.Large) {
+    if (isWideLayout) {
       return [{ key: WalletsListSections.TRANSACTIONS, data: dataSource }];
     }
 
@@ -496,18 +507,18 @@ const WalletsList: React.FC = () => {
       { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
       { key: WalletsListSections.TRANSACTIONS, data: dataSource },
     ];
-  }, [sizeClass, dataSource]);
+  }, [isWideLayout, dataSource]);
 
   // Constants for layout calculations
   const getSectionHeaderHeight = useCallback(() => {
-    return sectionHeaderHeight + (sizeClass === SizeClass.Large ? Math.round(20 * fontScale) : 0);
-  }, [sizeClass, sectionHeaderHeight, fontScale]);
+    return sectionHeaderHeight + (isWideLayout ? Math.round(20 * fontScale) : 0);
+  }, [isWideLayout, sectionHeaderHeight, fontScale]);
 
   const getItemLayout = useCallback(
-    (data: any, index: number) => {
+    (_: unknown, index: number) => {
       const headerHeight = getSectionHeaderHeight();
 
-      if (sizeClass === SizeClass.Large) {
+      if (isWideLayout) {
         // On large screens: only transaction items, no carousel
         return {
           length: transactionItemHeight,
@@ -538,12 +549,12 @@ const WalletsList: React.FC = () => {
         };
       }
     },
-    [sizeClass, getSectionHeaderHeight, carouselHeight, transactionItemHeight],
+    [isWideLayout, getSectionHeaderHeight, carouselHeight, transactionItemHeight],
   );
 
   return (
     <FileDropTarget onDrop={openImportWalletForDrop} onError={handleWalletDropError} style={styles.dropTarget}>
-      <SafeAreaSectionList<any | string, SectionData>
+      <SafeAreaSectionList<WalletsListItem, SectionData>
         testID="Wallets"
         renderItem={renderSectionItem}
         keyExtractor={sectionListKeyExtractor}

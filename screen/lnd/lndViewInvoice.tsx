@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useRoute, useLocale } from '@react-navigation/native';
-import { ActivityIndicator, BackHandler, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, BackHandler, Pressable, ScrollView, StyleSheet, Text, View, LayoutChangeEvent } from 'react-native';
 import Icon from '../../components/Icon';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -24,14 +24,11 @@ import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import presentAlert from '../../components/Alert';
 import { isReverseSuccessStatus } from '@arkade-os/boltz-swap';
 import type { BoltzSubmarineSwap } from '@arkade-os/boltz-swap';
-
-type LNDViewInvoiceRouteParams = {
-  walletID: string;
-  invoice: LightningTransaction | string; // its first passed as string and then decoded and turned into object
-};
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { errorMessage } from '../../helpers/errorMessage';
 
 const LNDViewInvoice = () => {
-  const { invoice, walletID } = useRoute<RouteProp<{ params: LNDViewInvoiceRouteParams }, 'params'>>().params;
+  const { invoice, walletID } = useRoute<RouteProp<DetailViewStackParamList, 'LNDViewInvoice'>>().params;
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
   const { colors } = useTheme();
   const { direction } = useLocale();
@@ -97,9 +94,9 @@ const LNDViewInvoice = () => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       }
       await refreshAfterAction();
-    } catch (e: any) {
+    } catch (e) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: e?.message ?? String(e) });
+      presentAlert({ message: errorMessage(e) });
     } finally {
       setIsActioning(false);
     }
@@ -207,7 +204,7 @@ const LNDViewInvoice = () => {
     }
   }, [invoiceStatusChanged]);
 
-  const onLayout = (e: any) => {
+  const onLayout = (e: LayoutChangeEvent) => {
     const { height, width } = e.nativeEvent.layout;
     setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
   };

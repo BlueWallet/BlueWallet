@@ -7,6 +7,7 @@ import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
+import type { Theme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import HeaderRightButton from '../../components/HeaderRightButton';
@@ -20,7 +21,7 @@ interface QuorumSelectorProps {
   n: number;
   onMChange: (m: number) => void;
   onNChange: (n: number) => void;
-  colors: any;
+  colors: Theme['colors'];
 }
 
 const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, colors }) => {
@@ -103,7 +104,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
 interface FormatSelectorProps {
   format: string;
   onFormatChange: (format: string) => void;
-  colors: any;
+  colors: Theme['colors'];
 }
 
 const FormatSelector: FC<FormatSelectorProps> = ({ format, onFormatChange, colors }) => {

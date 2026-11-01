@@ -1,13 +1,16 @@
 import { getSelectWalletOptions } from './helpers/getSelectWalletOptions';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { ParamListBase } from '@react-navigation/native';
 import React, { lazy } from 'react';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { navigationGuardRouter } from './navigationGuard';
+import { LNDCreateInvoiceStackParamList } from './LNDStackParamsList';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<LNDCreateInvoiceStackParamList>();
 
 const LNDCreateInvoice = lazy(() => import('../screen/lnd/lndCreateInvoice'));
 const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
@@ -47,7 +50,7 @@ const LNDCreateInvoiceRoot = () => {
         options={navigationStyle({
           headerTitle: loc.lndViewInvoice.lightning_invoice,
           closeButtonPosition: CloseButtonPosition.Right,
-          onCloseButtonPressed: ({ navigation }) => navigation.getParent()?.pop(),
+          onCloseButtonPressed: ({ navigation }) => navigation.getParent<NativeStackNavigationProp<ParamListBase>>()?.pop(),
           headerBackVisible: false,
           gestureEnabled: false,
           headerStyle: {

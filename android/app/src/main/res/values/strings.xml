@@ -35,4 +35,8 @@
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="drag_drop_open">Drop to open in BlueWallet</string>
     <string name="drag_drop_open_multiple">Drop %1$d items to open</string>
+    <string name="app_shortcut_send">Send</string>
+    <string name="app_shortcut_receive">Receive</string>
+    <string name="app_shortcut_scan">Scan</string>
+    <string name="app_shortcut_manage_wallets">Manage Wallets</string>
 </resources>

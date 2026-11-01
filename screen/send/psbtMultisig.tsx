@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import {
@@ -30,24 +30,17 @@ import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import assert from 'assert';
 import AuthenticatedFileDragSource from '../../components/AuthenticatedFileDragSource';
 import { makeLabelFileName } from '../../blue_modules/dragFileName';
-
-type RouteParams = {
-  params: {
-    walletID: string;
-    psbtBase64: string;
-    memo: string;
-    receivedPSBTBase64: string;
-    txhex: string;
-    launchedBy: string;
-  };
-};
+import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
+import { errorMessage } from '../../helpers/errorMessage';
 
 const PsbtMultisig = () => {
   const { wallets } = useStorage();
-  const { navigate, setParams } = useNavigation();
+  const navigation = useNavigation();
+  const { navigate, setParams } = navigation;
   const { colors } = useTheme();
   const [flatListHeight, setFlatListHeight] = useState(0);
-  const { walletID, psbtBase64, memo, receivedPSBTBase64, txhex, launchedBy } = useRoute<RouteProp<RouteParams>>().params;
+  const { walletID, psbtBase64, memo, receivedPSBTBase64, txhex, launchedBy } =
+    useRoute<RouteProp<SendDetailsStackParamList, 'PsbtMultisig'>>().params;
   const wallet = wallets.find(w => w.getID() === walletID) as MultisigHDWallet;
   assert(wallet, 'Internal error: MultisigHDWallet not found');
 
@@ -70,7 +63,7 @@ const PsbtMultisig = () => {
   }, [receivedPSBTBase64]);
 
   useEffect(() => {
-    if (txhex) {
+    if (txhex && psbt) {
       // we have finalized txhex, lets  calculate some stuff and navigate to Confirm scren
       const tx = bitcoin.Transaction.fromHex(txhex);
 
@@ -83,15 +76,16 @@ const PsbtMultisig = () => {
           tx: txhex,
           recipients: targets,
           satoshiPerByte,
+          psbt,
         });
-      } catch (error: any) {
-        presentAlert({ message: error });
+      } catch (error) {
+        presentAlert({ message: errorMessage(error) });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txhex]);
 
-  const data = new Array(wallet.getM());
+  const data: undefined[] = new Array(wallet.getM()); // one row per required signature, rendered by index
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -145,7 +139,7 @@ const PsbtMultisig = () => {
         if (useFilter && wallet.weOwnAddress(output.address)) continue;
         totalSat += Number(output.value);
         addresses.push(output.address);
-        targets.push({ address: output.address, value: output.value });
+        targets.push({ address: output.address, value: Number(output.value) });
       }
     }
     return { addresses, totalSat, targets };
@@ -164,7 +158,7 @@ const PsbtMultisig = () => {
     return wallet.calculateFeeFromPsbt(psbt);
   };
 
-  const _renderItem = (el: ListRenderItemInfo<any>) => {
+  const _renderItem = (el: ListRenderItemInfo<undefined>) => {
     if (el.index >= howManySignaturesWeHave) return _renderItemUnsigned(el);
     else return _renderItemSigned(el);
   };
@@ -173,16 +167,16 @@ const PsbtMultisig = () => {
     navigate('PsbtMultisigQRCode', { walletID, psbtBase64: psbt.toBase64(), isShowOpenScanner: isConfirmEnabled() });
   };
 
-  const _renderItemUnsigned = (el: ListRenderItemInfo<any>) => {
+  const _renderItemUnsigned = (el: ListRenderItemInfo<undefined>) => {
     const renderProvideSignature = el.index === howManySignaturesWeHave;
     return (
-      <View testID="ItemUnsigned">
+      <View>
         <View style={styles.itemUnsignedWrapper}>
           <View style={[styles.vaultKeyCircle, stylesHook.vaultKeyCircle]}>
             <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>{el.index + 1}</Text>
           </View>
           <View style={styles.vaultKeyTextWrapper}>
-            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
+            <Text testID="ItemUnsigned" style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
               {loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
             </Text>
           </View>
@@ -206,14 +200,14 @@ const PsbtMultisig = () => {
     );
   };
 
-  const _renderItemSigned = (el: ListRenderItemInfo<any>) => {
+  const _renderItemSigned = (el: ListRenderItemInfo<undefined>) => {
     return (
-      <View style={styles.flexDirectionRow} testID="ItemSigned">
+      <View style={styles.flexDirectionRow}>
         <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
           <Icon size={24} name="checkmark" type="ionicons" color={colors.msSuccessCheck} />
         </View>
         <View style={styles.vaultKeyTextSignedWrapper}>
-          <Text style={[styles.vaultKeyTextSigned, stylesHook.vaultKeyTextSigned]}>
+          <Text testID="ItemSigned" style={[styles.vaultKeyTextSigned, stylesHook.vaultKeyTextSigned]}>
             {loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
           </Text>
         </View>
@@ -227,9 +221,9 @@ const PsbtMultisig = () => {
         const combined = combinePSBTs({ psbtBase64: psbt.toBase64(), newPSBTBase64: receivedPSBTBase64 });
         setPsbt(combined);
         setParams({ receivedPSBTBase64: undefined });
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error during PSBT combination:', error);
-        presentAlert({ message: error.message });
+        presentAlert({ message: errorMessage(error) });
       }
     }
   };
@@ -244,7 +238,7 @@ const PsbtMultisig = () => {
     if (launchedBy) {
       // we must navigate back to the screen who requested psbt (instead of broadcasting it ourselves)
       // most likely for LN channel opening
-      navigate(launchedBy, { psbt });
+      navigation.dispatch(CommonActions.navigate({ name: launchedBy, params: { psbt } }));
       return;
     }
 
@@ -258,9 +252,10 @@ const PsbtMultisig = () => {
         tx,
         recipients: targets,
         satoshiPerByte,
+        psbt,
       });
-    } catch (error: any) {
-      presentAlert({ message: error });
+    } catch (error) {
+      presentAlert({ message: errorMessage(error) });
     }
   };
 

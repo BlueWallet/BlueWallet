@@ -1,12 +1,6 @@
-import { CommonActions, createNavigationContainerRef, NavigationAction, ParamListBase, StackActions } from '@react-navigation/native';
+import { CommonActions, createNavigationContainerRef, NavigationAction, StackActions } from '@react-navigation/native';
 
-export const navigationRef = createNavigationContainerRef<ParamListBase>();
-
-export function navigate(name: string, params?: ParamListBase, options?: { merge: boolean }) {
-  if (navigationRef.isReady()) {
-    navigationRef.current?.navigate({ name, params, merge: options?.merge });
-  }
-}
+export const navigationRef = createNavigationContainerRef();
 
 export function dispatch(action: NavigationAction) {
   if (navigationRef.isReady()) {

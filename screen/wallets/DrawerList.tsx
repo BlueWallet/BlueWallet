@@ -1,7 +1,9 @@
 import { DrawerContentScrollView, DrawerContentComponentProps } from '@react-navigation/drawer';
 import { useNavigation, useIsFocused, useNavigationState } from '@react-navigation/native';
-import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
-import { StyleSheet, View, ViewStyle, Animated, ScrollView } from 'react-native';
+import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { StyleSheet, View, ViewStyle, Animated, ScrollView, useWindowDimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { shouldUseWideLayout } from '../../blue_modules/layout';
 import { TWallet } from '../../class/wallets/types';
 import { Header } from '../../components/Header';
 import { useTheme } from '../../components/themes';
@@ -10,6 +12,7 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
+import { SettingsContent, SettingsDestination } from '../settings/Settings';
 
 enum WalletActionType {
   SetWallets = 'SET_WALLETS',
@@ -36,7 +39,7 @@ interface SelectWalletAction {
 interface NavigateAction {
   type: WalletActionType.Navigate;
   screen: string;
-  params: { [key: string]: any };
+  params: Record<string, unknown>;
 }
 
 interface SetFocusAction {
@@ -98,6 +101,9 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
   const { colors } = useTheme();
   const isFocused = useIsFocused();
   const { isTotalBalanceEnabled } = useSettings();
+  const { height, width } = useWindowDimensions();
+  const isDrawerVisible = shouldUseWideLayout(width, height);
+  const [sidebarMode, setSidebarMode] = useState<'wallets' | 'settings'>('wallets');
   const prevWalletCount = useRef(wallets.length);
 
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -211,25 +217,49 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
           screen: 'WalletTransactions',
           params: { walletID, walletType },
         });
-        drawerNavigation.closeDrawer();
       }
     },
     [drawerNavigation],
   );
 
   const handleLongPress = useCallback(() => {
-    drawerNavigation.closeDrawer();
-    navigation.navigate('DrawerRoot', {
-      screen: 'DetailViewStackScreensStack',
-      params: {
-        screen: 'ManageWallets',
-      },
+    drawerNavigation.navigate('DetailViewStackScreensStack', {
+      screen: 'ManageWallets',
     });
-  }, [navigation, drawerNavigation]);
+  }, [drawerNavigation]);
+
+  const onSettingsPress = useCallback(() => {
+    setSidebarMode('settings');
+  }, []);
+
+  const onSettingsNavigate = useCallback(
+    (destination: SettingsDestination) => {
+      drawerNavigation.navigate('DetailViewStackScreensStack', {
+        screen: destination,
+      });
+    },
+    [drawerNavigation],
+  );
+
+  const onWalletsPress = useCallback(() => {
+    setSidebarMode('wallets');
+    drawerNavigation.navigate('DetailViewStackScreensStack', {
+      screen: 'WalletsList',
+    });
+  }, [drawerNavigation]);
 
   const onNewWalletPress = useCallback(() => {
     navigation.navigate('AddWalletRoot');
   }, [navigation]);
+
+  if (sidebarMode === 'settings') {
+    return (
+      <SafeAreaView style={[stylesHook.root, styles.settingsRoot]} edges={['top']}>
+        <Header leftText={loc.settings.header} onBackPress={onWalletsPress} isDrawerList />
+        <SettingsContent onNavigate={onSettingsNavigate} style={stylesHook.root} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <DrawerContentScrollView
@@ -242,7 +272,13 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
       showsVerticalScrollIndicator={false}
       directionalLockEnabled
     >
-      <Header leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
+      <Header
+        leftText={loc.wallets.list_title}
+        onNewWalletPress={onNewWalletPress}
+        onSettingsPress={isDrawerVisible ? undefined : onSettingsPress}
+        onManageWalletsPress={handleLongPress}
+        isDrawerList
+      />
       {isTotalBalanceEnabled && (
         <View style={stylesHook.root}>
           <TotalWalletsBalance />
@@ -269,3 +305,9 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
 });
 
 export default DrawerList;
+
+const styles = StyleSheet.create({
+  settingsRoot: {
+    flex: 1,
+  },
+});

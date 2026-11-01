@@ -1,4 +1,3 @@
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import React, { useEffect, useLayoutEffect, useReducer, useCallback, useMemo, useRef, useState, startTransition } from 'react';
 import {
   StyleSheet,
@@ -14,7 +13,7 @@ import {
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useLocale, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useLocale } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -22,26 +21,11 @@ import { TTXMetadata } from '../../class/blue-app';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import useBounceAnimation from '../../hooks/useBounceAnimation';
 import DraggableFlatList, { RenderItemParams, DragEndParams } from 'react-native-draggable-flatlist';
-import { ItemType, AddressItemData } from '../../models/itemTypes';
+import { ItemType, AddressItem, TransactionItem, WalletItem } from '../../models/itemTypes';
 import ManageWalletsListItem, { WalletGroupComponent } from '../../components/ManageWalletsListItem';
 import HighlightedText from '../../components/HighlightedText';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import DragIcon from '../../img/Search/drag';
-
-interface WalletItem {
-  type: ItemType.WalletSection;
-  data: TWallet;
-}
-
-interface TransactionItem {
-  type: ItemType.TransactionSection;
-  data: ExtendedTransaction & LightningTransaction;
-}
-
-interface AddressItem {
-  type: ItemType.AddressSection;
-  data: Omit<AddressItemData, 'label'>;
-}
 
 interface WalletGroupItem {
   type: ItemType.WalletGroupSection;
@@ -126,9 +110,7 @@ const ManageWallets: React.FC = () => {
   const { colors, dark } = useTheme();
   const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata } = useStorage();
   const initialWalletsRef = useRef<TWallet[]>(deepCopyWallets(persistedWallets));
-  const { navigate, goBack } = useNavigation();
-  const { params } = useRoute<RouteProp<DetailViewStackParamList, 'ManageWallets'>>();
-  const { search: headerSearch = '', isSearchFocused = false } = params ?? {};
+  const { navigate, setOptions, goBack } = useNavigation();
   const { direction } = useLocale();
   const [state, dispatch] = useReducer(reducer, initialState);
   const bounceAnim = useBounceAnimation(state.searchQuery);
@@ -296,15 +278,7 @@ const ManageWallets: React.FC = () => {
 
                 for (let i = 0; i < addressLimit; i++) {
                   const address = addresses[i];
-                  const addressValue =
-                    typeof address === 'string'
-                      ? address
-                      : address &&
-                          typeof address === 'object' &&
-                          'address' in (address as any) &&
-                          typeof (address as any).address === 'string'
-                        ? ((address as any).address as string)
-                        : '';
+                  const addressValue = typeof address === 'string' ? address : '';
 
                   if (addressValue.toLowerCase().includes(lowerQuery)) {
                     if (!walletsWithMatches.has(walletID)) {
@@ -408,13 +382,19 @@ const ManageWallets: React.FC = () => {
     }
   }, [listData.length, state.searchQuery, noResultsOpacity]);
 
-  useEffect(() => {
-    debouncedSearch(headerSearch);
-  }, [debouncedSearch, headerSearch]);
-
   useLayoutEffect(() => {
-    dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: isSearchFocused });
-  }, [isSearchFocused]);
+    const searchBarOptions = {
+      hideWhenScrolling: false,
+      onChangeText: (event: { nativeEvent: { text: string } }) => debouncedSearch(event.nativeEvent.text),
+      onClear: () => debouncedSearch(''),
+      onFocus: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: true }),
+      onBlur: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false }),
+      placeholder: loc.wallets.manage_wallets_search_placeholder,
+    };
+    setOptions({
+      headerSearchBarOptions: searchBarOptions,
+    });
+  }, [setOptions, debouncedSearch]);
 
   const renderHighlightedText = useCallback(
     (text: string, query: string) => {

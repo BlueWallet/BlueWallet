@@ -28,7 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
             withModuleName: appDelegate.moduleName ?? "BlueWallet",
             in: window,
             initialProperties: appDelegate.initialProps,
-            launchOptions: launchOptions(from: connectionOptions, fallback: appDelegate.sceneLaunchOptions)
+            launchOptions: launchOptions(from: connectionOptions, fallback: appDelegate.sceneLaunchOptions, appDelegate: appDelegate)
         )
 
         window.addInteraction(UIDropInteraction(delegate: self))
@@ -40,12 +40,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
-        }
-        for context in URLContexts {
-            _ = appDelegate.application(UIApplication.shared, open: context.url, options: [:])
-        }
+        RCTLinkingManager.scene(scene, openURLContexts: URLContexts)
     }
 
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
@@ -60,7 +55,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
         performActionFor shortcutItem: UIApplicationShortcutItem,
         completionHandler: @escaping (Bool) -> Void
     ) {
-        RNQuickActionManager.onQuickActionPress(shortcutItem, completionHandler: completionHandler)
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            completionHandler(false)
+            return
+        }
+        appDelegate.openShortcutLink(shortcutItem, in: windowScene, completionHandler: completionHandler)
     }
 
     func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
@@ -316,7 +315,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
 
     private func launchOptions(
         from connectionOptions: UIScene.ConnectionOptions,
-        fallback: [UIApplication.LaunchOptionsKey: Any]?
+        fallback: [UIApplication.LaunchOptionsKey: Any]?,
+        appDelegate: AppDelegate
     ) -> [UIApplication.LaunchOptionsKey: Any]? {
         var options = fallback ?? [:]
 
@@ -332,8 +332,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
             ]
         }
 
-        if let shortcutItem = connectionOptions.shortcutItem {
-            options[.shortcutItem] = shortcutItem
+        if let shortcutItem = connectionOptions.shortcutItem,
+           let url = appDelegate.appLinkURL(for: shortcutItem) {
+            options[.url] = url
         }
 
         return options.isEmpty ? nil : options

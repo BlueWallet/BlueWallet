@@ -1,7 +1,4 @@
-import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-
-type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']>;
-type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
+import { HeaderLeftRenderer, HeaderRightRenderer } from './DetailViewStackParamList';
 
 export type ReceiveDetailsStackParamList = {
   ReceiveDetails: {
@@ -15,6 +12,7 @@ export type ReceiveDetailsStackParamList = {
     customUnit?: import('../models/bitcoinUnits').BitcoinUnit;
     bip21encoded?: string;
     isCustom?: boolean;
+    headerShareMessage?: string;
     headerLeft?: HeaderLeftRenderer;
     headerRight?: HeaderRightRenderer;
     headerBackVisible?: boolean;

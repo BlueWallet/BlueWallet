@@ -384,6 +384,16 @@ describe('import procedure', () => {
     assert.strictEqual(store.state.wallets[0].getAddress(), addr);
   });
 
+  it('can import WIF with a script type prefix', async () => {
+    const store = createStore();
+    const { promise } = startImport('p2wpkh:KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn', false, false, true, ...store.callbacks);
+    await promise;
+    assert.strictEqual(store.state.wallets.length, 1);
+    assert.strictEqual(store.state.wallets[0].getSecret(), 'KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn');
+    assert.strictEqual(store.state.wallets[0].type, SegwitBech32Wallet.type);
+    assert.strictEqual(store.state.wallets[0].getAddress(), 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4');
+  });
+
   it('can import BIP38 encrypted backup', async () => {
     const store = createStore('qwerty');
     const { promise } = startImport('6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN', false, false, false, ...store.callbacks);

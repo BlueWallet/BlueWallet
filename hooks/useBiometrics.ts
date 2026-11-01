@@ -6,6 +6,7 @@ import loc from '../loc';
 import * as NavigationService from '../NavigationService';
 import presentAlert from '../components/Alert';
 import { useStorage } from './context/useStorage';
+import { errorMessage } from '../helpers/errorMessage';
 
 const STORAGEKEY = 'Biometrics';
 const rnBiometrics = new ReactNativeBiometrics({ allowDeviceCredentials: true });
@@ -29,9 +30,9 @@ const clearKeychain = async () => {
     await RNSecureKeyStore.set(STORAGEKEY, '', { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
     console.debug('Wiped key: STORAGEKEY');
     NavigationService.reset();
-  } catch (error: any) {
+  } catch (error) {
     console.warn(error);
-    presentAlert({ message: error.message });
+    presentAlert({ message: errorMessage(error) });
   }
 };
 
@@ -45,7 +46,7 @@ const unlockWithBiometrics = async () => {
     return new Promise<boolean>(resolve => {
       rnBiometrics
         .simplePrompt({ promptMessage: loc.settings.biom_conf_identity })
-        .then((result: { success: any }) => {
+        .then((result: { success: boolean }) => {
           if (result.success) {
             resolve(true);
           } else {
@@ -59,9 +60,9 @@ const unlockWithBiometrics = async () => {
           resolve(false);
         });
     });
-  } catch (e: Error | any) {
+  } catch (e) {
     console.debug('Biometrics authentication error', e);
-    presentAlert({ message: e.message });
+    presentAlert({ message: errorMessage(e) });
     return false;
   }
 };

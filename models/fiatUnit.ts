@@ -255,14 +255,6 @@ export type TFiatUnits = {
 
 export const FiatUnit = untypedFiatUnit as TFiatUnits;
 
-export type FiatUnitType = {
-  endPointKey: string;
-  symbol: string;
-  locale: string;
-  country: string;
-  source: RateSource;
-};
-
 export async function getFiatRate(ticker: string): Promise<number> {
   return trySourcesForTicker(ticker);
 }

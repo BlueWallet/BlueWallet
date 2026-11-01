@@ -20,9 +20,10 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import HighlightedText from '../HighlightedText';
 import { useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import DraggableFile from '../DraggableFile';
+import { errorMessage } from '../../helpers/errorMessage';
 
 interface AddressItemProps {
-  item: any;
+  item: { key?: string; index: number; address: string; isInternal: boolean; balance?: number; transactions?: number };
   balanceUnit: BitcoinUnit;
   walletID: string;
   allowSignVerifyMessage: boolean;
@@ -50,7 +51,7 @@ const AddressItem = ({
   const balanceTranslateY = useSharedValue(0);
   const previousBalance = useRef<string | undefined>(undefined);
 
-  const hasTransactions = item.transactions > 0;
+  const hasTransactions = (item.transactions ?? 0) > 0;
 
   const stylesHook = StyleSheet.create({
     container: {
@@ -109,7 +110,7 @@ const AddressItem = ({
     [allowSignVerifyMessage],
   );
 
-  const balance = formatBalance(item.balance, balanceUnit, true);
+  const balance = formatBalance(item.balance ?? 0, balanceUnit, true);
 
   useEffect(() => {
     if (previousBalance.current !== undefined && previousBalance.current !== balance) {
@@ -145,8 +146,8 @@ const AddressItem = ({
       }
       triggerHapticFeedback(HapticFeedbackTypes.Selection);
       Clipboard.setString(wif);
-    } catch (error: any) {
-      presentAlert({ message: error.message });
+    } catch (error) {
+      presentAlert({ message: errorMessage(error) });
     }
   }, [wallets, walletID, item.address]);
 

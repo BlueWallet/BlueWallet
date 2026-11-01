@@ -1,4 +1,5 @@
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import type { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { ParamListBase, RouteProp } from '@react-navigation/native';
 import React from 'react';
 import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -28,9 +29,15 @@ enum CloseButtonPosition {
   Right = 'Right',
 }
 
-type OptionsFormatter = (
+/** navigation/route of a screen; defaults to "any screen of any stack" for helpers shared by every navigator */
+export type ScreenDeps<P extends ParamListBase = ParamListBase, R extends keyof P = keyof P> = {
+  navigation: NativeStackNavigationProp<P, R>;
+  route: RouteProp<P, R>;
+};
+
+export type OptionsFormatter<P extends ParamListBase = ParamListBase, R extends keyof P = keyof P> = (
   options: NativeStackNavigationOptions,
-  deps: { theme: Theme; navigation: any; route: any },
+  deps: ScreenDeps<P, R> & { theme: Theme },
 ) => NativeStackNavigationOptions;
 
 type RouteParamHeaderOptions = {
@@ -40,12 +47,21 @@ type RouteParamHeaderOptions = {
   statusBarStyle?: boolean;
 };
 
-export type NavigationOptionsGetter = (theme: Theme) => (deps: { navigation: any; route: any }) => NativeStackNavigationOptions;
+/** what Stack.Screen options={} takes; React Navigation types navigation as optional there */
+export type NavigationOptionsGetter<P extends ParamListBase = ParamListBase, R extends keyof P = keyof P> = (
+  theme: Theme,
+) => (deps: { navigation: NativeStackNavigationProp<P, R> | undefined; route: RouteProp<P, R> }) => NativeStackNavigationOptions;
+
+/** params a screen may receive to override its header; see RouteParamHeaderOptions */
+type HeaderParams = Pick<
+  NativeStackNavigationOptions,
+  'headerLeft' | 'headerRight' | 'headerBackVisible' | 'statusBarStyle' | 'presentation'
+>;
 
 const withRouteParamHeaderOptions =
-  (config: RouteParamHeaderOptions): OptionsFormatter =>
+  <P extends ParamListBase = ParamListBase, R extends keyof P = keyof P>(config: RouteParamHeaderOptions): OptionsFormatter<P, R> =>
   (options, { route }) => {
-    const routeParams = route?.params ?? {};
+    const routeParams: HeaderParams = route?.params ?? {};
     return {
       ...options,
       ...(config.headerLeft && routeParams.headerLeft !== undefined ? { headerLeft: routeParams.headerLeft } : {}),
@@ -71,21 +87,20 @@ const getCloseButtonPosition = (
   return CloseButtonPosition.None;
 };
 
-const getHandleCloseAction = (
-  onCloseButtonPressed: ((args: { navigation: any; route: any }) => void) | undefined,
-  navigation: any,
-  route: any,
+const getHandleCloseAction = <P extends ParamListBase, R extends keyof P>(
+  onCloseButtonPressed: ((deps: ScreenDeps<P, R>) => void) | undefined,
+  deps: ScreenDeps<P, R>,
 ) => {
   if (onCloseButtonPressed) {
-    return () => onCloseButtonPressed({ navigation, route });
+    return () => onCloseButtonPressed(deps);
   }
   return () => {
     Keyboard.dismiss();
-    navigation.goBack(null);
+    deps.navigation.goBack();
   };
 };
 
-const navigationStyle = (
+const navigationStyle = <P extends ParamListBase = ParamListBase, R extends keyof P = keyof P>(
   {
     closeButtonPosition,
     closeButtonIfFirstInStack,
@@ -95,21 +110,26 @@ const navigationStyle = (
     closeButtonPosition?: CloseButtonPosition;
     /** When set, show this close control only if this screen is the first route in the stack (e.g. Coin Control opened from wallet details). */
     closeButtonIfFirstInStack?: CloseButtonPosition;
-    onCloseButtonPressed?: (deps: { navigation: any; route: any }) => void;
+    onCloseButtonPressed?: (deps: ScreenDeps<P, R>) => void;
   },
-  formatter?: OptionsFormatter,
-): NavigationOptionsGetter => {
+  formatter?: OptionsFormatter<P, R>,
+): NavigationOptionsGetter<P, R> => {
   return theme =>
     ({ navigation, route }) => {
+      if (!navigation) return opts; // static navigation config only; never the case with our navigators
       const isFirstRouteInStack = navigation.getState().index === 0;
-      const isModal = route.params?.presentation === 'modal' || route.params?.presentation === 'transparentModal';
-      const isFormSheet = route.params?.presentation === 'formSheet';
+      const params: HeaderParams | undefined = route.params;
+      const isModal = params?.presentation === 'modal' || params?.presentation === 'transparentModal';
+      const isFormSheet = params?.presentation === 'formSheet';
 
       const closeButton =
         closeButtonIfFirstInStack && isFirstRouteInStack
           ? closeButtonIfFirstInStack
           : getCloseButtonPosition(closeButtonPosition, isFirstRouteInStack, isModal);
-      const handleClose = getHandleCloseAction(onCloseButtonPressed, navigation, route);
+      const handleClose = getHandleCloseAction(onCloseButtonPressed, {
+        navigation,
+        route,
+      });
 
       type HeaderItemsGetter = NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>;
 

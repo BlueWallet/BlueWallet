@@ -220,7 +220,7 @@ const getWalletTransactionsOptions = ({
     ...(isScrolled && Platform.OS !== 'ios'
       ? {
           headerStyle: {
-            backgroundColor: WalletGradient.headerColorFor(route.params.walletType),
+            backgroundColor: WalletGradient.headerColorFor(route.params.walletType ?? ''),
           },
           headerTintColor: '#ffffff',
         }

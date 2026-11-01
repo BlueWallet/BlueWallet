@@ -1,11 +1,12 @@
-import { getTransactionStatusOptions } from './helpers/getTransactionStatusOptions';
-import { getSelectWalletOptions } from './helpers/getSelectWalletOptions';
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
+import Share from 'react-native-share';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
+import type { ScreenDeps } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
+import type { Theme } from '../components/themes';
 import loc from '../loc';
 import LNDViewAdditionalInvoicePreImage from '../screen/lnd/lndViewAdditionalInvoicePreImage';
 import LNDViewInvoice from '../screen/lnd/lndViewInvoice';
@@ -52,10 +53,10 @@ import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import SettingsTools from '../screen/settings/SettingsTools';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
-import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { createSettingsScreenOptions, getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
 import { isDesktop, isIOS26OrHigher } from '../blue_modules/environment';
+import { shouldUseWideLayout } from '../blue_modules/layout';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
@@ -63,6 +64,7 @@ import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
 import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
+import type { DetailViewStackParamList } from './DetailViewStackParamList';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
@@ -100,7 +102,7 @@ const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = (
 
 type ManageWalletsCloseButtonProps = {
   onPress: () => void;
-  closeImage: any;
+  closeImage: Theme['closeImage'];
 };
 
 const ManageWalletsCloseButton: React.FC<ManageWalletsCloseButtonProps> = ({ onPress, closeImage }) => (
@@ -115,7 +117,10 @@ const ManageWalletsCloseButton: React.FC<ManageWalletsCloseButtonProps> = ({ onP
   </Pressable>
 );
 
-const makeManageWalletsHeaderLeft = (onPress: () => void, closeImage: any): NonNullable<NativeStackNavigationOptions['headerLeft']> => {
+const makeManageWalletsHeaderLeft = (
+  onPress: () => void,
+  closeImage: Theme['closeImage'],
+): NonNullable<NativeStackNavigationOptions['headerLeft']> => {
   return () => React.createElement(ManageWalletsCloseButton, { onPress, closeImage });
 };
 
@@ -160,8 +165,8 @@ const DetailViewStackScreensStack = () => {
   const navigation = useNavigation();
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
-  const { sizeClass } = useSizeClass();
-  const { width: windowWidth } = useWindowDimensions();
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+  const isWideLayout = shouldUseWideLayout(windowWidth, windowHeight);
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
   // Probe connection health from the UI (e.g. WalletsList focus / 30s timer).
@@ -225,18 +230,24 @@ const DetailViewStackScreensStack = () => {
     });
   }, [navigation]);
 
+  const navigateToManageWallets = useCallback(() => {
+    navigation.navigate('DetailViewStackScreensStack', {
+      screen: 'ManageWallets',
+    });
+  }, [navigation]);
+
   const RightBarButtons = useMemo(
     () =>
-      sizeClass === SizeClass.Large ? (
+      isWideLayout ? (
         <AddWalletButton onPress={navigateToAddWallet} />
       ) : (
         <>
           <AddWalletButton onPress={navigateToAddWallet} />
           <View style={styles.width24} />
-          <SettingsButton />
+          <SettingsButton onPress={navigateToSettings} onManageWalletPress={navigateToManageWallets} />
         </>
       ),
-    [sizeClass, navigateToAddWallet],
+    [isWideLayout, navigateToAddWallet, navigateToManageWallets, navigateToSettings],
   );
 
   const navigateToElectrumSettings = useCallback(() => {
@@ -249,9 +260,12 @@ const DetailViewStackScreensStack = () => {
   }, [navigation]);
 
   const renderManageWalletsHeaderLeft = useCallback(
-    (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any; route: any; theme: any }) => ({
+    (options: NativeStackNavigationOptions, { navigation: screenNavigation }: ScreenDeps) => ({
       ...options,
-      headerLeft: makeManageWalletsHeaderLeft(screenNavigation.goBack, theme.closeImage),
+      headerLeft: makeManageWalletsHeaderLeft(() => {
+        if (screenNavigation.canGoBack()) screenNavigation.goBack();
+        else screenNavigation.dispatch(StackActions.popTo('WalletsList'));
+      }, theme.closeImage),
     }),
     [theme.closeImage],
   );
@@ -293,7 +307,7 @@ const DetailViewStackScreensStack = () => {
       // Status pills: `unstable_headerLeftItems` + `hidesSharedBackground` avoids the
       // navigation bar's shared liquid-glass chrome on the pill (solid colors only).
       return {
-        title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
+        title: isWideLayout ? loc.wallets.list_title : '',
         headerLargeTitle: false,
         headerTransparent: true,
         unstable_headerLeftItems: (): NativeStackHeaderItem[] => {
@@ -319,7 +333,7 @@ const DetailViewStackScreensStack = () => {
               onPress: navigateToAddWallet,
             },
           ];
-          if (sizeClass !== SizeClass.Large) {
+          if (!isWideLayout) {
             items.push({
               type: 'button',
               label: loc.settings.default_title,
@@ -335,7 +349,7 @@ const DetailViewStackScreensStack = () => {
     }
 
     return {
-      title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
+      title: isWideLayout ? loc.wallets.list_title : '',
       headerLargeTitle: false,
       headerShadowVisible: false,
       headerStyle: {
@@ -346,7 +360,7 @@ const DetailViewStackScreensStack = () => {
     };
   }, [
     RightBarButtons,
-    sizeClass,
+    isWideLayout,
     theme.colors.customHeader,
     theme.colors.headerProminentButtonBackgroundColor,
     theme.colors.foregroundColor,
@@ -403,16 +417,13 @@ const DetailViewStackScreensStack = () => {
             hash: undefined,
             walletID: undefined,
           }}
-          options={navigationStyle(
-            {
-              headerStyle: {
-                backgroundColor: theme.colors.customHeader,
-              },
-              headerTitle: '',
-              headerBackButtonDisplayMode: 'default',
+          options={navigationStyle({
+            headerStyle: {
+              backgroundColor: theme.colors.customHeader,
             },
-            (options, { route }) => getTransactionStatusOptions(options, route.params.header, windowWidth),
-          )(theme)}
+            headerTitle: '',
+            headerBackButtonDisplayMode: 'default',
+          })(theme)}
         />
         <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
         <DetailViewStack.Screen
@@ -428,7 +439,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="SelectWallet"
           component={SelectWallet}
-          options={navigationStyle({ title: loc.wallets.select_wallet }, getSelectWalletOptions)(theme)}
+          options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
         />
         <DetailViewStack.Screen
           name="LNDViewInvoice"
@@ -451,7 +462,6 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="IsItMyAddress"
           component={IsItMyAddress}
-          initialParams={{ address: undefined }}
           options={settingsScreenOptions(loc.is_it_my_address.title)}
         />
         <DetailViewStack.Screen name="GenerateWord" component={GenerateWord} options={settingsScreenOptions(loc.autofill_word.title)} />
@@ -491,30 +501,11 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="WalletAddresses"
           component={WalletAddresses}
-          options={navigationStyle({ title: loc.addresses.addresses_title }, (options, { navigation: screenNavigation }) => ({
-            ...options,
-            headerSearchBarOptions: {
-              onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
-            },
-          }))(theme)}
+          options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
         />
 
         <DetailViewStack.Screen name="Settings" component={Settings} options={settingsScreenOptions(loc.settings.header)} />
-        <DetailViewStack.Screen
-          name="Currency"
-          component={Currency}
-          options={({ route, navigation: screenNavigation }) => {
-            const options = settingsScreenOptions(loc.settings.currency);
-            return {
-              ...(typeof options === 'function' ? options({ route, navigation: screenNavigation }) : options),
-              headerSearchBarOptions: {
-                onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
-                onFocus: () => screenNavigation.setParams({ isSearchFocused: true }),
-                onBlur: () => screenNavigation.setParams({ isSearchFocused: false }),
-              },
-            };
-          }}
-        />
+        <DetailViewStack.Screen name="Currency" component={Currency} options={settingsScreenOptions(loc.settings.currency)} />
         <DetailViewStack.Screen name="GeneralSettings" component={GeneralSettings} options={settingsScreenOptions(loc.settings.general)} />
         <DetailViewStack.Screen
           name="PlausibleDeniability"
@@ -549,19 +540,7 @@ const DetailViewStackScreensStack = () => {
           component={EncryptStorage}
           options={settingsScreenOptions(loc.settings.encrypt_title)}
         />
-        <DetailViewStack.Screen
-          name="Language"
-          component={Language}
-          options={({ route, navigation: screenNavigation }) => {
-            const options = settingsScreenOptions(loc.settings.language);
-            return {
-              ...(typeof options === 'function' ? options({ route, navigation: screenNavigation }) : options),
-              headerSearchBarOptions: {
-                onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
-              },
-            };
-          }}
-        />
+        <DetailViewStack.Screen name="Language" component={Language} options={settingsScreenOptions(loc.settings.language)} />
         <DetailViewStack.Screen
           name="LightningSettings"
           component={LightningSettings}
@@ -604,17 +583,7 @@ const DetailViewStackScreensStack = () => {
                 backgroundColor: theme.colors.customHeader,
               },
             },
-            (options, deps) => ({
-              ...renderManageWalletsHeaderLeft(options, deps),
-              headerSearchBarOptions: {
-                hideWhenScrolling: false,
-                placeholder: loc.wallets.manage_wallets_search_placeholder,
-                onChangeText: event => deps.navigation.setParams({ search: event.nativeEvent.text }),
-                onClear: () => deps.navigation.setParams({ search: '' }),
-                onFocus: () => deps.navigation.setParams({ isSearchFocused: true }),
-                onBlur: () => deps.navigation.setParams({ isSearchFocused: false }),
-              },
-            }),
+            renderManageWalletsHeaderLeft,
           )(theme)}
         />
         <DetailViewStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={createReceiveDetailsOptions(theme)} />
@@ -678,10 +647,34 @@ const styles = StyleSheet.create({
 });
 
 const createReceiveDetailsOptions = (theme: ReturnType<typeof useTheme>) =>
-  navigationStyle({
-    title: loc.receive.header,
-    closeButtonPosition: CloseButtonPosition.Right,
-    headerShown: true,
-    presentation: 'modal',
-    headerBackVisible: false,
-  })(theme);
+  navigationStyle<DetailViewStackParamList, 'ReceiveDetails'>(
+    {
+      title: loc.receive.header,
+      closeButtonPosition: CloseButtonPosition.Right,
+      headerShown: true,
+      presentation: 'modal',
+      headerBackVisible: false,
+    },
+    (options, { route }) => {
+      if (!isIOS26OrHigher) return options;
+
+      const shareMessage = route.params.headerShareMessage;
+      return {
+        ...options,
+        unstable_headerLeftItems: () => [
+          {
+            type: 'button',
+            label: loc.receive.details_share,
+            icon: { type: 'sfSymbol', name: 'square.and.arrow.up' },
+            identifier: 'ShareButton',
+            accessibilityLabel: loc.receive.details_share,
+            disabled: !shareMessage,
+            onPress: () => {
+              if (!shareMessage) return;
+              Share.open({ message: shareMessage }).catch(error => console.debug('Error sharing:', error));
+            },
+          },
+        ],
+      };
+    },
+  )(theme);

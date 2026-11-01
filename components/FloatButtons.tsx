@@ -10,12 +10,13 @@ import {
   View,
   StyleProp,
   TextStyle,
+  ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from './themes';
-import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import { isDesktop } from '../blue_modules/environment';
+import { shouldUseWideLayout } from '../blue_modules/layout';
 import debounce from '../blue_modules/debounce';
 import { withAlpha } from './color';
 
@@ -43,6 +44,7 @@ const LAYOUT = {
 
 const BUTTON_SCALE_PRESSED = 0.96;
 const BUTTON_SCALE_ANIMATION_DURATION_MS = 110;
+const REGULAR_LAYOUT_MIN_WIDTH = 667;
 
 const useFloatButtonAnimation = (initialHeight: number) => {
   const slideAnimation = useRef(new Animated.Value(isDesktop ? 0 : initialHeight)).current;
@@ -74,20 +76,26 @@ export const getFloatingButtonReservedHeight = (fontScale = 1, bottomInset = 0):
   getScaledButtonHeight(fontScale) + FLOAT_BUTTON_LIST_CLEARANCE + getFloatButtonBottomOffset(bottomInset) - bottomInset;
 
 // Prefer the measured parent width: in Catalyst/iPad sheets it is much narrower than the window.
-const getFloatButtonAvailableWidth = (windowWidth: number, sizeClass: SizeClass, parentWidth?: number): number => {
+const getFloatButtonAvailableWidth = (windowWidth: number, isWideLayout: boolean, parentWidth?: number): number => {
   if (parentWidth !== undefined && parentWidth > 0) {
     return Math.max(0, Math.ceil(parentWidth - LAYOUT.CONTAINER_SIDE_MARGIN * 2));
   }
-  const drawerOffset = sizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
+  const drawerOffset = isWideLayout ? LAYOUT.DRAWER_WIDTH : 0;
   return Math.max(0, Math.ceil(windowWidth - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2));
 };
 
-const useFloatButtonLayout = (width: number, availableWidth: number, sizeClass: SizeClass, fontScale: number) => {
+const useFloatButtonLayout = (
+  width: number,
+  availableWidth: number,
+  isWideLayout: boolean,
+  isCompactLayout: boolean,
+  fontScale: number,
+) => {
   const lastVerticalDecision = useRef(false);
 
   const shouldUseVerticalLayout = useCallback(
     (totalWidthNeeded: number, totalChildren: number) => {
-      if (sizeClass !== SizeClass.Large || totalChildren <= 1) return false;
+      if (!isWideLayout || totalChildren <= 1) return false;
 
       const minWidthPerButton = 130;
       const totalButtonsWidth = minWidthPerButton * totalChildren;
@@ -110,7 +118,7 @@ const useFloatButtonLayout = (width: number, availableWidth: number, sizeClass: 
 
       return lastVerticalDecision.current;
     },
-    [sizeClass, availableWidth],
+    [isWideLayout, availableWidth],
   );
 
   const calculateButtonWidth = useCallback(
@@ -123,19 +131,18 @@ const useFloatButtonLayout = (width: number, availableWidth: number, sizeClass: 
       const totalSpacersWidth = (totalChildren - 1) * LAYOUT.BUTTON_MARGIN;
       const totalWidthNeeded = totalButtonWidth + totalSpacersWidth + LAYOUT.SAFETY_MARGIN;
 
-      const effectiveMinButtonWidth =
-        sizeClass === SizeClass.Large
-          ? LAYOUT.MIN_BUTTON_WIDTH_LARGE
-          : sizeClass === SizeClass.Regular
-            ? LAYOUT.MIN_BUTTON_WIDTH
-            : LAYOUT.MIN_BUTTON_WIDTH * 0.85;
+      const effectiveMinButtonWidth = isWideLayout
+        ? LAYOUT.MIN_BUTTON_WIDTH_LARGE
+        : isCompactLayout
+          ? LAYOUT.MIN_BUTTON_WIDTH * 0.85
+          : LAYOUT.MIN_BUTTON_WIDTH;
 
       const shouldBeVertical = shouldUseVerticalLayout(totalWidthNeeded, totalChildren);
 
       let calculatedWidth;
 
       if (shouldBeVertical) {
-        calculatedWidth = sizeClass === SizeClass.Large ? availableWidth - LAYOUT.CONTAINER_SIDE_MARGIN * 2 : availableWidth;
+        calculatedWidth = isWideLayout ? availableWidth - LAYOUT.CONTAINER_SIDE_MARGIN * 2 : availableWidth;
       } else {
         if (totalWidthNeeded > availableWidth) {
           const availableWidthPerButton = (availableWidth - totalSpacersWidth) / totalChildren;
@@ -146,8 +153,8 @@ const useFloatButtonLayout = (width: number, availableWidth: number, sizeClass: 
       }
 
       if (totalChildren === 1 && !shouldBeVertical) {
-        const singleButtonMaxWidth = availableWidth * (sizeClass === SizeClass.Compact ? 0.7 : LAYOUT.SINGLE_BUTTON_WIDTH_FACTOR);
-        const effectiveSingleMinWidth = sizeClass === SizeClass.Large ? LAYOUT.MIN_BUTTON_WIDTH * 1.2 : LAYOUT.MIN_BUTTON_WIDTH;
+        const singleButtonMaxWidth = availableWidth * (isCompactLayout ? 0.7 : LAYOUT.SINGLE_BUTTON_WIDTH_FACTOR);
+        const effectiveSingleMinWidth = isWideLayout ? LAYOUT.MIN_BUTTON_WIDTH * 1.2 : LAYOUT.MIN_BUTTON_WIDTH;
 
         calculatedWidth = Math.max(
           effectiveSingleMinWidth - LAYOUT.PADDINGS * 2,
@@ -157,7 +164,7 @@ const useFloatButtonLayout = (width: number, availableWidth: number, sizeClass: 
 
       return Math.floor(calculatedWidth);
     },
-    [availableWidth, sizeClass, shouldUseVerticalLayout],
+    [availableWidth, isCompactLayout, isWideLayout, shouldUseVerticalLayout],
   );
 
   const calculateVisualParameters = useCallback(
@@ -191,10 +198,10 @@ const useFloatButtonLayout = (width: number, availableWidth: number, sizeClass: 
   );
 
   const calculateButtonFontSize = useMemo(() => {
-    const divisor = sizeClass === SizeClass.Large ? 22 : sizeClass === SizeClass.Regular ? 24 : 28;
+    const divisor = isWideLayout ? 22 : isCompactLayout ? 28 : 24;
     const baseSize = PixelRatio.roundToNearestPixel(width / divisor);
     return Math.min(LAYOUT.MAX_BUTTON_FONT_SIZE, baseSize);
-  }, [width, sizeClass]);
+  }, [width, isCompactLayout, isWideLayout]);
 
   return {
     calculateButtonWidth,
@@ -333,15 +340,12 @@ const ButtonContent = ({ icon, text, textStyle, buttonHeight }: ButtonContentPro
   if (React.isValidElement(icon)) {
     const iconElement = icon as React.ReactElement;
 
-    scaledIcon = React.cloneElement(
-      iconElement as React.ReactElement<any>,
-      {
-        ...(iconElement.props as Record<string, unknown>),
-        size: iconSize,
-        width: iconSize,
-        height: iconSize,
-      } as any,
-    );
+    scaledIcon = React.cloneElement(iconElement as React.ReactElement<Record<string, unknown>>, {
+      ...(iconElement.props as Record<string, unknown>),
+      size: iconSize,
+      width: iconSize,
+      height: iconSize,
+    });
   } else {
     scaledIcon = icon;
   }
@@ -410,7 +414,7 @@ export const FButton = ({
     };
   }, [colors, fontSize, buttonHeight]);
 
-  const style: Record<string, any> = {};
+  const style: ViewStyle = {};
   const additionalStyles = !last ? (isVertical ? customButtonStyles.marginBottom : customButtonStyles.marginRight) : {};
 
   if (width) {
@@ -454,19 +458,21 @@ export const FButton = ({
 export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const insets = useSafeAreaInsets();
   const { height, width, fontScale } = useWindowDimensions();
-  const { sizeClass } = useSizeClass();
+  const isWideLayout = shouldUseWideLayout(width, height);
+  const isCompactLayout = width < REGULAR_LAYOUT_MIN_WIDTH;
   const scaledButtonHeight = getScaledButtonHeight(fontScale);
 
   const childrenCount = React.Children.toArray(props.children).filter(Boolean).length;
 
   const [parentWidth, setParentWidth] = useState<number | undefined>();
-  const availableWidth = useMemo(() => getFloatButtonAvailableWidth(width, sizeClass, parentWidth), [width, sizeClass, parentWidth]);
+  const availableWidth = useMemo(() => getFloatButtonAvailableWidth(width, isWideLayout, parentWidth), [width, isWideLayout, parentWidth]);
 
   const [layoutReady, setLayoutReady] = useState<boolean>(() => availableWidth > 0);
   const { calculateButtonWidth, calculateVisualParameters, calculateContainerHeight, buttonFontSize } = useFloatButtonLayout(
     width,
     availableWidth,
-    sizeClass,
+    isWideLayout,
+    isCompactLayout,
     fontScale,
   );
 
@@ -563,10 +569,10 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   useEffect(() => {
     debouncedCalculateLayout();
     return () => debouncedCalculateLayout.cancel();
-  }, [debouncedCalculateLayout, width, height, childrenCount, sizeClass, fontScale]);
+  }, [debouncedCalculateLayout, width, height, childrenCount, fontScale]);
 
-  // Re-fit without debounce when the layout inputs change (first measurement, sheet resize, size class, children).
-  const layoutInputs = `${availableWidth}:${sizeClass}:${childrenCount}`;
+  // Re-fit without debounce when the layout inputs change (first measurement, resize, children).
+  const layoutInputs = `${availableWidth}:${isWideLayout}:${isCompactLayout}:${childrenCount}`;
   const appliedLayoutInputs = useRef(layoutInputs);
   useEffect(() => {
     if (appliedLayoutInputs.current === layoutInputs) return;
@@ -612,7 +618,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
 
     const isSingleChild = array.length === 1;
 
-    return React.cloneElement(child as React.ReactElement<any>, {
+    return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, {
       width: effectiveNewWidth,
       key: index,
       last: index === array.length - 1,

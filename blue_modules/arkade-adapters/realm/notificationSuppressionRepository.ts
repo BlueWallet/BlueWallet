@@ -1,3 +1,4 @@
+import Realm from 'realm';
 // Per-wallet Realm storage for notification-suppression entries.
 //
 // Lives inside the per-wallet Arkade Realm so suppression state is
@@ -32,9 +33,9 @@ interface ArkSwapNotificationSuppressionRow {
 }
 
 export class RealmNotificationSuppressionRepository {
-  private readonly realm: any;
+  private readonly realm: Realm;
 
-  constructor(realm: any) {
+  constructor(realm: Realm) {
     this.realm = realm;
   }
 
@@ -51,7 +52,7 @@ export class RealmNotificationSuppressionRepository {
         action,
         postedAt: Date.now(),
       };
-      this.realm.create('ArkSwapNotificationSuppression', row, 'modified');
+      this.realm.create('ArkSwapNotificationSuppression', row, Realm.UpdateMode.Modified);
     });
   }
 

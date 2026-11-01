@@ -74,7 +74,7 @@ class MainApplication : Application(), ReactApplication {
                     add(SegmentedControlPackage())
                     add(DraggableFilePackage())
                     add(SettingsPackage())
-                    add(MenuElementsPackage())
+                    add(MenuActionsPackage())
                 }
 
             override fun getUseDeveloperSupport() = BuildConfig.DEBUG
