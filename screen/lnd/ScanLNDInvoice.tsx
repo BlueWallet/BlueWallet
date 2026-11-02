@@ -241,10 +241,10 @@ const ScanLNDInvoice = () => {
       try {
         const quote = await wallet.quoteInvoice(destination);
         setHeldQuote(quote);
-      } catch (Err: any) {
-        console.log(Err.message);
+      } catch (Err) {
+        console.log(errorMessage(Err));
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: Err.message });
+        presentAlert({ message: errorMessage(Err) });
       } finally {
         setIsLoading(false);
       }

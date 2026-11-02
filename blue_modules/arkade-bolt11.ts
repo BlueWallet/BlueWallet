@@ -46,21 +46,13 @@ interface DecodedFacts {
 }
 
 function decodeLocal(invoice: string): DecodedFacts {
-  const decoded: any = (bolt11 as any).decode(invoice);
-  const tags: any[] = decoded.tags ?? decoded.sections ?? [];
-  let paymentHash = '';
-  let expiry = 3600;
-  for (const tag of tags) {
-    const tagName = tag.tagName ?? tag.name;
-    const data = tag.data ?? tag.value;
-    if (tagName === 'payment_hash' && data) paymentHash = String(data);
-    if ((tagName === 'expire_time' || tagName === 'expiry') && data !== undefined) expiry = +data;
-  }
+  const decoded = bolt11.decode(invoice);
+  const paymentHash = decoded.tagsObject.payment_hash ?? '';
+  const expiry = decoded.tagsObject.expire_time || 3600;
   const satoshis = decoded.satoshis ? +decoded.satoshis : 0;
   const millisatoshis = decoded.millisatoshis ? +decoded.millisatoshis : 0;
   const amountSats = satoshis > 0 ? satoshis : Math.floor(millisatoshis / 1000);
   const timestamp = decoded.timestamp ?? 0;
-  if (!expiry) expiry = 3600;
   return { paymentHash, amountSats, timestamp, expiry };
 }
 

@@ -483,9 +483,9 @@ describe('LightningArkWallet — quote/accept orchestration', () => {
 
     await w.payQuotedInvoice(quote);
 
-    assert.strictEqual(w.last_paid_invoice_result.payment_preimage, 'ab'.repeat(32));
-    assert.strictEqual(w.last_paid_invoice_result.payment_hash, 'aa'.repeat(32));
-    assert.strictEqual(w.last_paid_invoice_result.payment_request, BOLT11);
+    assert.strictEqual(w.last_paid_invoice_result?.payment_preimage, 'ab'.repeat(32));
+    assert.strictEqual(w.last_paid_invoice_result?.payment_hash, 'aa'.repeat(32));
+    assert.strictEqual(w.last_paid_invoice_result?.payment_request, BOLT11);
   });
 
   it('payQuotedInvoice refuses a fee above the confirmed ceiling without funding', async () => {
@@ -525,7 +525,7 @@ describe('LightningArkWallet — quote/accept orchestration', () => {
     await w.payQuotedInvoice(quote);
 
     assert.strictEqual(readLockupFateMock.mock.calls.length, 1);
-    assert.strictEqual(w.last_paid_invoice_result.payment_preimage, '07'.repeat(32));
+    assert.strictEqual(w.last_paid_invoice_result?.payment_preimage, '07'.repeat(32));
   });
 
   it('payQuotedInvoice surfaces terminal failures instead of reporting success', async () => {

@@ -6,6 +6,7 @@ import {
   type AssetSwapId,
   type CorridorSwapRecord,
   type Outcome,
+  type LockupSpendIndexer,
   type Quote,
   type Swap,
   type SwapClient,
@@ -18,6 +19,7 @@ import { sideLimits, type DiscoveredMarket } from '@arkade-os/solver-discovery';
 import { RestDelegateProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction, TxType, collectPages } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
 import { RealmContractRepository, RealmWalletRepository } from '@arkade-os/sdk/repositories/realm';
+import type Realm from 'realm';
 
 import BIP32Factory from 'bip32';
 
@@ -119,9 +121,9 @@ const atomicDecimalToSats = (amount: string): number => {
 
 const recordBolt11 = (record: CorridorSwapRecord): string => {
   if (record.artifact?.kind === 'invoice') return record.artifact.bolt11;
-  const takeInstrument = (record.route as any)?.take?.instrument;
+  const takeInstrument = record.route?.take?.instrument;
   if (takeInstrument?.kind === 'invoice' && typeof takeInstrument.bolt11 === 'string') return takeInstrument.bolt11;
-  const giveInstrument = (record.route as any)?.give?.instrument;
+  const giveInstrument = record.route?.give?.instrument;
   if (giveInstrument?.kind === 'invoice' && typeof giveInstrument.bolt11 === 'string') return giveInstrument.bolt11;
   return '';
 };
@@ -230,7 +232,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
       '_submarineMinerFees',
       '_feesLoaded',
     ]) {
-      if (key in this) delete (this as any)[key];
+      if (key in this) delete (this as unknown as Record<string, unknown>)[key];
     }
   }
 
@@ -330,8 +332,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
         let markets: DiscoveredMarket[] = [];
         try {
           markets = await discoverMarkets({ repository, network: this._network });
-        } catch (e: any) {
-          console.log('[ARK] market discovery failed during init:', e?.message ?? e);
+        } catch (e) {
+          console.log('[ARK] market discovery failed during init:', errorMessage(e));
         }
 
         // No covclaimd deployment exists yet (release prerequisite,
@@ -341,7 +343,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // claim on. `emulatorPubkey: undefined` on mainnet takes the
         // package's own pin. No server URL anywhere: the wallet is the
         // operator seam.
-        const swapClient = makeSwapClient({ wallet: wallet as any, repository, markets });
+        const swapClient = makeSwapClient({ wallet, repository, markets });
         staticSwapClientCache[namespace] = swapClient;
         staticSwapRepositoryCache[namespace] = repository;
 
@@ -389,8 +391,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (!this._swapRepository) return;
     try {
       this._markets = await discoverMarkets({ repository: this._swapRepository, network: this._network });
-    } catch (e: any) {
-      console.log('[ARK] market discovery refresh failed:', e?.message ?? e);
+    } catch (e) {
+      console.log('[ARK] market discovery refresh failed:', errorMessage(e));
     }
   }
 
@@ -406,8 +408,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _attachRecordListener(namespace: string): void {
     if (realmListenerAttached.has(namespace)) return;
     try {
-      const repository = this._swapRepository as any;
-      const realm = (repository as any)?.realm ?? (repository as any)?._realm;
+      // the repository keeps its Realm private; read it structurally, mocks may hold it elsewhere or not at all
+      const repository = this._swapRepository as unknown as { realm?: Realm; _realm?: Realm } | undefined;
+      const realm = repository?.realm ?? repository?._realm;
       const objects = typeof realm?.objects === 'function' ? realm.objects('ArkadeSwapRecord') : undefined;
       if (objects && typeof objects.addListener === 'function') {
         objects.addListener(() => {
@@ -431,8 +434,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
         const repository = this._swapRepository!;
         const records = await collectPages<SwapRecord, string>(page => repository.getSwapRecordsPage(page));
         this._swapRecords = records.filter(r => r.family === 'rfq') as CorridorSwapRecord[];
-      } catch (e: any) {
-        console.log('[ARK] refreshSwapRecords failed:', e?.message ?? e);
+      } catch (e) {
+        console.log('[ARK] refreshSwapRecords failed:', errorMessage(e));
       } finally {
         this._recordsRefreshInFlight = null;
       }
@@ -484,12 +487,12 @@ export class LightningArkWallet extends LightningCustodianWallet {
               }
               this._lastBalanceFetch = +new Date();
               this._lastTxFetch = +new Date();
-            } catch (e: any) {
-              console.log('[ARK] swap-event refresh failed:', e?.message ?? e);
+            } catch (e) {
+              console.log('[ARK] swap-event refresh failed:', errorMessage(e));
             }
           })().catch(() => {});
-        } catch (e: any) {
-          console.log('[ARK] swap-event handler failed:', e?.message ?? e);
+        } catch (e) {
+          console.log('[ARK] swap-event handler failed:', errorMessage(e));
         }
       });
     } catch {
@@ -520,7 +523,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   /** Swap -> outcome, from Phase 2's cached map. */
   getSwapOutcome(id: string): Outcome | undefined {
-    const tagged = (familyOfSwapId(id) ? id : assetSwapIdOf('rfq', id as any)) as AssetSwapId;
+    const tagged = (familyOfSwapId(id) ? id : assetSwapIdOf('rfq', id)) as AssetSwapId;
     return this._outcomes.get(tagged);
   }
 
@@ -569,14 +572,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
       amountSats: atomicDecimalToSats(leg?.amount ?? '0'),
       direction: direction as -1 | 1,
       bolt11,
-      paymentHash: (record as any)?.lock?.hash ?? '',
+      paymentHash: record.lock?.hash ?? '',
       expiresAt,
       createdAt: record.createdAt,
-      refundLocktime: (record as any)?.refundLocktime,
-      fundingTxid: (record as any)?.fundingTxid,
-      refundTxid: (record as any)?.refundTxid,
-      failure: (record as any)?.failure,
-      blockedReason: (record as any)?.blockedReason,
+      refundLocktime: record.refundLocktime,
+      fundingTxid: record.fundingTxid,
+      refundTxid: record.refundTxid,
+      failure: record.failure,
+      blockedReason: record.blockedReason,
       record,
     };
   }
@@ -601,7 +604,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     return this._swapRecords.some(record => {
       if (!isReceiveKind(record.kind)) return false;
       if (paymentHash) {
-        const lockHash = ((record as any)?.lock?.hash ?? '') as string;
+        const lockHash = record.lock?.hash ?? '';
         if (lockHash && lockHash.toLowerCase() === paymentHash.toLowerCase()) return true;
       }
       const bolt11 = recordBolt11(record);
@@ -740,10 +743,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
     const ownedTxids = new Map<string, CorridorSwapRecord>();
     for (const record of this._swapRecords) {
       const txids: string[] = [];
-      const anyRecord = record as any;
-      if (anyRecord.fundingTxid) txids.push(anyRecord.fundingTxid);
-      if (anyRecord.refundTxid) txids.push(anyRecord.refundTxid);
-      const spends = anyRecord.lockupSpendTxids;
+      if (record.fundingTxid) txids.push(record.fundingTxid);
+      if (record.refundTxid) txids.push(record.refundTxid);
+      const spends = record.lockupSpendTxids;
       if (Array.isArray(spends)) for (const txid of spends) if (typeof txid === 'string') txids.push(txid);
       for (const txid of txids) if (!ownedTxids.has(txid)) ownedTxids.set(txid, record);
     }
@@ -764,7 +766,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
       let memo = '';
       const bolt11invoice = recordBolt11(record);
-      let paymentHash = ((record as any)?.lock?.hash ?? '') as string;
+      let paymentHash = record.lock?.hash ?? '';
       let expiry = 3600;
       try {
         if (bolt11invoice) {
@@ -826,7 +828,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         }
       }
 
-      const settlingTxid = ((record as any)?.refundTxid ?? (record as any)?.fundingTxid) as string | undefined;
+      const settlingTxid = record.refundTxid ?? record.fundingTxid;
 
       ret.push({
         txid: `swap-${swapId}`,
@@ -845,7 +847,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         payment_hash: paymentHash,
         payment_request: bolt11invoice,
         amt: value,
-        payment_preimage: (record as any)?.settlementPreimageHex,
+        payment_preimage: record.settlementPreimageHex,
         expire_time: expiry,
         ...(settlingTxid ? { settlingTxid } : {}),
       });
@@ -916,7 +918,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _marketForSide(side: 'base' | 'quote'): DiscoveredMarket | undefined {
     for (const market of this._markets) {
       try {
-        if (sideLimits(market as any, side)) return market;
+        if (sideLimits(market, side)) return market;
       } catch {}
     }
     return undefined;
@@ -927,7 +929,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     const market = this._marketForSide('quote');
     if (!market) return null;
     try {
-      const limits = sideLimits(market as any, 'quote');
+      const limits = sideLimits(market, 'quote');
       if (!limits) return null;
       return { min: Number(limits.min), max: Number(limits.max) };
     } catch {
@@ -940,7 +942,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     const market = this._marketForSide('base');
     if (!market) return null;
     try {
-      const limits = sideLimits(market as any, 'base');
+      const limits = sideLimits(market, 'base');
       if (!limits) return null;
       return { min: Number(limits.min), max: Number(limits.max) };
     } catch {
@@ -958,11 +960,11 @@ export class LightningArkWallet extends LightningCustodianWallet {
   getSubmarineFeeEstimate(amountSats: number): number | undefined {
     const market = this._marketForSide('quote');
     if (!market) return undefined;
-    const feeBps = Number((market as any)?.fee_bps ?? NaN);
+    const feeBps = Number(market.fee_bps ?? NaN);
     if (!Number.isFinite(feeBps)) return undefined;
     const serviceFee = Math.ceil((amountSats * feeBps) / 10_000);
     let flat = 0;
-    const feeFlat = (market as any)?.fee_flat;
+    const feeFlat = market.fee_flat;
     if (feeFlat !== undefined && feeFlat !== null && feeFlat !== '') {
       try {
         flat = Number(BigInt(String(feeFlat)));
@@ -1054,7 +1056,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     let facts;
     try {
       facts = toInvoiceFacts(invoice, 'bitcoin');
-    } catch (e: any) {
+    } catch (e) {
       if (e instanceof InvoiceRejected) throw new Error(e.message);
       throw e;
     }
@@ -1072,8 +1074,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
     // reason surfaces here, before quote().
     try {
       await this._swapClient.resolve({ to: invoice });
-    } catch (e: any) {
-      throw new Error(e?.message ?? String(e));
+    } catch (e) {
+      throw new Error(errorMessage(e));
     }
 
     return this._swapClient.quote({ to: invoice });
@@ -1099,7 +1101,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     const swap = await this._swapClient.accept(quote);
     const swapId = swap.id;
-    const takeInstrument = (quote as any)?.route?.take?.instrument;
+    const takeInstrument = quote.route?.take?.instrument as { bolt11?: string } | undefined;
     const bolt11 = typeof takeInstrument?.bolt11 === 'string' ? takeInstrument.bolt11 : undefined;
     if (bolt11) this._acceptedInvoiceMap.set(this._invoiceKey(bolt11), swapId);
     await this.refreshSwapStatuses();
@@ -1113,7 +1115,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     let paymentHash = '';
     try {
       const record = await this._swapRepository.getSwapRecord(quoteIdOfSwapId(swapId));
-      paymentHash = ((record as any)?.lock?.hash ?? '') as string;
+      paymentHash = (record as CorridorSwapRecord | undefined)?.lock?.hash ?? '';
     } catch {}
     if (!paymentHash && bolt11) {
       try {
@@ -1180,7 +1182,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // The subscription replays the current outcome of every known swap,
         // so a swap that settled between accept() and subscribe() resolves
         // on replay rather than hanging.
-      } catch (e: any) {
+      } catch (e) {
         reject(e);
       }
     });
@@ -1195,26 +1197,23 @@ export class LightningArkWallet extends LightningCustodianWallet {
    */
   private async _settlementPreimage(swapId: AssetSwapId): Promise<string | undefined> {
     try {
-      const record = (await this._swapRepository?.getSwapRecord(quoteIdOfSwapId(swapId))) as any;
-      if (record?.settlementPreimageHex) return record.settlementPreimageHex as string;
+      const record = (await this._swapRepository?.getSwapRecord(quoteIdOfSwapId(swapId))) as CorridorSwapRecord | undefined;
+      if (record?.settlementPreimageHex) return record.settlementPreimageHex;
       if (record && this._wallet) {
         const swapPkScript = record.lockupPkScript;
         const paymentHash = record?.lock?.hash;
         if (swapPkScript && paymentHash) {
           try {
-            const indexer = (await this._wallet.getArkadeReader()) as any;
+            const indexer = await this._wallet.getArkadeReader();
             const fate = await readLockupFate(indexer, { swapPkScript: hexToUint8Array(swapPkScript), paymentHash });
-            if (fate?.fate === 'claimed' && (fate as any)?.preimage) {
-              const preimage = (fate as any).preimage as Uint8Array;
-              return uint8ArrayToHex(preimage);
-            }
-          } catch (e: any) {
-            console.log('[ARK] preimage backfill read failed:', e?.message ?? e);
+            if (fate?.fate === 'claimed' && fate.preimage) return uint8ArrayToHex(fate.preimage);
+          } catch (e) {
+            console.log('[ARK] preimage backfill read failed:', errorMessage(e));
           }
         }
       }
-    } catch (e: any) {
-      console.log('[ARK] settlement preimage read failed:', e?.message ?? e);
+    } catch (e) {
+      console.log('[ARK] settlement preimage read failed:', errorMessage(e));
     }
     return undefined;
   }
@@ -1260,7 +1259,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     let facts;
     try {
       facts = toInvoiceFacts(invoice, 'bitcoin');
-    } catch (e: any) {
+    } catch (e) {
       if (e instanceof InvoiceRejected) throw new Error(e.message);
       throw e;
     }
@@ -1318,7 +1317,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     const request = await this._swapClient.receive({ amount: BigInt(amt), via: 'lightning' });
     await this.refreshSwapCaches();
 
-    const artifact = (request as any)?.artifact as { bolt11?: string } | undefined;
+    const artifact = request?.artifact as { bolt11?: string } | undefined;
     const bolt11 = artifact?.bolt11;
     if (!bolt11) throw new Error('Solver did not return a Lightning invoice');
     return bolt11;
@@ -1426,7 +1425,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   async recoverSwap(swapId: string) {
     if (!this._swapClient) await this.init();
     if (!this._swapClient) throw new Error('Swap client not initialized');
-    const tagged = (familyOfSwapId(swapId) ? swapId : assetSwapIdOf('rfq', swapId as any)) as AssetSwapId;
+    const tagged = (familyOfSwapId(swapId) ? swapId : assetSwapIdOf('rfq', swapId)) as AssetSwapId;
     const result = await this._swapClient.recover(tagged);
     await this.refreshSwapCaches();
     return result;
@@ -1455,8 +1454,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
   async canDeleteWallet(force = false): Promise<{ safe: boolean; message?: string }> {
     try {
       if (!this._swapClient || !this._swapRepository) await this.init();
-    } catch (e: any) {
-      return { safe: false, message: `Cannot verify swap state while offline: ${e?.message ?? e}` };
+    } catch (e) {
+      return { safe: false, message: `Cannot verify swap state while offline: ${errorMessage(e)}` };
     }
     if (!this._swapClient || !this._swapRepository || !this._wallet) {
       return { safe: false, message: 'Cannot verify swap state while offline' };
@@ -1472,10 +1471,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (unsafe.length === 0) return { safe: true };
     if (force) return { safe: true };
 
-    let indexer: any;
+    let indexer: LockupSpendIndexer;
     try {
-      indexer = (await this._wallet.getArkadeReader()) as any;
-    } catch (e: any) {
+      indexer = await this._wallet.getArkadeReader();
+    } catch {
       return {
         safe: false,
         message: `Cannot verify ${unsafe.length} pending Lightning swap(s) while offline. Let them settle first, or delete anyway knowing the funds may become unrecoverable.`,
@@ -1483,8 +1482,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
 
     for (const view of unsafe) {
-      const swapPkScript = (view.record as any)?.lockupPkScript;
-      const paymentHash = (view.record as any)?.lock?.hash;
+      const swapPkScript = view.record.lockupPkScript;
+      const paymentHash = view.record.lock?.hash;
       if (!swapPkScript || !paymentHash) {
         return {
           safe: false,
@@ -1498,8 +1497,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
           safe: false,
           message: `This wallet has a pending Lightning swap (${view.outcome}). Deleting now may make its funds unrecoverable. Let it settle first.`,
         };
-      } catch (e: any) {
-        return { safe: false, message: `Cannot verify pending Lightning swaps while offline: ${e?.message ?? e}` };
+      } catch (e) {
+        return { safe: false, message: `Cannot verify pending Lightning swaps while offline: ${errorMessage(e)}` };
       }
     }
     return { safe: true };
@@ -1566,14 +1565,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     // Type guards: real SDK objects always have dispose; unit-test stubs may not.
     try {
-      if (cachedClient && typeof (cachedClient as any)[Symbol.asyncDispose] === 'function') {
-        await (cachedClient as any)[Symbol.asyncDispose]();
+      if (cachedClient && typeof cachedClient[Symbol.asyncDispose] === 'function') {
+        await cachedClient[Symbol.asyncDispose]();
       }
     } catch (e) {
       console.log(`[LightningArkWallet] swapClient.dispose failed for ${namespace}:`, errorMessage(e));
     }
     try {
-      if (typeof (cachedWallet as any)?.dispose === 'function') await (cachedWallet as any).dispose();
+      if (typeof cachedWallet?.dispose === 'function') await cachedWallet.dispose();
     } catch (e) {
       console.log(`[LightningArkWallet] wallet.dispose failed for ${namespace}:`, errorMessage(e));
     }

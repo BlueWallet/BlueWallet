@@ -22,10 +22,11 @@
  * overwrites the persisted cache and suppresses refetching for a full TTL.
  */
 
-import { discover, type DiscoveredMarket, type LocalCardInput } from '@arkade-os/solver-discovery';
+import { discover, type DiscoveredMarket, type LocalCardInput, type Network } from '@arkade-os/solver-discovery';
 
 import bundledCard from './arkade-solver.card.json';
 import type { AssetSwapRepository } from '@arkade-os/swap';
+import { errorMessage } from '../helpers/errorMessage';
 
 export type { DiscoveredMarket };
 
@@ -88,8 +89,8 @@ async function discoverLocalOnly(localCards: LocalCardInput[], network: string, 
     const discovered = await discover({
       registries: [],
       localCards,
-      network: network as any,
-      ...(fetchImpl ? { fetchImpl: fetchImpl as any } : {}),
+      network: network as Network,
+      ...(fetchImpl ? { fetchImpl } : {}),
     });
     return discovered.markets;
   } catch {
@@ -141,8 +142,8 @@ export const discoverMarkets = async (input: DiscoverMarketsInput = {}): Promise
     if (!repository || !registryUrl) return;
     try {
       await repository.saveCachedMarkets(cacheKey.network, cacheKey.registry, { markets, fetchedAt });
-    } catch (e: any) {
-      console.log('[arkade-markets] saveCachedMarkets failed:', e?.message ?? e);
+    } catch (e) {
+      console.log('[arkade-markets] saveCachedMarkets failed:', errorMessage(e));
     }
   };
 
@@ -163,12 +164,12 @@ export const discoverMarkets = async (input: DiscoverMarketsInput = {}): Promise
     const discovered = await discover({
       registries: [registryUrl],
       localCards,
-      network: network as any,
-      ...(fetchImpl ? { fetchImpl: fetchImpl as any } : {}),
+      network: network as Network,
+      ...(fetchImpl ? { fetchImpl } : {}),
     });
     result = { markets: discovered.markets, sources: discovered.sources };
-  } catch (e: any) {
-    console.log('[arkade-markets] registry discovery failed:', e?.message ?? e);
+  } catch (e) {
+    console.log('[arkade-markets] registry discovery failed:', errorMessage(e));
     return degradedFallback(readCache, localCards, network, fetchImpl);
   }
 
