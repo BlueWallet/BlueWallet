@@ -16,7 +16,7 @@ import {
 import { readLockupFate } from '@arkade-os/swap/protocol';
 import { RealmAssetSwapRepository } from '@arkade-os/swap/repositories/realm';
 import { sideLimits, type DiscoveredMarket } from '@arkade-os/solver-discovery';
-import { RestDelegateProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction, TxType, collectPages } from '@arkade-os/sdk';
+import { ArkAddress, RestDelegateProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction, TxType, collectPages } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
 import { RealmContractRepository, RealmWalletRepository } from '@arkade-os/sdk/repositories/realm';
 import { createLnurlClient } from '@arkade-os/lnurl-client';
@@ -1301,6 +1301,37 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
 
     await this.payQuotedInvoice(quote, ceiling);
+  }
+
+  /**
+   * Pays a Lightning address or LNURL on its Arkade rail, when it offers one on
+   * our operator: no swap, no fee. `false` means nothing was spent and the
+   * caller should pay over Lightning. A failed send rejects instead, because
+   * falling back after one could pay twice.
+   */
+  async payLnurlOnArkade(target: string, amountSat: number, comment?: string): Promise<boolean> {
+    if (!this._wallet) await this.init();
+    if (!this._wallet) throw new Error('Arkade wallet not initialized');
+
+    let destination: string;
+    try {
+      const client = createLnurlClient();
+      const payRequest = await client.resolve(target);
+      const option = payRequest.paymentOptions?.find(o => o.type === 'arkade' && o.available !== false);
+      if (!option) return false;
+      const answer = await client.requestInvoice(payRequest, { amountSat, paymentOption: option.id, comment });
+      if (answer.kind !== 'destination' || !answer.paymentDestination) return false;
+      const theirs = ArkAddress.decode(answer.paymentDestination);
+      const ours = ArkAddress.decode(await this.getArkAddress());
+      if (theirs.hrp !== ours.hrp || uint8ArrayToHex(theirs.serverPubKey) !== uint8ArrayToHex(ours.serverPubKey)) return false;
+      destination = answer.paymentDestination;
+    } catch (e) {
+      console.log('[ARK] LNURL Arkade rail unavailable:', errorMessage(e));
+      return false;
+    }
+
+    await this._wallet.send({ address: destination, amount: amountSat });
+    return true;
   }
 
   async getUserInvoices(): Promise<LightningTransaction[]> {

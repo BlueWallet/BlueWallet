@@ -718,10 +718,12 @@ describe('LightningArkWallet LNURL receive', () => {
 
   const originalFetch = global.fetch;
   let w: LightningArkWallet;
+  let send: jest.Mock;
   let server: {
     addresses: any[];
     paymentOptions: any[] | undefined;
     invoice: string;
+    destination: string | undefined;
     verify: Record<string, unknown>;
     down: boolean;
     calls: { method: string; url: string; body?: any }[];
@@ -733,6 +735,7 @@ describe('LightningArkWallet LNURL receive', () => {
     minSendable: 1000,
     maxSendable: 100000000,
     metadata: '[["text/plain","lnurl"]]',
+    commentAllowed: 10,
     paymentOptions: server.paymentOptions,
   });
 
@@ -744,6 +747,7 @@ describe('LightningArkWallet LNURL receive', () => {
         { id: 'offline-swap', type: 'lightning', minSendable: 500000, maxSendable: 50000000 },
       ],
       invoice: makeInvoice(),
+      destination: undefined,
       verify: { status: 'OK', settled: false, preimage: null },
       down: false,
       calls: [],
@@ -761,15 +765,19 @@ describe('LightningArkWallet LNURL receive', () => {
       } else if (pathname === '/lnurl/address') {
         body = { handle: 'h1', domain: 'lnurl.arkade.sh', status: 'active', sessionLnurl: 'https://lnurl.arkade.sh/lnurl/session-id' };
       } else if (pathname === '/lnurl/address/h1/arkade') body = {};
-      else if (pathname.endsWith('/callback')) body = { pr: server.invoice, routes: [], verify: 'https://lnurl.arkade.sh/verify/1' };
-      else if (pathname === '/verify/1') body = { ...server.verify, pr: server.invoice };
+      else if (pathname.endsWith('/callback')) {
+        body = server.destination
+          ? { paymentOption: 'arkade', paymentDestination: server.destination }
+          : { pr: server.invoice, routes: [], verify: 'https://lnurl.arkade.sh/verify/1' };
+      } else if (pathname === '/verify/1') body = { ...server.verify, pr: server.invoice };
       else body = payRequest();
       return new Response(JSON.stringify(body), { status: 200 });
     }) as any;
 
     w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
-    (w as any)._wallet = { getAddress: async () => ARK_ADDRESS };
+    send = jest.fn(async () => 'txid');
+    (w as any)._wallet = { getAddress: async () => ARK_ADDRESS, send };
     jest.spyOn(w, 'fetchTransactions').mockResolvedValue(undefined as any);
   });
 
@@ -847,6 +855,61 @@ describe('LightningArkWallet LNURL receive', () => {
     const [row] = await w.getUserInvoices();
     assert.strictEqual(server.calls.length, asked);
     assert.strictEqual(row.ispaid, false);
+  });
+
+  describe('payLnurlOnArkade', () => {
+    const PAYEE = new ArkAddress(new Uint8Array(32).fill(2), new Uint8Array(32).fill(9), 'ark').encode();
+
+    it('sends the sats to the destination the rail returns', async () => {
+      server.destination = PAYEE;
+
+      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000, 'hi'), true);
+
+      assert.strictEqual(send.mock.calls.length, 1);
+      assert.deepStrictEqual(send.mock.calls[0][0], { address: PAYEE, amount: 1000 });
+      const callback = server.calls.find(c => c.url.includes('/callback'));
+      assert.ok(callback?.url.includes('paymentOption=arkade'));
+      assert.ok(callback?.url.includes('comment=hi'));
+    });
+
+    it('leaves the payment to Lightning when there is no usable Arkade rail', async () => {
+      server.destination = PAYEE;
+      server.paymentOptions = [{ id: 'offline-swap', type: 'lightning' }];
+      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000), false);
+
+      server.paymentOptions = [{ id: 'arkade', type: 'arkade', available: false }];
+      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000), false);
+
+      server.paymentOptions = [{ id: 'arkade', type: 'arkade', minSendable: 5000000, maxSendable: 6000000 }];
+      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000), false);
+
+      server.paymentOptions = undefined;
+      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000), false);
+
+      assert.strictEqual(send.mock.calls.length, 0);
+    });
+
+    it('leaves the payment to Lightning for a destination on another operator or a malformed one', async () => {
+      server.destination = new ArkAddress(new Uint8Array(32).fill(7), new Uint8Array(32).fill(9), 'ark').encode();
+      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000), false);
+
+      server.destination = 'bc1qnotanarkaddress';
+      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000), false);
+
+      assert.strictEqual(send.mock.calls.length, 0);
+    });
+
+    it('leaves the payment to Lightning when the payee cannot be reached', async () => {
+      server.down = true;
+      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000), false);
+      assert.strictEqual(send.mock.calls.length, 0);
+    });
+
+    it('rejects a failed send rather than letting the caller pay again over Lightning', async () => {
+      server.destination = PAYEE;
+      send.mockRejectedValueOnce(new Error('insufficient funds'));
+      await assert.rejects(() => w.payLnurlOnArkade('bob@example.com', 1000), /insufficient funds/);
+    });
   });
 
   it('keeps LNURL state out of the serialized wallet', async () => {

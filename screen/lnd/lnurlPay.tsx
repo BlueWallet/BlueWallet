@@ -31,7 +31,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 const _cacheFiatToSat: Record<string, string> = {};
 
 const LnurlPay: React.FC = () => {
-  const { wallets } = useStorage();
+  const { wallets, fetchAndSaveWalletTransactions } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const route = useRoute<RouteProp<DetailViewStackParamList, 'LnurlPay'>>();
   const { walletID, lnurl } = route.params;
@@ -183,6 +183,20 @@ const LnurlPay: React.FC = () => {
       let comment: string | undefined;
       if (_LN.getCommentAllowed()) {
         comment = await prompt('Comment', '', { cancelable: false, type: 'plain-text' });
+      }
+
+      if (
+        wallet instanceof LightningArkWallet &&
+        (await wallet.payLnurlOnArkade(Lnurl.findlnurl(lnurl) ?? lnurl.trim(), amountSats, comment))
+      ) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        navigate('ScanLNDInvoiceRoot', {
+          screen: 'Success',
+          params: { amount: amountSats, amountUnit: BitcoinUnit.SATS, invoiceDescription: payload?.description },
+        });
+        fetchAndSaveWalletTransactions(walletID);
+        setPayButtonDisabled(false);
+        return;
       }
 
       const bolt11payload = await _LN.requestBolt11FromLnurlPayService(amountSats, comment);
