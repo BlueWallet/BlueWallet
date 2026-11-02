@@ -92,7 +92,7 @@
   },
   "dependencies": {
     "@arkade-os/boltz-swap": "0.3.67",
-    "@arkade-os/sdk": "0.5.0",
+    "@arkade-os/sdk": "0.5.1",
     "@bugsnag/cli": "3.10.7",
     "@bugsnag/react-native": "9.1.0",
     "@bugsnag/source-maps": "2.3.3",
@@ -191,7 +191,7 @@
     "wif": "2.0.6"
   },
   "overrides": {
-    "@arkade-os/sdk": "0.5.0",
+    "@arkade-os/sdk": "0.5.1",
     "silent-payments": {
       "bip39": "3.1.2",
       "bitcoinjs-lib": "7.0.5"
