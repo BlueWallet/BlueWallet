@@ -1089,7 +1089,7 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
   // directly. We exercise the wallet's wiring — fee math, BOLT11 vs Ark
   // address routing, parameter forwarding — not the SDK's network behavior.
   let w: LightningArkWallet;
-  const fakeWallet: { sendBitcoin: jest.Mock } = { sendBitcoin: jest.fn() };
+  const fakeWallet: { send: jest.Mock } = { send: jest.fn() };
   const fakeArkadeSwaps: {
     createLightningInvoice: jest.Mock;
     sendLightningPayment: jest.Mock;
@@ -1101,7 +1101,7 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
   beforeEach(() => {
     w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
-    fakeWallet.sendBitcoin.mockReset().mockResolvedValue(undefined);
+    fakeWallet.send.mockReset().mockResolvedValue(undefined);
     fakeArkadeSwaps.createLightningInvoice.mockReset();
     fakeArkadeSwaps.sendLightningPayment.mockReset();
     // Wire the wallet up as if init() had already completed.
@@ -1167,7 +1167,7 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
 
     assert.strictEqual(fakeArkadeSwaps.sendLightningPayment.mock.calls.length, 1);
     assert.strictEqual(fakeArkadeSwaps.sendLightningPayment.mock.calls[0][0].invoice, invoice);
-    assert.strictEqual(fakeWallet.sendBitcoin.mock.calls.length, 0, 'Ark sendBitcoin must not run for BOLT11');
+    assert.strictEqual(fakeWallet.send.mock.calls.length, 0, 'Ark send must not run for BOLT11');
     assert.deepStrictEqual(w.last_paid_invoice_result, {
       payment_preimage: 'pre',
       payment_hash: expectedPaymentHash,
@@ -1175,13 +1175,13 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
     });
   });
 
-  it('payInvoice routes a valid Ark address through Wallet.sendBitcoin', async () => {
+  it('payInvoice routes a valid Ark address through Wallet.send', async () => {
     const arkAddress = 'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t5z8sz5n95k570z5r004szc9h2q3qprkzdd5zveujdpx24srcrqg8hf6j4v';
 
     await w.payInvoice(arkAddress, 12_345);
 
-    assert.strictEqual(fakeWallet.sendBitcoin.mock.calls.length, 1);
-    assert.deepStrictEqual(fakeWallet.sendBitcoin.mock.calls[0][0], {
+    assert.strictEqual(fakeWallet.send.mock.calls.length, 1);
+    assert.deepStrictEqual(fakeWallet.send.mock.calls[0][0], {
       address: arkAddress,
       amount: 12_345,
     });

@@ -14,7 +14,7 @@
  * covers both.
  */
 
-import { ContractManager, RestArkProvider, RestDelegatorProvider, VtxoManager } from '@arkade-os/sdk';
+import { ContractManager, RestArkProvider, RestDelegateProvider, VtxoManager } from '@arkade-os/sdk';
 import { BoltzSwapProvider, SwapManager } from '@arkade-os/boltz-swap';
 
 /** Snapshot of `https://arkade.computer/v1/info` for offline tests. */
@@ -75,7 +75,7 @@ export const FAKE_BOLTZ_LIMITS = {
  */
 export function installSdkProviderSpies(): void {
   jest.spyOn(RestArkProvider.prototype, 'getInfo').mockResolvedValue(FAKE_ASP_INFO as any);
-  jest.spyOn(RestDelegatorProvider.prototype, 'getDelegateInfo').mockResolvedValue(FAKE_DELEGATE_INFO as any);
+  jest.spyOn(RestDelegateProvider.prototype, 'getDelegateInfo').mockResolvedValue(FAKE_DELEGATE_INFO as any);
   jest.spyOn(BoltzSwapProvider.prototype, 'getFees').mockResolvedValue(FAKE_BOLTZ_FEES as any);
   jest.spyOn(BoltzSwapProvider.prototype, 'getLimits').mockResolvedValue(FAKE_BOLTZ_LIMITS as any);
 

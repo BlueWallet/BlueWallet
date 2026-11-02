@@ -14,7 +14,7 @@ import {
   isSubmarineSwapRefundable,
 } from '@arkade-os/boltz-swap';
 import { RealmSwapRepository } from '@arkade-os/boltz-swap/repositories/realm';
-import { RestDelegatorProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction, TxType } from '@arkade-os/sdk';
+import { RestDelegateProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction, TxType } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
 import { RealmContractRepository, RealmWalletRepository } from '@arkade-os/sdk/repositories/realm';
 
@@ -197,9 +197,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // Networks with no delegator (signet/testnet) skip the provider
         // entirely.
         const delegatorUrl = DELEGATOR_URLS[this._network];
-        let delegatorProvider: RestDelegatorProvider | undefined;
+        let delegatorProvider: RestDelegateProvider | undefined;
         if (delegatorUrl !== null) {
-          delegatorProvider = new RestDelegatorProvider(delegatorUrl);
+          delegatorProvider = new RestDelegateProvider(delegatorUrl);
           try {
             await delegatorProvider.getDelegateInfo();
           } catch (e) {
@@ -213,7 +213,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
           arkProvider: new ExpoArkProvider(this._arkServerUrl),
           indexerProvider: new ExpoIndexerProvider(this._arkServerUrl),
           storage: { walletRepository, contractRepository },
-          delegatorProvider,
+          delegateProvider: delegatorProvider,
         });
         staticWalletCache[namespace] = wallet;
         mm.end();
@@ -677,7 +677,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     if (this.isAddressValid(invoice)) {
       // its an ark address, so we need to do native ark-to-ark transfer
-      await this._wallet.sendBitcoin({
+      // sdk 0.5 removed sendBitcoin(), which rejected non-positive amounts; send() does not
+      if (!(freeAmount > 0)) throw new Error('Amount must be positive');
+      await this._wallet.send({
         address: invoice,
         amount: freeAmount,
       });

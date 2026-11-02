@@ -118,7 +118,7 @@ export default class SelfTest extends Component {
         // Offline Ark smoke check: derive identity + namespace from a fixed
         // mnemonic. No init() / SDK / network — those calls hang Detox on CI.
         // The full Ark address regression (BIP86 path, DelegateVtxo wiring,
-        // delegatorProvider) is pinned in tests/unit/lightning-ark-derivation.test.ts.
+        // delegateProvider) is pinned in tests/unit/lightning-ark-derivation.test.ts.
         const spkw = new LightningArkWallet();
         spkw.setSecret('arkade://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
         const pubkey = await spkw._getIdentity().xOnlyPublicKey();
