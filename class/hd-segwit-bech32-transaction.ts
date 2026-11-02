@@ -160,16 +160,15 @@ function foreignInputWitnessBytes(tx: bitcoin.Transaction, inIndex: number, prev
   if (isP2shScript(script)) {
     const scriptSig = tx.ins[inIndex].script;
     const chunks = bitcoin.script.decompile(scriptSig);
-    const redeemScript = chunks?.[chunks.length - 1];
+    if (!chunks) return null;
+    const redeemScript = chunks[chunks.length - 1];
     if (!(redeemScript instanceof Uint8Array)) return null;
-    // p2sh-p2wpkh: scriptSig is exactly a push of p2wpkh program (BIP141) whose hash is in the previous output
+    // scriptSig is exactly a push of witness program (BIP141), otherwise its legacy p2sh with no witness
+    const isWrappedSegwit = chunks.length === 1 && scriptSig.length === redeemScript.length + 1 && isWitnessProgram(redeemScript);
+    if (!isWrappedSegwit) return 0;
     const isP2shP2wpkh =
-      chunks!.length === 1 &&
-      scriptSig.length === redeemScript.length + 1 &&
-      isP2wpkhScript(redeemScript) &&
-      uint8ArrayToHex(bitcoin.crypto.hash160(redeemScript)) === uint8ArrayToHex(script.subarray(2, 22));
-    if (isP2shP2wpkh) return P2WPKH_MAX_WITNESS_BYTES;
-    if (isWitnessProgram(redeemScript)) return null; // p2sh-p2wsh or other wrapped segwit
+      isP2wpkhScript(redeemScript) && uint8ArrayToHex(bitcoin.crypto.hash160(redeemScript)) === uint8ArrayToHex(script.subarray(2, 22));
+    return isP2shP2wpkh ? P2WPKH_MAX_WITNESS_BYTES : null;
   }
   return 0;
 }
@@ -355,9 +354,12 @@ export class HDSegwitBech32Transaction {
       info = await this._getInfo();
     } catch (error) {
       if (!isTxVerificationError(error) || !this._txDecoded) throw error;
-      // bad copies of this tx or its parents might come from cache (e.g. saved while connected to a malicious server).
-      // dropping them and retrying once with fresh data from the server:
-      const txids = this._txDecoded.ins.map(inp => uint8ArrayToHex(new Uint8Array(inp.hash).reverse()));
+    }
+
+    // bad copies of this tx or its parents might come from cache (e.g. saved while connected to a malicious server).
+    // dropping them and retrying once with fresh data from the server:
+    if (!info || (!replacement && info.witnessUnverifiable)) {
+      const txids = this._txDecoded!.ins.map(inp => uint8ArrayToHex(new Uint8Array(inp.hash).reverse()));
       if (this._txid) {
         txids.push(this._txid);
         this._txDecoded = undefined;
@@ -368,18 +370,7 @@ export class HDSegwitBech32Transaction {
     }
 
     if (!replacement && info.witnessUnverifiable) {
-      // CPFP needs real size of this tx, but witness is not covered by txid and size of some input could not be
-      // verified. a bad copy might come from cache, so trying a fresh one once (also drops cached raw hex). if size
-      // still cant be verified we cant price CPFP, refusing
-      if (this._txid) {
-        await BlueElectrum.forgetCachedTransactions([this._txid]);
-        this._txDecoded = undefined;
-        this._txhex = null;
-        info = await this._getInfo();
-      }
-      if (info.witnessUnverifiable) {
-        throw new TxNotReplaceableError("Transaction has an input witness that can't be verified, cannot calculate its size");
-      }
+      throw new TxNotReplaceableError("Transaction has an input witness that can't be verified, cannot calculate its size");
     }
 
     if (replacement) {
@@ -585,7 +576,6 @@ export class HDSegwitBech32Transaction {
    */
   async createRBFcancelTx(newFeerate: number) {
     if (!this._wallet) throw new Error('Wallet required for this method');
-    if (!this._remoteTx) await this._fetchRemoteTx();
 
     const { feeRate, utxos } = await this.getInfo('cancel');
 
@@ -623,7 +613,6 @@ export class HDSegwitBech32Transaction {
    */
   async createRBFbumpFee(newFeerate: number) {
     if (!this._wallet) throw new Error('Wallet required for this method');
-    if (!this._remoteTx) await this._fetchRemoteTx();
 
     const { feeRate, targets, changeAmount, utxos } = await this.getInfo('bump');
 
@@ -666,7 +655,6 @@ export class HDSegwitBech32Transaction {
    */
   async createCPFPbumpFee(newFeerate: number) {
     if (!this._wallet) throw new Error('Wallet required for this method');
-    if (!this._remoteTx) await this._fetchRemoteTx();
 
     const { feeRate, fee: oldFee, vsize: oldVsize, unconfirmedUtxos } = await this.getInfo();
 
