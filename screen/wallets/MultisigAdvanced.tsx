@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState, FC } from 'react';
-import { Image, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import Icon from '../../components/Icon';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { SettingsListItem, SettingsSection } from '../../components/SettingsSection';
+import SheetHeader, { useSheetBottomPadding } from '../../components/SheetHeader';
 import { useTheme } from '../../components/themes';
 import type { Theme } from '../../components/themes';
 import loc from '../../loc';
@@ -185,8 +185,8 @@ const FormatSelector: FC<FormatSelectorProps> = ({ format, onFormatChange }) => 
 };
 
 const MultisigAdvanced: React.FC = () => {
-  const { colors, closeImage } = useTheme();
-  const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+  const bottomPadding = useSheetBottomPadding();
   const navigation = useNavigation();
   const route = useRoute<RouteProps>();
   const { m, n, format, onSave } = route.params;
@@ -199,21 +199,13 @@ const MultisigAdvanced: React.FC = () => {
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
-      // Android form sheets often report insets.bottom as 0. iOS form sheets often report a huge one,
-      // and fitToContents would grow to include it.
-      paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom, 24) + 16 : 16,
+      paddingBottom: bottomPadding,
     },
     textHeader: {
       color: colors.outputValue,
     },
     textSubtitle: {
       color: colors.alternativeTextColor,
-    },
-    headerTitle: {
-      color: colors.foregroundColor,
-    },
-    closeButton: {
-      backgroundColor: colors.lightButton,
     },
   });
 
@@ -243,22 +235,7 @@ const MultisigAdvanced: React.FC = () => {
 
   return (
     <View style={stylesHook.root}>
-      {Platform.OS === 'android' && (
-        <View style={styles.androidHeader}>
-          <Text style={[styles.headerTitle, stylesHook.headerTitle]} accessibilityRole="header">
-            {loc.multisig.vault_advanced_customize}
-          </Text>
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.close}
-            style={[styles.androidCloseButton, stylesHook.closeButton]}
-            onPress={() => navigation.goBack()}
-            testID="NavigationCloseButton"
-          >
-            <Image source={closeImage} />
-          </TouchableOpacity>
-        </View>
-      )}
+      <SheetHeader title={loc.multisig.vault_advanced_customize} onClose={() => navigation.goBack()} />
       <View style={styles.container}>
         <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
         <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>
@@ -287,26 +264,6 @@ const MultisigAdvanced: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  androidHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 8,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    flex: 1,
-  },
-  androidCloseButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-  },
   container: {
     paddingTop: 20,
   },

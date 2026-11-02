@@ -1,6 +1,5 @@
 import React from 'react';
-import { Image, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform, StyleSheet, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -8,6 +7,7 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import BlueTextCentered from '../../components/BlueTextCentered';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import QRCode from '../../components/QRCode';
+import SheetHeader, { useSheetBottomPadding } from '../../components/SheetHeader';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -15,36 +15,20 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 const ViewEditMultisigShareCosignerSheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigShareCosignerSheet'>>();
   const route = useRoute<RouteProp<DetailViewStackParamList, 'ViewEditMultisigShareCosignerSheet'>>();
-  const { colors, closeImage } = useTheme();
-  const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+  const bottomPadding = useSheetBottomPadding();
   const { cosignerXpub, cosignerXpubURv2 } = route.params;
 
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
-      // Android form sheets often report insets.bottom as 0. iOS form sheets often report a huge one.
-      paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom, 24) + 8 : 16,
-    },
-    closeButton: {
-      backgroundColor: colors.lightButton,
+      paddingBottom: bottomPadding,
     },
   });
 
   return (
     <View style={stylesHook.root}>
-      {Platform.OS === 'android' && (
-        <View style={styles.androidHeader}>
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.close}
-            style={[styles.androidCloseButton, stylesHook.closeButton]}
-            onPress={() => navigation.goBack()}
-            testID="NavigationCloseButton"
-          >
-            <Image source={closeImage} />
-          </TouchableOpacity>
-        </View>
-      )}
+      <SheetHeader onClose={() => navigation.goBack()} />
       <View style={styles.content}>
         <BlueTextCentered>
           {Platform.OS === 'ios'
@@ -64,18 +48,6 @@ const ViewEditMultisigShareCosignerSheet = () => {
 };
 
 const styles = StyleSheet.create({
-  androidHeader: {
-    alignItems: 'flex-end',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-  },
-  androidCloseButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-  },
   content: {
     paddingHorizontal: 22,
     paddingTop: 8,

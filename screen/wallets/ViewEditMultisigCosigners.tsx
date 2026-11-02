@@ -342,7 +342,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                         presentAlert({ message: 'Cannot find derivation path for this cosigner' });
                         return;
                       }
-                      const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
+                      const xpub = wallet.convertXpubToMultisignatureXpub(wallet.getCosignerXpub(keyIndex));
                       const exportJson = MultisigCosigner.exportToJson(fp, xpub, path);
                       const exportFilenameValue = 'bw-cosigner-' + fp + '.json';
                       const exportUr = encodeUR(exportJson, 175, null)[0];

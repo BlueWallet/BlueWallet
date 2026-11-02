@@ -9,6 +9,8 @@ const SHEET_CHROME = 140;
 
 interface SheetKeyboardFormProps {
   style?: StyleProp<ViewStyle>;
+  /** Height of everything in the sheet outside this scroller. */
+  reservedHeight?: number;
   children: React.ReactNode;
 }
 
@@ -20,14 +22,14 @@ interface SheetKeyboardFormProps {
  * the bottom. `flexGrow: 0` so Android `fitToContents` stays content-sized. The first child keeps this ScrollView out
  * of the chain react-native-screens switches to automatic content insets.
  */
-const SheetKeyboardForm: React.FC<SheetKeyboardFormProps> = ({ style, children }) => {
+const SheetKeyboardForm: React.FC<SheetKeyboardFormProps> = ({ style, reservedHeight = SHEET_CHROME, children }) => {
   const { height: windowHeight } = useWindowDimensions();
   const { height: keyboardHeight, isVisible: isKeyboardVisible } = useKeyboard();
   const insets = useSafeAreaInsets();
   const [contentHeight, setContentHeight] = useState(0);
 
   // Edge-to-edge Android keeps the window size when the keyboard opens, so the keyboard is subtracted once.
-  const spaceAboveKeyboard = windowHeight - (isKeyboardVisible ? keyboardHeight : 0) - insets.top - SHEET_CHROME;
+  const spaceAboveKeyboard = windowHeight - (isKeyboardVisible ? keyboardHeight : 0) - insets.top - reservedHeight;
   const maxHeight = Math.max(spaceAboveKeyboard, 0);
   const scrollHeight = contentHeight > 0 ? Math.min(contentHeight, maxHeight) : undefined;
   const stylesHook = StyleSheet.create({

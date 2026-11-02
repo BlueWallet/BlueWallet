@@ -865,12 +865,10 @@ const SendDetails = () => {
         if (!base64) return;
         let psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
-        const multisig = wallet as MultisigHDWallet;
-        if (multisig) {
-          // Finalize at quorum, otherwise add our signatures (see prepareImportedPsbt, covered by unit tests).
-          // Signing derives seeds, so show the spinner for it.
-          const willSign =
-            multisig.calculateHowManySignaturesWeHaveFromPsbt(psbt) < multisig.getM() && multisig.howManySignaturesCanWeMake() > 0;
+        if (wallet?.type === MultisigHDWallet.type) {
+          const multisig = wallet as MultisigHDWallet;
+          // Finalize at quorum, otherwise add our signatures. Signing derives seeds, so show the spinner for it.
+          const willSign = multisig.willCosignImportedPsbt(psbt);
           if (willSign) {
             setIsLoading(true);
             await sleep(100);

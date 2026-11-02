@@ -55,7 +55,7 @@ const getChangeAddressSet = (wallet: MultisigHDWallet): Set<string> => {
   return changeAddresses;
 };
 
-const getDestinationData = (psbt: bitcoin.Psbt, wallet: MultisigHDWallet, excludeChange = true) => {
+export const getDestinationData = (psbt: bitcoin.Psbt, wallet: MultisigHDWallet, excludeChange = true) => {
   // Only strip change outputs (same approach as SendDetails → Confirm), not all owned
   // addresses — sending to your own receive address must still show as a recipient.
   const changeAddresses = excludeChange ? getChangeAddressSet(wallet) : null;
@@ -224,7 +224,7 @@ const PsbtMultisig = () => {
     const lastIndex = keyIndexes.length - 1;
 
     return (
-      <View key={`${index}`} testID={isChecked ? 'ItemSigned' : 'ItemUnsigned'}>
+      <View key={`${index}`} testID={isChecked ? 'ItemSigned' : 'ItemUnsigned'} collapsable={false}>
         <MultipleStepsListItem
           checked={isChecked}
           circledText={String(index + 1)}

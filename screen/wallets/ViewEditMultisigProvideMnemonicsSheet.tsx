@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Image, Platform, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform, StyleSheet, Switch, View } from 'react-native';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -16,6 +15,7 @@ import {
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
 import SheetKeyboardForm from '../../components/SheetKeyboardForm';
 import { useKeyboard } from '../../hooks/useKeyboard';
+import SheetHeader, { useSheetBottomPadding } from '../../components/SheetHeader';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -23,8 +23,8 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 const ViewEditMultisigProvideMnemonicsSheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigProvideMnemonicsSheet'>>();
   const route = useRoute<RouteProp<DetailViewStackParamList, 'ViewEditMultisigProvideMnemonicsSheet'>>();
-  const { colors, closeImage } = useTheme();
-  const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+  const bottomPadding = useSheetBottomPadding();
   // On a short phone the 220pt field plus the keyboard leave no room for Import, so the field shrinks while typing
   const { isVisible: isKeyboardVisible } = useKeyboard();
   const {
@@ -62,37 +62,15 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
     root: {
       backgroundColor: colors.elevated,
       // No flex:1 — fitToContents treats it as full height and the form lands at the bottom of the sheet.
-      // Android form sheets often report insets.bottom as 0. iOS form sheets often report a huge one.
-      paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom, 24) + 16 : 16,
-    },
-    headerTitle: {
-      color: colors.foregroundColor,
-    },
-    closeButton: {
-      backgroundColor: colors.lightButton,
+      paddingBottom: bottomPadding,
     },
   });
 
   return (
     <View style={stylesHook.root}>
-      {Platform.OS === 'android' && (
-        <View style={styles.androidHeader}>
-          <Text style={[styles.headerTitle, stylesHook.headerTitle]} accessibilityRole="header">
-            {loc.wallets.import_title}
-          </Text>
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.close}
-            style={[styles.androidCloseButton, stylesHook.closeButton]}
-            onPress={() => navigation.goBack()}
-            testID="NavigationCloseButton"
-          >
-            <Image source={closeImage} />
-          </TouchableOpacity>
-        </View>
-      )}
+      <SheetHeader title={loc.wallets.import_title} onClose={() => navigation.goBack()} />
       <SheetKeyboardForm style={styles.contentContainer}>
-        <BlueTextCentered>{loc.multisig.type_seed_for_existing_key}</BlueTextCentered>
+        <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
         <BlueSpacing20 />
         <BlueFormMultiInput
           value={importText}
@@ -134,26 +112,6 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
 };
 
 const styles = StyleSheet.create({
-  androidHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 8,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    flex: 1,
-  },
-  androidCloseButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-  },
   contentContainer: {
     paddingHorizontal: 24,
     paddingTop: 8,

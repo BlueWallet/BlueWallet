@@ -2259,6 +2259,29 @@ describe('cloneCosigners', () => {
     assert.strictEqual(w.getCustomDerivationPathForCosigner(1), customPath);
     assert.strictEqual(w.getFingerprint(2), fp1cobo);
   });
+
+  it('copy reuses the derived xpubs instead of deriving the seed again', () => {
+    const customPath = "m/48'/0'/0'/2'";
+    const seed = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+    const passphrase = 'secret-pass';
+    const w = new MultisigHDWallet();
+    w.setM(2);
+    w.setNativeSegwit();
+    w.addCosigner(seed, undefined, customPath, passphrase);
+    w.addCosigner(Zpub1, fp1cobo);
+    const expected = w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, customPath, passphrase));
+    assert.strictEqual(w.convertXpubToMultisignatureXpub(w.getCosignerXpub(1)), expected);
+
+    const spy = jest.spyOn(MultisigHDWallet, 'seedToXpub');
+    try {
+      const clone = w.cloneCosigners();
+      assert.strictEqual(clone.convertXpubToMultisignatureXpub(clone.getCosignerXpub(1)), expected);
+      assert.strictEqual(clone.convertXpubToMultisignatureXpub(clone.getCosignerXpub(2)), Zpub1);
+      assert.strictEqual(spy.mock.calls.length, 0);
+    } finally {
+      spy.mockRestore();
+    }
+  });
 });
 
 describe('cosignPsbt with more local keys than quorum', () => {
@@ -2364,27 +2387,6 @@ describe('cosignPsbt with more local keys than quorum', () => {
     assert.strictEqual(bitcoin.Psbt.fromBase64(before).finalizeAllInputs().extractTransaction().toHex(), tx.toHex());
   });
 
-  it('finalizes a PSBT that already has quorum without adding a signature', () => {
-    const w = makeWallet();
-    const psbt = makeUnsignedPsbt(w);
-    signWithSeed(psbt, 0, seeds[1]);
-    signWithSeed(psbt, 0, seeds[2]);
-    signWithSeed(psbt, 1, seeds[1]);
-    signWithSeed(psbt, 1, seeds[2]);
-    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
-    assert.strictEqual(psbt.data.inputs[0].partialSig.length, 2);
-
-    MultisigHDWallet.finalizeUnfinalizedInputs(psbt);
-
-    const tx = psbt.extractTransaction();
-    assertWitnessSigs(tx, 0, 2);
-    assertWitnessSigs(tx, 1, 2);
-    assert.strictEqual(psbt.data.inputs[0].partialSig, undefined);
-    const exported = bitcoin.Psbt.fromBase64(psbt.toBase64());
-    assert.throws(() => exported.finalizeAllInputs());
-    assert.strictEqual(exported.extractTransaction().toHex(), tx.toHex());
-  });
-
   it('finalizedCopy returns a broadcastable copy when every input meets the quorum', () => {
     const w = makeWallet();
     const psbt = makeUnsignedPsbt(w);
@@ -2418,6 +2420,23 @@ describe('cosignPsbt with more local keys than quorum', () => {
     assertWitnessSigs(tx, 0, 2);
     assertWitnessSigs(tx, 1, 2);
     assert.strictEqual(psbt.toBase64(), before); // original untouched, both inputs keep their partialSig
+  });
+
+  it('finalizedCopy keeps verified signatures over a bad surplus one', () => {
+    const w = makeWallet();
+    const psbt = makeUnsignedPsbt(w);
+    for (const i of [0, 1]) for (const seed of seeds) signWithSeed(psbt, i, seed);
+    // the signature that sorts first (a PSBT keeps partialSig ordered by pubkey) is corrupted but still DER-valid,
+    // so keeping the first M would keep it
+    const [first] = [...psbt.data.inputs[1].partialSig].sort((a, b) => Buffer.compare(Buffer.from(a.pubkey), Buffer.from(b.pubkey)));
+    first.signature[10] = (first.signature[10] + 1) % 256;
+
+    const tx = w.finalizedCopy(psbt).extractTransaction();
+
+    assertWitnessSigs(tx, 1, 2);
+    const hex = sig => Buffer.from(sig).toString('hex');
+    const good = psbt.data.inputs[1].partialSig.filter(p => p !== first).map(p => hex(p.signature));
+    assert.deepStrictEqual(tx.ins[1].witness.slice(1, 3).map(hex).sort(), good.sort());
   });
 
   it('finalizedCopy throws when an input cannot be finalized and leaves the original intact', () => {

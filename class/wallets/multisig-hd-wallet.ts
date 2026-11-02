@@ -151,6 +151,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     clone._cosignersFingerprints = this._cosignersFingerprints.slice();
     clone._cosignersCustomPaths = this._cosignersCustomPaths.slice();
     clone._cosignersPassphrases = this._cosignersPassphrases.slice();
+    clone._cosignerXpubCache = { ...this._cosignerXpubCache };
     return clone;
   }
 
@@ -181,6 +182,14 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   getCosigner(index: number) {
     if (index === 0) throw new Error('cosigners indexation starts from 1');
     return this._cosigners[index - 1];
+  }
+
+  /**
+   * Cosigner's xpub, taken from the cache when its seed was already derived
+   */
+  getCosignerXpub(index: number): string {
+    if (index === 0) throw new Error('cosigners indexation starts from 1');
+    return this._getXpubFromCosignerIndex(index - 1);
   }
 
   getFingerprint(index: number) {
@@ -1213,7 +1222,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   /**
    * Drops partial signatures beyond the quorum, in place. bitcoinjs refuses to finalize an input with more
    * signatures than M ("Too many signatures"), but any M valid signatures are enough, so the surplus is just removed.
-   * Signatures by keys that are not in the input's script are dropped first.
+   * Signatures by keys that are not in the input's script are dropped first, then ones that do not verify.
    */
   _dropSurplusSignatures(psbt: Psbt) {
     const m = this.getM();
@@ -1228,7 +1237,15 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           return true; // cannot verify against the script, keep it and let finalize decide
         }
       });
-      input.partialSig = inScript.slice(0, m);
+      const verifies = ({ pubkey }: { pubkey: Uint8Array }) => {
+        try {
+          return psbt.validateSignaturesOfInput(cc, (pk, msghash, sig) => ecc.verify(msghash, pk, sig), pubkey);
+        } catch (_) {
+          return false; // e.g. no UTXO to compute the sighash; such a signature goes after the verified ones
+        }
+      };
+      const verified = inScript.filter(verifies);
+      input.partialSig = [...verified, ...inScript.filter(sig => !verified.includes(sig))].slice(0, m);
     }
   }
 
@@ -1254,12 +1271,17 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
    */
   prepareImportedPsbt(psbt: Psbt): Psbt {
     if (this.calculateHowManySignaturesWeHaveFromPsbt(psbt) >= this.getM()) return this.finalizedCopy(psbt);
-    if (this.howManySignaturesCanWeMake() > 0) {
-      const copy = psbt.clone();
-      this.cosignPsbt(copy);
-      return copy;
-    }
-    return psbt;
+    if (!this.willCosignImportedPsbt(psbt)) return psbt;
+    const copy = psbt.clone();
+    this.cosignPsbt(copy);
+    return copy;
+  }
+
+  /**
+   * Whether prepareImportedPsbt() adds our signatures. Signing derives seeds, which is slow.
+   */
+  willCosignImportedPsbt(psbt: Psbt): boolean {
+    return this.calculateHowManySignaturesWeHaveFromPsbt(psbt) < this.getM() && this.howManySignaturesCanWeMake() > 0;
   }
 
   /**

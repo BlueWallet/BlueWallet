@@ -16,7 +16,6 @@ import Icon from './Icon';
 import ActionSheet from '../screen/ActionSheet';
 import { useTheme } from './themes';
 import { ActionSheetOptions } from '../screen/ActionSheet.common';
-import loc from '../loc';
 
 export enum MultipleStepsListItemDashType {
   None = 0,
@@ -220,12 +219,11 @@ const MultipleStepsListItem = (props: MultipleStepsListItemProps) => {
   const pillStyle = isCheckAnimating ? numberPillStyle : restingStyles.pill;
   const pillTextStyle = isCheckAnimating ? numberPillTextStyle : restingStyles.pillText;
 
+  // leftText around the number, which is drawn as the pill
   const titleParts = useMemo(() => {
-    if (!circledText) {
-      return { before: leftText, after: '' };
-    }
-    const [before = '', after = ''] = loc.formatString(loc.multisig.vault_key, { number: '\u0000' }).split('\u0000');
-    return { before, after };
+    const at = circledText ? leftText.indexOf(circledText) : -1;
+    if (at < 0) return { before: leftText, after: '' };
+    return { before: leftText.slice(0, at), after: leftText.slice(at + circledText.length) };
   }, [circledText, leftText]);
 
   const handleOnPressForActionSheet = () => {

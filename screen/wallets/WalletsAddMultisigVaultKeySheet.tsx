@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
-import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import Button from '../../components/Button';
+import SheetHeader, { useSheetBottomPadding } from '../../components/SheetHeader';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
@@ -11,8 +11,8 @@ import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 const WalletsAddMultisigVaultKeySheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<AddWalletStackParamList, 'WalletsAddMultisigVaultKeySheet'>>();
   const route = useRoute<RouteProp<AddWalletStackParamList, 'WalletsAddMultisigVaultKeySheet'>>();
-  const { colors, closeImage } = useTheme();
-  const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+  const bottomPadding = useSheetBottomPadding();
   const { seed, keyIndex } = route.params;
   const title = loc.formatString(loc.multisig.vault_key, { number: keyIndex });
 
@@ -22,15 +22,7 @@ const WalletsAddMultisigVaultKeySheet = () => {
     root: {
       flex: 1,
       backgroundColor: colors.elevated,
-      // Android form sheets often report insets.bottom as 0. iOS form sheets often report a huge one,
-      // and this padding sits inside the fixed detent.
-      paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom, 24) + 16 : 16,
-    },
-    headerTitle: {
-      color: colors.foregroundColor,
-    },
-    closeButton: {
-      backgroundColor: colors.lightButton,
+      paddingBottom: bottomPadding,
     },
     description: {
       color: colors.alternativeTextColor,
@@ -45,22 +37,7 @@ const WalletsAddMultisigVaultKeySheet = () => {
 
   return (
     <View style={stylesHook.root}>
-      {Platform.OS === 'android' && (
-        <View style={styles.androidHeader}>
-          <Text style={[styles.headerTitle, stylesHook.headerTitle]} accessibilityRole="header">
-            {title}
-          </Text>
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.close}
-            style={[styles.androidCloseButton, stylesHook.closeButton]}
-            onPress={() => navigation.goBack()}
-            testID="NavigationCloseButton"
-          >
-            <Image source={closeImage} />
-          </TouchableOpacity>
-        </View>
-      )}
+      <SheetHeader title={title} onClose={() => navigation.goBack()} />
       <Text style={[styles.description, stylesHook.description]}>{loc.multisig.wallet_key_created}</Text>
       <ScrollView style={styles.seedScroll} contentContainerStyle={styles.seedContent}>
         <View style={styles.secretContainer}>
@@ -79,26 +56,6 @@ const WalletsAddMultisigVaultKeySheet = () => {
 };
 
 const styles = StyleSheet.create({
-  androidHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 8,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    flex: 1,
-  },
-  androidCloseButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-  },
   description: {
     fontSize: 15,
     lineHeight: 22,
