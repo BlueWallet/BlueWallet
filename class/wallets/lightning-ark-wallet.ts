@@ -19,6 +19,8 @@ import { sideLimits, type DiscoveredMarket } from '@arkade-os/solver-discovery';
 import { RestDelegateProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction, TxType, collectPages } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
 import { RealmContractRepository, RealmWalletRepository } from '@arkade-os/sdk/repositories/realm';
+import { createLnurlClient } from '@arkade-os/lnurl-client';
+import { arkadeLnurl, bootstrapReceiver, lnurlRailLimits, type Receiver } from '@arkade-os/lnurl-client/arkade';
 import type Realm from 'realm';
 
 import BIP32Factory from 'bip32';
@@ -54,6 +56,10 @@ const DELEGATOR_URLS = {
   testnet: null,
 } as const;
 
+// Issues this wallet's receive invoices: its solver pays into a covenant bound
+// to our Arkade address, so funds land as plain VTXOs even with the app closed.
+const LNURL_SERVER = 'https://lnurl.arkade.sh';
+
 const staticWalletCache: Record<string, Wallet> = {};
 const staticSwapClientCache: Record<string, SwapClient> = {};
 const staticSwapRepositoryCache: Record<string, RealmAssetSwapRepository> = {};
@@ -78,6 +84,8 @@ export const __testing__ = {
 
 /** display row built from SDK history / boarding utxos / swaps; see getTransactions() */
 type ArkTxRow = LightningTransaction & { txid: string; walletID: string };
+/** An invoice from the LNURL server, watched while the receive screen is open. */
+type LnurlInvoice = { row: ArkTxRow; verify?: string };
 /** Outcomes that read as settled on a history row. */
 const SETTLED_OUTCOMES: ReadonlySet<Outcome> = new Set(['paid', 'claimed', 'filled']);
 /** Outcomes where the trader's value came back (send legs). */
@@ -197,6 +205,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _transactionsHistory: ArkTransaction[] = [];
   private _privateKeyCache = '';
   private _boardingUtxos: ExtendedCoin[] = [];
+  private _lnurlReceiver: Promise<Receiver> | undefined;
+  // In memory only: the funds arrive whether or not anyone is still watching.
+  private _lnurlInvoices: LnurlInvoice[] = [];
 
   constructor() {
     super();
@@ -210,6 +221,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
     Object.defineProperty(this, '_markets', { value: [], writable: true, enumerable: false, configurable: true });
     Object.defineProperty(this, '_acceptedInvoiceMap', { value: new Map(), writable: true, enumerable: false, configurable: true });
     Object.defineProperty(this, '_recordsRefreshInFlight', { value: null, writable: true, enumerable: false, configurable: true });
+    Object.defineProperty(this, '_lnurlReceiver', { value: undefined, writable: true, enumerable: false, configurable: true });
+    Object.defineProperty(this, '_lnurlInvoices', { value: [], writable: true, enumerable: false, configurable: true });
   }
 
   /**
@@ -601,6 +614,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
       paymentHash = this.decodeInvoice(paymentRequest)?.payment_hash ?? '';
     } catch {}
     const normalized = paymentRequest.trim().toLowerCase();
+    if (this._lnurlInvoices.some(({ row }) => row.payment_request?.trim().toLowerCase() === normalized)) return true;
     return this._swapRecords.some(record => {
       if (!isReceiveKind(record.kind)) return false;
       if (paymentHash) {
@@ -853,6 +867,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
       });
     }
 
+    // Pass 4 — LNURL invoices, for the receive-screen poll only: a paid one is
+    // already in history as the VTXO it delivered (pass 1).
+    if (includeUnpaidInvoices) ret.push(...this._lnurlInvoices.map(({ row }) => row));
+
     // rows carry only the lightning fields; callers treat them as the on-chain shape too
     return ret as (Transaction & LightningTransaction)[];
   }
@@ -937,15 +955,13 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
   }
 
-  /** Receive-leg (arkade / base side) bounds in sats, or null when disabled. */
-  getReceiveLimits(): { min: number; max: number } | null {
-    const market = this._marketForSide('base');
-    if (!market) return null;
+  /** The LNURL server's Lightning bounds in sats, or null when it offers none or cannot be reached. */
+  async getReceiveLimits(): Promise<{ min: number; max: number } | null> {
     try {
-      const limits = sideLimits(market, 'base');
-      if (!limits) return null;
-      return { min: Number(limits.min), max: Number(limits.max) };
-    } catch {
+      const receiver = await this._getLnurlReceiver();
+      return lnurlRailLimits(await receiver.payRequest()).find(rail => rail.type === 'lightning') ?? null;
+    } catch (e) {
+      console.log('[ARK] LNURL receive limits failed:', errorMessage(e));
       return null;
     }
   }
@@ -1289,38 +1305,77 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   async getUserInvoices(): Promise<LightningTransaction[]> {
     await this.fetchTransactions();
+    await this._refreshLnurlInvoices();
     const txs = this.getTransactions(true);
     return txs.filter(tx => tx.value! > 0);
   }
 
   /**
-   * Receive: `client.receive` pins the TAKE leg — the trader is credited
-   * `amount` and the payer is shown `give.amount`, fee included — so there
-   * is no service fee to pre-add to the requested amount. The returned
-   * artifact's bolt11 is the solver's hold invoice. The claim is the
-   * client's: the drive claims the lockup, so no screen-driven claim effect.
-   * The receive screen watches the swap's outcome instead — `lapsed` is the
-   * outcome said out loud, since on a receive leg every non-claim leaf is
-   * the solver's and the payment never arrived.
+   * The nameless address this wallet receives on. Its owner is derived from the
+   * key, so a restore finds it again; `refresh` re-binds it if our Arkade
+   * address has rotated.
    */
-  async addInvoice(amt: number, memo: string) {
-    if (!this._swapClient) await this.init();
-    if (!this._swapClient) throw new Error('Swap client not initialized');
-
-    const limits = this.getReceiveLimits();
-    if (!limits) throw new Error('Lightning receive is unavailable for this solver right now');
-    if (!(amt > limits.min - 1 && amt < limits.max + 1)) {
-      if (amt <= limits.min) throw new Error(`Minimum to receive is ${limits.min} sat`);
-      throw new Error(`Maximum to receive is ${limits.max} sat`);
+  private _getLnurlReceiver(): Promise<Receiver> {
+    if (!this._lnurlReceiver) {
+      const receiver = (async () => {
+        const lnurl = arkadeLnurl({ identity: this._getIdentity(), arkadeAddress: await this.getArkAddress(), baseUrl: LNURL_SERVER });
+        const boot = await bootstrapReceiver(lnurl, { autoClaimNameless: true, refresh: true });
+        if (boot.kind !== 'ready') throw new Error('Lightning receive is unavailable right now');
+        return boot.receiver;
+      })();
+      this._lnurlReceiver = receiver;
+      receiver.catch(() => {
+        if (this._lnurlReceiver === receiver) this._lnurlReceiver = undefined;
+      });
     }
+    return this._lnurlReceiver;
+  }
 
-    const request = await this._swapClient.receive({ amount: BigInt(amt), via: 'lightning' });
-    await this.refreshSwapCaches();
+  async addInvoice(amt: number, memo: string) {
+    const payRequest = await (await this._getLnurlReceiver()).payRequest();
+    const option = payRequest.paymentOptions?.find(o => o.type === 'lightning' && o.available !== false);
+    if (payRequest.paymentOptions && !option) throw new Error('Lightning receive is unavailable right now');
 
-    const artifact = request?.artifact as { bolt11?: string } | undefined;
-    const bolt11 = artifact?.bolt11;
-    if (!bolt11) throw new Error('Solver did not return a Lightning invoice');
-    return bolt11;
+    const answer = await createLnurlClient().requestInvoice(payRequest, { amountSat: amt, paymentOption: option?.id });
+    if (answer.kind !== 'bolt11') throw new Error('LNURL server did not return a Lightning invoice');
+
+    const { payment_hash, expiry } = this.decodeInvoice(answer.pr);
+    this._lnurlInvoices.push({
+      verify: answer.verify,
+      row: {
+        txid: `lnurl-${payment_hash}`,
+        type: 'user_invoice',
+        walletID: this.getID(),
+        description: memo,
+        memo,
+        value: amt,
+        amt,
+        timestamp: Math.floor(Date.now() / 1000),
+        ispaid: false,
+        payment_hash,
+        payment_request: answer.pr,
+        expire_time: expiry || 3600,
+      },
+    });
+    return answer.pr;
+  }
+
+  private async _refreshLnurlInvoices(): Promise<void> {
+    const now = Date.now() / 1000;
+    const pending = this._lnurlInvoices.filter(({ row }) => !row.ispaid && (row.timestamp ?? 0) + (row.expire_time ?? 0) > now);
+    await Promise.all(
+      pending.map(async ({ row, verify }) => {
+        if (!verify || !row.payment_request) return;
+        try {
+          // Resolves only when settled; a timeout of 0 makes this a single look.
+          const status = await createLnurlClient().pollVerify(verify, { timeoutMs: 0, expect: { pr: row.payment_request } });
+          row.ispaid = true;
+          if (status.kind === 'bolt11') row.payment_preimage = status.preimage ?? undefined;
+        } catch {
+          // Not settled yet, or the server cannot say: the next poll asks again.
+        }
+      }),
+    );
   }
 
   async getArkAddress(): Promise<string> {
@@ -1558,6 +1613,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
     this._outcomes = new Map();
     this._markets = [];
     this._acceptedInvoiceMap = new Map();
+    this._lnurlReceiver = undefined;
+    this._lnurlInvoices = [];
     delete staticWalletCache[namespace];
     delete staticSwapClientCache[namespace];
     delete staticSwapRepositoryCache[namespace];

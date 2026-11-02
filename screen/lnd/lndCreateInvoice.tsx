@@ -183,15 +183,8 @@ const LNDCreateInvoice = () => {
     const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', _keyboardDidShow);
     const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', _keyboardDidHide);
     let cancelled = false;
-    // Warm the market set so the receive bounds below render. Non-critical:
-    // addInvoice() enforces the same bounds, so a cold read only hides the hint.
     if (wallet.current instanceof LightningArkWallet) {
-      wallet.current
-        .ensureLightningFeesLoaded()
-        .then(() => {
-          if (!cancelled && wallet.current instanceof LightningArkWallet) setReceiveLimits(wallet.current.getReceiveLimits());
-        })
-        .catch(() => {});
+      wallet.current.getReceiveLimits().then(limits => !cancelled && setReceiveLimits(limits));
     }
     return () => {
       cancelled = true;
@@ -290,10 +283,10 @@ const LNDCreateInvoice = () => {
 
       assert(wallet.current instanceof LightningArkWallet || wallet.current instanceof LightningCustodianWallet);
 
-      // Solver bounds pre-check (Ark only): addInvoice() enforces the same,
+      // LNURL server bounds pre-check (Ark only): addInvoice() enforces the same,
       // but the screen owes a disabled-side message rather than a range error.
       if (wallet.current instanceof LightningArkWallet && !lnurlParams) {
-        const limits = wallet.current.getReceiveLimits() ?? receiveLimits;
+        const limits = await wallet.current.getReceiveLimits();
         if (!limits) {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
           presentAlert({ message: loc.lnd.receiveUnavailable });

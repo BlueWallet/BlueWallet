@@ -70,7 +70,7 @@
     "quoteTotal": "Total debit: {total}",
     "quoteExpires": "Quote expires: {time}",
     "quoteExpired": "Quote expired. Please review the new quote and confirm again.",
-    "receiveUnavailable": "Lightning receive is unavailable for this solver right now. Try again later.",
+    "receiveUnavailable": "Lightning receive is unavailable right now. Try again later.",
     "receiveLimits": "Receivable between {min} and {max} sats"
   },
   "lndViewInvoice": {

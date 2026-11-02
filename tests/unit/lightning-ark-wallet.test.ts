@@ -1,6 +1,8 @@
 import assert from 'assert';
 
-import { TxType } from '@arkade-os/sdk';
+import { ArkAddress, TxType } from '@arkade-os/sdk';
+import bolt11 from 'bolt11';
+import { sha256 } from '@noble/hashes/sha256';
 import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION } from '@arkade-os/sdk/repositories/realm';
 import { AssetSwapRealmSchemas } from '@arkade-os/swap/repositories/realm';
 
@@ -380,15 +382,6 @@ describe('LightningArkWallet — limits and fee estimate off the card', () => {
     assert.deepStrictEqual(w.getSendLimits(), { min: 500, max: 50000 });
   });
 
-  it('reads the receive bracket live off the card', () => {
-    assert.deepStrictEqual(w.getReceiveLimits(), { min: 500, max: 50000 });
-  });
-
-  it('reads a disabled receive side as null', () => {
-    (w as any)._markets = [{ ...BUNDLED_MARKET, min_base_amount: '0', max_base_amount: '0' }];
-    assert.strictEqual(w.getReceiveLimits(), null);
-  });
-
   it('estimates the send fee synchronously off fee_bps', () => {
     assert.strictEqual(w.getSubmarineFeeEstimate(10000), 30);
     assert.strictEqual(w.getSubmarineFeeEstimate(500), 2, 'ceil(500 * 30 / 10000)');
@@ -692,7 +685,6 @@ describe('LightningArkWallet — full init pipeline (offline)', () => {
 
     // Registry unreachable (fetch stubbed) → bundled bootstrap, not a throw.
     assert.deepStrictEqual(w.getSendLimits(), { min: 500, max: 100000 });
-    assert.deepStrictEqual(w.getReceiveLimits(), { min: 500, max: 100000 });
     assert.strictEqual(w.getSubmarineFeeEstimate(10000), 30);
 
     // Offline, the SDK's wallet.dispose() drains its background loops on
@@ -703,5 +695,164 @@ describe('LightningArkWallet — full init pipeline (offline)', () => {
     });
     for (let i = 0; i < 100 && !deletion.done; i++) await jest.advanceTimersByTimeAsync(250);
     await deleting;
+  });
+});
+
+describe('LightningArkWallet LNURL receive', () => {
+  const ARK_ADDRESS = new ArkAddress(new Uint8Array(32).fill(2), new Uint8Array(32).fill(3), 'ark').encode();
+  const PREIMAGE = 'ab'.repeat(32);
+  const makeInvoice = (timestamp = Math.floor(Date.now() / 1000)) =>
+    bolt11.sign(
+      bolt11.encode({
+        network: { bech32: 'bc', pubKeyHash: 0, scriptHash: 5, validWitnessVersions: [0, 1] },
+        satoshis: 1000,
+        timestamp,
+        tags: [
+          { tagName: 'payment_hash', data: Buffer.from(sha256(Buffer.from(PREIMAGE, 'hex'))).toString('hex') },
+          { tagName: 'description', data: 'lnurl' },
+          { tagName: 'expire_time', data: 600 },
+        ],
+      }),
+      '11'.repeat(32),
+    ).paymentRequest!;
+
+  const originalFetch = global.fetch;
+  let w: LightningArkWallet;
+  let server: {
+    addresses: any[];
+    paymentOptions: any[] | undefined;
+    invoice: string;
+    verify: Record<string, unknown>;
+    down: boolean;
+    calls: { method: string; url: string; body?: any }[];
+  };
+
+  const payRequest = () => ({
+    tag: 'payRequest',
+    callback: 'https://lnurl.arkade.sh/lnurl/session-id/callback',
+    minSendable: 1000,
+    maxSendable: 100000000,
+    metadata: '[["text/plain","lnurl"]]',
+    paymentOptions: server.paymentOptions,
+  });
+
+  beforeEach(() => {
+    server = {
+      addresses: [],
+      paymentOptions: [
+        { id: 'arkade', type: 'arkade', minSendable: 1000, maxSendable: 200000000 },
+        { id: 'offline-swap', type: 'lightning', minSendable: 500000, maxSendable: 50000000 },
+      ],
+      invoice: makeInvoice(),
+      verify: { status: 'OK', settled: false, preimage: null },
+      down: false,
+      calls: [],
+    };
+    global.fetch = jest.fn(async (input: any, init: any) => {
+      const url = String(input);
+      const method = init?.method ?? 'GET';
+      server.calls.push({ method, url, body: init?.body && JSON.parse(init.body) });
+      if (server.down) throw new TypeError('Network request failed');
+      const { pathname } = new URL(url);
+      let body: unknown;
+      if (pathname === '/lnurl/address' && method === 'GET') body = server.addresses;
+      else if (pathname === '/lnurl/domain') {
+        body = { domain: 'lnurl.arkade.sh', allocationModes: ['random', 'admin', 'session'], usernameRules: {}, requireApiKey: false };
+      } else if (pathname === '/lnurl/address') {
+        body = { handle: 'h1', domain: 'lnurl.arkade.sh', status: 'active', sessionLnurl: 'https://lnurl.arkade.sh/lnurl/session-id' };
+      } else if (pathname === '/lnurl/address/h1/arkade') body = {};
+      else if (pathname.endsWith('/callback')) body = { pr: server.invoice, routes: [], verify: 'https://lnurl.arkade.sh/verify/1' };
+      else if (pathname === '/verify/1') body = { ...server.verify, pr: server.invoice };
+      else body = payRequest();
+      return new Response(JSON.stringify(body), { status: 200 });
+    }) as any;
+
+    w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    (w as any)._wallet = { getAddress: async () => ARK_ADDRESS };
+    jest.spyOn(w, 'fetchTransactions').mockResolvedValue(undefined as any);
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    jest.restoreAllMocks();
+  });
+
+  it('claims a nameless address bound to the Arkade address once, and asks for the Lightning rail', async () => {
+    const first = await w.addInvoice(1000, 'coffee');
+    await w.addInvoice(1000, 'tea');
+
+    assert.strictEqual(first, server.invoice);
+    const claims = server.calls.filter(c => c.method === 'POST' && c.url.endsWith('/lnurl/address'));
+    assert.strictEqual(claims.length, 1);
+    assert.strictEqual(claims[0].body.nameless, true);
+    const bind = server.calls.find(c => c.url.endsWith('/lnurl/address/h1/arkade'));
+    assert.strictEqual(bind?.body.arkadeAddress, ARK_ADDRESS);
+    const callback = server.calls.find(c => c.url.includes('/callback'));
+    assert.ok(callback?.url.includes('paymentOption=offline-swap'));
+    assert.ok(callback?.url.includes('amount=1000000'));
+  });
+
+  it('refuses when the server offers no Lightning rail', async () => {
+    server.paymentOptions = [{ id: 'arkade', type: 'arkade' }];
+    await assert.rejects(() => w.addInvoice(1000, ''), /unavailable/);
+    assert.strictEqual(await w.getReceiveLimits(), null);
+  });
+
+  it('retries the claim after a failure rather than caching it', async () => {
+    server.down = true;
+    await assert.rejects(() => w.addInvoice(1000, ''));
+    assert.strictEqual(await w.getReceiveLimits(), null);
+
+    server.down = false;
+    assert.strictEqual(await w.addInvoice(1000, ''), server.invoice);
+  });
+
+  it("reads the Lightning rail's bounds in sats", async () => {
+    const limits = await w.getReceiveLimits();
+    assert.strictEqual(limits?.min, 500);
+    assert.strictEqual(limits?.max, 50000);
+  });
+
+  it('shows the invoice to the receive poll only, and marks it paid once verify proves it', async () => {
+    const invoice = await w.addInvoice(1000, 'coffee');
+
+    let [row] = await w.getUserInvoices();
+    assert.strictEqual(row.payment_request, invoice);
+    assert.strictEqual(row.ispaid, false);
+    assert.strictEqual(row.amt, 1000);
+    assert.strictEqual(w.isInvoiceGeneratedByWallet(invoice), true);
+    assert.strictEqual(w.getTransactions().length, 0, 'history shows the VTXO, not the invoice');
+
+    // A preimage that does not hash to the invoice is not settlement.
+    server.verify = { status: 'OK', settled: true, preimage: 'cd'.repeat(32) };
+    [row] = await w.getUserInvoices();
+    assert.strictEqual(row.ispaid, false);
+
+    server.verify = { status: 'OK', settled: true, preimage: PREIMAGE };
+    [row] = await w.getUserInvoices();
+    assert.strictEqual(row.ispaid, true);
+    assert.strictEqual(row.payment_preimage, PREIMAGE);
+
+    const asked = server.calls.length;
+    await w.getUserInvoices();
+    assert.strictEqual(server.calls.length, asked, 'a paid invoice is not asked about again');
+  });
+
+  it('stops asking about an expired invoice', async () => {
+    await w.addInvoice(1000, '');
+    jest.spyOn(Date, 'now').mockReturnValue(Date.now() + 601_000);
+
+    const asked = server.calls.length;
+    const [row] = await w.getUserInvoices();
+    assert.strictEqual(server.calls.length, asked);
+    assert.strictEqual(row.ispaid, false);
+  });
+
+  it('keeps LNURL state out of the serialized wallet', async () => {
+    await w.addInvoice(1000, '');
+    const json = JSON.parse(JSON.stringify(w));
+    assert.strictEqual('_lnurlInvoices' in json, false);
+    assert.strictEqual('_lnurlReceiver' in json, false);
   });
 });
