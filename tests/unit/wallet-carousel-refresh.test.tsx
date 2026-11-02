@@ -7,11 +7,6 @@ import WalletsCarousel, { walletHasPendingTransaction } from '../../components/W
 import { TWallet } from '../../class/wallets/types';
 import loc, { formatBalance } from '../../loc';
 
-jest.mock('../../blue_modules/sizeClass', () => ({
-  SizeClass: { Compact: 'Compact', Regular: 'Regular', Large: 'Large' },
-  useSizeClass: () => ({ sizeClass: 'Regular', isLarge: false }),
-}));
-
 jest.mock('../../components/themes', () => ({
   useTheme: () => ({
     colors: {

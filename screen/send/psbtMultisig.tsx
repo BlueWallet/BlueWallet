@@ -168,13 +168,13 @@ const PsbtMultisig = () => {
   const _renderItemUnsigned = (el: ListRenderItemInfo<undefined>) => {
     const renderProvideSignature = el.index === howManySignaturesWeHave;
     return (
-      <View testID="ItemUnsigned">
+      <View>
         <View style={styles.itemUnsignedWrapper}>
           <View style={[styles.vaultKeyCircle, stylesHook.vaultKeyCircle]}>
             <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>{el.index + 1}</Text>
           </View>
           <View style={styles.vaultKeyTextWrapper}>
-            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
+            <Text testID="ItemUnsigned" style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
               {loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
             </Text>
           </View>
@@ -200,12 +200,12 @@ const PsbtMultisig = () => {
 
   const _renderItemSigned = (el: ListRenderItemInfo<undefined>) => {
     return (
-      <View style={styles.flexDirectionRow} testID="ItemSigned">
+      <View style={styles.flexDirectionRow}>
         <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
           <Icon size={24} name="checkmark" type="ionicons" color={colors.msSuccessCheck} />
         </View>
         <View style={styles.vaultKeyTextSignedWrapper}>
-          <Text style={[styles.vaultKeyTextSigned, stylesHook.vaultKeyTextSigned]}>
+          <Text testID="ItemSigned" style={[styles.vaultKeyTextSigned, stylesHook.vaultKeyTextSigned]}>
             {loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
           </Text>
         </View>

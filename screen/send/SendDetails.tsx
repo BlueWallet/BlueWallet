@@ -29,6 +29,7 @@ import RNFS from 'react-native-fs';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { nativeSendDetailsAction } from '../../blue_modules/menuActions';
 import BlueText from '../../components/BlueText';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
@@ -49,6 +50,7 @@ import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useKeyboard } from '../../hooks/useKeyboard';
+import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from '../../models/networkTransactionFees';
@@ -180,6 +182,12 @@ const SendDetails = () => {
   }, [customFee, selectedPresetFeeRate, feePrecalc, networkTransactionFees]);
 
   useEffect(() => {
+    if (!routeParams.openScanner) return;
+    setParams({ openScanner: undefined });
+    navigation.navigate('ScanQRCode', { showFileImportButton: true });
+  }, [navigation, routeParams.openScanner, setParams]);
+
+  useEffect(() => {
     // decode route params
     const currentAddress = addresses[scrollIndex.current];
     if (routeParams.uri) {
@@ -262,15 +270,8 @@ const SendDetails = () => {
   }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
 
   useEffect(() => {
-    // check if we have a suitable wallet
     const suitable = wallets.filter(w => w.chain === Chain.ONCHAIN && w.allowSend());
-    if (suitable.length === 0) {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ title: loc.errors.error, message: loc.send.details_wallet_before_tx });
-      navigation.goBack();
-      return;
-    }
-    const newWallet = (routeParams.walletID && wallets.find(w => w.getID() === routeParams.walletID)) || suitable[0];
+    const newWallet = (routeParams.walletID && wallets.find(w => w.getID() === routeParams.walletID)) || suitable[0]!;
     setWallet(newWallet);
     setParams({ feeUnit: newWallet.getPreferredBalanceUnit(), amountUnit: newWallet.getPreferredBalanceUnit() });
 
@@ -1237,6 +1238,42 @@ const SendDetails = () => {
   }, [addresses, isEditable, wallet, isTransactionReplaceable]);
 
   const headerRightActionGroups = useMemo(() => headerRightActions(), [headerRightActions]);
+
+  const nativeMenuActions = useMemo(
+    () =>
+      Object.fromEntries(
+        headerRightActionGroups
+          .flat()
+          .filter(action => !action.hidden)
+          .flatMap(action => {
+            const actionId = String(action.id);
+            const nativeAction = nativeSendDetailsAction(actionId);
+            return nativeAction ? [[nativeAction, () => headerRightOnPress(actionId)] as const] : [];
+          }),
+      ),
+    [headerRightActionGroups, headerRightOnPress],
+  );
+  const nativeMenuActionStates = useMemo(
+    () =>
+      Object.fromEntries(
+        headerRightActionGroups
+          .flat()
+          .filter(action => !action.hidden)
+          .flatMap(action => {
+            const nativeAction = nativeSendDetailsAction(String(action.id));
+            return nativeAction
+              ? [
+                  [
+                    nativeAction,
+                    { disabled: !!action.disabled, ...(action.menuState === undefined ? {} : { checked: action.menuState === true }) },
+                  ] as const,
+                ]
+              : [];
+          }),
+      ),
+    [headerRightActionGroups],
+  );
+  useScreenMenuActions(nativeMenuActions, undefined, nativeMenuActionStates);
 
   const headerMenuOptions = useMemo(
     () =>

@@ -1417,7 +1417,7 @@ describe('multisig-wallet (native segwit)', () => {
       const utxos = [
         {
           height: 666,
-          value: 100000,
+          value: 10000,
           address: 'bc1q2mkhkvx9l7aqksvyf0dwd2x4yn8qx2w3sythjltdkjw70r8hsves2evfg6',
           vout: 0,
           txid: 'c097161e8ae3b12ae2c90da95ade1185e368269a861ea9a8da023714d6fea31e',

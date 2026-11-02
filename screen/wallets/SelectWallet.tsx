@@ -28,7 +28,7 @@ const SelectWallet: React.FC = () => {
     noWalletExplanationText,
     onChainRequireSend = false,
     selectedWalletID,
-  } = route.params;
+  } = route.params ?? {};
   const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation<NavigationProps>();
   const { wallets } = useStorage();

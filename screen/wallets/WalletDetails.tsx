@@ -47,6 +47,7 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import Icon from '../../components/Icon';
 import { navigateToWalletsList } from '../../NavigationService';
+import { removeRecentMenuItemsForWallets } from '../../components/Context/recentMenuItems';
 import { errorMessage } from '../../helpers/errorMessage';
 import { AbstractHDWallet } from '../../class/wallets/abstract-hd-wallet';
 
@@ -828,6 +829,7 @@ const WalletDetails: React.FC = () => {
                   onValueChange: async (value: boolean) => {
                     if (wallet.setHideTransactionsInWalletsList) {
                       wallet.setHideTransactionsInWalletsList(!value);
+                      if (!value) removeRecentMenuItemsForWallets(new Set([walletID]));
                       triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
                       setHideTransactionsInWalletsList(!wallet.getHideTransactionsInWalletsList());
                     }

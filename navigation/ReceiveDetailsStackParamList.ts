@@ -12,6 +12,7 @@ export type ReceiveDetailsStackParamList = {
     customUnit?: import('../models/bitcoinUnits').BitcoinUnit;
     bip21encoded?: string;
     isCustom?: boolean;
+    headerShareMessage?: string;
     headerLeft?: HeaderLeftRenderer;
     headerRight?: HeaderRightRenderer;
     headerBackVisible?: boolean;

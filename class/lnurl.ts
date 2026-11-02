@@ -150,7 +150,7 @@ export default class Lnurl {
       const { tagName, data } = tags[i];
       switch (tagName) {
         case 'payment_hash':
-          decoded.payment_hash = String(data);
+          decoded.payment_hash ||= String(data);
           break;
         case 'purpose_commit_hash':
           decoded.description_hash = String(data);

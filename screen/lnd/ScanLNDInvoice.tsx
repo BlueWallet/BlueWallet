@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigation, RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
+import { useNavigation, RouteProp, useRoute, useLocale } from '@react-navigation/native';
 import { ActivityIndicator, Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../components/Icon';
 
@@ -38,12 +38,12 @@ const ScanLNDInvoice = () => {
   const { colors } = useTheme();
   const { direction } = useLocale();
   const route = useRoute<RouteProps>();
-  const { walletID, uri } = route.params || {};
+  const { walletID, uri, openScanner } = route.params || {};
   const [wallet, setWallet] = useState<LightningCustodianWallet | undefined>(
     (wallets.find(item => item.getID() === walletID) as LightningCustodianWallet) ||
       (wallets.find(item => item.chain === Chain.OFFCHAIN) as LightningCustodianWallet),
   );
-  const { navigate, setParams, goBack, pop } = useNavigation<NavigationProps>();
+  const { navigate, setParams, pop } = useNavigation<NavigationProps>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState<boolean>(false);
   const [destination, setDestination] = useState<string>('');
@@ -105,19 +105,11 @@ const ScanLNDInvoice = () => {
     };
   }, [wallet]);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!wallet) {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        goBack();
-        setTimeout(
-          () => presentAlert({ message: loc.wallets.no_ln_wallet_error, hapticFeedback: HapticFeedbackTypes.NotificationError }),
-          500,
-        );
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [wallet]),
-  );
+  useEffect(() => {
+    if (!openScanner) return;
+    setParams({ openScanner: undefined });
+    navigate('ScanQRCode', { showFileImportButton: true });
+  }, [navigate, openScanner, setParams]);
 
   useEffect(() => {
     if (wallet && uri) {
