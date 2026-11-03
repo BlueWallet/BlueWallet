@@ -266,6 +266,19 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     );
   });
 
+  it('pays to uppercase BIP-352 code same as to lowercase', () => {
+    const w = new HDSegwitBech32Wallet();
+    w.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+    const address = w._getExternalAddressByIndex(0);
+    const utxos: CreateTransactionUtxo[] = [
+      { txid: 'a'.repeat(64), vout: 0, address, value: 100000, wif: w._getWIFbyAddress(address) as string },
+    ];
+    const pc = 'sp1qqgste7k9hx0qftg6qmwlkqtwuy6cycyavzmzj85c6qdfhjdpdjtdgqjuexzk6murw56suy3e0rd2cgqvycxttddwsvgxe2usfpxumr70xc9pkqwv';
+    const pay = (code: string) => w.createTransaction(utxos, [{ address: code, value: 10000 }], 1, address).tx!.toHex();
+
+    assert.strictEqual(pay(pc.toUpperCase()), pay(pc));
+  });
+
   it('should be able to pay to PC (BIP-352 SilentPayments)', async () => {
     if (!process.env.BIP47_HD_MNEMONIC) {
       console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
