@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, SectionList, SectionListProps, Platform, StatusBar } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 
 import { useTheme } from './themes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,9 +12,19 @@ interface SafeAreaSectionListProps<ItemT, SectionT> extends SectionListProps<Ite
 }
 
 const SafeAreaSectionList = <ItemT, SectionT>(props: SafeAreaSectionListProps<ItemT, SectionT>) => {
-  const { style, contentContainerStyle, floatingButtonHeight = 0, ignoreTopInset = false, headerHeight = 0, ...otherProps } = props;
+  const {
+    style,
+    contentContainerStyle,
+    floatingButtonHeight = 0,
+    ignoreTopInset = false,
+    headerHeight = 0,
+    automaticallyAdjustKeyboardInsets,
+    ...otherProps
+  } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const isFocused = useIsFocused();
+  const shouldAdjustKeyboardInsets = Boolean(automaticallyAdjustKeyboardInsets) && isFocused;
 
   const componentStyle = useMemo(() => {
     return StyleSheet.compose({ flex: 1, backgroundColor: colors.background }, style);
@@ -63,6 +74,7 @@ const SafeAreaSectionList = <ItemT, SectionT>(props: SafeAreaSectionListProps<It
       scrollToOverflowEnabled
       automaticallyAdjustContentInsets
       automaticallyAdjustsScrollIndicatorInsets
+      automaticallyAdjustKeyboardInsets={shouldAdjustKeyboardInsets}
       contentContainerStyle={contentStyle}
       {...otherProps}
     />
