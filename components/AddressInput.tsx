@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { StyleProp, StyleSheet, TextInput, View, ViewStyle } from 'react-native';
 import loc from '../loc';
 import { AddressInputScanButton } from './AddressInputScanButton';
 import { useTheme } from './themes';
+import FileDropTarget from './FileDropTarget';
+import presentAlert from './Alert';
 
 interface AddressInputProps {
   isLoading?: boolean;
@@ -15,6 +17,7 @@ interface AddressInputProps {
   onBlur?: () => void;
   testID?: string;
   style?: StyleProp<ViewStyle>;
+  fileDropEnabled?: boolean;
   keyboardType?:
     | 'default'
     | 'numeric'
@@ -43,8 +46,11 @@ const AddressInput = ({
   onBlur = () => {},
   keyboardType = 'default',
   style,
+  fileDropEnabled = true,
 }: AddressInputProps) => {
   const { colors } = useTheme();
+  const handleDrop = useCallback((value: string) => onChangeText(value.trim()), [onChangeText]);
+  const handleDropError = useCallback((error: Error) => presentAlert({ message: error.message }), []);
   const stylesHook = StyleSheet.create({
     root: {
       borderColor: colors.formBorder,
@@ -58,24 +64,31 @@ const AddressInput = ({
 
   return (
     <View style={[styles.root, stylesHook.root, style]}>
-      <TextInput
-        testID={testID}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor="#81868e"
-        value={address}
-        style={[styles.input, stylesHook.input]}
-        editable={!isLoading && editable}
-        multiline={!editable}
-        inputAccessoryViewID={inputAccessoryViewID}
-        clearButtonMode="while-editing"
-        onFocus={onFocus}
-        autoCapitalize="none"
-        autoCorrect={false}
-        keyboardType={keyboardType}
-        onBlur={onBlur}
-      />
-      {editable ? <AddressInputScanButton isLoading={isLoading} onChangeText={onChangeText} /> : null}
+      <FileDropTarget
+        onDrop={handleDrop}
+        onError={handleDropError}
+        enabled={fileDropEnabled && editable && !isLoading}
+        style={styles.inputDropTarget}
+      >
+        <TextInput
+          testID={testID}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor="#81868e"
+          value={address}
+          style={[styles.input, stylesHook.input]}
+          editable={!isLoading && editable}
+          multiline={!editable}
+          inputAccessoryViewID={inputAccessoryViewID}
+          clearButtonMode="while-editing"
+          onFocus={onFocus}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType={keyboardType}
+          onBlur={onBlur}
+        />
+      </FileDropTarget>
+      {editable ? <AddressInputScanButton isLoading={isLoading} onChangeText={onChangeText} fileDropEnabled={fileDropEnabled} /> : null}
     </View>
   );
 };
@@ -96,6 +109,10 @@ const styles = StyleSheet.create({
     minHeight: 33,
     fontSize: 15,
     lineHeight: 19,
+  },
+  inputDropTarget: {
+    flex: 1,
+    alignSelf: 'stretch',
   },
 });
 

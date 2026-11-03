@@ -62,6 +62,7 @@ export type TNavigationWrapper = {
 };
 
 export type SelectWalletParams = {
+  hasSelectableWallets?: boolean;
   chainType?: Chain;
   onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
   availableWallets?: TWallet[];

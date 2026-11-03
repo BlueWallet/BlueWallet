@@ -1,3 +1,4 @@
+import { getSelectWalletOptions } from './helpers/getSelectWalletOptions';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ParamListBase } from '@react-navigation/native';
@@ -41,7 +42,7 @@ const LNDCreateInvoiceRoot = () => {
       <Stack.Screen
         name="SelectWallet"
         component={SelectWalletComponent}
-        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+        options={navigationStyle({ title: loc.wallets.select_wallet }, getSelectWalletOptions)(theme)}
       />
       <Stack.Screen
         name="LNDViewInvoice"

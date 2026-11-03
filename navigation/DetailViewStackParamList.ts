@@ -77,7 +77,7 @@ export type DetailViewStackParamList = {
   };
   LnurlAuth: { lnurl: string; walletID: string };
   Success: SuccessParams;
-  WalletAddresses: { walletID: string };
+  WalletAddresses: { walletID: string; search?: string };
   AddWalletRoot: NavigatorScreenParams<AddWalletStackParamList> | undefined;
   SendDetailsRoot: NavigatorScreenParams<SendDetailsStackParamList> | SendDetailsParams;
   LNDCreateInvoiceRoot: NavigatorScreenParams<LNDCreateInvoiceStackParamList>;
@@ -86,7 +86,7 @@ export type DetailViewStackParamList = {
   WalletExport: { walletID: string };
   ExportMultisigCoordinationSetupRoot: NavigatorScreenParams<ExportMultisigCoordinationSetupStackRootParamList>;
   Settings: undefined;
-  Currency: undefined;
+  Currency: { search?: string; isSearchFocused?: boolean } | undefined;
   GeneralSettings: undefined;
   Licensing: undefined;
   NetworkSettings: undefined;
@@ -97,7 +97,7 @@ export type DetailViewStackParamList = {
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;
-  Language: undefined;
+  Language: { search?: string } | undefined;
   LightningSettings:
     | {
         url?: string;
@@ -138,7 +138,7 @@ export type DetailViewStackParamList = {
   ScanQRCode: ScanQRCodeParamList;
   PaymentCodeList: { walletID: string };
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
-  ManageWallets: undefined;
+  ManageWallets: { search?: string; isSearchFocused?: boolean } | undefined;
   ClipboardDetected: {
     payload: string;
     kind: ClipboardPaymentKind;

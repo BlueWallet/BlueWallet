@@ -22,6 +22,9 @@ import { openSignedTransactionRaw } from '../../blue_modules/fs';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
+import { useFileDrop } from '../../hooks/useFileDrop';
+import { makeLabelFileName } from '../../blue_modules/dragFileName';
+import AuthenticatedFileDragSource from '../../components/AuthenticatedFileDragSource';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, wallets } = useStorage();
@@ -103,6 +106,8 @@ const PsbtWithHardwareWallet = () => {
     },
     [_combinePSBT, launchedBy, navigation, psbt],
   );
+
+  useFileDrop(onBarScanned);
 
   useEffect(() => {
     if (isFocused) {
@@ -250,78 +255,85 @@ const PsbtWithHardwareWallet = () => {
     <ActivityIndicator />
   ) : (
     <View style={styles.container}>
-      <BlueCard>
-        <BlueText testID="TextHelperForPSBT">{loc.send.psbt_this_is_psbt}</BlueText>
-        <BlueSpacing10 />
-        <Text testID="PSBTHex" style={styles.hidden}>
-          {psbt?.toHex()}
-        </Text>
-        {psbt && <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} walletID={walletID} />}
-        <BlueSpacing10 />
-        <SecondButton
-          testID="PsbtTxScanButton"
-          icon={{
-            name: 'qrcode',
-            type: 'font-awesome',
-            color: colors.secondButtonTextColor,
-          }}
-          onPress={openScanner}
-          ref={openScannerButton}
-          title={loc.send.psbt_tx_scan}
-        />
-        <BlueSpacing10 />
-        <SecondButton
-          icon={{
-            name: 'login',
-            type: 'entypo',
-            color: colors.secondButtonTextColor,
-          }}
-          onPress={onOpenSignedTransaction}
-          title={loc.send.psbt_tx_open}
-        />
-        <BlueSpacing10 />
-        {psbt && (
+      <AuthenticatedFileDragSource
+        fileName={makeLabelFileName(wallet.getLabel(), 'psbt')}
+        mimeType="application/octet-stream"
+        content={psbt?.toBase64() ?? ''}
+        enabled={Boolean(psbt)}
+      >
+        <BlueCard>
+          <BlueText testID="TextHelperForPSBT">{loc.send.psbt_this_is_psbt}</BlueText>
+          <BlueSpacing10 />
+          <Text testID="PSBTHex" style={styles.hidden}>
+            {psbt?.toHex()}
+          </Text>
+          {psbt && <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} walletID={walletID} />}
+          <BlueSpacing10 />
           <SecondButton
-            testID="PsbtViewRawButton"
+            testID="PsbtTxScanButton"
             icon={{
-              name: 'code',
+              name: 'qrcode',
               type: 'font-awesome',
               color: colors.secondButtonTextColor,
             }}
-            onPress={() =>
-              navigation.navigate('PsbtRaw', {
-                psbtBase64: psbt.toBase64(),
-              })
-            }
-            title={loc.send.psbt_view_raw}
+            onPress={openScanner}
+            ref={openScannerButton}
+            title={loc.send.psbt_tx_scan}
           />
-        )}
-        <BlueSpacing10 />
-        {psbt && (
-          <SaveFileButton
-            fileName={`${Date.now()}.psbt`}
-            fileContent={psbt.toBase64()}
-            beforeOnPress={saveFileButtonBeforeOnPress}
-            afterOnPress={saveFileButtonAfterOnPress}
-            style={styles.exportButton}
-          >
+          <BlueSpacing10 />
+          <SecondButton
+            icon={{
+              name: 'login',
+              type: 'entypo',
+              color: colors.secondButtonTextColor,
+            }}
+            onPress={onOpenSignedTransaction}
+            title={loc.send.psbt_tx_open}
+          />
+          <BlueSpacing10 />
+          {psbt && (
             <SecondButton
+              testID="PsbtViewRawButton"
               icon={{
-                name: 'share-alternative',
-                type: 'entypo',
+                name: 'code',
+                type: 'font-awesome',
                 color: colors.secondButtonTextColor,
               }}
-              title={loc.send.psbt_tx_export}
+              onPress={() =>
+                navigation.navigate('PsbtRaw', {
+                  psbtBase64: psbt.toBase64(),
+                })
+              }
+              title={loc.send.psbt_view_raw}
             />
-          </SaveFileButton>
-        )}
-        <BlueSpacing10 />
-        {psbt && (
-          <View style={styles.copyToClipboard}>
-            <CopyToClipboardButton stringToCopy={psbt.toBase64()} displayText={loc.send.psbt_clipboard} />
-          </View>
-        )}
-      </BlueCard>
+          )}
+          <BlueSpacing10 />
+          {psbt && (
+            <SaveFileButton
+              fileName={makeLabelFileName(wallet.getLabel(), 'psbt')}
+              fileContent={psbt.toBase64()}
+              beforeOnPress={saveFileButtonBeforeOnPress}
+              afterOnPress={saveFileButtonAfterOnPress}
+              style={styles.exportButton}
+            >
+              <SecondButton
+                icon={{
+                  name: 'share-alternative',
+                  type: 'entypo',
+                  color: colors.secondButtonTextColor,
+                }}
+                title={loc.send.psbt_tx_export}
+              />
+            </SaveFileButton>
+          )}
+          <BlueSpacing10 />
+          {psbt && (
+            <View style={styles.copyToClipboard}>
+              <CopyToClipboardButton stringToCopy={psbt.toBase64()} displayText={loc.send.psbt_clipboard} />
+            </View>
+          )}
+        </BlueCard>
+      </AuthenticatedFileDragSource>
     </View>
   );
 

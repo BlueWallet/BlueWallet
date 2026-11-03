@@ -23,6 +23,8 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { BlueLoading } from '../../components/BlueLoading';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import DraggableFile from '../../components/DraggableFile';
+import FileDropTarget from '../../components/FileDropTarget';
 import { errorMessage } from '../../helpers/errorMessage';
 
 interface DataSection {
@@ -215,7 +217,31 @@ export default function PaymentCodesList() {
 
     if (previousRouteName === 'SendDetails') {
       return (
-        <TouchableOpacity onPress={() => onToolTipPress(Actions.pay, pc)}>
+        <DraggableFile fileName={`contact-${index + 1}.txt`} mimeType="text/plain" content={pc}>
+          <TouchableOpacity onPress={() => onToolTipPress(Actions.pay, pc)}>
+            <View style={styles.contactRowContainer}>
+              <View style={[styles.circle, { backgroundColor: '#' + color }]} />
+              <View style={styles.contactRowBody}>
+                <Text testID={`ContactListItem${index}`} style={[styles.contactRowNameText, { color: colors.labelText }]}>
+                  {displayName}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.stick} />
+          </TouchableOpacity>
+        </DraggableFile>
+      );
+    }
+
+    return (
+      <DraggableFile fileName={`contact-${index + 1}.txt`} mimeType="text/plain" content={pc}>
+        <ToolTipMenu
+          actions={toolTipActions}
+          onPressMenuItem={(item: string) => onToolTipPress(item, pc)}
+          isButton={true}
+          shouldOpenOnLongPress={false}
+          buttonStyle={styles.tooltipButton}
+        >
           <View style={styles.contactRowContainer}>
             <View style={[styles.circle, { backgroundColor: '#' + color }]} />
             <View style={styles.contactRowBody}>
@@ -225,28 +251,8 @@ export default function PaymentCodesList() {
             </View>
           </View>
           <View style={styles.stick} />
-        </TouchableOpacity>
-      );
-    }
-
-    return (
-      <ToolTipMenu
-        actions={toolTipActions}
-        onPressMenuItem={(item: string) => onToolTipPress(item, pc)}
-        isButton={true}
-        shouldOpenOnLongPress={false}
-        buttonStyle={styles.tooltipButton}
-      >
-        <View style={styles.contactRowContainer}>
-          <View style={[styles.circle, { backgroundColor: '#' + color }]} />
-          <View style={styles.contactRowBody}>
-            <Text testID={`ContactListItem${index}`} style={[styles.contactRowNameText, { color: colors.labelText }]}>
-              {displayName}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.stick} />
-      </ToolTipMenu>
+        </ToolTipMenu>
+      </DraggableFile>
     );
   };
 
@@ -378,13 +384,13 @@ export default function PaymentCodesList() {
       {!walletID ? (
         <Text>Internal error</Text>
       ) : (
-        <View style={styles.sectionListContainer}>
+        <FileDropTarget onDrop={value => _addContact(value.trim())} style={styles.sectionListContainer}>
           <SectionList
             sections={data}
             keyExtractor={(item, index) => item + index}
             renderItem={({ item, index }) => renderItem(item, index)}
           />
-        </View>
+        </FileDropTarget>
       )}
 
       <Button title={loc.bip47.add_contact} onPress={onAddContactPress} />

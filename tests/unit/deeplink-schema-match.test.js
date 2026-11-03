@@ -20,6 +20,20 @@ const asyncNavigationRouteFor = async function (event) {
 };
 
 describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
+  it('routes safe dropped text and rejects nested file URLs', () => {
+    const address = '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG';
+    const route = jest.fn();
+    DeeplinkSchemaMatch.navigationRouteFor({ url: `bluewallet://drop?text=${encodeURIComponent(address)}` }, route);
+    expect(route).toHaveBeenCalledWith(['SendDetailsRoot', { screen: 'SendDetails', params: { uri: address } }]);
+
+    const blockedRoute = jest.fn();
+    DeeplinkSchemaMatch.navigationRouteFor(
+      { url: `bluewallet://drop?text=${encodeURIComponent('file:///data/data/io.bluewallet.bluewallet/private')}` },
+      blockedRoute,
+    );
+    expect(blockedRoute).not.toHaveBeenCalled();
+  });
+
   it('hasSchema', () => {
     assert.ok(DeeplinkSchemaMatch.hasSchema(`bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`));
     assert.ok(DeeplinkSchemaMatch.hasSchema(`bitcoin:${suffix}bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`));

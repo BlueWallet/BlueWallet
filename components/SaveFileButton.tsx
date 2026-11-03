@@ -6,6 +6,7 @@ import loc from '../loc';
 import { ActionIcons } from '../typings/ActionIcons';
 import ToolTipMenu from './TooltipMenu';
 import { Action } from './types';
+import AuthenticatedFileDragSource from './AuthenticatedFileDragSource';
 
 interface SaveFileButtonProps extends TouchableOpacityProps {
   fileName: string;
@@ -38,15 +39,17 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({ fileName, fileContent, 
   );
 
   return (
-    <ToolTipMenu
-      isButton
-      shouldOpenOnLongPress={false}
-      actions={actions}
-      onPressMenuItem={handlePressMenuItem}
-      buttonStyle={style as ViewStyle}
-    >
-      {children}
-    </ToolTipMenu>
+    <AuthenticatedFileDragSource fileName={fileName} mimeType="application/octet-stream" content={fileContent} style={style}>
+      <ToolTipMenu
+        isButton
+        shouldOpenOnLongPress={false}
+        actions={actions}
+        onPressMenuItem={handlePressMenuItem}
+        buttonStyle={style as ViewStyle}
+      >
+        {children}
+      </ToolTipMenu>
+    </AuthenticatedFileDragSource>
   );
 };
 
