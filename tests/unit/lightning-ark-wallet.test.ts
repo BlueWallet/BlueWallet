@@ -4,6 +4,7 @@ import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION } from '@arkade-os/sdk/reposi
 import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 
 import { LightningArkWallet, __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet.ts';
+import * as strandedSends from '../../blue_modules/arkade-stranded-sends';
 import { resetArkadeTestState } from '../helpers/arkadeMocks';
 
 const TEST_MNEMONIC = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
@@ -1455,84 +1456,56 @@ describe('LightningArkWallet — per-swap claim/refund + restore', () => {
   });
 });
 
-describe('LightningArkWallet — _recoverStrandedSubmarineFunds (#8804)', () => {
-  // SwapManager only auto-refunds a failed submarine swap while it is alive
-  // and watching it. A payment that fails while the app is backgrounded or
-  // killed is never seen live, so the locked VHTLC sats never come back on
-  // their own — the only recovery paths were the manual per-swap "Refund"
-  // button and the manual "Restore swap activity" button, both easy to miss.
-  // This sweeps scanRecoverableSubmarineSwaps()/recoverAllSubmarineFunds()
-  // once per fresh init so a plain app relaunch self-heals.
+describe('LightningArkWallet — _refundStrandedSends (#8804)', () => {
+  // The refund itself is covered in arkade-stranded-sends.test.ts. This pins
+  // the refresh that makes a refunded send show up without the user's help.
   let w: LightningArkWallet;
-  const fakeArkadeSwaps: {
-    scanRecoverableSubmarineSwaps: jest.Mock;
-    recoverAllSubmarineFunds: jest.Mock;
-  } = {
-    scanRecoverableSubmarineSwaps: jest.fn(),
-    recoverAllSubmarineFunds: jest.fn(),
-  };
+  const sdkWallet = {};
+  const realm = {};
 
   beforeEach(() => {
     w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
-    fakeArkadeSwaps.scanRecoverableSubmarineSwaps.mockReset().mockResolvedValue([]);
-    fakeArkadeSwaps.recoverAllSubmarineFunds.mockReset().mockResolvedValue([]);
-    (w as any)._arkadeSwaps = fakeArkadeSwaps;
+    (w as any)._wallet = sdkWallet;
     jest.spyOn(w, 'fetchBalance').mockResolvedValue();
     jest.spyOn(w, 'fetchTransactions').mockResolvedValue();
   });
 
-  it('sweeps swaps whose status is "recoverable" and refreshes balance + transaction/swap history', async () => {
-    const recoverable = { swap: { id: 's1', type: 'submarine' }, status: 'recoverable', vtxoCount: 1, amountSats: 5_000 };
-    fakeArkadeSwaps.scanRecoverableSubmarineSwaps.mockResolvedValue([recoverable]);
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
 
-    await (w as any)._recoverStrandedSubmarineFunds(fakeArkadeSwaps);
+  it('refreshes balance and transactions after a refund settles', async () => {
+    jest.spyOn(strandedSends, 'refundStrandedSends').mockResolvedValue(true);
 
-    assert.strictEqual(fakeArkadeSwaps.recoverAllSubmarineFunds.mock.calls.length, 1);
-    assert.deepStrictEqual(fakeArkadeSwaps.recoverAllSubmarineFunds.mock.calls[0][0], [recoverable.swap]);
+    await (w as any)._refundStrandedSends(realm, sdkWallet);
+
     // @ts-expect-error spy
     assert.strictEqual(w.fetchBalance.mock.calls.length, 1);
     // @ts-expect-error spy
     assert.strictEqual(w.fetchTransactions.mock.calls.length, 1);
   });
 
-  it('leaves pre_cltv / already_spent / invalid_swap candidates alone and skips the refresh', async () => {
-    fakeArkadeSwaps.scanRecoverableSubmarineSwaps.mockResolvedValue([
-      { swap: { id: 's2', type: 'submarine' }, status: 'pre_cltv', vtxoCount: 1, amountSats: 1_000 },
-      { swap: { id: 's3', type: 'submarine' }, status: 'already_spent', vtxoCount: 0, amountSats: 0 },
-      { swap: { id: 's4', type: 'submarine' }, status: 'invalid_swap', vtxoCount: 0, amountSats: 0, error: 'bad script' },
-    ]);
+  it('skips the refresh when nothing settled', async () => {
+    jest.spyOn(strandedSends, 'refundStrandedSends').mockResolvedValue(false);
 
-    await (w as any)._recoverStrandedSubmarineFunds(fakeArkadeSwaps);
+    await (w as any)._refundStrandedSends(realm, sdkWallet);
 
-    assert.strictEqual(fakeArkadeSwaps.recoverAllSubmarineFunds.mock.calls.length, 0);
     // @ts-expect-error spy
     assert.strictEqual(w.fetchBalance.mock.calls.length, 0);
     // @ts-expect-error spy
     assert.strictEqual(w.fetchTransactions.mock.calls.length, 0);
   });
 
-  it('does nothing when the scan finds no candidates at all', async () => {
-    await (w as any)._recoverStrandedSubmarineFunds(fakeArkadeSwaps);
+  it("skips the refresh if the wallet has since been re-init'd (stale wallet ref)", async () => {
+    jest.spyOn(strandedSends, 'refundStrandedSends').mockResolvedValue(true);
+    (w as any)._wallet = { different: true }; // simulate onDelete/re-init happening mid-refund
 
-    assert.strictEqual(fakeArkadeSwaps.recoverAllSubmarineFunds.mock.calls.length, 0);
-    // @ts-expect-error spy
-    assert.strictEqual(w.fetchBalance.mock.calls.length, 0);
-    // @ts-expect-error spy
-    assert.strictEqual(w.fetchTransactions.mock.calls.length, 0);
-  });
+    await (w as any)._refundStrandedSends(realm, sdkWallet);
 
-  it("skips the refresh if the wallet has since been re-init'd (stale arkadeSwaps ref)", async () => {
-    const recoverable = { swap: { id: 's5', type: 'submarine' }, status: 'recoverable', vtxoCount: 1, amountSats: 2_000 };
-    fakeArkadeSwaps.scanRecoverableSubmarineSwaps.mockResolvedValue([recoverable]);
-    (w as any)._arkadeSwaps = { different: true }; // simulate onDelete/re-init happening mid-scan
-
-    await (w as any)._recoverStrandedSubmarineFunds(fakeArkadeSwaps);
-
-    assert.strictEqual(fakeArkadeSwaps.recoverAllSubmarineFunds.mock.calls.length, 1, 'the sweep itself still runs');
     // @ts-expect-error spy
-    assert.strictEqual(w.fetchBalance.mock.calls.length, 0, 'but must not touch a stale instance state');
+    assert.strictEqual(w.fetchBalance.mock.calls.length, 0, 'must not touch a stale instance state');
     // @ts-expect-error spy
-    assert.strictEqual(w.fetchTransactions.mock.calls.length, 0, 'but must not touch a stale instance state');
+    assert.strictEqual(w.fetchTransactions.mock.calls.length, 0, 'must not touch a stale instance state');
   });
 });
