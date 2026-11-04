@@ -145,12 +145,7 @@ const reducer = (state: State, action: Action): State => {
     case ActionType.SetIntervalMs:
       return { ...state, intervalMs: action.payload };
     case ActionType.SetAllButtonStatus:
-      return {
-        ...state,
-        isCPFPPossible: action.payload,
-        isRBFBumpFeePossible: action.payload,
-        isRBFCancelPossible: action.payload,
-      };
+      return { ...state, isCPFPPossible: action.payload, isRBFBumpFeePossible: action.payload, isRBFCancelPossible: action.payload };
     case ActionType.SetWallet:
       return { ...state, wallet: action.payload };
     case ActionType.SetLoadingError:
@@ -284,9 +279,7 @@ const TransactionStatus: React.FC = () => {
     value: { color: colors.foregroundColor },
     valueUnit: { color: colors.foregroundColor },
     localCurrency: { color: colors.alternativeTextColor },
-    counterpartyContainer: {
-      backgroundColor: colors.cardSectionHeaderBackground,
-    },
+    counterpartyContainer: { backgroundColor: colors.cardSectionHeaderBackground },
     counterpartyAvatar: { backgroundColor: colors.lightButton },
     counterpartyAvatarText: { color: colors.foregroundColor },
     counterpartyName: { color: colors.foregroundColor },
@@ -303,9 +296,7 @@ const TransactionStatus: React.FC = () => {
     addButtonText: { color: colors.buttonTextColor },
     explorerButton: { backgroundColor: colors.lightButton },
     explorerButtonText: { color: colors.buttonTextColor },
-    stateCardPending: {
-      backgroundColor: colors.transactionPendingBackgroundColor,
-    },
+    stateCardPending: { backgroundColor: colors.transactionPendingBackgroundColor },
     stateCardSent: { backgroundColor: colors.outgoingBackgroundColor },
     stateCardReceived: { backgroundColor: colors.incomingBackgroundColor },
     card: { backgroundColor: colors.elevated || colors.background },
@@ -317,13 +308,9 @@ const TransactionStatus: React.FC = () => {
       backgroundColor: colors.cardSectionBackground,
       borderBottomColor: colors.cardBorderColor,
     },
-    speedUpButton: {
-      backgroundColor: colors.transactionStateBumpButtonBackground,
-    },
+    speedUpButton: { backgroundColor: colors.transactionStateBumpButtonBackground },
     speedUpButtonText: { color: colors.transactionPendingColor },
-    cancelButton: {
-      backgroundColor: colors.transactionStateCancelButtonBackground,
-    },
+    cancelButton: { backgroundColor: colors.transactionStateCancelButtonBackground },
     cancelButtonText: { color: colors.transactionPendingColor },
     advancedContent: { borderTopColor: colors.cardBorderColor },
     rowValue: { color: colors.alternativeTextColor },
@@ -584,10 +571,7 @@ const TransactionStatus: React.FC = () => {
           setTxFromElectrum(fetchedTx);
 
           if (tx) {
-            setTX({
-              ...tx,
-              confirmations: fetchedTx.confirmations,
-            } as Transaction);
+            setTX({ ...tx, confirmations: fetchedTx.confirmations } as Transaction);
           } else {
             console.error('Cannot set confirmations: tx is undefined.');
           }
@@ -853,10 +837,7 @@ const TransactionStatus: React.FC = () => {
     const metadataKey = tx.hash ?? (tx as { txid?: string }).txid;
     const currentMemo = (metadataKey && txMetadata?.[metadataKey]?.memo) || '';
     try {
-      const newMemo = await prompt(loc.send.details_note_placeholder, '', {
-        type: 'plain-text',
-        defaultValue: currentMemo,
-      });
+      const newMemo = await prompt(loc.send.details_note_placeholder, '', { type: 'plain-text', defaultValue: currentMemo });
       if (newMemo !== undefined && metadataKey && txMetadata) {
         txMetadata[metadataKey] = { memo: newMemo };
         await saveToDisk();
@@ -1029,11 +1010,15 @@ const TransactionStatus: React.FC = () => {
       copyTransactionId: transactionId && !showLoadingError ? () => transactionIdCopyRef.current?.copy() : undefined,
       copyTransactionHex: txHex && isAdvancedExpanded ? () => transactionHexCopyRef.current?.copy() : undefined,
       bumpFeeRbf:
-        tx && wallet && isRBFBumpFeePossible === ButtonStatus.Possible ? () => navigateToRBF('RBFBumpFee', tx, wallet) : undefined,
-      bumpFeeCpfp: tx && wallet && isCPFPPossible === ButtonStatus.Possible ? () => navigateToCPFP(tx, wallet) : undefined,
+        isPending && tx && wallet && isRBFBumpFeePossible === ButtonStatus.Possible
+          ? () => navigateToRBF('RBFBumpFee', tx, wallet)
+          : undefined,
+      bumpFeeCpfp: isPending && tx && wallet && isCPFPPossible === ButtonStatus.Possible ? () => navigateToCPFP(tx, wallet) : undefined,
       accelerateTransaction: showMempoolSpeedUp ? handleOpenMempoolAccelerator : undefined,
       cancelTransaction:
-        tx && wallet && isRBFCancelPossible === ButtonStatus.Possible ? () => navigateToRBF('RBFCancel', tx, wallet) : undefined,
+        isPending && tx && wallet && isRBFCancelPossible === ButtonStatus.Possible
+          ? () => navigateToRBF('RBFCancel', tx, wallet)
+          : undefined,
       openTransactionInExplorer: tx?.hash && selectedBlockExplorer ? handleOpenBlockExplorer : undefined,
       shareTransaction: tx?.hash && selectedBlockExplorer ? handleShareTransaction : undefined,
       editTransactionNote: tx ? handleNotePress : undefined,
@@ -1515,9 +1500,7 @@ const TransactionStatus: React.FC = () => {
             {tx.inputs && tx.inputs.length > 0 && (
               <View style={[styles.detailRowFullWidth, stylesHook.detailRowFullWidth]}>
                 <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>
-                  {loc.formatString(loc.transactions.details_inputs_count, {
-                    count: tx.inputs.length,
-                  })}
+                  {loc.formatString(loc.transactions.details_inputs_count, { count: tx.inputs.length })}
                 </BlueText>
                 <View style={styles.detailValueFullWidth}>
                   {from.filter(onlyUnique).length > 0 && renderSection(from.filter(onlyUnique))}
@@ -1529,9 +1512,7 @@ const TransactionStatus: React.FC = () => {
             {tx.outputs && tx.outputs.length > 0 && (
               <View style={[styles.detailRowFullWidth, styles.detailRowLast, stylesHook.detailRowFullWidth]}>
                 <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>
-                  {loc.formatString(loc.transactions.details_outputs_count, {
-                    count: tx.outputs.length,
-                  })}
+                  {loc.formatString(loc.transactions.details_outputs_count, { count: tx.outputs.length })}
                 </BlueText>
                 <View style={styles.detailValueFullWidth}>{to.filter(onlyUnique).length > 0 && renderSection(to.filter(onlyUnique))}</View>
               </View>

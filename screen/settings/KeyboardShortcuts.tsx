@@ -66,20 +66,9 @@ const formatShortcut = (key: string) => {
   return `${modifiers}${input}`;
 };
 const styles = StyleSheet.create({
-  content: {
-    padding: 24,
-    paddingBottom: 48,
-    width: '100%',
-    maxWidth: 720,
-    alignSelf: 'center',
-  },
+  content: { padding: 24, paddingBottom: 48, width: '100%', maxWidth: 720, alignSelf: 'center' },
   description: { marginBottom: 16, fontSize: 16 },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    gap: 16,
-  },
+  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, gap: 16 },
   label: { flex: 1 },
   title: { fontSize: 17, fontWeight: '600', marginBottom: 4 },
   shortcut: { fontSize: 16, fontWeight: '600' },

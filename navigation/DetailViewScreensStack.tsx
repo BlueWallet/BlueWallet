@@ -72,10 +72,7 @@ type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unst
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
 
-const UpdatingLabel: React.FC<{
-  containerStyle: object;
-  textStyle: object;
-}> = ({ containerStyle, textStyle }) => {
+const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
   const opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -259,9 +256,7 @@ const DetailViewStackScreensStack = () => {
     if (routeNames?.includes('ElectrumSettings')) {
       navigation.navigate('ElectrumSettings');
     } else {
-      navigation.navigate('DetailViewStackScreensStack', {
-        screen: 'ElectrumSettings',
-      });
+      navigation.navigate('DetailViewStackScreensStack', { screen: 'ElectrumSettings' });
     }
   }, [navigation]);
 
@@ -287,10 +282,7 @@ const DetailViewStackScreensStack = () => {
     const renderHeaderLeft = () => {
       if (showOffline) {
         const offlineBg = theme.dark ? theme.colors.darkGray : '#000000';
-        return React.createElement(OfflineModePill, {
-          onPress: navigateToElectrumSettings,
-          backgroundColor: offlineBg,
-        });
+        return React.createElement(OfflineModePill, { onPress: navigateToElectrumSettings, backgroundColor: offlineBg });
       }
       if (showNotConnected) {
         return React.createElement(NotConnectedPill, {
@@ -393,10 +385,7 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Navigator
         UNSTABLE_router={navigationGuardRouter}
         initialRouteName="WalletsList"
-        screenOptions={{
-          headerShadowVisible: false,
-          animationTypeForReplace: 'push',
-        }}
+        screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
       >
         <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
         <DetailViewStack.Screen
@@ -474,9 +463,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="LNDViewAdditionalInvoicePreImage"
           component={LNDViewAdditionalInvoicePreImage}
-          options={navigationStyle({
-            title: loc.lndViewInvoice.additional_info,
-          })(theme)}
+          options={navigationStyle({ title: loc.lndViewInvoice.additional_info })(theme)}
         />
 
         <DetailViewStack.Screen name="Broadcast" component={Broadcast} options={settingsScreenOptions(loc.send.create_broadcast)} />

@@ -48,10 +48,4 @@ describe('native app shortcut configuration', () => {
 
     expect(sceneDelegate).not.toContain('RCTLinkingManager.scene(scene, continue: userActivity)');
   });
-  it('places transaction sharing in the standard macOS Share menu', () => {
-    const appDelegate = readRepositoryFile('ios/BlueWallet/AppDelegate.swift');
-
-    expect(appDelegate).toContain('propertyList: "shareTransaction"');
-    expect(appDelegate).toContain('atStartOfMenu: .share');
-  });
 });

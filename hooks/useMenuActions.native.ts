@@ -11,10 +11,7 @@ import {
 } from '../components/Context/recentMenuItems';
 import { getMenuActionTitles } from '../components/menuActionTitles';
 
-type MenuRegistration = {
-  handlers: MenuActionHandlers;
-  states: MenuActionStates;
-};
+type MenuRegistration = { handlers: MenuActionHandlers; states: MenuActionStates };
 const handlerRegistry = new Map<string, Map<symbol, MenuRegistration>>();
 let consumers = 0;
 let dispose: (() => void) | undefined;
@@ -79,10 +76,7 @@ function subscribe() {
         navigationRef.dispatch(
           CommonActions.navigate({
             name: 'DrawerRoot',
-            params: {
-              screen: 'DetailViewStackScreensStack',
-              params: { screen: 'Settings' },
-            },
+            params: { screen: 'DetailViewStackScreensStack', params: { screen: 'Settings' } },
             pop: true,
           }),
         );
@@ -103,10 +97,7 @@ function subscribe() {
         navigationRef.dispatch(
           CommonActions.navigate({
             name: 'DrawerRoot',
-            params: {
-              screen: 'DetailViewStackScreensStack',
-              params: { screen: 'ManageWallets' },
-            },
+            params: { screen: 'DetailViewStackScreensStack', params: { screen: 'ManageWallets' } },
             pop: true,
           }),
         );

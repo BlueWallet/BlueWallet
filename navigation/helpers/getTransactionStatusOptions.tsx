@@ -73,6 +73,7 @@ const getTransactionStatusOptions = ({
     // Keep a meaningful string title at the stack level for navigation metadata,
     // even though the visible header uses the richer two-line title below.
     title: direction ?? loc.transactions.details_title,
+    headerBackTitle: loc.transactions.details_title,
     headerTitle: direction
       ? createTransactionStatusHeaderTitle({
           direction,

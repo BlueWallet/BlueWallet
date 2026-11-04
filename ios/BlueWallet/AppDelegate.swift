@@ -477,7 +477,6 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ],
             [
                 ("openTransactionInExplorer", "View in Block Explorer", "e", [.command, .alternate], false),
-                ("shareTransaction", "Share Transaction", nil, [], true),
                 ("editTransactionNote", "Edit Note", "n", [.command, .alternate], true)
             ],
             [

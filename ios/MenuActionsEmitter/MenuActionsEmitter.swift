@@ -63,6 +63,11 @@ final class MenuActionsController: NSObject {
         while let presented = presenter.presentedViewController {
             presenter = presented
         }
+        if let popover = activityViewController.popoverPresentationController {
+            popover.sourceView = presenter.view
+            popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
         presenter.present(activityViewController, animated: true)
     }
 
