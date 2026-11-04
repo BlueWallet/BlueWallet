@@ -426,6 +426,8 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
   try {
     console.log('[electrum] begin connection:', JSON.stringify(usingPeer));
     const client = new ElectrumClient(net, tls, usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
+    pendingBatchRequests = 0;
+    batchLimitRetryBudget = 0;
     mainClient = client;
 
     // Live-socket errors after a successful handshake: schedule a single
@@ -460,8 +462,6 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
       serverName = ver[0];
       disableBatching = false;
       batchingDisabledByLimit = false;
-      pendingBatchRequests = 0;
-      batchLimitRetryBudget = 0;
       if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs') || ver[0].startsWith('Fulcrum')) {
         disableBatching = true;
         const [electrumImplementation, electrumVersion] = ver[0].split(' ');

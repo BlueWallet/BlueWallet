@@ -164,9 +164,7 @@ describe('BlueElectrum lifecycle', () => {
       const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
       const afterDismiss = jest.fn();
 
-      const connection = BlueElectrum.ensureConnected({
-        showAlertOnFailure: true,
-      });
+      const connection = BlueElectrum.ensureConnected({ showAlertOnFailure: true });
       let resolved = false;
       const handoff = connection.then(result => {
         resolved = true;
@@ -311,9 +309,7 @@ describe('BlueElectrum lifecycle', () => {
     it('returns null for implausible height without caching', async () => {
       const client = await connectAtTip(1000);
 
-      client.blockchainTransaction_get.mockResolvedValue({
-        confirmations: 2000,
-      });
+      client.blockchainTransaction_get.mockResolvedValue({ confirmations: 2000 });
 
       const result = await BlueElectrum.getConfirmedBlockHeight('deadbeef');
       expect(result).toBeNull();
@@ -488,6 +484,26 @@ describe('BlueElectrum batch limit recovery', () => {
     client.blockchainScripthash_getBalanceBatch.mockResolvedValue([]);
     await BlueElectrum.multiGetBalanceByAddress(addresses);
     expect(client.blockchainScripthash_getBalanceBatch).toHaveBeenCalledTimes(2);
+  });
+
+  it('preserves retry capacity for batches started during the handshake', async () => {
+    BlueElectrum.forceDisconnect();
+    const connection = BlueElectrum.ensureConnected();
+    await flush();
+    const nextClient = created[created.length - 1];
+    const pendingBatch = deferred<never[]>();
+    nextClient.blockchainScripthash_getHistoryBatch.mockReturnValueOnce(pendingBatch.promise);
+    const duringHandshake = BlueElectrum.multiGetHistoryByAddress(addresses);
+    resolveLastConnect();
+    await connection;
+    pendingBatch.resolve([]);
+    await duringHandshake;
+
+    const limit = new Error('Batch limit exceeded');
+    nextClient.blockchainScripthash_getHistoryBatch.mockRejectedValue(limit);
+    nextClient.blockchainScripthash_getHistory.mockRejectedValueOnce(limit).mockResolvedValue([]);
+    await expect(BlueElectrum.multiGetHistoryByAddress([addresses[0]])).resolves.toEqual({ [addresses[0]]: [] });
+    expect(nextClient.blockchainScripthash_getHistory).toHaveBeenCalledTimes(2);
   });
 
   it('tries batching again on a new connection', async () => {
