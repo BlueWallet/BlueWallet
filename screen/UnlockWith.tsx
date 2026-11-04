@@ -285,7 +285,7 @@ const UnlockWith: React.FC = () => {
 
   return (
     <SafeArea style={styles.root}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.keyboardAvoidingView}>
           <Animated.View style={[styles.contentContainer, { transform: [{ translateY: keyboardOffset }] }]}>
             <View style={styles.logoContainer}>
