@@ -517,7 +517,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
         }
       } else if (swap.type === 'submarine') {
         direction = -1;
-        switch (swap.status) {
+        // A stranded send refunded without Boltz keeps its last Boltz status.
+        switch (swap.refunded ? 'transaction.refunded' : swap.status) {
           case 'transaction.claimed':
             ispaid = true;
             type = 'paid_invoice';

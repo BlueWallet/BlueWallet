@@ -1,11 +1,14 @@
 import assert from 'assert';
 
 import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION } from '@arkade-os/sdk/repositories/realm';
-import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
+import { BoltzRealmSchemas, RealmSwapRepository } from '@arkade-os/boltz-swap/repositories/realm';
+import type Realm from 'realm';
 
 import { LightningArkWallet, __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet.ts';
-import * as strandedSends from '../../blue_modules/arkade-stranded-sends';
+import { getArkadeRealm } from '../../blue_modules/arkade-adapters/realm/realmInstance';
+import { hexToUint8Array } from '../../blue_modules/uint8array-extras/index';
 import { resetArkadeTestState } from '../helpers/arkadeMocks';
+import { SENDER, storedSend } from '../helpers/strandedSend';
 
 const TEST_MNEMONIC = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 
@@ -1457,55 +1460,81 @@ describe('LightningArkWallet — per-swap claim/refund + restore', () => {
 });
 
 describe('LightningArkWallet — _refundStrandedSends (#8804)', () => {
-  // The refund itself is covered in arkade-stranded-sends.test.ts. This pins
-  // the refresh that makes a refunded send show up without the user's help.
+  // The real refund runs against the wallet's Realm and is read back through
+  // fetchBalance / fetchTransactions. Only the Ark SDK is faked.
   let w: LightningArkWallet;
-  const sdkWallet = {};
-  const realm = {};
+  let realm: Realm;
 
-  beforeEach(() => {
+  // Registered lockups hold their coin until recoverVtxos() settles it.
+  const fakeSdkWallet = (recoverable: bigint) => {
+    const registered = new Set<string>();
+    let recovered = false;
+    return {
+      identity: { xOnlyPublicKey: async () => hexToUint8Array(SENDER) },
+      getContractManager: async () => ({
+        createContract: async ({ script }: { script: string }) => registered.add(script),
+        getContractsWithVtxos: async () => (recovered ? [] : [...registered].map(script => ({ contract: { script }, vtxos: [{}] }))),
+      }),
+      getVtxoManager: async () => ({
+        getRecoverableBalance: async () => ({ recoverable }),
+        recoverVtxos: async () => {
+          recovered = true;
+        },
+      }),
+      getBalance: async () => ({ available: recovered ? Number(recoverable) : 0, recoverable: 0 }),
+      getBoardingUtxos: async () => [],
+      getTransactionHistory: async () => [],
+    };
+  };
+  const strandedRow = () => w.getTransactions().find(tx => tx.txid === 'swap-send-1');
+
+  beforeEach(async () => {
     w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
-    (w as any)._wallet = sdkWallet;
-    jest.spyOn(w, 'fetchBalance').mockResolvedValue();
-    jest.spyOn(w, 'fetchTransactions').mockResolvedValue();
+    realm = await getArkadeRealm(w.getNamespace());
+    const swapRepository = new RealmSwapRepository(realm);
+    await swapRepository.saveSwap(storedSend() as any);
+    (w as any)._arkadeSwaps = { getSwapHistory: () => swapRepository.getAllSwaps() };
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('refreshes balance and transactions after a refund settles', async () => {
-    jest.spyOn(strandedSends, 'refundStrandedSends').mockResolvedValue(true);
+  it('shows a send as refunded, and its sats back in the balance, once the refund settles', async () => {
+    const sdkWallet = fakeSdkWallet(19_000n);
+    (w as any)._wallet = sdkWallet;
+    await w.fetchTransactions();
+    assert.strictEqual(strandedRow()?.failed, false, 'an in-flight send before the refund');
 
     await (w as any)._refundStrandedSends(realm, sdkWallet);
 
-    // @ts-expect-error spy
-    assert.strictEqual(w.fetchBalance.mock.calls.length, 1);
-    // @ts-expect-error spy
-    assert.strictEqual(w.fetchTransactions.mock.calls.length, 1);
+    assert.strictEqual(strandedRow()?.failed, true, 'no longer an in-flight send');
+    assert.ok(strandedRow()?.memo?.startsWith('Refunded: '));
+    assert.strictEqual(w.getBalance(), 19_000);
   });
 
-  it('skips the refresh when nothing settled', async () => {
-    jest.spyOn(strandedSends, 'refundStrandedSends').mockResolvedValue(false);
+  it('leaves the send in flight while nothing has matured', async () => {
+    const sdkWallet = fakeSdkWallet(0n);
+    (w as any)._wallet = sdkWallet;
 
     await (w as any)._refundStrandedSends(realm, sdkWallet);
+    await w.fetchTransactions();
 
-    // @ts-expect-error spy
-    assert.strictEqual(w.fetchBalance.mock.calls.length, 0);
-    // @ts-expect-error spy
-    assert.strictEqual(w.fetchTransactions.mock.calls.length, 0);
+    assert.strictEqual(strandedRow()?.failed, false);
   });
 
-  it("skips the refresh if the wallet has since been re-init'd (stale wallet ref)", async () => {
-    jest.spyOn(strandedSends, 'refundStrandedSends').mockResolvedValue(true);
+  it("records the refund but skips the refresh if the wallet has since been re-init'd (stale wallet ref)", async () => {
+    const sdkWallet = fakeSdkWallet(19_000n);
     (w as any)._wallet = { different: true }; // simulate onDelete/re-init happening mid-refund
+    const fetchBalance = jest.spyOn(w, 'fetchBalance');
+    const fetchTransactions = jest.spyOn(w, 'fetchTransactions');
 
     await (w as any)._refundStrandedSends(realm, sdkWallet);
 
-    // @ts-expect-error spy
-    assert.strictEqual(w.fetchBalance.mock.calls.length, 0, 'must not touch a stale instance state');
-    // @ts-expect-error spy
-    assert.strictEqual(w.fetchTransactions.mock.calls.length, 0, 'must not touch a stale instance state');
+    assert.strictEqual(fetchBalance.mock.calls.length, 0, 'must not touch a stale instance state');
+    assert.strictEqual(fetchTransactions.mock.calls.length, 0, 'must not touch a stale instance state');
+    const [swap] = await new RealmSwapRepository(realm).getAllSwaps();
+    assert.strictEqual((swap as any).refunded, true);
   });
 });
