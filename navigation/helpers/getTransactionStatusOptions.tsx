@@ -70,10 +70,9 @@ const getTransactionStatusOptions = ({
   const date = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
 
   return {
-    // Keep a meaningful string title at the stack level for navigation metadata,
-    // even though the visible header uses the richer two-line title below.
-    title: direction ?? loc.transactions.details_title,
-    headerBackTitle: loc.transactions.details_title,
+    // Generic string title is what pushed screens (CPFP, RBF) show as their back label;
+    // the visible header uses the richer two-line title below.
+    title: loc.transactions.details_title,
     headerTitle: direction
       ? createTransactionStatusHeaderTitle({
           direction,

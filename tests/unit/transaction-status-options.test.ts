@@ -18,11 +18,12 @@ const optionsFor = (tx?: DetailViewStackParamList['TransactionStatus']['tx']) =>
   });
 
 describe('getTransactionStatusOptions', () => {
-  it('uses the current transaction direction as the stack title', () => {
-    const incomingOptions = optionsFor({ hash: 'incoming', value: 1, timestamp: 1 } as any);
-    expect(incomingOptions.title).toBe(loc.transactions.details_received);
-    expect(incomingOptions.headerBackTitle).toBe(loc.transactions.details_title);
-    expect(optionsFor({ hash: 'outgoing', value: -1, timestamp: 1 } as any).title).toBe(loc.transactions.details_sent);
+  it('keeps a generic stack title so pushed screens get a meaningful back label', () => {
+    const options = optionsFor({ hash: 'incoming', value: 1, timestamp: 1 } as any);
+    expect(options.title).toBe(loc.transactions.details_title);
+    expect(options.headerBackTitle).toBeUndefined();
+    expect(options.headerTitle).toEqual(expect.any(Function));
+    expect(optionsFor({ hash: 'outgoing', value: -1, timestamp: 1 } as any).title).toBe(loc.transactions.details_title);
   });
 
   it('uses the generic transaction title until transaction data is available', () => {
