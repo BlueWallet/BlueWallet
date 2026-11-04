@@ -1,38 +1,10 @@
 import assert from 'assert';
-import { ArkAddress, VHTLCContractHandler } from '@arkade-os/sdk';
+import { ArkAddress, CreateContractParams, VHTLCContractHandler } from '@arkade-os/sdk';
 import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 
 import { BoltzSwapRow, BoltzSwapSchema, refundStrandedSends, strandedSendContracts } from '../../blue_modules/arkade-stranded-sends';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras/index';
-
-// A send as @arkade-os/boltz-swap 0.3.67 stored it. The lockup addresses come
-// from its own createVHTLCScript, the construction it checked every address
-// Boltz returned against before saving a swap.
-const SENDER = 'd862741c0e40278606fe88d6b827b84c247e8bc468c1cc31704771df3024f011';
-const PAYMENT_HASH = 'db6b2ad5b901cfcdc717814793dc00a79a520abfa7f716bb74f80fa7f1cb2597';
-const INVOICE =
-  'lnbc200u1p54twgqpp5md4j44deq88um3chs9re8hqq57d9yz4l5lm3dwm5lq860uwtyktssp59wuq65mmrk378z7nqds64p2ks677p6kdw930aa4ztl5hhaf85fdsdqawd68yctwv3jkggrnv4hxggr5v4ehgxqrrss9qypqsqcqpf08uknwxlvtjml9c0usmjax35tz3wm5tdr8h0ua9367wcvr2uxjyseyx5awp0xwpspwqpsgj334pwctl2j3ywsnptu8fz35e9esrwf6cp558acn';
-const LOCKUP = {
-  currentSigner: 'ark1qzpq904am6clw3pgqwyh4p02708fy4xs0hcpwt7rwfdttuxsjamee0h5gl4adev6tev5kly4fnt5m40qgm9y7zqttxjvu80ghtz5s3s96dplmv',
-  previousSigner: 'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t48u9f5ec9fd8jjpgh7trq484x625jnkwr70fuy4tawlnwrxme7c7m5jm7n',
-};
-
-const storedSend = (overrides: Record<string, unknown> = {}) => ({
-  id: 'send-1',
-  type: 'submarine',
-  createdAt: 1767225600,
-  status: 'transaction.mempool',
-  request: { invoice: INVOICE, refundPublicKey: '03' + SENDER },
-  response: {
-    id: 'send-1',
-    address: LOCKUP.currentSigner,
-    expectedAmount: 20050,
-    claimPublicKey: '0281a90ed37c66ce185217b0768e955bb7e335f8dcd013568787aebff7d2b2ec91',
-    acceptZeroConf: true,
-    timeoutBlockHeights: { refund: 1767312000, unilateralClaim: 98304, unilateralRefund: 172032, unilateralRefundWithoutReceiver: 259072 },
-  },
-  ...overrides,
-});
+import { LOCKUP, PAYMENT_HASH, SENDER, storedSend } from '../helpers/strandedSend';
 
 const row = (swap: { id: string; type: string }): BoltzSwapRow => ({ id: swap.id, type: swap.type, data: JSON.stringify(swap) });
 
@@ -116,12 +88,21 @@ describe('arkade-stranded-sends — strandedSendContracts', () => {
 
 describe('arkade-stranded-sends — refundStrandedSends', () => {
   const scriptOf = (address: string) => uint8ArrayToHex(ArkAddress.decode(address).pkScript);
-  // Lockups holding an unspent coin before and after the recovery, as the contract manager reports them.
-  const fakeWallet = (recoverable: bigint, fundedBefore: string[] = [], fundedAfter: string[] = []) => {
-    const createContract = jest.fn(async () => ({}));
+  // Lockups holding an unspent coin before and after the recovery. Like the
+  // SDK's, the contract manager reports only lockups registered with it.
+  const fakeWallet = (recoverable: bigint, fundedBefore: string[] = [], fundedAfter: string[] = [], unregistrable: string[] = []) => {
+    const registered = new Set<string>();
+    const createContract = jest.fn(async (contract: CreateContractParams) => {
+      if (unregistrable.includes(contract.address!)) throw new Error('indexer unreachable');
+      registered.add(contract.script);
+    });
     const recoverVtxos = jest.fn(async () => 'commitment-txid');
-    const holding = (addresses: string[]) => addresses.map(address => ({ contract: { script: scriptOf(address) }, vtxos: [{}] }));
-    const getContractsWithVtxos = jest.fn().mockResolvedValueOnce(holding(fundedBefore)).mockResolvedValueOnce(holding(fundedAfter));
+    const holding = (addresses: string[]) =>
+      addresses.map(scriptOf).flatMap(script => (registered.has(script) ? [{ contract: { script }, vtxos: [{}] }] : []));
+    const getContractsWithVtxos = jest
+      .fn()
+      .mockImplementationOnce(async () => holding(fundedBefore))
+      .mockImplementationOnce(async () => holding(fundedAfter));
     const wallet = {
       identity: { xOnlyPublicKey: async () => hexToUint8Array(SENDER) },
       getContractManager: async () => ({ createContract, getContractsWithVtxos }),
@@ -146,7 +127,7 @@ describe('arkade-stranded-sends — refundStrandedSends', () => {
 
     assert.strictEqual(settled, true);
     assert.strictEqual(createContract.mock.calls.length, 1, 'the paid send is left alone');
-    assert.strictEqual((createContract.mock.calls[0] as any[])[0].address, LOCKUP.currentSigner);
+    assert.strictEqual(createContract.mock.calls[0][0].address, LOCKUP.currentSigner);
     assert.strictEqual(recoverVtxos.mock.calls.length, 1);
   });
 
@@ -158,6 +139,25 @@ describe('arkade-stranded-sends — refundStrandedSends', () => {
     await refundStrandedSends(realm, wallet);
 
     assert.deepStrictEqual(refunded(), ['send-1'], 'send-2 still holds a coin the recovery did not take');
+  });
+
+  it('settles the rest past a send it cannot register, and leaves that one for the next launch', async () => {
+    const log = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const older = storedSend({ id: 'send-2', response: { ...storedSend().response, address: LOCKUP.previousSigner } });
+    const { realm, refunded } = fakeRealm(storedSend(), older);
+    // send-2's lockup is funded, but unregistered the recovery cannot reach it.
+    const both = [LOCKUP.currentSigner, LOCKUP.previousSigner];
+    const { wallet, recoverVtxos } = fakeWallet(19_000n, both, [LOCKUP.previousSigner], [LOCKUP.previousSigner]);
+
+    assert.strictEqual(await refundStrandedSends(realm, wallet), true);
+    assert.strictEqual(recoverVtxos.mock.calls.length, 1);
+    assert.deepStrictEqual(refunded(), ['send-1'], 'send-2 never left its lockup, so it is not refunded');
+
+    const nextLaunch = fakeWallet(0n);
+    await refundStrandedSends(realm, nextLaunch.wallet);
+    assert.strictEqual(nextLaunch.createContract.mock.calls.length, 1, 'only send-2 is registered again');
+    assert.strictEqual(nextLaunch.createContract.mock.calls[0][0].address, LOCKUP.previousSigner);
+    log.mockRestore();
   });
 
   it('never marks a lockup that was already empty, such as one Boltz claimed', async () => {
