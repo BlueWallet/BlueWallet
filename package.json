@@ -91,7 +91,6 @@
     "unit": "jest -b tests/unit/*"
   },
   "dependencies": {
-    "@arkade-os/boltz-swap": "0.3.67",
     "@arkade-os/sdk": "0.4.79",
     "@bugsnag/cli": "3.10.7",
     "@bugsnag/react-native": "9.1.0",
@@ -152,7 +151,6 @@
     "react": "19.3.0",
     "react-localization": "github:BlueWallet/react-localization#ae7969a",
     "react-native": "0.88.1",
-    "react-native-background-fetch": "4.4.2",
     "react-native-biometrics": "3.0.1",
     "react-native-blue-crypto": "github:BlueWallet/react-native-blue-crypto#3cb5442",
     "react-native-camera-kit-no-google": "github:BlueWallet/react-native-camera-kit-no-google#af2dc02cc4acfef0b9be557631822957ff6f94a4",

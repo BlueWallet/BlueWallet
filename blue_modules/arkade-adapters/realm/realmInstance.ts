@@ -5,19 +5,18 @@ import Keychain, { ACCESSIBLE, SECURITY_LEVEL } from 'react-native-keychain';
 import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION, runArkRealmMigrations } from '@arkade-os/sdk/repositories/realm';
 import { randomBytes } from '../../../class/rng';
 import { uint8ArrayToHex, hexToUint8Array } from '../../uint8array-extras';
-import { ArkSwapNotificationSuppressionSchema } from './notificationSuppressionRepository';
 import { errorMessage } from '../../../helpers/errorMessage';
 import { BoltzSwapSchema } from '../../arkade-stranded-sends';
 
 // BoltzSwap is app-owned so the stored sends outlive the boltz-swap package:
 // they are the only record of lockups the wallet may still refund.
-const AllArkadeSchemas = [...ArkRealmSchemas, BoltzSwapSchema, ArkSwapNotificationSuppressionSchema];
+const AllArkadeSchemas = [...ArkRealmSchemas, BoltzSwapSchema];
 
 // App-owned schemas added on top of the SDK's. Bump when an app-owned schema
 // changes; SDK bumps are handled by ARK_REALM_SCHEMA_VERSION. Realm requires
 // a strictly increasing schemaVersion when objects are added; computing
 // `SDK + offset` keeps the local additions ahead of any future SDK bump.
-const LOCAL_ARK_SCHEMA_OFFSET = 1;
+const LOCAL_ARK_SCHEMA_OFFSET = 2;
 const ARKADE_REALM_SCHEMA_VERSION = ARK_REALM_SCHEMA_VERSION + LOCAL_ARK_SCHEMA_OFFSET;
 
 const realmInstances: Map<string, Realm> = new Map();
@@ -97,6 +96,13 @@ export async function getArkadeRealm(namespace: string): Promise<Realm> {
       schemaVersion: ARKADE_REALM_SCHEMA_VERSION,
       onMigration: (oldRealm, newRealm) => {
         runArkRealmMigrations(oldRealm, newRealm);
+        // Boltz payment pushes are gone: drop their suppression table. BoltzSwap
+        // stays, it is what stranded sends are refunded from.
+        try {
+          newRealm.deleteModel('ArkSwapNotificationSuppression');
+        } catch {
+          // Model absent on fresh installs — nothing to drop.
+        }
       },
       path: realmPathFor(namespace),
       encryptionKey,

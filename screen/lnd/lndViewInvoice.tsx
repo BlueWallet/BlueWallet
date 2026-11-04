@@ -1,6 +1,6 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useRoute, useLocale } from '@react-navigation/native';
-import { ActivityIndicator, BackHandler, Pressable, ScrollView, StyleSheet, Text, View, LayoutChangeEvent } from 'react-native';
+import { BackHandler, Pressable, ScrollView, StyleSheet, Text, View, LayoutChangeEvent } from 'react-native';
 import Icon from '../../components/Icon';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -20,12 +20,7 @@ import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
-import presentAlert from '../../components/Alert';
-import { isReverseSuccessStatus } from '@arkade-os/boltz-swap';
-import type { BoltzSubmarineSwap } from '@arkade-os/boltz-swap';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { errorMessage } from '../../helpers/errorMessage';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute<RouteProp<DetailViewStackParamList, 'LNDViewInvoice'>>().params;
@@ -35,72 +30,10 @@ const LNDViewInvoice = () => {
   const { goBack, navigate, setParams } = useNavigation();
 
   const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet | undefined;
-  const arkWallet =
-    wallet && (wallet as { type?: string }).type === LightningArkWallet.type ? (wallet as unknown as LightningArkWallet) : undefined;
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
   const fetchInvoiceInterval = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
-  // Per-swap claim/refund lookup, by the `swap-${id}` prefix mapped onto
-  // the row's `txid` field by lightning-ark-wallet getTransactions(). The
-  // route param is typed as LightningTransaction (which doesn't declare
-  // txid) but at runtime carries the merged `Transaction & LightningTransaction`
-  // shape, so we read txid through a narrow local cast. For non-Ark wallets
-  // and non-swap rows this resolves to undefined and the UI falls through
-  // to the existing branches.
-  const invoiceTxid = typeof invoice === 'object' ? (invoice as { txid?: unknown }).txid : undefined;
-  const swapId = typeof invoiceTxid === 'string' && invoiceTxid.startsWith('swap-') ? invoiceTxid.slice('swap-'.length) : undefined;
-  // Force-render token: bumped by the swap-event subscription below so live
-  // `swap.status` lookups (via getSwapById → _swapHistory) re-evaluate the
-  // moment the SDK observes a status transition, without waiting for the
-  // 3s polling tick to update the route-param snapshot.
-  const [, forceRender] = useReducer((x: number) => x + 1, 0);
-  const swap = swapId && arkWallet ? arkWallet.getSwapById(swapId) : undefined;
-  const [isActioning, setIsActioning] = useState<boolean>(false);
-  const claimable = arkWallet && swap ? arkWallet.isSwapClaimable(swap) : false;
-  const refundable = arkWallet && swap ? arkWallet.isSwapRefundable(swap) : false;
-
-  // Subscribe to SwapManager status transitions for our swap so the spinner
-  // → success transition is driven by SDK events, not the 3s polling lag.
-  // The SDK mutates `swap.status` in place before invoking listeners, so by
-  // the time we force a render `getSwapById(swapId).status` reflects the
-  // new state and the success/refund branches re-evaluate correctly.
-  useEffect(() => {
-    if (!arkWallet || !swapId) return;
-    return arkWallet.subscribeToSwapEvents(updatedSwap => {
-      if (updatedSwap.id === swapId) forceRender();
-    });
-  }, [arkWallet, swapId]);
-
-  const refreshAfterAction = async () => {
-    if (!arkWallet || !swapId) return;
-    const updatedRow = arkWallet.getTransactions().find(tx => tx.txid === `swap-${swapId}`);
-    if (updatedRow) setParams({ invoice: updatedRow });
-    setInvoiceStatusChanged(true);
-    fetchAndSaveWalletTransactions(walletID);
-  };
-
-  const onRefundPressed = async () => {
-    if (!arkWallet || !swap || isActioning) return;
-    setIsActioning(true);
-    try {
-      const outcome = await arkWallet.refundSwap(swap as BoltzSubmarineSwap);
-      if (outcome.swept === 0) {
-        // Lockup not yet refundable (CLTV not reached / Boltz declined to
-        // co-sign). Surface as info, not an error: the row stays refundable
-        // and the user can retry later.
-        presentAlert({ message: loc.lndViewInvoice.refund_deferred });
-      } else {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-      }
-      await refreshAfterAction();
-    } catch (e) {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: errorMessage(e) });
-    } finally {
-      setIsActioning(false);
-    }
-  };
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -238,13 +171,7 @@ const LNDViewInvoice = () => {
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
       const invoiceExpiration = invoice?.timestamp && invoice?.expire_time ? invoice.timestamp + invoice.expire_time : undefined;
 
-      // Settlement wins over any claim/refund CTA. The SDK auto-claims
-      // reverse swaps as soon as Boltz funds the VHTLC, so a stale
-      // route-param snapshot (`invoice.ispaid:false`) can race a live
-      // `_swapHistory` already at `invoice.settled`; checking the live
-      // swap status alongside the snapshot prevents Claim from rendering
-      // (and failing) after the SDK has already claimed.
-      if (invoice.ispaid || invoice.type === 'paid_invoice' || (swap && isReverseSuccessStatus(swap.status))) {
+      if (invoice.ispaid || invoice.type === 'paid_invoice') {
         let amount = 0;
         let description;
         let invoiceDate;
@@ -252,10 +179,6 @@ const LNDViewInvoice = () => {
           amount = invoice.value;
         } else if (invoice.type === 'user_invoice' && invoice.amt) {
           amount = invoice.amt;
-        } else if (invoice.value) {
-          // Settled Arkade swap: an enriched native Ark leg (type 'bitcoind_tx')
-          // has no `amt`; its magnitude lives in the signed `value`.
-          amount = Math.abs(invoice.value);
         }
         if (invoice.description) {
           description = invoice.description;
@@ -294,35 +217,6 @@ const LNDViewInvoice = () => {
                 </Pressable>
               ) : undefined}
             </View>
-          </View>
-        );
-      }
-
-      // Reverse swap mid-flight: Boltz funded the VHTLC and the SDK is
-      // auto-claiming (SwapManager.executeAutonomousAction → claimVHTLC).
-      // No manual CTA — the SDK owns claim reliability — so we just show
-      // a "Receiving" indicator until the status transitions to
-      // `invoice.settled` and the success branch above catches it.
-      if (claimable) {
-        return (
-          <View style={[styles.activeRoot, stylesHook.root]}>
-            <ActivityIndicator size="large" color={colors.foregroundColor} />
-            <BlueSpacing20 />
-            <BlueTextCentered>{loc.lndViewInvoice.receiving_payment}</BlueTextCentered>
-          </View>
-        );
-      }
-      if (refundable) {
-        return (
-          <View style={[styles.activeRoot, stylesHook.root]}>
-            <BlueTextCentered>{invoice.description ?? invoice.memo ?? ''}</BlueTextCentered>
-            <BlueSpacing20 />
-            <Button
-              onPress={onRefundPressed}
-              title={loc.lndViewInvoice.refund_funds}
-              disabled={isActioning}
-              showActivityIndicator={isActioning}
-            />
           </View>
         );
       }

@@ -64,6 +64,10 @@ describe('arkade realm adapter', () => {
       'has BoltzSwap schema',
     );
     assert.ok(
+      config.schema.every((s: any) => s.name !== 'ArkSwapNotificationSuppression'),
+      'suppression table is not registered',
+    );
+    assert.ok(
       config.schema.some((s: any) => s.name === 'ArkVtxo'),
       'has ArkVtxo schema',
     );
@@ -72,6 +76,40 @@ describe('arkade realm adapter', () => {
     assert.strictEqual(config.encryptionKey.length, 64, 'encryption key is 64 bytes');
     assert.strictEqual(config.excludeFromIcloudBackup, true);
     assert.ok(typeof config.onMigration === 'function', 'onMigration is a function');
+  });
+
+  it('migration drops the suppression model and keeps BoltzSwap', async () => {
+    await getArkadeRealm('ns-migration');
+
+    const config = Realm.open.mock.calls[0][0];
+    const deleted: string[] = [];
+    config.onMigration(
+      {},
+      {
+        objects: () => [],
+        deleteModel: (name: string) => {
+          deleted.push(name);
+        },
+      },
+    );
+    assert.deepStrictEqual(deleted, ['ArkSwapNotificationSuppression']);
+  });
+
+  it('a fresh install without the suppression model still migrates', async () => {
+    await getArkadeRealm('ns-fresh');
+
+    const config = Realm.open.mock.calls[0][0];
+    assert.doesNotThrow(() =>
+      config.onMigration(
+        {},
+        {
+          objects: () => [],
+          deleteModel: () => {
+            throw new Error('no such model');
+          },
+        },
+      ),
+    );
   });
 
   it('persists Realm encryption key per namespace and reuses it on reopen', async () => {

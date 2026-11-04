@@ -1,8 +1,7 @@
 import assert from 'assert';
 import { ArkAddress, VHTLCContractHandler } from '@arkade-os/sdk';
-import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 
-import { BoltzSwapRow, BoltzSwapSchema, refundStrandedSends, strandedSendContracts } from '../../blue_modules/arkade-stranded-sends';
+import { BoltzSwapRow, refundStrandedSends, strandedSendContracts } from '../../blue_modules/arkade-stranded-sends';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras/index';
 
 // A send as @arkade-os/boltz-swap 0.3.67 stored it. The lockup addresses come
@@ -107,10 +106,6 @@ describe('arkade-stranded-sends — strandedSendContracts', () => {
     assert.deepStrictEqual(strandedSendContracts([row(storedSend())], otherKey), []);
     assert.ok(String(log.mock.calls[0][0]).includes('does not rebuild to its lockup address'));
     log.mockRestore();
-  });
-
-  it('keeps the BoltzSwap table identical to boltz-swap, so existing Realms open without a migration', () => {
-    assert.deepStrictEqual(BoltzSwapSchema, BoltzRealmSchemas[0]);
   });
 });
 

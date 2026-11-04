@@ -261,17 +261,6 @@ const startImport = (
       if (!offline) {
         try {
           await ark.init();
-          // Restore any previous Boltz swap activity for this seed exactly
-          // once, here at import time. We never run this on later wallet
-          // opens — the app does not sweep all swaps on bootstrap. A failure
-          // must not block the import: the wallet itself is fine, the
-          // restored rows are an optional bonus for imported-from-elsewhere
-          // wallets.
-          try {
-            await ark.restoreSwaps();
-          } catch (e) {
-            console.log('[wallet-import] restoreSwaps failed:', errorMessage(e));
-          }
           try {
             await ark.fetchBalance();
             await ark.fetchTransactions();
