@@ -3,8 +3,13 @@ import type { ParamListBase, RouteProp } from '@react-navigation/native';
 import React from 'react';
 import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
+import { isDesktop } from '../blue_modules/environment';
 import loc from '../loc';
 import { Theme } from './themes';
+
+// Scanner inside a nested stack. Catalyst rehosts a fullScreenModal shown from a sheet into its own window,
+// then crashes on menu validation ("rehostedVC should be in a UIWindow"); a plain modal is fine.
+export const nestedScannerPresentation: NativeStackNavigationOptions['presentation'] = isDesktop ? 'modal' : 'fullScreenModal';
 
 const styles = StyleSheet.create({
   button: {
