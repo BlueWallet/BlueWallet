@@ -1,6 +1,6 @@
 import bolt11 from 'bolt11';
 import { ripemd160 } from '@noble/hashes/legacy';
-import { ArkAddress, CreateContractParams, RelativeTimelock, VHTLCContractHandler, Wallet } from '@arkade-os/sdk';
+import { ArkAddress, CreateContractParams, IContractManager, RelativeTimelock, VHTLCContractHandler, Wallet } from '@arkade-os/sdk';
 import type Realm from 'realm';
 
 import { hexToUint8Array, uint8ArrayToHex } from './uint8array-extras/index';
@@ -104,8 +104,15 @@ export function strandedSendContracts(rows: BoltzSwapRow[], senderXOnly: Uint8Ar
   return contracts;
 }
 
+/** Scripts of the given lockups that still hold an unspent coin. */
+async function fundedLockups(contractManager: IContractManager, contracts: CreateContractParams[]): Promise<Set<string>> {
+  const held = await contractManager.getContractsWithVtxos({ script: contracts.map(c => c.script) }, undefined, { unspentOnly: true });
+  return new Set(held.filter(({ vtxos }) => vtxos.length > 0).map(({ contract }) => contract.script));
+}
+
 /**
- * Registers the stranded sends with the wallet and settles the matured ones.
+ * Registers the stranded sends with the wallet, settles the matured ones and
+ * marks the sends whose lockup it emptied as refunded.
  * Safe to repeat: registration is an upsert and nothing settles twice.
  *
  * @returns whether a recovery settled, so the caller knows to refresh.
@@ -133,6 +140,17 @@ export async function refundStrandedSends(
   const { recoverable } = await vtxoManager.getRecoverableBalance();
   if (recoverable === 0n) return false;
 
+  const funded = await fundedLockups(contractManager, contracts);
   await vtxoManager.recoverVtxos();
+
+  // A lockup the recovery emptied is refunded: mark its send so it stops
+  // offering a Refund button and is not registered again.
+  const stillFunded = await fundedLockups(contractManager, contracts);
+  const refunded = new Set(contracts.filter(c => funded.has(c.script) && !stillFunded.has(c.script)).map(c => c.metadata?.boltzSwapId));
+  realm.write(() => {
+    for (const row of rows) {
+      if (refunded.has(row.id)) row.data = JSON.stringify({ ...JSON.parse(row.data), refunded: true });
+    }
+  });
   return true;
 }

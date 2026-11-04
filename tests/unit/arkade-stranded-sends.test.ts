@@ -115,23 +115,34 @@ describe('arkade-stranded-sends — strandedSendContracts', () => {
 });
 
 describe('arkade-stranded-sends — refundStrandedSends', () => {
-  const fakeWallet = (recoverable: bigint) => {
+  const scriptOf = (address: string) => uint8ArrayToHex(ArkAddress.decode(address).pkScript);
+  // Lockups holding an unspent coin before and after the recovery, as the contract manager reports them.
+  const fakeWallet = (recoverable: bigint, fundedBefore: string[] = [], fundedAfter: string[] = []) => {
     const createContract = jest.fn(async () => ({}));
     const recoverVtxos = jest.fn(async () => 'commitment-txid');
+    const holding = (addresses: string[]) => addresses.map(address => ({ contract: { script: scriptOf(address) }, vtxos: [{}] }));
+    const getContractsWithVtxos = jest.fn().mockResolvedValueOnce(holding(fundedBefore)).mockResolvedValueOnce(holding(fundedAfter));
     const wallet = {
       identity: { xOnlyPublicKey: async () => hexToUint8Array(SENDER) },
-      getContractManager: async () => ({ createContract }),
+      getContractManager: async () => ({ createContract, getContractsWithVtxos }),
       getVtxoManager: async () => ({ getRecoverableBalance: async () => ({ recoverable }), recoverVtxos }),
     };
     return { wallet: wallet as unknown as Parameters<typeof refundStrandedSends>[1], createContract, recoverVtxos };
   };
-  const fakeRealm = (...swaps: { id: string; type: string }[]) =>
-    ({ objects: () => swaps.map(row) }) as unknown as Parameters<typeof refundStrandedSends>[0];
+  const fakeRealm = (...swaps: { id: string; type: string }[]) => {
+    const rows = swaps.map(row);
+    const realm = { objects: () => rows, write: (fn: () => void) => fn() } as unknown as Parameters<typeof refundStrandedSends>[0];
+    const refunded = () => rows.filter(r => JSON.parse(r.data).refunded).map(r => r.id);
+    return { realm, refunded };
+  };
 
   it('registers each stranded send and settles what has matured', async () => {
     const { wallet, createContract, recoverVtxos } = fakeWallet(19_000n);
 
-    const settled = await refundStrandedSends(fakeRealm(storedSend(), storedSend({ id: 'paid', status: 'transaction.claimed' })), wallet);
+    const settled = await refundStrandedSends(
+      fakeRealm(storedSend(), storedSend({ id: 'paid', status: 'transaction.claimed' })).realm,
+      wallet,
+    );
 
     assert.strictEqual(settled, true);
     assert.strictEqual(createContract.mock.calls.length, 1, 'the paid send is left alone');
@@ -139,10 +150,29 @@ describe('arkade-stranded-sends — refundStrandedSends', () => {
     assert.strictEqual(recoverVtxos.mock.calls.length, 1);
   });
 
+  it('marks refunded only the sends whose lockup the recovery emptied', async () => {
+    const older = storedSend({ id: 'send-2', response: { ...storedSend().response, address: LOCKUP.previousSigner } });
+    const { wallet } = fakeWallet(19_000n, [LOCKUP.currentSigner, LOCKUP.previousSigner], [LOCKUP.previousSigner]);
+    const { realm, refunded } = fakeRealm(storedSend(), older);
+
+    await refundStrandedSends(realm, wallet);
+
+    assert.deepStrictEqual(refunded(), ['send-1'], 'send-2 still holds a coin the recovery did not take');
+  });
+
+  it('never marks a lockup that was already empty, such as one Boltz claimed', async () => {
+    const { wallet } = fakeWallet(19_000n);
+    const { realm, refunded } = fakeRealm(storedSend());
+
+    await refundStrandedSends(realm, wallet);
+
+    assert.deepStrictEqual(refunded(), []);
+  });
+
   it('registers but does not settle while nothing is recoverable yet', async () => {
     const { wallet, createContract, recoverVtxos } = fakeWallet(0n);
 
-    assert.strictEqual(await refundStrandedSends(fakeRealm(storedSend()), wallet), false);
+    assert.strictEqual(await refundStrandedSends(fakeRealm(storedSend()).realm, wallet), false);
     assert.strictEqual(createContract.mock.calls.length, 1, 'registered, so the lockup is recovered once it matures');
     assert.strictEqual(recoverVtxos.mock.calls.length, 0);
   });
@@ -150,7 +180,7 @@ describe('arkade-stranded-sends — refundStrandedSends', () => {
   it('touches nothing when there is no stranded send', async () => {
     const { wallet, createContract, recoverVtxos } = fakeWallet(19_000n);
 
-    assert.strictEqual(await refundStrandedSends(fakeRealm(storedSend({ status: 'transaction.claimed' })), wallet), false);
+    assert.strictEqual(await refundStrandedSends(fakeRealm(storedSend({ status: 'transaction.claimed' })).realm, wallet), false);
     assert.strictEqual(createContract.mock.calls.length, 0);
     assert.strictEqual(recoverVtxos.mock.calls.length, 0);
   });
