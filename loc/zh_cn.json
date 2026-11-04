@@ -395,7 +395,7 @@
     "watchOnlyWarningTitle": "安全警告",
     "watchOnlyWarningDescription": "请注意骗子，他们经常使用“观察钱包”来欺骗用户。这类钱包无法让您控制或发送资金，只能查看余额。 ",
     "details_eta_analyzing": "正在分析……",
-    "details_sent": "发送",
+    "details_sent": "已发送",
     "details_section": "详情",
     "details_explorer": "浏览器",
     "details_network_fee": "矿工费",
