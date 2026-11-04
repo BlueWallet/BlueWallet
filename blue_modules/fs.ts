@@ -30,8 +30,52 @@ export const encodeCsvRow = (values: Array<string | number>): string =>
     })
     .join(',');
 
-export const encodeBip329TransactionLabel = (transactionId: string, label?: string): string =>
-  JSON.stringify(label === undefined ? { type: 'tx', ref: transactionId } : { type: 'tx', ref: transactionId, label });
+export type Bip329Record = {
+  type: 'tx' | 'addr' | 'pubkey' | 'input' | 'output' | 'xpub' | 'spscan';
+  ref: string;
+  label?: string;
+  origin?: string;
+  spendable?: boolean;
+  height?: number;
+  time?: string;
+  fee?: number;
+  value?: number;
+  rate?: Record<string, number>;
+  keypath?: string;
+  fmv?: Record<string, number>;
+  heights?: number[];
+};
+
+export const encodeBip329Record = (record: Bip329Record): string => {
+  const validTypes: ReadonlySet<Bip329Record['type']> = new Set(['tx', 'addr', 'pubkey', 'input', 'output', 'xpub', 'spscan']);
+  if (!validTypes.has(record.type) || typeof record.ref !== 'string' || record.ref.length === 0) {
+    throw new Error('Invalid BIP-329 record');
+  }
+  if (record.spendable !== undefined && record.type !== 'output') {
+    throw new Error('BIP-329 spendable is only valid for output records');
+  }
+  for (const field of ['height', 'fee', 'value'] as const) {
+    if (record[field] !== undefined && !Number.isSafeInteger(record[field])) {
+      throw new Error(`BIP-329 ${field} must be an integer`);
+    }
+  }
+  if (record.time !== undefined && Number.isNaN(Date.parse(record.time))) {
+    throw new Error('BIP-329 time must be an ISO-8601 timestamp');
+  }
+  return JSON.stringify(record);
+};
+
+export const encodeBip329TransactionLabel = (
+  transactionId: string,
+  label?: string,
+  details: Omit<Bip329Record, 'type' | 'ref' | 'label' | 'spendable' | 'keypath' | 'fmv' | 'heights'> = {},
+): string =>
+  encodeBip329Record({
+    type: 'tx',
+    ref: transactionId,
+    ...(label === undefined ? {} : { label }),
+    ...details,
+  });
 
 const parseCsv = (contents: string): string[][] => {
   const rows: string[][] = [];
@@ -76,7 +120,13 @@ const parseCsv = (contents: string): string[][] => {
   return rows;
 };
 
-const parseBip329TransactionNotes = (contents: string): Array<{ transactionId: string; memo: string }> =>
+const normalizeBip329Origin = (origin: string): string =>
+  origin
+    .replace(/\s+/g, '')
+    .replace(/(\d+)[hH]/g, "$1'")
+    .toLowerCase();
+
+const parseBip329TransactionNotes = (contents: string, expectedOrigin?: string): Array<{ transactionId: string; memo: string }> =>
   contents
     .split(/\r?\n/)
     .filter(line => line.trim().length > 0)
@@ -84,10 +134,12 @@ const parseBip329TransactionNotes = (contents: string): Array<{ transactionId: s
       const record: unknown = JSON.parse(line);
       if (!record || typeof record !== 'object' || Array.isArray(record)) throw new Error('Invalid BIP-329 record');
 
-      const { type, ref, label } = record as Record<string, unknown>;
+      const { type, ref, label, origin } = record as Record<string, unknown>;
       if (typeof type !== 'string' || typeof ref !== 'string') throw new Error('Invalid BIP-329 record');
       if (type !== 'tx' || label === undefined) return [];
       if (!/^[0-9a-f]{64}$/i.test(ref) || typeof label !== 'string') throw new Error('Invalid BIP-329 transaction label');
+      if (origin !== undefined && (typeof origin !== 'string' || origin.trim().length === 0)) throw new Error('Invalid BIP-329 origin');
+      if (origin && expectedOrigin && normalizeBip329Origin(origin) !== normalizeBip329Origin(expectedOrigin)) return [];
 
       return [{ transactionId: ref, memo: label }];
     });
@@ -97,18 +149,24 @@ const parseBip329TransactionNotes = (contents: string): Array<{ transactionId: s
  * Older BlueWallet exports did not escape commas in memos, so extra CSV
  * columns are joined back into the memo.
  */
-export const parseWalletHistoryNotes = (contents: string): Array<{ transactionId: string; memo: string }> => {
+export const parseWalletHistoryNotes = (contents: string, expectedOrigin?: string): Array<{ transactionId: string; memo: string }> => {
   const normalizedContents = contents.replace(/^\uFEFF/, '').trimStart();
-  if (normalizedContents.startsWith('{')) return parseBip329TransactionNotes(normalizedContents);
+  if (normalizedContents.startsWith('{')) return parseBip329TransactionNotes(normalizedContents, expectedOrigin);
 
   const rows = parseCsv(normalizedContents);
   if (rows.length === 0 || rows[0].length < 4) throw new Error('Invalid wallet history CSV');
+  const headers = rows[0].map(header => header.trim().toLowerCase());
+  const transactionIdColumn = headers.findIndex(header => header === 'transaction id' || header === 'txid');
+  const memoColumn = headers.findIndex(header => header === 'memo' || header === 'note');
+  const resolvedTransactionIdColumn = transactionIdColumn >= 0 ? transactionIdColumn : 1;
+  const resolvedMemoColumn = memoColumn >= 0 ? memoColumn : 3;
+  const hasColumnsAfterMemo = resolvedMemoColumn < rows[0].length - 1;
 
   return rows.slice(1).flatMap(row => {
-    if (row.length < 4) return [];
+    if (row.length <= Math.max(resolvedTransactionIdColumn, resolvedMemoColumn)) return [];
 
-    const transactionId = row[1].trim();
-    const memo = row.slice(3).join(',').trim();
+    const transactionId = row[resolvedTransactionIdColumn].trim();
+    const memo = (hasColumnsAfterMemo ? row[resolvedMemoColumn] : row.slice(resolvedMemoColumn).join(',')).trim();
 
     return transactionId && memo ? [{ transactionId, memo }] : [];
   });
@@ -187,9 +245,30 @@ const _toFileUri = (filePath: string) => {
   return encodeURI(filePath.startsWith('file://') ? filePath : `file://${filePath}`);
 };
 
+const TEMP_EXPORT_PREFIX = 'bluewallet-export-';
+const TEMP_EXPORT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
 const _createTempExportPath = (fileName: string) => {
   const basePath = RNFS.CachesDirectoryPath || RNFS.TemporaryDirectoryPath;
-  return `${basePath}/${Date.now()}-${fileName}`;
+  return `${basePath}/${TEMP_EXPORT_PREFIX}${Date.now()}-${fileName}`;
+};
+
+export const cleanupTemporaryExportFiles = async (now = Date.now()): Promise<void> => {
+  const basePath = RNFS.CachesDirectoryPath || RNFS.TemporaryDirectoryPath;
+  try {
+    const entries = await RNFS.readDir(basePath);
+    await Promise.all(
+      entries
+        .filter(entry => entry.name.startsWith(TEMP_EXPORT_PREFIX))
+        .filter(entry => {
+          const modifiedAt = entry.mtime?.getTime();
+          return modifiedAt !== undefined && now - modifiedAt >= TEMP_EXPORT_MAX_AGE_MS;
+        })
+        .map(entry => _safeUnlink(entry.path)),
+    );
+  } catch (error) {
+    console.warn('Failed to clean temporary export files:', error);
+  }
 };
 
 const _mimeTypeFromFileName = (fileName: string): string => {
@@ -204,6 +283,8 @@ const _mimeTypeFromFileName = (fileName: string): string => {
       return 'application/x-ndjson';
     case 'csv':
       return 'text/csv';
+    case 'xlsx':
+      return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
     case 'pdf':
       return 'application/pdf';
     case 'png':
@@ -217,6 +298,9 @@ const _mimeTypeFromFileName = (fileName: string): string => {
 };
 
 const _transactionFilePickerTypes = ['application/octet-stream', 'text/plain'];
+
+export const isAppleNumbersFile = (path: string, fileName: string): boolean =>
+  path.toLowerCase().endsWith('.numbers') || fileName.toLowerCase().endsWith('.numbers');
 
 const _pickSingleFileAndKeepLocalCopy = async (type: string[] = [types.allFiles]) => {
   const [pickedFile] = await pick({
@@ -261,8 +345,6 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
     if (message !== 'CANCELLED') {
       presentAlert({ message });
     }
-  } finally {
-    await _safeUnlink(filePath);
   }
 };
 
@@ -271,13 +353,19 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
  * or perhaps messaging app). Provided filename should be just a file name, NOT a path
  */
 
-export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean = true) {
+export const writeFileAndExport = async function (
+  fileName: string,
+  contents: string,
+  showShareDialog: boolean = true,
+  encoding: 'utf8' | 'base64' = 'utf8',
+) {
   const sanitizedFileName = _sanitizeFileName(fileName);
   try {
+    await cleanupTemporaryExportFiles();
     if (!showShareDialog) {
       const sourceFilePath = _createTempExportPath(sanitizedFileName);
       try {
-        await RNFS.writeFile(sourceFilePath, contents);
+        await RNFS.writeFile(sourceFilePath, contents, encoding);
         const [savedFile] = await saveDocuments({
           sourceUris: [_toFileUri(sourceFilePath)],
           fileName: sanitizedFileName,
@@ -295,8 +383,12 @@ export const writeFileAndExport = async function (fileName: string, contents: st
     }
 
     const filePath = _createTempExportPath(sanitizedFileName);
-    await RNFS.writeFile(filePath, contents);
-    await _shareOpen(filePath, true);
+    try {
+      await RNFS.writeFile(filePath, contents, encoding);
+      await _shareOpen(filePath, true);
+    } finally {
+      await _safeUnlink(filePath);
+    }
   } catch (error) {
     if (isCancel(error)) {
       return;
@@ -367,23 +459,32 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
   }
 };
 
-export const showFilePickerAndReadFile = async function (): Promise<{ data: string | false; uri: string | false }> {
+export const showFilePickerAndReadFile = async function (): Promise<{
+  data: string | false;
+  uri: string | false;
+  fileName?: string;
+  unsupportedFileType?: 'numbers';
+}> {
   try {
-    const { localUri: fileCopyUri } = await _pickSingleFileAndKeepLocalCopy();
+    const { localUri: fileCopyUri, fileName } = await _pickSingleFileAndKeepLocalCopy();
     const lowerCasePath = fileCopyUri.toLowerCase();
+    if (isAppleNumbersFile(fileCopyUri, fileName)) {
+      return { data: false, uri: fileCopyUri, fileName, unsupportedFileType: 'numbers' };
+    }
+    const isExcelFile = lowerCasePath.endsWith('.xlsx') || fileName.toLowerCase().endsWith('.xlsx');
 
     if (lowerCasePath.endsWith('.psbt')) {
       // this is either binary file from ElectrumDesktop OR string file with base64 string in there
       const file = await _readPsbtFileIntoBase64(fileCopyUri);
-      return { data: file, uri: fileCopyUri };
+      return { data: file, uri: fileCopyUri, fileName };
     }
 
     if (lowerCasePath.endsWith('.png') || lowerCasePath.endsWith('.jpg') || lowerCasePath.endsWith('.jpeg')) {
       return await handleImageFile(fileCopyUri);
     }
 
-    const file = await RNFS.readFile(fileCopyUri);
-    return { data: file, uri: fileCopyUri };
+    const file = await RNFS.readFile(fileCopyUri, isExcelFile ? 'base64' : 'utf8');
+    return { data: file, uri: fileCopyUri, fileName };
   } catch (err) {
     if (!isCancel(err)) {
       presentAlert({ message: errorMessage(err) });

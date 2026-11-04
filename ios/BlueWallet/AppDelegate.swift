@@ -443,6 +443,13 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ("copyAddress", "Copy Address", "doc.on.doc", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit),
             ("copyTransactionId", "Copy Transaction ID", "doc.on.doc", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit),
             ("accelerateTransaction", "Speed up Transaction", "hare", #selector(accelerateTransactionMenuAction), "u", [.command, .shift], .view),
+            ("editWalletName", "Edit Wallet Name", "pencil", #selector(walletDetailsMenuAction), "n", [.command, .alternate], .edit),
+            ("showAddresses", "Show Addresses", "list.bullet.rectangle", #selector(walletDetailsMenuAction), "a", [.command, .alternate], .view),
+            ("showXpub", "Show Extended Public Key", "key.horizontal", #selector(walletDetailsMenuAction), "x", [.command, .alternate], .view),
+            ("signVerify", "Sign/Verify Message", "signature", #selector(walletDetailsMenuAction), "v", [.command, .alternate], .view),
+            ("coin_control", "Coin Control", "switch.2", #selector(walletDetailsMenuAction), "o", [.command, .alternate], .view),
+            ("importWalletNotes", "Import Wallet Notes…", "square.and.arrow.down", #selector(walletDetailsMenuAction), "i", [.command, .alternate], .file),
+            ("exportWalletBackup", "Export Wallet Backup…", "archivebox", #selector(walletDetailsMenuAction), "e", [.command, .alternate], .file),
             ("keyboardShortcuts", "Keyboard Shortcuts…", "keyboard", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
         ]
         for parent in [UIMenu.Identifier.file, .edit, .view, .help] {
@@ -452,9 +459,10 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
                 let title = MenuActionsController.shared.title(for: command.0, fallback: command.1)
                 let image = UIImage(systemName: command.2)
                 if let input = command.4 {
-                    return UIKeyCommand(title: title, image: image, action: command.3, input: input, modifierFlags: command.5)
+                    return UIKeyCommand(title: title, image: image, action: command.3, input: input,
+                                        modifierFlags: command.5, propertyList: command.0)
                 }
-                return UICommand(title: title, image: image, action: command.3)
+                return UICommand(title: title, image: image, action: command.3, propertyList: command.0)
             }
             if !children.isEmpty {
                 builder.insertChild(UIMenu(title: "", identifier: identifier,
@@ -494,6 +502,37 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             builder.insertChild(UIMenu(title: MenuActionsController.shared.title(for: "send", fallback: "Send"),
                                        image: UIImage(systemName: "paperplane"), identifier: sendDetailsMenuID,
                                        children: availableSendCommands), atStartOfMenu: .file)
+        }
+
+        let historyExportActions: [(String, String, String, String, UIKeyModifierFlags)] = [
+            ("exportAccountingCsv", "Accounting CSV", "tablecells", "c", [.command, .alternate, .shift]),
+            ("exportAccountingExcel", "Accounting Excel / Apple Numbers", "tablecells.fill", "e", [.command, .alternate, .shift]),
+            ("exportBip329Backup", "BIP-329 JSONL", "bitcoinsign", "b", [.command, .alternate, .shift])
+        ]
+        let availableHistoryExports = historyExportActions.filter { actions.contains($0.0) }.map {
+            UIKeyCommand(title: MenuActionsController.shared.title(for: $0.0, fallback: $0.1),
+                         image: UIImage(systemName: $0.2), action: #selector(walletDetailsMenuAction),
+                         input: $0.3, modifierFlags: $0.4, propertyList: $0.0)
+        }
+        let historyExportMenuID = UIMenu.Identifier("io.bluewallet.walletDetails.historyExport")
+        builder.remove(menu: historyExportMenuID)
+        if !availableHistoryExports.isEmpty {
+            builder.insertChild(
+                UIMenu(title: MenuActionsController.shared.title(for: "exportHistory", fallback: "Export Transaction History"),
+                       image: UIImage(systemName: "square.and.arrow.up"), identifier: historyExportMenuID,
+                       children: availableHistoryExports),
+                atStartOfMenu: .file
+            )
+        }
+
+        let deleteWalletMenuID = UIMenu.Identifier("io.bluewallet.walletDetails.delete")
+        builder.remove(menu: deleteWalletMenuID)
+        if actions.contains("deleteWallet") {
+            let deleteWallet = UICommand(title: MenuActionsController.shared.title(for: "deleteWallet", fallback: "Delete Wallet"),
+                                         image: UIImage(systemName: "trash"), action: #selector(walletDetailsMenuAction),
+                                         propertyList: "deleteWallet", attributes: .destructive)
+            builder.insertChild(UIMenu(title: "", identifier: deleteWalletMenuID,
+                                       options: .displayInline, children: [deleteWallet]), atEndOfMenu: .file)
         }
 
         let recentItems: [UIMenuElement]
@@ -638,8 +677,9 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         MenuActionsController.shared.perform("receive")
     }
 
-    @objc func walletDetailsMenuAction(_ keyCommand: UIKeyCommand) {
-        MenuActionsController.shared.perform("walletDetails")
+    @objc func walletDetailsMenuAction(_ command: UICommand) {
+        let action = command.propertyList as? String ?? "walletDetails"
+        MenuActionsController.shared.perform(action)
     }
 
     @objc func backToWalletsMenuAction(_ keyCommand: UIKeyCommand) {
