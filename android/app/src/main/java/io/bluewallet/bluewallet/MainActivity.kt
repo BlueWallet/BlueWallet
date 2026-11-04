@@ -207,5 +207,10 @@ class MainActivity : ReactActivity() {
      */
 
     override fun createReactActivityDelegate(): ReactActivityDelegate =
-        DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
+        object : DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled) {
+            // Detox launchArgs arrive as intent extras; e2eHideSecrets=1 makes JS draw seeds in transparent ink.
+            override fun getLaunchOptions(): Bundle = Bundle().apply {
+                putBoolean("hideSecretsOnScreen", intent.getBundleExtra("launchArgs")?.getString("e2eHideSecrets") == "1")
+            }
+        }
 }

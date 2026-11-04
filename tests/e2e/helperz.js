@@ -123,12 +123,25 @@ export async function waitForSwitchValue(switchId, expectedValue, timeoutMs = 80
   rethrowWithCallsite(lastErr || new Error(`Timed out waiting for ${switchId} == ${expectedValue}`), callsite);
 }
 
+// SecretsHidden is on the wallets list, so a launch that ignored -e2eHideSecrets (setup.js) fails before any seed screen.
+export async function assertSecretsHidden() {
+  try {
+    // Existence, not visibility: on the export screen the marker can sit partly scrolled away.
+    await waitFor(element(by.id('SecretsHidden')))
+      .toExist()
+      .withTimeout(10_000);
+  } catch (_) {
+    throw new Error('The app does not hide secrets: the -e2eHideSecrets launch argument was not applied');
+  }
+}
+
 export async function helperImportWallet(importText, walletType, expectedWalletLabel, expectedBalance, passphrase) {
   await waitForId('WalletsList');
   await waitFor(element(by.id('CreateAWallet')))
     .toBeVisible()
     .whileElement(by.id('WalletsList'))
     .scroll(500, 'right'); // in case emu screen is small and it doesnt fit
+  await assertSecretsHidden();
   // going to Import Wallet screen and importing mnemonic
   await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'ImportWallet');
   await element(by.id('ImportWallet')).tap();
@@ -219,6 +232,7 @@ export async function helperCreateWallet(walletName) {
     .toBeVisible()
     .whileElement(by.id('WalletsList'))
     .scroll(500, 'right'); // in case emu screen is small and it doesnt fit
+  await assertSecretsHidden(); // the backup screen shows the new phrase
 
   await sleep(200); // Wait until bounce animation finishes.
   await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'WalletNameInput');

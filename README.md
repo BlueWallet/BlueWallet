@@ -93,6 +93,8 @@ Open ios/BlueWallet.xcworkspace. Once the project loads, select the scheme/targe
 npm run test
 ```
 
+Lint, unit and integration tests. End-to-end tests: Detox for iOS and Android in `tests/e2e`, Appium for Mac Catalyst in `tests/e2e-appium` (see its [README](tests/e2e-appium/README.md)).
+
 
 ## LICENSE
 
