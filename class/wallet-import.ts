@@ -54,6 +54,15 @@ export type TImport = {
   stop: () => void;
 };
 
+// script type prefixes for single private keys, same spelling as Electrum (p2wpkh:WIF)
+const PREFIXED_WIF_WALLETS = {
+  p2pkh: LegacyWallet,
+  p2wpkh: SegwitBech32Wallet,
+  'p2wpkh-p2sh': SegwitP2SHWallet,
+  p2tr: TaprootWallet,
+} as const;
+const PREFIXED_WIF_REGEX = /^(p2pkh|p2wpkh-p2sh|p2wpkh|p2tr):\s*(\S+)$/i;
+
 /**
  * Function that starts wallet search and import process. It has async generator inside, so
  * that the process can be stoped at any time. It reporst all the progress through callbacks.
@@ -124,6 +133,7 @@ const startImport = (
     // 3.2 check if its AEZEED
     // 3.3 check if its SLIP39
     // 3.4 check if its HDTaprootWallet (BIP86)
+    // 3.5 check if its a WIF with a script type prefix (p2wpkh:WIF)
     // 4. check if its Segwit WIF (P2SH)
     // 4.5 check if its Taproot WIF
     // 5. check if its Legacy WIF
@@ -133,6 +143,23 @@ const startImport = (
     // 8. check if its a json array from BC-UR with multiple accounts
     let text = importTextOrig.trim();
     let password;
+
+    // WIF with a script type prefix, as used by Electrum and printed on paper wallets (p2wpkh:WIF):
+    // the prefix says which address the key controls, so there is nothing to probe.
+    // If the key is not valid for that script type (garbage, testnet, or an uncompressed key with
+    // a segwit/taproot prefix) we fall through and the rest of the procedure finds nothing
+    const prefixed = text.match(PREFIXED_WIF_REGEX);
+    if (prefixed) {
+      const scriptType = prefixed[1].toLowerCase() as keyof typeof PREFIXED_WIF_WALLETS;
+      const wallet = new PREFIXED_WIF_WALLETS[scriptType]();
+      wallet.setSecret(prefixed[2]);
+      if (wallet.getAddress()) {
+        yield { progress: 'wif ' + scriptType };
+        await fetch(wallet, true);
+        yield { wallet };
+        return;
+      }
+    }
 
     // BIP38 password required
     if (text.startsWith('6P')) {
