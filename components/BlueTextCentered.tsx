@@ -5,7 +5,7 @@ import { useTheme } from './themes';
 
 const BlueTextCentered: React.FC<TextProps> = props => {
   const { colors } = useTheme();
-  return <Text {...props} style={[styles.blueTextCentered, { color: colors.foregroundColor }]} />;
+  return <Text {...props} style={[styles.blueTextCentered, { color: colors.foregroundColor }, props.style]} />;
 };
 
 const styles = StyleSheet.create({

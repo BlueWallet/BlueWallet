@@ -2,7 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ParamListBase } from '@react-navigation/native';
 import React, { lazy } from 'react';
-import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition, nestedScannerPresentation } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
@@ -68,7 +68,7 @@ const LNDCreateInvoiceRoot = () => {
         options={navigationStyle({
           headerShown: false,
           statusBarHidden: true,
-          presentation: 'fullScreenModal',
+          presentation: nestedScannerPresentation,
           headerShadowVisible: false,
         })(theme)}
       />
