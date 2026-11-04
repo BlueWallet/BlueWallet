@@ -382,7 +382,7 @@
     "eta_3h": "预计到达时间：大约 3 个小时",
     "eta_1d": "预计到达时间：大约 1 天",
     "list_title": "交易",
-    "list_title_sent": "发送",
+    "list_title_sent": "已发送",
     "list_title_received": "接收",
     "transaction": "交易",
     "open_url_error": "无法使用默认浏览器打开链接。请更换默认浏览器并重试。",
