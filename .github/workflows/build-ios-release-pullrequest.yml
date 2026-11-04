@@ -19,11 +19,12 @@ permissions:
 concurrency:
   # Release events for a PR supersede older releases from that PR. Unrelated
   # label/open/reopen events use their run ID and cannot cancel an active release.
+  # Retries use their run ID so a superseded retry cannot cancel the newer release.
   group: >-
-    apple-release-${{ github.event_name == 'push' && github.ref ||
+    apple-release-${{ github.run_attempt == 1 && (github.event_name == 'push' && github.ref ||
     github.event_name == 'pull_request' && (github.event.action == 'synchronize' ||
     github.event.label.name == 'testflight') &&
-    github.event.pull_request.number || github.run_id }}
+    github.event.pull_request.number) || github.run_id }}
   cancel-in-progress: >-
     ${{ github.event_name == 'pull_request' && (github.event.action == 'synchronize' ||
     github.event.label.name == 'testflight') }}
@@ -50,7 +51,7 @@ jobs:
               ...context.repo, workflow_id: current.workflow_id, per_page: 100,
             });
             if (data.workflow_runs.some(run => run.run_number > current.run_number)) {
-              core.setFailed('A newer release run exists. Re-run the latest run or start a new workflow dispatch to preserve build-number ordering.');
+              core.setFailed('A newer release run exists, so a retry would reuse a lower build number. For a PR push a commit or re-add the testflight label; for master dispatch Apple Release.');
             }
 
       - name: Set shared release inputs
