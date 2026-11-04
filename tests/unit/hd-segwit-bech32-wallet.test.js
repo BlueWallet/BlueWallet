@@ -185,14 +185,14 @@ describe('Bech32 Segwit HD (BIP84)', () => {
   });
 
   it('derives a different external address with a passphrase than without one', () => {
+    const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     const noPassphrase = new HDSegwitBech32Wallet();
-    noPassphrase.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+    noPassphrase.setSecret(mnemonic);
     const withPassphrase = new HDSegwitBech32Wallet();
-    withPassphrase.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+    withPassphrase.setSecret(mnemonic);
     withPassphrase.setPassphrase('my secret');
 
-    // Known BIP84 test vector for this mnemonic with no passphrase
-    assert.strictEqual(noPassphrase._getExternalAddressByIndex(0), 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu');
+    // Compare live derivations rather than repeating the BIP84 vector, which is asserted elsewhere in this file
     assert.notStrictEqual(withPassphrase._getExternalAddressByIndex(0), noPassphrase._getExternalAddressByIndex(0));
   });
 
@@ -222,15 +222,22 @@ describe('Bech32 Segwit HD (BIP84)', () => {
   it('keeps the passphrase and its addresses after JSON save and restore', () => {
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
-    hd.setPassphrase('my secret');
-    const address = hd._getExternalAddressByIndex(0);
+    hd.setPassphrase('super secret passphrase');
+    hd._getExternalWIFByIndex(0); // populate the caches that get serialized
 
     // Same steps BlueApp takes before writing a wallet to storage
     hd.prepareForSerialization();
     const restored = HDSegwitBech32Wallet.fromJson(JSON.stringify({ ...hd, type: hd.type }));
 
-    assert.strictEqual(restored.getPassphrase(), 'my secret');
-    assert.strictEqual(restored._getExternalAddressByIndex(0), address);
+    // Clear the serialized caches so the restored wallet must derive again from its passphrase
+    restored.external_addresses_cache = {};
+    restored.internal_addresses_cache = {};
+    restored._address_to_wif_cache = {};
+    restored._xpub = '';
+
+    // Compare against the known vector for this mnemonic and passphrase, not against the original wallet
+    assert.strictEqual(restored.getPassphrase(), 'super secret passphrase');
+    assert.strictEqual(restored._getExternalWIFByIndex(0), 'L1tfV6fbRjDNwGQdJqHC9fneM9bTHigApnWgoKoU8JwgziwbbE7i');
   });
 
   it('can create with custom derivation path', async () => {
