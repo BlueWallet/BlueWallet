@@ -1,13 +1,14 @@
 name: BuildReleaseApk
 
 on:
-  pull_request:
-    branches:
-      - master
-    types: [opened, synchronize, reopened, labeled, unlabeled]
-  push:
-    branches:
-      - master
+  workflow_call:
+    inputs:
+      build_number:
+        required: true
+        type: string
+      source_sha:
+        required: true
+        type: string
 
 jobs:
   buildReleaseApk:
@@ -18,6 +19,7 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: "0"
+          ref: ${{ inputs.source_sha }}
 
       - name: Free disk space (Android build)
         shell: bash
@@ -78,12 +80,25 @@ jobs:
           ruby-version: 3.4.11
           bundler-cache: true
 
-      - name: Generate Build Number based on timestamp
+      - name: Validate shared build number
         id: build_number
+        env:
+          SHARED_BUILD_NUMBER: ${{ inputs.build_number }}
         run: |
-          NEW_BUILD_NUMBER="$(date +%s)"
-          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-          echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
+          if ! [[ "$SHARED_BUILD_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "Shared build number must contain digits only" >&2
+            exit 1
+          fi
+          if [ "$SHARED_BUILD_NUMBER" -eq 0 ]; then
+            echo "Shared build number must be positive" >&2
+            exit 1
+          fi
+          if [ "$SHARED_BUILD_NUMBER" -gt 2100000000 ]; then
+            echo "Shared build number $SHARED_BUILD_NUMBER exceeds the Play Store limit" >&2
+            exit 1
+          fi
+          echo "NEW_BUILD_NUMBER=$SHARED_BUILD_NUMBER" >> "$GITHUB_ENV"
+          echo "build_number=$SHARED_BUILD_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: Build and sign APK
         id: build_and_sign_apk
