@@ -1,11 +1,6 @@
 import { readFileSync } from 'fs';
 import path from 'path';
-import {
-  createDeveloperAccountingExcelSample,
-  createDeveloperAccountingSample,
-  createDeveloperBip329Sample,
-} from '../../components/DevMenu';
-import { accountingHistoryXlsxToCsv } from '../../blue_modules/wallet-history-xlsx';
+import { createDeveloperAccountingSample, createDeveloperBip329Sample } from '../../components/DevMenu';
 
 describe('developer history export menu', () => {
   it('provides a populated accounting CSV sample', () => {
@@ -39,13 +34,6 @@ describe('developer history export menu', () => {
     });
   });
 
-  it('provides a populated Excel accounting sample', () => {
-    const csv = accountingHistoryXlsxToCsv(createDeveloperAccountingExcelSample());
-
-    expect(csv).toContain('Date,Transaction ID,Type,Amount (BTC),Amount (sats)');
-    expect(csv).toContain('Developer sample, ""coffee""');
-  });
-
   it('registers the two-step Share/Save then Accounting/Backup developer flow', () => {
     const source = readFileSync(path.join(__dirname, '../../components/DevMenu.tsx'), 'utf8');
 
@@ -55,7 +43,6 @@ describe('developer history export menu', () => {
     expect(source).toContain("text: 'Accounting'");
     expect(source).toContain("text: 'Backup'");
     expect(source).toContain("text: 'CSV'");
-    expect(source).toContain("text: 'Excel / Apple Numbers (.xlsx)'");
     expect(source).toContain("text: 'BIP-329 JSONL'");
   });
 });

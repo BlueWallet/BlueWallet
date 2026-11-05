@@ -283,8 +283,6 @@ const _mimeTypeFromFileName = (fileName: string): string => {
       return 'application/x-ndjson';
     case 'csv':
       return 'text/csv';
-    case 'xlsx':
-      return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
     case 'pdf':
       return 'application/pdf';
     case 'png':
@@ -353,19 +351,14 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
  * or perhaps messaging app). Provided filename should be just a file name, NOT a path
  */
 
-export const writeFileAndExport = async function (
-  fileName: string,
-  contents: string,
-  showShareDialog: boolean = true,
-  encoding: 'utf8' | 'base64' = 'utf8',
-) {
+export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean = true) {
   const sanitizedFileName = _sanitizeFileName(fileName);
   try {
     await cleanupTemporaryExportFiles();
     if (!showShareDialog) {
       const sourceFilePath = _createTempExportPath(sanitizedFileName);
       try {
-        await RNFS.writeFile(sourceFilePath, contents, encoding);
+        await RNFS.writeFile(sourceFilePath, contents, 'utf8');
         const [savedFile] = await saveDocuments({
           sourceUris: [_toFileUri(sourceFilePath)],
           fileName: sanitizedFileName,
@@ -384,7 +377,7 @@ export const writeFileAndExport = async function (
 
     const filePath = _createTempExportPath(sanitizedFileName);
     try {
-      await RNFS.writeFile(filePath, contents, encoding);
+      await RNFS.writeFile(filePath, contents, 'utf8');
       await _shareOpen(filePath, true);
     } finally {
       await _safeUnlink(filePath);
@@ -471,8 +464,6 @@ export const showFilePickerAndReadFile = async function (): Promise<{
     if (isAppleNumbersFile(fileCopyUri, fileName)) {
       return { data: false, uri: fileCopyUri, fileName, unsupportedFileType: 'numbers' };
     }
-    const isExcelFile = lowerCasePath.endsWith('.xlsx') || fileName.toLowerCase().endsWith('.xlsx');
-
     if (lowerCasePath.endsWith('.psbt')) {
       // this is either binary file from ElectrumDesktop OR string file with base64 string in there
       const file = await _readPsbtFileIntoBase64(fileCopyUri);
@@ -483,7 +474,7 @@ export const showFilePickerAndReadFile = async function (): Promise<{
       return await handleImageFile(fileCopyUri);
     }
 
-    const file = await RNFS.readFile(fileCopyUri, isExcelFile ? 'base64' : 'utf8');
+    const file = await RNFS.readFile(fileCopyUri, 'utf8');
     return { data: file, uri: fileCopyUri, fileName };
   } catch (err) {
     if (!isCancel(err)) {

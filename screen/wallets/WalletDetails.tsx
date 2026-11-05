@@ -53,19 +53,15 @@ import { WalletDescriptor } from '../../class/wallet-descriptor';
 import {
   bitcoinValueToSats,
   createAccountingHistoryCsv,
-  createAccountingHistoryRows,
   createHistoryExportFileNames,
   createHistoryExportMenuActions,
   getTransactionFee,
   IMPORT_NOTES_ACTION_ID,
   SAVE_ACCOUNTING_ACTION_ID,
-  SAVE_ACCOUNTING_EXCEL_ACTION_ID,
   SAVE_BACKUP_ACTION_ID,
   SHARE_ACCOUNTING_ACTION_ID,
-  SHARE_ACCOUNTING_EXCEL_ACTION_ID,
   SHARE_BACKUP_ACTION_ID,
 } from '../../blue_modules/wallet-history-export';
-import { accountingHistoryXlsxToCsv, createAccountingHistoryXlsx } from '../../blue_modules/wallet-history-xlsx';
 import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
@@ -409,15 +405,6 @@ const WalletDetails: React.FC = () => {
     return createAccountingHistoryCsv(wallet.getTransactions() as Array<Transaction & LightningTransaction>, wallet.chain, txMetadata);
   }, [wallet, txMetadata]);
 
-  const createAccountingExcelExport = useCallback(() => {
-    const rows = createAccountingHistoryRows(
-      wallet.getTransactions() as Array<Transaction & LightningTransaction>,
-      wallet.chain,
-      txMetadata,
-    );
-    return createAccountingHistoryXlsx(rows);
-  }, [wallet, txMetadata]);
-
   const exportFileNames = useMemo(() => createHistoryExportFileNames(wallet.getLabel()), [wallet]);
 
   const applyNoteUpdates = useCallback(
@@ -441,7 +428,7 @@ const WalletDetails: React.FC = () => {
   const importNotes = useCallback(async () => {
     if (wallet.chain !== Chain.ONCHAIN) return;
 
-    const { data, fileName, unsupportedFileType } = await showFilePickerAndReadFile();
+    const { data, unsupportedFileType } = await showFilePickerAndReadFile();
     if (unsupportedFileType === 'numbers') {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
       presentAlert({ title: loc.wallets.details_import_notes, message: loc.wallets.details_import_numbers_unsupported });
@@ -449,20 +436,9 @@ const WalletDetails: React.FC = () => {
     }
     if (data === false) return;
 
-    let fileData = data;
-    if (fileName?.toLowerCase().endsWith('.xlsx')) {
-      try {
-        fileData = accountingHistoryXlsxToCsv(data);
-      } catch {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: loc.wallets.import_error });
-        return;
-      }
-    }
-
     let importedNotes;
     try {
-      importedNotes = parseWalletHistoryNotes(fileData, getBip329Origin(wallet));
+      importedNotes = parseWalletHistoryNotes(data, getBip329Origin(wallet));
     } catch {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ message: loc.wallets.import_error });
@@ -521,20 +497,13 @@ const WalletDetails: React.FC = () => {
     async (id: string) => {
       if (id === SHARE_ACCOUNTING_ACTION_ID || id === SAVE_ACCOUNTING_ACTION_ID) {
         await writeFileAndExport(exportFileNames.accounting, createAccountingExport(), id === SHARE_ACCOUNTING_ACTION_ID);
-      } else if (id === SHARE_ACCOUNTING_EXCEL_ACTION_ID || id === SAVE_ACCOUNTING_EXCEL_ACTION_ID) {
-        await writeFileAndExport(
-          exportFileNames.accountingExcel,
-          createAccountingExcelExport(),
-          id === SHARE_ACCOUNTING_EXCEL_ACTION_ID,
-          'base64',
-        );
       } else if (id === SHARE_BACKUP_ACTION_ID || id === SAVE_BACKUP_ACTION_ID) {
         await writeFileAndExport(exportFileNames.backup, createBip329Backup(), id === SHARE_BACKUP_ACTION_ID);
       } else if (id === IMPORT_NOTES_ACTION_ID) {
         await importNotes();
       }
     },
-    [createAccountingExcelExport, createAccountingExport, createBip329Backup, exportFileNames, importNotes],
+    [createAccountingExport, createBip329Backup, exportFileNames, importNotes],
   );
 
   const transactionsBoxMenuActions = useMemo(
@@ -815,7 +784,6 @@ const WalletDetails: React.FC = () => {
     importWalletNotes: wallet.chain === Chain.ONCHAIN && walletTransactionsLength > 0 ? importNotes : undefined,
     exportWalletBackup: navigateToWalletExport,
     exportAccountingCsv: walletTransactionsLength > 0 ? () => toolTipOnPressMenuItem(SAVE_ACCOUNTING_ACTION_ID) : undefined,
-    exportAccountingExcel: walletTransactionsLength > 0 ? () => toolTipOnPressMenuItem(SAVE_ACCOUNTING_EXCEL_ACTION_ID) : undefined,
     exportBip329Backup:
       wallet.chain === Chain.ONCHAIN && walletTransactionsLength > 0 ? () => toolTipOnPressMenuItem(SAVE_BACKUP_ACTION_ID) : undefined,
     deleteWallet: handleDeleteButtonTapped,

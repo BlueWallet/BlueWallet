@@ -459,7 +459,7 @@
     "details_export_backup": "Export/Backup",
     "details_export_history": "Export History",
     "details_import_notes": "Import Notes...",
-    "details_import_numbers_unsupported": "Apple Numbers files can’t be imported directly. Export the spreadsheet from Numbers as Excel (.xlsx) or CSV, then try again.",
+    "details_import_numbers_unsupported": "Apple Numbers files can’t be imported directly. Export the spreadsheet from Numbers as CSV, then try again.",
     "details_import_notes_after": "After",
     "details_import_notes_before": "Before",
     "details_import_notes_no_changes": "No transaction notes needed to be imported from this file.",

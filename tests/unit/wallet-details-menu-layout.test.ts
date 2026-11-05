@@ -31,7 +31,6 @@ describe('wallet transaction-history menu layout', () => {
     expect(appDelegate).toContain('io.bluewallet.walletDetails.historyExport');
     expect(appDelegate).toContain('options: .displayInline, children: [deleteWallet]');
     expect(appDelegate).toContain('("editWalletName", "Edit Wallet Name", "pencil"');
-    expect(appDelegate).toContain('("exportAccountingExcel", "Accounting Excel / Apple Numbers"');
     expect(appDelegate).toContain('[.command, .alternate, .shift]');
   });
 });

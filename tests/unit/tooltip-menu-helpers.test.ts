@@ -74,6 +74,33 @@ describe('TooltipMenu.helpers', () => {
       expect(ids[0].children?.map(n => n.id)).toEqual(['export-share', 'export-save']);
     });
 
+    it('flattens display-inline parents on Android so native submenus remain revealable', () => {
+      const exportHistory: Action = {
+        id: 'export-history',
+        text: 'Export History',
+        displayInline: true,
+        subactions: [
+          {
+            id: 'accounting',
+            text: 'Accounting',
+            subactions: [{ id: 'csv', text: 'CSV' }],
+          },
+          {
+            id: 'backup',
+            text: 'Backup',
+            subactions: [{ id: 'jsonl', text: 'BIP-329 JSONL' }],
+          },
+        ],
+      };
+      const { items, ids } = buildMenu([exportHistory], 'android');
+
+      expect(items.map(item => item.title)).toEqual(['Accounting', 'Backup']);
+      expect(items[0].actions?.map(item => item.title)).toEqual(['CSV']);
+      expect(items[1].actions?.map(item => item.title)).toEqual(['BIP-329 JSONL']);
+      expect(lookupId(ids, [0, 0])).toBe('csv');
+      expect(lookupId(ids, [1, 0])).toBe('jsonl');
+    });
+
     it('assigns icons to the platform-appropriate field', () => {
       const withIcon: Action = { id: 'x', text: 'X', icon: { iconValue: 'star' } };
       expect(buildMenu([withIcon], 'ios').items[0]).toMatchObject({ systemIcon: 'star', icon: undefined });

@@ -375,20 +375,9 @@ describe('temporary export cleanup', () => {
     expect(RNFS.unlink).toHaveBeenCalledWith(temporaryPath);
   });
 
-  it('writes binary spreadsheet exports using base64 encoding', async () => {
-    const now = 1_793_619_200_000;
-    const temporaryPath = `/mock/Caches/bluewallet-export-${now}-sample-accounting.xlsx`;
-    jest.spyOn(Date, 'now').mockReturnValue(now);
-    RNFS.__mockFsHelpers.setExists(temporaryPath);
-
-    await writeFileAndExport('sample-accounting.xlsx', 'UEsDBA==', true, 'base64');
-
-    expect(RNFS.writeFile).toHaveBeenCalledWith(temporaryPath, 'UEsDBA==', 'base64');
-  });
-
   it('detects Apple Numbers documents before attempting to read their package data', () => {
     expect(isAppleNumbersFile('/tmp/Wallet.NUMBERS', 'Wallet.NUMBERS')).toBe(true);
     expect(isAppleNumbersFile('/tmp/provider-item', 'Wallet.numbers')).toBe(true);
-    expect(isAppleNumbersFile('/tmp/Wallet.xlsx', 'Wallet.xlsx')).toBe(false);
+    expect(isAppleNumbersFile('/tmp/Wallet.csv', 'Wallet.csv')).toBe(false);
   });
 });

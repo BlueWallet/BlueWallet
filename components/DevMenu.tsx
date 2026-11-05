@@ -6,12 +6,7 @@ import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { encodeBip329Record, encodeBip329TransactionLabel, writeFileAndExport } from '../blue_modules/fs';
-import {
-  createAccountingHistoryCsv,
-  createAccountingHistoryRows,
-  createHistoryExportFileNames,
-} from '../blue_modules/wallet-history-export';
-import { createAccountingHistoryXlsx } from '../blue_modules/wallet-history-xlsx';
+import { createAccountingHistoryCsv, createHistoryExportFileNames } from '../blue_modules/wallet-history-export';
 import { Chain } from '../models/bitcoinUnits';
 
 const DEV_SAMPLE_TXID = 'f91d0a8a78462bc59398f2c5d7a84fcff491c26ba54c4833478b202796c8aafd';
@@ -67,13 +62,6 @@ const createDeveloperTransaction = (): Transaction & LightningTransaction =>
     value: -100_000,
     counterparty: 'Developer sample merchant',
   }) as Transaction & LightningTransaction;
-
-export const createDeveloperAccountingExcelSample = (): string =>
-  createAccountingHistoryXlsx(
-    createAccountingHistoryRows([createDeveloperTransaction()], Chain.ONCHAIN, {
-      [DEV_SAMPLE_TXID]: { memo: 'Developer sample, "coffee"' },
-    }),
-  );
 
 export const createDeveloperBip329Sample = (): string =>
   [
@@ -243,12 +231,10 @@ const DevMenu: React.FC = () => {
 
       DevSettings.addMenuItem('Test History Export Menu', () => {
         const fileNames = createHistoryExportFileNames('[Developer] Sample Wallet');
-        const exportSample = async (format: 'accountingCsv' | 'accountingExcel' | 'backup', share: boolean) => {
+        const exportSample = async (format: 'accountingCsv' | 'backup', share: boolean) => {
           try {
             if (format === 'accountingCsv') {
               await writeFileAndExport(fileNames.accounting, createDeveloperAccountingSample(), share);
-            } else if (format === 'accountingExcel') {
-              await writeFileAndExport(fileNames.accountingExcel, createDeveloperAccountingExcelSample(), share, 'base64');
             } else {
               await writeFileAndExport(fileNames.backup, createDeveloperBip329Sample(), share);
             }
@@ -261,10 +247,6 @@ const DevMenu: React.FC = () => {
             {
               text: 'CSV',
               onPress: async () => await exportSample('accountingCsv', share),
-            },
-            {
-              text: 'Excel / Apple Numbers (.xlsx)',
-              onPress: async () => await exportSample('accountingExcel', share),
             },
             { text: 'Cancel', style: 'cancel' },
           ]);

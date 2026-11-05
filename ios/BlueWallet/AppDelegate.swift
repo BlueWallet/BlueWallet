@@ -506,7 +506,6 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         let historyExportActions: [(String, String, String, String, UIKeyModifierFlags)] = [
             ("exportAccountingCsv", "Accounting CSV", "tablecells", "c", [.command, .alternate, .shift]),
-            ("exportAccountingExcel", "Accounting Excel / Apple Numbers", "tablecells.fill", "e", [.command, .alternate, .shift]),
             ("exportBip329Backup", "BIP-329 JSONL", "bitcoinsign", "b", [.command, .alternate, .shift])
         ]
         let availableHistoryExports = historyExportActions.filter { actions.contains($0.0) }.map {

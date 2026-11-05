@@ -25,7 +25,6 @@ export type ScreenMenuAction =
   | 'importWalletNotes'
   | 'exportWalletBackup'
   | 'exportAccountingCsv'
-  | 'exportAccountingExcel'
   | 'exportBip329Backup'
   | 'deleteWallet';
 export type MenuAction =
@@ -80,7 +79,6 @@ const screenActions: Record<string, readonly ScreenMenuAction[]> = {
     'importWalletNotes',
     'exportWalletBackup',
     'exportAccountingCsv',
-    'exportAccountingExcel',
     'exportBip329Backup',
     'deleteWallet',
   ],
@@ -146,7 +144,6 @@ export const menuShortcuts: readonly { title: string; key: string; where: string
   { title: 'Import Wallet Notes', key: 'Alt+I', where: 'On-chain wallet details with transaction history' },
   { title: 'Export Wallet Backup', key: 'Alt+E', where: 'Wallet details' },
   { title: 'Export Accounting CSV', key: 'Alt+Shift+C', where: 'Wallet details with transaction history' },
-  { title: 'Export Accounting Excel / Apple Numbers', key: 'Alt+Shift+E', where: 'Wallet details with transaction history' },
   { title: 'Export BIP-329 Backup', key: 'Alt+Shift+B', where: 'On-chain wallet details with transaction history' },
   { title: 'Settings', key: ',', where: 'Anywhere after unlocking' },
   { title: 'Keyboard Shortcuts…', key: '/', where: 'Anywhere after unlocking' },

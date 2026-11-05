@@ -11,8 +11,6 @@ export const IMPORT_NOTES_ACTION_ID = 'import_notes';
 export const SHARE_ACCOUNTING_ACTION_ID = 'share_accounting_history';
 export const SHARE_BACKUP_ACTION_ID = 'share_bip329_backup';
 export const SAVE_ACCOUNTING_ACTION_ID = 'save_accounting_history';
-export const SHARE_ACCOUNTING_EXCEL_ACTION_ID = 'share_accounting_excel_history';
-export const SAVE_ACCOUNTING_EXCEL_ACTION_ID = 'save_accounting_excel_history';
 export const SAVE_BACKUP_ACTION_ID = 'save_bip329_backup';
 
 const SATOSHIS_PER_BITCOIN = 100_000_000;
@@ -188,13 +186,11 @@ export function createAccountingHistoryCsv(
 
 export function createHistoryExportFileNames(walletLabel: string): {
   accounting: string;
-  accountingExcel: string;
   backup: string;
 } {
   const label = walletLabel.trim().replace(/\s+/g, '-');
   return {
     accounting: `${label}-accounting.csv`,
-    accountingExcel: `${label}-accounting.xlsx`,
     backup: `${label}-bip329-backup.jsonl`,
   };
 }
@@ -220,11 +216,6 @@ export function createHistoryExportMenuActions(
           id: SHARE_ACCOUNTING_ACTION_ID,
           text: 'CSV',
           icon: { iconValue: 'tablecells' },
-        },
-        {
-          id: SHARE_ACCOUNTING_EXCEL_ACTION_ID,
-          text: 'Excel / Apple Numbers (.xlsx)',
-          icon: { iconValue: 'tablecells.fill' },
         },
       ],
     },
@@ -271,11 +262,6 @@ export function createHistoryExportMenuActions(
                       id: SAVE_ACCOUNTING_ACTION_ID,
                       text: 'CSV',
                       icon: { iconValue: 'tablecells' },
-                    },
-                    {
-                      id: SAVE_ACCOUNTING_EXCEL_ACTION_ID,
-                      text: 'Excel / Apple Numbers (.xlsx)',
-                      icon: { iconValue: 'tablecells.fill' },
                     },
                   ],
                 },

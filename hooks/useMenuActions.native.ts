@@ -76,7 +76,6 @@ export function getMenuActionTitles(): MenuActionTitles {
     importWalletNotes: loc.wallets.details_import_notes,
     exportWalletBackup: loc.wallets.details_export_backup,
     exportAccountingCsv: 'Accounting CSV',
-    exportAccountingExcel: 'Accounting Excel / Apple Numbers',
     exportBip329Backup: 'BIP-329 JSONL',
     exportHistory: loc.wallets.details_export_history,
     deleteWallet: loc.wallets.details_delete_wallet,

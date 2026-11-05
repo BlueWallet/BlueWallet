@@ -4,21 +4,15 @@ import { Chain } from '../../models/bitcoinUnits';
 import {
   ACCOUNTING_HISTORY_HEADERS,
   createAccountingHistoryCsv,
-  createAccountingHistoryRows,
   createHistoryExportFileNames,
   createHistoryExportMenuActions,
   IMPORT_NOTES_ACTION_ID,
   SAVE_ACCOUNTING_ACTION_ID,
-  SAVE_ACCOUNTING_EXCEL_ACTION_ID,
   SAVE_BACKUP_ACTION_ID,
   SHARE_ACCOUNTING_ACTION_ID,
-  SHARE_ACCOUNTING_EXCEL_ACTION_ID,
   SHARE_BACKUP_ACTION_ID,
   sanitizeAccountingCsvCell,
 } from '../../blue_modules/wallet-history-export';
-import { accountingHistoryXlsxToCsv, createAccountingHistoryXlsx } from '../../blue_modules/wallet-history-xlsx';
-import { parseWalletHistoryNotes } from '../../blue_modules/fs';
-import { base64ToUint8Array } from '../../blue_modules/uint8array-extras';
 
 const transaction = (overrides: Partial<Transaction> = {}): Transaction => ({
   txid: 'a'.repeat(64),
@@ -122,27 +116,8 @@ describe('wallet history exports', () => {
   it('uses format-specific, whitespace-normalized filenames', () => {
     expect(createHistoryExportFileNames('  Main   Wallet  ')).toEqual({
       accounting: 'Main-Wallet-accounting.csv',
-      accountingExcel: 'Main-Wallet-accounting.xlsx',
       backup: 'Main-Wallet-bip329-backup.jsonl',
     });
-  });
-
-  it('creates an Excel workbook with typed accounting values and imports its notes', () => {
-    const tx = transaction({
-      value: -50_000_000,
-      confirmations: 3,
-      blocktime: Date.UTC(2025, 0, 23) / 1000,
-    });
-    const rows = createAccountingHistoryRows([tx], Chain.ONCHAIN, {
-      [tx.txid]: { memo: 'Excel note' },
-    });
-    const workbook = createAccountingHistoryXlsx(rows);
-    const bytes = base64ToUint8Array(workbook);
-    const importedCsv = accountingHistoryXlsxToCsv(workbook);
-
-    expect(Array.from(bytes.slice(0, 4))).toEqual([0x50, 0x4b, 0x03, 0x04]);
-    expect(importedCsv).toContain('Date,Transaction ID,Type,Amount (BTC),Amount (sats)');
-    expect(parseWalletHistoryNotes(importedCsv)).toEqual([{ transactionId: tx.txid, memo: 'Excel note' }]);
   });
 
   it('builds Share and Save submenus with Accounting and BIP-329 Backup leaves', () => {
@@ -151,21 +126,17 @@ describe('wallet history exports', () => {
     const serializedActions = JSON.stringify(actions);
 
     expect(lookupId(ids, [0, 0, 0, 0])).toBe(SHARE_ACCOUNTING_ACTION_ID);
-    expect(lookupId(ids, [0, 0, 0, 1])).toBe(SHARE_ACCOUNTING_EXCEL_ACTION_ID);
     expect(lookupId(ids, [0, 0, 1, 0])).toBe(SHARE_BACKUP_ACTION_ID);
     expect(lookupId(ids, [0, 1, 0, 0])).toBe(SAVE_ACCOUNTING_ACTION_ID);
-    expect(lookupId(ids, [0, 1, 0, 1])).toBe(SAVE_ACCOUNTING_EXCEL_ACTION_ID);
     expect(lookupId(ids, [0, 1, 1, 0])).toBe(SAVE_BACKUP_ACTION_ID);
     expect(lookupId(ids, [1])).toBe(IMPORT_NOTES_ACTION_ID);
     expect(actions[0].subactions?.[0].text).toBe('Share');
     expect(actions[0].subactions?.[1].text).toBe('Save');
     expect(actions[1].text).toBe('Import Notes');
     expect(actions[0].subactions?.[0].subactions?.[0].subactions?.[0].subtitle).toBeUndefined();
-    expect(actions[0].subactions?.[0].subactions?.[0].subactions?.[1].subtitle).toBeUndefined();
     expect(serializedActions).toContain('Transaction records for bookkeeping');
     expect(serializedActions).toContain('Portable Bitcoin wallet labels and notes');
     expect(serializedActions).toContain('Bitcoin Wallet Labels Export Format (.jsonl)');
-    expect(serializedActions).toContain('Excel / Apple Numbers (.xlsx)');
     expect(actions[1].subtitle).toBeUndefined();
   });
 
@@ -175,17 +146,21 @@ describe('wallet history exports', () => {
 
     expect(actions[0].subactions?.map(action => action.text)).toEqual(['Accounting', 'Backup']);
     expect(lookupId(ids, [0, 0, 0])).toBe(SHARE_ACCOUNTING_ACTION_ID);
-    expect(lookupId(ids, [0, 0, 1])).toBe(SHARE_ACCOUNTING_EXCEL_ACTION_ID);
     expect(lookupId(ids, [0, 1, 0])).toBe(SHARE_BACKUP_ACTION_ID);
     expect(JSON.stringify(actions)).not.toContain(SAVE_ACCOUNTING_ACTION_ID);
-    expect(JSON.stringify(actions)).not.toContain(SAVE_ACCOUNTING_EXCEL_ACTION_ID);
     expect(JSON.stringify(actions)).not.toContain(SAVE_BACKUP_ACTION_ID);
+
+    const android = buildMenu(actions, 'android');
+    expect(android.items.map(item => item.title)).toEqual(['Accounting', 'Backup', 'Import Notes']);
+    expect(android.items[0].actions?.map(item => item.title)).toEqual(['CSV']);
+    expect(android.items[1].actions?.map(item => item.title)).toEqual(['BIP-329 JSONL']);
+    expect(lookupId(android.ids, [0, 0])).toBe(SHARE_ACCOUNTING_ACTION_ID);
+    expect(lookupId(android.ids, [1, 0])).toBe(SHARE_BACKUP_ACTION_ID);
   });
 
   it('omits BIP-329 Backup and Import Notes for Lightning, and hides all actions without history', () => {
     const lightning = buildMenu(createHistoryExportMenuActions(Chain.OFFCHAIN, 1, 'Export History', 'Import Notes', true), 'ios');
     expect(lookupId(lightning.ids, [0, 0, 0, 0])).toBe(SHARE_ACCOUNTING_ACTION_ID);
-    expect(lookupId(lightning.ids, [0, 0, 0, 1])).toBe(SHARE_ACCOUNTING_EXCEL_ACTION_ID);
     expect(lookupId(lightning.ids, [0, 0, 1])).toBeUndefined();
     expect(lookupId(lightning.ids, [0, 1, 0, 0])).toBe(SAVE_ACCOUNTING_ACTION_ID);
     expect(lightning.items).toHaveLength(1);
