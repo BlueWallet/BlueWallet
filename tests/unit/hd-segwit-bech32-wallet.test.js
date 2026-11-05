@@ -184,18 +184,6 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd._getExternalWIFByIndex(0), 'L1tfV6fbRjDNwGQdJqHC9fneM9bTHigApnWgoKoU8JwgziwbbE7i');
   });
 
-  it('derives a different external address with a passphrase than without one', () => {
-    const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
-    const noPassphrase = new HDSegwitBech32Wallet();
-    noPassphrase.setSecret(mnemonic);
-    const withPassphrase = new HDSegwitBech32Wallet();
-    withPassphrase.setSecret(mnemonic);
-    withPassphrase.setPassphrase('my secret');
-
-    // Compare live derivations rather than repeating the BIP84 vector, which is asserted elsewhere in this file
-    assert.notStrictEqual(withPassphrase._getExternalAddressByIndex(0), noPassphrase._getExternalAddressByIndex(0));
-  });
-
   it('treats an empty passphrase the same as no passphrase', () => {
     const noPassphrase = new HDSegwitBech32Wallet();
     noPassphrase.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
@@ -207,23 +195,27 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(emptyPassphrase.getXpub(), noPassphrase.getXpub());
   });
 
-  it('derives a different address for a wrong passphrase, without raising an error', () => {
+  it('derives the known passphrase address, and a wrong passphrase gives a different address without throwing', () => {
+    const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     const correct = new HDSegwitBech32Wallet();
-    correct.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
-    correct.setPassphrase('correct horse');
+    correct.setSecret(mnemonic);
+    correct.setPassphrase('super secret passphrase');
     const wrong = new HDSegwitBech32Wallet();
-    wrong.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
-    wrong.setPassphrase('correct horze');
+    wrong.setSecret(mnemonic);
+    wrong.setPassphrase('super secret passphrase!');
 
-    // The app cannot tell a wrong passphrase from a right one, so it must not throw.
-    assert.notStrictEqual(wrong._getExternalAddressByIndex(0), correct._getExternalAddressByIndex(0));
+    // Known vector for the correct passphrase, so the check does not depend on the code under test
+    assert.strictEqual(correct._getExternalAddressByIndex(0), 'bc1qgaj3satczjem43pz46ct6r3758twhnny4y720z');
+    // The app cannot tell a wrong passphrase from a right one, so derivation must succeed and give another address
+    assert.doesNotThrow(() => wrong._getExternalAddressByIndex(0));
+    assert.notStrictEqual(wrong._getExternalAddressByIndex(0), 'bc1qgaj3satczjem43pz46ct6r3758twhnny4y720z');
   });
 
   it('keeps the passphrase and its addresses after JSON save and restore', () => {
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
     hd.setPassphrase('super secret passphrase');
-    hd._getExternalWIFByIndex(0); // populate the caches that get serialized
+    hd._getExternalAddressByIndex(0); // fills external_addresses_cache, and getXpub() fills _xpub
 
     // Same steps BlueApp takes before writing a wallet to storage
     hd.prepareForSerialization();
@@ -237,7 +229,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
 
     // Compare against the known vector for this mnemonic and passphrase, not against the original wallet
     assert.strictEqual(restored.getPassphrase(), 'super secret passphrase');
-    assert.strictEqual(restored._getExternalWIFByIndex(0), 'L1tfV6fbRjDNwGQdJqHC9fneM9bTHigApnWgoKoU8JwgziwbbE7i');
+    assert.strictEqual(restored._getExternalAddressByIndex(0), 'bc1qgaj3satczjem43pz46ct6r3758twhnny4y720z');
   });
 
   it('can create with custom derivation path', async () => {
