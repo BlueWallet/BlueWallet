@@ -15,9 +15,9 @@ on:
   workflow_dispatch:
     inputs:
       build_number:
-        description: Optional build number override
+        description: Apple build number (6800000000000 + shared Android build number); use one ending in 0, the allocator never issues those
         type: string
-        required: false
+        required: true
 
 permissions:
   contents: read
@@ -39,7 +39,7 @@ jobs:
           ALLOCATION_ATTEMPT: ${{ inputs.allocation_attempt }}
         run: |
           if [ -n "$ALLOCATION_ATTEMPT" ] && [ "$ALLOCATION_ATTEMPT" != "$GITHUB_RUN_ATTEMPT" ]; then
-            echo '::error::Choose Re-run all jobs to allocate a new shared build number; re-running only failed jobs can reuse an accepted TestFlight build.'
+            echo '::error::Re-running failed jobs reuses the build number. For a PR push a commit or re-add the testflight label; for master dispatch Apple Release.'
             exit 1
           fi
 
@@ -103,7 +103,15 @@ jobs:
         env:
           REQUESTED_BUILD_NUMBER: ${{ inputs.build_number }}
         run: |
-          BUILD_NUMBER="${REQUESTED_BUILD_NUMBER:-$(ruby -e 'puts 5_000_000_000_000 + (Time.now.to_r * 1000).to_i')}"
+          if ! [[ "$REQUESTED_BUILD_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo '::error::A numeric shared build number is required.'
+            exit 1
+          fi
+          if [ "${#REQUESTED_BUILD_NUMBER}" -ne 13 ] || [ "$REQUESTED_BUILD_NUMBER" -lt 6800000000000 ] || [ "$REQUESTED_BUILD_NUMBER" -gt 6802100000000 ]; then
+            echo '::error::Provide the 13-digit Apple build number (6800000000000 + shared Android build number, at most 6802100000000).'
+            exit 1
+          fi
+          BUILD_NUMBER="$REQUESTED_BUILD_NUMBER"
           export NEW_BUILD_NUMBER="$BUILD_NUMBER"
           echo "NEW_BUILD_NUMBER=${BUILD_NUMBER}" >> "$GITHUB_ENV"
           echo "build_number=${BUILD_NUMBER}" >> "$GITHUB_OUTPUT"
