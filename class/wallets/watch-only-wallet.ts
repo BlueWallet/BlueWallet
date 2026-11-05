@@ -365,13 +365,28 @@ export class WatchOnlyWallet extends LegacyWallet {
     return this.setSecret(importText);
   }
 
-  // taproot secret is a bare xpub; export tr() so re-import is not legacy
+  // Stored secret is a bare xpub/ypub/zpub, so a re-import would guess the path and reset the fingerprint
+  // to 00000000. Export the descriptor (tr/wpkh/sh(wpkh)/pkh) instead. Script type comes from the wallet,
+  // not the path: editing a bech32 wallet's path to m/86' must not make the export a tr().
   getSecretForExport(): string {
     try {
-      if (this.segwitType === 'p2tr' || this._hdWalletInstance instanceof HDTaprootWallet) {
-        const path = this.getDerivationPath();
-        if (path) return WalletDescriptor.getDescriptor(this.getMasterFingerprintHex(), path, this.getSecret(), 'p2tr');
+      if (!this.isHd()) return this.getSecret();
+      const path = this.getDerivationPath();
+      if (!path) return this.getSecret();
+
+      // segwitType is unset for a bare zpub/ypub/xpub until the path is edited. The HD instance (or its
+      // class, for taproot whose secret is an xpub) is what actually derives addresses.
+      let scriptType = this.segwitType;
+      if (!scriptType && this._hdWalletInstance instanceof HDTaprootWallet) scriptType = 'p2tr';
+      if (!scriptType && this._hdWalletInstance && 'segwitType' in this._hdWalletInstance) {
+        scriptType = this._hdWalletInstance.segwitType;
       }
+      if (!scriptType && this.secret.startsWith('zpub')) scriptType = 'p2wpkh';
+      if (!scriptType && this.secret.startsWith('ypub')) scriptType = 'p2sh(p2wpkh)';
+      if (!scriptType && this.secret.startsWith('xpub')) scriptType = 'p2pkh';
+      if (!scriptType) return this.getSecret();
+
+      return WalletDescriptor.getDescriptor(this.getMasterFingerprintHex(), path, this.getSecret(), scriptType);
     } catch (_) {}
     return this.getSecret();
   }
