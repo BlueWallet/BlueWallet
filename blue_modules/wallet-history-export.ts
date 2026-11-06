@@ -1,6 +1,7 @@
 import { TTXMetadata } from '../class/blue-app';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
 import { Action } from '../components/types';
+import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { isDesktop } from './environment';
@@ -125,7 +126,7 @@ export function createAccountingHistoryRows(
     const inputs = Array.isArray(transaction.inputs) ? transaction.inputs : [];
     const outputs = Array.isArray(transaction.outputs) ? transaction.outputs : [];
     const inputAddresses = inputs.flatMap(input => input.addresses ?? (input.address ? [input.address] : []));
-    const outputAddresses = outputs.flatMap(output => output.scriptPubKey.addresses ?? []);
+    const outputAddresses = outputs.flatMap(output => output.scriptPubKey?.addresses ?? []);
     const numberOrEmpty = (candidate: unknown): number | '' => {
       if (candidate === undefined || candidate === null) return '';
       const parsed = Number(candidate);
@@ -208,28 +209,28 @@ export function createHistoryExportMenuActions(
   const shareActions: Action[] = [
     {
       id: 'share_accounting',
-      text: 'Accounting',
-      subtitle: 'Transaction records for bookkeeping',
+      text: loc.wallets.details_export_accounting,
+      subtitle: loc.wallets.details_export_accounting_description,
       icon: { iconValue: 'chart.bar.doc.horizontal' },
       subactions: [
         {
           id: SHARE_ACCOUNTING_ACTION_ID,
-          text: 'CSV',
+          text: loc.wallets.details_export_csv,
           icon: { iconValue: 'tablecells' },
         },
       ],
     },
     {
       id: 'share_backup',
-      text: 'Backup',
-      subtitle: 'Portable Bitcoin wallet labels and notes',
+      text: loc.wallets.details_export_backup_category,
+      subtitle: loc.wallets.details_export_backup_description,
       icon: { iconValue: 'archivebox' },
       hidden: !isOnchain,
       subactions: [
         {
           id: SHARE_BACKUP_ACTION_ID,
-          text: 'BIP-329 JSONL',
-          subtitle: 'Bitcoin Wallet Labels Export Format (.jsonl)',
+          text: loc.wallets.details_export_bip329,
+          subtitle: loc.wallets.details_export_bip329_description,
           icon: { iconValue: 'bitcoinsign' },
         },
       ],
@@ -254,28 +255,28 @@ export function createHistoryExportMenuActions(
               subactions: [
                 {
                   id: 'save_accounting',
-                  text: 'Accounting',
-                  subtitle: 'Transaction records for bookkeeping',
+                  text: loc.wallets.details_export_accounting,
+                  subtitle: loc.wallets.details_export_accounting_description,
                   icon: { iconValue: 'chart.bar.doc.horizontal' },
                   subactions: [
                     {
                       id: SAVE_ACCOUNTING_ACTION_ID,
-                      text: 'CSV',
+                      text: loc.wallets.details_export_csv,
                       icon: { iconValue: 'tablecells' },
                     },
                   ],
                 },
                 {
                   id: 'save_backup',
-                  text: 'Backup',
-                  subtitle: 'Portable Bitcoin wallet labels and notes',
+                  text: loc.wallets.details_export_backup_category,
+                  subtitle: loc.wallets.details_export_backup_description,
                   icon: { iconValue: 'archivebox' },
                   hidden: !isOnchain,
                   subactions: [
                     {
                       id: SAVE_BACKUP_ACTION_ID,
-                      text: 'BIP-329 JSONL',
-                      subtitle: 'Bitcoin Wallet Labels Export Format (.jsonl)',
+                      text: loc.wallets.details_export_bip329,
+                      subtitle: loc.wallets.details_export_bip329_description,
                       icon: { iconValue: 'bitcoinsign' },
                     },
                   ],

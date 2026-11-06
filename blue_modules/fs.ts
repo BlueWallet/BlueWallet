@@ -126,6 +126,14 @@ const normalizeBip329Origin = (origin: string): string =>
     .replace(/(\d+)[hH]/g, "$1'")
     .toLowerCase();
 
+const restoreNeutralizedCsvValue = (value: string): string => {
+  if (!value.startsWith("'")) return value;
+  const original = value.slice(1);
+  const isPlainNumber = /^-?\d+(?:\.\d+)?$/.test(original);
+  const hasFormulaPrefix = /^[\t\r\n]/.test(original) || /^\s*[=+@]/.test(original) || (!isPlainNumber && /^\s*-/.test(original));
+  return hasFormulaPrefix ? original : value;
+};
+
 const parseBip329TransactionNotes = (contents: string, expectedOrigin?: string): Array<{ transactionId: string; memo: string }> =>
   contents
     .split(/\r?\n/)
@@ -166,7 +174,9 @@ export const parseWalletHistoryNotes = (contents: string, expectedOrigin?: strin
     if (row.length <= Math.max(resolvedTransactionIdColumn, resolvedMemoColumn)) return [];
 
     const transactionId = row[resolvedTransactionIdColumn].trim();
-    const memo = (hasColumnsAfterMemo ? row[resolvedMemoColumn] : row.slice(resolvedMemoColumn).join(',')).trim();
+    const memo = restoreNeutralizedCsvValue(
+      (hasColumnsAfterMemo ? row[resolvedMemoColumn] : row.slice(resolvedMemoColumn).join(',')).trim(),
+    );
 
     return transactionId && memo ? [{ transactionId, memo }] : [];
   });
@@ -246,26 +256,17 @@ const _toFileUri = (filePath: string) => {
 };
 
 const TEMP_EXPORT_PREFIX = 'bluewallet-export-';
-const TEMP_EXPORT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 const _createTempExportPath = (fileName: string) => {
   const basePath = RNFS.CachesDirectoryPath || RNFS.TemporaryDirectoryPath;
   return `${basePath}/${TEMP_EXPORT_PREFIX}${Date.now()}-${fileName}`;
 };
 
-export const cleanupTemporaryExportFiles = async (now = Date.now()): Promise<void> => {
+export const cleanupTemporaryExportFiles = async (): Promise<void> => {
   const basePath = RNFS.CachesDirectoryPath || RNFS.TemporaryDirectoryPath;
   try {
     const entries = await RNFS.readDir(basePath);
-    await Promise.all(
-      entries
-        .filter(entry => entry.name.startsWith(TEMP_EXPORT_PREFIX))
-        .filter(entry => {
-          const modifiedAt = entry.mtime?.getTime();
-          return modifiedAt !== undefined && now - modifiedAt >= TEMP_EXPORT_MAX_AGE_MS;
-        })
-        .map(entry => _safeUnlink(entry.path)),
-    );
+    await Promise.all(entries.filter(entry => entry.name.startsWith(TEMP_EXPORT_PREFIX)).map(entry => _safeUnlink(entry.path)));
   } catch (error) {
     console.warn('Failed to clean temporary export files:', error);
   }

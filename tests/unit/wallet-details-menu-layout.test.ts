@@ -25,12 +25,16 @@ describe('wallet transaction-history menu layout', () => {
     expect(source).toContain('useScreenMenuActions({');
     expect(source).toContain('editWalletName: handleEditWalletName');
     expect(source).toContain('exportAccountingCsv:');
+    expect(source).toContain('const contents = createAccountingExport();');
+    expect(source).toContain('const contents = createBip329Backup();');
+    expect(source).toContain('presentAlert({ message: errorMessage(error) });');
     expect(source).toContain("unsupportedFileType === 'numbers'");
     expect(source).toContain('loc.wallets.details_import_numbers_unsupported');
     expect(source).toContain('deleteWallet: handleDeleteButtonTapped');
     expect(appDelegate).toContain('io.bluewallet.walletDetails.historyExport');
     expect(appDelegate).toContain('options: .displayInline, children: [deleteWallet]');
     expect(appDelegate).toContain('("editWalletName", "Edit Wallet Name", "pencil"');
+    expect(appDelegate).toContain('!($0.0 == "coin_control" && isShowingSendDetails)');
     expect(appDelegate).toContain('[.command, .alternate, .shift]');
   });
 });

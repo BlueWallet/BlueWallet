@@ -75,8 +75,8 @@ export function getMenuActionTitles(): MenuActionTitles {
     signVerify: loc.addresses.sign_title,
     importWalletNotes: loc.wallets.details_import_notes,
     exportWalletBackup: loc.wallets.details_export_backup,
-    exportAccountingCsv: 'Accounting CSV',
-    exportBip329Backup: 'BIP-329 JSONL',
+    exportAccountingCsv: loc.wallets.details_export_accounting_csv,
+    exportBip329Backup: loc.wallets.details_export_bip329,
     exportHistory: loc.wallets.details_export_history,
     deleteWallet: loc.wallets.details_delete_wallet,
   };

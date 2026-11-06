@@ -332,7 +332,7 @@ describe('temporary export cleanup', () => {
     jest.restoreAllMocks();
   });
 
-  it('removes only stale BlueWallet export files from the cache', async () => {
+  it('removes all leftover BlueWallet export files from the cache', async () => {
     const now = Date.UTC(2026, 10, 2, 12);
     const stalePath = '/mock/Caches/bluewallet-export-1-old.csv';
     const freshPath = '/mock/Caches/bluewallet-export-2-fresh.jsonl';
@@ -356,10 +356,12 @@ describe('temporary export cleanup', () => {
       },
     ]);
 
-    await cleanupTemporaryExportFiles(now);
+    await cleanupTemporaryExportFiles();
 
-    expect(RNFS.unlink).toHaveBeenCalledTimes(1);
+    expect(RNFS.unlink).toHaveBeenCalledTimes(2);
     expect(RNFS.unlink).toHaveBeenCalledWith(stalePath);
+    expect(RNFS.unlink).toHaveBeenCalledWith(freshPath);
+    expect(RNFS.unlink).not.toHaveBeenCalledWith(unrelatedPath);
   });
 
   it('removes a partially written temporary file when export writing fails', async () => {

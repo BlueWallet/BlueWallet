@@ -2,9 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   applyWalletHistoryNoteUpdates,
-  Bip329Record,
-  encodeBip329Record,
-  encodeBip329TransactionLabel,
   parseWalletHistoryNotes,
   planWalletHistoryNoteImport,
   selectWalletHistoryNoteUpdates,
@@ -49,68 +46,20 @@ import { navigateToWalletsList } from '../../NavigationService';
 import { removeRecentMenuItemsForWallets } from '../../components/Context/recentMenuItems';
 import { errorMessage } from '../../helpers/errorMessage';
 import { AbstractHDWallet } from '../../class/wallets/abstract-hd-wallet';
-import { WalletDescriptor } from '../../class/wallet-descriptor';
 import {
-  bitcoinValueToSats,
   createAccountingHistoryCsv,
   createHistoryExportFileNames,
   createHistoryExportMenuActions,
-  getTransactionFee,
   IMPORT_NOTES_ACTION_ID,
   SAVE_ACCOUNTING_ACTION_ID,
   SAVE_BACKUP_ACTION_ID,
   SHARE_ACCOUNTING_ACTION_ID,
   SHARE_BACKUP_ACTION_ID,
 } from '../../blue_modules/wallet-history-export';
+import { createBip329WalletHistoryBackup, getBip329Origin } from '../../blue_modules/bip329-wallet-history';
 import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
-
-function getBip329Origin(wallet: TWallet): string | undefined {
-  try {
-    let descriptor = WalletDescriptor.fromWallet(wallet);
-    if (!descriptor && wallet instanceof WatchOnlyWallet && wallet.isHd() && wallet.segwitType) {
-      const path = wallet.getDerivationPath();
-      if (path) descriptor = WalletDescriptor.getDescriptor(wallet.getMasterFingerprintHex(), path, wallet.getSecret(), wallet.segwitType);
-    }
-    if (!descriptor && wallet instanceof MultisigHDWallet) {
-      const origins = Array.from({ length: wallet.getN() }, (_, index) => {
-        const path = wallet.getCustomDerivationPathForCosigner(index + 1);
-        const fingerprint = wallet.getFingerprint(index + 1);
-        return path && fingerprint ? `[${fingerprint.toLowerCase()}/${path.replace('m/', '')}]` : undefined;
-      });
-      if (origins.every((origin): origin is string => Boolean(origin))) {
-        const policy = `sortedmulti(${wallet.getM()},${origins.join(',')})`;
-        if (wallet.isNativeSegwit()) descriptor = `wsh(${policy})`;
-        else if (wallet.isWrappedSegwit()) descriptor = `sh(wsh(${policy}))`;
-        else if (wallet.isLegacy()) descriptor = `sh(${policy})`;
-      }
-    }
-    return descriptor?.replace(/(\[[^\]]+\])[^,)]+/, '$1');
-  } catch {
-    return undefined;
-  }
-}
-
-function getBip329Keypath(wallet: TWallet, address: string): string | undefined {
-  try {
-    const walletWithKeypaths = wallet as TWallet & {
-      _getDerivationPathByAddress?: (candidate: string) => string | false;
-      getDerivationPath?: () => string | false | undefined;
-    };
-    const fullPath = walletWithKeypaths._getDerivationPathByAddress?.(address);
-    if (!fullPath) return undefined;
-
-    const accountPath = walletWithKeypaths.getDerivationPath?.();
-    if (accountPath && fullPath.startsWith(accountPath)) {
-      const relativePath = fullPath.slice(accountPath.length);
-      return relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
-    }
-    return fullPath;
-  } catch {
-    return undefined;
-  }
-}
 
 function getCoinControlStats(w: TWallet): {
   hasCoinControl: boolean;
@@ -315,91 +264,10 @@ const WalletDetails: React.FC = () => {
     });
   }, [isBiometricUseCapableAndEnabled, navigateToOverviewAndDeleteWallet, presentWalletHasBalanceAlert, wallet]);
 
-  const createBip329Backup = useCallback(() => {
-    const transactions = wallet.getTransactions();
-    const origin = getBip329Origin(wallet);
-    const exportedAddresses = new Set<string>();
-    const records: string[] = [];
-
-    const exportAddress = (address: string) => {
-      if (exportedAddresses.has(address) || !wallet.weOwnAddress(address)) return;
-      exportedAddresses.add(address);
-
-      const label = addressMetadata[address]?.label;
-      const keypath = getBip329Keypath(wallet, address);
-      records.push(
-        encodeBip329Record({
-          type: 'addr',
-          ref: address,
-          ...(label === undefined ? {} : { label }),
-          ...(origin ? { origin } : {}),
-          ...(keypath ? { keypath } : {}),
-        }),
-      );
-    };
-
-    for (const transaction of transactions) {
-      const transactionId = transaction.hash || transaction.txid;
-      if (!transactionId) continue;
-
-      const fullyConfirmed = (transaction.confirmations ?? 0) >= 6;
-      const blockTimestamp = transaction.blocktime ?? transaction.time;
-      const time = fullyConfirmed && blockTimestamp ? new Date(blockTimestamp * 1000).toISOString() : undefined;
-      const transactionDetails: Pick<Bip329Record, 'time'> = time ? { time } : {};
-      const memo = txMetadata?.[transactionId]?.memo?.trim();
-      const fee = getTransactionFee(transaction);
-      const value = Number(transaction.value);
-
-      records.push(
-        encodeBip329TransactionLabel(transactionId, memo || undefined, {
-          ...(origin ? { origin } : {}),
-          ...transactionDetails,
-          ...(fee === undefined ? {} : { fee }),
-          ...(Number.isFinite(value) ? { value: Math.round(value) } : {}),
-        }),
-      );
-
-      transaction.inputs.forEach((input, index) => {
-        const address = input.address ?? input.addresses?.[0];
-        if (address) exportAddress(address);
-        const inputValue = bitcoinValueToSats(input.value);
-        const keypath = address ? getBip329Keypath(wallet, address) : undefined;
-        records.push(
-          encodeBip329Record({
-            type: 'input',
-            ref: `${transactionId}:${index}`,
-            ...(keypath && origin ? { origin } : {}),
-            ...(keypath ? { keypath } : {}),
-            ...(inputValue === undefined ? {} : { value: inputValue }),
-            ...transactionDetails,
-          }),
-        );
-      });
-
-      transaction.outputs.forEach((output, index) => {
-        const outputIndex = Number.isInteger(output.n) ? output.n : index;
-        const address = output.scriptPubKey.addresses?.[0];
-        if (address) exportAddress(address);
-        const keypath = address ? getBip329Keypath(wallet, address) : undefined;
-        const outputMetadata = wallet.getUTXOMetadata(transactionId, outputIndex);
-        const outputValue = bitcoinValueToSats(output.value);
-        records.push(
-          encodeBip329Record({
-            type: 'output',
-            ref: `${transactionId}:${outputIndex}`,
-            ...(outputMetadata.memo === undefined ? {} : { label: outputMetadata.memo }),
-            ...(keypath && origin ? { origin } : {}),
-            ...(keypath ? { keypath } : {}),
-            ...(outputMetadata.frozen === undefined ? {} : { spendable: !outputMetadata.frozen }),
-            ...(outputValue === undefined ? {} : { value: outputValue }),
-            ...transactionDetails,
-          }),
-        );
-      });
-    }
-
-    return records.join('\n');
-  }, [wallet, txMetadata, addressMetadata]);
+  const createBip329Backup = useCallback(
+    () => createBip329WalletHistoryBackup(wallet, txMetadata, addressMetadata),
+    [wallet, txMetadata, addressMetadata],
+  );
 
   const createAccountingExport = useCallback(() => {
     return createAccountingHistoryCsv(wallet.getTransactions() as Array<Transaction & LightningTransaction>, wallet.chain, txMetadata);
@@ -495,12 +363,19 @@ const WalletDetails: React.FC = () => {
 
   const toolTipOnPressMenuItem = useCallback(
     async (id: string) => {
-      if (id === SHARE_ACCOUNTING_ACTION_ID || id === SAVE_ACCOUNTING_ACTION_ID) {
-        await writeFileAndExport(exportFileNames.accounting, createAccountingExport(), id === SHARE_ACCOUNTING_ACTION_ID);
-      } else if (id === SHARE_BACKUP_ACTION_ID || id === SAVE_BACKUP_ACTION_ID) {
-        await writeFileAndExport(exportFileNames.backup, createBip329Backup(), id === SHARE_BACKUP_ACTION_ID);
-      } else if (id === IMPORT_NOTES_ACTION_ID) {
-        await importNotes();
+      try {
+        if (id === SHARE_ACCOUNTING_ACTION_ID || id === SAVE_ACCOUNTING_ACTION_ID) {
+          const contents = createAccountingExport();
+          await writeFileAndExport(exportFileNames.accounting, contents, id === SHARE_ACCOUNTING_ACTION_ID);
+        } else if (id === SHARE_BACKUP_ACTION_ID || id === SAVE_BACKUP_ACTION_ID) {
+          const contents = createBip329Backup();
+          await writeFileAndExport(exportFileNames.backup, contents, id === SHARE_BACKUP_ACTION_ID);
+        } else if (id === IMPORT_NOTES_ACTION_ID) {
+          await importNotes();
+        }
+      } catch (error) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: errorMessage(error) });
       }
     },
     [createAccountingExport, createBip329Backup, exportFileNames, importNotes],

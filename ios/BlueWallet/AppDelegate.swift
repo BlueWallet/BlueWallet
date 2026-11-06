@@ -431,6 +431,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         builder.remove(menu: .preferences)
 
         let actions = MenuActionsController.shared.availableActions
+        let isShowingSendDetails = actions.contains("add_recipient") || actions.contains("send_max") || actions.contains("import_transaction")
         let commands: [(String, String, String, Selector, String?, UIKeyModifierFlags, UIMenu.Identifier)] = [
             ("addWallet", "Add Wallet", "plus.rectangle.on.folder", #selector(addWalletAction), "a", [.command, .shift], .file),
             ("importWallet", "Import Wallet", "square.and.arrow.down", #selector(importWalletAction), "i", .command, .file),
@@ -455,7 +456,9 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         for parent in [UIMenu.Identifier.file, .edit, .view, .help] {
             let identifier = UIMenu.Identifier("io.bluewallet.commands.\(parent.rawValue)")
             builder.remove(menu: identifier)
-            let children = commands.filter { actions.contains($0.0) && $0.6 == parent }.map { command -> UICommand in
+            let children = commands.filter {
+                actions.contains($0.0) && $0.6 == parent && !($0.0 == "coin_control" && isShowingSendDetails)
+            }.map { command -> UICommand in
                 let title = MenuActionsController.shared.title(for: command.0, fallback: command.1)
                 let image = UIImage(systemName: command.2)
                 if let input = command.4 {

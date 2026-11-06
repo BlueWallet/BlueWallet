@@ -13,6 +13,7 @@ import {
   SHARE_BACKUP_ACTION_ID,
   sanitizeAccountingCsvCell,
 } from '../../blue_modules/wallet-history-export';
+import { parseWalletHistoryNotes } from '../../blue_modules/fs';
 
 const transaction = (overrides: Partial<Transaction> = {}): Transaction => ({
   txid: 'a'.repeat(64),
@@ -200,5 +201,6 @@ describe('wallet history exports', () => {
     expect(csv).toContain("'+SUM(A1:A2)");
     expect(csv).toContain("'\t=1+1");
     expect(csv).toContain("'=1+1");
+    expect(parseWalletHistoryNotes(csv)).toEqual([{ transactionId: tx.txid, memo: '=1+1' }]);
   });
 });
