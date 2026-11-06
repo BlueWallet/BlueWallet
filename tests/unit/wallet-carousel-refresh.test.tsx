@@ -140,6 +140,19 @@ describe('wallet carousel refresh publish', () => {
     assert.strictEqual(createWallet.props.accessibilityHint, loc.wallets.list_create_a_wallet_text.replace(/\s*\n\s*/g, ' '));
   });
 
+  it('derives fixed item geometry from the measured carousel container', () => {
+    const onLayout = jest.fn();
+    const screen = render(<WalletsCarousel data={[makeWallet()]} onPress={() => {}} onLayout={onLayout} />);
+    const list = screen.getByLabelText(loc.wallets.list_title);
+
+    fireEvent(list, 'layout', { nativeEvent: { layout: { width: 300, height: 200, x: 0, y: 0 } } });
+
+    const measuredList = screen.getByLabelText(loc.wallets.list_title);
+    const itemLayout = measuredList.props.getItemLayout(null, 1);
+    assert.deepStrictEqual(itemLayout, { length: 246, offset: 262, index: 1 });
+    assert.strictEqual(onLayout.mock.calls.length, 1);
+  });
+
   it.each([
     { name: 'FlatList animateChanges', props: { animateChanges: true } },
     { name: 'FlatList default (no animateChanges)', props: {} },
