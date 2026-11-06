@@ -4,6 +4,7 @@ import assert from 'assert';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
 import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
+import { TaprootWallet } from './wallets/taproot-wallet';
 import { CreateTransactionTarget, CreateTransactionUtxo } from './wallets/types.ts';
 import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
 import { isUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
@@ -53,15 +54,6 @@ function isValidP2wpkhSpend(tx: bitcoin.Transaction, index: number, prevOut: bit
     return ecc.verify(hash, pubkey, signature);
   } catch (_) {
     return false;
-  }
-}
-
-/** Address of an output script, or undefined if it has none (e.g. OP_RETURN) */
-function scriptToAddress(script: Uint8Array): string | undefined {
-  try {
-    return bitcoin.address.fromOutputScript(script);
-  } catch (_) {
-    return undefined;
   }
 }
 
@@ -275,7 +267,7 @@ export class HDSegwitBech32Transaction {
     for (let n = 0; n < this._txDecoded.outs.length; n++) {
       const outp = this._txDecoded.outs[n];
       const value = Number(outp.value);
-      const address = scriptToAddress(outp.script);
+      const address = TaprootWallet.scriptPubKeyToAddress(uint8ArrayToHex(outp.script));
       if (address && this._wallet.weOwnAddress(address)) {
         changeAmount += value;
         unconfirmedUtxos.push({ vout: n, value, txid, address });
