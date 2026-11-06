@@ -142,7 +142,7 @@ describe('wallet carousel refresh publish', () => {
 
   it('derives fixed item geometry from the measured carousel container', () => {
     const onLayout = jest.fn();
-    const screen = render(<WalletsCarousel data={[makeWallet()]} onPress={() => {}} onLayout={onLayout} />);
+    const screen = render(<WalletsCarousel data={[makeWallet()]} onPress={() => {}} onNewWalletPress={() => {}} onLayout={onLayout} />);
     const list = screen.getByLabelText(loc.wallets.list_title);
 
     fireEvent(list, 'layout', { nativeEvent: { layout: { width: 300, height: 200, x: 0, y: 0 } } });
@@ -150,6 +150,7 @@ describe('wallet carousel refresh publish', () => {
     const measuredList = screen.getByLabelText(loc.wallets.list_title);
     const itemLayout = measuredList.props.getItemLayout(null, 1);
     assert.deepStrictEqual(itemLayout, { length: 246, offset: 262, index: 1 });
+    assert.deepStrictEqual(measuredList.props.snapToOffsets, [0, 246]);
     assert.strictEqual(onLayout.mock.calls.length, 1);
   });
 
