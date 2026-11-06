@@ -3,7 +3,7 @@ import assert from 'assert';
 import { fireEvent, render } from '@testing-library/react-native';
 
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
-import WalletsCarousel, { walletHasPendingTransaction } from '../../components/WalletsCarousel';
+import WalletsCarousel, { getWalletCarouselKeyboardTarget, walletHasPendingTransaction } from '../../components/WalletsCarousel';
 import { TWallet } from '../../class/wallets/types';
 import loc, { formatBalance } from '../../loc';
 
@@ -86,6 +86,23 @@ describe('walletHasPendingTransaction', () => {
   });
 });
 
+describe('wallet carousel keyboard navigation', () => {
+  it('moves through horizontal items with bounded LTR and RTL arrow behavior', () => {
+    assert.strictEqual(getWalletCarouselKeyboardTarget('ArrowRight', 0, 3, true, false), 1);
+    assert.strictEqual(getWalletCarouselKeyboardTarget('ArrowLeft', 1, 3, true, false), 0);
+    assert.strictEqual(getWalletCarouselKeyboardTarget('ArrowRight', 1, 3, true, true), 0);
+    assert.strictEqual(getWalletCarouselKeyboardTarget('ArrowLeft', 1, 3, true, true), 2);
+    assert.strictEqual(getWalletCarouselKeyboardTarget('ArrowLeft', 0, 3, true, false), null);
+    assert.strictEqual(getWalletCarouselKeyboardTarget('ArrowRight', 2, 3, true, false), null);
+  });
+
+  it('uses up and down arrows for vertical wallet lists', () => {
+    assert.strictEqual(getWalletCarouselKeyboardTarget('ArrowDown', 0, 2, false, false), 1);
+    assert.strictEqual(getWalletCarouselKeyboardTarget('ArrowUp', 1, 2, false, false), 0);
+    assert.strictEqual(getWalletCarouselKeyboardTarget('ArrowRight', 0, 2, false, false), null);
+  });
+});
+
 describe('wallet carousel refresh publish', () => {
   it('exposes each wallet as one descriptive, stateful screen-reader action', () => {
     const wallet = makeWallet({
@@ -138,6 +155,29 @@ describe('wallet carousel refresh publish', () => {
     assert.strictEqual(createWallet.props.accessibilityRole, 'button');
     assert.strictEqual(createWallet.props.accessibilityLabel, loc.wallets.list_create_a_wallet);
     assert.strictEqual(createWallet.props.accessibilityHint, loc.wallets.list_create_a_wallet_text.replace(/\s*\n\s*/g, ' '));
+  });
+
+  it('handles arrow keys from a focused wallet and keeps the event inside the carousel', () => {
+    const screen = render(<WalletsCarousel data={[makeWallet()]} onPress={() => {}} onNewWalletPress={() => {}} />);
+    const preventDefault = jest.fn();
+    const stopPropagation = jest.fn();
+
+    fireEvent(screen.getByTestId('Old Label'), 'focus');
+    fireEvent(screen.getByLabelText(loc.wallets.list_title), 'keyDown', {
+      nativeEvent: {
+        key: 'ArrowRight',
+        code: 'ArrowRight',
+        altKey: false,
+        ctrlKey: false,
+        metaKey: false,
+      },
+      preventDefault,
+      stopPropagation,
+      isDefaultPrevented: () => false,
+    });
+
+    assert.strictEqual(preventDefault.mock.calls.length, 1);
+    assert.strictEqual(stopPropagation.mock.calls.length, 1);
   });
 
   it('derives fixed item geometry from the measured carousel container', () => {

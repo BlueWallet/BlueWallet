@@ -66,7 +66,52 @@ const WALLET_CARD_TEXT_OPACITY = 0.85;
 const WALLET_CAROUSEL_ITEM_GAP = 20;
 const ACCESSIBILITY_LAYOUT_FONT_SCALE = 1.3;
 
+type PressableHandle = React.ElementRef<typeof Pressable>;
+type CarouselKeyDownEvent = {
+  nativeEvent: {
+    key: string;
+    code: string;
+    altKey: boolean;
+    ctrlKey: boolean;
+    metaKey: boolean;
+    isComposing?: boolean;
+  };
+  preventDefault: () => void;
+  stopPropagation: () => void;
+  isDefaultPrevented: () => boolean;
+};
+type KeyboardEventProps = { onKeyDown?: (event: CarouselKeyDownEvent) => void };
+// Key events are available at runtime in RN 0.88, but the project's legacy public types do not expose them yet.
+const KeyboardAwareView = View as React.ComponentType<React.ComponentProps<typeof View> & KeyboardEventProps>;
+const KeyboardAwareFlatList = FlatList as unknown as <ItemT>(
+  props: FlatListProps<ItemT> & KeyboardEventProps & React.RefAttributes<FlatList<ItemT>>,
+) => React.ReactElement;
+
 export const getWalletCarouselItemWidth = (containerWidth: number) => Math.min(375, Math.round(containerWidth * 0.82));
+
+export const getWalletCarouselKeyboardTarget = (
+  key: string,
+  currentIndex: number,
+  itemCount: number,
+  horizontal: boolean,
+  isRTL: boolean,
+): number | null => {
+  if (itemCount <= 0) return null;
+
+  let delta = 0;
+  if (horizontal && (key === 'ArrowLeft' || key === 'ArrowRight')) {
+    delta = key === 'ArrowRight' ? 1 : -1;
+    if (isRTL) delta *= -1;
+  } else if (!horizontal && (key === 'ArrowUp' || key === 'ArrowDown')) {
+    delta = key === 'ArrowDown' ? 1 : -1;
+  } else {
+    return null;
+  }
+
+  if (currentIndex < 0) return delta > 0 ? 0 : itemCount - 1;
+  const targetIndex = currentIndex + delta;
+  return targetIndex >= 0 && targetIndex < itemCount ? targetIndex : null;
+};
 
 interface WalletCarouselLayoutMetrics {
   itemWidth: number;
@@ -107,6 +152,8 @@ export const walletHasPendingTransaction = (item: TWallet): boolean => {
 interface NewWalletPanelProps {
   onPress: () => void;
   layout: WalletCarouselLayoutMetrics;
+  focusRef?: React.Ref<PressableHandle>;
+  onFocus?: () => void;
 }
 
 const nStyles = StyleSheet.create({
@@ -144,7 +191,7 @@ const nStyles = StyleSheet.create({
   },
 });
 
-const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress, layout }) => {
+const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress, layout, focusRef, onFocus }) => {
   const { colors } = useTheme();
   const { cardMinHeight, isWideLayout, itemWidth } = layout;
 
@@ -164,6 +211,8 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress, layout }) => {
 
   return (
     <Pressable
+      ref={focusRef}
+      onFocus={onFocus}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       onPress={onPress}
@@ -218,6 +267,8 @@ interface WalletCarouselItemProps {
   isDraggingActive?: boolean;
   dragActiveScale?: number;
   sizeVariant?: 'default' | 'compact';
+  focusRef?: React.Ref<PressableHandle>;
+  onFocus?: () => void;
 }
 
 const iStyles = StyleSheet.create({
@@ -341,6 +392,8 @@ const WalletCarouselItemContent: React.FC<WalletCarouselItemProps & { layout: Wa
   dragActiveScale = 1.02,
   sizeVariant = 'default',
   layout,
+  focusRef,
+  onFocus,
 }) => {
   const walletLabel = item.getLabel ? item.getLabel() : '';
   const pressScale = useSharedValue(1.0);
@@ -503,6 +556,8 @@ const WalletCarouselItemContent: React.FC<WalletCarouselItemProps & { layout: Wa
       ]}
     >
       <Pressable
+        ref={focusRef}
+        onFocus={onFocus}
         accessible={!isPlaceHolder}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
@@ -657,6 +712,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
     animateChanges = false,
     onLayout,
   } = props;
+  const { direction } = useLocale();
 
   const [containerWidth, setContainerWidth] = useState<number>();
   const layout = useWalletCarouselLayoutMetrics(containerWidth);
@@ -673,10 +729,14 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
   const prevWalletIds = useRef<string[]>([]);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const scrollRetryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const focusFrameRef = useRef<number | null>(null);
+  const pendingFocusIndexRef = useRef<number | null>(null);
+  const focusedItemIndexRef = useRef(-1);
   const isInitialMount = useRef(true);
 
   const flatListRef = useRef<FlatList<TWallet>>(null);
   const walletRefs = useRef<Record<string, React.MutableRefObject<View | null>>>({});
+  const focusableItemRefs = useRef<Record<number, PressableHandle | null>>({});
 
   const handleCarouselLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -694,6 +754,71 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       index,
     }),
     [itemWidth],
+  );
+
+  const requestItemFocus = useCallback((index: number) => {
+    if (focusFrameRef.current !== null) cancelAnimationFrame(focusFrameRef.current);
+    focusFrameRef.current = requestAnimationFrame(() => {
+      const node = focusableItemRefs.current[index] as (PressableHandle & { focus?: () => void }) | undefined;
+      if (node) {
+        node.focus?.();
+        pendingFocusIndexRef.current = null;
+      }
+      focusFrameRef.current = null;
+    });
+  }, []);
+
+  const setFocusableItemRef = useCallback(
+    (index: number, node: PressableHandle | null) => {
+      if (node) {
+        focusableItemRefs.current[index] = node;
+        if (pendingFocusIndexRef.current === index) requestItemFocus(index);
+      } else {
+        delete focusableItemRefs.current[index];
+      }
+    },
+    [requestItemFocus],
+  );
+
+  const focusItemAtIndex = useCallback(
+    (index: number) => {
+      focusedItemIndexRef.current = index;
+      pendingFocusIndexRef.current = index;
+      flatListRef.current?.recordInteraction();
+
+      if (isFlatList && flatListRef.current) {
+        if (index < data.length) {
+          flatListRef.current.scrollToIndex({ index, animated: true, viewPosition: 0.5 });
+        } else {
+          flatListRef.current.scrollToEnd({ animated: true });
+        }
+      }
+
+      requestItemFocus(index);
+    },
+    [data.length, isFlatList, requestItemFocus],
+  );
+
+  const handleKeyDown = useCallback(
+    (event: CarouselKeyDownEvent) => {
+      if (event.isDefaultPrevented() || event.nativeEvent.altKey || event.nativeEvent.ctrlKey || event.nativeEvent.metaKey) return;
+
+      const { code, isComposing, key } = event.nativeEvent;
+      if (isComposing) return;
+      const targetIndex = getWalletCarouselKeyboardTarget(
+        key || code,
+        focusedItemIndexRef.current,
+        data.length + (onNewWalletPress ? 1 : 0),
+        horizontal,
+        direction === 'rtl',
+      );
+      if (targetIndex === null) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      focusItemAtIndex(targetIndex);
+    },
+    [data.length, direction, focusItemAtIndex, horizontal, onNewWalletPress],
   );
 
   useImperativeHandle(ref, (): CarouselListRefType => {
@@ -752,6 +877,9 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       if (scrollRetryTimeoutRef.current) {
         clearTimeout(scrollRetryTimeoutRef.current);
       }
+      if (focusFrameRef.current !== null) {
+        cancelAnimationFrame(focusFrameRef.current);
+      }
     };
   }, []);
 
@@ -765,7 +893,12 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
         walletRefs.current[wallet.getID()] = { current: null };
       }
     });
-  }, [data]);
+    const itemCount = data.length + (onNewWalletPress ? 1 : 0);
+    Object.keys(focusableItemRefs.current).forEach(index => {
+      if (Number(index) >= itemCount) delete focusableItemRefs.current[Number(index)];
+    });
+    if (focusedItemIndexRef.current >= itemCount) focusedItemIndexRef.current = itemCount - 1;
+  }, [data, onNewWalletPress]);
 
   const scrollToWalletById = useCallback(
     (walletId: string, animated = true) => {
@@ -855,7 +988,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
   );
 
   const renderItem = useCallback(
-    ({ item }: ListRenderItemInfo<TWallet>) => {
+    ({ item, index }: ListRenderItemInfo<TWallet>) => {
       if (!item) return null;
       const content = (
         <WalletCarouselItemContent
@@ -869,6 +1002,11 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
           renderHighlightedText={renderHighlightedText}
           animationsEnabled={animateChanges}
           layout={layout}
+          focusRef={node => setFocusableItemRef(index, node)}
+          onFocus={() => {
+            focusedItemIndexRef.current = index;
+            pendingFocusIndexRef.current = null;
+          }}
         />
       );
 
@@ -892,13 +1030,14 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       enteringTransition,
       exitingTransition,
       layout,
+      setFocusableItemRef,
     ],
   );
 
   const keyExtractor = useCallback((item: TWallet, index: number) => (item?.getID ? item.getID() : index.toString()), []);
 
   const renderNonFlatListWallets = useCallback(() => {
-    return data.map(item => {
+    return data.map((item, index) => {
       if (!item) return null;
 
       const content = (
@@ -920,6 +1059,11 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
             renderHighlightedText={props.renderHighlightedText}
             animationsEnabled={animateChanges}
             layout={layout}
+            focusRef={node => setFocusableItemRef(index, node)}
+            onFocus={() => {
+              focusedItemIndexRef.current = index;
+              pendingFocusIndexRef.current = null;
+            }}
           />
         </View>
       );
@@ -945,6 +1089,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
     enteringTransition,
     exitingTransition,
     layout,
+    setFocusableItemRef,
   ]);
 
   const contentContainerStyle = useMemo(
@@ -960,12 +1105,23 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
     [animateChanges, data, props.extraData, selectedWallet],
   );
   const newWalletPanel = useMemo(
-    () => (onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} layout={layout} /> : null),
-    [layout, onNewWalletPress],
+    () =>
+      onNewWalletPress ? (
+        <NewWalletPanel
+          onPress={onNewWalletPress}
+          layout={layout}
+          focusRef={node => setFocusableItemRef(data.length, node)}
+          onFocus={() => {
+            focusedItemIndexRef.current = data.length;
+            pendingFocusIndexRef.current = null;
+          }}
+        />
+      ) : null,
+    [data.length, layout, onNewWalletPress, setFocusableItemRef],
   );
 
   return isFlatList ? (
-    <FlatList
+    <KeyboardAwareFlatList<TWallet>
       accessibilityRole="list"
       accessibilityLabel={loc.wallets.list_title}
       ref={flatListRef}
@@ -997,19 +1153,21 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       ListFooterComponent={newWalletPanel}
       {...props}
       onLayout={handleCarouselLayout}
+      onKeyDown={handleKeyDown}
       // After `{...props}` so a caller `extraData` cannot drop `data` from the list's update signal.
       extraData={listExtraData}
     />
   ) : (
-    <View
+    <KeyboardAwareView
       style={largeScreenContentStyle}
       accessibilityRole="list"
       accessibilityLabel={loc.wallets.list_title}
       onLayout={handleCarouselLayout}
+      onKeyDown={handleKeyDown}
     >
       {renderNonFlatListWallets()}
       {newWalletPanel}
-    </View>
+    </KeyboardAwareView>
   );
 });
 
