@@ -439,6 +439,11 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ("receive", "Receive…", "arrow.down.circle", #selector(receiveMenuAction), "r", [.command, .shift], .file),
             ("walletDetails", "Wallet Details…", "info.circle", #selector(walletDetailsMenuAction), "d", .command, .file),
             ("reloadTransactions", "Reload Transactions", "arrow.clockwise", #selector(reloadTransactionsAction), "r", .command, .view),
+            ("previousWallet", "Previous Wallet", "chevron.left", #selector(previousWalletMenuAction), "[", .command, .view),
+            ("nextWallet", "Next Wallet", "chevron.right", #selector(nextWalletMenuAction), "]", .command, .view),
+            ("firstWallet", "First Wallet", "backward.end", #selector(firstWalletMenuAction), "[", [.command, .alternate], .view),
+            ("lastWallet", "Last Wallet", "forward.end", #selector(lastWalletMenuAction), "]", [.command, .alternate], .view),
+            ("openWallet", "Open Selected Wallet", "return", #selector(openWalletMenuAction), "\r", .command, .view),
             ("backToWallets", "Back to Wallets", "wallet.pass", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view),
             ("copyAddress", "Copy Address", "doc.on.doc", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit),
             ("copyTransactionId", "Copy Transaction ID", "doc.on.doc", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit),
@@ -628,6 +633,26 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     @objc func reloadTransactionsAction(_ keyCommand: UIKeyCommand) {
         MenuActionsController.shared.perform("reloadTransactions")
+    }
+
+    @objc func previousWalletMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuActionsController.shared.perform("previousWallet")
+    }
+
+    @objc func nextWalletMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuActionsController.shared.perform("nextWallet")
+    }
+
+    @objc func firstWalletMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuActionsController.shared.perform("firstWallet")
+    }
+
+    @objc func lastWalletMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuActionsController.shared.perform("lastWallet")
+    }
+
+    @objc func openWalletMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuActionsController.shared.perform("openWallet")
     }
 
     @objc func sendMenuAction(_ keyCommand: UIKeyCommand) {

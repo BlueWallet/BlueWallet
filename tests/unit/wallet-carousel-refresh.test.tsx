@@ -1,9 +1,13 @@
 import React from 'react';
 import assert from 'assert';
-import { fireEvent, render } from '@testing-library/react-native';
+import { act, fireEvent, render } from '@testing-library/react-native';
 
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
-import WalletsCarousel, { getWalletCarouselKeyboardTarget, walletHasPendingTransaction } from '../../components/WalletsCarousel';
+import WalletsCarousel, {
+  CarouselListRefType,
+  getWalletCarouselKeyboardTarget,
+  walletHasPendingTransaction,
+} from '../../components/WalletsCarousel';
 import { TWallet } from '../../class/wallets/types';
 import loc, { formatBalance } from '../../loc';
 
@@ -101,6 +105,13 @@ describe('wallet carousel keyboard navigation', () => {
     assert.strictEqual(getWalletCarouselKeyboardTarget('ArrowUp', 1, 2, false, false), 0);
     assert.strictEqual(getWalletCarouselKeyboardTarget('ArrowRight', 0, 2, false, false), null);
   });
+
+  it('supports Home, End, Page Up, and Page Down', () => {
+    assert.strictEqual(getWalletCarouselKeyboardTarget('Home', 2, 4, true, false), 0);
+    assert.strictEqual(getWalletCarouselKeyboardTarget('End', 0, 4, true, false), 3);
+    assert.strictEqual(getWalletCarouselKeyboardTarget('PageUp', 2, 4, true, false), 1);
+    assert.strictEqual(getWalletCarouselKeyboardTarget('PageDown', 2, 4, true, false), 3);
+  });
 });
 
 describe('wallet carousel refresh publish', () => {
@@ -178,6 +189,25 @@ describe('wallet carousel refresh publish', () => {
 
     assert.strictEqual(preventDefault.mock.calls.length, 1);
     assert.strictEqual(stopPropagation.mock.calls.length, 1);
+  });
+
+  it('exposes native-menu commands through the carousel ref', () => {
+    const ref = React.createRef<CarouselListRefType>();
+    const onPress = jest.fn();
+    const onNewWalletPress = jest.fn();
+    render(<WalletsCarousel ref={ref} data={[makeWallet()]} onPress={onPress} onNewWalletPress={onNewWalletPress} />);
+
+    act(() => {
+      ref.current?.focusFirst();
+      ref.current?.activateFocused();
+    });
+    expect(onPress).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      ref.current?.focusLast();
+      ref.current?.activateFocused();
+    });
+    expect(onNewWalletPress).toHaveBeenCalledTimes(1);
   });
 
   it('derives fixed item geometry from the measured carousel container', () => {

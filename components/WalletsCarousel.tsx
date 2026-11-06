@@ -12,6 +12,8 @@ import {
   FlatListProps,
   LayoutChangeEvent,
   ListRenderItemInfo,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   ViewStyle,
 } from 'react-native';
 import Animated, {
@@ -97,9 +99,13 @@ export const getWalletCarouselKeyboardTarget = (
   isRTL: boolean,
 ): number | null => {
   if (itemCount <= 0) return null;
+  if (key === 'Home') return 0;
+  if (key === 'End') return itemCount - 1;
 
   let delta = 0;
-  if (horizontal && (key === 'ArrowLeft' || key === 'ArrowRight')) {
+  if (key === 'PageUp' || key === 'PageDown') {
+    delta = key === 'PageDown' ? 1 : -1;
+  } else if (horizontal && (key === 'ArrowLeft' || key === 'ArrowRight')) {
     delta = key === 'ArrowRight' ? 1 : -1;
     if (isRTL) delta *= -1;
   } else if (!horizontal && (key === 'ArrowUp' || key === 'ArrowDown')) {
@@ -686,6 +692,11 @@ export type CarouselListRefType = {
   flashScrollIndicators: () => void;
   getNativeScrollRef: () => unknown;
   getWalletPosition?: (walletId: string) => Promise<{ x: number; y: number; width: number; height: number } | null>;
+  focusPrevious: () => void;
+  focusNext: () => void;
+  focusFirst: () => void;
+  focusLast: () => void;
+  activateFocused: () => void;
 };
 
 const styles = StyleSheet.create({
@@ -711,6 +722,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
     isFlatList = true,
     animateChanges = false,
     onLayout,
+    onMomentumScrollEnd,
   } = props;
   const { direction } = useLocale();
 
@@ -745,6 +757,16 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       onLayout?.(event);
     },
     [onLayout],
+  );
+  const handleMomentumScrollEnd = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const offset = horizontal ? event.nativeEvent.contentOffset.x : event.nativeEvent.contentOffset.y;
+      const itemSize = horizontal ? itemWidth : carouselHeight;
+      const lastIndex = data.length + (onNewWalletPress ? 0 : -1);
+      focusedItemIndexRef.current = Math.min(Math.max(Math.round(offset / itemSize), 0), Math.max(lastIndex, 0));
+      onMomentumScrollEnd?.(event);
+    },
+    [carouselHeight, data.length, horizontal, itemWidth, onMomentumScrollEnd, onNewWalletPress],
   );
 
   const getItemLayout = useCallback(
@@ -821,7 +843,40 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
     [data.length, direction, focusItemAtIndex, horizontal, onNewWalletPress],
   );
 
+  const focusRelative = useCallback(
+    (delta: number) => {
+      const itemCount = data.length + (onNewWalletPress ? 1 : 0);
+      if (itemCount === 0) return;
+      const currentIndex = focusedItemIndexRef.current < 0 ? (delta > 0 ? -1 : itemCount) : focusedItemIndexRef.current;
+      const targetIndex = Math.min(itemCount - 1, Math.max(0, currentIndex + delta));
+      if (targetIndex !== currentIndex) focusItemAtIndex(targetIndex);
+    },
+    [data.length, focusItemAtIndex, onNewWalletPress],
+  );
+  const focusFirst = useCallback(() => {
+    if (data.length > 0 || onNewWalletPress) focusItemAtIndex(0);
+  }, [data.length, focusItemAtIndex, onNewWalletPress]);
+  const focusLast = useCallback(() => {
+    const itemCount = data.length + (onNewWalletPress ? 1 : 0);
+    if (itemCount > 0) focusItemAtIndex(itemCount - 1);
+  }, [data.length, focusItemAtIndex, onNewWalletPress]);
+  const activateFocused = useCallback(() => {
+    const index = focusedItemIndexRef.current < 0 ? 0 : focusedItemIndexRef.current;
+    if (index < data.length) {
+      onPress(data[index]);
+    } else if (index === data.length) {
+      onNewWalletPress?.();
+    }
+  }, [data, onNewWalletPress, onPress]);
+
   useImperativeHandle(ref, (): CarouselListRefType => {
+    const keyboardCommands = {
+      focusPrevious: () => focusRelative(-1),
+      focusNext: () => focusRelative(1),
+      focusFirst,
+      focusLast,
+      activateFocused,
+    };
     if (isFlatList) {
       return {
         scrollToEnd: (params: { animated?: boolean | null | undefined } | undefined) => flatListRef.current?.scrollToEnd(params),
@@ -841,6 +896,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
         recordInteraction: () => flatListRef.current?.recordInteraction(),
         flashScrollIndicators: () => flatListRef.current?.flashScrollIndicators(),
         getNativeScrollRef: () => flatListRef.current?.getNativeScrollRef(),
+        ...keyboardCommands,
       };
     } else {
       // For non-FlatList mode, we'll return simpler methods to get/set information
@@ -853,6 +909,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
         recordInteraction: () => {},
         flashScrollIndicators: () => {},
         getNativeScrollRef: () => null,
+        ...keyboardCommands,
         // Add a method to get position information about a wallet
         getWalletPosition: (walletId: string) => {
           const walletRef = walletRefs.current[walletId];
@@ -867,7 +924,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
         },
       };
     }
-  }, [isFlatList]);
+  }, [activateFocused, focusFirst, focusLast, focusRelative, isFlatList]);
 
   useEffect(() => {
     return () => {
@@ -1153,6 +1210,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       ListFooterComponent={newWalletPanel}
       {...props}
       onLayout={handleCarouselLayout}
+      onMomentumScrollEnd={handleMomentumScrollEnd}
       onKeyDown={handleKeyDown}
       // After `{...props}` so a caller `extraData` cannot drop `data` from the list's update signal.
       extraData={listExtraData}

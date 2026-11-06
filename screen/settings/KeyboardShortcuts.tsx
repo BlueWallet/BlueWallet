@@ -23,7 +23,7 @@ export default function KeyboardShortcuts() {
             <Text style={{ color: colors.alternativeTextColor }}>{item.where}</Text>
           </View>
           <Text style={[styles.shortcut, { color: colors.foregroundColor }]}>
-            {modifier}
+            {item.commandModifier === false ? '' : modifier}
             {item.key}
           </Text>
         </View>

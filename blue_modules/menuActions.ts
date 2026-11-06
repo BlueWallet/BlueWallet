@@ -6,6 +6,11 @@ export type ScreenMenuAction =
   | 'copyAddress'
   | 'copyTransactionId'
   | 'accelerateTransaction'
+  | 'previousWallet'
+  | 'nextWallet'
+  | 'firstWallet'
+  | 'lastWallet'
+  | 'openWallet'
   | 'add_recipient'
   | 'remove_recipient'
   | 'remove_all_recipients'
@@ -34,7 +39,7 @@ export type MenuActionHandlers = Partial<Record<ScreenMenuAction, () => void>>;
 export type MenuActionState = { disabled?: boolean; checked?: boolean };
 export type MenuActionStates = Partial<Record<ScreenMenuAction, MenuActionState>>;
 
-export type MenuActionTitles = Record<MenuAction | 'tools' | 'openRecent' | 'noRecent' | 'unlockRecent', string>;
+export type MenuActionTitles = Partial<Record<MenuAction | 'tools' | 'openRecent' | 'noRecent' | 'unlockRecent', string>>;
 
 const sendDetailsActionAliases: Readonly<Record<string, ScreenMenuAction>> = {
   AddRecipient: 'add_recipient',
@@ -43,7 +48,7 @@ const sendDetailsActionAliases: Readonly<Record<string, ScreenMenuAction>> = {
 };
 
 const screenActions: Record<string, readonly ScreenMenuAction[]> = {
-  WalletsList: ['reloadTransactions'],
+  WalletsList: ['reloadTransactions', 'previousWallet', 'nextWallet', 'firstWallet', 'lastWallet', 'openWallet'],
   WalletTransactions: ['reloadTransactions', 'send', 'receive', 'walletDetails'],
   ReceiveDetails: ['copyAddress'],
   TransactionStatus: ['copyTransactionId', 'accelerateTransaction'],
@@ -87,7 +92,21 @@ export function nativeSendDetailsAction(actionId: string): ScreenMenuAction | un
 }
 
 // Keep these shortcuts aligned with AppDelegate and WalletMenuAction.
-export const menuShortcuts: readonly { title: string; key: string; where: string; platform?: 'ios' | 'android' }[] = [
+export const menuShortcuts: readonly {
+  title: string;
+  key: string;
+  where: string;
+  platform?: 'ios' | 'android';
+  commandModifier?: boolean;
+}[] = [
+  { title: 'Previous / Next Wallet', key: '← / →', where: 'Wallet carousel', platform: 'ios', commandModifier: false },
+  { title: 'First / Last Wallet', key: 'Home / End', where: 'Wallet carousel', platform: 'ios', commandModifier: false },
+  { title: 'Previous / Next Wallet', key: 'Page Up / Page Down', where: 'Wallet carousel', platform: 'ios', commandModifier: false },
+  { title: 'Previous Wallet', key: '[', where: 'Wallet overview', platform: 'ios' },
+  { title: 'Next Wallet', key: ']', where: 'Wallet overview', platform: 'ios' },
+  { title: 'First Wallet', key: 'Alt+[', where: 'Wallet overview', platform: 'ios' },
+  { title: 'Last Wallet', key: 'Alt+]', where: 'Wallet overview', platform: 'ios' },
+  { title: 'Open Selected Wallet', key: 'Return', where: 'Wallet overview', platform: 'ios' },
   { title: 'Open…', key: 'O', where: 'Anywhere after unlocking' },
   { title: 'Add Wallet', key: 'Shift+A', where: 'Wallet overview and transactions' },
   { title: 'Import Wallet', key: 'I', where: 'Wallet overview and transactions' },

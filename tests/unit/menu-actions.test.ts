@@ -54,6 +54,14 @@ describe('native menu availability', () => {
       'accelerateTransaction',
     ]);
     expect(availableMenuActions('WalletsList', [], true)).not.toContain('backToWallets');
+    expect(availableMenuActions('WalletsList', ['previousWallet', 'nextWallet', 'openWallet'], true)).toEqual([
+      ...globalActions,
+      'addWallet',
+      'importWallet',
+      'previousWallet',
+      'nextWallet',
+      'openWallet',
+    ]);
   });
 
   it('only exposes registered Send Details header actions', () => {

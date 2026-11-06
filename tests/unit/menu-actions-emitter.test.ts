@@ -146,6 +146,32 @@ it('shares subscriptions, dispatches only to the current route, and cleans up', 
   expect(MenuActionsEmitter!.setAvailableActions).toHaveBeenLastCalledWith([]);
 });
 
+it('routes wallet carousel commands only to the focused wallet overview', () => {
+  setRoute('WalletsList', 'wallets-list');
+  const hook = renderHook(useMenuActions);
+  const previousWallet = jest.fn();
+  const nextWallet = jest.fn();
+  const openWallet = jest.fn();
+  let unregister!: () => void;
+  act(() => {
+    unregister = hook.result.current.registerMenuActions({ previousWallet, nextWallet, openWallet }, 'wallets-list');
+  });
+
+  emit('previousWallet');
+  emit('nextWallet');
+  emit('openWallet');
+  expect(previousWallet).toHaveBeenCalledTimes(1);
+  expect(nextWallet).toHaveBeenCalledTimes(1);
+  expect(openWallet).toHaveBeenCalledTimes(1);
+
+  setRoute('Settings', 'settings');
+  emit('nextWallet');
+  expect(nextWallet).toHaveBeenCalledTimes(1);
+
+  act(unregister);
+  hook.unmount();
+});
+
 it('updates on ready, modal navigation, and lock state', () => {
   jest.mocked(navigationRef.isReady).mockReturnValue(false);
   const hook = renderHook(useMenuActions);

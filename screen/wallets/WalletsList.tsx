@@ -199,7 +199,20 @@ const WalletsList: React.FC = () => {
     // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
   }, [refreshTransactions]);
 
-  useScreenMenuActions({ reloadTransactions: !isElectrumDisabled && !isLoading ? onRefresh : undefined });
+  const focusPreviousWallet = useCallback(() => walletsCarousel.current?.focusPrevious(), []);
+  const focusNextWallet = useCallback(() => walletsCarousel.current?.focusNext(), []);
+  const focusFirstWallet = useCallback(() => walletsCarousel.current?.focusFirst(), []);
+  const focusLastWallet = useCallback(() => walletsCarousel.current?.focusLast(), []);
+  const openFocusedWallet = useCallback(() => walletsCarousel.current?.activateFocused(), []);
+
+  useScreenMenuActions({
+    reloadTransactions: !isElectrumDisabled && !isLoading ? onRefresh : undefined,
+    previousWallet: focusPreviousWallet,
+    nextWallet: focusNextWallet,
+    firstWallet: focusFirstWallet,
+    lastWallet: focusLastWallet,
+    openWallet: openFocusedWallet,
+  });
 
   useFocusEffect(
     useCallback(() => {
