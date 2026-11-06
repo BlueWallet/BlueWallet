@@ -336,7 +336,7 @@ it.each([
   ['ReceiveDetails', 'copyAddress'],
   ['TransactionStatus', 'copyTransactionId'],
   ['TransactionStatus', 'accelerateTransaction'],
-  ['ElectrumSettings', 'toggleElectrumOffline'],
+  ['ElectrumSettings', 'toggleElectrumConnection'],
   ['ElectrumSettings', 'copyConnectedElectrumServer'],
   ['ElectrumSettings', 'removeFavoriteElectrumServer'],
   ['AddElectrumServer', 'focusElectrumHost'],

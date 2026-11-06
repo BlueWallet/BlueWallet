@@ -513,7 +513,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             return command
         }
         let electrumConnectionCommands = [
-            electrumCommand("toggleElectrumOffline", "Work Offline", "network.slash", "o", [.command, .shift]),
+            electrumCommand("toggleElectrumConnection", "Enable Connection", "network", "o", [.command, .shift]),
             electrumCommand("copyConnectedElectrumServer", "Copy Connected Server", "doc.on.doc", "c", [.command, .shift])
         ].compactMap { $0 }
         let electrumFavoriteCommands = [

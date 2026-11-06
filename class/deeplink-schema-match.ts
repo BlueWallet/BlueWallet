@@ -1,9 +1,7 @@
 import bip21, { TOptions } from 'bip21';
 import * as bitcoin from 'bitcoinjs-lib';
 import URL from 'url';
-import { Platform } from 'react-native';
 import { readFileOutsideSandbox } from '../blue_modules/fs';
-import { formatElectrumServer, parseElectrumServer, parseElectrumServerHistoryDeepLink } from '../blue_modules/electrumServer';
 import { Chain } from '../models/bitcoinUnits';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import Azteco from './azteco';
@@ -228,29 +226,6 @@ class DeeplinkSchemaMatch {
       (async () => {
         if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
           switch (urlObject.host) {
-            case 'setelectrumserver': {
-              const electrumServer = parseElectrumServer(event.url);
-              if (!electrumServer) break;
-              completionHandler([
-                'ElectrumSettings',
-                {
-                  server: electrumServer,
-                },
-              ]);
-              break;
-            }
-            case 'importelectrumserverhistory': {
-              if (Platform.OS !== 'ios') break;
-              const serverHistoryImport = parseElectrumServerHistoryDeepLink(event.url);
-              if (!serverHistoryImport) break;
-              completionHandler([
-                'ElectrumSettings',
-                {
-                  serverHistoryImport,
-                },
-              ]);
-              break;
-            }
             case 'setlndhuburl':
               completionHandler([
                 'LightningSettings',
@@ -263,18 +238,6 @@ class DeeplinkSchemaMatch {
         }
       })();
     }
-  }
-
-  /**
-   * Extracts server from a deeplink like `bluewallet:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As`
-   * returns FALSE if none found
-   *
-   * @param url {string}
-   * @return {string|boolean}
-   */
-  static getServerFromSetElectrumServerAction(url: string): string | false {
-    const server = parseElectrumServer(url);
-    return server ? formatElectrumServer(server) : false;
   }
 
   /**

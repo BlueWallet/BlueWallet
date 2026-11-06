@@ -8,9 +8,14 @@ import AddElectrumServer, { addElectrumServerReducer, initialAddElectrumServerSt
 import ElectrumSettings, { electrumSettingsReducer, initialElectrumSettingsState } from '../../screen/settings/ElectrumSettings';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import loc from '../../loc';
+import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 
 const navigation = { setParams: jest.fn(), navigate: jest.fn(), goBack: jest.fn(), dispatch: jest.fn(), setOptions: jest.fn() };
 let routeParams: Record<string, unknown> = {};
+let mockIsElectrumDisabled = false;
+const mockSetIsElectrumDisabled = jest.fn((disabled: boolean) => {
+  mockIsElectrumDisabled = disabled;
+});
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => navigation,
   useRoute: () => ({ params: routeParams }),
@@ -20,7 +25,11 @@ jest.mock('@react-navigation/native', () => ({
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ bottom: 0, top: 0, left: 0, right: 0 }) }));
 jest.mock('../../hooks/useScreenMenuActions', () => jest.fn());
 jest.mock('../../hooks/context/useSettings', () => ({
-  useSettings: () => ({ isElectrumDisabled: false, isHandOffUseEnabled: false, setIsElectrumDisabled: jest.fn() }),
+  useSettings: () => ({
+    isElectrumDisabled: mockIsElectrumDisabled,
+    isHandOffUseEnabled: false,
+    setIsElectrumDisabled: mockSetIsElectrumDisabled,
+  }),
 }));
 jest.mock('../../components/themes', () => ({ useTheme: () => ({ colors: {} }) }));
 jest.mock('../../blue_modules/currency', () => ({ GROUP_IO_BLUEWALLET: 'electrum-settings-tests' }));
@@ -34,9 +43,11 @@ jest.mock('../../blue_modules/BlueElectrum', () => ({
   getPreferredServer: jest.fn(async () => undefined),
   getConfig: jest.fn(async () => ({ connected: 0 })),
   subscribeConnectionState: jest.fn(() => jest.fn()),
+  getConnectionState: jest.fn(() => 'disconnected'),
   getServerBanner: jest.fn(async () => ''),
   validateConnection: jest.fn(async () => ({ success: true })),
   isDisabled: jest.fn(async () => false),
+  setDisabled: jest.fn(async () => undefined),
   forceDisconnect: jest.fn(),
   ensureConnected: jest.fn(async () => true),
   presentResetToDefaultsAlert: jest.fn(),
@@ -274,6 +285,9 @@ describe('Electrum settings lifecycle', () => {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
     await DefaultPreference.clear(BlueElectrum.ELECTRUM_SERVER_HISTORY);
     jest.mocked(BlueElectrum.getPreferredServer).mockResolvedValue(undefined);
+    mockIsElectrumDisabled = false;
+    jest.mocked(BlueElectrum.getConnectionState).mockReturnValue('disconnected');
+    jest.mocked(BlueElectrum.getConfig).mockResolvedValue({ connected: 0, host: undefined, port: undefined, serverName: false });
   });
 
   function search(text: string) {
@@ -282,6 +296,123 @@ describe('Electrum settings lifecycle', () => {
     act(() => options.onSearchTextChange(text));
     return options;
   }
+
+  it('keeps search hidden when only suggested servers are available', async () => {
+    const screen = render(<ElectrumSettings />);
+    await waitFor(() => expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.switch.disabled).toBe(false));
+    const searchParams = navigation.setParams.mock.calls.filter(([params]) => 'hasServerHistory' in params).at(-1)![0];
+    expect(searchParams.hasServerHistory).toBe(false);
+    expect(screen.getByTestId('ElectrumServer-suggested.example-50002')).toBeTruthy();
+  });
+
+  it('removes search and clears its filter when the last saved history entry is deleted', async () => {
+    await DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify([{ host: 'saved.example', tcp: 50001 }]));
+    const screen = render(<ElectrumSettings />);
+    await waitFor(() => expect(screen.getByTestId('ElectrumServer-saved.example-50001')).toBeTruthy());
+    const hasSearch = () => navigation.setParams.mock.calls.filter(([params]) => 'hasServerHistory' in params).at(-1)![0].hasServerHistory;
+    expect(hasSearch()).toBe(true);
+    search('saved.example');
+    expect(screen.queryByTestId('ElectrumServer-suggested.example-50002')).toBeNull();
+    await act(async () => {
+      fireEvent(screen.getByTestId('ElectrumServer-saved.example-50001'), 'accessibilityAction', { nativeEvent: { actionName: 'delete' } });
+    });
+    await waitFor(() => expect(hasSearch()).toBe(false));
+    expect(screen.getByTestId('ElectrumServer-suggested.example-50002')).toBeTruthy();
+  });
+
+  it('hides the connected endpoint from suggestions and restores it after disconnecting', async () => {
+    jest.mocked(BlueElectrum.getConnectionState).mockReturnValue('connected');
+    jest.mocked(BlueElectrum.getConfig).mockResolvedValue({
+      connected: 1,
+      host: 'SUGGESTED.EXAMPLE',
+      port: '50002',
+      serverName: false,
+    });
+    const screen = render(<ElectrumSettings />);
+    await waitFor(() => expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.title).toBe(loc.settings.electrum_connected));
+    expect(screen.queryByTestId('ElectrumServer-suggested.example-50002')).toBeNull();
+    expect(screen.queryByTestId(`section-${loc._.suggested}`)).toBeNull();
+    const listener = jest.mocked(BlueElectrum.subscribeConnectionState).mock.calls.at(-1)![0];
+    await act(async () => listener('disconnected'));
+    expect(screen.getByTestId('ElectrumServer-suggested.example-50002')).toBeTruthy();
+  });
+
+  it('keeps the connection switch on and available while connecting, and turns it off for offline mode', async () => {
+    jest.mocked(BlueElectrum.getConnectionState).mockReturnValue('connecting');
+    const screen = render(<ElectrumSettings />);
+    await waitFor(() => expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.switch.disabled).toBe(false));
+    let control = screen.getByTestId('ElectrumConnectionEnabledSwitch');
+    expect(control.props.title).toBe(loc.settings.electrum_connecting);
+    expect(control.props.switch.value).toBe(true);
+    expect(screen.queryByTestId(`section-${loc.settings.electrum_offline_mode}`)).toBeNull();
+    await act(async () => control.props.switch.onValueChange(false));
+    expect(BlueElectrum.setDisabled).toHaveBeenCalledWith(true);
+    expect(mockSetIsElectrumDisabled).toHaveBeenCalledWith(true);
+    control = screen.getByTestId('ElectrumConnectionEnabledSwitch');
+    expect(control.props.title).toBe(loc.settings.electrum_offline_mode);
+    expect(control.props.switch.value).toBe(false);
+    expect(BlueElectrum.ensureConnected).not.toHaveBeenCalled();
+  });
+
+  it('resumes connecting without waiting for the network, so the user can turn it off again', async () => {
+    mockIsElectrumDisabled = true;
+    const pendingConnection = new Promise<boolean>(() => {});
+    jest.mocked(BlueElectrum.ensureConnected).mockReturnValueOnce(pendingConnection);
+    const screen = render(<ElectrumSettings />);
+    await waitFor(() => expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.switch.disabled).toBe(false));
+    await act(async () => screen.getByTestId('ElectrumConnectionEnabledSwitch').props.switch.onValueChange(true));
+    expect(BlueElectrum.setDisabled).toHaveBeenCalledWith(false);
+    expect(BlueElectrum.ensureConnected).toHaveBeenCalledTimes(1);
+    const listener = jest.mocked(BlueElectrum.subscribeConnectionState).mock.calls.at(-1)![0];
+    await act(async () => listener('connecting'));
+    expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.switch.disabled).toBe(false);
+    await act(async () => screen.getByTestId('ElectrumConnectionEnabledSwitch').props.switch.onValueChange(false));
+    expect(BlueElectrum.setDisabled).toHaveBeenLastCalledWith(true);
+    expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.switch.value).toBe(false);
+  });
+
+  it('enables offline mode when turning off an active connection and hides its details', async () => {
+    jest.mocked(BlueElectrum.getConnectionState).mockReturnValue('connected');
+    jest.mocked(BlueElectrum.getConfig).mockResolvedValue({ connected: 1, host: 'example.com', port: '50002', serverName: false });
+    const screen = render(<ElectrumSettings />);
+    await waitFor(() => expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.title).toBe(loc.settings.electrum_connected));
+    const control = screen.getByTestId('ElectrumConnectionEnabledSwitch');
+    expect(control.props.switch.value).toBe(true);
+    await act(async () => control.props.switch.onValueChange(false));
+    expect(BlueElectrum.setDisabled).toHaveBeenCalledWith(true);
+    expect(mockSetIsElectrumDisabled).toHaveBeenCalledWith(true);
+    expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.title).toBe(loc.settings.electrum_offline_mode);
+    expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.switch.value).toBe(false);
+    expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.subtitle).toBe(loc.settings.electrum_offline_description);
+  });
+
+  it('updates connection status from events and hides server information when disconnected', async () => {
+    const screen = render(<ElectrumSettings />);
+    await waitFor(() => expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.switch.disabled).toBe(false));
+    const listener = jest.mocked(BlueElectrum.subscribeConnectionState).mock.calls.at(-1)![0];
+    jest.mocked(BlueElectrum.getConfig).mockResolvedValue({ connected: 1, host: 'example.com', port: '50002', serverName: false });
+    await act(async () => listener('connected'));
+    expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.title).toBe(loc.settings.electrum_connected);
+    expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.subtitle).toBe('example.com:50002');
+    await act(async () => listener('disconnected'));
+    expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.title).toBe(loc.settings.electrum_connected_not);
+    expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.subtitle).toBeUndefined();
+  });
+
+  it('uses the connection shortcut as a checked enabled toggle and keeps it usable while connecting', async () => {
+    jest.mocked(BlueElectrum.getConnectionState).mockReturnValue('connecting');
+    const screen = render(<ElectrumSettings />);
+    await waitFor(() => expect(screen.getByTestId('ElectrumConnectionEnabledSwitch').props.switch.disabled).toBe(false));
+    let [handlers, , states] = jest.mocked(useScreenMenuActions).mock.calls.at(-1)!;
+    expect(states?.toggleElectrumConnection).toEqual({ checked: true, disabled: false });
+    await act(async () => handlers.toggleElectrumConnection?.());
+    expect(BlueElectrum.setDisabled).toHaveBeenLastCalledWith(true);
+    [handlers, , states] = jest.mocked(useScreenMenuActions).mock.calls.at(-1)!;
+    expect(states?.toggleElectrumConnection).toEqual({ checked: false, disabled: false });
+    await act(async () => handlers.toggleElectrumConnection?.());
+    expect(BlueElectrum.setDisabled).toHaveBeenLastCalledWith(false);
+    expect(BlueElectrum.ensureConnected).toHaveBeenCalledTimes(1);
+  });
 
   it('searches host, transport and port together, and restores rows when cancelled', async () => {
     await DefaultPreference.set(

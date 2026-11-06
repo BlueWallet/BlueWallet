@@ -99,6 +99,7 @@ export type DetailViewStackParamList = {
     | {
         server?: ElectrumServerItem;
         serverHistoryImport?: string;
+        hasServerHistory?: boolean;
         onSearchTextChange?: (text: string) => void;
         onSearchCancel?: () => void;
         onBarScanned?: string;

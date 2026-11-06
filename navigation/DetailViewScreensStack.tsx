@@ -536,15 +536,17 @@ const DetailViewStackScreensStack = () => {
                 headerRight: true,
                 unstable_headerRightItems: true,
               })(options, deps),
-              headerSearchBarOptions: {
-                hideWhenScrolling: true,
-                placement: 'automatic',
-                placeholder: loc.settings.electrum_search_servers,
-                autoCapitalize: 'none',
-                onChangeText: event => deps.route.params?.onSearchTextChange?.(event.nativeEvent.text),
-                onCancelButtonPress: () => deps.route.params?.onSearchCancel?.(),
-                onClose: () => deps.route.params?.onSearchCancel?.(),
-              },
+              headerSearchBarOptions: deps.route.params?.hasServerHistory
+                ? {
+                    hideWhenScrolling: true,
+                    placement: 'automatic',
+                    placeholder: loc.settings.electrum_search_servers,
+                    autoCapitalize: 'none',
+                    onChangeText: event => deps.route.params?.onSearchTextChange?.(event.nativeEvent.text),
+                    onCancelButtonPress: () => deps.route.params?.onSearchCancel?.(),
+                    onClose: () => deps.route.params?.onSearchCancel?.(),
+                  }
+                : undefined,
             }),
           )(theme)}
           initialParams={{ server: undefined }}

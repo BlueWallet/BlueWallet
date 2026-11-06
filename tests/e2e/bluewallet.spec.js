@@ -235,9 +235,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     try {
       await openElectrumSettings();
       await expectControlEnabled('ElectrumConnectionEnabledSwitch', true);
-      await expect(element(by.id('ElectrumConnectionEnabledSwitch'))).toHaveToggleValue(false);
+      await expect(element(by.id('ElectrumConnectionEnabledSwitch'))).toHaveToggleValue(true);
       await element(by.id('ElectrumConnectionEnabledSwitch')).tap();
-      await waitForSwitchValue('ElectrumConnectionEnabledSwitch', true);
+      await waitForSwitchValue('ElectrumConnectionEnabledSwitch', false);
       const serverId = 'ElectrumServer-mainnet.foundationdevices.com-50002';
       const testId = 'TestElectrumServer-mainnet.foundationdevices.com-50002';
       const copyId = 'CopyElectrumServer-mainnet.foundationdevices.com-50002';

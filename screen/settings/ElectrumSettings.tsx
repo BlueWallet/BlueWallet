@@ -40,7 +40,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedb
 import HandOffComponent from '../../components/HandOffComponent';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { createEllipsisHeaderMenuOptions } from '../../components/headerMenuOptions';
-import { SettingsSection, SettingsListItem, SettingsFootnote } from '../../components/SettingsSection';
+import { SettingsSection, SettingsListItem, SettingsFootnote, settingsCardContent } from '../../components/SettingsSection';
 import { useTheme } from '../../components/themes';
 import { Action, HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -261,6 +261,7 @@ type ElectrumSettingsState = {
   testingServerKey?: string;
   serverTestResults: Record<string, boolean>;
   searchQuery: string;
+  connectionState: BlueElectrum.ConnectionState;
 };
 export const initialElectrumSettingsState: ElectrumSettingsState = {
   isLoading: true,
@@ -272,6 +273,7 @@ export const initialElectrumSettingsState: ElectrumSettingsState = {
   showSuggestedServers: true,
   serverTestResults: {},
   searchQuery: '',
+  connectionState: 'disconnected',
 };
 type ElectrumSettingsAction =
   | { type: 'patch'; value: Partial<ElectrumSettingsState> }
@@ -289,7 +291,7 @@ type ElectrumSettingsAction =
 export function electrumSettingsReducer(state: ElectrumSettingsState, action: ElectrumSettingsAction): ElectrumSettingsState {
   switch (action.type) {
     case 'patch':
-      return { ...state, ...action.value };
+      return { ...state, ...action.value, ...(action.value.serverHistory?.length === 0 ? { searchQuery: '' } : {}) };
     case 'loaded':
       return {
         ...state,
@@ -298,6 +300,7 @@ export function electrumSettingsReducer(state: ElectrumSettingsState, action: El
         port: action.favorite?.tcp,
         sslPort: action.favorite?.ssl,
         serverHistory: action.history,
+        searchQuery: action.history.length > 0 ? state.searchQuery : '',
         config: action.config,
         showSuggestedServers: action.showSuggested,
         isSuggestedExpanded: action.favorite ? state.isSuggestedExpanded : true,
@@ -354,6 +357,7 @@ const ElectrumSettings: React.FC = () => {
     showSuggestedServers,
     testingServerKey,
     serverTestResults,
+    connectionState,
   } = state;
   const { setIsElectrumDisabled, isElectrumDisabled, isHandOffUseEnabled } = useSettings();
   const handoffServers = useMemo(() => {
@@ -370,6 +374,7 @@ const ElectrumSettings: React.FC = () => {
   );
   const listRef = useRef<FlatList<ServerListEntry>>(null);
   const operationInProgress = useRef(false);
+  const hasServerHistory = serverHistory.length > 0;
 
   const onSearchTextChange = useCallback((text: string) => {
     dispatch({ type: 'patch', value: { searchQuery: text } });
@@ -378,8 +383,8 @@ const ElectrumSettings: React.FC = () => {
     dispatch({ type: 'patch', value: { searchQuery: '' } });
   }, []);
   useLayoutEffect(() => {
-    navigation.setParams({ onSearchTextChange, onSearchCancel });
-  }, [navigation, onSearchTextChange, onSearchCancel]);
+    navigation.setParams({ onSearchTextChange, onSearchCancel, hasServerHistory });
+  }, [navigation, onSearchTextChange, onSearchCancel, hasServerHistory]);
 
   const presentAlert = useCallback(
     ({ title, message, buttons = [{ text: loc._.ok }] }: { title?: string; message: string; buttons?: AlertButton[] }) => {
@@ -412,12 +417,6 @@ const ElectrumSettings: React.FC = () => {
   const stylesHook = StyleSheet.create({
     bannerText: {
       color: colors.foregroundColor,
-    },
-    statusIcon: {
-      backgroundColor: config.connected === 1 ? colors.receiveBackground : colors.redBG,
-    },
-    statusIconGlyph: {
-      color: config.connected === 1 ? colors.receiveText : colors.redText,
     },
     serverRow: {
       backgroundColor: colors.cardSectionBackground,
@@ -469,9 +468,11 @@ const ElectrumSettings: React.FC = () => {
           console.warn('[electrum] Failed to refresh connection status:', error);
         }
       };
-      const unsubscribe = BlueElectrum.subscribeConnectionState(() => {
+      const unsubscribe = BlueElectrum.subscribeConnectionState(next => {
+        if (active) dispatch({ type: 'patch', value: { connectionState: next } });
         refreshConfig();
       });
+      dispatch({ type: 'patch', value: { connectionState: BlueElectrum.getConnectionState() } });
       fetchData()
         .catch(error => {
           if (active) {
@@ -768,11 +769,15 @@ const ElectrumSettings: React.FC = () => {
     };
     const hasFavorite = Boolean(host && (port || sslPort));
     const isConnectedServer = (candidate: ElectrumServerItem) =>
-      config.connected === 1 && config.host === candidate.host && String(config.port) === String(candidate.ssl ?? candidate.tcp);
+      !isElectrumDisabled &&
+      connectionState === 'connected' &&
+      config.connected === 1 &&
+      config.host?.toLowerCase() === candidate.host.toLowerCase() &&
+      String(config.port) === String(candidate.ssl ?? candidate.tcp);
     const historyKeys = new Set(serverHistory.map(serverKey));
-    const orderedSuggestedServers = suggestedServers
-      .filter(candidate => !historyKeys.has(serverKey(candidate)) && matchesSearch(candidate))
-      .sort((first, second) => Number(isConnectedServer(second)) - Number(isConnectedServer(first)));
+    const filteredSuggestedServers = suggestedServers.filter(
+      candidate => !historyKeys.has(serverKey(candidate)) && !isConnectedServer(candidate) && matchesSearch(candidate),
+    );
     const entries: ServerListEntry[] = [];
     const favoriteServer: ElectrumServerItem | undefined = hasFavorite
       ? {
@@ -798,7 +803,7 @@ const ElectrumSettings: React.FC = () => {
       });
     }
 
-    const visibleSuggestedServers = orderedSuggestedServers.filter(
+    const visibleSuggestedServers = filteredSuggestedServers.filter(
       suggestedServer => !favoriteServer || serverKey(suggestedServer) !== serverKey(favoriteServer),
     );
     if (visibleSuggestedServers.length > 0 && (!hasFavorite || showSuggestedServers)) {
@@ -849,7 +854,9 @@ const ElectrumSettings: React.FC = () => {
     config.connected,
     config.host,
     config.port,
+    connectionState,
     host,
+    isElectrumDisabled,
     isSuggestedExpanded,
     port,
     serverHistory,
@@ -939,6 +946,11 @@ const ElectrumSettings: React.FC = () => {
       triggerSelectionHapticFeedback();
       await BlueElectrum.setDisabled(value);
       setIsElectrumDisabled(value);
+      if (!value) {
+        // Keep the switch available while the network request is in flight so
+        // the user can cancel it by entering offline mode.
+        BlueElectrum.ensureConnected().catch(error => console.warn('[electrum] Reconnect failed:', error));
+      }
       AccessibilityInfo.announceForAccessibilityWithOptions(
         value ? loc.settings.electrum_offline_enabled : loc.settings.electrum_offline_disabled,
         { queue: true },
@@ -953,44 +965,83 @@ const ElectrumSettings: React.FC = () => {
   };
 
   const renderConnectionStatus = () => {
-    const isConnected = config.connected === 1;
+    const isConnected = !isElectrumDisabled && connectionState === 'connected' && config.connected === 1;
+    const isConnecting = !isElectrumDisabled && connectionState === 'connecting';
     const connectedEndpoint = isConnected && config.host && config.port ? `${config.host}:${config.port}` : undefined;
+    const status = isElectrumDisabled
+      ? loc.settings.electrum_offline_mode
+      : isConnecting
+        ? loc.settings.electrum_connecting
+        : isConnected
+          ? loc.settings.electrum_connected
+          : loc.settings.electrum_connected_not;
+    const showBanner = isConnected && serverBanner.length > 0;
 
     return (
-      <>
-        <SettingsSection title={loc.settings.electrum_status}>
-          <SettingsListItem
-            accessible
-            title={isConnected ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}
-            subtitle={connectedEndpoint}
-            subtitleSelectable
-            subtitleNumberOfLines={0}
-            onPress={isConnected ? checkServer : undefined}
-            disabled={isLoading || !isConnected}
-            accessibilityLabel={`${loc.settings.electrum_status}: ${isConnected ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}${connectedEndpoint ? `. ${connectedEndpoint}` : ''}`}
-            accessibilityHint={loc.settings.electrum_status_hint}
-            accessibilityState={{
-              disabled: isLoading || !isConnected,
-              busy: isLoading,
-            }}
-            isLoading={isLoading}
-            bottomDivider={serverBanner.length > 0}
-            leftAvatar={
-              <View importantForAccessibility="no" style={[styles.statusIcon, stylesHook.statusIcon]}>
-                <Ionicons name={isConnected ? 'checkmark-circle' : 'alert-circle'} size={22} style={stylesHook.statusIconGlyph} />
-              </View>
-            }
-            containerStyle={styles.statusRow}
-          />
-          {serverBanner.length > 0 && (
-            <View style={styles.bannerContainer}>
-              <Text style={[styles.bannerText, stylesHook.bannerText]} selectable>
-                {serverBanner}
-              </Text>
+      <SettingsSection title={loc.settings.electrum_connection_menu} iconName="network">
+        <SettingsListItem
+          title={status}
+          subtitle={isElectrumDisabled ? loc.settings.electrum_offline_description : connectedEndpoint}
+          subtitleSelectable
+          subtitleNumberOfLines={0}
+          switch={{
+            value: !isElectrumDisabled,
+            onValueChange: enabled => onElectrumConnectionEnabledSwitchChange(!enabled),
+            disabled: isLoading || Boolean(testingServerKey),
+            testID: 'ElectrumConnectionEnabledSwitch',
+            accessibilityLabel: `${loc.settings.electrum_connection_menu}: ${status}${connectedEndpoint ? `. ${connectedEndpoint}` : ''}`,
+            accessibilityHint: loc.settings.electrum_connection_toggle_hint,
+          }}
+          bottomDivider={isConnected}
+          leftAvatar={
+            <View
+              accessible={false}
+              importantForAccessibility="no-hide-descendants"
+              style={[
+                styles.statusIcon,
+                {
+                  backgroundColor:
+                    isElectrumDisabled || isConnecting
+                      ? colors.buttonBackgroundColor
+                      : isConnected
+                        ? colors.receiveBackground
+                        : colors.redBG,
+                },
+              ]}
+            >
+              {isConnecting ? (
+                <ActivityIndicator color={colors.primary} />
+              ) : (
+                <Ionicons
+                  accessible={false}
+                  name={isElectrumDisabled ? 'cloud-offline-outline' : isConnected ? 'link' : 'alert-circle'}
+                  size={22}
+                  color={isElectrumDisabled ? colors.alternativeTextColor : isConnected ? colors.receiveText : colors.redText}
+                />
+              )}
             </View>
-          )}
-        </SettingsSection>
-      </>
+          }
+          containerStyle={styles.statusRow}
+        />
+        {isConnected && (
+          <SettingsListItem
+            title={loc.settings.electrum_server_information}
+            onPress={checkServer}
+            disabled={isLoading || Boolean(testingServerKey)}
+            accessibilityHint={loc.settings.electrum_status_hint}
+            isLoading={isLoading}
+            bottomDivider={showBanner}
+            rightElement={<Ionicons accessible={false} name="information-circle-outline" size={22} color={colors.alternativeTextColor} />}
+          />
+        )}
+        {showBanner && (
+          <View style={styles.bannerContainer}>
+            <Text style={[styles.bannerText, stylesHook.bannerText]} selectable>
+              {serverBanner}
+            </Text>
+          </View>
+        )}
+      </SettingsSection>
     );
   };
 
@@ -1102,7 +1153,7 @@ const ElectrumSettings: React.FC = () => {
       },
       resetElectrumSettings: hasFavorite ? () => onPressMenuItem(CommonToolTipActions.ResetToDefault.id) : undefined,
       toggleSuggestedElectrumServers: hasFavorite ? () => onPressMenuItem(SHOW_SUGGESTED_SERVERS_ACTION_ID) : undefined,
-      toggleElectrumOffline: () => onElectrumConnectionEnabledSwitchChange(!isElectrumDisabled),
+      toggleElectrumConnection: () => onElectrumConnectionEnabledSwitchChange(!isElectrumDisabled),
       copyConnectedElectrumServer: () => {
         if (isElectrumDisabled || config.connected !== 1 || !config.host || !config.port) return;
         const matchingServer = [...serverHistory, ...suggestedServers, ...(hasFavorite ? [{ host, tcp: port, ssl: sslPort }] : [])].find(
@@ -1117,7 +1168,7 @@ const ElectrumSettings: React.FC = () => {
       addElectrumServer: { disabled: menuBusy },
       resetElectrumSettings: { disabled: menuBusy },
       toggleSuggestedElectrumServers: { checked: showSuggestedServers, disabled: menuBusy },
-      toggleElectrumOffline: { checked: isElectrumDisabled, disabled: menuBusy },
+      toggleElectrumConnection: { checked: !isElectrumDisabled, disabled: menuBusy },
       copyConnectedElectrumServer: { disabled: isElectrumDisabled || config.connected !== 1 || !config.host || !config.port },
       removeFavoriteElectrumServer: { disabled: menuBusy },
     },
@@ -1172,7 +1223,7 @@ const ElectrumSettings: React.FC = () => {
             }
           >
             {item.description && (!isCollapsible || isSuggestedExpanded) ? (
-              <View style={styles.serverSectionDescription}>
+              <View style={settingsCardContent}>
                 <SettingsFootnote>{item.description}</SettingsFootnote>
               </View>
             ) : null}
@@ -1356,29 +1407,12 @@ const ElectrumSettings: React.FC = () => {
         ListEmptyComponent={
           !isLoading && state.searchQuery.trim() ? (
             <SettingsSection>
-              <SettingsFootnote>{loc.wallets.no_results_found}</SettingsFootnote>
+              <SettingsFootnote style={settingsCardContent}>{loc.wallets.no_results_found}</SettingsFootnote>
             </SettingsSection>
           ) : null
         }
         onAccessibilityEscape={() => navigation.goBack()}
-        ListHeaderComponent={
-          <>
-            <SettingsSection title={loc.settings.electrum_offline_mode} iconName="offline">
-              <SettingsListItem
-                title={loc.settings.electrum_work_offline}
-                subtitle={loc.settings.electrum_offline_description}
-                switch={{
-                  onValueChange: onElectrumConnectionEnabledSwitchChange,
-                  value: isElectrumDisabled,
-                  disabled: isLoading || Boolean(testingServerKey),
-                  testID: 'ElectrumConnectionEnabledSwitch',
-                }}
-                bottomDivider={false}
-              />
-            </SettingsSection>
-            {!isElectrumDisabled && renderConnectionStatus()}
-          </>
-        }
+        ListHeaderComponent={renderConnectionStatus()}
       />
     </>
   );
@@ -1435,11 +1469,6 @@ const styles = StyleSheet.create({
     height: 32,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  serverSectionDescription: {
-    paddingHorizontal: 16,
-    paddingTop: 2,
-    paddingBottom: 16,
   },
   serverRow: {
     marginHorizontal: 16,

@@ -1,7 +1,5 @@
 import assert from 'assert';
-import { Platform } from 'react-native';
 
-import { createElectrumServerHistoryDeepLink, serializeElectrumServerDocument } from '../../blue_modules/electrumServer';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
@@ -22,25 +20,6 @@ const asyncNavigationRouteFor = async function (event) {
 };
 
 describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
-  it('handles Electrum server-history links only on Apple platforms', async () => {
-    const servers = [{ host: 'node.example.com', ssl: 50002 }];
-    const url = createElectrumServerHistoryDeepLink(servers).replace('bluewallet:', `bluewallet:${suffix}`);
-    const expectedDocument = serializeElectrumServerDocument(servers);
-
-    expect(await asyncNavigationRouteFor({ url })).toEqual(['ElectrumSettings', { serverHistoryImport: expectedDocument }]);
-
-    const originalPlatform = Platform.OS;
-    const completionHandler = jest.fn();
-    try {
-      Object.defineProperty(Platform, 'OS', { configurable: true, value: 'android' });
-      DeeplinkSchemaMatch.navigationRouteFor({ url }, completionHandler);
-      await Promise.resolve();
-      expect(completionHandler).not.toHaveBeenCalled();
-    } finally {
-      Object.defineProperty(Platform, 'OS', { configurable: true, value: originalPlatform });
-    }
-  });
-
   it('hasSchema', () => {
     assert.ok(DeeplinkSchemaMatch.hasSchema(`bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`));
     assert.ok(DeeplinkSchemaMatch.hasSchema(`bitcoin:${suffix}bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`));
@@ -246,17 +225,6 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
             params: {
               aztecoVoucher: { c1: '1111', c2: '2222', c3: '3333', c4: '4444' },
             },
-          },
-        ],
-      },
-      {
-        argument: {
-          url: 'bluewallet:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As',
-        },
-        expected: [
-          'ElectrumSettings',
-          {
-            server: { host: 'electrum1.bluewallet.io', ssl: 443 },
           },
         ],
       },
@@ -488,24 +456,6 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
   });
 
   it('can work with some deeplink actions', () => {
-    assert.strictEqual(DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('sgasdgasdgasd'), false);
-    assert.strictEqual(
-      DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('bluewallet:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As'),
-      'electrum1.bluewallet.io:443:s',
-    );
-    assert.strictEqual(
-      DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('setelectrumserver?server=electrum1.bluewallet.io%3A443%3As'),
-      'electrum1.bluewallet.io:443:s',
-    );
-    assert.strictEqual(
-      DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('ololo:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As'),
-      false,
-    );
-    assert.strictEqual(
-      DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('setTrololo?server=electrum1.bluewallet.io%3A443%3As'),
-      false,
-    );
-
     assert.strictEqual(
       DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction('bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com'),
       'https://lndhub.herokuapp.com',

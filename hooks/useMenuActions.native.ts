@@ -54,7 +54,7 @@ export function getMenuActionTitles(): MenuActionTitles {
     resetElectrumSettings: loc.settings.electrum_reset,
     toggleSuggestedElectrumServers: loc.settings.electrum_show_suggested_servers,
     saveElectrumServer: loc.settings.electrum_confirm,
-    toggleElectrumOffline: loc.settings.electrum_work_offline,
+    toggleElectrumConnection: loc.settings.electrum_enable_connection,
     copyConnectedElectrumServer: loc.settings.electrum_copy_connected_server,
     removeFavoriteElectrumServer: loc.settings.electrum_remove_favorite_server,
     focusElectrumHost: loc.settings.electrum_focus_host,

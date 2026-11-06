@@ -8,7 +8,7 @@ export type ScreenMenuAction =
   | 'addElectrumServer'
   | 'resetElectrumSettings'
   | 'toggleSuggestedElectrumServers'
-  | 'toggleElectrumOffline'
+  | 'toggleElectrumConnection'
   | 'copyConnectedElectrumServer'
   | 'removeFavoriteElectrumServer'
   | 'focusElectrumHost'
@@ -72,7 +72,7 @@ const screenActions: Record<string, readonly ScreenMenuAction[]> = {
     'addElectrumServer',
     'resetElectrumSettings',
     'toggleSuggestedElectrumServers',
-    'toggleElectrumOffline',
+    'toggleElectrumConnection',
     'copyConnectedElectrumServer',
     'removeFavoriteElectrumServer',
   ],
@@ -134,7 +134,7 @@ export const menuShortcuts: readonly { title: string; key: string; where: string
   { title: 'Confirm Electrum Server', key: 'Return', where: 'Add Electrum Server' },
   { title: 'Focus Server Address', key: 'Option+1', where: 'Add Electrum Server', platform: 'ios' },
   { title: 'Focus Server Port', key: 'Option+2', where: 'Add Electrum Server', platform: 'ios' },
-  { title: 'Work Offline', key: 'Shift+O', where: 'Electrum settings', platform: 'ios' },
+  { title: 'Enable Connection', key: 'Shift+O', where: 'Electrum settings', platform: 'ios' },
   { title: 'Copy Connected Server', key: 'Shift+C', where: 'Electrum settings, when connected', platform: 'ios' },
   { title: 'Toggle Suggested Servers', key: 'Shift+E', where: 'Electrum settings' },
   { title: 'Reset Electrum Settings…', key: 'Option+R', where: 'Electrum settings' },

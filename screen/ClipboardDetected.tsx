@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { Image, LayoutChangeEvent, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useNavigation, useRoute, useLinkTo } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
@@ -15,6 +15,7 @@ import { useStorage } from '../hooks/context/useStorage';
 import loc from '../loc';
 import { navigationRef } from '../NavigationService';
 import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
+import { getElectrumSettingsLink } from '../navigation/linking';
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'ClipboardDetected'>;
 type RouteProps = RouteProp<DetailViewStackParamList, 'ClipboardDetected'>;
@@ -50,6 +51,7 @@ const copyForKind = (kind: ClipboardPaymentKind) => {
 };
 
 const ClipboardDetected = () => {
+  const linkTo = useLinkTo();
   const navigation = useNavigation<NavigationProps>();
   const routeParams = useRoute<RouteProps>().params;
   const payload = routeParams?.payload ?? '';
@@ -101,6 +103,11 @@ const ClipboardDetected = () => {
     // frame queue so routing survives that unmount and runs after React commits the pop.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
+        const electrumLink = getElectrumSettingsLink(payload);
+        if (electrumLink) {
+          linkTo(electrumLink);
+          return;
+        }
         DeeplinkSchemaMatch.navigationRouteFor({ url: payload }, value => navigationRef.navigate(...value), {
           wallets,
           addWallet,
@@ -109,7 +116,7 @@ const ClipboardDetected = () => {
         });
       });
     });
-  }, [addWallet, contentHash, navigation, payload, saveToDisk, setSharedCosigner, wallets]);
+  }, [addWallet, contentHash, navigation, payload, saveToDisk, setSharedCosigner, wallets, linkTo]);
 
   return (
     <SafeAreaView

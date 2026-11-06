@@ -231,7 +231,23 @@ describe('BlueElectrum lifecycle', () => {
     });
   });
 
-  describe('setDisabled(true) during in-flight connect', () => {
+  describe('setDisabled(true)', () => {
+    it('closes an active connection and ignores subsequent errors from that socket', async () => {
+      const connection = BlueElectrum.ensureConnected();
+      await flush();
+      resolveLastConnect();
+      await expect(connection).resolves.toBe(true);
+      expect(BlueElectrum.getConnectionState()).toBe('connected');
+      const client = created[0];
+      await BlueElectrum.setDisabled(true);
+      expect(await BlueElectrum.isDisabled()).toBe(true);
+      expect(client.close).toHaveBeenCalled();
+      client.onError?.({ message: 'Socket closed after entering offline mode' });
+      expect(BlueElectrum.getConnectionState()).toBe('disabled');
+      await expect(BlueElectrum.ensureConnected()).resolves.toBe(false);
+      expect(created).toHaveLength(1);
+    });
+
     it('bumps generation, tears down the socket, leaves state "disabled"', async () => {
       const p = BlueElectrum.ensureConnected();
       await flush();
