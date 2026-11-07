@@ -113,3 +113,25 @@ export const lookupId = (ids: IdNode[], path: readonly number[]): string | undef
 
   return node?.id;
 };
+
+/**
+ * Resolve a native fallback title only when it identifies exactly one leaf.
+ * Some Android context-menu versions omit both index and indexPath, leaving
+ * the visible item title as the only press payload. Ambiguous localized titles
+ * deliberately return undefined rather than dispatching the wrong action.
+ */
+export const lookupUniqueIdByTitle = (items: readonly ContextMenuAction[], ids: readonly IdNode[], title: string): string | undefined => {
+  const matches: string[] = [];
+
+  const visit = (currentItems: readonly ContextMenuAction[], currentIds: readonly IdNode[]) => {
+    currentItems.forEach((item, index) => {
+      const idNode = currentIds[index];
+      if (!idNode) return;
+      if (item.title === title && idNode.id) matches.push(idNode.id);
+      if (item.actions && idNode.children) visit(item.actions, idNode.children);
+    });
+  };
+
+  visit(items, ids);
+  return matches.length === 1 ? matches[0] : undefined;
+};

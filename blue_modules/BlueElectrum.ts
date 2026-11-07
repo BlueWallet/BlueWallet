@@ -11,13 +11,14 @@ import type { SegwitP2SHWallet as SegwitP2SHWalletT } from '../class/wallets/seg
 import type { TaprootWallet as TaprootWalletT } from '../class/wallets/taproot-wallet';
 import type { Utxo } from '../class/wallets/types';
 import presentAlert from '../components/Alert';
+import { errorMessage } from '../helpers/errorMessage';
 import loc from '../loc';
 import { GROUP_IO_BLUEWALLET } from './currency';
-import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
+import { ElectrumServerItem, hardcodedPeers, parseElectrumServer, parseElectrumServerDocumentResult } from './electrumServer';
 import { triggerWarningHapticFeedback } from './hapticFeedback';
 import { AlertButton } from 'react-native';
 import { uint8ArrayToHex, stringToUint8Array, hexToUint8Array } from './uint8array-extras/index';
-import { errorMessage } from '../helpers/errorMessage';
+export { hardcodedPeers } from './electrumServer';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
@@ -82,14 +83,6 @@ export const ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
 const ELECTRUM_CONNECTION_DISABLED = 'electrum_disabled';
 const storageKey = 'ELECTRUM_PEERS';
 const defaultPeer = { host: 'electrum1.bluewallet.io', ssl: 443 };
-export const hardcodedPeers: Peer[] = [
-  { host: 'mainnet.foundationdevices.com', ssl: 50002 },
-  { host: 'bitcoin.lu.ke', ssl: 50002 },
-  // { host: 'electrum.jochen-hoenicke.de', ssl: '50006' },
-  { host: 'electrum1.bluewallet.io', ssl: 443 },
-  { host: 'electrum.acinq.co', ssl: 50002 },
-];
-
 export const suggestedServers: Peer[] = hardcodedPeers.map(peer => ({
   ...peer,
 }));
@@ -165,6 +158,18 @@ export const ENSURE_CONNECTED_MAX_WALL_MS =
 let ensureInFlight: Promise<boolean> | null = null;
 /** If any coalesced caller asked for the failure alert, honour it once the in-flight attempt finishes. */
 let ensureInFlightShowAlert = false;
+/** Screens that surface connection state inline suppress the redundant global failure alert while focused. */
+let networkErrorAlertSuppressionCount = 0;
+
+export function suppressNetworkErrorAlerts(): () => void {
+  networkErrorAlertSuppressionCount += 1;
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    networkErrorAlertSuppressionCount = Math.max(0, networkErrorAlertSuppressionCount - 1);
+  };
+}
 
 /**
  * Bumps every time the caller asks us to abandon the current connection
@@ -225,11 +230,12 @@ export const getPreferredServer = async (): Promise<ElectrumServerItem | undefin
       return;
     }
 
-    return {
-      host,
-      tcp: tcpPort ? Number(tcpPort) : undefined,
-      ssl: sslPort ? Number(sslPort) : undefined,
-    };
+    // A legacy preference may contain both ports or an invalid port. A favorite
+    // represents one endpoint, with SSL taking precedence when both are valid.
+    return (
+      (sslPort ? parseElectrumServer(`${host} ${sslPort} ssl`) : undefined) ??
+      (tcpPort ? parseElectrumServer(`${host} ${tcpPort} tcp`) : undefined)
+    );
   } catch (error) {
     console.error('[electrum] Error in getPreferredServer:', error);
     return undefined;
@@ -368,6 +374,7 @@ function scheduleReconnectFromClient(client: typeof ElectrumClient, usingPeer: P
  */
 async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
   const usingPeer = await pickPeer();
+  let connectionTimeout: ReturnType<typeof setTimeout> | undefined;
   console.log('[electrum] Using peer:', JSON.stringify(usingPeer));
 
   // Drop any prior client before allocating a new one. Closing also neutralises
@@ -400,7 +407,9 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
           callback: () => scheduleReconnectFromClient(client, usingPeer, 'socket close'),
         },
       ),
-      new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error('connect timeout')), CONNECT_ATTEMPT_TIMEOUT_MS)),
+      new Promise<never>((_resolve, reject) => {
+        connectionTimeout = setTimeout(() => reject(new Error('connect timeout')), CONNECT_ATTEMPT_TIMEOUT_MS);
+      }),
     ]);
 
     if (mainClient !== client) {
@@ -451,6 +460,8 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
       mainClient = undefined;
     }
     return { ok: false, peer: usingPeer };
+  } finally {
+    if (connectionTimeout) clearTimeout(connectionTimeout);
   }
 }
 
@@ -458,14 +469,19 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
 async function pingWithTimeout(timeoutMs: number = PING_TIMEOUT_MS): Promise<boolean> {
   if (!mainClient) return false;
   const client = mainClient;
+  let pingTimeout: ReturnType<typeof setTimeout> | undefined;
   try {
     await Promise.race([
       client.server_ping(),
-      new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error('ping timeout')), timeoutMs)),
+      new Promise<never>((_resolve, reject) => {
+        pingTimeout = setTimeout(() => reject(new Error('ping timeout')), timeoutMs);
+      }),
     ]);
     return mainClient === client; // server replied AND client wasn't swapped while we waited
   } catch {
     return false;
+  } finally {
+    if (pingTimeout) clearTimeout(pingTimeout);
   }
 }
 
@@ -585,10 +601,10 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
   return ensureInFlight;
 }
 
-export async function presentResetToDefaultsAlert(): Promise<boolean> {
+export async function presentResetToDefaultsAlert(alertPresenter: typeof presentAlert = presentAlert): Promise<boolean> {
   const hasPreferredServer = await getPreferredServer();
   const serverHistoryStr = await DefaultPreference.get(ELECTRUM_SERVER_HISTORY);
-  const serverHistory = typeof serverHistoryStr === 'string' ? JSON.parse(serverHistoryStr) : [];
+  const serverHistory = typeof serverHistoryStr === 'string' ? parseElectrumServerDocumentResult(serverHistoryStr).servers : [];
   return new Promise(resolve => {
     triggerWarningHapticFeedback();
 
@@ -637,7 +653,7 @@ export async function presentResetToDefaultsAlert(): Promise<boolean> {
       style: 'cancel',
     });
 
-    presentAlert({
+    alertPresenter({
       title: loc.settings.electrum_reset,
       message: loc.settings.electrum_reset_to_default,
       buttons,
@@ -647,12 +663,14 @@ export async function presentResetToDefaultsAlert(): Promise<boolean> {
 }
 
 async function presentNetworkErrorAlert(usingPeer?: Peer, allowRepeat = false) {
+  if (networkErrorAlertSuppressionCount > 0) return;
   if (await isDisabled()) {
     console.log(
       '[electrum] Electrum connection disabled by user. Perhaps we are attempting to show this network error alert after the user disabled connections.',
     );
     return;
   }
+  if (networkErrorAlertSuppressionCount > 0) return;
 
   await presentAlert({
     allowRepeat,
@@ -1446,34 +1464,99 @@ export const calculateBlockTime = function (height: number): number {
   return Math.floor(baseTs + (height - baseHeight) * 9.93 * 60);
 };
 
+const electrumErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') return error.message;
+  return String(error || loc.settings.electrum_error_connect);
+};
+
+export const isElectrumServerSyncingError = (error: unknown): boolean => {
+  const message = electrumErrorMessage(error);
+  return (
+    /\b(?:still|currently)\s+(?:syncing|synchronizing|synchronising)\b/i.test(message) ||
+    /\bnot\s+(?:yet\s+|fully\s+)?sync(?:ed|hronized|hronised)\b/i.test(message) ||
+    /\b(?:sync|synchronization|synchronisation)\s+(?:is\s+)?not\s+(?:complete|finished)\b/i.test(message) ||
+    /\b(?:sync|synchronization|synchronisation)\s+(?:is\s+)?(?:incomplete|unfinished)\b/i.test(message)
+  );
+};
+
+export const formatElectrumConnectionError = (error: unknown, host: string, tcpPort?: number, sslPort?: number): string => {
+  const message = electrumErrorMessage(error).trim();
+  const endpoint = `${host}:${sslPort || tcpPort}`;
+  const format = (template: string, details?: string) =>
+    String(loc.formatString(template, details === undefined ? { server: endpoint } : { server: endpoint, details }));
+
+  if (isElectrumServerSyncingError(error)) return loc.settings.electrum_server_not_synced;
+  if (/connect timeout|timed?\s*out|etimedout/i.test(message)) {
+    return format(loc.settings.electrum_connection_timed_out_help);
+  }
+  if (/enotfound|eai_again|name or service not known|nodename nor servname|dns/i.test(message)) {
+    return format(loc.settings.electrum_connection_dns_error);
+  }
+  if (/econnrefused|connection refused/i.test(message)) {
+    return format(loc.settings.electrum_connection_refused);
+  }
+  if (/certificate|self[- ]signed|ssl|tls|wrong version number|handshake/i.test(message)) {
+    return format(loc.settings.electrum_connection_tls_error);
+  }
+  if (/enetunreach|ehostunreach|network is unreachable|network request failed|not connected to internet/i.test(message)) {
+    return format(loc.settings.electrum_connection_network_error);
+  }
+  if (/econnreset|connection reset|socket hang up|connection closed|unexpected eof|broken pipe/i.test(message)) {
+    return format(loc.settings.electrum_connection_closed);
+  }
+  if (/unexpected token|invalid (?:json|response)|protocol|server\.version|unsupported version/i.test(message)) {
+    return format(loc.settings.electrum_connection_protocol_error);
+  }
+  if (!message || message === loc.settings.electrum_error_connect) {
+    return format(loc.settings.electrum_connection_protocol_error);
+  }
+  return format(loc.settings.electrum_connection_server_error, message);
+};
+
 /**
  * @returns {Promise<boolean>} Whether provided host:port is a valid electrum server
  */
-export const testConnection = async function (host: string, tcpPort?: number, sslPort?: number): Promise<boolean> {
+export const validateConnection = async function (
+  host: string,
+  tcpPort?: number,
+  sslPort?: number,
+  options: { requirePing?: boolean } = {},
+): Promise<{ success: boolean; error?: string }> {
   const client = new ElectrumClient(net, tls, sslPort || tcpPort, host, sslPort ? 'tls' : 'tcp');
 
   client.onError = () => {}; // mute
   let timeoutId: NodeJS.Timeout | undefined;
   const timeoutMs = host.endsWith('.onion') ? 21_000 : 5_000;
   try {
-    const rez = await Promise.race([
-      new Promise(resolve => {
-        timeoutId = setTimeout(() => resolve('timeout'), timeoutMs);
+    const handshake = (async () => {
+      const version = await client.initElectrum({ client: 'bluewallet', version: '1.4' }, { maxRetry: 0, callback: () => {} });
+      if (!version || !version[0]) throw new Error(loc.settings.electrum_error_connect);
+      // Discovery only needs a successful server.version negotiation. A server
+      // whose Bitcoin backend is syncing may reject operational requests.
+      if (options.requirePing !== false) await client.server_ping();
+    })();
+    await Promise.race([
+      handshake,
+      new Promise<never>((_resolve, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('connect timeout')), timeoutMs);
       }),
-      client.connect(),
     ]);
-    if (rez === 'timeout') return false;
-
-    await client.server_version('2.7.11', '1.4');
-    await client.server_ping();
-    return true;
-  } catch (_) {
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: formatElectrumConnectionError(error, host, tcpPort, sslPort),
+    };
   } finally {
     if (timeoutId) clearTimeout(timeoutId);
     client.close();
   }
+};
 
-  return false;
+export const testConnection = async function (host: string, tcpPort?: number, sslPort?: number): Promise<boolean> {
+  return (await validateConnection(host, tcpPort, sslPort)).success;
 };
 
 /**
@@ -1490,6 +1573,15 @@ export const forceDisconnect = (): void => {
   }
   setConnectionState('disconnected');
 };
+
+/** Disconnects from a removed favorite and starts the next connection from a random built-in server. */
+export async function connectToRandomSuggestedServer(): Promise<boolean> {
+  currentPeerIndex = Math.floor(Math.random() * hardcodedPeers.length);
+  const abortedConnection = ensureInFlight;
+  forceDisconnect();
+  if (abortedConnection) await abortedConnection.catch(() => false);
+  return ensureConnected();
+}
 
 export const setBatchingDisabled = () => {
   disableBatching = true;

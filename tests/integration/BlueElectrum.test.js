@@ -104,6 +104,18 @@ describe('BlueElectrum', () => {
     assert.ok(await BlueElectrum.testConnection('electrum1.bluewallet.io', false, 443));
   });
 
+  it('reconnects through a randomly selected suggested server after favorite removal', async () => {
+    const random = jest.spyOn(Math, 'random').mockReturnValue(0);
+    try {
+      assert.ok(await BlueElectrum.connectToRandomSuggestedServer());
+      const config = await BlueElectrum.getConfig();
+      assert.strictEqual(config.host, BlueElectrum.suggestedServers[0].host);
+      assert.strictEqual(Number(config.port), BlueElectrum.suggestedServers[0].ssl ?? BlueElectrum.suggestedServers[0].tcp);
+    } finally {
+      random.mockRestore();
+    }
+  });
+
   it('ElectrumClient can estimate fees', async () => {
     assert.ok((await BlueElectrum.estimateFee(1)) >= 1);
     const fees = await BlueElectrum.estimateFees();

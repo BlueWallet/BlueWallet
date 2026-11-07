@@ -4,7 +4,7 @@ import 'react-native-get-random-values';
 import './shim.js';
 
 import React, { useEffect } from 'react';
-import { AppRegistry, LogBox } from 'react-native';
+import { AppRegistry, LogBox, Platform } from 'react-native';
 import BackgroundFetch from 'react-native-background-fetch';
 
 import App from './App';
@@ -34,6 +34,10 @@ LogBox.ignoreLogs([
   'Open debugger to view warnings.',
   'Non-serializable values were found in the navigation state',
 ]);
+
+if (Platform.constants.isTesting) {
+  LogBox.ignoreAllLogs();
+}
 
 const BlueAppComponent = () => {
   useEffect(() => {

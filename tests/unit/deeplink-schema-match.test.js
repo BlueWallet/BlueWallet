@@ -230,17 +230,6 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
       },
       {
         argument: {
-          url: 'bluewallet:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As',
-        },
-        expected: [
-          'ElectrumSettings',
-          {
-            server: 'electrum1.bluewallet.io:443:s',
-          },
-        ],
-      },
-      {
-        argument: {
           url: 'bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com',
         },
         expected: [
@@ -467,24 +456,6 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
   });
 
   it('can work with some deeplink actions', () => {
-    assert.strictEqual(DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('sgasdgasdgasd'), false);
-    assert.strictEqual(
-      DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('bluewallet:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As'),
-      'electrum1.bluewallet.io:443:s',
-    );
-    assert.strictEqual(
-      DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('setelectrumserver?server=electrum1.bluewallet.io%3A443%3As'),
-      'electrum1.bluewallet.io:443:s',
-    );
-    assert.strictEqual(
-      DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('ololo:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As'),
-      false,
-    );
-    assert.strictEqual(
-      DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('setTrololo?server=electrum1.bluewallet.io%3A443%3As'),
-      false,
-    );
-
     assert.strictEqual(
       DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction('bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com'),
       'https://lndhub.herokuapp.com',

@@ -56,6 +56,20 @@ describe('native menu availability', () => {
     expect(availableMenuActions('WalletsList', [], true)).not.toContain('backToWallets');
   });
 
+  it('offers only registered Electrum settings commands', () => {
+    expect(
+      availableMenuActions(
+        'ElectrumSettings',
+        ['addElectrumServer', 'resetElectrumSettings', 'toggleSuggestedElectrumServers', 'saveElectrumServer'],
+        true,
+      ),
+    ).toEqual([...globalActions, 'addElectrumServer', 'resetElectrumSettings', 'toggleSuggestedElectrumServers']);
+    expect(availableMenuActions('AddElectrumServer', ['saveElectrumServer', 'addElectrumServer'], true)).toEqual([
+      ...globalActions,
+      'saveElectrumServer',
+    ]);
+  });
+
   it('only exposes registered Send Details header actions', () => {
     expect(availableMenuActions('SendDetails', ['add_recipient', 'coin_control', 'sign_psbt'], true)).toEqual([
       ...globalActions,
