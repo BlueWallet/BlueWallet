@@ -312,8 +312,6 @@
     "privacy": "Prywatność",
     "privacy_read_clipboard": "Czytaj Schowek",
     "privacy_system_settings": "Ustawienia Systemowe",
-    "privacy_quickactions": "Skróty Portfeli",
-    "privacy_quickactions_explanation": "Dotknij i przytrzymaj ikonę aplikacji BlueWallet, aby szybko sprawdzić saldo swojego portfela.",
     "privacy_clipboard_explanation": "Włącz skróty jeżeli adres lub faktura są znalezione w schowku.",
     "privacy_clipboard_ios_paste_permission": "Aby pominąć pytanie o zgodę na wklejanie, otwórz ustawienia systemowe i ustaw opcję „Wklejanie z innych aplikacji” na „Pozwalaj”.",
     "privacy_do_not_track": "Wyłącz analitykę",
