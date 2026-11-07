@@ -283,7 +283,7 @@ const PsbtMultisig = () => {
             <Text style={styles.textAlignCenter} selectable>
               <Text style={[styles.addressSection, stylesHook.addressSection]}>{address.slice(0, 6)}</Text>
               <Text style={[styles.textDestination, stylesHook.textFiat]}>{address.slice(6, -6)}</Text>
-              <Text style={[styles.addressSection, stylesHook.addressSection]}>{address?.slice(-6)}</Text>
+              <Text style={[styles.addressSection, stylesHook.addressSection]}>{address.slice(-6)}</Text>
             </Text>
           </View>,
         );

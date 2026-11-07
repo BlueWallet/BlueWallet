@@ -396,7 +396,7 @@ class DeeplinkSchemaMatch {
     return undefined;
   }
 
-  static bip21decode(uri?: string) {
+  static bip21decode(uri: string) {
     if (!uri) {
       throw new Error('No URI provided');
     }

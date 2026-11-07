@@ -52,9 +52,9 @@ const copyForKind = (kind: ClipboardPaymentKind) => {
 const ClipboardDetected = () => {
   const navigation = useNavigation<NavigationProps>();
   const routeParams = useRoute<RouteProps>().params;
-  const payload = routeParams?.payload ?? '';
-  const kind = routeParams?.kind ?? ClipboardPaymentKind.Bitcoin;
-  const contentHash = routeParams?.contentHash;
+  const payload = routeParams.payload;
+  const kind = routeParams.kind;
+  const contentHash = routeParams.contentHash;
   const theme = useTheme();
   const { colors } = theme;
   const { wallets, addWallet, saveToDisk, setSharedCosigner } = useStorage();

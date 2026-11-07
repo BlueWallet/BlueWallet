@@ -80,7 +80,7 @@ const LnurlPay: React.FC = () => {
   useEffect(() => {
     if (payload && _LN) {
       let originalSatAmount: number | false;
-      let newAmount: number | boolean | string = (originalSatAmount = _LN.getMin());
+      let newAmount: number | false | string = (originalSatAmount = _LN.getMin());
       if (!newAmount) {
         presentAlert({ message: 'Internal error: incorrect LNURL amount' });
         return;
@@ -114,7 +114,7 @@ const LnurlPay: React.FC = () => {
       }
     }
 
-    let amountSats: number | false;
+    let amountSats: number;
     switch (unit) {
       case BitcoinUnit.SATS:
         amountSats = parseInt(amount, 10);

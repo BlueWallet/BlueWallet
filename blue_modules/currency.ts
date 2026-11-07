@@ -13,7 +13,7 @@ const BTC_PREFIX = 'BTC_';
 
 export interface CurrencyRate {
   LastUpdated: Date | null;
-  Rate: number | string | null;
+  Rate: string | null;
 }
 
 interface ExchangeRates {
