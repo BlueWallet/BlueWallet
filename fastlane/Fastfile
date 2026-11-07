@@ -510,23 +510,26 @@ platform :ios do
     nil
   end
 
-  # The Preview extension reads the app's cached fiat rate from this group. App
-  # Groups are a Developer Portal capability, so they must be enabled before
-  # Match creates a profile for a newly-added extension identifier.
-  def ensure_quick_look_app_group!(developer_team_id)
+  # Extensions exchange data with the app through this group. App Groups are a
+  # Developer Portal capability, so they must be enabled before Match creates a
+  # profile for a newly-added extension identifier.
+  def ensure_extension_app_groups!(developer_team_id)
     group_identifier = "group.io.bluewallet.bluewallet"
-    extension_identifiers = ["io.bluewallet.bluewallet.QuickLookPreview"]
+    extension_identifiers = [
+      "io.bluewallet.bluewallet.QuickLookPreview",
+      "io.bluewallet.bluewallet.ShareExtension"
+    ]
 
     if !UI.interactive? && ENV["FASTLANE_SESSION"].to_s.empty? && ENV["FASTLANE_PASSWORD"].to_s.empty?
       UI.important(
-        "Skipping Quick Look App Group synchronization: legacy Developer Portal authentication is unavailable. " \
+        "Skipping extension App Group synchronization: legacy Developer Portal authentication is unavailable. " \
         "Provide FASTLANE_SESSION or FASTLANE_PASSWORD when creating the extension profile for the first time."
       )
       return
     end
 
     require "spaceship"
-    UI.message("Synchronizing Quick Look App Group capability in the Developer Portal")
+    UI.message("Synchronizing extension App Group capabilities in the Developer Portal")
     Spaceship::Portal.login(ENV["FASTLANE_USER"], ENV["FASTLANE_PASSWORD"])
     Spaceship::Portal.client.team_id = developer_team_id
 
@@ -545,8 +548,8 @@ platform :ios do
     end
   rescue => error
     UI.user_error!(
-      "Could not synchronize the Quick Look App Group capability: #{error.message}. " \
-      "Enable #{group_identifier} for QuickLookPreview in the Apple Developer portal and retry."
+      "Could not synchronize extension App Group capabilities: #{error.message}. " \
+      "Enable #{group_identifier} for QuickLookPreview and ShareExtension in the Apple Developer portal and retry."
     )
   end
 
@@ -825,7 +828,7 @@ platform :ios do
     ENV["GIT_URL"] = normalize_signing_git_url(certificates_git_url)
     developer_team_id = resolve_developer_team_id(options)
     api_authentication = ensure_match_apple_auth!(options)
-    ensure_quick_look_app_group!(developer_team_id)
+    ensure_extension_app_groups!(developer_team_id)
     resolve_signing_value(
       options: options,
       option_name: :match_password,
@@ -907,7 +910,8 @@ platform :ios do
   def catalyst_app_identifiers
     [
       "io.bluewallet.bluewallet",
-      "io.bluewallet.bluewallet.MarketWidget"
+      "io.bluewallet.bluewallet.MarketWidget",
+      "io.bluewallet.bluewallet.ShareExtension"
     ]
   end
 
@@ -1019,11 +1023,7 @@ platform :ios do
       FileUtils.mkdir_p(derived_data_path)
       FileUtils.mkdir_p(output_dir)
 
-      # Only these targets support Mac Catalyst
-      catalyst_identifiers = [
-        "io.bluewallet.bluewallet",
-        "io.bluewallet.bluewallet.MarketWidget"
-      ]
+      catalyst_identifiers = catalyst_app_identifiers
 
       has_signing_creds = ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty? &&
                           ENV['CATALYST_TEAM_ID'] && !ENV['CATALYST_TEAM_ID'].empty?
@@ -1096,7 +1096,8 @@ platform :ios do
       archived_app = File.join(archive_path, "Products/Applications/BlueWallet.app")
       sandboxed_executables = [
         File.join(archived_app, "Contents/MacOS/BlueWallet"),
-        File.join(archived_app, "Contents/PlugIns/WidgetsExtension.appex/Contents/MacOS/WidgetsExtension")
+        File.join(archived_app, "Contents/PlugIns/WidgetsExtension.appex/Contents/MacOS/WidgetsExtension"),
+        File.join(archived_app, "Contents/PlugIns/ShareExtension.appex/Contents/MacOS/ShareExtension")
       ]
       sandboxed_executables.each do |executable|
         next unless should_sign
@@ -1106,7 +1107,7 @@ platform :ios do
           UI.user_error!("App Sandbox entitlement is missing from #{executable}")
         end
       end
-      UI.success("Verified App Sandbox entitlement on the Catalyst app and widget archive") if should_sign
+      UI.success("Verified App Sandbox entitlement on the Catalyst app and extension archives") if should_sign
 
       candidate_paths = []
       candidate_paths << File.join(archive_path, "Products/Applications/BlueWallet.app") if archive_path
@@ -1118,7 +1119,7 @@ platform :ios do
       UI.success("Mac Catalyst app found at: #{catalyst_app_path}")
 
       # Preserve the archive's Xcode signatures. Re-signing here without the
-      # original entitlements strips App Sandbox from the app and widget.
+      # original entitlements strips App Sandbox from the app and extensions.
       sh("codesign", "--verify", "--deep", "--strict", catalyst_app_path) if should_sign
 
       dmg_path = File.join(output_dir, "BlueWallet-Mac-Catalyst.dmg")
@@ -1269,7 +1270,13 @@ platform :ios do
       # entitlements. Package it without modifying either executable signature.
       archived_app = File.join(archive_path, "Products/Applications/BlueWallet.app")
       UI.user_error!("No signed Catalyst app found in #{archive_path}") unless File.directory?(archived_app)
-      [archived_app, File.join(archived_app, "Contents/PlugIns/WidgetsExtension.appex")].each do |bundle|
+      catalyst_bundles = [
+        archived_app,
+        File.join(archived_app, "Contents/PlugIns/WidgetsExtension.appex"),
+        File.join(archived_app, "Contents/PlugIns/ShareExtension.appex")
+      ]
+      catalyst_bundles.each do |bundle|
+        UI.user_error!("Required signed Catalyst bundle not found at #{bundle}") unless File.directory?(bundle)
         sh("codesign", "--verify", "--strict", bundle)
         entitlements = sh("codesign", "-d", "--entitlements", ":-", bundle, log: false)
         unless entitlements.match?(%r{<key>com\.apple\.security\.app-sandbox</key>\s*<true\s*/>})

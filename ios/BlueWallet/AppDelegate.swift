@@ -5,12 +5,35 @@ import ReactAppDependencyProvider
 import UserNotifications
 import Bugsnag
 
+#if targetEnvironment(macCatalyst)
+private let sharedImageNotificationCallback: CFNotificationCallback = { _, observer, _, _, _ in
+    guard let observer else { return }
+    let appDelegate = Unmanaged<AppDelegate>.fromOpaque(observer).takeUnretainedValue()
+    DispatchQueue.main.async {
+        appDelegate.handlePendingSharedImageNotification()
+    }
+}
+#endif
 
 @main
 class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
+    #if targetEnvironment(macCatalyst)
+    private static let sharedImageNotificationName = SharedImageStore.notificationName
+    #endif
     private var userDefaultsGroup: UserDefaults?
     var sceneLaunchOptions: [UIApplication.LaunchOptionsKey: Any]?
+
+    deinit {
+        #if targetEnvironment(macCatalyst)
+        CFNotificationCenterRemoveObserver(
+            CFNotificationCenterGetDarwinNotifyCenter(),
+            Unmanaged.passUnretained(self).toOpaque(),
+            Self.sharedImageNotificationName,
+            nil
+        )
+        #endif
+    }
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         var reactLaunchOptions = launchOptions
@@ -20,6 +43,9 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             reactLaunchOptions?.removeValue(forKey: .shortcutItem)
         }
         sceneLaunchOptions = reactLaunchOptions
+        #if targetEnvironment(macCatalyst)
+        registerSharedImageNotificationObserver()
+        #endif
         automaticallyLoadReactNativeWindow = false
         clearFilesIfNeeded()
 
@@ -342,6 +368,24 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         return RCTLinkingManager.application(app, open: url, options: options)
     }
+
+    #if targetEnvironment(macCatalyst)
+    private func registerSharedImageNotificationObserver() {
+        CFNotificationCenterAddObserver(
+            CFNotificationCenterGetDarwinNotifyCenter(),
+            Unmanaged.passUnretained(self).toOpaque(),
+            sharedImageNotificationCallback,
+            Self.sharedImageNotificationName.rawValue,
+            nil,
+            .deliverImmediately
+        )
+    }
+
+    func handlePendingSharedImageNotification() {
+        guard UIApplication.shared.applicationState == .active else { return }
+        EventEmitter.shared()?.sendSharedImagePending()
+    }
+    #endif
 
     override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         RNNotifications.didRegisterForRemoteNotifications(withDeviceToken: deviceToken)
