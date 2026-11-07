@@ -3,13 +3,15 @@ import Realm from 'realm';
 import Keychain, { ACCESSIBLE, SECURITY_LEVEL } from 'react-native-keychain';
 
 import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION, runArkRealmMigrations } from '@arkade-os/sdk/repositories/realm';
-import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 import { randomBytes } from '../../../class/rng';
 import { uint8ArrayToHex, hexToUint8Array } from '../../uint8array-extras';
 import { ArkSwapNotificationSuppressionSchema } from './notificationSuppressionRepository';
 import { errorMessage } from '../../../helpers/errorMessage';
+import { BoltzSwapSchema } from '../../arkade-stranded-sends';
 
-const AllArkadeSchemas = [...ArkRealmSchemas, ...BoltzRealmSchemas, ArkSwapNotificationSuppressionSchema];
+// BoltzSwap is app-owned so the stored sends outlive the boltz-swap package:
+// they are the only record of lockups the wallet may still refund.
+const AllArkadeSchemas = [...ArkRealmSchemas, BoltzSwapSchema, ArkSwapNotificationSuppressionSchema];
 
 // App-owned schemas added on top of the SDK's. Bump when an app-owned schema
 // changes; SDK bumps are handled by ARK_REALM_SCHEMA_VERSION. Realm requires
