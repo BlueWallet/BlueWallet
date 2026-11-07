@@ -1,5 +1,6 @@
 import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useEffect } from 'react';
 import {
+  AccessibilityActionEvent,
   FlatList,
   ImageBackground,
   Platform,
@@ -147,8 +148,11 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
       ]}
       accessibilityRole="button"
       accessibilityLabel={loc.wallets.list_create_a_wallet}
+      accessibilityHint={loc.wallets.list_create_a_wallet_text.replace(/\s*\n\s*/g, ' ')}
     >
       <Animated.View
+        accessible={false}
+        importantForAccessibility="no-hide-descendants"
         style={[
           nStyles.container,
           nStylesHooks.container,
@@ -447,21 +451,41 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
     latestTransactionText = transactionTimeToReadable(item.getLatestTransactionTime());
   }
 
+  // Keep the card as one concise screen-reader element. In particular, never
+  // disclose a hidden balance through accessibility metadata.
+  const accessibilityLabel = [walletLabel, balance || undefined, loc.wallets.list_latest_transaction, latestTransactionText]
+    .filter(Boolean)
+    .join(', ');
+  const accessibilityActions = handleLongPress ? [{ name: 'manage', label: loc.wallets.manage_title }] : undefined;
+  const onAccessibilityAction = useCallback(
+    (event: AccessibilityActionEvent) => {
+      if (event.nativeEvent.actionName === 'manage') {
+        handleLongPress?.();
+      }
+    },
+    [handleLongPress],
+  );
+
   return (
     <Animated.View
+      accessible={false}
+      importantForAccessibility={isPlaceHolder ? 'no-hide-descendants' : 'auto'}
       style={[
         isWideLayout || !horizontal ? [iStyles.rootLargeDevice, customStyle] : [iStyles.root, { width: itemWidth }, customStyle],
         animatedCardStyle,
       ]}
     >
       <Pressable
+        accessible={!isPlaceHolder}
         accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        accessibilityState={isSelectedWallet === undefined ? undefined : { selected: isSelectedWallet }}
+        accessibilityActions={accessibilityActions}
+        onAccessibilityAction={onAccessibilityAction}
         testID={walletLabel}
         onPressIn={onPressedIn}
         onPressOut={onPressedOut}
-        onLongPress={() => {
-          if (handleLongPress) handleLongPress();
-        }}
+        onLongPress={handleLongPress}
         onPress={handlePress}
         delayHoverIn={0}
         delayHoverOut={0}
@@ -477,7 +501,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
             colors={WalletGradient.gradientsFor(item.type)}
             style={[iStyles.grad, isCompact && iStyles.gradCompact, scaledCardStyles.grad]}
           >
-            <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
+            <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} accessible={false} />
             <View style={[iStyles.gradContent, isCompact && iStyles.gradContentCompact, !isCompact && scaledCardStyles.gradContent]}>
               {!isPlaceHolder && (
                 <>
@@ -568,7 +592,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const ListHeaderSeparator = () => <View style={styles.listHeaderSeparator} />;
+const ListHeaderSeparator = () => <View style={styles.listHeaderSeparator} accessible={false} />;
 
 const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((props, ref) => {
   const {
@@ -909,6 +933,8 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
 
   return isFlatList ? (
     <FlatList
+      accessibilityRole="list"
+      accessibilityLabel={loc.wallets.list_title}
       ref={flatListRef}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
@@ -938,7 +964,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       extraData={[props.extraData, data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]}
     />
   ) : (
-    <View style={cStyles.contentLargeScreen}>
+    <View style={cStyles.contentLargeScreen} accessibilityRole="list" accessibilityLabel={loc.wallets.list_title}>
       {renderNonFlatListWallets()}
       {onNewWalletPress && <NewWalletPanel onPress={onNewWalletPress} />}
     </View>
