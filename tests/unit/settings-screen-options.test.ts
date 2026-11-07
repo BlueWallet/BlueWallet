@@ -15,25 +15,15 @@ const resolveScreenOptions = (options: unknown): NativeStackNavigationOptions =>
 describe('createSettingsScreenOptions', () => {
   afterEach(() => {
     jest.resetModules();
-    jest.dontMock('../../blue_modules/environment');
   });
 
-  it('resolves Settings without headerLargeTitle before iOS 26 on iOS', () => {
-    jest.doMock('../../blue_modules/environment', () => ({
-      ...jest.requireActual('../../blue_modules/environment'),
-      isIOS26OrHigher: false,
-    }));
-
+  it('resolves Settings without headerLargeTitle on iOS', () => {
     const { createSettingsScreenOptions } = require('../../navigation/helpers/getSettingsHeaderOptions');
     const options = resolveScreenOptions(createSettingsScreenOptions(BlueDefaultTheme)('Settings'));
     expect(options.headerLargeTitle).toBeUndefined();
   });
 
-  it('resolves Settings without headerLargeTitle before iOS 26 on Android', () => {
-    jest.doMock('../../blue_modules/environment', () => ({
-      ...jest.requireActual('../../blue_modules/environment'),
-      isIOS26OrHigher: false,
-    }));
+  it('resolves Settings without headerLargeTitle on Android', () => {
     jest.doMock('react-native/Libraries/Utilities/Platform', () => ({
       ...jest.requireActual('react-native/Libraries/Utilities/Platform'),
       OS: 'android',
@@ -43,17 +33,5 @@ describe('createSettingsScreenOptions', () => {
     const { createSettingsScreenOptions } = require('../../navigation/helpers/getSettingsHeaderOptions');
     const options = resolveScreenOptions(createSettingsScreenOptions(BlueDefaultTheme)('Settings'));
     expect(options.headerLargeTitle).toBeUndefined();
-  });
-
-  it('enables headerLargeTitle for Settings on iOS 26 and later', () => {
-    jest.doMock('../../blue_modules/environment', () => ({
-      ...jest.requireActual('../../blue_modules/environment'),
-      isIOS26OrHigher: true,
-    }));
-
-    const { createSettingsScreenOptions } = require('../../navigation/helpers/getSettingsHeaderOptions');
-    const options = resolveScreenOptions(createSettingsScreenOptions(BlueDefaultTheme)('Settings'));
-    expect(options.headerLargeTitle).toBe(true);
-    expect(options.headerLargeTitleShadowVisible).toBe(true);
   });
 });

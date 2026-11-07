@@ -24,13 +24,13 @@ export const DoneAndDismissKeyboardInputAccessory: React.FC<DoneAndDismissKeyboa
   const { colors } = useTheme();
   const isDark = useColorScheme() === 'dark';
   const isSuggestionMode = props.onSuggestionTapped != null;
-  const useIos26Capsule = isSuggestionMode && isIOS26OrHigher;
+  const shouldUseIos26Capsule = isSuggestionMode && isIOS26OrHigher;
 
   const styleHooks = StyleSheet.create({
     container: {
       backgroundColor: colors.inputBackgroundColor,
     },
-    chip: useIos26Capsule
+    chip: shouldUseIos26Capsule
       ? {
           backgroundColor: isDark ? colors.buttonDisabledBackgroundColor : withAlpha(colors.shadowColor, 0.06),
         }
@@ -38,7 +38,7 @@ export const DoneAndDismissKeyboardInputAccessory: React.FC<DoneAndDismissKeyboa
           backgroundColor: colors.buttonDisabledBackgroundColor,
         },
     chipText: {
-      color: useIos26Capsule && isDark ? colors.buttonDisabledTextColor : colors.alternativeTextColor,
+      color: shouldUseIos26Capsule && isDark ? colors.buttonDisabledTextColor : colors.alternativeTextColor,
     },
     doneText: {
       color: colors.foregroundColor,
@@ -57,7 +57,7 @@ export const DoneAndDismissKeyboardInputAccessory: React.FC<DoneAndDismissKeyboa
     <View
       style={[
         styles.suggestionBar,
-        useIos26Capsule && styles.suggestionBarIos26,
+        shouldUseIos26Capsule && styles.suggestionBarIos26,
         Platform.OS === 'android' && styles.suggestionBarAndroid,
         styleHooks.container,
         Platform.OS === 'android' && styleHooks.androidSeparator,
@@ -84,7 +84,7 @@ export const DoneAndDismissKeyboardInputAccessory: React.FC<DoneAndDismissKeyboa
           </Pressable>
         ))}
       </ScrollView>
-      {useIos26Capsule ? (
+      {shouldUseIos26Capsule ? (
         <Pressable
           accessibilityRole="button"
           onPress={Keyboard.dismiss}

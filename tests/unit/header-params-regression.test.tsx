@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 
+import { createHeaderRightButtonOptions } from '../../components/HeaderRightButton';
 import Confirm from '../../screen/send/Confirm';
 import MultisigAdvanced from '../../screen/wallets/MultisigAdvanced';
 
@@ -94,7 +95,6 @@ jest.mock('../../components/SafeArea', () => ({
 jest.mock('../../components/Button', () => 'Button');
 jest.mock('../../components/Icon', () => 'Icon');
 jest.mock('../../components/ListItem', () => 'ListItem');
-jest.mock('../../components/HeaderRightButton', () => 'HeaderRightButton');
 jest.mock('../../components/BlueSpacing', () => ({ BlueSpacing20: 'BlueSpacing20' }));
 
 jest.mock('../../components/Alert', () => jest.fn());
@@ -154,6 +154,34 @@ describe('Header options regression guards', () => {
     goBackMock.mockClear();
   });
 
+  it('creates a disabled native checkmark item for a header-right button', () => {
+    const onPress = jest.fn();
+    const options = createHeaderRightButtonOptions({
+      title: 'Done',
+      onPress,
+      disabled: true,
+      testID: 'ModalDoneButton',
+    });
+
+    expect(options.unstable_headerRightItems?.({})).toEqual([
+      {
+        type: 'button',
+        label: 'Done',
+        icon: { type: 'sfSymbol', name: 'checkmark' },
+        onPress,
+        disabled: true,
+        identifier: 'ModalDoneButton',
+        accessibilityLabel: 'Done',
+      },
+    ]);
+  });
+
+  it('leaves a native header-right button enabled when disabled is omitted', () => {
+    const options = createHeaderRightButtonOptions({ title: 'Done' });
+
+    expect(options.unstable_headerRightItems?.({})[0]).not.toHaveProperty('disabled');
+  });
+
   it('sets Confirm headerRight only once across same-props rerenders', async () => {
     routeParams = {
       recipients: [{ address: 'bc1qtestaddress0000000000000000000000000000', value: 1234 }],
@@ -172,6 +200,17 @@ describe('Header options regression guards', () => {
     await waitFor(() => {
       expect(setOptionsMock).toHaveBeenCalledTimes(1);
     });
+
+    const options = setOptionsMock.mock.calls[0][0];
+    expect(options.headerRight).toEqual(expect.any(Function));
+    expect(options.unstable_headerRightItems).toEqual(expect.any(Function));
+    expect(options.unstable_headerRightItems()).toEqual([
+      expect.objectContaining({
+        type: 'button',
+        label: 'Details',
+        identifier: 'TransactionDetailsButton',
+      }),
+    ]);
 
     screen.rerender(<Confirm />);
 
@@ -193,6 +232,19 @@ describe('Header options regression guards', () => {
     await waitFor(() => {
       expect(setOptionsMock).toHaveBeenCalledTimes(1);
     });
+
+    const options = setOptionsMock.mock.calls[0][0];
+    expect(options.headerRight).toEqual(expect.any(Function));
+    expect(options.unstable_headerRightItems).toEqual(expect.any(Function));
+    expect(options.unstable_headerRightItems()).toEqual([
+      expect.objectContaining({
+        type: 'button',
+        label: 'Done',
+        icon: { type: 'sfSymbol', name: 'checkmark' },
+        identifier: 'ModalDoneButton',
+        disabled: false,
+      }),
+    ]);
 
     screen.rerender(<MultisigAdvanced />);
 
