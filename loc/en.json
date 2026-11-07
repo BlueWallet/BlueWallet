@@ -289,6 +289,8 @@
     "encrypted_feature_disabled": "This feature cannot be used with encrypted storage enabled.",
     "encrypt_use_expl": "{type} will be used to confirm your identity before making a transaction, unlocking, exporting, or deleting a wallet.",
     "biometrics_fail": "If {type} is not enabled, or fails to unlock, you can use your device passcode as an alternative.",
+    "keychain_retention": "Retain wallets after uninstall",
+    "keychain_retention_expl": "When enabled, iOS can restore wallets from the Keychain after BlueWallet is reinstalled on this device.",
     "general": "General",
     "integration": "Integration",
     "general_continuity": "Continuity",
