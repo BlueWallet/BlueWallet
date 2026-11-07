@@ -66,7 +66,6 @@ export type AddWalletStackParamList = {
     n: number;
     format: string;
     onSave: (m: number, n: number, format: string) => void;
-    headerRight?: HeaderRightRenderer;
   };
   WalletsAddMultisigStep2: {
     m: number;
@@ -131,7 +130,6 @@ const WalletsAddMultisigVaultKeySheetComponent = withLazySuspense(WalletsAddMult
 const WalletsAddMultisigProvideMnemonicsSheetComponent = withLazySuspense(WalletsAddMultisigProvideMnemonicsSheet);
 const WalletsAddMultisigCosignerXpubSheetComponent = withLazySuspense(WalletsAddMultisigCosignerXpubSheet);
 const ScanQRCodeComponent = withLazySuspense(ScanQRCode);
-const multisigSheetAllowedDetents = Platform.OS === 'ios' ? 'fitToContents' : [0.9];
 
 const styles = StyleSheet.create({
   closeButton: {
@@ -342,23 +340,31 @@ const AddWalletStack = () => {
       <Stack.Screen
         name="WalletsAddMultisig"
         component={WalletsAddMultisigComponent}
-        options={navigationStyle({ title: '' })(theme)}
+        options={navigationStyle({
+          title: '',
+          headerStyle: { backgroundColor: theme.colors.elevated },
+          contentStyle: { backgroundColor: theme.colors.elevated },
+        })(theme)}
         initialParams={{ walletLabel: loc.multisig.default_label }}
       />
       <Stack.Screen
         name="MultisigAdvanced"
         component={MultisigAdvancedComponent}
-        options={navigationStyle(
-          {
-            title: loc.multisig.vault_advanced_customize,
-            presentation: 'formSheet',
-            sheetAllowedDetents: multisigSheetAllowedDetents,
-            sheetGrabberVisible: true,
-            headerShown: true,
-            headerTitle: loc.multisig.vault_advanced_customize,
-          },
-          withRouteParamHeaderOptions({ headerRight: true }),
-        )(theme)}
+        options={navigationStyle({
+          title: loc.multisig.vault_advanced_customize,
+          presentation: 'formSheet',
+          // Compact settings sheet — avoid the shared 0.9 Android detent used by taller multisig sheets.
+          // Content must not use flex:1 or Android fitToContents expands to full height.
+          sheetAllowedDetents: 'fitToContents',
+          sheetGrabberVisible: true,
+          // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Title and close stay in the content.
+          headerShown: Platform.OS === 'ios',
+          headerTitle: loc.multisig.vault_advanced_customize,
+          headerBackVisible: false,
+          closeButtonPosition: CloseButtonPosition.Right,
+          headerStyle: { backgroundColor: theme.colors.elevated },
+          contentStyle: { backgroundColor: theme.colors.elevated },
+        })(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisigStep2"
@@ -368,25 +374,41 @@ const AddWalletStack = () => {
       <Stack.Screen
         name="WalletsAddMultisigVaultKeySheet"
         component={WalletsAddMultisigVaultKeySheetComponent}
-        options={navigationStyle({
-          presentation: 'formSheet',
-          sheetAllowedDetents: multisigSheetAllowedDetents,
-          sheetGrabberVisible: true,
-          headerShown: true,
-          headerTitle: '',
-          closeButtonPosition: CloseButtonPosition.Right,
-        })(theme)}
+        options={navigationStyle<AddWalletStackParamList, 'WalletsAddMultisigVaultKeySheet'>(
+          {
+            presentation: 'formSheet',
+            // Fixed detent so Done can pin to the bottom and the seed grid can center in the middle.
+            sheetAllowedDetents: [0.55],
+            sheetGrabberVisible: true,
+            // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Title and close stay in the content.
+            headerShown: Platform.OS === 'ios',
+            headerBackVisible: false,
+            // Close on the right like the other creation sheets. Done stays the primary action.
+            closeButtonPosition: CloseButtonPosition.Right,
+            headerStyle: { backgroundColor: theme.colors.elevated },
+            contentStyle: { backgroundColor: theme.colors.elevated },
+          },
+          (options, { route }) => ({
+            ...options,
+            headerTitle: loc.formatString(loc.multisig.vault_key, { number: route.params?.keyIndex ?? '' }),
+          }),
+        )(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisigProvideMnemonicsSheet"
         component={WalletsAddMultisigProvideMnemonicsSheetComponent}
         options={navigationStyle({
           presentation: 'formSheet',
-          sheetAllowedDetents: multisigSheetAllowedDetents,
+          // Content must not use flex:1 or Android fitToContents expands to full height.
+          sheetAllowedDetents: 'fitToContents',
           sheetGrabberVisible: true,
-          headerShown: true,
-          headerTitle: '',
+          // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Title and close stay in the content.
+          headerShown: Platform.OS === 'ios',
+          headerTitle: loc.wallets.import_title,
+          headerBackVisible: false,
           closeButtonPosition: CloseButtonPosition.Right,
+          headerStyle: { backgroundColor: theme.colors.elevated },
+          contentStyle: { backgroundColor: theme.colors.elevated },
         })(theme)}
       />
       <Stack.Screen
@@ -394,11 +416,16 @@ const AddWalletStack = () => {
         component={WalletsAddMultisigCosignerXpubSheetComponent}
         options={navigationStyle({
           presentation: 'formSheet',
-          sheetAllowedDetents: multisigSheetAllowedDetents,
+          // Content must not use flex:1 or Android fitToContents expands to full height.
+          sheetAllowedDetents: 'fitToContents',
           sheetGrabberVisible: true,
-          headerShown: true,
+          // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Close stays in the content.
+          headerShown: Platform.OS === 'ios',
           headerTitle: '',
+          headerBackVisible: false,
           closeButtonPosition: CloseButtonPosition.Right,
+          headerStyle: { backgroundColor: theme.colors.elevated },
+          contentStyle: { backgroundColor: theme.colors.elevated },
         })(theme)}
       />
       <Stack.Screen

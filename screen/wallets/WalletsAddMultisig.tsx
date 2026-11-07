@@ -4,8 +4,9 @@ import LottieView from 'lottie-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import Button from '../../components/Button';
-import ListItem from '../../components/ListItem';
+import PressableScale from '../../components/PressableScale';
 import SafeArea from '../../components/SafeArea';
+import { SettingsListItem, SettingsSection } from '../../components/SettingsSection';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -60,8 +61,6 @@ const WalletsAddMultisig: React.FC = () => {
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
-      justifyContent: 'space-between',
-      flex: 1,
     },
     textdesc: {
       color: colors.alternativeTextColor,
@@ -98,7 +97,7 @@ const WalletsAddMultisig: React.FC = () => {
   };
 
   return (
-    <SafeArea style={stylesHook.root}>
+    <SafeArea style={[styles.root, stylesHook.root]} ignoreTopInset>
       <View style={styles.descriptionContainer}>
         <View style={styles.imageWrapper}>
           <LottieView source={require('../../img/msvault.json')} style={styles.lottie} autoPlay loop={false} />
@@ -126,15 +125,21 @@ const WalletsAddMultisig: React.FC = () => {
           </Text>
         </Text>
       </View>
-      <View>
-        <ListItem
-          testID="VaultAdvancedCustomize"
-          onPress={showAdvancedOptionsModal}
-          title={loc.multisig.vault_advanced_customize}
-          subtitle={`${getCurrentlySelectedFormat('format')}, ${getCurrentlySelectedFormat('quorum')}`}
-          chevron
-        />
-      </View>
+
+      <PressableScale
+        testID="VaultAdvancedCustomize"
+        onPress={showAdvancedOptionsModal}
+        accessibilityLabel={loc.multisig.vault_advanced_customize}
+      >
+        <SettingsSection containerStyle={styles.settingsSection}>
+          <SettingsListItem
+            title={loc.multisig.vault_advanced_customize}
+            subtitle={`${getCurrentlySelectedFormat('format')}, ${getCurrentlySelectedFormat('quorum')}`}
+            chevron
+            bottomDivider={false}
+          />
+        </SettingsSection>
+      </PressableScale>
 
       <View style={styles.buttonContainer}>
         <Button
@@ -149,10 +154,17 @@ const WalletsAddMultisig: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  root: {
+    justifyContent: 'space-between',
+    flex: 1,
+  },
   descriptionContainer: {
     alignContent: 'center',
     justifyContent: 'center',
     flex: 0.8,
+  },
+  settingsSection: {
+    marginBottom: 0,
   },
   buttonContainer: {
     padding: 24,
