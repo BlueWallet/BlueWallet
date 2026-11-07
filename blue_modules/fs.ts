@@ -270,17 +270,27 @@ const _toFileUri = (filePath: string) => {
 };
 
 const TEMP_EXPORT_PREFIX = 'bluewallet-export-';
+const activeExportPaths = new Set<string>();
 
 const _createTempExportPath = (fileName: string) => {
   const basePath = RNFS.CachesDirectoryPath || RNFS.TemporaryDirectoryPath;
-  return `${basePath}/${TEMP_EXPORT_PREFIX}${Date.now()}-${fileName}`;
+  const prefix = `${basePath}/${TEMP_EXPORT_PREFIX}${Date.now()}`;
+  const path = `${prefix}-${fileName}`;
+  let candidate = path;
+  for (let suffix = 1; activeExportPaths.has(candidate); suffix++) candidate = `${prefix}-${suffix}-${fileName}`;
+  activeExportPaths.add(candidate);
+  return candidate;
 };
 
 export const cleanupTemporaryExportFiles = async (): Promise<void> => {
   const basePath = RNFS.CachesDirectoryPath || RNFS.TemporaryDirectoryPath;
   try {
     const entries = await RNFS.readDir(basePath);
-    await Promise.all(entries.filter(entry => entry.name.startsWith(TEMP_EXPORT_PREFIX)).map(entry => _safeUnlink(entry.path)));
+    await Promise.all(
+      entries
+        .filter(entry => entry.name.startsWith(TEMP_EXPORT_PREFIX) && !activeExportPaths.has(entry.path))
+        .map(entry => _safeUnlink(entry.path)),
+    );
   } catch (error) {
     console.warn('Failed to clean temporary export files:', error);
   }
@@ -386,6 +396,7 @@ export const writeFileAndExport = async function (fileName: string, contents: st
         }
       } finally {
         await _safeUnlink(sourceFilePath);
+        activeExportPaths.delete(sourceFilePath);
       }
       return;
     }
@@ -396,6 +407,7 @@ export const writeFileAndExport = async function (fileName: string, contents: st
       await _shareOpen(filePath, true);
     } finally {
       await _safeUnlink(filePath);
+      activeExportPaths.delete(filePath);
     }
   } catch (error) {
     if (isCancel(error)) {

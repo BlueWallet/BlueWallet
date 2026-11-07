@@ -466,6 +466,8 @@
     "details_export_save_csv": "Save CSV",
     "details_export_save_bip329": "Save BIP-329 JSONL",
     "details_export_bip329": "BIP-329 JSONL",
+    "details_export_bip329_shortcut": "Export BIP-329 Wallet Labels",
+    "details_export_bip329_availability": "On-chain wallet details with transactions or owned address labels",
     "details_export_bip329_description": "Bitcoin Wallet Labels Export Format (.jsonl)",
     "details_export_csv": "CSV",
     "details_export_history": "Export History",

@@ -11,20 +11,12 @@ The menu screenshot is captured from Wallet Details in the iPhone 18 Pro simulat
 
 ![Quick Look Raw](quicklook-raw.png)
 
-Native preview smoke test (boot an iOS simulator first; commands below use Apple Silicon):
+Native preview smoke test (macOS with Xcode and an installed iOS simulator runtime):
 
 ```sh
-preview_test_dir=$(mktemp -d)
-mkdir -p "$preview_test_dir/PreviewSmoke.app"
-cp ios/QuickLookPreviewTests/Info.plist "$preview_test_dir/PreviewSmoke.app/Info.plist"
-xcrun --sdk iphonesimulator swiftc -target arm64-apple-ios18.0-simulator -parse-as-library \
-  ios/QuickLookPreview/PreviewViewController.swift \
-  ios/QuickLookPreview/ScriptDescription.swift \
-  ios/QuickLookPreviewTests/PreviewSmokeTests.swift \
-  -o "$preview_test_dir/PreviewSmoke.app/PreviewSmoke"
-codesign --force --sign - "$preview_test_dir/PreviewSmoke.app"
-xcrun simctl install booted "$preview_test_dir/PreviewSmoke.app"
-xcrun simctl launch --console booted io.bluewallet.preview-smoke
+node scripts/test-quicklook-preview.ts
 ```
 
-The test checks that invalid PSBT/transaction files and unreadable files throw, valid JSONL produces three record sections, malformed JSONL lines are counted, and Raw displays the original contents. Success prints `PASS` and writes `tmp/preview-smoke-results.txt` in the test app's data container. Launch with `--raw` to leave the Raw view selected for inspection.
+The `quicklook-preview` job in `.github/workflows/e2e-ios.yml` runs this command on every PR, independently of the main app build. It compiles the production preview controller and native assertions, creates a dedicated simulator, and fails on compilation errors, assertions, crashes, or a missing completion receipt. The simulator and build directory are removed afterward.
+
+The assertions cover invalid PSBT/transaction data, unreadable files, JSONL sections, invalid-line counts, and original Raw contents. Set `PREVIEW_RESULTS_DIR` to retain the success receipt and a simulator screenshot; CI uploads these as the `quicklook-preview-results` artifact.

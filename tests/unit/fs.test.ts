@@ -347,6 +347,49 @@ describe('temporary export cleanup', () => {
     jest.restoreAllMocks();
   });
 
+  it.each([true, false])('preserves an in-flight export during cleanup and a second export (share=%s)', async share => {
+    const Share = require('react-native-share');
+    const { saveDocuments } = require('@react-native-documents/picker');
+    let finishExport!: () => void;
+    let sheetOpened!: () => void;
+    const opened = new Promise<void>(resolve => {
+      sheetOpened = resolve;
+    });
+    const sheet = new Promise<void>(resolve => {
+      finishExport = resolve;
+    });
+    if (share)
+      Share.open.mockImplementationOnce(() => {
+        sheetOpened();
+        return sheet;
+      });
+    else
+      saveDocuments.mockImplementationOnce(async () => {
+        sheetOpened();
+        await sheet;
+        return [{ error: null }];
+      });
+    jest.spyOn(Date, 'now').mockReturnValue(1_793_619_200_000);
+    const firstPath = '/mock/Caches/bluewallet-export-1793619200000-sample.csv';
+    RNFS.__mockFsHelpers.setExists(firstPath);
+
+    const first = writeFileAndExport('sample.csv', 'first', share);
+    await opened;
+    RNFS.readDir.mockResolvedValue([{ name: firstPath.split('/').pop(), path: firstPath }]);
+    try {
+      await cleanupTemporaryExportFiles();
+      await writeFileAndExport('sample.csv', 'second', true);
+      expect(RNFS.unlink).not.toHaveBeenCalledWith(firstPath);
+      const paths = RNFS.writeFile.mock.calls.map(([path]: [string]) => path);
+      expect(new Set(paths).size).toBe(2);
+      expect(paths.every((path: string) => path.endsWith('.csv'))).toBe(true);
+    } finally {
+      finishExport();
+      await first;
+    }
+    expect(RNFS.unlink).toHaveBeenCalledWith(firstPath);
+  });
+
   it('removes all leftover BlueWallet export files from the cache', async () => {
     const now = Date.UTC(2026, 10, 2, 12);
     const stalePath = '/mock/Caches/bluewallet-export-1-old.csv';

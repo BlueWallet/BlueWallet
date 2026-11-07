@@ -1,3 +1,5 @@
+import loc from '../loc';
+
 export type ScreenMenuAction =
   | 'reloadTransactions'
   | 'send'
@@ -144,7 +146,7 @@ export const menuShortcuts: readonly { title: string; key: string; where: string
   { title: 'Import Wallet Notes', key: 'Alt+I', where: 'On-chain wallet details with transaction history' },
   { title: 'Export Wallet Backup', key: 'Alt+E', where: 'Wallet details' },
   { title: 'Export Accounting CSV', key: 'Alt+Shift+C', where: 'Wallet details with transaction history' },
-  { title: 'Export BIP-329 Backup', key: 'Alt+Shift+B', where: 'On-chain wallet details with transaction history' },
+  { title: loc.wallets.details_export_bip329_shortcut, key: 'Alt+Shift+B', where: loc.wallets.details_export_bip329_availability },
   { title: 'Settings', key: ',', where: 'Anywhere after unlocking' },
   { title: 'Keyboard Shortcuts…', key: '/', where: 'Anywhere after unlocking' },
 ] as const;

@@ -59,6 +59,7 @@ import {
 import { createBip329WalletHistoryBackup, getBip329Origin } from '../../blue_modules/bip329-wallet-history';
 import { isDesktop } from '../../blue_modules/environment';
 import useScreenMenuActions from '../../hooks/useScreenMenuActions';
+import useWalletHistorySummary from '../../hooks/useWalletHistorySummary';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 
@@ -112,8 +113,13 @@ const WalletDetails: React.FC = () => {
   const [importedNoteResults, setImportedNoteResults] = useState<Map<string, string>>(new Map());
   const [pendingNoteUpdates, setPendingNoteUpdates] = useState<Map<string, string>>(new Map());
   const [selectedNoteOverwrites, setSelectedNoteOverwrites] = useState<Set<string>>(new Set());
-  const walletTransactionsLength = wallet.getTransactions().length;
-  const hasAddressLabels = wallet.chain === Chain.ONCHAIN && Object.keys(addressMetadata).some(address => wallet.weOwnAddress(address));
+  const [historyRevision, setHistoryRevision] = useState(0);
+  const { transactionCount: walletTransactionsLength, hasAddressLabels } = useWalletHistorySummary(
+    wallet,
+    wallets,
+    addressMetadata,
+    historyRevision,
+  );
   const canExportLabels = wallet.chain === Chain.ONCHAIN && (walletTransactionsLength > 0 || hasAddressLabels);
   const hasHistoryMenu = walletTransactionsLength > 0 || canExportLabels;
   const [coinControlStats, setCoinControlStats] = useState(() => getCoinControlStats(wallet));
@@ -578,6 +584,7 @@ const WalletDetails: React.FC = () => {
       hd._lastBalanceFetch = 0;
       presentAlert({ message: msg });
     }
+    setHistoryRevision(revision => revision + 1);
   };
 
   const handleEditWalletName = useCallback(async () => {

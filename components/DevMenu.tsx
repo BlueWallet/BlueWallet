@@ -8,6 +8,7 @@ import { LightningTransaction, Transaction, TWallet } from '../class/wallets/typ
 import { encodeBip329Record, encodeBip329TransactionLabel, writeFileAndExport } from '../blue_modules/fs';
 import { createAccountingHistoryCsv, createHistoryExportFileNames } from '../blue_modules/wallet-history-export';
 import { Chain } from '../models/bitcoinUnits';
+import loc from '../loc';
 
 const DEV_SAMPLE_TXID = 'f91d0a8a78462bc59398f2c5d7a84fcff491c26ba54c4833478b202796c8aafd';
 const DEV_SAMPLE_PREVIOUS_TXID = 'f546156d9044844e02b181026a1a407abfca62e7ea1159f87bbeaa77b4286c74';
@@ -253,9 +254,9 @@ const DevMenu: React.FC = () => {
         };
 
         const showBackupFormats = (share: boolean) => {
-          Alert.alert('Backup', 'Export portable Bitcoin wallet labels and notes using the BIP-329 standard.', [
+          Alert.alert(loc.wallets.details_export_backup_category, loc.wallets.details_export_backup_description, [
             {
-              text: 'BIP-329 JSONL',
+              text: loc.wallets.details_export_bip329,
               onPress: async () => await exportSample('backup', share),
             },
             { text: 'Cancel', style: 'cancel' },
@@ -263,15 +264,11 @@ const DevMenu: React.FC = () => {
         };
 
         const showCategories = (share: boolean) => {
-          Alert.alert(
-            share ? 'Share Sample History' : 'Save Sample History',
-            'Choose Accounting for bookkeeping or Backup for portable Bitcoin wallet labels and notes.',
-            [
-              { text: 'Accounting', onPress: () => showAccountingFormats(share) },
-              { text: 'Backup', onPress: () => showBackupFormats(share) },
-              { text: 'Cancel', style: 'cancel' },
-            ],
-          );
+          Alert.alert(share ? 'Share Sample History' : 'Save Sample History', loc.wallets.details_export_backup_description, [
+            { text: 'Accounting', onPress: () => showAccountingFormats(share) },
+            { text: loc.wallets.details_export_backup_category, onPress: () => showBackupFormats(share) },
+            { text: 'Cancel', style: 'cancel' },
+          ]);
         };
 
         Alert.alert('Export Sample History', 'Choose how to deliver the sample export', [

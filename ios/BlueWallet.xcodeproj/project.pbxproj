@@ -967,6 +967,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}",
 			);
 			name = "Upload source maps to Bugsnag";
 			outputFileListPaths = (
@@ -975,7 +976,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "SOURCE_MAP=\"$TMPDIR/$(md5 -qs \"$CONFIGURATION_BUILD_DIR\")-main.jsbundle.map\" ../node_modules/@bugsnag/react-native/bugsnag-react-native-xcode.sh\n\n";
+			shellScript = "BUILT_PRODUCTS_DIR=\"$TARGET_BUILD_DIR\" SOURCE_MAP=\"$TMPDIR/$(md5 -qs \"$CONFIGURATION_BUILD_DIR\")-main.jsbundle.map\" ../node_modules/@bugsnag/react-native/bugsnag-react-native-xcode.sh\n\n";
 		};
 		BFE56A9A22A21E360BF7A1EC /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
