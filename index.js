@@ -8,6 +8,7 @@ import { AppRegistry, LogBox } from 'react-native';
 import BackgroundFetch from 'react-native-background-fetch';
 
 import App from './App';
+import { setHideSecretsOnScreen } from './helpers/secretsOnScreen';
 import { restoreSavedPreferredFiatCurrencyAndExchangeFromStorage } from './blue_modules/currency';
 import { runArkBackgroundTask } from './blue_modules/arkade-background';
 
@@ -35,7 +36,10 @@ LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
 ]);
 
-const BlueAppComponent = () => {
+// eslint-disable-next-line react/prop-types
+const BlueAppComponent = ({ hideSecretsOnScreen }) => {
+  // From the -e2eHideSecrets launch argument, via native initialProps.
+  setHideSecretsOnScreen(hideSecretsOnScreen === true);
   useEffect(() => {
     restoreSavedPreferredFiatCurrencyAndExchangeFromStorage().catch(error => {
       console.error('Failed to restore preferred currency and exchange rates on startup:', error);
