@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking } from 'react-native';
 import { reconcileArkBackgroundTaskResults } from '../blue_modules/arkade-background';
 import { updateExchangeRate } from '../blue_modules/currency';
-import { showFilePickerAndReadFile } from '../blue_modules/fs';
+import { readQRCodeFromImageFile, showFilePickerAndReadFile } from '../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import {
   clearStoredNotifications,
@@ -20,7 +20,6 @@ import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
 import { useSettings } from './context/useSettings';
 import { useStorage } from './context/useStorage';
-import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 import RNFS from 'react-native-fs';
 import presentAlert from '../components/Alert';
 import { setAvailableRecentWalletIDs, setHiddenRecentWalletIDs, setRecentMenuItemsEnabled } from '../components/Context/recentMenuItems';
@@ -28,7 +27,10 @@ import useWidgetCommunication from './useWidgetCommunication';
 import useHandoffListener from './useHandoffListener';
 import useMenuActions, { setNativeMenuWalletsInitialized, setNativeOpenFileHandler } from './useMenuActions';
 import useClipboardDetection from './useClipboardDetection';
+import usePendingSharedImage from './usePendingSharedImage';
 import { errorMessage } from '../helpers/errorMessage';
+import decodeURL from '../helpers/decodeURL';
+import { isSharedImageEvent, type OpenURLEvent } from '../helpers/sharedImage';
 
 /**
  * Hook that initializes all companion listeners and functionality without rendering a component
@@ -270,37 +272,33 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   }, [shouldActivateListeners]);
 
   const handleOpenURL = useCallback(
-    async (event: { url: string }): Promise<void> => {
+    async (event: OpenURLEvent): Promise<void> => {
       if (!shouldActivateListeners) return;
 
       try {
         if (!event.url) return;
-        let decodedUrl: string;
-        try {
-          decodedUrl = decodeURIComponent(event.url);
-        } catch (e) {
-          console.error('Failed to decode URL, using original', e);
-          decodedUrl = event.url;
-        }
+        const decodedUrl = decodeURL(event.url);
         const fileName = decodedUrl.split('/').pop()?.toLowerCase() || '';
-        if (/\.(jpe?g|png)$/i.test(fileName)) {
-          let base64: string;
+        const isSharedImage = isSharedImageEvent(event);
+        if (isSharedImage || /\.(jpe?g|png|heic|heif|webp|gif|bmp|tiff?)$/i.test(fileName)) {
           try {
-            base64 = await RNFS.readFile(decodedUrl, 'base64');
-          } catch {
-            base64 = await RNFS.readFile(decodedUrl.replace(/^file:\/\//, ''), 'base64');
+            const qrValue = await readQRCodeFromImageFile(decodedUrl);
+            triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+            DeeplinkSchemaMatch.navigationRouteFor({ url: qrValue }, value => navigationRef.navigate(...value), {
+              wallets,
+              addWallet,
+              saveToDisk,
+              setSharedCosigner,
+            });
+          } finally {
+            if (isSharedImage) {
+              try {
+                await RNFS.unlink(decodedUrl.replace(/^file:\/\//, ''));
+              } catch {
+                // The file may already have been removed by a later share or system cleanup.
+              }
+            }
           }
-          const qrValue = await detectQRCodeInImage(base64);
-          if (!qrValue) {
-            throw new Error(loc.send.qr_error_no_qrcode);
-          }
-          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          DeeplinkSchemaMatch.navigationRouteFor({ url: qrValue }, value => navigationRef.navigate(...value), {
-            wallets,
-            addWallet,
-            saveToDisk,
-            setSharedCosigner,
-          });
         } else {
           DeeplinkSchemaMatch.navigationRouteFor(event, value => navigationRef.navigate(...value), {
             wallets,
@@ -317,6 +315,8 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     },
     [wallets, addWallet, saveToDisk, setSharedCosigner, shouldActivateListeners],
   );
+
+  usePendingSharedImage(shouldActivateListeners, handleOpenURL);
 
   useEffect(() => {
     setNativeMenuWalletsInitialized(walletsInitialized);
@@ -407,7 +407,9 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
       hasHandledInitialURL.current = true;
       Linking.getInitialURL()
         .then(url => {
-          if (url && DeeplinkSchemaMatch.hasSchema(url)) {
+          if (!url) return;
+          const decodedUrl = decodeURL(url);
+          if (DeeplinkSchemaMatch.hasSchema(url) || /\.(?:jpe?g|png|heic|heif|webp|gif|bmp|tiff?)$/i.test(decodedUrl)) {
             return handleOpenURL({ url });
           }
         })

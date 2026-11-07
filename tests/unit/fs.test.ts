@@ -4,8 +4,26 @@ import {
   encodeCsvRow,
   parseWalletHistoryNotes,
   planWalletHistoryNoteImport,
+  readQRCodeFromImageFile,
   selectWalletHistoryNoteUpdates,
 } from '../../blue_modules/fs';
+import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
+import RNFS from 'react-native-fs';
+
+describe('fs image QR decoding', () => {
+  afterEach(() => jest.clearAllMocks());
+
+  it('reads a shared file URL and sends its base64 contents through the QR decoder', async () => {
+    jest.mocked(RNFS.readFile).mockRejectedValueOnce(new Error('file URL unsupported')).mockResolvedValueOnce('shared-image-base64');
+    jest.mocked(detectQRCodeInImage).mockResolvedValueOnce('bitcoin:bc1qshared');
+
+    await expect(readQRCodeFromImageFile('file:///tmp/shared-images/qr.png')).resolves.toBe('bitcoin:bc1qshared');
+
+    expect(RNFS.readFile).toHaveBeenNthCalledWith(1, 'file:///tmp/shared-images/qr.png', 'base64');
+    expect(RNFS.readFile).toHaveBeenNthCalledWith(2, '/tmp/shared-images/qr.png', 'base64');
+    expect(detectQRCodeInImage).toHaveBeenCalledWith('shared-image-base64');
+  });
+});
 
 describe('fs wallet history notes', () => {
   const bip329Txid = 'f91d0a8a78462bc59398f2c5d7a84fcff491c26ba54c4833478b202796c8aafd';
