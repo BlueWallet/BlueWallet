@@ -6,6 +6,7 @@ import {
   createAccountingHistoryCsv,
   createHistoryExportFileNames,
   createHistoryExportMenuActions,
+  getTransactionFee,
   IMPORT_NOTES_ACTION_ID,
   SAVE_ACCOUNTING_ACTION_ID,
   SAVE_BACKUP_ACTION_ID,
@@ -58,6 +59,7 @@ describe('wallet history exports', () => {
         },
       ],
       value: -50_000_000,
+      fee: 0.0001,
       confirmations: 7,
       blockhash: 'c'.repeat(64),
       blocktime: timestamp,
@@ -136,7 +138,7 @@ describe('wallet history exports', () => {
     expect(actions[1].text).toBe('Import Notes');
     expect(actions[0].subactions?.[0].subactions?.[0].subactions?.[0].subtitle).toBeUndefined();
     expect(serializedActions).toContain('Transaction records for bookkeeping');
-    expect(serializedActions).toContain('Portable Bitcoin wallet labels and notes');
+    expect(serializedActions).toContain('Export Bitcoin labels and coin metadata');
     expect(serializedActions).toContain('Bitcoin Wallet Labels Export Format (.jsonl)');
     expect(actions[1].subtitle).toBeUndefined();
   });
@@ -145,18 +147,50 @@ describe('wallet history exports', () => {
     const actions = createHistoryExportMenuActions(Chain.ONCHAIN, 2, 'Export History', 'Import Notes...', false);
     const { ids } = buildMenu(actions, 'ios');
 
-    expect(actions[0].subactions?.map(action => action.text)).toEqual(['Accounting', 'Backup']);
+    expect(actions[0].subactions?.map(action => action.text)).toEqual(['Accounting', 'Wallet Labels']);
     expect(lookupId(ids, [0, 0, 0])).toBe(SHARE_ACCOUNTING_ACTION_ID);
     expect(lookupId(ids, [0, 1, 0])).toBe(SHARE_BACKUP_ACTION_ID);
     expect(JSON.stringify(actions)).not.toContain(SAVE_ACCOUNTING_ACTION_ID);
     expect(JSON.stringify(actions)).not.toContain(SAVE_BACKUP_ACTION_ID);
 
     const android = buildMenu(actions, 'android');
-    expect(android.items.map(item => item.title)).toEqual(['Accounting', 'Backup', 'Import Notes']);
+    expect(android.items.map(item => item.title)).toEqual(['Accounting', 'Wallet Labels', 'Import Notes']);
     expect(android.items[0].actions?.map(item => item.title)).toEqual(['CSV']);
     expect(android.items[1].actions?.map(item => item.title)).toEqual(['BIP-329 JSONL']);
     expect(lookupId(android.ids, [0, 0])).toBe(SHARE_ACCOUNTING_ACTION_ID);
     expect(lookupId(android.ids, [1, 0])).toBe(SHARE_BACKUP_ACTION_ID);
+  });
+
+  it('keeps Android sharing and direct document saving within one submenu level', () => {
+    const { items, ids } = buildMenu(
+      createHistoryExportMenuActions(Chain.ONCHAIN, 1, 'Export History', 'Import Notes', false, false, 'android'),
+      'android',
+    );
+    expect(items[0].actions?.map(item => item.title)).toEqual(['CSV', 'Save CSV']);
+    expect(items[1].actions?.map(item => item.title)).toEqual(['BIP-329 JSONL', 'Save BIP-329 JSONL']);
+    expect(lookupId(ids, [0, 0])).toBe(SHARE_ACCOUNTING_ACTION_ID);
+    expect(lookupId(ids, [0, 1])).toBe(SAVE_ACCOUNTING_ACTION_ID);
+    expect(lookupId(ids, [1, 0])).toBe(SHARE_BACKUP_ACTION_ID);
+    expect(lookupId(ids, [1, 1])).toBe(SAVE_BACKUP_ACTION_ID);
+  });
+
+  it('allows owned labels to be exported without any transaction history', () => {
+    const actions = createHistoryExportMenuActions(Chain.ONCHAIN, 0, 'Export History', 'Import Notes', false, true, 'android');
+    const { items, ids } = buildMenu(actions, 'android');
+    expect(items.map(item => item.title)).toEqual(['Wallet Labels']);
+    expect(lookupId(ids, [0, 0])).toBe(SHARE_BACKUP_ACTION_ID);
+    expect(lookupId(ids, [0, 1])).toBe(SAVE_BACKUP_ACTION_ID);
+  });
+
+  it.each([
+    [0.0001, 10_000],
+    [123, 123],
+    [0, 0],
+    [-1, undefined],
+    [NaN, undefined],
+    [undefined, undefined],
+  ])('normalizes a reported fee %s when input values are unavailable', (fee, expected) => {
+    expect(getTransactionFee(transaction({ fee }))).toBe(expected);
   });
 
   it('omits BIP-329 Backup and Import Notes for Lightning, and hides all actions without history', () => {

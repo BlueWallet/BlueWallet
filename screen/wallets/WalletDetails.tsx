@@ -57,6 +57,7 @@ import {
   SHARE_BACKUP_ACTION_ID,
 } from '../../blue_modules/wallet-history-export';
 import { createBip329WalletHistoryBackup, getBip329Origin } from '../../blue_modules/bip329-wallet-history';
+import { isDesktop } from '../../blue_modules/environment';
 import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
@@ -112,6 +113,9 @@ const WalletDetails: React.FC = () => {
   const [pendingNoteUpdates, setPendingNoteUpdates] = useState<Map<string, string>>(new Map());
   const [selectedNoteOverwrites, setSelectedNoteOverwrites] = useState<Set<string>>(new Set());
   const walletTransactionsLength = wallet.getTransactions().length;
+  const hasAddressLabels = wallet.chain === Chain.ONCHAIN && Object.keys(addressMetadata).some(address => wallet.weOwnAddress(address));
+  const canExportLabels = wallet.chain === Chain.ONCHAIN && (walletTransactionsLength > 0 || hasAddressLabels);
+  const hasHistoryMenu = walletTransactionsLength > 0 || canExportLabels;
   const [coinControlStats, setCoinControlStats] = useState(() => getCoinControlStats(wallet));
 
   useEffect(() => {
@@ -305,8 +309,9 @@ const WalletDetails: React.FC = () => {
     if (data === false) return;
 
     let importedNotes;
+    const diagnostics = { originMismatchCount: 0 };
     try {
-      importedNotes = parseWalletHistoryNotes(data, getBip329Origin(wallet));
+      importedNotes = parseWalletHistoryNotes(data, getBip329Origin(wallet), diagnostics);
     } catch {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ message: loc.wallets.import_error });
@@ -320,11 +325,26 @@ const WalletDetails: React.FC = () => {
     }
 
     const { updates, overwriteCount } = planWalletHistoryNoteImport(importedNotes, transactionMetadataKeys, txMetadata);
+    const skippedMessage = diagnostics.originMismatchCount
+      ? String(loc.formatString(loc.wallets.details_import_notes_origin_skipped, { count: diagnostics.originMismatchCount }))
+      : '';
 
     if (updates.size === 0) {
-      presentAlert({ message: loc.wallets.details_import_notes_no_changes });
+      presentAlert({ message: [loc.wallets.details_import_notes_no_changes, skippedMessage].filter(Boolean).join('\n\n') });
       return;
     }
+
+    const confirmed = await new Promise<boolean>(resolve => {
+      presentAlert({
+        title: loc.wallets.details_import_notes.replace(/(?:\.{3}|…)+$/, ''),
+        message: [loc.wallets.details_import_notes_scope, skippedMessage].filter(Boolean).join('\n\n'),
+        buttons: [
+          { text: loc._.cancel, style: 'cancel', onPress: () => resolve(false) },
+          { text: loc._.ok, onPress: () => resolve(true) },
+        ],
+      });
+    });
+    if (!confirmed) return;
 
     if (overwriteCount === 0) {
       await applyNoteUpdates(updates);
@@ -388,8 +408,10 @@ const WalletDetails: React.FC = () => {
         walletTransactionsLength,
         loc.wallets.details_export_history,
         loc.wallets.details_import_notes,
+        isDesktop,
+        hasAddressLabels,
       ),
-    [wallet.chain, walletTransactionsLength],
+    [wallet.chain, walletTransactionsLength, hasAddressLabels],
   );
 
   useEffect(() => {
@@ -659,8 +681,7 @@ const WalletDetails: React.FC = () => {
     importWalletNotes: wallet.chain === Chain.ONCHAIN && walletTransactionsLength > 0 ? importNotes : undefined,
     exportWalletBackup: navigateToWalletExport,
     exportAccountingCsv: walletTransactionsLength > 0 ? () => toolTipOnPressMenuItem(SAVE_ACCOUNTING_ACTION_ID) : undefined,
-    exportBip329Backup:
-      wallet.chain === Chain.ONCHAIN && walletTransactionsLength > 0 ? () => toolTipOnPressMenuItem(SAVE_BACKUP_ACTION_ID) : undefined,
+    exportBip329Backup: canExportLabels ? () => toolTipOnPressMenuItem(SAVE_BACKUP_ACTION_ID) : undefined,
     deleteWallet: handleDeleteButtonTapped,
   });
 
@@ -733,7 +754,7 @@ const WalletDetails: React.FC = () => {
                     <Text onPress={purgeTransactions} style={[styles.textLabel2, stylesHook.textLabel2]} testID="PurgeBackdoorButton">
                       {loc.transactions.list_title}
                     </Text>
-                    {walletTransactionsLength > 0 && (
+                    {hasHistoryMenu && (
                       <ToolTipMenu
                         isButton
                         shouldOpenOnLongPress={false}

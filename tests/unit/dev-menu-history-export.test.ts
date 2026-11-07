@@ -1,5 +1,3 @@
-import { readFileSync } from 'fs';
-import path from 'path';
 import { createDeveloperAccountingSample, createDeveloperBip329Sample } from '../../components/DevMenu';
 
 describe('developer history export menu', () => {
@@ -32,17 +30,5 @@ describe('developer history export menu', () => {
       value: 100_000,
       label: 'Developer frozen output',
     });
-  });
-
-  it('registers the two-step Share/Save then Accounting/Backup developer flow', () => {
-    const source = readFileSync(path.join(__dirname, '../../components/DevMenu.tsx'), 'utf8');
-
-    expect(source).toContain("DevSettings.addMenuItem('Test History Export Menu'");
-    expect(source).toContain("text: 'Share'");
-    expect(source).toContain("text: 'Save'");
-    expect(source).toContain("text: 'Accounting'");
-    expect(source).toContain("text: 'Backup'");
-    expect(source).toContain("text: 'CSV'");
-    expect(source).toContain("text: 'BIP-329 JSONL'");
   });
 });

@@ -134,7 +134,13 @@ const restoreNeutralizedCsvValue = (value: string): string => {
   return hasFormulaPrefix ? original : value;
 };
 
-const parseBip329TransactionNotes = (contents: string, expectedOrigin?: string): Array<{ transactionId: string; memo: string }> =>
+export type WalletHistoryImportDiagnostics = { originMismatchCount: number };
+
+const parseBip329TransactionNotes = (
+  contents: string,
+  expectedOrigin?: string,
+  diagnostics?: WalletHistoryImportDiagnostics,
+): Array<{ transactionId: string; memo: string }> =>
   contents
     .split(/\r?\n/)
     .filter(line => line.trim().length > 0)
@@ -147,7 +153,10 @@ const parseBip329TransactionNotes = (contents: string, expectedOrigin?: string):
       if (type !== 'tx' || label === undefined) return [];
       if (!/^[0-9a-f]{64}$/i.test(ref) || typeof label !== 'string') throw new Error('Invalid BIP-329 transaction label');
       if (origin !== undefined && (typeof origin !== 'string' || origin.trim().length === 0)) throw new Error('Invalid BIP-329 origin');
-      if (origin && expectedOrigin && normalizeBip329Origin(origin) !== normalizeBip329Origin(expectedOrigin)) return [];
+      if (origin && expectedOrigin && normalizeBip329Origin(origin) !== normalizeBip329Origin(expectedOrigin)) {
+        if (diagnostics) diagnostics.originMismatchCount++;
+        return [];
+      }
 
       return [{ transactionId: ref, memo: label }];
     });
@@ -157,9 +166,14 @@ const parseBip329TransactionNotes = (contents: string, expectedOrigin?: string):
  * Older BlueWallet exports did not escape commas in memos, so extra CSV
  * columns are joined back into the memo.
  */
-export const parseWalletHistoryNotes = (contents: string, expectedOrigin?: string): Array<{ transactionId: string; memo: string }> => {
+export const parseWalletHistoryNotes = (
+  contents: string,
+  expectedOrigin?: string,
+  diagnostics?: WalletHistoryImportDiagnostics,
+): Array<{ transactionId: string; memo: string }> => {
+  if (diagnostics) diagnostics.originMismatchCount = 0;
   const normalizedContents = contents.replace(/^\uFEFF/, '').trimStart();
-  if (normalizedContents.startsWith('{')) return parseBip329TransactionNotes(normalizedContents, expectedOrigin);
+  if (normalizedContents.startsWith('{')) return parseBip329TransactionNotes(normalizedContents, expectedOrigin, diagnostics);
 
   const rows = parseCsv(normalizedContents);
   if (rows.length === 0 || rows[0].length < 4) throw new Error('Invalid wallet history CSV');

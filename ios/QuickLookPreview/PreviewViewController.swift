@@ -240,6 +240,7 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
                 records: [],
                 rawContents: nil
             )
+            throw error
         }
     }
 

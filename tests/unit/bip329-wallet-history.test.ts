@@ -4,6 +4,24 @@ import { WalletDescriptor } from '../../class/wallet-descriptor';
 import { createBip329WalletHistoryBackup, getBip329Keypath, getBip329Origin } from '../../blue_modules/bip329-wallet-history';
 
 describe('BIP-329 wallet history backup', () => {
+  it('exports owned address labels from a wallet without any transactions', () => {
+    jest.spyOn(WalletDescriptor, 'fromWallet').mockReturnValue(undefined);
+    const wallet = {
+      getTransactions: () => [],
+      weOwnAddress: (address: string) => address === 'bc1qunused',
+    } as unknown as TWallet;
+    const records = createBip329WalletHistoryBackup(
+      wallet,
+      {},
+      {
+        bc1qunused: { label: 'Future payment' },
+        bc1qforeign: { label: 'Other wallet' },
+      },
+    )
+      .split('\n')
+      .map(line => JSON.parse(line));
+    expect(records).toEqual([{ type: 'addr', ref: 'bc1qunused', label: 'Future payment' }]);
+  });
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -53,6 +71,7 @@ describe('BIP-329 wallet history backup', () => {
       timestamp: 0,
       confirmations: 0,
       value: 100_000,
+      fee: 0.0001,
     } as unknown as Transaction;
     const wallet = {
       getTransactions: () => [transaction],
@@ -78,6 +97,7 @@ describe('BIP-329 wallet history backup', () => {
     );
     expect(records).not.toContainEqual(expect.objectContaining({ ref: 'bc1qforeign' }));
     expect(records).toContainEqual(expect.objectContaining({ type: 'tx', ref: transaction.txid, label: 'Transaction note' }));
+    expect(records.find(record => record.type === 'tx').fee).toBe(10_000);
     expect(records).toContainEqual(expect.objectContaining({ type: 'output', ref: `${transaction.txid}:0` }));
   });
 });

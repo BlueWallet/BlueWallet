@@ -14,6 +14,21 @@ import {
 const RNFS = require('react-native-fs');
 
 describe('fs wallet history notes', () => {
+  it('reports mismatched BIP-329 origins without importing their notes', () => {
+    const diagnostics = { originMismatchCount: 0 };
+    const contents = [
+      { type: 'tx', ref: 'a'.repeat(64), label: 'Selected wallet', origin: 'wpkh([12345678/84h/0h/0h])' },
+      { type: 'tx', ref: 'b'.repeat(64), label: 'Other wallet', origin: 'wpkh([87654321/84h/0h/0h])' },
+    ]
+      .map(record => JSON.stringify(record))
+      .join('\n');
+    expect(parseWalletHistoryNotes(contents, "wpkh([12345678/84'/0'/0'])", diagnostics)).toEqual([
+      { transactionId: 'a'.repeat(64), memo: 'Selected wallet' },
+    ]);
+    expect(diagnostics.originMismatchCount).toBe(1);
+    parseWalletHistoryNotes('Date,Transaction ID,Amount,Memo\ntoday,abc123,1,Note', undefined, diagnostics);
+    expect(diagnostics.originMismatchCount).toBe(0);
+  });
   const bip329Txid = 'f91d0a8a78462bc59398f2c5d7a84fcff491c26ba54c4833478b202796c8aafd';
   const otherBip329Txid = 'f546156d9044844e02b181026a1a407abfca62e7ea1159f87bbeaa77b4286c74';
 

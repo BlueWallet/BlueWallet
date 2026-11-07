@@ -1,4 +1,5 @@
 import { TTXMetadata } from '../class/blue-app';
+import { Platform } from 'react-native';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
 import { Action } from '../components/types';
 import loc from '../loc';
@@ -27,19 +28,17 @@ export function satoshisToBitcoin(value: number): string {
 }
 
 export function getTransactionFee(transaction: Transaction): number | undefined {
+  if (transaction.inputs.length && transaction.outputs.length) {
+    const inputValues = transaction.inputs.map(input => (input.value == null ? undefined : bitcoinValueToSats(input.value)));
+    const outputValues = transaction.outputs.map(output => (output.value == null ? undefined : bitcoinValueToSats(output.value)));
+    if (inputValues.every(value => value !== undefined) && outputValues.every(value => value !== undefined)) {
+      const fee = inputValues.reduce((total, value) => total + value, 0) - outputValues.reduce((total, value) => total + value, 0);
+      if (Number.isSafeInteger(fee) && fee >= 0) return fee;
+    }
+  }
   const reportedFee = Number(transaction.fee);
-  if (transaction.fee !== undefined && Number.isFinite(reportedFee) && reportedFee >= 0) return Math.round(reportedFee);
-  if (!transaction.inputs.length || !transaction.outputs.length || transaction.inputs.some(input => input.value === undefined))
-    return undefined;
-
-  const inputValues = transaction.inputs.map(input => bitcoinValueToSats(input.value));
-  const outputValues = transaction.outputs.map(output => bitcoinValueToSats(output.value));
-  if (inputValues.some(value => value === undefined) || outputValues.some(value => value === undefined)) return undefined;
-
-  const fee =
-    (inputValues as number[]).reduce((total, value) => total + value, 0) -
-    (outputValues as number[]).reduce((total, value) => total + value, 0);
-  return fee >= 0 ? fee : undefined;
+  if (transaction.fee == null || !Number.isFinite(reportedFee) || reportedFee < 0) return undefined;
+  return Number.isSafeInteger(reportedFee) ? reportedFee : bitcoinValueToSats(reportedFee);
 }
 
 export type AccountingHistoryCell = string | number;
@@ -204,20 +203,34 @@ export function createHistoryExportMenuActions(
   exportText: string,
   importText: string,
   desktop = isDesktop,
+  hasAddressLabels = false,
+  platform = Platform.OS,
 ): Action[] {
   const isOnchain = chain === Chain.ONCHAIN;
+  const hasTransactions = walletTransactionsLength > 0;
+  const canExportLabels = isOnchain && (hasTransactions || hasAddressLabels);
   const shareActions: Action[] = [
     {
       id: 'share_accounting',
       text: loc.wallets.details_export_accounting,
       subtitle: loc.wallets.details_export_accounting_description,
       icon: { iconValue: 'chart.bar.doc.horizontal' },
+      hidden: !hasTransactions,
       subactions: [
         {
           id: SHARE_ACCOUNTING_ACTION_ID,
           text: loc.wallets.details_export_csv,
           icon: { iconValue: 'tablecells' },
         },
+        ...(platform === 'android'
+          ? [
+              {
+                id: SAVE_ACCOUNTING_ACTION_ID,
+                text: loc.wallets.details_export_save_csv,
+                icon: CommonToolTipActions.SaveFile.icon,
+              },
+            ]
+          : []),
       ],
     },
     {
@@ -225,7 +238,7 @@ export function createHistoryExportMenuActions(
       text: loc.wallets.details_export_backup_category,
       subtitle: loc.wallets.details_export_backup_description,
       icon: { iconValue: 'archivebox' },
-      hidden: !isOnchain,
+      hidden: !canExportLabels,
       subactions: [
         {
           id: SHARE_BACKUP_ACTION_ID,
@@ -233,6 +246,15 @@ export function createHistoryExportMenuActions(
           subtitle: loc.wallets.details_export_bip329_description,
           icon: { iconValue: 'bitcoinsign' },
         },
+        ...(platform === 'android'
+          ? [
+              {
+                id: SAVE_BACKUP_ACTION_ID,
+                text: loc.wallets.details_export_save_bip329,
+                icon: CommonToolTipActions.SaveFile.icon,
+              },
+            ]
+          : []),
       ],
     },
   ];
@@ -241,7 +263,7 @@ export function createHistoryExportMenuActions(
       id: exportText,
       text: exportText,
       displayInline: true,
-      hidden: walletTransactionsLength === 0,
+      hidden: !hasTransactions && !canExportLabels,
       subactions: desktop
         ? [
             {
@@ -258,6 +280,7 @@ export function createHistoryExportMenuActions(
                   text: loc.wallets.details_export_accounting,
                   subtitle: loc.wallets.details_export_accounting_description,
                   icon: { iconValue: 'chart.bar.doc.horizontal' },
+                  hidden: !hasTransactions,
                   subactions: [
                     {
                       id: SAVE_ACCOUNTING_ACTION_ID,
@@ -271,7 +294,7 @@ export function createHistoryExportMenuActions(
                   text: loc.wallets.details_export_backup_category,
                   subtitle: loc.wallets.details_export_backup_description,
                   icon: { iconValue: 'archivebox' },
-                  hidden: !isOnchain,
+                  hidden: !canExportLabels,
                   subactions: [
                     {
                       id: SAVE_BACKUP_ACTION_ID,
