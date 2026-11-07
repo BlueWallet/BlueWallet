@@ -863,11 +863,14 @@ describe('Watch only wallet', () => {
       assert.strictEqual(w.getDerivationPath(), path);
       assert.strictEqual(w.getMasterFingerprintHex(), '00000000'); // synthetic origin carries no fingerprint
 
-      // and what Export/Backup shows restores the same wallet
+      // and what Export/Backup shows restores the same wallet, including the path and fingerprint
       const restored = new WatchOnlyWallet();
       restored.setSecret(w.getSecretForExport());
       restored.init();
       assert.strictEqual(restored._getExternalAddressByIndex(0), w._getExternalAddressByIndex(0), path);
+      assert.strictEqual(restored.getDerivationPath(), path);
+      assert.strictEqual(restored.getMasterFingerprintHex(), '00000000');
+      assert.strictEqual(restored.segwitType, w.segwitType);
     }
   });
 
@@ -958,16 +961,79 @@ describe('Watch only wallet', () => {
     w.setDerivationPath("m/86'/0'/0'");
     w.init();
 
-    // still a bech32 wallet, so export must show the bare zpub, not a descriptor
+    // still a bech32 wallet: export is wpkh(), never tr(), and the edited path survives re-import
     assert.ok(!(w._hdWalletInstance instanceof HDTaprootWallet));
     assert.strictEqual(w.segwitType, 'p2wpkh');
-    assert.strictEqual(w.getSecretForExport(), w.getSecret());
+    const exported = w.getSecretForExport();
+    assert.ok(exported.startsWith('wpkh('), exported);
+    assert.ok(exported.includes("86'/0'/0'"), exported);
 
-    // and what it exports restores the same wallet
     const restored = new WatchOnlyWallet();
-    restored.setSecret(w.getSecretForExport());
+    restored.setSecret(exported);
     restored.init();
     assert.strictEqual(restored._getExternalAddressByIndex(0), addressBefore);
+    assert.strictEqual(restored.getDerivationPath(), "m/86'/0'/0'");
+    assert.strictEqual(restored.getMasterFingerprintHex(), '00000000');
+    assert.strictEqual(restored.segwitType, 'p2wpkh');
+    assert.ok(restored.getSecret().startsWith('zpub'));
+  });
+
+  it('zpub, ypub and xpub export a descriptor that keeps an edited path and fingerprint', () => {
+    const cases = [
+      {
+        secret: 'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP',
+        wrapper: 'wpkh(',
+        segwitType: 'p2wpkh',
+        addressPrefix: 'bc1q',
+        secretPrefix: 'zpub',
+      },
+      {
+        secret: 'ypub6Y9u3QCRC1HkZv3stNxcQVwmw7vC7KX5Ldz38En5P88RQbesP2oy16hNyQocVCfYRQPxdHcd3pmu9AFhLv7NdChWmw5iNLryZ2U6EEHdnfo',
+        wrapper: 'sh(wpkh(',
+        segwitType: 'p2sh(p2wpkh)',
+        addressPrefix: '3',
+        secretPrefix: 'ypub',
+      },
+      {
+        secret: 'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps',
+        wrapper: 'pkh(',
+        segwitType: 'p2pkh',
+        addressPrefix: '1',
+        secretPrefix: 'xpub',
+      },
+    ];
+    for (const { secret, wrapper, segwitType, addressPrefix, secretPrefix } of cases) {
+      const w = new WatchOnlyWallet();
+      w.setSecret(secret);
+      w.init();
+      const addressBefore = w._getExternalAddressByIndex(0);
+      assert.ok(addressBefore.startsWith(addressPrefix), addressBefore);
+      // 00 in the high byte: the case a single pad digit would mangle
+      w.setMasterFingerprintFromHex('00beebee');
+      w.setDerivationPath("m/0'");
+
+      const exported = w.getSecretForExport();
+      assert.ok(exported.startsWith(wrapper), `${secretPrefix}: ${exported.slice(0, 12)}`);
+      assert.ok(exported.includes("[00beebee/0']"), exported);
+      assert.notStrictEqual(exported, w.getSecret());
+
+      const restored = new WatchOnlyWallet();
+      restored.setSecret(exported);
+      restored.init();
+      assert.strictEqual(restored._getExternalAddressByIndex(0), addressBefore, secretPrefix);
+      assert.strictEqual(restored.getDerivationPath(), "m/0'");
+      assert.strictEqual(restored.getMasterFingerprintHex(), '00beebee');
+      assert.strictEqual(restored.segwitType, segwitType);
+      assert.ok(restored.getSecret().startsWith(secretPrefix), restored.getSecret().slice(0, 4));
+      assert.strictEqual(restored.getSecret(), w.getSecret());
+    }
+  });
+
+  it('a plain address watch-only exports the address, not a descriptor', () => {
+    const address = 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh';
+    const w = new WatchOnlyWallet();
+    w.setSecret(address);
+    assert.strictEqual(w.getSecretForExport(), address);
   });
 
   it('taproot watch-only exports a tr() descriptor that restores the same wallet, even after a path edit', () => {
