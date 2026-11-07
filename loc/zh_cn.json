@@ -388,6 +388,7 @@
     "open_url_error": "无法使用默认浏览器打开链接。请更换默认浏览器并重试。",
     "rbf_explain": "我们将使用一笔矿工费更高的交易替换当前交易，以便其能更快被矿工打包确认。这称为 RBF（费用替换）。",
     "rbf_title": "加速（RBF）",
+    "rbf_unverified": "无法验证此交易，因此无法加快其处理速度或取消该交易。请尝试连接到另一台 Electrum 服务器。",
     "status_bump": "加速",
     "status_cancel": "取消",
     "txid": "交易 ID",
