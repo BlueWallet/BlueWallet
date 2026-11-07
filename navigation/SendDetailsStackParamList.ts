@@ -22,6 +22,7 @@ export const CoinControlSortType = {
 export type CoinControlSortType = (typeof CoinControlSortType)[keyof typeof CoinControlSortType];
 
 export type SendDetailsParams = {
+  openScanner?: boolean;
   transactionMemo?: string;
   isTransactionReplaceable?: boolean;
   payjoinUrl?: string;

@@ -1329,8 +1329,8 @@ export async function multiGetTransactionByTxid<T extends boolean>(
         // response too large
         // lets do single call, that should go through okay:
         txdata.result = await requestSingle(() => mainClient.blockchainTransaction_get(txdata.param, false));
-        // since we used VERBOSE=false, server sent us plain txhex which we must decode on our end:
-        txdata.result = txhexToElectrumTransaction(txdata.result);
+        // Decode the raw fallback only when the caller requested a verbose transaction.
+        if (verbose) txdata.result = txhexToElectrumTransaction(txdata.result);
       }
       ret[txdata.param] = txdata.result;
       // @ts-ignore: hex property
@@ -1374,6 +1374,24 @@ export async function multiGetTransactionByTxid<T extends boolean>(
   }
 
   return ret;
+}
+
+/**
+ * Removes cached raw txhexes (non-verbose) of these txids, so next time they are fetched from the server. Used when a
+ * cached copy fails verification (e.g. it was saved while connected to a malicious server)
+ */
+export async function forgetCachedTransactions(txids: string[]) {
+  try {
+    const realm = await _getRealm();
+    realm.write(() => {
+      for (const txid of txids) {
+        const cached = realm.objectForPrimaryKey('Cache', txid + '_non_verbose');
+        if (cached) realm.delete(cached);
+      }
+    });
+  } catch (writeError) {
+    console.error('[electrum] Failed to forget transaction cache:', writeError);
+  }
 }
 
 // Returns the value at a given percentile in a sorted numeric array.

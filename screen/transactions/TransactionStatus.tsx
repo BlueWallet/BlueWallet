@@ -1397,7 +1397,6 @@ const TransactionStatus: React.FC = () => {
                   numberOfLines={1}
                   ellipsizeMode="middle"
                   textAlign="right"
-                  interactive={false}
                   selectable
                 />
               </View>

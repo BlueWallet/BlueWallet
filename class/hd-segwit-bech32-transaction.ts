@@ -1,14 +1,61 @@
-import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import assert from 'assert';
 
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
 import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
-import { CreateTransactionUtxo } from './wallets/types.ts';
+import { TaprootWallet } from './wallets/taproot-wallet';
+import { CreateTransactionTarget, CreateTransactionUtxo } from './wallets/types.ts';
 import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
 import { isUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import type { ElectrumTransaction } from '../blue_modules/BlueElectrum';
+import ecc from '../blue_modules/noble_ecc';
+
+/**
+ * Thrown when transaction data from Electrum server fails verification (wrong txid, invalid signature on our input etc).
+ * Malicious server can show us a forged unconfirmed tx (our inputs, attacker's outputs); if we RBF it, we pay the
+ * attacker. See GHSA-6jp4-8v48-cc5v (spesmilo/electrum)
+ */
+export class TxVerificationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TxVerificationError';
+  }
+}
+
+/**
+ * Decodes raw tx hex from Electrum server and checks that it hashes to the txid we asked for. Bad copy is dropped from
+ * cache (it could be saved while connected to a malicious server), so next time we fetch a fresh one
+ */
+async function decodeServerTx(txid: string, hex: unknown): Promise<bitcoin.Transaction> {
+  try {
+    assert(typeof hex === 'string', 'not a raw tx');
+    const tx = bitcoin.Transaction.fromHex(hex);
+    assert(tx.getId() === txid, 'txid mismatch');
+    return tx;
+  } catch (_) {
+    await BlueElectrum.forgetCachedTransactions([txid]);
+    throw new TxVerificationError('Electrum server returned a bad transaction ' + txid);
+  }
+}
+
+/**
+ * Checks that input is a valid p2wpkh spend of `prevOut`: signed by the key `prevOut` pays to. Forged tx (see
+ * `TxVerificationError`) reuses our inputs with copied witness, but signatures dont check out against its outputs
+ */
+function isValidP2wpkhSpend(tx: bitcoin.Transaction, index: number, prevOut: bitcoin.TxOutput): boolean {
+  try {
+    if (tx.ins[index].witness.length !== 2) return false; // padded witness inflates vsize
+    const [sig, pubkey] = tx.ins[index].witness;
+    if (uint8ArrayToHex(bitcoin.payments.p2wpkh({ pubkey }).output!) !== uint8ArrayToHex(prevOut.script)) return false;
+    const { signature, hashType } = bitcoin.script.signature.decode(sig);
+    if (hashType !== bitcoin.Transaction.SIGHASH_ALL) return false; // only SIGHASH_ALL commits to all outputs
+    const hash = tx.hashForWitnessV0(index, bitcoin.payments.p2pkh({ pubkey }).output!, prevOut.value, hashType);
+    return ecc.verify(hash, pubkey, signature);
+  } catch (_) {
+    return false;
+  }
+}
 
 /**
  * Represents transaction of a BIP84 wallet.
@@ -60,7 +107,7 @@ export class HDSegwitBech32Transaction {
     const hexes = await BlueElectrum.multiGetTransactionByTxid([this._txid], false, 10);
     this._txhex = hexes[this._txid];
     if (!this._txhex) throw new Error("Transaction can't be found in mempool");
-    this._txDecoded = bitcoin.Transaction.fromHex(this._txhex);
+    this._txDecoded = await decodeServerTx(this._txid, this._txhex);
   }
 
   /**
@@ -166,30 +213,39 @@ export class HDSegwitBech32Transaction {
    */
   async getInfo() {
     if (!this._wallet) throw new Error('Wallet required for this method');
-    const remoteTx = this._remoteTx ?? (await this._fetchRemoteTx());
     if (!this._txDecoded) await this._fetchTxhexAndDecode();
     assert(this._txDecoded, 'could not fetch tx and decode');
+    const txid = this._txid || this._txDecoded.getId();
 
     const prevInputs = [];
     for (const inp of this._txDecoded.ins) {
       prevInputs.push(uint8ArrayToHex(new Uint8Array(inp.hash).reverse()));
     }
 
-    const prevTransactions = await BlueElectrum.multiGetTransactionByTxid(prevInputs, true);
+    // raw hexes (not server-decoded jsons), so we can check them against txids
+    const prevHexes = await BlueElectrum.multiGetTransactionByTxid(prevInputs, false);
+    const prevTransactions: Record<string, bitcoin.Transaction> = {};
+    for (const prevTxid of prevInputs) {
+      prevTransactions[prevTxid] = await decodeServerTx(prevTxid, prevHexes[prevTxid]);
+    }
 
     // fetched, now lets count how much satoshis went in
     let wentIn = 0;
     const utxos: CreateTransactionUtxo[] = [];
-    for (const inp of this._txDecoded.ins) {
+    for (let i = 0; i < this._txDecoded.ins.length; i++) {
+      const inp = this._txDecoded.ins[i];
       const reversedHash = uint8ArrayToHex(new Uint8Array(inp.hash).reverse());
-      if (prevTransactions[reversedHash] && prevTransactions[reversedHash].vout && prevTransactions[reversedHash].vout[inp.index]) {
-        let value = prevTransactions[reversedHash].vout[inp.index].value;
-        value = new BigNumber(value).multipliedBy(100000000).toNumber();
-        wentIn += value;
-        const witness = inp.witness[inp.witness.length - 1];
-        const address = String(SegwitBech32Wallet.witnessToAddress(isUint8Array(witness) ? uint8ArrayToHex(witness) : witness));
-        utxos.push({ vout: inp.index, value, txid: reversedHash, address });
+      const prevOut = prevTransactions[reversedHash].outs[inp.index];
+      if (!prevOut) throw new TxVerificationError('Previous output of an input is missing');
+      const value = Number(prevOut.value);
+      wentIn += value;
+      const address = SegwitBech32Wallet.scriptPubKeyToAddress(uint8ArrayToHex(prevOut.script));
+      if (!address || !this._wallet.weOwnAddress(address)) continue; // not our input (e.g. incoming tx), nothing to check
+      if (!isValidP2wpkhSpend(this._txDecoded, i, prevOut)) {
+        await BlueElectrum.forgetCachedTransactions([txid]);
+        throw new TxVerificationError('Invalid signature on our input, transaction was not created by this wallet');
       }
+      utxos.push({ vout: inp.index, value, txid: reversedHash, address });
     }
 
     // counting how much went into actual outputs
@@ -200,35 +256,27 @@ export class HDSegwitBech32Transaction {
     }
 
     const fee = wentIn - wasSpent;
+    if (fee < 0) throw new TxVerificationError('Transaction fee is negative');
     let feeRate = Math.floor(fee / this._txDecoded.virtualSize());
     if (feeRate === 0) feeRate = 1;
 
-    // lets take a look at change
+    // lets take a look at change, and outputs we own that current transaction creates (can be used in CPFP)
     let changeAmount = 0;
-    const targets: { value?: number; address: string }[] = [];
-    for (const outp of remoteTx.vout) {
-      const address = outp.scriptPubKey.addresses[0];
-      const value = new BigNumber(outp.value).multipliedBy(100000000).toNumber();
-      if (this._wallet.weOwnAddress(address)) {
+    const targets: CreateTransactionTarget[] = [];
+    const unconfirmedUtxos = [];
+    for (let n = 0; n < this._txDecoded.outs.length; n++) {
+      const outp = this._txDecoded.outs[n];
+      const value = Number(outp.value);
+      const address = TaprootWallet.scriptPubKeyToAddress(uint8ArrayToHex(outp.script));
+      if (address && this._wallet.weOwnAddress(address)) {
         changeAmount += value;
-      } else {
+        unconfirmedUtxos.push({ vout: n, value, txid, address });
+      } else if (address) {
         // this is target
         targets.push({ value, address });
-      }
-    }
-
-    // lets find outputs we own that current transaction creates. can be used in CPFP
-    const unconfirmedUtxos = [];
-    for (const outp of remoteTx.vout) {
-      const address = outp.scriptPubKey.addresses[0];
-      const value = new BigNumber(outp.value).multipliedBy(100000000).toNumber();
-      if (this._wallet.weOwnAddress(address)) {
-        unconfirmedUtxos.push({
-          vout: outp.n,
-          value,
-          txid: this._txid || this._txDecoded.getId(),
-          address,
-        });
+      } else {
+        // e.g. OP_RETURN, can only be re-created as is
+        targets.push({ value, script: { hex: uint8ArrayToHex(outp.script) } });
       }
     }
 
@@ -308,10 +356,10 @@ export class HDSegwitBech32Transaction {
    */
   async createRBFcancelTx(newFeerate: number) {
     if (!this._wallet) throw new Error('Wallet required for this method');
-    if (!this._remoteTx) await this._fetchRemoteTx();
 
     const { feeRate, utxos } = await this.getInfo();
 
+    if (utxos.length !== this._txDecoded!.ins.length) throw new Error('Not all inputs are ours');
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     const myAddress = await this._wallet.getChangeAddressAsync();
 
@@ -346,14 +394,14 @@ export class HDSegwitBech32Transaction {
    */
   async createRBFbumpFee(newFeerate: number) {
     if (!this._wallet) throw new Error('Wallet required for this method');
-    if (!this._remoteTx) await this._fetchRemoteTx();
 
     const { feeRate, targets, changeAmount, utxos } = await this.getInfo();
 
+    if (utxos.length !== this._txDecoded!.ins.length) throw new Error('Not all inputs are ours');
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     const myAddress = await this._wallet.getChangeAddressAsync();
 
-    if (changeAmount === 0) delete targets[0].value;
+    if (changeAmount === 0) delete targets.find(t => t.address)?.value;
     // looks like this was sendMAX transaction (because there was no change), so we cant reuse amount in this
     // target since fee wont change. removing the amount so `createTransaction` will sendMAX correctly with new feeRate
 
@@ -389,7 +437,6 @@ export class HDSegwitBech32Transaction {
    */
   async createCPFPbumpFee(newFeerate: number) {
     if (!this._wallet) throw new Error('Wallet required for this method');
-    if (!this._remoteTx) await this._fetchRemoteTx();
 
     const { feeRate, fee: oldFee, unconfirmedUtxos } = await this.getInfo();
 

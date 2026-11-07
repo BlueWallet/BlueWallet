@@ -1,13 +1,14 @@
 name: BuildReleaseApk
 
 on:
-  pull_request:
-    branches:
-      - master
-    types: [opened, synchronize, reopened, labeled, unlabeled]
-  push:
-    branches:
-      - master
+  workflow_call:
+    inputs:
+      build_number:
+        required: true
+        type: string
+      source_sha:
+        required: true
+        type: string
 
 jobs:
   buildReleaseApk:
@@ -18,6 +19,7 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: "0"
+          ref: ${{ inputs.source_sha }}
 
       - name: Free disk space (Android build)
         shell: bash
@@ -73,17 +75,30 @@ jobs:
         run: npm ci --omit=dev --yes
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+        uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
         with:
           ruby-version: 3.4.11
           bundler-cache: true
 
-      - name: Generate Build Number based on timestamp
+      - name: Validate shared build number
         id: build_number
+        env:
+          SHARED_BUILD_NUMBER: ${{ inputs.build_number }}
         run: |
-          NEW_BUILD_NUMBER="$(date +%s)"
-          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-          echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
+          if ! [[ "$SHARED_BUILD_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "Shared build number must contain digits only" >&2
+            exit 1
+          fi
+          if [ "$SHARED_BUILD_NUMBER" -eq 0 ]; then
+            echo "Shared build number must be positive" >&2
+            exit 1
+          fi
+          if [ "$SHARED_BUILD_NUMBER" -gt 2100000000 ]; then
+            echo "Shared build number $SHARED_BUILD_NUMBER exceeds the Play Store limit" >&2
+            exit 1
+          fi
+          echo "NEW_BUILD_NUMBER=$SHARED_BUILD_NUMBER" >> "$GITHUB_ENV"
+          echo "build_number=$SHARED_BUILD_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: Build and sign APK
         id: build_and_sign_apk
@@ -95,7 +110,7 @@ jobs:
 
       - name: Upload build logs on failure
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: android-build-logs
           path: |
@@ -125,7 +140,7 @@ jobs:
           echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
 
       - name: Upload APK as artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: signed-apk
           path: ${{ env.APK_PATH }}
@@ -141,7 +156,7 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+        uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
         with:
           ruby-version: 3.4.11
           bundler-cache: true
@@ -150,7 +165,7 @@ jobs:
         run: bundle install --jobs 4 --retry 3
 
       - name: Download APK artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: signed-apk
 

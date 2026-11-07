@@ -103,8 +103,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('ClipboardSwitch');
     await element(by.id('ClipboardSwitch')).tap();
     await element(by.id('ClipboardSwitch')).tap();
-    await element(by.id('QuickActionsSwitch')).tap();
-    await element(by.id('QuickActionsSwitch')).tap();
     await goBack();
 
     //

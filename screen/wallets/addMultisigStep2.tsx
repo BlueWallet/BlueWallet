@@ -22,17 +22,7 @@ import MultipleStepsListItem, {
 } from '../../components/MultipleStepsListItem';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-
-type MultisigStep2Params = {
-  m: number;
-  n: number;
-  format: number | string;
-  walletLabel: string;
-  onBarScanned?: { data?: string } | string;
-  sheetAction?: string;
-  sheetImportText?: string;
-  sheetAskPassphrase?: boolean;
-};
+import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 
 type CosignerTuple = [string, string | false, string | false, string?];
 type StaticCache = Record<string, string>;
@@ -47,7 +37,7 @@ const WalletsAddMultisigStep2 = () => {
   const { colors } = useTheme();
 
   const navigation = useNavigation();
-  const route = useRoute<RouteProp<{ WalletsAddMultisigStep2: MultisigStep2Params }, 'WalletsAddMultisigStep2'>>();
+  const route = useRoute<RouteProp<AddWalletStackParamList, 'WalletsAddMultisigStep2'>>();
   const params = route.params;
   const { m, n, format, walletLabel } = params;
   const [cosigners, setCosigners] = useState<CosignerTuple[]>([]); // array of cosigners user provided. if format [cosigner, fp, path]
@@ -386,8 +376,7 @@ const WalletsAddMultisigStep2 = () => {
   );
 
   const onBarScanned = useCallback(
-    async (ret: { data?: string } | string) => {
-      const payload = typeof ret === 'string' ? { data: ret } : ret;
+    async (payload: { data: string }) => {
       const dataString = payload.data ?? '';
 
       try {

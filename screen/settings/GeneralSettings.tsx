@@ -12,7 +12,6 @@ enum SettingsPrivacySection {
   None,
   All,
   ReadClipboard,
-  QuickActions,
   Widget,
   TemporaryScreenshots,
   TotalBalance,
@@ -30,8 +29,6 @@ const GeneralSettings: React.FC = () => {
     setIsWidgetBalanceDisplayAllowedStorage,
     isClipboardGetContentEnabled,
     setIsClipboardGetContentEnabledStorage,
-    isQuickActionsEnabled,
-    setIsQuickActionsEnabledStorage,
     isTotalBalanceEnabled,
     setIsTotalBalanceEnabledStorage,
     isHandOffUseEnabled,
@@ -63,19 +60,6 @@ const GeneralSettings: React.FC = () => {
       setIsLoading(SettingsPrivacySection.None);
     },
     [setDoNotTrackStorage],
-  );
-
-  const onQuickActionsValueChange = useCallback(
-    async (value: boolean) => {
-      setIsLoading(SettingsPrivacySection.QuickActions);
-      try {
-        setIsQuickActionsEnabledStorage(value);
-      } catch (e) {
-        console.debug('onQuickActionsValueChange catch', e);
-      }
-      setIsLoading(SettingsPrivacySection.None);
-    },
-    [setIsQuickActionsEnabledStorage],
   );
 
   const onWidgetsTotalBalanceValueChange = useCallback(
@@ -129,17 +113,6 @@ const GeneralSettings: React.FC = () => {
   return (
     <SettingsScrollView testID="GeneralSettingsScreen">
       <SettingsSection title={loc.settings.integration}>
-        <SettingsListItem
-          title={loc.settings.privacy_quickactions}
-          subtitle={`${loc.settings.privacy_quickactions_explanation}${encryptedDisabledNote}`}
-          switch={{
-            value: storageIsEncrypted ? false : isQuickActionsEnabled,
-            onValueChange: onQuickActionsValueChange,
-            disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
-          }}
-          switchTestID="QuickActionsSwitch"
-          bottomDivider={Platform.OS === 'ios'}
-        />
         {Platform.OS === 'ios' && (
           <SettingsListItem
             title={loc.settings.general_continuity}

@@ -7,6 +7,7 @@
  * and the swap-check that guards against a stale client clobbering newer state.
  */
 
+import { Transaction } from 'bitcoinjs-lib';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { Alert } from 'react-native';
 import { runAfterAlertDismissed } from '../../components/Alert';
@@ -450,6 +451,36 @@ describe('BlueElectrum batch limit recovery', () => {
       client.blockchainTransaction_get.mockRejectedValueOnce(limit).mockResolvedValue('tx hex');
       await expect(BlueElectrum.multiGetTransactionByTxid([txid], false)).resolves.toEqual({ [txid]: 'tx hex' });
     }
+  });
+
+  it.each([false, true])('preserves verbose=%s during an oversized-transaction fallback and retry', async verbose => {
+    const tx = new Transaction();
+    tx.addInput(Buffer.alloc(32, 1), 0);
+    tx.addOutput(Buffer.from('0014' + '11'.repeat(20), 'hex'), 1n);
+    const txid = tx.getId();
+    const hex = tx.toHex();
+    const oversizedBatch = deferred<unknown[]>();
+    const limit = new Error('Batch limit exceeded');
+    client.blockchainTransaction_getBatch.mockReturnValue(oversizedBatch.promise);
+    client.blockchainTransaction_get.mockRejectedValueOnce(limit).mockResolvedValue(hex);
+
+    // Another pending batch triggers fallback while this oversized result is in flight.
+    const transaction = BlueElectrum.multiGetTransactionByTxid([txid], verbose);
+    await flush();
+    expect(client.blockchainTransaction_getBatch).toHaveBeenCalledWith([txid], verbose);
+    client.blockchainScripthash_getHistoryBatch.mockRejectedValue(limit);
+    client.blockchainScripthash_getHistory.mockResolvedValue([]);
+    await BlueElectrum.multiGetHistoryByAddress([addresses[0]]);
+    oversizedBatch.resolve([{ param: txid, error: { code: -32600 } }]);
+
+    const result = await transaction;
+    if (verbose) {
+      expect(result[txid]).toMatchObject({ txid, vout: [{ value: 0.00000001 }] });
+    } else {
+      expect(result[txid]).toBe(hex);
+    }
+    expect(client.blockchainTransaction_get).toHaveBeenNthCalledWith(1, txid, false);
+    expect(client.blockchainTransaction_get).toHaveBeenNthCalledWith(2, txid, false);
   });
 
   it('bounds repeated single-request failures and does not return partial transactions', async () => {

@@ -24,9 +24,9 @@ jest.mock('@react-navigation/native', () => ({
 jest.mock('../../hooks/useScreenMenuActions', () => ({ __esModule: true, default: () => {} }));
 jest.mock('../../components/themes', () => ({ useTheme: () => ({ colors: {} }) }));
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) }));
-jest.mock('../../blue_modules/sizeClass', () => ({
-  SizeClass: { Large: 'Large' },
-  useSizeClass: () => ({ sizeClass: 'Regular', isLarge: false }),
+jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({
+  __esModule: true,
+  default: () => ({ width: 390, height: 844, fontScale: 1, scale: 3 }),
 }));
 jest.mock('../../blue_modules/environment', () => ({ isDesktop: false, isIOS26OrHigher: true }));
 jest.mock('../../components/SafeAreaSectionList', () => {

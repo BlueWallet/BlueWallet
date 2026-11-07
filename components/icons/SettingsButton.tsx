@@ -1,4 +1,3 @@
-import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Icon from '../Icon';
@@ -7,24 +6,25 @@ import loc from '../../loc';
 import ToolTipMenu from '../TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
-const SettingsButton = () => {
+type SettingsButtonProps = {
+  onPress: () => void;
+  onManageWalletPress: () => void;
+};
+
+const SettingsButton = ({ onPress, onManageWalletPress }: SettingsButtonProps) => {
   const { colors } = useTheme();
-  const { navigate } = useNavigation();
-  const onPress = () => {
-    navigate('Settings');
-  };
 
   const onPressMenuItem = useCallback(
     (menuItem: string) => {
       switch (menuItem) {
         case CommonToolTipActions.ManageWallet.id:
-          navigate('ManageWallets');
+          onManageWalletPress();
           break;
         default:
           break;
       }
     },
-    [navigate],
+    [onManageWalletPress],
   );
 
   const actions = useMemo(() => [CommonToolTipActions.ManageWallet], []);
