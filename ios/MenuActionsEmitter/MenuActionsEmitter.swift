@@ -47,6 +47,30 @@ final class MenuActionsController: NSObject {
         menuTitles[action] ?? fallback
     }
 
+    @objc func presentShare(urlString: String, message: String, title: String) {
+        guard let url = URL(string: urlString),
+              let rootViewController = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .flatMap(\.windows)
+                .first(where: \.isKeyWindow)?
+                .rootViewController else { return }
+
+        let configuration = UIActivityItemsConfiguration(objects: [url as NSURL, message as NSString])
+        let activityViewController = UIActivityViewController(activityItemsConfiguration: configuration)
+        activityViewController.title = title
+
+        var presenter = rootViewController
+        while let presented = presenter.presentedViewController {
+            presenter = presented
+        }
+        if let popover = activityViewController.popoverPresentationController {
+            popover.sourceView = presenter.view
+            popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        presenter.present(activityViewController, animated: true)
+    }
+
     @objc func setRecentItems(_ itemsJSON: String) {
         guard let data = itemsJSON.data(using: .utf8),
               let updated = try? JSONDecoder().decode([RecentItem].self, from: data) else { return }
