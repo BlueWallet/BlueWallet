@@ -336,7 +336,11 @@ const WalletDetails: React.FC = () => {
       : '';
 
     if (updates.size === 0) {
-      presentAlert({ message: [loc.wallets.details_import_notes_no_changes, skippedMessage].filter(Boolean).join('\n\n') });
+      presentAlert({
+        message: [loc.wallets.details_import_notes_no_changes, loc.wallets.details_import_notes_scope, skippedMessage]
+          .filter(Boolean)
+          .join('\n\n'),
+      });
       return;
     }
 

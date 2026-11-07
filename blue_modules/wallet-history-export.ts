@@ -191,7 +191,7 @@ export function createHistoryExportFileNames(walletLabel: string): {
   const label = walletLabel.trim().replace(/\s+/g, '-');
   return {
     accounting: `${label}-accounting.csv`,
-    backup: `${label}-bip329-backup.jsonl`,
+    backup: `${label}-bip329-labels.jsonl`,
   };
 }
 

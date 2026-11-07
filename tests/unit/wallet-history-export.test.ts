@@ -119,7 +119,7 @@ describe('wallet history exports', () => {
   it('uses format-specific, whitespace-normalized filenames', () => {
     expect(createHistoryExportFileNames('  Main   Wallet  ')).toEqual({
       accounting: 'Main-Wallet-accounting.csv',
-      backup: 'Main-Wallet-bip329-backup.jsonl',
+      backup: 'Main-Wallet-bip329-labels.jsonl',
     });
   });
 
