@@ -4,7 +4,7 @@ import { TWallet } from '../class/wallets/types';
 import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import { WalletDescriptor } from '../class/wallet-descriptor';
 import { Bip329Record, encodeBip329Record, encodeBip329TransactionLabel } from './fs';
-import { bitcoinValueToSats, getTransactionFee } from './wallet-history-export';
+import { bitcoinValueToSats, finiteExportNumber, formatExportTimestamp, getTransactionFee } from './wallet-history-export';
 
 export function getBip329Origin(wallet: TWallet): string | undefined {
   try {
@@ -82,28 +82,31 @@ export function createBip329WalletHistoryBackup(wallet: TWallet, txMetadata: TTX
   };
 
   for (const transaction of transactions) {
+    if (!transaction || typeof transaction !== 'object') continue;
     const transactionId = transaction.hash || transaction.txid;
     if (!transactionId) continue;
 
-    const fullyConfirmed = (transaction.confirmations ?? 0) >= 6;
-    const blockTimestamp = transaction.blocktime ?? transaction.time;
-    const time = fullyConfirmed && blockTimestamp ? new Date(blockTimestamp * 1000).toISOString() : undefined;
+    const fullyConfirmed = (finiteExportNumber(transaction.confirmations) ?? 0) >= 6;
+    const time = fullyConfirmed ? (formatExportTimestamp(transaction.blocktime) ?? formatExportTimestamp(transaction.time)) : undefined;
     const transactionDetails: Pick<Bip329Record, 'time'> = time ? { time } : {};
     const memo = txMetadata[transactionId]?.memo?.trim();
     const fee = getTransactionFee(transaction);
-    const value = Number(transaction.value);
+    const value = finiteExportNumber(transaction.value);
 
     records.push(
       encodeBip329TransactionLabel(transactionId, memo || undefined, {
         ...(origin ? { origin } : {}),
         ...transactionDetails,
         ...(fee === undefined ? {} : { fee }),
-        ...(Number.isFinite(value) ? { value: Math.round(value) } : {}),
+        ...(value !== undefined && Number.isSafeInteger(Math.round(value)) ? { value: Math.round(value) } : {}),
       }),
     );
 
-    transaction.inputs.forEach((input, index) => {
-      const address = input.address ?? input.addresses?.[0];
+    const inputs = Array.isArray(transaction.inputs) ? transaction.inputs : [];
+    inputs.forEach((input, index) => {
+      if (!input || typeof input !== 'object') return;
+      const candidate = input.address ?? (Array.isArray(input.addresses) ? input.addresses[0] : undefined);
+      const address = typeof candidate === 'string' ? candidate : undefined;
       const owned = address ? exportAddress(address) : false;
       const inputValue = bitcoinValueToSats(input.value);
       const keypath = owned && address ? getBip329Keypath(wallet, address) : undefined;
@@ -119,9 +122,12 @@ export function createBip329WalletHistoryBackup(wallet: TWallet, txMetadata: TTX
       );
     });
 
-    transaction.outputs.forEach((output, index) => {
-      const outputIndex = Number.isInteger(output.n) ? output.n : index;
-      const address = output.scriptPubKey?.addresses?.[0];
+    const outputs = Array.isArray(transaction.outputs) ? transaction.outputs : [];
+    outputs.forEach((output, index) => {
+      if (!output || typeof output !== 'object') return;
+      const outputIndex = Number.isSafeInteger(output.n) && output.n >= 0 ? output.n : index;
+      const candidate = Array.isArray(output.scriptPubKey?.addresses) ? output.scriptPubKey.addresses[0] : undefined;
+      const address = typeof candidate === 'string' ? candidate : undefined;
       const owned = address ? exportAddress(address) : false;
       const keypath = owned && address ? getBip329Keypath(wallet, address) : undefined;
       const outputMetadata = wallet.getUTXOMetadata(transactionId, outputIndex);

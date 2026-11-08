@@ -1,4 +1,4 @@
-import { Transaction } from '../../class/wallets/types';
+import { LightningTransaction, Transaction } from '../../class/wallets/types';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { buildMenu, lookupId } from '../../components/TooltipMenu.helpers';
 import { Chain } from '../../models/bitcoinUnits';
@@ -10,6 +10,7 @@ import {
   createHistoryExportFileNames,
   createHistoryExportMenuActions,
   getTransactionFee,
+  formatExportTimestamp,
   IMPORT_NOTES_ACTION_ID,
   SAVE_ACCOUNTING_ACTION_ID,
   SAVE_BACKUP_ACTION_ID,
@@ -34,6 +35,94 @@ const transaction = (overrides: Partial<Transaction> = {}): Transaction => ({
 });
 
 describe('wallet history exports', () => {
+  const invoiceTimestamp = Date.UTC(2025, 0, 23, 12) / 1000;
+  const column = (row: (string | number)[], header: (typeof ACCOUNTING_HISTORY_HEADERS)[number]) =>
+    row[ACCOUNTING_HISTORY_HEADERS.indexOf(header)];
+
+  it.each([
+    [undefined, 3600],
+    [null, 3600],
+    ['', 3600],
+    ['bad', 3600],
+    [Infinity, 3600],
+    [1e20, 3600],
+    [invoiceTimestamp, 'bad'],
+    [invoiceTimestamp, Infinity],
+    [invoiceTimestamp, 1e20],
+    [invoiceTimestamp, -1],
+    [invoiceTimestamp, null],
+  ])('keeps exporting when invoice expiry metadata is unusable: %s, %s', (createdAt, expiry) => {
+    const invalid = { ...transaction({ value: 1_000 }), timestamp: createdAt, expire_time: expiry } as unknown as Transaction &
+      LightningTransaction;
+    const valid = {
+      ...transaction({ txid: 'b'.repeat(64), hash: 'b'.repeat(64), timestamp: invoiceTimestamp, value: 2_000 }),
+      expire_time: 3600,
+    };
+    const [, first, second] = createAccountingHistoryRows([invalid, valid], Chain.OFFCHAIN, {}, (invoiceTimestamp + 120) * 1000);
+    expect(column(first, 'Expires At')).toBe('');
+    expect(column(first, 'Status')).toBe('Pending');
+    expect(column(first, 'Transaction ID')).toBe(invalid.txid);
+    expect(column(second, 'Expires At')).toBe('2025-01-23T13:00:00.000Z');
+    expect(column(second, 'Amount (sats)')).toBe(2_000);
+    expect(createAccountingHistoryCsv([invalid, valid], Chain.OFFCHAIN, {})).toContain(valid.txid);
+  });
+
+  it('coerces numeric invoice strings before addition and uses valid timestamp fallbacks', () => {
+    const tx = {
+      ...transaction(),
+      blocktime: Infinity,
+      time: invoiceTimestamp,
+      timestamp: String(invoiceTimestamp),
+      expire_time: '3600',
+    } as unknown as Transaction & LightningTransaction;
+    const [, row] = createAccountingHistoryRows([tx], Chain.OFFCHAIN, {}, (invoiceTimestamp + 120) * 1000);
+    expect(column(row, 'Date')).toBe('2025-01-23T12:00:00.000Z');
+    expect(column(row, 'Expires At')).toBe('2025-01-23T13:00:00.000Z');
+    expect(column(row, 'Status')).toBe('Pending');
+  });
+
+  it.each([undefined, null, '', 'invalid', Infinity, NaN, 1e20, {}, true])('omits unusable dates without throwing: %s', value => {
+    expect(formatExportTimestamp(value)).toBeUndefined();
+    const tx = { ...transaction({ value: 1_000 }), timestamp: value, blocktime: value, time: value } as unknown as Transaction;
+    expect(column(createAccountingHistoryRows([tx], Chain.ONCHAIN, {})[1], 'Date')).toBe('');
+  });
+
+  it.each([undefined, null, {}, 'not an array'])('exports partial on-chain rows and a reported fee with missing I/O arrays: %s', arrays => {
+    const partial = { ...transaction({ value: 1_000, fee: 123 }), inputs: arrays, outputs: arrays } as unknown as Transaction;
+    expect(getTransactionFee(partial)).toBe(123);
+    const [, row] = createAccountingHistoryRows([partial], Chain.ONCHAIN, {});
+    expect(column(row, 'Transaction ID')).toBe(partial.txid);
+    expect(column(row, 'Fee (sats)')).toBe(123);
+    expect(column(row, 'Input Addresses')).toBe('');
+    expect(column(row, 'Output Addresses')).toBe('');
+    expect(column(row, 'Input Count')).toBe('');
+    expect(column(row, 'Output Count')).toBe('');
+    expect(createAccountingHistoryCsv([partial], Chain.ONCHAIN, {})).toContain(partial.txid);
+  });
+
+  it('tolerates malformed I/O elements and keeps real address values', () => {
+    const tx = {
+      ...transaction({ fee: 123 }),
+      inputs: [null, { addresses: [null, 'bc1qinput', 42] }],
+      outputs: [null, { scriptPubKey: { addresses: ['bc1qoutput', null] } }],
+    } as unknown as Transaction;
+    const [, row] = createAccountingHistoryRows([tx], Chain.ONCHAIN, {});
+    expect(column(row, 'Fee (sats)')).toBe(123);
+    expect(column(row, 'Input Addresses')).toBe('bc1qinput');
+    expect(column(row, 'Output Addresses')).toBe('bc1qoutput');
+  });
+
+  it.each([undefined, null, 'not a number', Infinity, 1e100])(
+    'omits unusable amounts rather than exporting NaN, Infinity, or fabricated zero: %s',
+    value => {
+      const tx = { ...transaction(), value } as unknown as Transaction;
+      const [, row] = createAccountingHistoryRows([tx], Chain.ONCHAIN, {});
+      expect(column(row, 'Amount (sats)')).toBe('');
+      expect(column(row, 'Amount (BTC)')).toBe('');
+      expect(column(row, 'Type')).toBe('');
+      expect(bitcoinValueToSats(value)).toBeUndefined();
+    },
+  );
   it('creates an accounting CSV with UTC dates, signed BTC values, calculated fees, escaping, and CRLF rows', () => {
     const timestamp = Date.UTC(2025, 0, 23, 11, 40, 35) / 1000;
     const tx = transaction({

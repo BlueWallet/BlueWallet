@@ -92,6 +92,20 @@ describe('Wallet Details note import', () => {
     expect(saveToDisk).not.toHaveBeenCalled();
   });
 
+  it('shows the Numbers conversion explanation with the same short Import Notes title', async () => {
+    jest.replaceProperty(loc.wallets, 'details_import_notes', 'Import Notes… ');
+    jest.mocked(showFilePickerAndReadFile).mockResolvedValue({ data: false, uri: 'sample.numbers', unsupportedFileType: 'numbers' });
+    const screen = render(<WalletDetails />);
+    await act(async () => fireEvent(screen.getByTestId('TransactionHistoryMenuButton'), 'pressMenuItem', IMPORT_NOTES_ACTION_ID));
+    expect(Alert.alert).toHaveBeenCalledWith(
+      'Import Notes',
+      loc.wallets.details_import_numbers_unsupported,
+      expect.any(Array),
+      expect.any(Object),
+    );
+    expect(saveToDisk).not.toHaveBeenCalled();
+  });
+
   it.each([false, true])('only applies a selected-wallet note when the user confirms: %s', async confirmed => {
     const contents = [
       { type: 'tx', ref: txid, label: 'Relevant note' },

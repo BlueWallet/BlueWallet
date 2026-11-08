@@ -51,6 +51,7 @@ import {
   createHistoryExportFileNames,
   createHistoryExportMenuActions,
   IMPORT_NOTES_ACTION_ID,
+  removeTrailingEllipsis,
   SAVE_ACCOUNTING_ACTION_ID,
   SAVE_BACKUP_ACTION_ID,
   SHARE_ACCOUNTING_ACTION_ID,
@@ -305,11 +306,12 @@ const WalletDetails: React.FC = () => {
 
   const importNotes = useCallback(async () => {
     if (wallet.chain !== Chain.ONCHAIN) return;
+    const importTitle = removeTrailingEllipsis(loc.wallets.details_import_notes);
 
     const { data, unsupportedFileType } = await showFilePickerAndReadFile();
     if (unsupportedFileType === 'numbers') {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
-      presentAlert({ title: loc.wallets.details_import_notes, message: loc.wallets.details_import_numbers_unsupported });
+      presentAlert({ title: importTitle, message: loc.wallets.details_import_numbers_unsupported });
       return;
     }
     if (data === false) return;
@@ -337,7 +339,7 @@ const WalletDetails: React.FC = () => {
 
     if (updates.size === 0) {
       presentAlert({
-        title: loc.wallets.details_import_notes.replace(/(?:\.{3}|…)+$/, ''),
+        title: importTitle,
         message: [loc.wallets.details_import_notes_no_changes, loc.wallets.details_import_notes_scope, skippedMessage]
           .filter(Boolean)
           .join('\n\n'),
@@ -347,7 +349,7 @@ const WalletDetails: React.FC = () => {
 
     const confirmed = await new Promise<boolean>(resolve => {
       presentAlert({
-        title: loc.wallets.details_import_notes.replace(/(?:\.{3}|…)+$/, ''),
+        title: importTitle,
         message: [loc.wallets.details_import_notes_scope, skippedMessage].filter(Boolean).join('\n\n'),
         buttons: [
           { text: loc._.cancel, style: 'cancel', onPress: () => resolve(false) },

@@ -17,11 +17,26 @@ export const SAVE_BACKUP_ACTION_ID = 'save_bip329_backup';
 
 const SATOSHIS_PER_BITCOIN = 100_000_000;
 
+export function finiteExportNumber(value: unknown): number | undefined {
+  if (typeof value !== 'number' && typeof value !== 'string') return undefined;
+  if (typeof value === 'string' && value.trim() === '') return undefined;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : undefined;
+}
+
+export function formatExportTimestamp(value: unknown): string | undefined {
+  const seconds = finiteExportNumber(value);
+  // Wallet timestamps use Unix seconds; zero denotes an unknown date.
+  if (seconds === undefined || seconds <= 0) return undefined;
+  const date = new Date(seconds * 1000);
+  return Number.isFinite(date.getTime()) ? date.toISOString() : undefined;
+}
+
 export function bitcoinValueToSats(value: unknown): number | undefined {
-  if (value === undefined || value === null || value === '') return undefined;
-  const bitcoin = Number(value);
-  if (!Number.isFinite(bitcoin)) return undefined;
-  return Math.round(bitcoin * SATOSHIS_PER_BITCOIN);
+  const bitcoin = finiteExportNumber(value);
+  if (bitcoin === undefined) return undefined;
+  const sats = Math.round(bitcoin * SATOSHIS_PER_BITCOIN);
+  return Number.isSafeInteger(sats) ? sats : undefined;
 }
 
 export function satoshisToBitcoin(value: number): string {
@@ -29,17 +44,21 @@ export function satoshisToBitcoin(value: number): string {
 }
 
 export function getTransactionFee(transaction: Transaction): number | undefined {
-  if (transaction.inputs.length && transaction.outputs.length) {
-    const inputValues = transaction.inputs.map(input => (input.value == null ? undefined : bitcoinValueToSats(input.value)));
-    const outputValues = transaction.outputs.map(output => (output.value == null ? undefined : bitcoinValueToSats(output.value)));
+  const inputs = Array.isArray(transaction.inputs) ? transaction.inputs : [];
+  const outputs = Array.isArray(transaction.outputs) ? transaction.outputs : [];
+  if (inputs.length && outputs.length) {
+    const inputValues = inputs.map(input => bitcoinValueToSats(input?.value));
+    const outputValues = outputs.map(output => bitcoinValueToSats(output?.value));
     if (inputValues.every(value => value !== undefined) && outputValues.every(value => value !== undefined)) {
-      const fee = inputValues.reduce((total, value) => total + value, 0) - outputValues.reduce((total, value) => total + value, 0);
-      if (Number.isSafeInteger(fee) && fee >= 0) return fee;
+      const inputTotal = inputValues.reduce((total, value) => total + value, 0);
+      const outputTotal = outputValues.reduce((total, value) => total + value, 0);
+      const fee = inputTotal - outputTotal;
+      if (Number.isSafeInteger(inputTotal) && Number.isSafeInteger(outputTotal) && Number.isSafeInteger(fee) && fee >= 0) return fee;
     }
   }
-  const reportedFee = Number(transaction.fee);
-  if (transaction.fee == null || !Number.isFinite(reportedFee) || reportedFee < 0) return undefined;
-  return Number.isSafeInteger(reportedFee) ? reportedFee : bitcoinValueToSats(reportedFee);
+  const reportedFee = finiteExportNumber(transaction.fee);
+  if (reportedFee === undefined || reportedFee < 0) return undefined;
+  return Number.isInteger(reportedFee) ? (Number.isSafeInteger(reportedFee) ? reportedFee : undefined) : bitcoinValueToSats(reportedFee);
 }
 
 export type AccountingHistoryCell = string | number;
@@ -83,39 +102,47 @@ export function createAccountingHistoryRows(
   const rows: AccountingHistoryCell[][] = [Array.from(ACCOUNTING_HISTORY_HEADERS)];
 
   for (const transaction of transactions) {
-    const value = Number(transaction.value ?? transaction.amt ?? 0);
+    if (!transaction || typeof transaction !== 'object') continue;
+    const rawValue = finiteExportNumber(transaction.value ?? transaction.amt);
+    const value = rawValue !== undefined && Number.isSafeInteger(Math.round(rawValue)) ? Math.round(rawValue) : undefined;
     const metadataKey = transaction.hash || transaction.txid;
     let transactionId = metadataKey || '';
     const memo = (metadataKey && txMetadata[metadataKey]?.memo?.trim()) || transaction.memo || '';
     let status: string;
-    let confirmations = transaction.confirmations === undefined ? '' : String(transaction.confirmations);
+    const rawConfirmations = finiteExportNumber(transaction.confirmations);
+    const confirmationCount =
+      rawConfirmations !== undefined && Number.isSafeInteger(rawConfirmations) && rawConfirmations >= 0 ? rawConfirmations : undefined;
+    let confirmations = confirmationCount === undefined ? '' : String(confirmationCount);
     let fee = '';
     let feeSats: number | '' = '';
     let paymentHash = '';
-    const invoiceExpiration = transaction.expire_time === undefined ? undefined : transaction.timestamp + transaction.expire_time;
+    const createdAt = finiteExportNumber(transaction.timestamp);
+    const expiry = finiteExportNumber(transaction.expire_time);
+    const invoiceExpiration =
+      createdAt !== undefined && formatExportTimestamp(createdAt) && expiry !== undefined && expiry >= 0 ? createdAt + expiry : undefined;
+    const expiresAt = formatExportTimestamp(invoiceExpiration);
 
     if (chain === Chain.OFFCHAIN) {
       const rawPaymentHash = transaction.payment_hash;
       paymentHash =
         typeof rawPaymentHash === 'string' ? rawPaymentHash : rawPaymentHash ? uint8ArrayToHex(new Uint8Array(rawPaymentHash.data)) : '';
       transactionId = transactionId || paymentHash;
-      const expired = invoiceExpiration !== undefined && invoiceExpiration <= now / 1000;
+      const expired = expiresAt !== undefined && invoiceExpiration !== undefined && invoiceExpiration <= now / 1000;
       const complete =
         transaction.ispaid ||
         (transaction.type === 'paid_invoice' && transaction.ispaid !== false) ||
         (transaction.type === 'bitcoind_tx' &&
           !transaction.txid?.startsWith('boarding-utxo-') &&
-          (transaction.confirmations === undefined || transaction.confirmations > 0));
+          (transaction.confirmations === undefined || (confirmationCount !== undefined && confirmationCount > 0)));
       status = transaction.failed ? 'Failed' : complete ? 'Complete' : expired ? 'Expired' : 'Pending';
-      const lightningFee = Number(transaction.fee);
-      if (Number.isFinite(lightningFee)) {
+      const lightningFee = finiteExportNumber(transaction.fee);
+      if (lightningFee !== undefined && Number.isSafeInteger(Math.round(Math.abs(lightningFee)))) {
         feeSats = Math.round(Math.abs(lightningFee));
         fee = satoshisToBitcoin(feeSats);
       }
     } else {
-      const confirmationCount = transaction.confirmations ?? 0;
-      confirmations = String(confirmationCount);
-      status = confirmationCount > 0 ? 'Confirmed' : 'Pending';
+      confirmations = String(confirmationCount ?? 0);
+      status = (confirmationCount ?? 0) > 0 ? 'Confirmed' : 'Pending';
       const transactionFee = getTransactionFee(transaction);
       if (transactionFee !== undefined) {
         feeSats = transactionFee;
@@ -123,25 +150,27 @@ export function createAccountingHistoryRows(
       }
     }
 
-    const timestamp = transaction.blocktime ?? transaction.time ?? transaction.timestamp;
-    const date = timestamp ? new Date(timestamp * 1000).toISOString() : '';
-    const type = value < 0 ? 'Send' : value > 0 ? 'Receive' : 'Self transfer';
+    const date =
+      formatExportTimestamp(transaction.blocktime) ??
+      formatExportTimestamp(transaction.time) ??
+      formatExportTimestamp(transaction.timestamp) ??
+      '';
+    const type = value === undefined ? '' : value < 0 ? 'Send' : value > 0 ? 'Receive' : 'Self transfer';
     const inputs = Array.isArray(transaction.inputs) ? transaction.inputs : [];
     const outputs = Array.isArray(transaction.outputs) ? transaction.outputs : [];
-    const inputAddresses = inputs.flatMap(input => input.addresses ?? (input.address ? [input.address] : []));
-    const outputAddresses = outputs.flatMap(output => output.scriptPubKey?.addresses ?? []);
-    const numberOrEmpty = (candidate: unknown): number | '' => {
-      if (candidate === undefined || candidate === null) return '';
-      const parsed = Number(candidate);
-      return Number.isFinite(parsed) ? parsed : '';
-    };
-    const expiresAt = invoiceExpiration === undefined ? '' : new Date(invoiceExpiration * 1000).toISOString();
+    const inputAddresses = inputs
+      .flatMap(input => (Array.isArray(input?.addresses) ? input.addresses : input?.address ? [input.address] : []))
+      .filter(address => typeof address === 'string');
+    const outputAddresses = outputs
+      .flatMap(output => (Array.isArray(output?.scriptPubKey?.addresses) ? output.scriptPubKey.addresses : []))
+      .filter(address => typeof address === 'string');
+    const numberOrEmpty = (candidate: unknown): number | '' => finiteExportNumber(candidate) ?? '';
     rows.push([
       date,
       transactionId,
       type,
-      satoshisToBitcoin(value),
-      Math.round(value),
+      value === undefined ? '' : satoshisToBitcoin(value),
+      value ?? '',
       fee,
       feeSats,
       memo,
@@ -153,8 +182,8 @@ export function createAccountingHistoryRows(
       numberOrEmpty(transaction.vsize),
       numberOrEmpty(transaction.weight),
       numberOrEmpty(transaction.locktime),
-      inputs.length || '',
-      outputs.length || '',
+      Array.isArray(transaction.inputs) ? inputs.length : '',
+      Array.isArray(transaction.outputs) ? outputs.length : '',
       inputAddresses.join(';'),
       outputAddresses.join(';'),
       transaction.counterparty ?? '',
@@ -163,7 +192,7 @@ export function createAccountingHistoryRows(
       transaction.description ?? '',
       transaction.category ?? '',
       transaction.type ?? '',
-      expiresAt,
+      expiresAt ?? '',
     ]);
   }
 
@@ -199,7 +228,7 @@ export function createHistoryExportFileNames(walletLabel: string): {
   };
 }
 
-const removeTrailingEllipsis = (text: string): string => text.replace(/(?:\.{3}|…)+\s*$/, '').trimEnd();
+export const removeTrailingEllipsis = (text: string): string => text.replace(/(?:\.{3}|…)+\s*$/, '').trimEnd();
 
 export function createHistoryExportMenuActions(
   chain: Chain,

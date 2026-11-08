@@ -6,7 +6,7 @@ import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { encodeBip329Record, encodeBip329TransactionLabel, writeFileAndExport } from '../blue_modules/fs';
-import { createAccountingHistoryCsv, createHistoryExportFileNames } from '../blue_modules/wallet-history-export';
+import { createAccountingHistoryCsv, createHistoryExportFileNames, removeTrailingEllipsis } from '../blue_modules/wallet-history-export';
 import { Chain } from '../models/bitcoinUnits';
 import loc from '../loc';
 
@@ -232,6 +232,8 @@ const DevMenu: React.FC = () => {
 
       DevSettings.addMenuItem('Test History Export Menu', () => {
         const fileNames = createHistoryExportFileNames('[Developer] Sample Wallet');
+        const shareTitle = removeTrailingEllipsis(loc.receive.details_share);
+        const saveTitle = removeTrailingEllipsis(loc._.save);
         const exportSample = async (format: 'accountingCsv' | 'backup', share: boolean) => {
           try {
             if (format === 'accountingCsv') {
@@ -240,16 +242,16 @@ const DevMenu: React.FC = () => {
               await writeFileAndExport(fileNames.backup, createDeveloperBip329Sample(), share);
             }
           } catch (error) {
-            Alert.alert('Sample export failed', error instanceof Error ? error.message : String(error));
+            Alert.alert(loc.wallets.details_export_history, error instanceof Error ? error.message : String(error));
           }
         };
         const showAccountingFormats = (share: boolean) => {
-          Alert.alert('Accounting', 'Export transaction records for bookkeeping. Choose a file format.', [
+          Alert.alert(loc.wallets.details_export_accounting, loc.wallets.details_export_accounting_description, [
             {
-              text: 'CSV',
+              text: loc.wallets.details_export_csv,
               onPress: async () => await exportSample('accountingCsv', share),
             },
-            { text: 'Cancel', style: 'cancel' },
+            { text: loc._.cancel, style: 'cancel' },
           ]);
         };
 
@@ -259,22 +261,22 @@ const DevMenu: React.FC = () => {
               text: loc.wallets.details_export_bip329,
               onPress: async () => await exportSample('backup', share),
             },
-            { text: 'Cancel', style: 'cancel' },
+            { text: loc._.cancel, style: 'cancel' },
           ]);
         };
 
         const showCategories = (share: boolean) => {
-          Alert.alert(share ? 'Share Sample History' : 'Save Sample History', loc.wallets.details_export_backup_description, [
-            { text: 'Accounting', onPress: () => showAccountingFormats(share) },
+          Alert.alert(share ? shareTitle : saveTitle, '', [
+            { text: loc.wallets.details_export_accounting, onPress: () => showAccountingFormats(share) },
             { text: loc.wallets.details_export_backup_category, onPress: () => showBackupFormats(share) },
-            { text: 'Cancel', style: 'cancel' },
+            { text: loc._.cancel, style: 'cancel' },
           ]);
         };
 
-        Alert.alert('Export Sample History', 'Choose how to deliver the sample export', [
-          { text: 'Share', onPress: () => showCategories(true) },
-          { text: 'Save', onPress: () => showCategories(false) },
-          { text: 'Cancel', style: 'cancel' },
+        Alert.alert(loc.wallets.details_export_history, '', [
+          { text: shareTitle, onPress: () => showCategories(true) },
+          { text: saveTitle, onPress: () => showCategories(false) },
+          { text: loc._.cancel, style: 'cancel' },
         ]);
       });
 

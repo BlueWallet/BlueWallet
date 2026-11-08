@@ -15,6 +15,63 @@ const createBip47Wallet = () => {
 };
 
 describe('BIP-329 wallet history backup', () => {
+  const exportRecords = (transactions: Transaction[]) => {
+    const wallet = createBip47Wallet();
+    jest.spyOn(wallet, 'getTransactions').mockReturnValue(transactions);
+    return createBip329WalletHistoryBackup(wallet, { ['a'.repeat(64)]: { memo: 'Keep this label' } }, {})
+      .split('\n')
+      .map(line => JSON.parse(line));
+  };
+  const partialTransaction = (overrides: Record<string, unknown> = {}) =>
+    ({
+      txid: 'a'.repeat(64),
+      hash: 'a'.repeat(64),
+      confirmations: 6,
+      inputs: [],
+      outputs: [],
+      value: 1_000,
+      ...overrides,
+    }) as unknown as Transaction;
+
+  it.each([undefined, null, {}, 'not an array'])('keeps transaction labels when I/O arrays are unavailable: %s', arrays => {
+    const records = exportRecords([partialTransaction({ inputs: arrays, outputs: arrays })]);
+    expect(records).toContainEqual(expect.objectContaining({ type: 'tx', label: 'Keep this label', value: 1_000 }));
+    expect(records).toHaveLength(1);
+  });
+
+  it.each([undefined, null, 'bad', '', Infinity, NaN, 1e20])(
+    'omits invalid block times without losing the transaction or its I/O: %s',
+    time => {
+      const invalid = partialTransaction({ blocktime: time, time, inputs: [{ value: 0.001 }], outputs: [{ value: 0.0009, n: 0 }] });
+      const valid = partialTransaction({ txid: 'b'.repeat(64), hash: 'b'.repeat(64), blocktime: 1_737_633_600 });
+      const records = exportRecords([invalid, valid]);
+      const firstRecords = records.filter(record => record.ref.startsWith(invalid.txid));
+      expect(firstRecords.map(record => record.type)).toEqual(['tx', 'input', 'output']);
+      expect(firstRecords.every(record => record.time === undefined)).toBe(true);
+      expect(firstRecords[0].label).toBe('Keep this label');
+      expect(records.find(record => record.ref === valid.txid).time).toBe('2025-01-23T12:00:00.000Z');
+    },
+  );
+
+  it('skips malformed I/O elements without changing the indices of valid records or emitting unsafe amounts', () => {
+    const records = exportRecords([
+      partialTransaction({
+        value: Infinity,
+        blocktime: Infinity,
+        time: '1737633600',
+        inputs: [null, { value: 1e100 }],
+        outputs: [null, { value: 1e100 }],
+      }),
+    ]);
+    expect(records.map(record => record.ref)).toEqual(['a'.repeat(64), `${'a'.repeat(64)}:1`, `${'a'.repeat(64)}:1`]);
+    expect(records.every(record => record.value === undefined && record.time === '2025-01-23T12:00:00.000Z')).toBe(true);
+    expect(records[0].label).toBe('Keep this label');
+  });
+
+  it('does not export block times before six confirmations', () => {
+    const records = exportRecords([partialTransaction({ confirmations: 5, blocktime: 1_737_633_600 })]);
+    expect(records[0]).not.toHaveProperty('time');
+  });
   it('exports owned address labels from a wallet without any transactions', () => {
     jest.spyOn(WalletDescriptor, 'fromWallet').mockReturnValue(undefined);
     const wallet = {

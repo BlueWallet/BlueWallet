@@ -44,19 +44,25 @@ try {
   const app = join(workDir, 'PreviewSmoke.app');
   mkdirSync(app);
   copyFileSync('ios/QuickLookPreviewTests/Info.plist', join(app, 'Info.plist'));
-  await xcrun([
-    '--sdk',
-    'iphonesimulator',
-    'swiftc',
-    '-target',
-    `${arch() === 'arm64' ? 'arm64' : 'x86_64'}-apple-ios18.0-simulator`,
-    '-parse-as-library',
-    'ios/QuickLookPreview/PreviewViewController.swift',
-    'ios/QuickLookPreview/ScriptDescription.swift',
-    'ios/QuickLookPreviewTests/PreviewSmokeTests.swift',
-    '-o',
-    join(app, 'PreviewSmoke'),
-  ]);
+  // A cold hosted runner also builds Swift's SDK module cache. Give compilation
+  // its own deadline; simulator startup and assertion timeouts stay separate.
+  console.log('Compiling the native preview controller and assertions');
+  await xcrun(
+    [
+      '--sdk',
+      'iphonesimulator',
+      'swiftc',
+      '-target',
+      `${arch() === 'arm64' ? 'arm64' : 'x86_64'}-apple-ios18.0-simulator`,
+      '-parse-as-library',
+      'ios/QuickLookPreview/PreviewViewController.swift',
+      'ios/QuickLookPreview/ScriptDescription.swift',
+      'ios/QuickLookPreviewTests/PreviewSmokeTests.swift',
+      '-o',
+      join(app, 'PreviewSmoke'),
+    ],
+    300_000,
+  );
   await run('codesign', ['--force', '--sign', '-', app], { timeout: 30_000 });
   await xcrun(['simctl', 'install', simulator, app]);
   await xcrun(['simctl', 'launch', simulator, 'io.bluewallet.preview-smoke']);

@@ -1,6 +1,37 @@
-import { createDeveloperAccountingSample, createDeveloperBip329Sample } from '../../components/DevMenu';
+import React from 'react';
+import { Alert, DevSettings } from 'react-native';
+import { act, render } from '@testing-library/react-native';
+import DevMenu, { createDeveloperAccountingSample, createDeveloperBip329Sample } from '../../components/DevMenu';
+import loc from '../../loc';
+
+jest.mock('react-native/Libraries/Utilities/DevSettings', () => ({
+  __esModule: true,
+  default: { addMenuItem: jest.fn(), reload: jest.fn() },
+}));
+jest.mock('../../hooks/context/useStorage', () => ({ useStorage: () => ({ wallets: [] }) }));
 
 describe('developer history export menu', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  it('uses the shipping localized accounting labels through the developer menu flow', () => {
+    jest.spyOn(DevSettings, 'addMenuItem').mockImplementation(() => {});
+    jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    jest.replaceProperty(loc.wallets, 'details_export_accounting', 'Localized Accounting');
+    jest.replaceProperty(loc.wallets, 'details_export_accounting_description', 'Localized accounting description');
+    jest.replaceProperty(loc.wallets, 'details_export_csv', 'Localized CSV');
+    render(React.createElement(DevMenu));
+    const openMenu = jest.mocked(DevSettings.addMenuItem).mock.calls.find(([title]) => title === 'Test History Export Menu')![1];
+    act(() => openMenu());
+    act(() => jest.mocked(Alert.alert).mock.lastCall![2]![0].onPress?.());
+    const accounting = jest.mocked(Alert.alert).mock.lastCall![2]![0];
+    expect(accounting.text).toBe('Localized Accounting');
+    act(() => accounting.onPress?.());
+    expect(Alert.alert).toHaveBeenLastCalledWith('Localized Accounting', 'Localized accounting description', [
+      expect.objectContaining({ text: 'Localized CSV' }),
+      expect.objectContaining({ text: loc._.cancel }),
+    ]);
+  });
+
   it('provides a populated accounting CSV sample', () => {
     const csv = createDeveloperAccountingSample();
     const rows = csv.split('\r\n');
