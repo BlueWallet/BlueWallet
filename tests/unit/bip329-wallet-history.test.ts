@@ -1,4 +1,5 @@
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { TWallet, Transaction } from '../../class/wallets/types';
 import { WalletDescriptor } from '../../class/wallet-descriptor';
 import { createBip329WalletHistoryBackup, getBip329Keypath, getBip329Origin } from '../../blue_modules/bip329-wallet-history';
@@ -54,6 +55,37 @@ describe('BIP-329 wallet history backup', () => {
     expect(getBip329Keypath(multisig, 'bc1qused')).toBe('/1/7');
     expect(derive).toHaveBeenCalledWith('bc1qused', "m/48'/0'/0'/2'");
     expect(legacyDerive).not.toHaveBeenCalled();
+  });
+
+  it('omits BIP-47 keypaths that cannot extend the exported BIP-84 origin', () => {
+    const wallet = new HDSegwitBech32Wallet();
+    // Public BIP-47 test-vector seed and counterparty payment code.
+    wallet.setSecret('reward upper indicate eight swift arch injury crystal super wrestle already dentist');
+    wallet._receive_payment_codes = [
+      'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+    ];
+    const address = wallet._getBIP47AddressReceive(wallet._receive_payment_codes[0], 0);
+    expect(wallet._getDerivationPathByAddress(address)).toBe("m/47'/0'/0'/0");
+    expect(getBip329Keypath(wallet, wallet._getExternalAddressByIndex(0))).toBe('/0/0');
+    expect(getBip329Keypath(wallet, wallet._getInternalAddressByIndex(1))).toBe('/1/1');
+
+    const record = JSON.parse(createBip329WalletHistoryBackup(wallet, {}, { [address]: { label: 'BIP-47 payment' } }));
+    expect(record).toMatchObject({ type: 'addr', ref: address, label: 'BIP-47 payment', origin: getBip329Origin(wallet) });
+    expect(record).not.toHaveProperty('keypath');
+  });
+
+  it.each([
+    ["m/84'/0'/0'/0/7", "m/84'/0'/0'", '/0/7'],
+    ["m/84'/0'/0'/0/7", "m/84'/0'/0", undefined],
+    ["m/84'/0'/0'", "m/84'/0'/0'", undefined],
+    ["m/84'/0'/0'/0/7", undefined, undefined],
+    [false, "m/84'/0'/0'", undefined],
+  ] as const)('only exports paths within the account at a component boundary: %s, %s', (fullPath, accountPath, expected) => {
+    const wallet = {
+      _getDerivationPathByAddress: () => fullPath,
+      getDerivationPath: () => accountPath,
+    } as unknown as TWallet;
+    expect(getBip329Keypath(wallet, 'address')).toBe(expected);
   });
 
   it('exports unused owned address labels and tolerates outputs without script details', () => {

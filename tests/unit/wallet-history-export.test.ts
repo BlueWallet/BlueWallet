@@ -1,9 +1,12 @@
 import { Transaction } from '../../class/wallets/types';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { buildMenu, lookupId } from '../../components/TooltipMenu.helpers';
 import { Chain } from '../../models/bitcoinUnits';
 import {
   ACCOUNTING_HISTORY_HEADERS,
+  bitcoinValueToSats,
   createAccountingHistoryCsv,
+  createAccountingHistoryRows,
   createHistoryExportFileNames,
   createHistoryExportMenuActions,
   getTransactionFee,
@@ -84,13 +87,13 @@ describe('wallet history exports', () => {
     const now = Date.UTC(2025, 0, 23, 12);
     const base = transaction({ timestamp: now / 1000, value: 1_000, fee: 2 });
     const lightningTransactions = [
-      { ...base, payment_hash: { data: [1, 2] }, expire_time: now / 1000 - 1 },
+      { ...base, timestamp: now / 1000 - 3601, payment_hash: { data: [1, 2] }, expire_time: 3600 },
       {
         ...base,
         txid: 'b'.repeat(64),
         hash: 'b'.repeat(64),
         payment_hash: 'pending',
-        expire_time: now / 1000 + 1,
+        expire_time: 3600,
       },
       {
         ...base,
@@ -114,6 +117,44 @@ describe('wallet history exports', () => {
     expect(csv).toContain(',pending,Receive,0.00001000,1000,0.00000002,2,,Pending,');
     expect(csv).toContain(',failed,Receive,0.00001000,1000,0.00000002,2,,Failed,');
     expect(csv).toContain(',complete,Receive,0.00001000,1000,0.00000002,2,,Complete,');
+    expect(csv).toContain('2025-01-23T11:59:59.000Z');
+    expect(csv).toContain('2025-01-23T13:00:00.000Z');
+  });
+
+  it('exports completed LNDhub payments and on-chain refills using their real wallet row semantics', () => {
+    const wallet = new LightningCustodianWallet();
+    wallet.transactions_raw = [
+      { type: 'paid_invoice', payment_hash: 'payment', amt: 1_000, fee: 2, timestamp: 1_737_633_600 },
+      { ...transaction({ confirmations: 3, value: 2_000 }), type: 'bitcoind_tx' },
+    ];
+    const rows = createAccountingHistoryRows(wallet.getTransactions(), Chain.OFFCHAIN, {});
+    const field = (row: (string | number)[], header: (typeof ACCOUNTING_HISTORY_HEADERS)[number]) =>
+      row[ACCOUNTING_HISTORY_HEADERS.indexOf(header)];
+    const payment = rows.find(row => field(row, 'Payment Hash') === 'payment')!;
+    const refill = rows.find(row => field(row, 'Transaction ID') === 'a'.repeat(64))!;
+    expect(field(payment, 'Status')).toBe('Complete');
+    expect(field(payment, 'Amount (sats)')).toBe(-1_002);
+    expect(field(payment, 'Fee (sats)')).toBe(2);
+    expect(field(refill, 'Status')).toBe('Complete');
+    expect(field(refill, 'Payment Hash')).toBe('');
+  });
+
+  it.each([
+    [undefined, 'boarding-utxo-deposit:0', 'Pending'],
+    [undefined, 'boarding-deposit', 'Complete'],
+    [0, 'deposit', 'Pending'],
+    [1, 'deposit', 'Complete'],
+  ] as const)('preserves refill settlement state: %s, %s', (confirmations, txid, status) => {
+    const csv = createAccountingHistoryCsv(
+      [{ ...transaction({ txid, hash: '', confirmations }), type: 'bitcoind_tx' }],
+      Chain.OFFCHAIN,
+      {},
+    );
+    expect(csv).toContain(`,,${status},`);
+  });
+
+  it.each([undefined, null, '', NaN])('omits missing Bitcoin amounts instead of inventing zero: %s', value => {
+    expect(bitcoinValueToSats(value)).toBeUndefined();
   });
 
   it('uses format-specific, whitespace-normalized filenames', () => {

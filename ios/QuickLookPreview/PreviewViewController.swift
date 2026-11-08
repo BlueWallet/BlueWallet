@@ -447,9 +447,8 @@ private func displayValue(_ optionalValue: Any?, forKey key: String) -> String? 
     switch value {
     case let value as String:
         return value.isEmpty ? "Empty" : value
-    case let value as Bool:
-        return value ? "Yes" : "No"
     case let value as NSNumber:
+        if CFGetTypeID(value) == CFBooleanGetTypeID() { return value.boolValue ? "Yes" : "No" }
         return value.stringValue
     case let value where JSONSerialization.isValidJSONObject(value):
         guard let data = try? JSONSerialization.data(withJSONObject: value, options: [.sortedKeys]),

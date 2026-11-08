@@ -283,7 +283,7 @@ const WalletDetails: React.FC = () => {
     return createAccountingHistoryCsv(wallet.getTransactions() as Array<Transaction & LightningTransaction>, wallet.chain, txMetadata);
   }, [wallet, txMetadata]);
 
-  const exportFileNames = useMemo(() => createHistoryExportFileNames(wallet.getLabel()), [wallet]);
+  const exportFileNames = useMemo(() => createHistoryExportFileNames(walletName), [walletName]);
 
   const applyNoteUpdates = useCallback(
     async (updates: ReadonlyMap<string, string>) => {
@@ -337,6 +337,7 @@ const WalletDetails: React.FC = () => {
 
     if (updates.size === 0) {
       presentAlert({
+        title: loc.wallets.details_import_notes.replace(/(?:\.{3}|…)+$/, ''),
         message: [loc.wallets.details_import_notes_no_changes, loc.wallets.details_import_notes_scope, skippedMessage]
           .filter(Boolean)
           .join('\n\n'),

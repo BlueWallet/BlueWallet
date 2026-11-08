@@ -18,6 +18,7 @@ export const SAVE_BACKUP_ACTION_ID = 'save_bip329_backup';
 const SATOSHIS_PER_BITCOIN = 100_000_000;
 
 export function bitcoinValueToSats(value: unknown): number | undefined {
+  if (value === undefined || value === null || value === '') return undefined;
   const bitcoin = Number(value);
   if (!Number.isFinite(bitcoin)) return undefined;
   return Math.round(bitcoin * SATOSHIS_PER_BITCOIN);
@@ -91,18 +92,21 @@ export function createAccountingHistoryRows(
     let fee = '';
     let feeSats: number | '' = '';
     let paymentHash = '';
+    const invoiceExpiration = transaction.expire_time === undefined ? undefined : transaction.timestamp + transaction.expire_time;
 
     if (chain === Chain.OFFCHAIN) {
       const rawPaymentHash = transaction.payment_hash;
-      transactionId =
-        typeof rawPaymentHash === 'string'
-          ? rawPaymentHash
-          : rawPaymentHash
-            ? uint8ArrayToHex(new Uint8Array(rawPaymentHash.data))
-            : transactionId;
-      paymentHash = transactionId;
-      const expired = transaction.expire_time !== undefined && transaction.expire_time <= now / 1000;
-      status = transaction.ispaid ? 'Complete' : transaction.failed ? 'Failed' : expired ? 'Expired' : 'Pending';
+      paymentHash =
+        typeof rawPaymentHash === 'string' ? rawPaymentHash : rawPaymentHash ? uint8ArrayToHex(new Uint8Array(rawPaymentHash.data)) : '';
+      transactionId = paymentHash || transactionId;
+      const expired = invoiceExpiration !== undefined && invoiceExpiration <= now / 1000;
+      const complete =
+        transaction.ispaid ||
+        (transaction.type === 'paid_invoice' && transaction.ispaid !== false) ||
+        (transaction.type === 'bitcoind_tx' &&
+          !transaction.txid?.startsWith('boarding-utxo-') &&
+          (transaction.confirmations === undefined || transaction.confirmations > 0));
+      status = transaction.failed ? 'Failed' : complete ? 'Complete' : expired ? 'Expired' : 'Pending';
       const lightningFee = Number(transaction.fee);
       if (Number.isFinite(lightningFee)) {
         feeSats = Math.round(Math.abs(lightningFee));
@@ -131,7 +135,7 @@ export function createAccountingHistoryRows(
       const parsed = Number(candidate);
       return Number.isFinite(parsed) ? parsed : '';
     };
-    const expiresAt = transaction.expire_time ? new Date(transaction.expire_time * 1000).toISOString() : '';
+    const expiresAt = invoiceExpiration === undefined ? '' : new Date(invoiceExpiration * 1000).toISOString();
     rows.push([
       date,
       transactionId,

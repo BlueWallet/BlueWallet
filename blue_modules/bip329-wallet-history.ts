@@ -33,12 +33,10 @@ export function getBip329Origin(wallet: TWallet): string | undefined {
 }
 
 const relativeKeypath = (fullPath: string | false, accountPath: string | false | undefined): string | undefined => {
-  if (!fullPath) return undefined;
-  if (accountPath && fullPath.startsWith(accountPath)) {
-    const relativePath = fullPath.slice(accountPath.length);
-    return relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
-  }
-  return fullPath;
+  // BIP-329 paths extend the exported account origin. BIP-47 and other paths
+  // outside that account cannot be described by appending a relative path.
+  if (!fullPath || !accountPath || !fullPath.startsWith(`${accountPath}/`)) return undefined;
+  return fullPath.slice(accountPath.length);
 };
 
 export function getBip329Keypath(wallet: TWallet, address: string): string | undefined {

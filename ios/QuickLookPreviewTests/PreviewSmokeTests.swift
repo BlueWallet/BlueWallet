@@ -39,7 +39,7 @@ final class PreviewSmokeScene: UIResponder, UIWindowSceneDelegate {
 
                 let file = directory.appendingPathComponent("sample.jsonl")
                 let contents = """
-                {"type":"tx","ref":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","label":"Coffee with Alice","fee":10000,"value":-100000,"time":"2025-01-23T11:40:35Z"}
+                {"type":"tx","ref":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","label":"Coffee with Alice","height":0,"fee":10000,"value":-100000,"time":"2025-01-23T11:40:35Z"}
                 {"type":"addr","ref":"bc1qsample","label":"Unused receive address","keypath":"/0/7"}
                 {"type":"output","ref":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0","label":"Reserved savings","spendable":false,"value":100000}
                 invalid line
@@ -54,6 +54,12 @@ final class PreviewSmokeScene: UIResponder, UIWindowSceneDelegate {
                 }
                 precondition(table.numberOfSections == 3)
                 precondition((0..<3).allSatisfy { table.numberOfRows(inSection: $0) == 1 })
+                let transactionCell = controller.tableView(table, cellForRowAt: IndexPath(row: 0, section: 0))
+                let transactionContent = transactionCell.contentConfiguration as? UIListContentConfiguration
+                precondition(transactionContent?.secondaryAttributedText?.string.contains("Height: 0") == true)
+                let outputCell = controller.tableView(table, cellForRowAt: IndexPath(row: 0, section: 2))
+                let outputContent = outputCell.contentConfiguration as? UIListContentConfiguration
+                precondition(outputContent?.secondaryAttributedText?.string.contains("Spendable: No") == true)
                 precondition(views.compactMap { ($0 as? UILabel)?.text }.contains { $0.contains("1 invalid line skipped") })
                 toggle.selectedSegmentIndex = 1
                 toggle.sendActions(for: .valueChanged)
