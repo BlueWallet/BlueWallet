@@ -1,8 +1,11 @@
 import { TAddressMetadata, TTXMetadata } from '../class/blue-app';
+import { AbstractHDWallet } from '../class/wallets/abstract-hd-wallet';
+import { AbstractHDElectrumWallet } from '../class/wallets/abstract-hd-electrum-wallet';
 import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
 import { TWallet } from '../class/wallets/types';
 import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import { WalletDescriptor } from '../class/wallet-descriptor';
+import { isValidBech32Address } from '../util/isValidBech32Address';
 import { Bip329Record, encodeBip329Record, encodeBip329TransactionLabel } from './fs';
 import { bitcoinValueToSats, finiteExportNumber, formatExportTimestamp, getTransactionFee } from './wallet-history-export';
 
@@ -56,19 +59,63 @@ export function getBip329Keypath(wallet: TWallet, address: string): string | und
   }
 }
 
+type AddressDetails = { owned: boolean; keypath?: string };
+
+const createAddressLookup = (wallet: TWallet): ((address: string) => AddressDetails) => {
+  const hd = wallet instanceof WatchOnlyWallet && wallet.isHd() ? wallet._hdWalletInstance : wallet;
+  const details = new Map<string, AddressDetails>();
+  const indexed = hd instanceof AbstractHDWallet;
+
+  if (indexed) {
+    const accountPath = hd instanceof MultisigHDWallet ? hd.getCustomDerivationPathForCosigner(1) : hd.getDerivationPath();
+    for (const branch of [0, 1] as const) {
+      const count = (branch === 0 ? hd.next_free_address_index : hd.next_free_change_address_index) + hd.gap_limit;
+      for (let index = 0; index < count; index++) {
+        const address = branch === 0 ? hd._getExternalAddressByIndex(index) : hd._getInternalAddressByIndex(index);
+        details.set(address, { owned: true, ...(accountPath ? { keypath: `/${branch}/${index}` } : {}) });
+      }
+    }
+    // Match weOwnAddress's full BIP-47 range, including known payment codes
+    // when the BIP-47 UI is disabled. Those paths do not extend this account.
+    if (hd instanceof AbstractHDElectrumWallet) {
+      for (const code of hd._receive_payment_codes) {
+        const count = hd._getNextFreePaymentCodeIndexReceive(code) + hd.gap_limit;
+        for (let index = 0; index < count; index++) {
+          const address = hd._getBIP47AddressReceive(code, index);
+          if (!details.has(address)) details.set(address, { owned: true });
+        }
+      }
+    }
+  }
+
+  return address => {
+    const normalized = isValidBech32Address(address) ? address.toLowerCase() : address;
+    const cached = details.get(normalized);
+    if (cached) return cached;
+    // An indexed HD map is complete for the wallet's ownership search range.
+    // Other wallet implementations cache both positive and negative answers.
+    const owned = !indexed && wallet.weOwnAddress(address);
+    const result = { owned, ...(owned ? { keypath: getBip329Keypath(wallet, address) } : {}) };
+    details.set(normalized, result);
+    return result;
+  };
+};
+
 export function createBip329WalletHistoryBackup(wallet: TWallet, txMetadata: TTXMetadata, addressMetadata: TAddressMetadata): string {
   const transactions = wallet.getTransactions();
   const origin = getBip329Origin(wallet);
+  let lookupAddress: ReturnType<typeof createAddressLookup> | undefined;
   const exportedAddresses = new Set<string>();
   const records: string[] = [];
 
-  const exportAddress = (address: string): boolean => {
-    if (exportedAddresses.has(address)) return true;
-    if (!wallet.weOwnAddress(address)) return false;
+  const exportAddress = (address: string): AddressDetails => {
+    lookupAddress ??= createAddressLookup(wallet);
+    const info = lookupAddress(address);
+    if (!info.owned || exportedAddresses.has(address)) return info;
     exportedAddresses.add(address);
 
     const label = addressMetadata[address]?.label;
-    const keypath = getBip329Keypath(wallet, address);
+    const { keypath } = info;
     records.push(
       encodeBip329Record({
         type: 'addr',
@@ -78,7 +125,7 @@ export function createBip329WalletHistoryBackup(wallet: TWallet, txMetadata: TTX
         ...(keypath ? { keypath } : {}),
       }),
     );
-    return true;
+    return info;
   };
 
   for (const transaction of transactions) {
@@ -107,14 +154,14 @@ export function createBip329WalletHistoryBackup(wallet: TWallet, txMetadata: TTX
       if (!input || typeof input !== 'object') return;
       const candidate = input.address ?? (Array.isArray(input.addresses) ? input.addresses[0] : undefined);
       const address = typeof candidate === 'string' ? candidate : undefined;
-      const owned = address ? exportAddress(address) : false;
+      const info = address ? exportAddress(address) : undefined;
       const inputValue = bitcoinValueToSats(input.value);
-      const keypath = owned && address ? getBip329Keypath(wallet, address) : undefined;
+      const keypath = info?.keypath;
       records.push(
         encodeBip329Record({
           type: 'input',
           ref: `${transactionId}:${index}`,
-          ...(owned && origin ? { origin } : {}),
+          ...(info?.owned && origin ? { origin } : {}),
           ...(keypath ? { keypath } : {}),
           ...(inputValue === undefined ? {} : { value: inputValue }),
           ...transactionDetails,
@@ -128,8 +175,8 @@ export function createBip329WalletHistoryBackup(wallet: TWallet, txMetadata: TTX
       const outputIndex = Number.isSafeInteger(output.n) && output.n >= 0 ? output.n : index;
       const candidate = Array.isArray(output.scriptPubKey?.addresses) ? output.scriptPubKey.addresses[0] : undefined;
       const address = typeof candidate === 'string' ? candidate : undefined;
-      const owned = address ? exportAddress(address) : false;
-      const keypath = owned && address ? getBip329Keypath(wallet, address) : undefined;
+      const info = address ? exportAddress(address) : undefined;
+      const keypath = info?.keypath;
       const outputMetadata = wallet.getUTXOMetadata(transactionId, outputIndex);
       const outputValue = bitcoinValueToSats(output.value);
       records.push(
@@ -137,7 +184,7 @@ export function createBip329WalletHistoryBackup(wallet: TWallet, txMetadata: TTX
           type: 'output',
           ref: `${transactionId}:${outputIndex}`,
           ...(outputMetadata.memo === undefined ? {} : { label: outputMetadata.memo }),
-          ...(owned && origin ? { origin } : {}),
+          ...(info?.owned && origin ? { origin } : {}),
           ...(keypath ? { keypath } : {}),
           ...(outputMetadata.frozen === undefined ? {} : { spendable: !outputMetadata.frozen }),
           ...(outputValue === undefined ? {} : { value: outputValue }),

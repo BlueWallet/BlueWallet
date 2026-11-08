@@ -134,7 +134,7 @@ const restoreNeutralizedCsvValue = (value: string): string => {
   return hasFormulaPrefix ? original : value;
 };
 
-export type WalletHistoryImportDiagnostics = { originMismatchCount: number };
+export type WalletHistoryImportDiagnostics = { originMismatchCount: number; invalidLineCount: number };
 
 const parseBip329TransactionNotes = (
   contents: string,
@@ -142,23 +142,28 @@ const parseBip329TransactionNotes = (
   diagnostics?: WalletHistoryImportDiagnostics,
 ): Array<{ transactionId: string; memo: string }> =>
   contents
-    .split(/\r?\n/)
+    .split(/\r\n|\n|\r/)
     .filter(line => line.trim().length > 0)
     .flatMap(line => {
-      const record: unknown = JSON.parse(line);
-      if (!record || typeof record !== 'object' || Array.isArray(record)) throw new Error('Invalid BIP-329 record');
+      try {
+        const record: unknown = JSON.parse(line);
+        if (!record || typeof record !== 'object' || Array.isArray(record)) throw new Error('Invalid BIP-329 record');
 
-      const { type, ref, label, origin } = record as Record<string, unknown>;
-      if (typeof type !== 'string' || typeof ref !== 'string') throw new Error('Invalid BIP-329 record');
-      if (type !== 'tx' || label === undefined) return [];
-      if (!/^[0-9a-f]{64}$/i.test(ref) || typeof label !== 'string') throw new Error('Invalid BIP-329 transaction label');
-      if (origin !== undefined && (typeof origin !== 'string' || origin.trim().length === 0)) throw new Error('Invalid BIP-329 origin');
-      if (origin && expectedOrigin && normalizeBip329Origin(origin) !== normalizeBip329Origin(expectedOrigin)) {
-        if (diagnostics) diagnostics.originMismatchCount++;
+        const { type, ref, label, origin } = record as Record<string, unknown>;
+        if (typeof type !== 'string' || typeof ref !== 'string') throw new Error('Invalid BIP-329 record');
+        if (type !== 'tx' || label === undefined) return [];
+        if (!/^[0-9a-f]{64}$/i.test(ref) || typeof label !== 'string') throw new Error('Invalid BIP-329 transaction label');
+        if (origin !== undefined && (typeof origin !== 'string' || origin.trim().length === 0)) throw new Error('Invalid BIP-329 origin');
+        if (origin && expectedOrigin && normalizeBip329Origin(origin) !== normalizeBip329Origin(expectedOrigin)) {
+          if (diagnostics) diagnostics.originMismatchCount++;
+          return [];
+        }
+
+        return [{ transactionId: ref, memo: label }];
+      } catch {
+        if (diagnostics) diagnostics.invalidLineCount++;
         return [];
       }
-
-      return [{ transactionId: ref, memo: label }];
     });
 
 /**
@@ -170,10 +175,22 @@ export const parseWalletHistoryNotes = (
   contents: string,
   expectedOrigin?: string,
   diagnostics?: WalletHistoryImportDiagnostics,
+  fileName?: string,
 ): Array<{ transactionId: string; memo: string }> => {
-  if (diagnostics) diagnostics.originMismatchCount = 0;
+  if (diagnostics) {
+    diagnostics.originMismatchCount = 0;
+    diagnostics.invalidLineCount = 0;
+  }
   const normalizedContents = contents.replace(/^\uFEFF/, '').trimStart();
-  if (normalizedContents.startsWith('{')) return parseBip329TransactionNotes(normalizedContents, expectedOrigin, diagnostics);
+  const firstLine = normalizedContents.split(/\r\n|\n|\r/, 1)[0];
+  const csvHeader = !firstLine.startsWith('{') && firstLine.split(',').length >= 4;
+  if (
+    fileName?.toLowerCase().endsWith('.jsonl') ||
+    normalizedContents.startsWith('{') ||
+    (!csvHeader && /(?:^|[\r\n])\s*\{/.test(normalizedContents))
+  ) {
+    return parseBip329TransactionNotes(normalizedContents, expectedOrigin, diagnostics);
+  }
 
   const rows = parseCsv(normalizedContents);
   if (rows.length === 0 || rows[0].length < 4) throw new Error('Invalid wallet history CSV');

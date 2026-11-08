@@ -475,6 +475,7 @@
     "details_import_notes": "Import Notes...",
     "details_import_notes_scope": "Only transaction notes are imported. Address labels, input/output labels, and frozen coin settings are not restored.",
     "details_import_notes_origin_skipped": "Skipped {count} transaction notes because their wallet origin does not match this wallet.",
+    "details_import_notes_invalid_skipped": "Invalid JSONL lines skipped: {count}.",
     "details_import_numbers_unsupported": "Apple Numbers files can’t be imported directly. Export the spreadsheet from Numbers as CSV, then try again.",
     "details_import_notes_after": "After",
     "details_import_notes_before": "Before",

@@ -308,7 +308,7 @@ const WalletDetails: React.FC = () => {
     if (wallet.chain !== Chain.ONCHAIN) return;
     const importTitle = removeTrailingEllipsis(loc.wallets.details_import_notes);
 
-    const { data, unsupportedFileType } = await showFilePickerAndReadFile();
+    const { data, unsupportedFileType, fileName } = await showFilePickerAndReadFile();
     if (unsupportedFileType === 'numbers') {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
       presentAlert({ title: importTitle, message: loc.wallets.details_import_numbers_unsupported });
@@ -317,9 +317,9 @@ const WalletDetails: React.FC = () => {
     if (data === false) return;
 
     let importedNotes;
-    const diagnostics = { originMismatchCount: 0 };
+    const diagnostics = { originMismatchCount: 0, invalidLineCount: 0 };
     try {
-      importedNotes = parseWalletHistoryNotes(data, getBip329Origin(wallet), diagnostics);
+      importedNotes = parseWalletHistoryNotes(data, getBip329Origin(wallet), diagnostics, fileName);
     } catch {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ message: loc.wallets.import_error });
@@ -333,9 +333,16 @@ const WalletDetails: React.FC = () => {
     }
 
     const { updates, overwriteCount } = planWalletHistoryNoteImport(importedNotes, transactionMetadataKeys, txMetadata);
-    const skippedMessage = diagnostics.originMismatchCount
-      ? String(loc.formatString(loc.wallets.details_import_notes_origin_skipped, { count: diagnostics.originMismatchCount }))
-      : '';
+    const skippedMessage = [
+      diagnostics.originMismatchCount
+        ? String(loc.formatString(loc.wallets.details_import_notes_origin_skipped, { count: diagnostics.originMismatchCount }))
+        : '',
+      diagnostics.invalidLineCount
+        ? String(loc.formatString(loc.wallets.details_import_notes_invalid_skipped, { count: diagnostics.invalidLineCount }))
+        : '',
+    ]
+      .filter(Boolean)
+      .join('\n\n');
 
     if (updates.size === 0) {
       presentAlert({

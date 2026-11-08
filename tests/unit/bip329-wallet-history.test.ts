@@ -1,5 +1,6 @@
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { TWallet, Transaction } from '../../class/wallets/types';
 import { WalletDescriptor } from '../../class/wallet-descriptor';
 import { createBip329WalletHistoryBackup, getBip329Keypath, getBip329Origin } from '../../blue_modules/bip329-wallet-history';
@@ -32,6 +33,129 @@ describe('BIP-329 wallet history backup', () => {
       value: 1_000,
       ...overrides,
     }) as unknown as Transaction;
+
+  it('does not enumerate addresses for transaction-only records with no address metadata', () => {
+    const wallet = createBip47Wallet();
+    jest.spyOn(wallet, 'getTransactions').mockReturnValue([partialTransaction()]);
+    const external = jest.spyOn(wallet, '_getExternalAddressByIndex');
+    const internal = jest.spyOn(wallet, '_getInternalAddressByIndex');
+    const joint = jest.spyOn(wallet, '_getBIP47AddressReceive');
+    expect(JSON.parse(createBip329WalletHistoryBackup(wallet, {}, {})).type).toBe('tx');
+    expect(external).not.toHaveBeenCalled();
+    expect(internal).not.toHaveBeenCalled();
+    expect(joint).not.toHaveBeenCalled();
+  });
+
+  it('indexes the HD hierarchy once, even with repeated foreign I/O and a large global label map', () => {
+    const wallet = createBip47Wallet();
+    wallet.gap_limit = 4;
+    wallet.next_free_address_index = 2;
+    wallet.next_free_change_address_index = 1;
+    const receive = wallet._getExternalAddressByIndex(5);
+    const change = wallet._getInternalAddressByIndex(1);
+    const bip47 = wallet._getBIP47AddressReceive(wallet._receive_payment_codes[0], 3);
+    const foreign = 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu';
+    const addresses = [receive, change, bip47, ...Array(100).fill(foreign)] as string[];
+    jest.spyOn(wallet, 'getTransactions').mockReturnValue([
+      partialTransaction({
+        inputs: addresses.map(address => ({ address, value: 0.001 })),
+        outputs: addresses.map((address, n) => ({ n, value: 0.0009, scriptPubKey: { addresses: [address] } })),
+      }),
+    ]);
+    const own = jest.spyOn(wallet, 'weOwnAddress');
+    const paths = jest.spyOn(wallet, '_getDerivationPathByAddress');
+    const external = jest.spyOn(wallet, '_getExternalAddressByIndex');
+    const internal = jest.spyOn(wallet, '_getInternalAddressByIndex');
+    const joint = jest.spyOn(wallet, '_getBIP47AddressReceive');
+    const metadata = Object.fromEntries(Array.from({ length: 1000 }, (_, index) => [`foreign-${index}`, { label: 'Other wallet' }]));
+    metadata[receive] = { label: 'Unused receive label' };
+    metadata[foreign] = { label: 'Other wallet' };
+    const records = createBip329WalletHistoryBackup(wallet, {}, metadata)
+      .split('\n')
+      .map(line => JSON.parse(line));
+
+    expect(own).not.toHaveBeenCalled();
+    expect(paths).not.toHaveBeenCalled();
+    expect(external).toHaveBeenCalledTimes(6);
+    expect(internal).toHaveBeenCalledTimes(5);
+    expect(joint).toHaveBeenCalledTimes(4);
+    expect(records.filter(record => record.type === 'addr').map(record => record.ref)).toEqual([receive, change, bip47]);
+    expect(records.find(record => record.type === 'addr' && record.ref === receive)).toMatchObject({
+      label: 'Unused receive label',
+      keypath: '/0/5',
+    });
+    expect(records.find(record => record.type === 'addr' && record.ref === change)).toMatchObject({ keypath: '/1/1' });
+    expect(records.find(record => record.type === 'addr' && record.ref === bip47)).not.toHaveProperty('keypath');
+  });
+
+  it('caches negative ownership and derives owned paths once for other wallet implementations', () => {
+    const own = jest.fn((address: string) => address === 'owned');
+    const derive = jest.fn(() => "m/84'/0'/0'/0/2");
+    const wallet = {
+      getTransactions: () => [
+        partialTransaction({
+          inputs: [{ address: 'foreign' }, { address: 'owned' }, { address: 'foreign' }],
+          outputs: [{ scriptPubKey: { addresses: ['owned'] } }, { scriptPubKey: { addresses: ['foreign'] } }],
+        }),
+      ],
+      weOwnAddress: own,
+      _getDerivationPathByAddress: derive,
+      getDerivationPath: () => "m/84'/0'/0'",
+      getUTXOMetadata: () => ({}),
+    } as unknown as TWallet;
+    const records = createBip329WalletHistoryBackup(wallet, {}, { foreign: { label: 'Other wallet' }, owned: { label: 'Mine' } })
+      .split('\n')
+      .map(line => JSON.parse(line));
+    expect(own.mock.calls).toEqual([['foreign'], ['owned']]);
+    expect(derive).toHaveBeenCalledTimes(1);
+    expect(records.find(record => record.type === 'addr')).toMatchObject({ ref: 'owned', label: 'Mine', keypath: '/0/2' });
+  });
+
+  it('indexes the underlying watch-only receive and change branches', () => {
+    const source = createBip47Wallet();
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(source.getXpub());
+    wallet.init();
+    const hd = wallet._hdWalletInstance!;
+    hd.gap_limit = 3;
+    const receive = hd._getExternalAddressByIndex(2);
+    const change = hd._getInternalAddressByIndex(2);
+    const own = jest.spyOn(hd, 'weOwnAddress');
+    const records = createBip329WalletHistoryBackup(
+      wallet,
+      {},
+      { [receive.toUpperCase()]: { label: 'Receive' }, [change]: { label: 'Change' } },
+    )
+      .split('\n')
+      .map(line => JSON.parse(line));
+    expect(records).toEqual([
+      expect.objectContaining({ ref: receive.toUpperCase(), keypath: '/0/2', label: 'Receive' }),
+      expect.objectContaining({ ref: change, keypath: '/1/2', label: 'Change' }),
+    ]);
+    expect(own).not.toHaveBeenCalled();
+  });
+
+  it('indexes multisig paths without invoking the per-address hierarchy search', () => {
+    const wallet = new MultisigHDWallet();
+    wallet.addCosigner(
+      'Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ',
+      'D37EAD88',
+    );
+    wallet.addCosigner(
+      'Zpub75mAE8EjyxSzoyPmGnd5E6MyD7ALGNndruWv52xpzimZQKukwvEfXTHqmH8nbbc6ccP5t2aM3mws3pKYSnKpKMMytdbNEZFUxKzztYFM8Pn',
+      '168DD603',
+    );
+    wallet.setDerivationPath("m/48'/0'/0'/2'");
+    wallet.setM(2);
+    wallet.gap_limit = 3;
+    const change = wallet._getInternalAddressByIndex(2);
+    const paths = jest.spyOn(wallet, '_getDerivationPathByAddressWithCustomPath');
+    const records = createBip329WalletHistoryBackup(wallet, {}, { [change]: { label: 'Multisig change' } })
+      .split('\n')
+      .map(line => JSON.parse(line));
+    expect(records).toEqual([expect.objectContaining({ ref: change, keypath: '/1/2', origin: getBip329Origin(wallet) })]);
+    expect(paths).not.toHaveBeenCalled();
+  });
 
   it.each([undefined, null, {}, 'not an array'])('keeps transaction labels when I/O arrays are unavailable: %s', arrays => {
     const records = exportRecords([partialTransaction({ inputs: arrays, outputs: arrays })]);

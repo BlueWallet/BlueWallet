@@ -15,7 +15,7 @@ const RNFS = require('react-native-fs');
 
 describe('fs wallet history notes', () => {
   it('reports mismatched BIP-329 origins without importing their notes', () => {
-    const diagnostics = { originMismatchCount: 0 };
+    const diagnostics = { originMismatchCount: 0, invalidLineCount: 0 };
     const contents = [
       { type: 'tx', ref: 'a'.repeat(64), label: 'Selected wallet', origin: 'wpkh([12345678/84h/0h/0h])' },
       { type: 'tx', ref: 'b'.repeat(64), label: 'Other wallet', origin: 'wpkh([87654321/84h/0h/0h])' },
@@ -118,8 +118,9 @@ describe('fs wallet history notes', () => {
     ]);
   });
 
-  it('rejects a malformed BIP-329 origin instead of importing an ambiguous note', () => {
-    expect(() =>
+  it('skips a malformed BIP-329 origin instead of importing an ambiguous note', () => {
+    const diagnostics = { originMismatchCount: 0, invalidLineCount: 0 };
+    expect(
       parseWalletHistoryNotes(
         JSON.stringify({
           type: 'tx',
@@ -127,8 +128,11 @@ describe('fs wallet history notes', () => {
           label: 'Note',
           origin: 42,
         }),
+        undefined,
+        diagnostics,
       ),
-    ).toThrow(/Invalid BIP-329 origin/);
+    ).toEqual([]);
+    expect(diagnostics.invalidLineCount).toBe(1);
   });
 
   it('round-trips an exported BIP-329 transaction label', () => {
@@ -208,10 +212,54 @@ describe('fs wallet history notes', () => {
     expect(plan.overwriteCount).toBe(1);
   });
 
-  it('rejects malformed BIP-329 records and transaction labels', () => {
-    expect(() => parseWalletHistoryNotes('{not json}')).toThrow();
-    expect(() => parseWalletHistoryNotes(JSON.stringify({ type: 'tx', ref: 'not-a-txid', label: 'Note' }))).toThrow();
-    expect(() => parseWalletHistoryNotes(JSON.stringify({ type: 'tx', ref: bip329Txid, label: 42 }))).toThrow();
+  it.each(['\n', '\r\n', '\r'])(
+    'counts invalid JSONL lines with separator %j, keeping valid notes and origin filtering distinct',
+    separator => {
+      const diagnostics = { originMismatchCount: 0, invalidLineCount: 0 };
+      const selectedOrigin = "wpkh([d34db33f/84'/0'/0'])";
+      const contents = [
+        'broken first line',
+        JSON.stringify({ type: 'tx', ref: bip329Txid, label: 'Valid note', origin: selectedOrigin }),
+        '{not json}',
+        'null',
+        '[]',
+        JSON.stringify({ type: 'tx', ref: 'not-a-txid', label: 'Invalid ID' }),
+        JSON.stringify({ type: 'tx', ref: bip329Txid, label: 42 }),
+        JSON.stringify({ type: 'addr', ref: 'bc1qexample', label: 'Ignored address' }),
+        JSON.stringify({ type: 'future-type', ref: 'extension' }),
+        JSON.stringify({ type: 'tx', ref: bip329Txid, label: 'Other wallet', origin: "wpkh([d34db33f/84'/0'/1'])" }),
+        JSON.stringify({ type: 'tx', ref: otherBip329Txid, label: '' }),
+        '',
+      ].join(separator);
+      expect(parseWalletHistoryNotes(contents, selectedOrigin, diagnostics)).toEqual([
+        { transactionId: bip329Txid, memo: 'Valid note' },
+        { transactionId: otherBip329Txid, memo: '' },
+      ]);
+      expect(diagnostics).toEqual({ originMismatchCount: 1, invalidLineCount: 6 });
+      parseWalletHistoryNotes('Date,Transaction ID,Amount,Memo\ntoday,abc123,1,Note', undefined, diagnostics);
+      expect(diagnostics).toEqual({ originMismatchCount: 0, invalidLineCount: 0 });
+    },
+  );
+
+  it('recognizes named JSONL files when their first or every line is malformed', () => {
+    const diagnostics = { originMismatchCount: 0, invalidLineCount: 0 };
+    expect(
+      parseWalletHistoryNotes(
+        'bad,line,with,commas\n' + encodeBip329TransactionLabel(bip329Txid, 'Valid'),
+        undefined,
+        diagnostics,
+        'labels.JSONL',
+      ),
+    ).toEqual([{ transactionId: bip329Txid, memo: 'Valid' }]);
+    expect(diagnostics.invalidLineCount).toBe(1);
+    expect(parseWalletHistoryNotes('broken\ninvalid', undefined, diagnostics, 'labels.jsonl')).toEqual([]);
+    expect(diagnostics.invalidLineCount).toBe(2);
+  });
+
+  it('keeps quoted multiline CSV memos containing JSON-looking lines intact', () => {
+    const memo = 'First line\n{"type":"tx","ref":"example","label":"part of the CSV memo"}\nLast line';
+    const csv = [encodeCsvRow(['Date', 'Transaction ID', 'Amount', 'Memo']), encodeCsvRow(['today', bip329Txid, 1, memo])].join('\r\n');
+    expect(parseWalletHistoryNotes(csv)).toEqual([{ transactionId: bip329Txid, memo }]);
   });
 
   it('imports and persists a matching BIP-329 transaction label', async () => {

@@ -106,6 +106,43 @@ describe('Wallet Details note import', () => {
     expect(saveToDisk).not.toHaveBeenCalled();
   });
 
+  it.each([false, true])(
+    'reports invalid JSONL lines and keeps selected-wallet filtering when valid notes exist: %s',
+    async hasValidNote => {
+      const data = [
+        'broken first line',
+        hasValidNote ? JSON.stringify({ type: 'tx', ref: txid, label: 'Surviving note' }) : 'another broken line',
+        JSON.stringify({ type: 'tx', ref: 'b'.repeat(64), label: 'Foreign note' }),
+      ].join('\n');
+      jest.mocked(showFilePickerAndReadFile).mockResolvedValue({ data, uri: 'labels.jsonl', fileName: 'labels.jsonl' });
+      const screen = render(<WalletDetails />);
+      let importing!: Promise<void>;
+      act(() => {
+        importing = screen.getByTestId('TransactionHistoryMenuButton').props.onPressMenuItem(IMPORT_NOTES_ACTION_ID);
+      });
+      await act(async () => {});
+      const [title, message, buttons] = jest.mocked(Alert.alert).mock.calls[0];
+      expect(title).toBe('Import Notes');
+      expect(message).toContain(
+        String(loc.formatString(loc.wallets.details_import_notes_invalid_skipped, { count: hasValidNote ? 1 : 2 })),
+      );
+      expect(message).toContain(loc.wallets.details_import_notes_scope);
+      expect(saveToDisk).not.toHaveBeenCalled();
+      if (hasValidNote) {
+        await act(async () => {
+          await buttons?.find(button => button.text === loc._.ok)?.onPress?.();
+          await importing;
+        });
+        expect(metadata).toEqual({ [txid]: { memo: 'Surviving note' } });
+        expect(saveToDisk).toHaveBeenCalledTimes(1);
+      } else {
+        await importing;
+        expect(message).toContain(loc.wallets.details_import_notes_no_changes);
+        expect(metadata).toEqual({});
+      }
+    },
+  );
+
   it.each([false, true])('only applies a selected-wallet note when the user confirms: %s', async confirmed => {
     const contents = [
       { type: 'tx', ref: txid, label: 'Relevant note' },
