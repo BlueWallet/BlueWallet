@@ -44,6 +44,10 @@ jobs:
           node-version: 24
           cache: 'npm'
 
+      - name: Set npm version
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@12.2.2
+
       - name: Use specific Java version for sdkmanager to work
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
