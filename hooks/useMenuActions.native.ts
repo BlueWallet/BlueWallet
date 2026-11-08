@@ -69,7 +69,7 @@ export function getMenuActionTitles(): MenuActionTitles {
     sign_psbt: loc.send.psbt_sign,
     insert_contact: loc.send.details_insert_contact,
     coin_control: loc.cc.header,
-    editWalletName: `${loc.wallets.details_edit} ${loc.wallets.add_wallet_name}`,
+    editWalletName: loc.wallets.details_edit_wallet_name,
     showAddresses: loc.wallets.details_show_addresses,
     showXpub: loc.wallets.details_show_xpub,
     signVerify: loc.addresses.sign_title,

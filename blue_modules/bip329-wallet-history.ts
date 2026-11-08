@@ -62,8 +62,9 @@ export function createBip329WalletHistoryBackup(wallet: TWallet, txMetadata: TTX
   const exportedAddresses = new Set<string>();
   const records: string[] = [];
 
-  const exportAddress = (address: string) => {
-    if (exportedAddresses.has(address) || !wallet.weOwnAddress(address)) return;
+  const exportAddress = (address: string): boolean => {
+    if (exportedAddresses.has(address)) return true;
+    if (!wallet.weOwnAddress(address)) return false;
     exportedAddresses.add(address);
 
     const label = addressMetadata[address]?.label;
@@ -77,6 +78,7 @@ export function createBip329WalletHistoryBackup(wallet: TWallet, txMetadata: TTX
         ...(keypath ? { keypath } : {}),
       }),
     );
+    return true;
   };
 
   for (const transaction of transactions) {
@@ -102,14 +104,14 @@ export function createBip329WalletHistoryBackup(wallet: TWallet, txMetadata: TTX
 
     transaction.inputs.forEach((input, index) => {
       const address = input.address ?? input.addresses?.[0];
-      if (address) exportAddress(address);
+      const owned = address ? exportAddress(address) : false;
       const inputValue = bitcoinValueToSats(input.value);
-      const keypath = address ? getBip329Keypath(wallet, address) : undefined;
+      const keypath = owned && address ? getBip329Keypath(wallet, address) : undefined;
       records.push(
         encodeBip329Record({
           type: 'input',
           ref: `${transactionId}:${index}`,
-          ...(keypath && origin ? { origin } : {}),
+          ...(owned && origin ? { origin } : {}),
           ...(keypath ? { keypath } : {}),
           ...(inputValue === undefined ? {} : { value: inputValue }),
           ...transactionDetails,
@@ -120,8 +122,8 @@ export function createBip329WalletHistoryBackup(wallet: TWallet, txMetadata: TTX
     transaction.outputs.forEach((output, index) => {
       const outputIndex = Number.isInteger(output.n) ? output.n : index;
       const address = output.scriptPubKey?.addresses?.[0];
-      if (address) exportAddress(address);
-      const keypath = address ? getBip329Keypath(wallet, address) : undefined;
+      const owned = address ? exportAddress(address) : false;
+      const keypath = owned && address ? getBip329Keypath(wallet, address) : undefined;
       const outputMetadata = wallet.getUTXOMetadata(transactionId, outputIndex);
       const outputValue = bitcoinValueToSats(output.value);
       records.push(
@@ -129,7 +131,7 @@ export function createBip329WalletHistoryBackup(wallet: TWallet, txMetadata: TTX
           type: 'output',
           ref: `${transactionId}:${outputIndex}`,
           ...(outputMetadata.memo === undefined ? {} : { label: outputMetadata.memo }),
-          ...(keypath && origin ? { origin } : {}),
+          ...(owned && origin ? { origin } : {}),
           ...(keypath ? { keypath } : {}),
           ...(outputMetadata.frozen === undefined ? {} : { spendable: !outputMetadata.frozen }),
           ...(outputValue === undefined ? {} : { value: outputValue }),

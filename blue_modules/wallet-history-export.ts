@@ -88,7 +88,7 @@ export function createAccountingHistoryRows(
     let transactionId = metadataKey || '';
     const memo = (metadataKey && txMetadata[metadataKey]?.memo?.trim()) || transaction.memo || '';
     let status: string;
-    let confirmations = '';
+    let confirmations = transaction.confirmations === undefined ? '' : String(transaction.confirmations);
     let fee = '';
     let feeSats: number | '' = '';
     let paymentHash = '';
@@ -98,7 +98,7 @@ export function createAccountingHistoryRows(
       const rawPaymentHash = transaction.payment_hash;
       paymentHash =
         typeof rawPaymentHash === 'string' ? rawPaymentHash : rawPaymentHash ? uint8ArrayToHex(new Uint8Array(rawPaymentHash.data)) : '';
-      transactionId = paymentHash || transactionId;
+      transactionId = transactionId || paymentHash;
       const expired = invoiceExpiration !== undefined && invoiceExpiration <= now / 1000;
       const complete =
         transaction.ispaid ||

@@ -4,6 +4,16 @@ import { TWallet, Transaction } from '../../class/wallets/types';
 import { WalletDescriptor } from '../../class/wallet-descriptor';
 import { createBip329WalletHistoryBackup, getBip329Keypath, getBip329Origin } from '../../blue_modules/bip329-wallet-history';
 
+const createBip47Wallet = () => {
+  const wallet = new HDSegwitBech32Wallet();
+  // Public BIP-47 test-vector seed and counterparty payment code.
+  wallet.setSecret('reward upper indicate eight swift arch injury crystal super wrestle already dentist');
+  wallet._receive_payment_codes = [
+    'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+  ];
+  return wallet;
+};
+
 describe('BIP-329 wallet history backup', () => {
   it('exports owned address labels from a wallet without any transactions', () => {
     jest.spyOn(WalletDescriptor, 'fromWallet').mockReturnValue(undefined);
@@ -58,12 +68,7 @@ describe('BIP-329 wallet history backup', () => {
   });
 
   it('omits BIP-47 keypaths that cannot extend the exported BIP-84 origin', () => {
-    const wallet = new HDSegwitBech32Wallet();
-    // Public BIP-47 test-vector seed and counterparty payment code.
-    wallet.setSecret('reward upper indicate eight swift arch injury crystal super wrestle already dentist');
-    wallet._receive_payment_codes = [
-      'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
-    ];
+    const wallet = createBip47Wallet();
     const address = wallet._getBIP47AddressReceive(wallet._receive_payment_codes[0], 0);
     expect(wallet._getDerivationPathByAddress(address)).toBe("m/47'/0'/0'/0");
     expect(getBip329Keypath(wallet, wallet._getExternalAddressByIndex(0))).toBe('/0/0');
@@ -72,6 +77,61 @@ describe('BIP-329 wallet history backup', () => {
     const record = JSON.parse(createBip329WalletHistoryBackup(wallet, {}, { [address]: { label: 'BIP-47 payment' } }));
     expect(record).toMatchObject({ type: 'addr', ref: address, label: 'BIP-47 payment', origin: getBip329Origin(wallet) });
     expect(record).not.toHaveProperty('keypath');
+  });
+
+  it('keeps origin and coin-control metadata for owned BIP-47 inputs/outputs without tagging foreign or unknown addresses', () => {
+    const wallet = createBip47Wallet();
+    const bip47Address = wallet._getBIP47AddressReceive(wallet._receive_payment_codes[0], 0);
+    const addresses = [bip47Address, 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', wallet._getExternalAddressByIndex(0), undefined];
+    const txid = 'a'.repeat(64);
+    const transaction: Transaction = {
+      txid,
+      hash: txid,
+      version: 2,
+      size: 300,
+      vsize: 200,
+      weight: 800,
+      locktime: 0,
+      timestamp: 0,
+      inputs: addresses.map((address, vout) => ({
+        txid: 'b'.repeat(64),
+        vout,
+        address,
+        value: 0.001,
+        scriptSig: { asm: '', hex: '' },
+        txinwitness: [],
+        sequence: 0xffffffff,
+      })),
+      outputs: addresses.map((address, n) => ({
+        n,
+        value: 0.0009,
+        scriptPubKey: { asm: '', hex: '', reqSigs: 1, type: 'witness_v0_keyhash', addresses: address ? [address] : [] },
+      })),
+    };
+    jest.spyOn(wallet, 'getTransactions').mockReturnValue([transaction]);
+    wallet.setUTXOMetadata(txid, 0, { memo: 'Reserved BIP-47 funds', frozen: true });
+    const records = createBip329WalletHistoryBackup(wallet, {}, {})
+      .split('\n')
+      .map(line => JSON.parse(line));
+    const origin = getBip329Origin(wallet);
+    expect(origin).toMatch(/^wpkh\(/);
+
+    for (const type of ['input', 'output']) {
+      const bip47Record = records.find(record => record.type === type && record.ref === `${txid}:0`);
+      expect(bip47Record).toMatchObject({ origin });
+      expect(bip47Record).not.toHaveProperty('keypath');
+      expect(records.find(record => record.type === type && record.ref === `${txid}:2`)).toMatchObject({ origin, keypath: '/0/0' });
+      for (const index of [1, 3]) {
+        const other = records.find(record => record.type === type && record.ref === `${txid}:${index}`);
+        expect(other).not.toHaveProperty('origin');
+        expect(other).not.toHaveProperty('keypath');
+      }
+    }
+    expect(records.find(record => record.type === 'output' && record.ref === `${txid}:0`)).toMatchObject({
+      label: 'Reserved BIP-47 funds',
+      spendable: false,
+      value: 90_000,
+    });
   });
 
   it.each([

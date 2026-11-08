@@ -457,6 +457,7 @@
     "details_derivation_path_invalid": "Invalid derivation path. It should look like m/84'/0'/0'.",
     "details_display": "Display in Home Screen",
     "details_edit": "edit",
+    "details_edit_wallet_name": "Edit Wallet Name",
     "details_export_backup": "Export/Backup",
     "details_export_accounting": "Accounting",
     "details_export_accounting_csv": "Accounting CSV",

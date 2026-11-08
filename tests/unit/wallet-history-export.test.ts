@@ -113,10 +113,12 @@ describe('wallet history exports', () => {
 
     const csv = createAccountingHistoryCsv(lightningTransactions, Chain.OFFCHAIN, {}, now);
 
-    expect(csv).toContain(',0102,Receive,0.00001000,1000,0.00000002,2,,Expired,');
-    expect(csv).toContain(',pending,Receive,0.00001000,1000,0.00000002,2,,Pending,');
-    expect(csv).toContain(',failed,Receive,0.00001000,1000,0.00000002,2,,Failed,');
-    expect(csv).toContain(',complete,Receive,0.00001000,1000,0.00000002,2,,Complete,');
+    expect(csv).toContain(`,${'a'.repeat(64)},Receive,0.00001000,1000,0.00000002,2,,Expired,`);
+    expect(csv).toContain(`,${'b'.repeat(64)},Receive,0.00001000,1000,0.00000002,2,,Pending,`);
+    expect(csv).toContain(`,${'c'.repeat(64)},Receive,0.00001000,1000,0.00000002,2,,Failed,`);
+    expect(csv).toContain(`,${'d'.repeat(64)},Receive,0.00001000,1000,0.00000002,2,,Complete,`);
+    const [, expiredRow] = createAccountingHistoryRows(lightningTransactions, Chain.OFFCHAIN, {}, now);
+    expect(expiredRow[ACCOUNTING_HISTORY_HEADERS.indexOf('Payment Hash')]).toBe('0102');
     expect(csv).toContain('2025-01-23T11:59:59.000Z');
     expect(csv).toContain('2025-01-23T13:00:00.000Z');
   });
@@ -136,7 +138,27 @@ describe('wallet history exports', () => {
     expect(field(payment, 'Amount (sats)')).toBe(-1_002);
     expect(field(payment, 'Fee (sats)')).toBe(2);
     expect(field(refill, 'Status')).toBe('Complete');
+    expect(field(refill, 'Confirmations')).toBe('3');
     expect(field(refill, 'Payment Hash')).toBe('');
+  });
+
+  it.each([
+    ['swap-payment', '', 'swap-payment'],
+    ['ark-transfer', '', 'ark-transfer'],
+    ['boarding-refill', '', 'boarding-refill'],
+    ['fallback-txid', 'on-chain-hash', 'on-chain-hash'],
+    ['', '', 'payment-hash'],
+  ])('keeps the wallet row ID separate from its payment hash: %s, %s', (txid, hash, expectedId) => {
+    const tx = { ...transaction({ txid, hash }), payment_hash: 'payment-hash', ispaid: true };
+    const [, row] = createAccountingHistoryRows([tx], Chain.OFFCHAIN, { [expectedId]: { memo: 'Wallet note' } });
+    expect(row[ACCOUNTING_HISTORY_HEADERS.indexOf('Transaction ID')]).toBe(expectedId);
+    expect(row[ACCOUNTING_HISTORY_HEADERS.indexOf('Payment Hash')]).toBe('payment-hash');
+    expect(row[ACCOUNTING_HISTORY_HEADERS.indexOf('Memo')]).toBe(txid || hash ? 'Wallet note' : '');
+  });
+
+  it.each([undefined, 0, 3])('preserves available off-chain refill confirmations, including zero: %s', confirmations => {
+    const [, row] = createAccountingHistoryRows([{ ...transaction({ confirmations }), type: 'bitcoind_tx' }], Chain.OFFCHAIN, {});
+    expect(row[ACCOUNTING_HISTORY_HEADERS.indexOf('Confirmations')]).toBe(confirmations === undefined ? '' : String(confirmations));
   });
 
   it.each([
