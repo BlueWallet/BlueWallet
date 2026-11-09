@@ -26,6 +26,8 @@ const PAID_STATUSES = ['invoice.paid', 'transaction.claim.pending', 'transaction
 type StoredSubmarineSwap = {
   status: string;
   refunded?: boolean;
+  /** App-owned: the lockup held a coin right before a recovery. */
+  lockupFunded?: boolean;
   preimageHash?: string;
   request?: { invoice?: string };
   response?: {
@@ -98,12 +100,20 @@ async function fundedLockups(contractManager: IContractManager, contracts: Creat
   return new Set(held.filter(({ vtxos }) => vtxos.length > 0).map(({ contract }) => contract.script));
 }
 
+function markRows(realm: Realm, rows: BoltzSwapRow[], ids: Set<string>, fields: Partial<StoredSubmarineSwap>) {
+  realm.write(() => {
+    for (const row of rows) {
+      if (ids.has(row.id)) row.data = JSON.stringify({ ...JSON.parse(row.data), ...fields });
+    }
+  });
+}
+
 /**
  * Registers the stranded sends with the wallet, settles the matured ones and
  * marks the sends whose lockup it emptied as refunded.
  * Safe to repeat: registration is an upsert and nothing settles twice.
  *
- * @returns whether a recovery settled, so the caller knows to refresh.
+ * @returns whether it settled or marked a send, so the caller knows to refresh.
  */
 export async function refundStrandedSends(
   realm: Realm,
@@ -126,19 +136,27 @@ export async function refundStrandedSends(
   // their refund locktime, plus any other swept coins of this wallet.
   const vtxoManager = await wallet.getVtxoManager();
   const { recoverable } = await vtxoManager.getRecoverableBalance();
-  if (recoverable === 0n) return false;
+  const swapId = (c: CreateContractParams) => c.metadata?.boltzSwapId as string;
+  const swapIds = (keep: (c: CreateContractParams) => boolean) => new Set(contracts.filter(keep).map(swapId));
+  const registered = swapIds(() => true);
+  const seenFunded = new Set(rows.filter(row => registered.has(row.id) && JSON.parse(row.data).lockupFunded).map(row => row.id));
+  if (recoverable === 0n && seenFunded.size === 0) return false;
 
-  const funded = await fundedLockups(contractManager, contracts);
-  await vtxoManager.recoverVtxos();
+  if (recoverable > 0n) {
+    // Recorded before settling, so a refund this launch cannot confirm is
+    // still marked on a later one. Only recoverVtxos() spends these lockups:
+    // renewal leaves contract coins alone and Boltz is gone.
+    const funded = await fundedLockups(contractManager, contracts);
+    const fundedIds = swapIds(c => funded.has(c.script));
+    markRows(realm, rows, fundedIds, { lockupFunded: true });
+    fundedIds.forEach(id => seenFunded.add(id));
+    await vtxoManager.recoverVtxos();
+  }
 
-  // A lockup the recovery emptied is refunded: mark its send so it stops
-  // offering a Refund button and is not registered again.
+  // A lockup seen funded that is now empty was refunded: mark its send so it
+  // stops offering a Refund button and is not registered again.
   const stillFunded = await fundedLockups(contractManager, contracts);
-  const refunded = new Set(contracts.filter(c => funded.has(c.script) && !stillFunded.has(c.script)).map(c => c.metadata?.boltzSwapId));
-  realm.write(() => {
-    for (const row of rows) {
-      if (refunded.has(row.id)) row.data = JSON.stringify({ ...JSON.parse(row.data), refunded: true });
-    }
-  });
-  return true;
+  const refunded = swapIds(c => seenFunded.has(swapId(c)) && !stillFunded.has(c.script));
+  markRows(realm, rows, refunded, { refunded: true });
+  return recoverable > 0n || refunded.size > 0;
 }

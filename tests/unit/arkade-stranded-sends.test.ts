@@ -97,13 +97,14 @@ describe('arkade-stranded-sends — refundStrandedSends', () => {
       if (unregistrable.includes(contract.address!)) throw new Error('indexer unreachable');
       registered.add(contract.script);
     });
-    const recoverVtxos = jest.fn(async () => 'commitment-txid');
-    const holding = (addresses: string[]) =>
-      addresses.map(scriptOf).flatMap(script => (registered.has(script) ? [{ contract: { script }, vtxos: [{}] }] : []));
-    const getContractsWithVtxos = jest
-      .fn()
-      .mockImplementationOnce(async () => holding(fundedBefore))
-      .mockImplementationOnce(async () => holding(fundedAfter));
+    let funded = fundedBefore;
+    const recoverVtxos = jest.fn(async () => {
+      funded = fundedAfter;
+      return 'commitment-txid';
+    });
+    const getContractsWithVtxos = jest.fn(async () =>
+      funded.map(scriptOf).flatMap(script => (registered.has(script) ? [{ contract: { script }, vtxos: [{}] }] : [])),
+    );
     const wallet = {
       identity: { xOnlyPublicKey: async () => hexToUint8Array(SENDER) },
       getContractManager: async () => ({ createContract, getContractsWithVtxos }),
@@ -167,6 +168,27 @@ describe('arkade-stranded-sends — refundStrandedSends', () => {
 
     await refundStrandedSends(realm, wallet);
 
+    assert.deepStrictEqual(refunded(), []);
+  });
+
+  it('marks on a later launch a refund it settled but could not confirm', async () => {
+    const { realm, refunded } = fakeRealm(storedSend());
+    // The read after the settle still shows the coin, as the SDK's stored
+    // vtxos do while the indexer is unreachable.
+    await refundStrandedSends(realm, fakeWallet(19_000n, [LOCKUP.currentSigner], [LOCKUP.currentSigner]).wallet);
+    assert.deepStrictEqual(refunded(), []);
+
+    const nextLaunch = fakeWallet(0n);
+    assert.strictEqual(await refundStrandedSends(realm, nextLaunch.wallet), true, 'refreshes for the new label');
+    assert.deepStrictEqual(refunded(), ['send-1']);
+    assert.strictEqual(nextLaunch.recoverVtxos.mock.calls.length, 0);
+  });
+
+  it('keeps a lockup seen funded unmarked on a later launch while it still holds its coin', async () => {
+    const { realm, refunded } = fakeRealm(storedSend());
+    await refundStrandedSends(realm, fakeWallet(19_000n, [LOCKUP.currentSigner], [LOCKUP.currentSigner]).wallet);
+
+    assert.strictEqual(await refundStrandedSends(realm, fakeWallet(0n, [LOCKUP.currentSigner]).wallet), false);
     assert.deepStrictEqual(refunded(), []);
   });
 
