@@ -1474,11 +1474,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       // and OP_RETURN carries our payment code blinded with that input's key & outpoint (BIP47 notification format)
       const firstInput = tx.inputs?.[0];
       const inputAddress = firstInput?.addresses?.[0] ?? firstInput?.address;
-      if (!firstInput || !inputAddress || !this.weOwnAddress(inputAddress)) continue;
-      const wif = this._getWIFbyAddress(inputAddress);
-      if (!wif) continue;
+      if (!firstInput || !inputAddress) continue;
 
       try {
+        const wif = this._getWifForAddress(inputAddress); // cached; throws if address is not ours
         const outputNumber = new Uint8Array(4);
         new DataView(outputNumber.buffer).setUint32(0, firstInput.vout, true);
         const expectedBlinded = this.getBIP47FromSeed().getBlindedPaymentCode(
