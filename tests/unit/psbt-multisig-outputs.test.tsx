@@ -271,6 +271,9 @@ describe('multisig destination display', () => {
     expect(visible(screen)).toContain(recipient);
     expect(visible(screen)).toContain(secondRecipient);
     expect(visible(screen)).not.toContain(change);
+    for (const part of [recipient.slice(0, 6), recipient.slice(-6)]) {
+      expect(StyleSheet.flatten(screen.getByText(part).props.style).color).toBe(BlueDefaultTheme.colors.alternativeTextColor2);
+    }
     expect(visible(screen)).toContain('0.0002');
     fireEvent.press(screen.getByText('0.0002'));
     expect(visible(screen)).toContain(change);

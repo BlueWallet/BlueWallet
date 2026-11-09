@@ -120,6 +120,9 @@ const PsbtMultisig = () => {
     vaultKeyTextSigned: {
       color: colors.msSuccessBG,
     },
+    addressSection: {
+      color: colors.alternativeTextColor2,
+    },
   });
 
   const [isFiltered, setIsFiltered] = useState(true);
@@ -262,7 +265,15 @@ const PsbtMultisig = () => {
     return outputs.map((output, index) => (
       <View style={styles.destinationTextContainer} key={index}>
         <Text style={[styles.textDestination, stylesHook.textFiat]} selectable>
-          {formatTransactionOutput(output)}
+          {output.address ? (
+            <>
+              <Text style={[styles.addressSection, stylesHook.addressSection]}>{output.address.slice(0, 6)}</Text>
+              {output.address.slice(6, -6)}
+              <Text style={[styles.addressSection, stylesHook.addressSection]}>{output.address.slice(-6)}</Text>
+            </>
+          ) : (
+            formatTransactionOutput(output)
+          )}
           {'\n'}
           {satoshiToBTC(output.value)} {BitcoinUnit.BTC}
         </Text>
@@ -415,6 +426,10 @@ const styles = StyleSheet.create({
   textBtc: {
     fontWeight: 'bold',
     fontSize: 30,
+  },
+  addressSection: {
+    fontSize: 14,
+    fontWeight: '500',
   },
   textDestination: {
     paddingTop: 10,
