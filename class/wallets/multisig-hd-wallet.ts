@@ -1133,8 +1133,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
       if (inp.nonWitnessUtxo) {
         const inputTx = bitcoin.Transaction.fromBuffer(inp.nonWitnessUtxo);
-        if (inputTx.getId() === uint8ArrayToHex(new Uint8Array(txInput.hash).reverse())) {
-          goesIn += Number(inputTx.outs[txInput.index].value);
+        const prevout = inputTx.outs[txInput.index];
+        if (prevout && inputTx.getId() === uint8ArrayToHex(new Uint8Array(txInput.hash).reverse())) {
+          goesIn += Number(prevout.value);
           continue;
         }
       }
