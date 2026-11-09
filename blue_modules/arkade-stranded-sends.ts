@@ -5,6 +5,7 @@ import type Realm from 'realm';
 
 import { hexToUint8Array, uint8ArrayToHex } from './uint8array-extras/index';
 import { errorMessage } from '../helpers/errorMessage';
+import { BoltzSwapSchema } from './arkade-adapters/realm/boltzSwapSchema';
 
 /**
  * Refunds Lightning sends that Boltz never resolved before shutting down.
@@ -16,19 +17,6 @@ import { errorMessage } from '../helpers/errorMessage';
  * so each one is rebuilt here and handed to the SDK as a `vhtlc` contract;
  * `recoverVtxos()` then settles the matured ones back to the wallet.
  */
-
-/** Written by @arkade-os/boltz-swap's RealmSwapRepository; `data` holds the whole swap as JSON. */
-export const BoltzSwapSchema = {
-  name: 'BoltzSwap',
-  primaryKey: 'id',
-  properties: {
-    id: 'string',
-    type: 'string',
-    status: 'string',
-    createdAt: 'int',
-    data: 'string',
-  },
-};
 
 export type BoltzSwapRow = { id: string; type: string; data: string };
 

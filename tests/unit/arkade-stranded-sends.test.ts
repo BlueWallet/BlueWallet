@@ -2,7 +2,8 @@ import assert from 'assert';
 import { ArkAddress, CreateContractParams, VHTLCContractHandler } from '@arkade-os/sdk';
 import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 
-import { BoltzSwapRow, BoltzSwapSchema, refundStrandedSends, strandedSendContracts } from '../../blue_modules/arkade-stranded-sends';
+import { BoltzSwapRow, refundStrandedSends, strandedSendContracts } from '../../blue_modules/arkade-stranded-sends';
+import { BoltzSwapSchema } from '../../blue_modules/arkade-adapters/realm/boltzSwapSchema';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras/index';
 import { LOCKUP, PAYMENT_HASH, SENDER, storedSend } from '../helpers/strandedSend';
 

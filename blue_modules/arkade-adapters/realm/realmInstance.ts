@@ -7,7 +7,7 @@ import { randomBytes } from '../../../class/rng';
 import { uint8ArrayToHex, hexToUint8Array } from '../../uint8array-extras';
 import { ArkSwapNotificationSuppressionSchema } from './notificationSuppressionRepository';
 import { errorMessage } from '../../../helpers/errorMessage';
-import { BoltzSwapSchema } from '../../arkade-stranded-sends';
+import { BoltzSwapSchema } from './boltzSwapSchema';
 
 // BoltzSwap is app-owned so the stored sends outlive the boltz-swap package:
 // they are the only record of lockups the wallet may still refund.
