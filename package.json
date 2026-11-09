@@ -197,5 +197,14 @@
     "@typescript-eslint/typescript-estree": {
       "minimatch": "11.0.5"
     }
+  },
+  "allowScripts": {
+    "@bugsnag/cli@3.10.7": true,
+    "secp256k1": true,
+    "detox@20.51.4": true,
+    "dtrace-provider": true,
+    "fsevents@2.3.3": true,
+    "realm@20.2.0": true,
+    "tiny-secp256k1": true
   }
 }
