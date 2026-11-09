@@ -1464,15 +1464,32 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * (i.e. if it exists - we notified in the past and dont need to notify again)
    */
   getBIP47NotificationTransaction(receiverPaymentCode: string): Transaction | undefined {
-    const publicBip47 = BIP47Factory(ecc).fromPaymentCode(receiverPaymentCode);
-    const remoteNotificationAddress = publicBip47.getNotificationAddress();
+    const bobBip47 = BIP47Factory(ecc).fromPaymentCode(receiverPaymentCode);
+    const remoteNotificationAddress = bobBip47.getNotificationAddress();
 
     for (const tx of this.getTransactions()) {
-      for (const output of tx.outputs) {
-        if (output.scriptPubKey?.addresses?.includes(remoteNotificationAddress)) return tx;
-        // ^^^ if in the past we sent a tx to his notification address - most likely that was a proper notification
-        // transaction with OP_RETURN.
-        // but not gona verify it here, will just trust it
+      if (!tx.outputs.some(output => output.scriptPubKey?.addresses?.includes(remoteNotificationAddress))) continue;
+
+      // paying to his notification address is not enough: it must be OUR notification, i.e. first input is ours
+      // and OP_RETURN carries our payment code blinded with that input's key & outpoint (BIP47 notification format)
+      const firstInput = tx.inputs?.[0];
+      const inputAddress = firstInput?.addresses?.[0] ?? firstInput?.address;
+      if (!firstInput || !inputAddress || !this.weOwnAddress(inputAddress)) continue;
+      const wif = this._getWIFbyAddress(inputAddress);
+      if (!wif) continue;
+
+      try {
+        const outputNumber = new Uint8Array(4);
+        new DataView(outputNumber.buffer).setUint32(0, firstInput.vout, true);
+        const expectedBlinded = this.getBIP47FromSeed().getBlindedPaymentCode(
+          bobBip47,
+          ECPair.fromWIF(wif).privateKey as Buffer,
+          uint8ArrayToHex(hexToUint8Array(firstInput.txid).reverse()) + uint8ArrayToHex(outputNumber),
+        );
+        const expectedScript = ('6a4c50' + expectedBlinded).toLowerCase();
+        if (tx.outputs.some(output => output.scriptPubKey?.hex?.toLowerCase() === expectedScript)) return tx;
+      } catch (_) {
+        // malformed record, not a notification
       }
     }
   }
