@@ -21,6 +21,7 @@ import Lnurl from '../../class/lnurl';
 import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import { useTheme } from '../../components/themes';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import loc, { formatBalance, formatBalancePlain, formatBalanceWithoutSuffix } from '../../loc';
@@ -54,6 +55,7 @@ const LNDCreateInvoice = () => {
   // disabled side (null) means the flow is unavailable — hide it and say
   // why, not "amount out of range".
   const [receiveLimits, setReceiveLimits] = useState<{ min: number; max: number } | null | undefined>(undefined);
+  const [lightningAddress, setLightningAddress] = useState<string>();
 
   const styleHooks = StyleSheet.create({
     scanRoot: {
@@ -185,6 +187,7 @@ const LNDCreateInvoice = () => {
     let cancelled = false;
     if (wallet.current instanceof LightningArkWallet) {
       wallet.current.getReceiveLimits().then(limits => !cancelled && setReceiveLimits(limits));
+      wallet.current.getLightningAddress().then(address => !cancelled && setLightningAddress(address));
     }
     return () => {
       cancelled = true;
@@ -370,6 +373,16 @@ const LNDCreateInvoice = () => {
     );
   };
 
+  const renderLightningAddress = () => {
+    if (!lightningAddress || lnurlParams) return null;
+    return (
+      <>
+        <Text style={styles.limitsHint}>{loc.lnd.lightningAddress}</Text>
+        <CopyTextToClipboard text={lightningAddress} style={styles.lightningAddress} selectable />
+      </>
+    );
+  };
+
   const navigateToScanQRCode = async () => {
     const data = await scanQrHelper();
     if (data) {
@@ -462,6 +475,7 @@ const LNDCreateInvoice = () => {
           </View>
           <DismissKeyboardInputAccessory />
           {renderReceiveLimitsHint()}
+          {renderLightningAddress()}
           {renderCreateButton()}
         </View>
         {renderWalletSelectionButton()}
@@ -557,6 +571,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 8,
     fontSize: 13,
+    color: '#81868e',
+    textAlign: 'center',
+  },
+  lightningAddress: {
+    marginHorizontal: 20,
+    marginTop: 4,
+    fontSize: 15,
     color: '#81868e',
     textAlign: 'center',
   },

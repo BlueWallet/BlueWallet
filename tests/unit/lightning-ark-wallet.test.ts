@@ -700,7 +700,19 @@ describe('LightningArkWallet — full init pipeline (offline)', () => {
 
 describe('LightningArkWallet LNURL receive', () => {
   const ARK_ADDRESS = new ArkAddress(new Uint8Array(32).fill(2), new Uint8Array(32).fill(3), 'ark').encode();
+  const BOARDING_ADDRESS = 'bc1pboardingaddress';
+  const DOMAIN = 'lnurl.arkade.sh';
   const PREIMAGE = 'ab'.repeat(32);
+  const named = (username: string, extra: Record<string, unknown> = {}) => ({
+    username,
+    handle: username,
+    lightningAddress: `${username}@${DOMAIN}`,
+    domain: DOMAIN,
+    status: 'active',
+    nameless: false,
+    sessionLnurl: null,
+    ...extra,
+  });
   const makeInvoice = (timestamp = Math.floor(Date.now() / 1000)) =>
     bolt11.sign(
       bolt11.encode({
@@ -760,11 +772,9 @@ describe('LightningArkWallet LNURL receive', () => {
       const { pathname } = new URL(url);
       let body: unknown;
       if (pathname === '/lnurl/address' && method === 'GET') body = server.addresses;
-      else if (pathname === '/lnurl/domain') {
-        body = { domain: 'lnurl.arkade.sh', allocationModes: ['random', 'admin', 'session'], usernameRules: {}, requireApiKey: false };
-      } else if (pathname === '/lnurl/address') {
-        body = { handle: 'h1', domain: 'lnurl.arkade.sh', status: 'active', sessionLnurl: 'https://lnurl.arkade.sh/lnurl/session-id' };
-      } else if (pathname === '/lnurl/address/h1/arkade') body = {};
+      else if (pathname === '/lnurl/address') body = named('merry-comet');
+      else if (pathname.endsWith('/arkade')) body = {};
+      else if (method === 'PATCH') body = named('quiet-marlin', { sessionLnurl: `https://${DOMAIN}/lnurl/sid` });
       else if (pathname.endsWith('/callback')) {
         body = server.destination
           ? { paymentOption: 'arkade', paymentDestination: server.destination }
@@ -777,28 +787,62 @@ describe('LightningArkWallet LNURL receive', () => {
     w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
     send = jest.fn(async () => 'txid');
-    (w as any)._wallet = { getAddress: async () => ARK_ADDRESS, send };
+    (w as any)._wallet = {
+      identity: w._getIdentity(),
+      getAddress: async () => ARK_ADDRESS,
+      getBoardingAddress: async () => BOARDING_ADDRESS,
+      send,
+    };
     jest.spyOn(w, 'fetchTransactions').mockResolvedValue(undefined as any);
   });
+
+  const claimPublicKey = async () => Buffer.from(await w._getIdentity().compressedPublicKey()).toString('hex');
+  const claims = () => server.calls.filter(c => c.method === 'POST' && c.url.endsWith('/lnurl/address'));
+  const binds = () => server.calls.filter(c => c.url.endsWith('/arkade'));
 
   afterEach(() => {
     global.fetch = originalFetch;
     jest.restoreAllMocks();
   });
 
-  it('claims a nameless address bound to the Arkade address once, and asks for the Lightning rail', async () => {
+  it('claims a server-named address bound to the Arkade and boarding addresses once, and asks for the Lightning rail', async () => {
     const first = await w.addInvoice(1000, 'coffee');
     await w.addInvoice(1000, 'tea');
 
     assert.strictEqual(first, server.invoice);
-    const claims = server.calls.filter(c => c.method === 'POST' && c.url.endsWith('/lnurl/address'));
-    assert.strictEqual(claims.length, 1);
-    assert.strictEqual(claims[0].body.nameless, true);
-    const bind = server.calls.find(c => c.url.endsWith('/lnurl/address/h1/arkade'));
-    assert.strictEqual(bind?.body.arkadeAddress, ARK_ADDRESS);
+    assert.strictEqual(await w.getLightningAddress(), `merry-comet@${DOMAIN}`);
+    assert.strictEqual(claims().length, 1);
+    assert.strictEqual(claims()[0].body.nameless, undefined);
+    assert.strictEqual(claims()[0].body.username, undefined);
+    assert.strictEqual(binds().length, 1);
+    assert.ok(binds()[0].url.endsWith('/lnurl/address/merry-comet/arkade'));
+    assert.strictEqual(binds()[0].body.arkadeAddress, ARK_ADDRESS);
+    assert.strictEqual(binds()[0].body.boardingAddress, BOARDING_ADDRESS);
     const callback = server.calls.find(c => c.url.includes('/callback'));
     assert.ok(callback?.url.includes('paymentOption=offline-swap'));
     assert.ok(callback?.url.includes('amount=1000000'));
+  });
+
+  it('adopts the address it already owns, re-binding it when the boarding address moved', async () => {
+    const bound = { arkadeAddress: ARK_ADDRESS, claimPublicKey: await claimPublicKey(), createdAt: 0 };
+    server.addresses = [named('merry-comet', { ...bound, boardingAddress: 'bc1pold' })];
+
+    assert.strictEqual(await w.getLightningAddress(), `merry-comet@${DOMAIN}`);
+    assert.strictEqual(claims().length, 0);
+    assert.strictEqual(binds().length, 1);
+    assert.strictEqual(binds()[0].body.boardingAddress, BOARDING_ADDRESS);
+  });
+
+  it('names a nameless receiver from an earlier build in place instead of claiming another', async () => {
+    server.addresses = [
+      { ...named('sid', { username: null, lightningAddress: null, nameless: true }), sessionLnurl: `https://${DOMAIN}/lnurl/sid` },
+    ];
+
+    assert.strictEqual(await w.getLightningAddress(), `quiet-marlin@${DOMAIN}`);
+    assert.strictEqual(claims().length, 0);
+    const upgrade = server.calls.find(c => c.method === 'PATCH');
+    assert.ok(upgrade?.url.includes('/lnurl/address/sid'));
+    assert.deepStrictEqual(upgrade?.body, {});
   });
 
   it('refuses when the server offers no Lightning rail', async () => {

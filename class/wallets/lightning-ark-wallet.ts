@@ -20,7 +20,7 @@ import { ArkAddress, RestDelegateProvider, SingleKey, Wallet, ExtendedCoin, ArkT
 import { ExpoIndexerProvider, ExpoOperatorProvider } from '@arkade-os/sdk/adapters/expo';
 import { RealmContractRepository, RealmWalletRepository } from '@arkade-os/sdk/repositories/realm';
 import { createLnurlClient } from '@arkade-os/lnurl-client';
-import { arkadeLnurl, bootstrapReceiver, lnurlRailLimits, type Receiver } from '@arkade-os/lnurl-client/arkade';
+import { arkadeLnurl, lnurlRailLimits, type Receiver } from '@arkade-os/lnurl-client/arkade';
 import type Realm from 'realm';
 
 import BIP32Factory from 'bip32';
@@ -966,6 +966,15 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
   }
 
+  async getLightningAddress(): Promise<string | undefined> {
+    try {
+      return (await this._getLnurlReceiver()).lightningAddress;
+    } catch (e) {
+      console.log('[ARK] Lightning address unavailable:', errorMessage(e));
+      return undefined;
+    }
+  }
+
   /**
    * Estimated swap fee in sats for paying a Lightning invoice of
    * `amountSats` (Arkade -> Lightning): synchronous off the card's `fee_bps`
@@ -1342,17 +1351,18 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   /**
-   * The nameless address this wallet receives on. Its owner is derived from the
-   * key, so a restore finds it again; `refresh` re-binds it if our Arkade
-   * address has rotated.
+   * Our Lightning address: a server-picked name bound to our Arkade and boarding addresses. The key
+   * owns it, so a restore finds it again; `refresh` re-binds it if either address rotated, and an
+   * earlier build's nameless receiver is named in place so its LNURL keeps working.
    */
   private _getLnurlReceiver(): Promise<Receiver> {
     if (!this._lnurlReceiver) {
       const receiver = (async () => {
-        const lnurl = arkadeLnurl({ identity: this._getIdentity(), arkadeAddress: await this.getArkAddress(), baseUrl: LNURL_SERVER });
-        const boot = await bootstrapReceiver(lnurl, { autoClaimNameless: true, refresh: true });
-        if (boot.kind !== 'ready') throw new Error('Lightning receive is unavailable right now');
-        return boot.receiver;
+        if (!this._wallet) await this.init();
+        if (!this._wallet) throw new Error('Arkade wallet not initialized');
+        const lnurl = arkadeLnurl({ wallet: this._wallet, baseUrl: LNURL_SERVER });
+        const owned = (await lnurl.owned({ refresh: true })) ?? (await lnurl.claim());
+        return owned.lightningAddress ? owned : owned.upgrade();
       })();
       this._lnurlReceiver = receiver;
       receiver.catch(() => {

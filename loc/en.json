@@ -71,7 +71,8 @@
     "quoteExpires": "Quote expires: {time}",
     "quoteExpired": "Quote expired. Please review the new quote and confirm again.",
     "receiveUnavailable": "Lightning receive is unavailable right now. Try again later.",
-    "receiveLimits": "Receivable between {min} and {max} sats"
+    "receiveLimits": "Receivable between {min} and {max} sats",
+    "lightningAddress": "Your Lightning address"
   },
   "lndViewInvoice": {
     "additional_info": "Additional Information",
