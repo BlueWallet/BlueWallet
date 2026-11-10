@@ -2801,5 +2801,9 @@ describe('calculateFeeFromPsbt', () => {
     });
     psbt.addOutput({ script, value: 49000n });
     assert.strictEqual(w.calculateFeeFromPsbt(psbt), 1000);
+
+    // unparsable parent tx must not throw (fee is computed during render), falls back to witnessUtxo
+    psbt.data.inputs[0].nonWitnessUtxo = Uint8Array.of(0);
+    assert.strictEqual(w.calculateFeeFromPsbt(psbt), 1000);
   });
 });

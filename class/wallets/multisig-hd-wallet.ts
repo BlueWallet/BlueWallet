@@ -1127,16 +1127,21 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     // and made mixed segwit+legacy PSBTs drop legacy amounts entirely.
     // Do not throw on a mismatched witnessUtxo: getFee() is called during render without
     // a try/catch, so we just use the real amount for the fee line.
+    const txInputs = psbt.txInputs; // getter clones all inputs on every access
     for (let i = 0; i < psbt.data.inputs.length; i++) {
       const inp = psbt.data.inputs[i];
-      const txInput = psbt.txInputs[i];
+      const txInput = txInputs[i];
 
       if (inp.nonWitnessUtxo) {
-        const inputTx = bitcoin.Transaction.fromBuffer(inp.nonWitnessUtxo);
-        const prevout = inputTx.outs[txInput.index];
-        if (prevout && inputTx.getId() === uint8ArrayToHex(new Uint8Array(txInput.hash).reverse())) {
-          goesIn += Number(prevout.value);
-          continue;
+        try {
+          const inputTx = bitcoin.Transaction.fromBuffer(inp.nonWitnessUtxo);
+          const prevout = inputTx.outs[txInput.index];
+          if (prevout && inputTx.getId() === uint8ArrayToHex(new Uint8Array(txInput.hash).reverse())) {
+            goesIn += Number(prevout.value);
+            continue;
+          }
+        } catch {
+          // unparsable parent tx, fall back to witnessUtxo
         }
       }
 
