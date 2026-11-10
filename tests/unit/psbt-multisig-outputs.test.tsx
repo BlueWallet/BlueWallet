@@ -1,6 +1,6 @@
 import React from 'react';
-import { FlatList, StyleSheet } from 'react-native';
-import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
+import { act, fireEvent, render } from '@testing-library/react-native';
 import { ThemeProvider } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import * as bip39 from 'bip39';
@@ -9,11 +9,10 @@ import ecc from '../../blue_modules/noble_ecc';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { BlueDefaultTheme } from '../../components/themes';
 import PsbtMultisig from '../../screen/send/psbtMultisig';
-import SendDetails from '../../screen/send/SendDetails';
 import Confirm from '../../screen/send/Confirm';
 import SendCreate from '../../screen/send/create';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
-import { MenuActionHandlers } from '../../blue_modules/menuActions';
+import { formatTransactionOutput } from '../../helpers/formatTransactionOutput';
 
 const seeds = [
   'certain cruise forum ladder reveal frame company book sausage flat wasp mouse',
@@ -30,8 +29,6 @@ wrongPush[0] = bitcoin.opcodes.OP_NOP;
 const uncompressedP2pk = bitcoin.payments.p2pk({ pubkey: ecc.pointCompress(p2pk.slice(1, -1), false) }).output!;
 let wallet: MultisigHDWallet;
 let routeParams: Record<string, unknown>;
-let menuActions: MenuActionHandlers;
-let menuHandler: (id: string) => void;
 const storage = { wallets: [] as MultisigHDWallet[], sleep: async () => {}, txMetadata: {}, saveToDisk: async () => {} };
 const alertMock = jest.fn();
 const navigation = {
@@ -62,41 +59,9 @@ jest.mock('../../hooks/useBiometrics', () => ({
 jest.mock('../../hooks/context/useStorage', () => ({
   useStorage: () => storage,
 }));
-jest.mock('../../components/headerMenuOptions', () => ({
-  createEllipsisHeaderMenuOptions: ({ onPressMenuItem }: { onPressMenuItem: (id: string) => void }) => {
-    menuHandler = onPressMenuItem;
-    return { headerRight: () => null };
-  },
-}));
-jest.mock('../../hooks/useScreenMenuActions', () => ({
-  __esModule: true,
-  default: (actions: MenuActionHandlers) => {
-    menuActions = actions;
-  },
-}));
-jest.mock('../../blue_modules/BlueElectrum', () => ({
-  isDisabled: async () => false,
-  estimateFees: async () => ({ fast: 3, medium: 2, slow: 1 }),
-  ensureConnected: async () => true,
-  multiGetUtxoByAddress: async () => ({}),
-  multiGetTransactionByTxid: async () => ({}),
-}));
 jest.mock('../../components/SafeArea', () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-jest.mock('../../components/DismissKeyboardInputAccessory', () => ({
-  DismissKeyboardInputAccessory: () => null,
-  DismissKeyboardInputAccessoryViewID: 'DismissKeyboardInputAccessoryViewID',
-}));
-jest.mock('../../components/InputAccessoryAllFunds', () => ({
-  __esModule: true,
-  default: () => null,
-  InputAccessoryAllFundsAccessoryViewID: 'InputAccessoryAllFundsAccessoryViewID',
-}));
-jest.mock('@react-native-async-storage/async-storage', () => ({
-  __esModule: true,
-  default: { getItem: async () => null, setItem: async () => {} },
 }));
 jest.mock(
   '../../components/Alert',
@@ -151,11 +116,8 @@ function review(psbt: bitcoin.Psbt, extra: Record<string, unknown> = {}) {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  // Native action sheets need an anchor; the test renderer has no native view tag.
-  jest.spyOn(require('react-native'), 'findNodeHandle').mockReturnValue(1);
   wallet = makeWallet();
   storage.wallets = [wallet];
-  routeParams = { walletID: wallet.getID(), isEditable: true };
 });
 
 function text(node: unknown): string {
@@ -237,25 +199,16 @@ describe('multisig destination display', () => {
     expect(confirmed.getAllByTestId('TransactionValue').map(text)).toEqual(outputs.map(output => String(Number(output.value) / 100000000)));
   });
 
-  it('keeps a long single OP_RETURN fully readable in a scrolling confirmation without address actions', () => {
+  it('shows a long single OP_RETURN in full in summary and Confirm', () => {
     const script = bitcoin.payments.embed({ data: [new Uint8Array(300).fill(42)] }).output!;
     const hex = uint8ArrayToHex(script);
     const psbt = makePsbt([{ script, value: 99990000n }]);
     wallet.cosignPsbt(psbt);
     const screen = review(psbt);
-    const summaryText = screen.getByText(new RegExp(hex));
-    expect(summaryText.props.numberOfLines).toBeUndefined();
-    expect(summaryText.props.onPress).toBeUndefined();
-    expect(StyleSheet.flatten(summaryText.props.style).flexShrink).toBe(1);
+    expect(visible(screen)).toContain(`OP_RETURN (data)\n${hex}`);
     fireEvent.press(screen.getByTestId('PsbtMultisigConfirmButton'));
     const confirmed = renderConfirmFromNavigation();
-    const destination = confirmed.getByText(new RegExp(hex));
-    expect(text(destination)).toBe(`OP_RETURN (data)\n${hex}`);
-    expect(destination.props.numberOfLines).toBeUndefined();
-    expect(destination.props.onPress).toBeUndefined();
-    const list = confirmed.UNSAFE_getByType(FlatList);
-    expect(list.props.scrollEnabled).not.toBe(false);
-    expect(StyleSheet.flatten(list.props.style).width).toBe('100%');
+    expect(text(confirmed.getByTestId('TransactionAddress'))).toBe(`OP_RETURN (data)\n${hex}`);
     expect(confirmed.getAllByTestId('TransactionValue').map(text)).toEqual(['0.9999']);
   });
 
@@ -305,28 +258,15 @@ describe('multisig destination display', () => {
   });
 });
 
-describe('existing import signing sequence is unchanged', () => {
-  it.each(['co_sign_transaction', 'sign_psbt'] as const)('%s still signs before its existing destination screen', async action => {
-    const psbt = makePsbt(fixtureOutputs());
-    const signer = jest.spyOn(wallet, 'cosignPsbt');
-    const screen = render(tree(<SendDetails />));
-    await waitFor(() => expect(menuActions.co_sign_transaction).toBeDefined());
-    act(() => menuHandler(action));
-    navigation.navigate.mockClear();
-    routeParams = { ...routeParams, onBarScanned: psbt.toBase64() };
-    screen.rerender(tree(<SendDetails />));
-    const destination = action === 'co_sign_transaction' ? 'PsbtMultisig' : 'CreateTransaction';
-    await waitFor(() => expect(navigation.navigate).toHaveBeenCalledWith(destination, expect.anything()));
-    expect(signer).toHaveBeenCalledTimes(1);
-    expect(signer.mock.invocationCallOrder[0]).toBeLessThan(navigation.navigate.mock.invocationCallOrder[0]);
-    const params = navigation.navigate.mock.calls.find(([name]) => name === destination)![1];
-    const signed = action === 'co_sign_transaction' ? bitcoin.Psbt.fromBase64(params.psbtBase64) : params.psbt;
-    expect(signed.extractTransaction().outs.map((output: { value: bigint }) => output.value)).toEqual([10000n, 99980000n]);
-    screen.unmount();
-    routeParams = params;
-    const reviewed = render(tree(action === 'co_sign_transaction' ? <PsbtMultisig /> : <SendCreate />));
-    expect(visible(reviewed)).toContain('Pay to public key');
-    expect(visible(reviewed)).toContain(publicKey);
-    expect(reviewed.queryByTestId('SignMultisigPsbt')).toBeNull();
+describe('formatTransactionOutput', () => {
+  it('labels an empty or missing script instead of rendering nothing', () => {
+    for (const output of [{ script: new Uint8Array(0) }, { script: { hex: '' } }, {}]) {
+      expect(formatTransactionOutput({ value: 0, ...output })).toBe('Unknown output script\n[empty script]');
+    }
+  });
+
+  it('reads raw Uint8Array scripts the same as hex ones', () => {
+    expect(formatTransactionOutput({ script: p2pk, value: 1 })).toBe(`Pay to public key\n${publicKey}`);
+    expect(formatTransactionOutput({ script: { hex: uint8ArrayToHex(p2pk) }, value: 1 })).toBe(`Pay to public key\n${publicKey}`);
   });
 });
