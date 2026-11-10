@@ -1464,15 +1464,38 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * (i.e. if it exists - we notified in the past and dont need to notify again)
    */
   getBIP47NotificationTransaction(receiverPaymentCode: string): Transaction | undefined {
-    const publicBip47 = BIP47Factory(ecc).fromPaymentCode(receiverPaymentCode);
-    const remoteNotificationAddress = publicBip47.getNotificationAddress();
+    const bobBip47 = BIP47Factory(ecc).fromPaymentCode(receiverPaymentCode);
+    const remoteNotificationAddress = bobBip47.getNotificationAddress();
 
     for (const tx of this.getTransactions()) {
-      for (const output of tx.outputs) {
-        if (output.scriptPubKey?.addresses?.includes(remoteNotificationAddress)) return tx;
-        // ^^^ if in the past we sent a tx to his notification address - most likely that was a proper notification
-        // transaction with OP_RETURN.
-        // but not gona verify it here, will just trust it
+      if (!tx.outputs.some(output => output.scriptPubKey?.addresses?.includes(remoteNotificationAddress))) continue;
+
+      // paying to his notification address is not enough: it must be OUR notification, i.e. first input is ours
+      // and OP_RETURN carries our payment code blinded with that input's key & outpoint (BIP47 notification format)
+      const firstInput = tx.inputs?.[0];
+      if (!firstInput) continue;
+      // input address can be missing if parent tx fetch failed; our own input's parent is in our history anyway
+      const inputAddress =
+        firstInput.addresses?.[0] ??
+        firstInput.address ??
+        this.getTransactions()
+          .find(parent => parent.txid === firstInput.txid)
+          ?.outputs.find(output => output.n === firstInput.vout)?.scriptPubKey?.addresses?.[0];
+      if (!inputAddress) continue;
+
+      try {
+        const wif = this._getWifForAddress(inputAddress); // cached; throws if address is not ours
+        const outputNumber = new Uint8Array(4);
+        new DataView(outputNumber.buffer).setUint32(0, firstInput.vout, true);
+        const expectedBlinded = this.getBIP47FromSeed().getBlindedPaymentCode(
+          bobBip47,
+          ECPair.fromWIF(wif).privateKey as Buffer,
+          uint8ArrayToHex(hexToUint8Array(firstInput.txid).reverse()) + uint8ArrayToHex(outputNumber),
+        );
+        const expectedScript = ('6a4c50' + expectedBlinded).toLowerCase();
+        if (tx.outputs.some(output => output.scriptPubKey?.hex?.toLowerCase() === expectedScript)) return tx;
+      } catch (_) {
+        // malformed record, not a notification
       }
     }
   }
