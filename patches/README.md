@@ -134,6 +134,38 @@ version and re-confirm the hunks still apply (`npx patch-package`).
 
 ---
 
+## `react-native-tcp-socket+6.4.3.patch`
+
+**What:** Android-only:
+
+- `TcpSocketClient.connect()` turns on hostname verification
+  (`setEndpointIdentificationAlgorithm("HTTPS")`) for TLS sockets that validate
+  the certificate against system CAs (`rejectUnauthorized` not `false`, no
+  custom `ca`);
+- `SSLCertificateHelper.getCertificateInfo()` fills in `modulus` / `bits` /
+  `exponent` only for RSA keys, and reports `pubkey` (encoded with
+  `android.util.Base64`) on every API level, not just 26+.
+
+**Why:** Electrum connections are checked for someone in the middle, see
+`blue_modules/electrumServerIdentity.ts`.
+
+- A bare `SSLSocket` validates the certificate chain but not who the
+  certificate was issued to, so a valid certificate for any other domain was
+  accepted. iOS already checks the hostname.
+- `TLSSocket.getPeerCertificate()` cast every key to `RSAPublicKey` and so
+  rejected with `Error processing certificate` for servers with EC
+  certificates. `pubkey` is what we remember for self-signed servers, on all
+  supported Android versions (`minSdkVersion` is 24).
+
+**Upstream:** no issue filed yet. Remove when
+[`react-native-tcp-socket`](https://github.com/Rapsssito/react-native-tcp-socket)
+verifies the hostname and handles non-RSA certificates in `getPeerCertificate()`.
+
+When regenerating, pass `--exclude 'android/build'`, otherwise build output of
+the library ends up in the patch.
+
+---
+
 ## `react-native-reanimated+4.7.1.patch`
 
 Guards the AppKit import in `REAReducedMotion.h` so it is used only when UIKit

@@ -1,0 +1,44 @@
+diff --git a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/SSLCertificateHelper.java b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/SSLCertificateHelper.java
+index 1e0622f..c810302 100644
+--- a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/SSLCertificateHelper.java
++++ b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/SSLCertificateHelper.java
+@@ -262,12 +262,12 @@ final class SSLCertificateHelper {
+                     certDetails.putMap("subject", parseDN(cert.getSubjectDN().getName()));
+                     certDetails.putMap("issuer", parseDN(cert.getIssuerDN().getName()));
+                     certDetails.putBoolean("ca", cert.getBasicConstraints() != -1);
+-                    certDetails.putString("modulus", getModulus(cert));
+-                    certDetails.putInt("bits", getModulusBitLength(cert));
+-                    certDetails.putString("exponent", "0x" + getExponent(cert));
+-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+-                        certDetails.putString("pubkey", Base64.getEncoder().encodeToString(cert.getPublicKey().getEncoded()));
++                    if (cert.getPublicKey() instanceof RSAPublicKey) {
++                        certDetails.putString("modulus", getModulus(cert));
++                        certDetails.putInt("bits", getModulusBitLength(cert));
++                        certDetails.putString("exponent", "0x" + getExponent(cert));
+                     }
++                    certDetails.putString("pubkey", android.util.Base64.encodeToString(cert.getPublicKey().getEncoded(), android.util.Base64.NO_WRAP));
+                     certDetails.putString("valid_from", formatDate(cert.getNotBefore()));
+                     certDetails.putString("valid_to", formatDate(cert.getNotAfter()));
+                     certDetails.putString("fingerprint", getFingerprint(cert, "SHA-1"));
+diff --git a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java
+index 7511570..09331ff 100644
+--- a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java
++++ b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java
+@@ -67,7 +67,16 @@ class TcpSocketClient extends TcpSocket {
+         socket.bind(new InetSocketAddress(localInetAddress, localPort));
+         final int connectTimeout = options.hasKey("connectTimeout") ? options.getInt("connectTimeout") : 0; 
+         socket.connect(new InetSocketAddress(remoteInetAddress, port), connectTimeout);
+-        if (socket instanceof SSLSocket) ((SSLSocket) socket).startHandshake();
++        if (socket instanceof SSLSocket) {
++            final SSLSocket sslSocket = (SSLSocket) socket;
++            // SSLSocket validates the chain only, hostname is on us
++            if (!tlsOptions.hasKey("ca") && (!tlsOptions.hasKey("rejectUnauthorized") || tlsOptions.getBoolean("rejectUnauthorized"))) {
++                final javax.net.ssl.SSLParameters sslParameters = sslSocket.getSSLParameters();
++                sslParameters.setEndpointIdentificationAlgorithm("HTTPS");
++                sslSocket.setSSLParameters(sslParameters);
++            }
++            sslSocket.startHandshake();
++        }
+         startListening();
+     }
+ 
