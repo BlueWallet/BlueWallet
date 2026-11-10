@@ -89,7 +89,7 @@
     "help": "在某些情况下，您可能被迫暴露密码。为了保护您的资金安全，BlueWallet 可以创建另一个使用不同密码的加密存储。在胁迫下，您可以向第三方提供这个密码。输入到 BlueWallet 后，它将解锁一个新的“虚假”存储。对第三方来说，这看起来像是正常存储，但实际上会秘密保护您主存储中的资金安全。",
     "help2": "新的存储将完全可用，您可以在其中存入少量资金，使其看起来更可信。",
     "password_should_not_match": "该密码已被使用，请尝试其他密码。",
-    "title": "合理推诿"
+    "title": "可合理否认"
   },
   "pleasebackup": {
     "ask": "您是否已保存钱包的备份助记词？如果设备丢失，该助记词是访问资金所必需的。没有备份助记词，您的资金将永久丢失。",
@@ -277,7 +277,7 @@
     "encrypt_storage_explanation_headline": "启用存储加密",
     "encrypt_storage_explanation_description_line1": "启用“存储加密”可通过保护数据在设备上的存储方式，为应用增加额外的安全防护层。这使得未经许可的人员更难访问您的信息。",
     "encrypt_storage_explanation_description_line2": "但是，需要注意的是，此加密仅保护设备钥匙链中存储的钱包的访问权限，并不会为钱包本身设置密码或提供额外保护。",
-    "i_understand": "确定",
+    "i_understand": "我明白",
     "block_explorer": "区块链浏览器",
     "block_explorer_preferred": "使用首选区块链浏览器",
     "block_explorer_error_saving_custom": "保存首选区块链浏览器时出错",
@@ -312,7 +312,7 @@
     "open_link_in_explorer": "在区块链浏览器中打开链接",
     "password": "密码",
     "password_explain": "请输入用于解锁存储的密码。",
-    "plausible_deniability": "合理推诿",
+    "plausible_deniability": "可合理否认",
     "privacy": "隐私",
     "privacy_read_clipboard": "读取剪贴板",
     "privacy_system_settings": "系统设置",
@@ -388,7 +388,6 @@
     "open_url_error": "无法使用默认浏览器打开链接。请更换默认浏览器并重试。",
     "rbf_explain": "我们将使用一笔矿工费更高的交易替换当前交易，以便其能更快被矿工打包确认。这称为 RBF（费用替换）。",
     "rbf_title": "加速（RBF）",
-    "rbf_unverified": "无法验证此交易，因此无法加快其处理速度或取消该交易。请尝试连接到另一台 Electrum 服务器。",
     "status_bump": "加速",
     "status_cancel": "取消",
     "txid": "交易 ID",
