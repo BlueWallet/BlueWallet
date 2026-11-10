@@ -537,6 +537,17 @@ describe('LightningArkWallet — deletion guard', () => {
     (w as any)._wallet = { getArkadeReader: async () => ({ getVtxos: async () => [], getVirtualTxs: async () => [] }) };
   };
 
+  it('refuses deletion when the swap records cannot be read, unless forced', async () => {
+    seedGuard([], []);
+    (w as any)._swapRepository = {
+      getSwapRecordsPage: async () => {
+        throw new Error('realm closed');
+      },
+    };
+    assert.strictEqual((await w.canDeleteWallet()).safe, false);
+    assert.strictEqual((await w.canDeleteWallet(true)).safe, true);
+  });
+
   it('a send in terminal failed with an unspent lockup refuses deletion', async () => {
     seedGuard([sendRecord()], [{ id: 'rfq:quote-send-1', outcome: 'failed' }]);
     readLockupFateMock.mockResolvedValue({ fate: 'open', spends: [] });

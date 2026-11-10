@@ -195,7 +195,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   // re-quoting mints a NEW quote id and accepting it funds a SECOND lockup
   // for the same invoice. Restart-safe read is `client.swaps()`.
   private _acceptedInvoiceMap: Map<string, AssetSwapId> = new Map();
-  private _recordsRefreshInFlight: Promise<void> | null = null;
+  private _recordsRefreshInFlight: Promise<boolean> | null = null;
 
   private _transactionsHistory: ArkTransaction[] = [];
   private _privateKeyCache = '';
@@ -425,17 +425,19 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
   }
 
-  /** Re-read the repository half of the join. Converges even when a save was deferred or rejected once. */
-  async refreshSwapRecords(): Promise<void> {
-    if (!this._swapRepository) return;
+  /** Re-read the repository half of the join; false when the read failed and the cache may be stale. */
+  async refreshSwapRecords(): Promise<boolean> {
+    if (!this._swapRepository) return false;
     if (this._recordsRefreshInFlight) return this._recordsRefreshInFlight;
     this._recordsRefreshInFlight = (async () => {
       try {
         const repository = this._swapRepository!;
         const records = await collectPages<SwapRecord, string>(page => repository.getSwapRecordsPage(page));
         this._swapRecords = records.filter(r => r.family === 'rfq') as CorridorSwapRecord[];
+        return true;
       } catch (e) {
         console.log('[ARK] refreshSwapRecords failed:', errorMessage(e));
+        return false;
       } finally {
         this._recordsRefreshInFlight = null;
       }
@@ -1467,7 +1469,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (!this._swapClient || !this._swapRepository || !this._wallet) {
       return { safe: false, message: 'Cannot verify swap state while offline' };
     }
-    await this.refreshSwapCaches();
+    const [recordsRead] = await Promise.all([this.refreshSwapRecords(), this.refreshSwapStatuses()]);
+    if (!recordsRead && !force) return { safe: false, message: 'Cannot verify swap state: the swap records could not be read' };
 
     const unsafe: ArkSwapView[] = [];
     for (const view of this.getSwapViews()) {
