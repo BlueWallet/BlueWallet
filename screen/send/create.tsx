@@ -6,6 +6,7 @@ import React, { useCallback, useEffect } from 'react';
 import { FlatList, Linking, Pressable, StyleSheet, Text, TextInput, View, ListRenderItemInfo } from 'react-native';
 import Icon from '../../components/Icon';
 import { satoshiToBTC } from '../../blue_modules/currency';
+import { formatTransactionOutput } from '../../helpers/formatTransactionOutput';
 import BlueText from '../../components/BlueText';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -89,7 +90,7 @@ const SendCreate = () => {
       <>
         <View>
           <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_to}</Text>
-          <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{item.address}</Text>
+          <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{formatTransactionOutput(item)}</Text>
           <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_amount}</Text>
           <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>
             {item.value != null ? `${satoshiToBTC(item.value)} ${BitcoinUnit.BTC}` : '-'}
