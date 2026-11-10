@@ -94,7 +94,7 @@
   },
   "dependencies": {
     "@arkade-os/boltz-swap": "0.3.67",
-    "@arkade-os/sdk": "0.4.79",
+    "@arkade-os/sdk": "0.5.4",
     "@bugsnag/cli": "3.10.7",
     "@bugsnag/react-native": "9.1.0",
     "@bugsnag/source-maps": "2.3.3",
@@ -176,11 +176,11 @@
     "react-native-permissions": "5.6.3",
     "react-native-prompt-android": "github:BlueWallet/react-native-prompt-android#ed168d66fed556bc2ed07cf498770f058b78a376",
     "react-native-reanimated": "4.7.1",
-    "react-native-safe-area-context": "5.10.1",
+    "react-native-safe-area-context": "5.11.1",
     "react-native-screens": "4.30.0",
     "react-native-secure-key-store": "github:BlueWallet/react-native-secure-key-store#2076b4849e88aa0a78e08bfbb4ce3923e0925cbc",
     "react-native-share": "12.2.6",
-    "react-native-svg": "15.16.0",
+    "react-native-svg": "15.16.1",
     "react-native-tcp-socket": "6.4.3",
     "react-native-worklets": "0.13.0",
     "readable-stream": "3.6.2",
@@ -193,7 +193,7 @@
     "wif": "2.0.6"
   },
   "overrides": {
-    "@arkade-os/sdk": "0.4.79",
+    "@arkade-os/sdk": "0.5.4",
     "@typescript-eslint/typescript-estree": {
       "minimatch": "11.0.5"
     }
