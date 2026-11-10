@@ -1,6 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Switch, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Platform, StyleSheet, Switch, View } from 'react-native';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -14,6 +13,9 @@ import {
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
+import SheetKeyboardForm from '../../components/SheetKeyboardForm';
+import { useKeyboard } from '../../hooks/useKeyboard';
+import SheetHeader, { useSheetBottomPadding } from '../../components/SheetHeader';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
@@ -22,6 +24,9 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<AddWalletStackParamList, 'WalletsAddMultisigProvideMnemonicsSheet'>>();
   const route = useRoute<RouteProp<AddWalletStackParamList, 'WalletsAddMultisigProvideMnemonicsSheet'>>();
   const { colors } = useTheme();
+  const bottomPadding = useSheetBottomPadding();
+  // On a short phone the 220pt field plus the keyboard leave no room for Import, so the field shrinks while typing
+  const { isVisible: isKeyboardVisible } = useKeyboard();
   const { importText: initialImportText = '', askPassphrase: initialAskPassphrase = false } = route.params;
 
   const [importText, setImportText] = useState(initialImportText);
@@ -68,17 +73,26 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
     [navigation],
   );
 
+  const stylesHook = StyleSheet.create({
+    root: {
+      backgroundColor: colors.elevated,
+      // No flex:1 — fitToContents treats it as full height and the form lands at the bottom of the sheet.
+      paddingBottom: bottomPadding,
+    },
+  });
+
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.elevated }]} edges={['bottom', 'left', 'right']}>
-      <ScrollView contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="always">
-        <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
+    <View style={stylesHook.root}>
+      <SheetHeader title={loc.wallets.import_title} onClose={() => navigation.goBack()} />
+      <SheetKeyboardForm style={styles.contentContainer}>
+        <BlueTextCentered>{loc.multisig.type_seed_or_public_key}</BlueTextCentered>
         <BlueSpacing20 />
         <BlueFormMultiInput
           value={importText}
           onChangeText={setImportText}
           inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
           testID="MnemonicInputSheet"
-          style={styles.mnemonicInput}
+          style={[styles.mnemonicInput, isKeyboardVisible && styles.mnemonicInputCompact]}
         />
         {Platform.select({
           ios: (
@@ -107,18 +121,16 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
             handleScanResult(text);
           }}
         />
-      </ScrollView>
-    </SafeAreaView>
+      </SheetKeyboardForm>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
   contentContainer: {
-    flexGrow: 1,
     paddingHorizontal: 24,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
   toggleRow: {
     flexDirection: 'row',
@@ -130,6 +142,10 @@ const styles = StyleSheet.create({
     maxHeight: 220,
     flex: 0,
     marginHorizontal: 0,
+  },
+  mnemonicInputCompact: {
+    minHeight: 96,
+    maxHeight: 96,
   },
 });
 

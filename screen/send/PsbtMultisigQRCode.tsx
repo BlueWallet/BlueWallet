@@ -152,9 +152,9 @@ const PsbtMultisigQRCode: React.FC = () => {
             ref={openScannerButton}
             title={loc.multisig.scan_or_import_file}
           />
+          <BlueSpacing20 />
         </>
       )}
-      <BlueSpacing20 />
 
       {isLoading ? (
         <ActivityIndicator />
@@ -164,11 +164,12 @@ const PsbtMultisigQRCode: React.FC = () => {
           fileContent={psbt.toBase64()}
           beforeOnPress={saveFileButtonBeforeOnPress}
           afterOnPress={saveFileButtonAfterOnPress}
-          style={[styles.exportButton, stylesHook.exportButton]}
+          style={styles.shareButtonWrapper}
         >
-          <SquareButton title={loc.multisig.share} />
+          <SquareButton title={loc.multisig.share} style={[styles.exportButton, stylesHook.exportButton]} />
         </SaveFileButton>
       )}
+      <BlueSpacing20 />
     </ScrollView>
   );
 };
@@ -185,10 +186,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#d2d2d2',
     marginVertical: 20,
   },
+  shareButtonWrapper: {
+    alignSelf: 'stretch',
+  },
   exportButton: {
     height: 48,
     borderRadius: 8,
-    flex: 1,
+    alignSelf: 'stretch',
     justifyContent: 'center',
     paddingHorizontal: 16,
   },
