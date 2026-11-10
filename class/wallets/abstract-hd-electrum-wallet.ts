@@ -1473,8 +1473,15 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       // paying to his notification address is not enough: it must be OUR notification, i.e. first input is ours
       // and OP_RETURN carries our payment code blinded with that input's key & outpoint (BIP47 notification format)
       const firstInput = tx.inputs?.[0];
-      const inputAddress = firstInput?.addresses?.[0] ?? firstInput?.address;
-      if (!firstInput || !inputAddress) continue;
+      if (!firstInput) continue;
+      // input address can be missing if parent tx fetch failed; our own input's parent is in our history anyway
+      const inputAddress =
+        firstInput.addresses?.[0] ??
+        firstInput.address ??
+        this.getTransactions()
+          .find(parent => parent.txid === firstInput.txid)
+          ?.outputs.find(output => output.n === firstInput.vout)?.scriptPubKey?.addresses?.[0];
+      if (!inputAddress) continue;
 
       try {
         const wif = this._getWifForAddress(inputAddress); // cached; throws if address is not ours

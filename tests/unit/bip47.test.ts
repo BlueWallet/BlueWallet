@@ -404,13 +404,13 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     ];
 
     // minimal version of what fetchTransactions() caches for a tx
-    const toCachedTx = (tx: bitcoin.Transaction, inputAddress: string): any => ({
+    const toCachedTx = (tx: bitcoin.Transaction, inputAddress?: string): any => ({
       txid: tx.getId(),
       confirmations: 6,
       inputs: tx.ins.map(input => ({
         txid: uint8ArrayToHex(Uint8Array.from(input.hash).reverse()),
         vout: input.index,
-        addresses: [inputAddress],
+        addresses: inputAddress ? [inputAddress] : undefined,
       })),
       outputs: tx.outs.map((output, n) => {
         let addresses: string[] = [];
@@ -439,6 +439,16 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
 
     // genuine notification made by us
     sender._txs_by_external_index[0] = [toCachedTx(notificationTx, address)];
+    assert.strictEqual(sender.getBIP47NotificationTransaction(receiverPaymentCode)?.txid, notificationTx.getId());
+
+    // genuine notification made by us, input address missing from cache: resolved from the parent tx in our history
+    const parentTx = {
+      txid: 'aa'.repeat(32),
+      confirmations: 7,
+      inputs: [],
+      outputs: [{ n: 1, value: 0.001, scriptPubKey: { addresses: [address] } }],
+    };
+    sender._txs_by_external_index[0] = [toCachedTx(notificationTx), parentTx as any];
     assert.strictEqual(sender.getBIP47NotificationTransaction(receiverPaymentCode)?.txid, notificationTx.getId());
   });
 });
