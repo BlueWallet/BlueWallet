@@ -224,6 +224,11 @@ const ScanLNDInvoice = () => {
         break;
     }
 
+    if (wallet instanceof LightningArkWallet && wallet.isInvoiceGeneratedByWallet(destination)) {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      return presentAlert({ message: loc.lnd.sameWalletAsInvoiceError });
+    }
+
     // Ark confirm step: quote first, accept the held object on the second
     // tap. The fee line above is an estimate off the card; the confirm block
     // shows the exact fee from the real quote.

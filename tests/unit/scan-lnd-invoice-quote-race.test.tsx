@@ -56,6 +56,11 @@ jest.mock('../../components/DismissKeyboardInputAccessory', () => ({
   DismissKeyboardInputAccessoryViewID: 'DismissKeyboardInputAccessoryViewID',
 }));
 jest.mock('../../components/Alert', () => () => {});
+jest.mock('../../blue_modules/hapticFeedback', () => ({
+  __esModule: true,
+  default: () => {},
+  HapticFeedbackTypes: { NotificationError: 'NotificationError', NotificationSuccess: 'NotificationSuccess', Selection: 'Selection' },
+}));
 
 const tree = () => (
   <ThemeProvider value={BlueDefaultTheme}>
@@ -80,11 +85,20 @@ const switchInvoice = async (screen: ReturnType<typeof render>) => {
   await waitFor(() => expect(addressOf(screen)).toBe(second));
 };
 
-/** Holds the biometric prompt open until the returned function answers it. */
+/** Holds the biometric prompt open: `entered` settles once pay() reaches it, `answer` closes it. */
 const pendingPrompt = () => {
   let answer: (ok: boolean) => void = () => {};
-  mockBiometrics = { on: true, unlock: () => new Promise<boolean>(resolve => (answer = resolve)) };
-  return (ok: boolean) => answer(ok);
+  let markEntered: () => void = () => {};
+  const entered = new Promise<void>(resolve => (markEntered = resolve));
+  mockBiometrics = {
+    on: true,
+    unlock: () =>
+      new Promise<boolean>(resolve => {
+        answer = resolve;
+        markEntered();
+      }),
+  };
+  return { entered, answer: (ok: boolean) => answer(ok) };
 };
 
 describe('ScanLNDInvoice Arkade quote', () => {
@@ -109,12 +123,13 @@ describe('ScanLNDInvoice Arkade quote', () => {
 
   it('does not quote an invoice that changed during the biometric prompt', async () => {
     const quoteInvoice = jest.spyOn(wallet, 'quoteInvoice').mockResolvedValue(OLD_QUOTE as any);
-    const unlock = pendingPrompt();
+    const prompt = pendingPrompt();
     const screen = await openOn(invoice(1000, 'aa'));
     fireEvent.press(screen.getByText(loc.lnd.payButton));
 
+    await prompt.entered;
     await switchInvoice(screen);
-    await act(async () => unlock(true));
+    await act(async () => prompt.answer(true));
     expect(quoteInvoice).not.toHaveBeenCalled();
   });
 
@@ -125,10 +140,20 @@ describe('ScanLNDInvoice Arkade quote', () => {
     fireEvent.press(screen.getByText(loc.lnd.payButton));
     await waitFor(() => expect(screen.getByText(loc.lnd.confirmPayment)).toBeTruthy());
 
-    const unlock = pendingPrompt();
+    const prompt = pendingPrompt();
     fireEvent.press(screen.getByText(loc.lnd.confirmPayment));
+    await prompt.entered;
     await switchInvoice(screen);
-    await act(async () => unlock(true));
+    await act(async () => prompt.answer(true));
     expect(payQuotedInvoice).not.toHaveBeenCalled();
+  });
+
+  it('refuses to quote an invoice this wallet issued', async () => {
+    const quoteInvoice = jest.spyOn(wallet, 'quoteInvoice').mockResolvedValue(OLD_QUOTE as any);
+    const own = invoice(1000, 'aa');
+    jest.spyOn(wallet, 'isInvoiceGeneratedByWallet').mockImplementation(pr => pr === own);
+    const screen = await openOn(own);
+    await act(async () => fireEvent.press(screen.getByText(loc.lnd.payButton)));
+    expect(quoteInvoice).not.toHaveBeenCalled();
   });
 });
