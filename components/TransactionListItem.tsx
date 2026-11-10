@@ -173,7 +173,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   const rightSubtitle = counterparty ? noteForCopy : (txMetadata?.[item.hash]?.memo || item.memo || '').trim() || addressLabel;
 
   // For LightningArkWallet rows, prepend a kind tag to the date subtitle. Such a
-  // wallet transacts entirely via Boltz swaps, so every row is Lightning; the
+  // wallet transacts entirely off-chain, so every row is Lightning; the
   // only genuinely on-chain activity is onboarding/refill (boarding UTXOs),
   // tagged from the synthetic `boarding-…` txid set in
   // lightning-ark-wallet.getTransactions(). Other wallet types are unaffected.
@@ -299,7 +299,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
       };
     }
 
-    // Recovered Arkade Lightning legs are bitcoind_tx but represent Boltz swaps,
+    // Recovered Arkade Lightning legs are bitcoind_tx but represent swaps,
     // not on-chain transfers — render them with the off-chain (Lightning) icon.
     if (arkRowKind === 'Lightning' && item.type === 'bitcoind_tx') {
       return item.value! < 0

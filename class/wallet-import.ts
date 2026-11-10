@@ -264,7 +264,7 @@ const startImport = (
           // Corridor records restore from the local repository only —
           // `await client.ready` inside init() already ran the restore read
           // and armed the drive where there is live work. There is no
-          // server-side refetch (Boltz's restoreSwaps is gone with Boltz),
+          // server-side refetch,
           // so no restore action here: a re-imported wallet recovers what
           // its local Realm still holds, and history beyond that is not
           // recoverable from the seed alone.

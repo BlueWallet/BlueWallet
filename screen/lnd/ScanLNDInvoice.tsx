@@ -426,7 +426,7 @@ const ScanLNDInvoice = () => {
   }
 
   const feeText = getFees();
-  // Boltz publishes deterministic fees, so Arkade shows a single fixed amount
+  // The solver quotes one fixed fee, so Arkade shows a single amount
   // under a definite label ("Network fee"), not a "potential" bracket. Custodial
   // keeps the legacy "Potential fee" label + range.
   const feeLabel = wallet instanceof LightningArkWallet ? loc.lnd.network_fee : loc.lnd.potentialFee;
