@@ -133,6 +133,10 @@ jobs:
           node-version: 24
           cache: 'npm'
 
+      - name: Set npm version
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@12.2.2
+
       - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: latest
