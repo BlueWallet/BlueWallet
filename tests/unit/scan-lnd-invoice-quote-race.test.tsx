@@ -61,31 +61,34 @@ const tree = () => (
     <ScanLNDInvoice />
   </ThemeProvider>
 );
+const OLD_QUOTE = { id: 'rfq:old', fee: { amount: 10n }, give: { amount: 1010n }, expiresAt: 2000000000 };
+
+/** Renders the screen on one invoice and taps Pay, leaving its quote request unanswered. */
+const quoteInFlight = async () => {
+  let answer: (quote: unknown) => void = () => {};
+  const quoteInvoice = jest.spyOn(wallet, 'quoteInvoice').mockImplementation(() => new Promise(resolve => (answer = resolve)) as any);
+  jest.spyOn(wallet, 'ensureLightningFeesLoaded').mockResolvedValue();
+  const first = invoice(1000, 'aa');
+  routeParams = { walletID: wallet.getID(), uri: first };
+  const screen = render(tree());
+  await waitFor(() => expect(screen.getByTestId('AddressInput').props.value).toBe(first));
+  fireEvent.press(screen.getByText(loc.lnd.payButton));
+  await waitFor(() => expect(quoteInvoice).toHaveBeenCalledWith(first));
+  return { screen, answer: (quote: unknown) => answer(quote) };
+};
 
 describe('ScanLNDInvoice Arkade quote', () => {
   beforeAll(() => jest.spyOn(console, 'log').mockImplementation(() => {}));
-  afterAll(() => jest.restoreAllMocks());
+  afterEach(() => jest.restoreAllMocks());
 
   it('drops a quote that resolves after the invoice changed', async () => {
-    let resolveQuote: (quote: unknown) => void = () => {};
-    const quoteInvoice = jest
-      .spyOn(wallet, 'quoteInvoice')
-      .mockImplementation(() => new Promise(resolve => (resolveQuote = resolve)) as any);
-    jest.spyOn(wallet, 'ensureLightningFeesLoaded').mockResolvedValue();
-    const first = invoice(1000, 'aa');
-    routeParams = { walletID: wallet.getID(), uri: first };
-    const screen = render(tree());
-    await waitFor(() => expect(screen.getByTestId('AddressInput').props.value).toBe(first));
-
-    fireEvent.press(screen.getByText(loc.lnd.payButton));
-    await waitFor(() => expect(quoteInvoice).toHaveBeenCalledWith(first));
-
+    const { screen, answer } = await quoteInFlight();
     const second = invoice(2000, 'bb');
     routeParams = { walletID: wallet.getID(), uri: second };
     screen.rerender(tree());
     await waitFor(() => expect(screen.getByTestId('AddressInput').props.value).toBe(second));
 
-    await act(async () => resolveQuote({ id: 'rfq:old', fee: { amount: 10n }, give: { amount: 1010n }, expiresAt: 2000000000 }));
+    await act(async () => answer(OLD_QUOTE));
     expect(screen.queryByText(loc.lnd.confirmPayment)).toBeNull();
   });
 });

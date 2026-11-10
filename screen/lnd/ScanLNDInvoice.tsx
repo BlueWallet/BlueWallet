@@ -62,9 +62,12 @@ const ScanLNDInvoice = () => {
   // wallet switches and destination changes must drop it (see onWalletSelect,
   // onChangeText, onBlur and the uri effect below).
   const [heldQuote, setHeldQuote] = useState<Quote | null>(null);
-  // A quote request outlives those changes, so its answer is held only if they did not happen meanwhile.
-  const quoteTarget = useRef({ destination, walletID: wallet?.getID() });
-  quoteTarget.current = { destination, walletID: wallet?.getID() };
+  // Bumped on every drop, so a quote request still in flight cannot hold its answer afterwards.
+  const quoteGeneration = useRef(0);
+  const dropHeldQuote = () => {
+    quoteGeneration.current += 1;
+    setHeldQuote(null);
+  };
   const stylesHook = StyleSheet.create({
     walletWrapLabel: {
       color: colors.buttonAlternativeTextColor,
@@ -92,7 +95,7 @@ const ScanLNDInvoice = () => {
       const newWallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet;
       if (newWallet) {
         setWallet(newWallet);
-        setHeldQuote(null);
+        dropHeldQuote();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,7 +109,7 @@ const ScanLNDInvoice = () => {
 
   useEffect(() => {
     if (wallet && uri) {
-      setHeldQuote(null);
+      dropHeldQuote();
       if (Lnurl.isLnurl(uri)) return processLnurlPay(uri);
       if (Lnurl.isLightningAddress(uri)) return processLnurlPay(uri);
 
@@ -223,9 +226,10 @@ const ScanLNDInvoice = () => {
     // shows the exact fee from the real quote.
     if (wallet instanceof LightningArkWallet && !heldQuote && !wallet.isAddressValid(destination)) {
       setIsLoading(true);
+      const generation = quoteGeneration.current;
       try {
         const quote = await wallet.quoteInvoice(destination);
-        if (quoteTarget.current.destination === destination && quoteTarget.current.walletID === wallet.getID()) setHeldQuote(quote);
+        if (generation === quoteGeneration.current) setHeldQuote(quote);
       } catch (Err) {
         console.log(errorMessage(Err));
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -262,14 +266,14 @@ const ScanLNDInvoice = () => {
           await wallet.payQuotedInvoice(heldQuote);
         } catch (Err) {
           if ((Err as { name?: string })?.name === 'QuoteExpired' || /expired/i.test(errorMessage(Err))) {
-            setHeldQuote(null);
+            dropHeldQuote();
             setIsLoading(false);
             triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
             return presentAlert({ message: loc.lnd.quoteExpired });
           }
           throw Err;
         }
-        setHeldQuote(null);
+        dropHeldQuote();
       } else {
         await wallet.payInvoice(destination, amountSats);
       }
@@ -366,13 +370,13 @@ const ScanLNDInvoice = () => {
   };
 
   const onBlur = (): void => {
-    setHeldQuote(null);
+    dropHeldQuote();
     processTextForInvoice(destination);
   };
 
   const onWalletSelect = (selectedWallet: TWallet): void => {
     setParams({ walletID: selectedWallet.getID() });
-    setHeldQuote(null);
+    dropHeldQuote();
     pop();
   };
 
@@ -398,7 +402,7 @@ const ScanLNDInvoice = () => {
   const onChangeText = (text: string): void => {
     const trimmedText = text.trim();
     setDestination(trimmedText);
-    setHeldQuote(null);
+    dropHeldQuote();
     processTextForInvoice(trimmedText);
   };
 
@@ -491,7 +495,7 @@ const ScanLNDInvoice = () => {
                     onPress={pay}
                     disabled={shouldDisablePayButton()}
                   />
-                  {showConfirm && <Button title={loc._.cancel} onPress={() => setHeldQuote(null)} disabled={shouldDisablePayButton()} />}
+                  {showConfirm && <Button title={loc._.cancel} onPress={() => dropHeldQuote()} disabled={shouldDisablePayButton()} />}
                 </View>
               )}
             </BlueCard>
