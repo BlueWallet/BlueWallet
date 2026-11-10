@@ -199,6 +199,7 @@ const ScanLNDInvoice = () => {
     if (!decoded || !wallet || !amount || !destination) {
       return null;
     }
+    const generation = quoteGeneration.current;
 
     const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
 
@@ -207,6 +208,8 @@ const ScanLNDInvoice = () => {
         return;
       }
     }
+    // The invoice or wallet changed during the prompt: this tap was for the old one.
+    if (generation !== quoteGeneration.current) return;
 
     let amountSats: number = parseInt(amount, 10);
     switch (unit) {
@@ -226,7 +229,6 @@ const ScanLNDInvoice = () => {
     // shows the exact fee from the real quote.
     if (wallet instanceof LightningArkWallet && !heldQuote && !wallet.isAddressValid(destination)) {
       setIsLoading(true);
-      const generation = quoteGeneration.current;
       try {
         const quote = await wallet.quoteInvoice(destination);
         if (generation === quoteGeneration.current) setHeldQuote(quote);

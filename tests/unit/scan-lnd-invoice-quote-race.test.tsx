@@ -27,6 +27,7 @@ const invoice = (satoshis: number, hash: string) =>
   ).paymentRequest!;
 
 let routeParams: Record<string, unknown> = {};
+let mockBiometrics = { on: false, unlock: async () => true };
 const noop = () => {};
 const navigationMock = { setParams: noop, setOptions: noop, navigate: noop, goBack: noop, dispatch: noop, addListener: () => noop };
 
@@ -43,8 +44,8 @@ jest.mock('../../hooks/context/useStorage', () => ({
   useStorage: () => ({ wallets: [wallet], fetchAndSaveWalletTransactions: async () => {}, saveToDisk: async () => {} }),
 }));
 jest.mock('../../hooks/useBiometrics', () => ({
-  useBiometrics: () => ({ isBiometricUseCapableAndEnabled: async () => false }),
-  unlockWithBiometrics: async () => true,
+  useBiometrics: () => ({ isBiometricUseCapableAndEnabled: async () => mockBiometrics.on }),
+  unlockWithBiometrics: () => mockBiometrics.unlock(),
 }));
 jest.mock('../../components/SafeArea', () => ({
   __esModule: true,
@@ -62,33 +63,72 @@ const tree = () => (
   </ThemeProvider>
 );
 const OLD_QUOTE = { id: 'rfq:old', fee: { amount: 10n }, give: { amount: 1010n }, expiresAt: 2000000000 };
+const addressOf = (screen: ReturnType<typeof render>) => screen.getByTestId('AddressInput').props.value;
 
-/** Renders the screen on one invoice and taps Pay, leaving its quote request unanswered. */
-const quoteInFlight = async () => {
-  let answer: (quote: unknown) => void = () => {};
-  const quoteInvoice = jest.spyOn(wallet, 'quoteInvoice').mockImplementation(() => new Promise(resolve => (answer = resolve)) as any);
+const openOn = async (uri: string) => {
   jest.spyOn(wallet, 'ensureLightningFeesLoaded').mockResolvedValue();
-  const first = invoice(1000, 'aa');
-  routeParams = { walletID: wallet.getID(), uri: first };
+  routeParams = { walletID: wallet.getID(), uri };
   const screen = render(tree());
-  await waitFor(() => expect(screen.getByTestId('AddressInput').props.value).toBe(first));
-  fireEvent.press(screen.getByText(loc.lnd.payButton));
-  await waitFor(() => expect(quoteInvoice).toHaveBeenCalledWith(first));
-  return { screen, answer: (quote: unknown) => answer(quote) };
+  await waitFor(() => expect(addressOf(screen)).toBe(uri));
+  return screen;
+};
+
+const switchInvoice = async (screen: ReturnType<typeof render>) => {
+  const second = invoice(2000, 'bb');
+  routeParams = { walletID: wallet.getID(), uri: second };
+  screen.rerender(tree());
+  await waitFor(() => expect(addressOf(screen)).toBe(second));
+};
+
+/** Holds the biometric prompt open until the returned function answers it. */
+const pendingPrompt = () => {
+  let answer: (ok: boolean) => void = () => {};
+  mockBiometrics = { on: true, unlock: () => new Promise<boolean>(resolve => (answer = resolve)) };
+  return (ok: boolean) => answer(ok);
 };
 
 describe('ScanLNDInvoice Arkade quote', () => {
-  beforeAll(() => jest.spyOn(console, 'log').mockImplementation(() => {}));
-  afterEach(() => jest.restoreAllMocks());
+  beforeEach(() => jest.spyOn(console, 'log').mockImplementation(() => {}));
+  afterEach(() => {
+    jest.restoreAllMocks();
+    mockBiometrics = { on: false, unlock: async () => true };
+  });
 
   it('drops a quote that resolves after the invoice changed', async () => {
-    const { screen, answer } = await quoteInFlight();
-    const second = invoice(2000, 'bb');
-    routeParams = { walletID: wallet.getID(), uri: second };
-    screen.rerender(tree());
-    await waitFor(() => expect(screen.getByTestId('AddressInput').props.value).toBe(second));
+    let answer: (quote: unknown) => void = () => {};
+    const quoteInvoice = jest.spyOn(wallet, 'quoteInvoice').mockImplementation(() => new Promise(resolve => (answer = resolve)) as any);
+    const first = invoice(1000, 'aa');
+    const screen = await openOn(first);
+    fireEvent.press(screen.getByText(loc.lnd.payButton));
+    await waitFor(() => expect(quoteInvoice).toHaveBeenCalledWith(first));
 
+    await switchInvoice(screen);
     await act(async () => answer(OLD_QUOTE));
     expect(screen.queryByText(loc.lnd.confirmPayment)).toBeNull();
+  });
+
+  it('does not quote an invoice that changed during the biometric prompt', async () => {
+    const quoteInvoice = jest.spyOn(wallet, 'quoteInvoice').mockResolvedValue(OLD_QUOTE as any);
+    const unlock = pendingPrompt();
+    const screen = await openOn(invoice(1000, 'aa'));
+    fireEvent.press(screen.getByText(loc.lnd.payButton));
+
+    await switchInvoice(screen);
+    await act(async () => unlock(true));
+    expect(quoteInvoice).not.toHaveBeenCalled();
+  });
+
+  it('does not pay a held quote whose invoice changed during the biometric prompt', async () => {
+    jest.spyOn(wallet, 'quoteInvoice').mockResolvedValue(OLD_QUOTE as any);
+    const payQuotedInvoice = jest.spyOn(wallet, 'payQuotedInvoice').mockResolvedValue();
+    const screen = await openOn(invoice(1000, 'aa'));
+    fireEvent.press(screen.getByText(loc.lnd.payButton));
+    await waitFor(() => expect(screen.getByText(loc.lnd.confirmPayment)).toBeTruthy());
+
+    const unlock = pendingPrompt();
+    fireEvent.press(screen.getByText(loc.lnd.confirmPayment));
+    await switchInvoice(screen);
+    await act(async () => unlock(true));
+    expect(payQuotedInvoice).not.toHaveBeenCalled();
   });
 });
