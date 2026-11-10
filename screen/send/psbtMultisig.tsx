@@ -30,6 +30,8 @@ import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import assert from 'assert';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { errorMessage } from '../../helpers/errorMessage';
+import { formatTransactionOutput } from '../../helpers/formatTransactionOutput';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 const PsbtMultisig = () => {
   const { wallets } = useStorage();
@@ -129,18 +131,14 @@ const PsbtMultisig = () => {
 
   // if useFilter is true, include only non-owned addresses.
   const getDestinationData = (useFilter = true) => {
-    const addresses = [];
     let totalSat = 0;
     const targets = [];
     for (const output of psbt.txOutputs) {
-      if (output.address) {
-        if (useFilter && wallet.weOwnAddress(output.address)) continue;
-        totalSat += Number(output.value);
-        addresses.push(output.address);
-        targets.push({ address: output.address, value: Number(output.value) });
-      }
+      if (useFilter && output.address && wallet.weOwnAddress(output.address)) continue;
+      totalSat += Number(output.value);
+      targets.push({ address: output.address, value: Number(output.value), script: { hex: uint8ArrayToHex(output.script) } });
     }
-    return { addresses, totalSat, targets };
+    return { totalSat, targets };
   };
 
   const filteredData = getDestinationData(true);
@@ -263,33 +261,24 @@ const PsbtMultisig = () => {
   };
 
   const destinationAddress = (useFilter = true) => {
-    const addrs = useFilter ? filteredData.addresses : unfilteredData.addresses;
-    const displayAddrs = useFilter ? addrs : [...new Set(addrs)];
-    const destinationAddressView = [];
-    const destinations = Object.entries(displayAddrs);
-    for (const [index, address] of destinations) {
-      if (Number(index) > 1) {
-        destinationAddressView.push(
-          <View style={styles.destinationTextContainer} key={`end-${index}`}>
-            <Text numberOfLines={0} style={[styles.addressSection, stylesHook.textFiat]}>
-              and {destinations.length - 2} more...
-            </Text>
-          </View>,
-        );
-        break;
-      } else {
-        destinationAddressView.push(
-          <View style={styles.destinationTextContainer} key={`${address}-${index}`}>
-            <Text style={styles.textAlignCenter} selectable>
-              <Text style={[styles.addressSection, stylesHook.addressSection]}>{address.slice(0, 6)}</Text>
-              <Text style={[styles.textDestination, stylesHook.textFiat]}>{address.slice(6, -6)}</Text>
-              <Text style={[styles.addressSection, stylesHook.addressSection]}>{address?.slice(-6)}</Text>
-            </Text>
-          </View>,
-        );
-      }
-    }
-    return destinationAddressView;
+    const outputs = useFilter ? filteredData.targets : unfilteredData.targets;
+    return outputs.map((output, index) => (
+      <View style={styles.destinationTextContainer} key={index}>
+        <Text style={[styles.textDestination, stylesHook.textFiat]} selectable>
+          {output.address ? (
+            <>
+              <Text style={[styles.addressSection, stylesHook.addressSection]}>{output.address.slice(0, 6)}</Text>
+              {output.address.slice(6, -6)}
+              <Text style={[styles.addressSection, stylesHook.addressSection]}>{output.address.slice(-6)}</Text>
+            </>
+          ) : (
+            formatTransactionOutput(output)
+          )}
+          {'\n'}
+          {satoshiToBTC(output.value)} {BitcoinUnit.BTC}
+        </Text>
+      </View>
+    ));
   };
 
   const handleToggleFilter = () => {
@@ -424,7 +413,7 @@ const styles = StyleSheet.create({
   destinationTextContainer: {
     flexDirection: 'row',
     marginBottom: 4,
-    paddingHorizontal: 60,
+    paddingHorizontal: 16,
     fontSize: 14,
     marginVertical: 8,
     justifyContent: 'center',
@@ -438,9 +427,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 30,
   },
-  textAlignCenter: {
-    textAlign: 'center',
-  },
   addressSection: {
     fontSize: 14,
     fontWeight: '500',
@@ -450,6 +436,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     fontSize: 14,
     flexWrap: 'wrap',
+    flexShrink: 1,
   },
   provideSignatureButton: {
     marginTop: 24,
