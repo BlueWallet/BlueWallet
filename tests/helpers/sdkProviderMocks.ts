@@ -10,12 +10,12 @@
  * place `init()` runs offline and the wallet's address derivation is fully
  * deterministic.
  *
- * We spy on `RestArkProvider.prototype` rather than `ExpoArkProvider.prototype`
+ * We spy on `RestOperatorProvider.prototype` rather than `ExpoOperatorProvider.prototype`
  * because Expo* extend Rest* — installing the stub on the parent prototype
  * covers both.
  */
 
-import { ContractManager, RestArkProvider, RestDelegateProvider, VtxoManager } from '@arkade-os/sdk';
+import { ContractManager, RestDelegateProvider, RestOperatorProvider, VtxoManager } from '@arkade-os/sdk';
 
 /** Snapshot of `https://arkade.computer/v1/info` for offline tests. */
 export const FAKE_ASP_INFO = {
@@ -64,7 +64,7 @@ export const FAKE_DELEGATE_INFO = {
  * Returns nothing; cleanup happens via `restoreSdkProviderSpies()`.
  */
 export function installSdkProviderSpies(): void {
-  jest.spyOn(RestArkProvider.prototype, 'getInfo').mockResolvedValue(FAKE_ASP_INFO as any);
+  jest.spyOn(RestOperatorProvider.prototype, 'getInfo').mockResolvedValue(FAKE_ASP_INFO as any);
   jest.spyOn(RestDelegateProvider.prototype, 'getDelegateInfo').mockResolvedValue(FAKE_DELEGATE_INFO as any);
 
   // VtxoManager auto-runs `initializeSubscription()` from its constructor,

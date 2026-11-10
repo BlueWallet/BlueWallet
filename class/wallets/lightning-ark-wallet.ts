@@ -17,7 +17,7 @@ import { readLockupFate } from '@arkade-os/swap/protocol';
 import { RealmAssetSwapRepository } from '@arkade-os/swap/repositories/realm';
 import { sideLimits, type DiscoveredMarket } from '@arkade-os/solver-discovery';
 import { ArkAddress, RestDelegateProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction, TxType, collectPages } from '@arkade-os/sdk';
-import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
+import { ExpoIndexerProvider, ExpoOperatorProvider } from '@arkade-os/sdk/adapters/expo';
 import { RealmContractRepository, RealmWalletRepository } from '@arkade-os/sdk/repositories/realm';
 import { createLnurlClient } from '@arkade-os/lnurl-client';
 import { arkadeLnurl, bootstrapReceiver, lnurlRailLimits, type Receiver } from '@arkade-os/lnurl-client/arkade';
@@ -330,7 +330,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         const mm = new Measure('Wallet.create()');
         const wallet = await Wallet.create({
           identity: this._getIdentity(),
-          arkProvider: new ExpoArkProvider(this._arkServerUrl),
+          operatorProvider: new ExpoOperatorProvider(this._arkServerUrl),
           indexerProvider: new ExpoIndexerProvider(this._arkServerUrl),
           storage: { walletRepository, contractRepository },
           delegateProvider,
