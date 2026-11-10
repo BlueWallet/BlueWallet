@@ -351,7 +351,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
    *    with a live timestamp.
    *
    * 3. `_swapHistory` (Boltz) — annotation + residual. A *settled* swap (reverse
-   *    `invoice.settled`, submarine `transaction.claimed`) always has an
+   *    `invoice.settled`, submarine `invoice.paid` onward) always has an
    *    Ark-side leg in pass 1 — reverse settles by Boltz claiming into our
    *    address, submarine by our lockup being claimed. We find the unconsumed
    *    native leg matching `(direction, on-chain amount)` within ±30 min, mark
@@ -519,6 +519,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
         direction = -1;
         // A stranded send refunded without Boltz keeps its last Boltz status.
         switch (swap.refunded ? 'transaction.refunded' : swap.status) {
+          // Boltz paid the invoice; with Boltz gone, a send it never claimed
+          // stays at these statuses, so they count as paid too.
+          case 'invoice.paid':
+          case 'transaction.claim.pending':
           case 'transaction.claimed':
             ispaid = true;
             type = 'paid_invoice';
@@ -543,7 +547,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
             type = 'payment_request';
             break;
           default:
-            // swap.created / invoice.pending / invoice.paid → pending send
+            // swap.created / invoice.pending → pending send
             type = 'payment_request';
         }
       } else {
@@ -558,7 +562,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
       const absValue = Math.abs(rawValue);
       value = absValue * direction;
 
-      // Settled swaps (reverse `invoice.settled` / submarine `transaction.claimed`)
+      // Settled swaps (reverse `invoice.settled` / submarine `invoice.paid` onward)
       // are represented by their Ark-side leg from pass 1 — reverse settles by
       // Boltz claiming into our address, submarine by our lockup being claimed,
       // so the leg is in `getTransactionHistory()` in virtually all cases. We

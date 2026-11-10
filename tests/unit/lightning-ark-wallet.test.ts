@@ -153,6 +153,35 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].payment_request, 'lnbc1234...send');
   });
 
+  it.each(['invoice.paid', 'transaction.claim.pending'])('shows a send Boltz paid but never claimed (%s) as paid, not pending', status => {
+    // Boltz is gone, so these sends never reach transaction.claimed.
+    (w as any)._swapHistory = [
+      {
+        id: 'sub-paid',
+        type: 'submarine',
+        status,
+        createdAt: 1700000000,
+        request: { invoice: 'lnbc1234...send', invoiceAmount: 1234 },
+        response: { expectedAmount: 1234 },
+      },
+    ];
+    (w as any)._transactionsHistory = [
+      {
+        key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'sub-leg' },
+        type: 'SENT',
+        settled: true,
+        amount: 1234,
+        createdAt: 1700000000_000,
+      },
+    ];
+
+    const txs = w.getTransactions();
+    assert.strictEqual(txs.length, 1, 'no pending swap- row next to the lockup leg');
+    assert.strictEqual(txs[0].txid, 'ark-sub-leg');
+    assert.strictEqual(txs[0].ispaid, true);
+    assert.strictEqual(txs[0].payment_request, 'lnbc1234...send');
+  });
+
   it('enriches the native RECEIVED leg of a settled reverse swap (no separate swap row)', () => {
     const swap = {
       id: 'swap-in',
