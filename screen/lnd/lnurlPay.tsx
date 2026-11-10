@@ -10,6 +10,7 @@ import BlueText from '../../components/BlueText';
 import Lnurl from '../../class/lnurl';
 import type { LnurlPayServicePayload } from '../../class/lnurl';
 import presentAlert from '../../components/Alert';
+import { useArkFeesReady } from '../../hooks/useArkFeesReady';
 import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
@@ -43,28 +44,13 @@ const LnurlPay: React.FC = () => {
   const [payload, setPayload] = useState<LnurlPayServicePayload | undefined>();
   const { setParams, navigate } = useNavigation();
   const [amount, setAmount] = useState<string | undefined>();
-  const [arkFeesReady, setArkFeesReady] = useState<boolean>(false);
   const isArkWallet = wallet instanceof LightningArkWallet;
 
   // The one-shot `payInvoice` LNURL uses funds a quote nobody authorised on
   // a confirm screen, so the screen carries the same fee line ScanLNDInvoice
   // does: the estimate gives the ceiling a user-visible basis (estimate plus
   // a stated tolerance, applied inside `payInvoice`), with no extra tap.
-  useEffect(() => {
-    if (!isArkWallet) {
-      setArkFeesReady(false);
-      return;
-    }
-    setArkFeesReady(false);
-    let cancelled = false;
-    (wallet as LightningArkWallet)
-      .ensureLightningFeesLoaded()
-      .then(() => !cancelled && setArkFeesReady(true))
-      .catch(() => {}); // fee label is non-critical; stay silent and keep the line hidden
-    return () => {
-      cancelled = true;
-    };
-  }, [wallet, isArkWallet]);
+  const arkFeesReady = useArkFeesReady(wallet);
 
   const amountToSats = (): number | undefined => {
     if (!amount) return undefined;

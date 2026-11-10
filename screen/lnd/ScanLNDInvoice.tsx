@@ -25,6 +25,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { DecodedInvoice, TWallet } from '../../class/wallets/types';
 import { useKeyboard } from '../../hooks/useKeyboard';
+import { useArkFeesReady } from '../../hooks/useArkFeesReady';
 import { BlueLoading } from '../../components/BlueLoading';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { errorMessage } from '../../helpers/errorMessage';
@@ -55,7 +56,7 @@ const ScanLNDInvoice = () => {
   const [amount, setAmount] = useState<string | undefined>();
   const [isAmountInitiallyEmpty, setIsAmountInitiallyEmpty] = useState<boolean | undefined>();
   const [expiresIn, setExpiresIn] = useState<string | undefined>();
-  const [arkFeesReady, setArkFeesReady] = useState<boolean>(false);
+  const arkFeesReady = useArkFeesReady(wallet);
   // Confirm step (Ark only): the first Pay tap quotes, the second accepts
   // THAT object. A held Quote binds one invoice, one wallet and a deadline —
   // wallet switches and destination changes must drop it (see onWalletSelect,
@@ -93,25 +94,6 @@ const ScanLNDInvoice = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
-
-  useEffect(() => {
-    // Reset readiness whenever the selected wallet changes (or is not an Ark
-    // wallet) so a stale `true` from a previously-selected wallet never carries
-    // over to one whose fees are not loaded yet.
-    if (!(wallet instanceof LightningArkWallet)) {
-      setArkFeesReady(false);
-      return;
-    }
-    setArkFeesReady(false);
-    let cancelled = false;
-    wallet
-      .ensureLightningFeesLoaded()
-      .then(() => !cancelled && setArkFeesReady(true))
-      .catch(() => {}); // fee label is non-critical; stay silent and keep the line hidden
-    return () => {
-      cancelled = true;
-    };
-  }, [wallet]);
 
   useEffect(() => {
     if (!openScanner) return;
