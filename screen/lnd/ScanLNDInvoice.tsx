@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useRoute, useLocale } from '@react-navigation/native';
 import { ActivityIndicator, Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../components/Icon';
@@ -62,6 +62,9 @@ const ScanLNDInvoice = () => {
   // wallet switches and destination changes must drop it (see onWalletSelect,
   // onChangeText, onBlur and the uri effect below).
   const [heldQuote, setHeldQuote] = useState<Quote | null>(null);
+  // A quote request outlives those changes, so its answer is held only if they did not happen meanwhile.
+  const quoteTarget = useRef({ destination, walletID: wallet?.getID() });
+  quoteTarget.current = { destination, walletID: wallet?.getID() };
   const stylesHook = StyleSheet.create({
     walletWrapLabel: {
       color: colors.buttonAlternativeTextColor,
@@ -222,7 +225,7 @@ const ScanLNDInvoice = () => {
       setIsLoading(true);
       try {
         const quote = await wallet.quoteInvoice(destination);
-        setHeldQuote(quote);
+        if (quoteTarget.current.destination === destination && quoteTarget.current.walletID === wallet.getID()) setHeldQuote(quote);
       } catch (Err) {
         console.log(errorMessage(Err));
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
