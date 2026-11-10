@@ -98,33 +98,13 @@ describe('LightningArkWallet (integration)', () => {
     assert.ok(receiveTx.memo);
 
     const swapViews: any[] = w.getSwapViews();
-    const settledReceive = swapViews.find(s => s.direction > 0 && ['paid', 'claimed', 'filled'].includes(s.outcome));
-    if (settledReceive) {
-      // When v2 receive history is restored, settled receives read paid.
-      assert.strictEqual(receiveTx.ispaid, true);
-      assert.ok(receiveTx.payment_hash);
-      assert.ok(receiveTx.payment_request);
-
-      const ownInvoice = settledReceive.bolt11;
-      if (ownInvoice) {
-        assert.ok(w.isInvoiceGeneratedByWallet(ownInvoice));
-      }
-    }
-
-    const settledSend = swapViews.find(s => s.direction < 0 && ['paid', 'claimed', 'filled'].includes(s.outcome));
+    const settledSend = swapViews.find(s => ['paid', 'claimed', 'filled'].includes(s.outcome));
     if (settledSend) {
       const sendTx = txs.find(t => t.value! < 0);
       assert.ok(sendTx, 'Should have a send transaction when settled send history exists');
       assert.strictEqual(sendTx.ispaid, true);
       assert.ok(sendTx.payment_hash);
       assert.ok(sendTx.payment_request);
-    }
-
-    const invoices = await w.getUserInvoices();
-    if (settledReceive) {
-      assert.ok(invoices.length > 0);
-      assert(invoices[0].value! > 0);
-      assert(invoices[0].ispaid);
     }
   });
 

@@ -84,13 +84,11 @@
     "sats": "sats.",
     "date_time": "Date and Time",
     "wasnt_paid_and_expired": "This invoice was not paid and has expired.",
-    "receiving_payment": "Receiving payment…",
     "recover_funds": "Recover funds",
     "recovery_prompt": "This payment needs recovery. Start a recovery round to sweep what can be recovered.",
     "recovery_not_yet": "Funds can't be recovered yet — try again after {time}.",
     "recovery_deferred": "Recovery did not include this swap this time. Try again later.",
-    "recovery_nothing_to_recover": "Nothing to recover yet — the counterparty's move is what ends this swap.",
-    "payment_lapsed": "The incoming payment never arrived — the solver reclaimed its lockup."
+    "recovery_nothing_to_recover": "Nothing to recover yet — the counterparty's move is what ends this swap."
   },
   "plausibledeniability": {
     "create_fake_storage": "Create Encrypted Storage",

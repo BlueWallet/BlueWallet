@@ -62,38 +62,9 @@ const sendRecord = (overrides: Record<string, any> = {}): any => ({
   ...overrides,
 });
 
-const receiveRecord = (overrides: Record<string, any> = {}): any => ({
-  id: 'quote-recv-1',
-  family: 'rfq',
-  kind: 'lightning_receive',
-  route: {
-    give: {
-      corridor: 'lightning',
-      asset: 'bolt11:bitcoin/slip44:0',
-      instrument: { kind: 'invoice', bolt11: 'lnbc10n1recv', paymentHash: 'cc'.repeat(32), expiresAt: 1900000000 },
-    },
-    take: { corridor: 'arkade', asset: 'arkade:bitcoin/slip44:0', instrument: { kind: 'wallet' } },
-  },
-  give: { asset: 'bolt11:bitcoin/slip44:0', amount: '1000' },
-  take: { asset: 'arkade:bitcoin/slip44:0', amount: '1000' },
-  fee: { asset: 'arkade:bitcoin/slip44:0', amount: '0' },
-  market: { pair: 'BTC/lightning:BTC' },
-  artifact: { kind: 'invoice', bolt11: 'lnbc10n1recv' },
-  expiresAt: 1800000000,
-  createdAt: 1700000100,
-  updatedAt: 1700000100,
-  lock: { hash: 'cc'.repeat(32) },
-  lockupAddress: 'ark1testrecv',
-  lockupPkScript: 'dd'.repeat(32),
-  rfqId: 'rfq-2',
-  state: 'pending',
-  ...overrides,
-});
-
 const seedCaches = (w: LightningArkWallet, records: any[], outcomes: Record<string, string>): void => {
   (w as any)._swapRecords = records;
   (w as any)._outcomes = new Map(Object.entries(outcomes));
-  (w as any)._swaps = new Map(records.map(r => [`rfq:${r.id}`, { id: `rfq:${r.id}`, outcome: outcomes[`rfq:${r.id}`] ?? 'funding' }]));
 };
 
 const histTx = (overrides: Record<string, any> = {}): any => ({
@@ -329,20 +300,6 @@ describe('LightningArkWallet — getTransactions mapping (v2)', () => {
     assert.strictEqual(txs.length, 1, 'one swap owns several transactions — one row, not one per txid');
   });
 
-  it('hides an unpaid receive unless includeUnpaidInvoices, and labels lapsed as Failed:', () => {
-    seedCaches(w, [receiveRecord()], { 'rfq:quote-recv-1': 'open' });
-    assert.deepStrictEqual(w.getTransactions(), [], 'unpaid receive hidden from the history list');
-    const withUnpaid = w.getTransactions(true);
-    assert.strictEqual(withUnpaid.length, 1, 'discoverable by the receive-screen poll with includeUnpaidInvoices=true');
-    assert.ok(withUnpaid[0].value! > 0);
-
-    seedCaches(w, [receiveRecord()], { 'rfq:quote-recv-1': 'lapsed' });
-    const lapsed = w.getTransactions();
-    assert.strictEqual(lapsed.length, 1);
-    assert.ok(String(lapsed[0].memo).startsWith('Failed: '), 'lapsed = incoming payment never arrived, said out loud');
-    assert.strictEqual(lapsed[0].failed, true);
-  });
-
   it('getSwapById still resolves its subject after settlement', () => {
     seedCaches(w, [sendRecord({ fundingTxid: 'funding-txid-1' })], { 'rfq:quote-send-1': 'paid' });
     (w as any)._transactionsHistory = [histTx({ key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'funding-txid-1' } })];
@@ -353,19 +310,11 @@ describe('LightningArkWallet — getTransactions mapping (v2)', () => {
     assert.ok(view, 'resolves across settlement');
     assert.strictEqual(view!.outcome, 'paid');
     assert.strictEqual(view!.amountSats, 1020);
-    assert.strictEqual(view!.direction, -1);
   });
 
-  it('isInvoiceGeneratedByWallet joins on lock.hash, receive-only', () => {
-    const recv = receiveRecord({ lock: { hash: 'cc'.repeat(32) } });
-    seedCaches(w, [recv, sendRecord({ lock: { hash: 'aa'.repeat(32) } })], {
-      'rfq:quote-recv-1': 'open',
-      'rfq:quote-send-1': 'funded',
-    });
-
-    // A send's bolt11 must not match: today's semantics are receive-only.
+  it('never reads a send swap invoice as one this wallet generated', () => {
+    seedCaches(w, [sendRecord()], { 'rfq:quote-send-1': 'funded' });
     assert.strictEqual(w.isInvoiceGeneratedByWallet('lnbc10n1send'), false);
-    assert.strictEqual(w.isInvoiceGeneratedByWallet('lnbc10n1recv'), true);
   });
 });
 
@@ -549,7 +498,7 @@ describe('LightningArkWallet — serialization', () => {
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
     // Live swap cache with real bigints (non-enumerable by construction).
-    (w as any)._swaps.set('rfq:q', { id: 'rfq:q', give: { amount: 1000n } });
+    (w as any)._swapClient = { held: { id: 'rfq:q', give: { amount: 1000n } } };
     // Legacy blob keys restored as stray enumerable properties.
     (w as any)._swapHistory = [{ id: 'old' }];
     (w as any)._limitMin = 333;
@@ -578,13 +527,6 @@ describe('LightningArkWallet — deletion guard', () => {
     (w as any)._swapRepository = { getSwapRecordsPage: async () => ({ items: records }) };
     (w as any)._wallet = { getArkadeReader: async () => ({ getVtxos: async () => [], getVirtualTxs: async () => [] }) };
   };
-
-  it('a receive in lapsed does not block deletion', async () => {
-    seedGuard([receiveRecord()], [{ id: 'rfq:quote-recv-1', outcome: 'lapsed' }]);
-    const verdict = await w.canDeleteWallet();
-    assert.strictEqual(verdict.safe, true);
-    assert.strictEqual(readLockupFateMock.mock.calls.length, 0, 'no chain read for receives');
-  });
 
   it('a send in terminal failed with an unspent lockup refuses deletion', async () => {
     seedGuard([sendRecord()], [{ id: 'rfq:quote-send-1', outcome: 'failed' }]);

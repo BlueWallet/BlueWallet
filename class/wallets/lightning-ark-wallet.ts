@@ -8,7 +8,6 @@ import {
   type Outcome,
   type LockupSpendIndexer,
   type Quote,
-  type Swap,
   type SwapClient,
   type SwapRecord,
   type SwapUpdate,
@@ -105,7 +104,6 @@ export interface ArkSwapView {
   kind: CorridorSwapRecord['kind'];
   outcome: Outcome;
   amountSats: number;
-  direction: -1 | 1;
   bolt11: string;
   paymentHash: string;
   expiresAt: number;
@@ -135,8 +133,6 @@ const recordBolt11 = (record: CorridorSwapRecord): string => {
   if (giveInstrument?.kind === 'invoice' && typeof giveInstrument.bolt11 === 'string') return giveInstrument.bolt11;
   return '';
 };
-
-const isReceiveKind = (kind: CorridorSwapRecord['kind']): boolean => kind === 'lightning_receive';
 
 export class LightningArkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningArkWallet';
@@ -173,7 +169,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   // silently shipping the mainnet delegator URL to the wrong network.
   private _network: keyof typeof DELEGATOR_URLS = 'bitcoin';
 
-  // The read cache, and why it is three fields: `client.swaps()` returns the
+  // The read cache, and why it is two fields: `client.swaps()` returns the
   // derived `Swap` view (id, outcome, route, give/take/fee — no kind,
   // refundTxid, lockupSpendTxids, lockupPkScript, state or rfqId), while the
   // repository's `SwapRecord` carries the correlation and reconstruction
@@ -182,14 +178,13 @@ export class LightningArkWallet extends LightningCustodianWallet {
   // - `_swapRecords`: correlation + reconstruction, refreshed on the
   //   after-write signal (Realm listener) with `fetchTransactions()` as the
   //   coarse backstop;
-  // - `_swaps` / `_outcomes`: status, from `client.swaps()` and kept current
+  // - `_outcomes`: status, from `client.swaps()` and kept current
   //   by `onUpdate` (which fires before the repository write lands, so it is
   //   never used as evidence the record on disk has caught up).
   // Canonical key is the tagged `AssetSwapId`; conversions at the boundary:
   // record -> public via `assetSwapIdOf(record.family, record.id)`, public ->
   // repository via `quoteIdOfSwapId(id)`.
   private _swapRecords: CorridorSwapRecord[] = [];
-  private _swaps: Map<AssetSwapId, Swap> = new Map();
   private _outcomes: Map<AssetSwapId, Outcome> = new Map();
   // The discovered market set: one filtered set feeds the client snapshot
   // and the synchronous fee estimate alike, so the UI and the quote path
@@ -216,7 +211,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
     Object.defineProperty(this, '_swapRepository', { value: undefined, writable: true, enumerable: false, configurable: true });
     Object.defineProperty(this, '_namespaceCache', { value: undefined, writable: true, enumerable: false, configurable: true });
     Object.defineProperty(this, '_swapRecords', { value: [], writable: true, enumerable: false, configurable: true });
-    Object.defineProperty(this, '_swaps', { value: new Map(), writable: true, enumerable: false, configurable: true });
     Object.defineProperty(this, '_outcomes', { value: new Map(), writable: true, enumerable: false, configurable: true });
     Object.defineProperty(this, '_markets', { value: [], writable: true, enumerable: false, configurable: true });
     Object.defineProperty(this, '_acceptedInvoiceMap', { value: new Map(), writable: true, enumerable: false, configurable: true });
@@ -349,13 +343,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
           console.log('[ARK] market discovery failed during init:', errorMessage(e));
         }
 
-        // No covclaimd deployment exists yet (release prerequisite,
-        // infrastructure work outside this repository): the field stays
-        // `undefined`, the package's own ephemeral self-claim seal. Passing
-        // a real compressed-hex deployment key here is what turns delegated
-        // claim on. `emulatorPubkey: undefined` on mainnet takes the
-        // package's own pin. No server URL anywhere: the wallet is the
-        // operator seam.
         const swapClient = makeSwapClient({ wallet, repository, markets });
         staticSwapClientCache[namespace] = swapClient;
         staticSwapRepositoryCache[namespace] = repository;
@@ -461,10 +448,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (!this._swapClient) return;
     try {
       const swaps = await this._swapClient.swaps();
-      this._swaps.clear();
       this._outcomes.clear();
       for (const swap of swaps) {
-        this._swaps.set(swap.id, swap);
         this._outcomes.set(swap.id, swap.outcome);
       }
     } catch (e) {
@@ -486,7 +471,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
       swapClient.onUpdate(update => {
         try {
           if (this._swapClient !== swapClient) return; // stale subscription after onDelete
-          this._swaps.set(update.swap.id, update.swap);
           this._outcomes.set(update.swap.id, update.outcome);
           this.refreshSwapRecords().catch(() => {});
           (async () => {
@@ -529,16 +513,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   // ---------------------------------------------------------------------------
-  // Swap reads: three lookups, three keys. All read the record cache directly,
+  // Swap reads. All read the record cache directly,
   // never the display list (a settled swap's row keeps its `swap-` identity,
   // but the answer must not depend on how the display list coalesces).
   // ---------------------------------------------------------------------------
-
-  /** Swap -> outcome, from Phase 2's cached map. */
-  getSwapOutcome(id: string): Outcome | undefined {
-    const tagged = (familyOfSwapId(id) ? id : assetSwapIdOf('rfq', id)) as AssetSwapId;
-    return this._outcomes.get(tagged);
-  }
 
   private _recordForId(id: string): CorridorSwapRecord | undefined {
     const quoteId = quoteIdOfSwapId(id);
@@ -567,9 +545,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   private _viewOf(record: CorridorSwapRecord, outcome: Outcome): ArkSwapView {
     const swapId = assetSwapIdOf(record.family, record.id);
-    const receive = isReceiveKind(record.kind);
-    const direction = receive ? 1 : -1;
-    const leg = (receive ? record.take : record.give) as { amount: string };
+    const leg = record.give as { amount: string };
     const bolt11 = recordBolt11(record);
     let expiresAt = record.expiresAt;
     if (bolt11) {
@@ -583,7 +559,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
       kind: record.kind,
       outcome,
       amountSats: atomicDecimalToSats(leg?.amount ?? '0'),
-      direction: direction as -1 | 1,
       bolt11,
       paymentHash: record.lock?.hash ?? '',
       expiresAt,
@@ -597,33 +572,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
     };
   }
 
-  /**
-   * Invoice -> swap ("did we generate this invoice?"). Receive-only, matching
-   * today's semantics. Joins on `lock.hash` — `sha256(P)` on both legs, equal
-   * to the invoice's payment hash — because hex is canonical where a bolt11
-   * string is not (bech32 is case-insensitive, and the string round-trips
-   * through the record store). Falls back to a case-insensitive bolt11 scan
-   * when the invoice cannot be decoded.
-   */
   isInvoiceGeneratedByWallet(paymentRequest: string) {
-    // "Did we generate this invoice?" is a swap-history question: receives
-    // are the invoices we create. Check the cached records directly so the
-    // answer is independent of how the display list coalesces a settled swap.
-    let paymentHash = '';
-    try {
-      paymentHash = this.decodeInvoice(paymentRequest)?.payment_hash ?? '';
-    } catch {}
     const normalized = paymentRequest.trim().toLowerCase();
-    if (this._lnurlInvoices.some(({ row }) => row.payment_request?.trim().toLowerCase() === normalized)) return true;
-    return this._swapRecords.some(record => {
-      if (!isReceiveKind(record.kind)) return false;
-      if (paymentHash) {
-        const lockHash = record.lock?.hash ?? '';
-        if (lockHash && lockHash.toLowerCase() === paymentHash.toLowerCase()) return true;
-      }
-      const bolt11 = recordBolt11(record);
-      return !!bolt11 && bolt11.trim().toLowerCase() === normalized;
-    });
+    return this._lnurlInvoices.some(({ row }) => row.payment_request?.trim().toLowerCase() === normalized);
   }
 
   // ---------------------------------------------------------------------------
@@ -656,11 +607,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
    *    one row, never one row per txid). Funding the lockup is an ordinary
    *    Arkade transaction to a contract this wallet registered, so the SDK
    *    nets it as change and emits no row — a send shows nothing in pass 1
-   *    across the whole in-flight window, and an unpaid or `lapsed` receive
-   *    never has a transaction of ours at all. The record-derived row covers
-   *    both. Amount is the swap's (give leg for a send, take leg for a
-   *    receive), timestamp the record's `createdAt`, so a row neither moves
-   *    nor changes identity when evidence arrives. Terminal swaps keep their
+   *    across the whole in-flight window; the record-derived row covers it.
+   *    Amount (give leg) and timestamp (`createdAt`) come from the record, so a
+   *    row neither moves nor changes identity when evidence arrives. Terminal swaps keep their
    *    rows: a refund returns the money through a transaction that nets to
    *    zero the same way, so dropping terminal records would make a payment
    *    vanish at the moment it comes back.
@@ -668,12 +617,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
    * Stable row ids survive status transitions: `boarding-<txid>`,
    * `boarding-utxo-<txid>:<vout>`, `ark-<arkTxid|commitmentTxid>`,
    * `swap-rfq:<quoteId>`.
-   *
-   * Hidden states: unpaid receives (`open`) with no payment in flight are
-   * dropped unless `includeUnpaidInvoices` — display-only, so a just-created
-   * invoice stays discoverable by the receive-screen poll and the clipboard
-   * heuristic. `getUserInvoices()` and `isInvoiceGeneratedByWallet()` call
-   * with `includeUnpaidInvoices=true`.
    *
    * Settlement signal is `LightningTransaction.ispaid`; we never invent a
    * `confirmations` field for an LN/Ark row.
@@ -775,8 +718,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
     for (const record of this._swapRecords) {
       const swapId = assetSwapIdOf(record.family, record.id);
       const outcome = this._outcomes.get(swapId) ?? 'funding';
-      const receive = isReceiveKind(record.kind);
-      const direction = receive ? 1 : -1;
 
       let memo = '';
       const bolt11invoice = recordBolt11(record);
@@ -791,55 +732,26 @@ export class LightningArkWallet extends LightningCustodianWallet {
         }
       } catch {}
 
-      // Amount is the swap's, not a net of its transactions: the give leg
-      // for a send, the take leg for a receive. A refunded send's member
+      // Amount is the swap's give leg, not a net of its transactions. A
+      // refunded send's member
       // transactions net to zero, and a zero-amount row would read as
       // "nothing happened" when what happened is "you tried to pay and the
       // money came back".
-      const leg = (receive ? record.take : record.give) as { amount: string };
-      const absValue = atomicDecimalToSats(leg?.amount ?? '0');
-      const value = absValue * direction;
+      const leg = record.give as { amount: string };
+      const value = -atomicDecimalToSats(leg?.amount ?? '0');
       const timestamp = record.createdAt;
 
-      let type: 'user_invoice' | 'payment_request' | 'paid_invoice';
+      let type: 'payment_request' | 'paid_invoice' = 'payment_request';
       let memoPrefix = '';
       let ispaid = false;
 
-      if (receive) {
-        type = 'user_invoice';
-        if (!memo || memo === 'Send to Arkade address') memo = 'Received via Arkade';
-        if (SETTLED_OUTCOMES.has(outcome)) {
-          ispaid = true;
-        } else if (REFUNDED_OUTCOMES.has(outcome)) {
-          // Unreachable for receives (the trader funds nothing), kept for
-          // symmetry with the status table.
-          memoPrefix = 'Refunded: ';
-        } else if (FAILED_OUTCOMES.has(outcome)) {
-          // `lapsed` = the solver took the lockup back; the incoming payment
-          // never arrived. Say it out loud: every non-claim leaf on a
-          // receive leg is the solver's.
-          memoPrefix = 'Failed: ';
-        } else if (outcome === 'needs_recovery') {
-          // Receives hold no trader funds; recovery here is diagnosis.
-          memoPrefix = '';
-        }
-        // `open` = invoice shown and unpaid. Hidden from the history list
-        // unless explicitly asked (display-only drop — registry callers pass
-        // includeUnpaidInvoices=true).
-        if (!includeUnpaidInvoices && outcome === 'open' && !ispaid && memoPrefix === '') continue;
-      } else {
-        if (SETTLED_OUTCOMES.has(outcome)) {
-          ispaid = true;
-          type = 'paid_invoice';
-        } else if (REFUNDED_OUTCOMES.has(outcome)) {
-          memoPrefix = 'Refunded: ';
-          type = 'payment_request';
-        } else if (FAILED_OUTCOMES.has(outcome)) {
-          memoPrefix = 'Failed: ';
-          type = 'payment_request';
-        } else {
-          type = 'payment_request';
-        }
+      if (SETTLED_OUTCOMES.has(outcome)) {
+        ispaid = true;
+        type = 'paid_invoice';
+      } else if (REFUNDED_OUTCOMES.has(outcome)) {
+        memoPrefix = 'Refunded: ';
+      } else if (FAILED_OUTCOMES.has(outcome)) {
+        memoPrefix = 'Failed: ';
       }
 
       const settlingTxid = record.refundTxid ?? record.fundingTxid;
@@ -933,10 +845,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
   // showing an impossible range.
   // ---------------------------------------------------------------------------
 
-  private _marketForSide(side: 'base' | 'quote'): DiscoveredMarket | undefined {
+  private _sendMarket(): DiscoveredMarket | undefined {
     for (const market of this._markets) {
       try {
-        if (sideLimits(market, side)) return market;
+        if (sideLimits(market, 'quote')) return market;
       } catch {}
     }
     return undefined;
@@ -944,7 +856,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   /** Send-leg (Lightning / quote side) bounds in sats, or null when disabled. */
   getSendLimits(): { min: number; max: number } | null {
-    const market = this._marketForSide('quote');
+    const market = this._sendMarket();
     if (!market) return null;
     try {
       const limits = sideLimits(market, 'quote');
@@ -983,7 +895,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
    * exact fee comes from the real quote at the confirm step.
    */
   getSubmarineFeeEstimate(amountSats: number): number | undefined {
-    const market = this._marketForSide('quote');
+    const market = this._sendMarket();
     if (!market) return undefined;
     const feeBps = Number(market.fee_bps ?? NaN);
     if (!Number.isFinite(feeBps)) return undefined;
@@ -1048,7 +960,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
     // invoice against known send records.
     const normalized = invoice.trim().toLowerCase();
     for (const record of this._swapRecords) {
-      if (isReceiveKind(record.kind)) continue;
       const bolt11 = recordBolt11(record);
       if (bolt11 && bolt11.trim().toLowerCase() === normalized) {
         const swapId = assetSwapIdOf(record.family, record.id);
@@ -1560,7 +1471,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     const unsafe: ArkSwapView[] = [];
     for (const view of this.getSwapViews()) {
-      if (isReceiveKind(view.kind)) continue;
       if (SAFE_SEND_OUTCOMES.has(view.outcome)) continue;
       unsafe.push(view);
     }
@@ -1650,7 +1560,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
     this._swapClient = undefined;
     this._swapRepository = undefined;
     this._swapRecords = [];
-    this._swaps = new Map();
     this._outcomes = new Map();
     this._markets = [];
     this._acceptedInvoiceMap = new Map();

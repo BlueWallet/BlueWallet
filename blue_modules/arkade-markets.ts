@@ -28,8 +28,6 @@ import bundledCard from './arkade-solver.card.json';
 import type { AssetSwapRepository } from '@arkade-os/swap';
 import { errorMessage } from '../helpers/errorMessage';
 
-export type { DiscoveredMarket };
-
 export const MARKETS_CACHE_TTL_MS = 60 * 60 * 1000;
 
 export const SOLVER_REGISTRY_URL = 'https://arkade-os.github.io/solver-registry/bitcoin.json';
@@ -43,23 +41,6 @@ export const BUNDLED_SOLVER_PUBKEY: string = (bundledCard as { discovery_pubkey:
  * cold start and offline — the registry is the distribution mechanism.
  */
 export const BUNDLED_CARDS: LocalCardInput[] = [{ card: bundledCard as LocalCardInput['card'], network: 'bitcoin' }];
-
-export interface DiscoveryOptions {
-  network?: string;
-  registryUrl?: string | null;
-  localCards?: LocalCardInput[];
-}
-
-/**
- * Which registry to ask and which cards ship with the build. The client
- * itself takes an injected snapshot (see `snapshotForClient`), so this is
- * the input to `discoverMarkets()` below — one definition feeds the client
- * and the limits UI alike.
- */
-export const discoveryOptions = (network: string = 'bitcoin'): DiscoveryOptions => {
-  if (network !== 'bitcoin') return { network, registryUrl: undefined, localCards: [] };
-  return { network: 'bitcoin', registryUrl: SOLVER_REGISTRY_URL, localCards: [...BUNDLED_CARDS] };
-};
 
 // Last authoritative (registry-backed) answer, in process. The repository
 // cache persists it across launches; this keeps serving it within a session
@@ -198,17 +179,4 @@ export const discoverMarkets = async (input: DiscoverMarketsInput = {}): Promise
   lastAuthoritative = { markets: filtered, fetchedAt: now };
   await writeCache(filtered, now);
   return filtered;
-};
-
-/**
- * The client's discovery input: one filtered set, injected as a snapshot so
- * supersession re-runs on every refresh and the UI and the quote path agree.
- */
-export const snapshotForClient = (markets: DiscoveredMarket[]): { snapshot: DiscoveredMarket[] } => ({ snapshot: markets });
-
-/** Test-only reset of the in-process authoritative snapshot. */
-export const __testing__ = {
-  reset: (): void => {
-    lastAuthoritative = null;
-  },
 };
