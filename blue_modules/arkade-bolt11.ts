@@ -71,7 +71,9 @@ export const toInvoiceFacts = (invoice: string, network: string = 'bitcoin', now
   }
 
   const prefix = NETWORK_PREFIXES[network] ?? NETWORK_PREFIXES.bitcoin;
-  if (!trimmed.toLowerCase().startsWith(prefix)) {
+  // The amount (or the bech32 separator `1`) follows the prefix, so `lnbcrt` and `lntbs` do not pass as `lnbc` and `lntb`.
+  const lower = trimmed.toLowerCase();
+  if (!lower.startsWith(prefix) || !/\d/.test(lower.charAt(prefix.length))) {
     throw new InvoiceRejected('wrong_network', `invoice is not for ${network}`);
   }
 
