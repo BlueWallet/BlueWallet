@@ -24,8 +24,8 @@ class MarketWidget : AppWidgetProvider() {
         private const val KEY_LAST_ONLINE_STATUS = "market_widget_last_online_status"
 
         private val hardcodedPeers = listOf(
-            ElectrumServer("mainnet.foundationdevices.com", 50002, true),
-            ElectrumServer("electrum1.bluewallet.io", 443, true),
+            ElectrumServer("mainnet-0.foundation.xyz", 50002, true),
+            ElectrumServer("electrum2.bluewallet.io", 443, true),
             ElectrumServer("electrum.acinq.co", 50002, true),
             ElectrumServer("electrum.bitaroo.net", 50002, true)
         )
