@@ -54,7 +54,6 @@
     "errorInvoiceExpired": "Invoice expired.",
     "expired": "Expired",
     "expiresIn": "Expires in {time} minutes",
-    "network_fee": "Network fee: {fee}",
     "payButton": "Pay",
     "payment": "Payment",
     "placeholder": "Invoice or address",

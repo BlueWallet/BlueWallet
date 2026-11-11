@@ -67,11 +67,10 @@ const tree = () => (
     <ScanLNDInvoice />
   </ThemeProvider>
 );
-const OLD_QUOTE = { id: 'rfq:old', fee: { amount: 10n }, give: { amount: 1010n }, expiresAt: 2000000000 };
+const OLD_QUOTE = { railId: 'lightning', amount: 1000, fee: 10, total: 1010, meta: { expiresAt: 2000000000 }, send: async () => ({}) };
 const addressOf = (screen: ReturnType<typeof render>) => screen.getByTestId('AddressInput').props.value;
 
 const openOn = async (uri: string) => {
-  jest.spyOn(wallet, 'ensureLightningFeesLoaded').mockResolvedValue();
   routeParams = { walletID: wallet.getID(), uri };
   const screen = render(tree());
   await waitFor(() => expect(addressOf(screen)).toBe(uri));
@@ -110,11 +109,11 @@ describe('ScanLNDInvoice Arkade quote', () => {
 
   it('drops a quote that resolves after the invoice changed', async () => {
     let answer: (quote: unknown) => void = () => {};
-    const quoteInvoice = jest.spyOn(wallet, 'quoteInvoice').mockImplementation(() => new Promise(resolve => (answer = resolve)) as any);
+    const quoteSend = jest.spyOn(wallet, 'quoteSend').mockImplementation(() => new Promise(resolve => (answer = resolve)) as any);
     const first = invoice(1000, 'aa');
     const screen = await openOn(first);
     fireEvent.press(screen.getByText(loc.lnd.payButton));
-    await waitFor(() => expect(quoteInvoice).toHaveBeenCalledWith(first));
+    await waitFor(() => expect(quoteSend).toHaveBeenCalledWith(first));
 
     await switchInvoice(screen);
     await act(async () => answer(OLD_QUOTE));
@@ -122,7 +121,7 @@ describe('ScanLNDInvoice Arkade quote', () => {
   });
 
   it('does not quote an invoice that changed during the biometric prompt', async () => {
-    const quoteInvoice = jest.spyOn(wallet, 'quoteInvoice').mockResolvedValue(OLD_QUOTE as any);
+    const quoteSend = jest.spyOn(wallet, 'quoteSend').mockResolvedValue(OLD_QUOTE as any);
     const prompt = pendingPrompt();
     const screen = await openOn(invoice(1000, 'aa'));
     fireEvent.press(screen.getByText(loc.lnd.payButton));
@@ -130,12 +129,12 @@ describe('ScanLNDInvoice Arkade quote', () => {
     await prompt.entered;
     await switchInvoice(screen);
     await act(async () => prompt.answer(true));
-    expect(quoteInvoice).not.toHaveBeenCalled();
+    expect(quoteSend).not.toHaveBeenCalled();
   });
 
   it('does not pay a held quote whose invoice changed during the biometric prompt', async () => {
-    jest.spyOn(wallet, 'quoteInvoice').mockResolvedValue(OLD_QUOTE as any);
-    const payQuotedInvoice = jest.spyOn(wallet, 'payQuotedInvoice').mockResolvedValue();
+    jest.spyOn(wallet, 'quoteSend').mockResolvedValue(OLD_QUOTE as any);
+    const sendQuote = jest.spyOn(wallet, 'sendQuote').mockResolvedValue();
     const screen = await openOn(invoice(1000, 'aa'));
     fireEvent.press(screen.getByText(loc.lnd.payButton));
     await waitFor(() => expect(screen.getByText(loc.lnd.confirmPayment)).toBeTruthy());
@@ -145,15 +144,15 @@ describe('ScanLNDInvoice Arkade quote', () => {
     await prompt.entered;
     await switchInvoice(screen);
     await act(async () => prompt.answer(true));
-    expect(payQuotedInvoice).not.toHaveBeenCalled();
+    expect(sendQuote).not.toHaveBeenCalled();
   });
 
   it('refuses to quote an invoice this wallet issued', async () => {
-    const quoteInvoice = jest.spyOn(wallet, 'quoteInvoice').mockResolvedValue(OLD_QUOTE as any);
+    const quoteSend = jest.spyOn(wallet, 'quoteSend').mockResolvedValue(OLD_QUOTE as any);
     const own = invoice(1000, 'aa');
     jest.spyOn(wallet, 'isInvoiceGeneratedByWallet').mockImplementation(pr => pr === own);
     const screen = await openOn(own);
     await act(async () => fireEvent.press(screen.getByText(loc.lnd.payButton)));
-    expect(quoteInvoice).not.toHaveBeenCalled();
+    expect(quoteSend).not.toHaveBeenCalled();
   });
 });
