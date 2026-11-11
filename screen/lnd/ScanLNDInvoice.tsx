@@ -26,7 +26,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import { DecodedInvoice, TWallet } from '../../class/wallets/types';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { BlueLoading } from '../../components/BlueLoading';
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { LightningArkWallet, PaymentInProgressError } from '../../class/wallets/lightning-ark-wallet';
 import { errorMessage } from '../../helpers/errorMessage';
 import type { RouteQuote } from '@arkade-os/sdk';
 import dayjs from 'dayjs';
@@ -282,6 +282,11 @@ const ScanLNDInvoice = () => {
       }
     } catch (Err) {
       console.log(errorMessage(Err));
+      if (Err instanceof PaymentInProgressError) {
+        fetchAndSaveWalletTransactions(wallet.getID());
+        presentAlert({ message: loc.lnd.paymentInProgress });
+        return pop();
+      }
       setIsLoading(false);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       return presentAlert({ message: errorMessage(Err) });

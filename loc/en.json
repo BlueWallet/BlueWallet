@@ -69,6 +69,7 @@
     "quoteTotal": "Total debit: {total}",
     "quoteExpires": "Quote expires: {time}",
     "quoteExpired": "Quote expired. Please review the new quote and confirm again.",
+    "paymentInProgress": "The payment is still in progress. Its result will appear in this wallet's transactions.",
     "receiveUnavailable": "Lightning receive is unavailable right now. Try again later.",
     "receiveLimits": "Receivable between {min} and {max} sats",
     "lightningAddress": "Your Lightning address"

@@ -79,6 +79,17 @@ const LNURL_SERVER = 'https://lnurl.arkade.sh';
 // Pinned for cold start and offline; the swap client merges it with the solver registry and caches what it reads.
 const BUNDLED_CARDS: LocalCardInput[] = [{ card: bundledCard as LocalCardInput['card'], network: 'bitcoin' }];
 
+// How long a screen waits on a send before handing its outcome to the history.
+const SEND_SETTLE_WAIT_MS = 60_000;
+
+/** A send still in flight when the wait ends: neither paid nor failed yet. */
+export class PaymentInProgressError extends Error {
+  constructor() {
+    super('The payment is still in progress');
+    this.name = 'PaymentInProgressError';
+  }
+}
+
 const staticWalletCache: Record<string, Wallet> = {};
 const staticSwapClientCache: Record<string, SwapClient> = {};
 const staticSwapRepositoryCache: Record<string, RealmAssetSwapRepository> = {};
@@ -937,11 +948,13 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   /** Sends a confirmed quote and waits for it to settle; a Lightning payment's preimage lands in `last_paid_invoice_result`. */
   async sendQuote(quote: RouteQuote): Promise<void> {
+    const handle = await quote.send();
     let result: RouteResult;
     try {
-      result = await (await quote.send()).settled();
+      result = await handle.settled({ timeoutMs: SEND_SETTLE_WAIT_MS });
     } catch (e) {
       if (e instanceof SwapPaymentFailedError) throw new Error(this._sendFailureMessage(e.outcome, e.swap.id));
+      if (handle.status === 'pending' || handle.status === 'sent') throw new PaymentInProgressError();
       throw e;
     }
     this.refreshSwapCaches().catch(() => {});

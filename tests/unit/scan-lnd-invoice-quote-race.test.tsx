@@ -5,7 +5,7 @@ import bolt11 from 'bolt11';
 import { ThemeProvider } from '@react-navigation/native';
 import ScanLNDInvoice from '../../screen/lnd/ScanLNDInvoice';
 import { BlueDefaultTheme } from '../../components/themes';
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { LightningArkWallet, PaymentInProgressError } from '../../class/wallets/lightning-ark-wallet';
 import loc from '../../loc';
 
 const wallet = new LightningArkWallet();
@@ -29,7 +29,16 @@ const invoice = (satoshis: number, hash: string) =>
 let routeParams: Record<string, unknown> = {};
 let mockBiometrics = { on: false, unlock: async () => true };
 const noop = () => {};
-const navigationMock = { setParams: noop, setOptions: noop, navigate: noop, goBack: noop, dispatch: noop, addListener: () => noop };
+const mockPop = jest.fn();
+const navigationMock = {
+  setParams: noop,
+  setOptions: noop,
+  navigate: noop,
+  goBack: noop,
+  pop: mockPop,
+  dispatch: noop,
+  addListener: () => noop,
+};
 
 jest.mock('@react-navigation/native', () => {
   const actual = jest.requireActual('@react-navigation/native');
@@ -55,7 +64,8 @@ jest.mock('../../components/DismissKeyboardInputAccessory', () => ({
   DismissKeyboardInputAccessory: () => null,
   DismissKeyboardInputAccessoryViewID: 'DismissKeyboardInputAccessoryViewID',
 }));
-jest.mock('../../components/Alert', () => () => {});
+const mockAlert = jest.fn();
+jest.mock('../../components/Alert', () => (options: unknown) => mockAlert(options));
 jest.mock('../../blue_modules/hapticFeedback', () => ({
   __esModule: true,
   default: () => {},
@@ -154,5 +164,17 @@ describe('ScanLNDInvoice Arkade quote', () => {
     const screen = await openOn(own);
     await act(async () => fireEvent.press(screen.getByText(loc.lnd.payButton)));
     expect(quoteSend).not.toHaveBeenCalled();
+  });
+
+  it('reports a payment still in flight as in progress and leaves the screen', async () => {
+    jest.spyOn(wallet, 'quoteSend').mockResolvedValue(OLD_QUOTE as any);
+    jest.spyOn(wallet, 'sendQuote').mockRejectedValue(new PaymentInProgressError());
+    const screen = await openOn(invoice(1000, 'aa'));
+    fireEvent.press(screen.getByText(loc.lnd.payButton));
+    await waitFor(() => expect(screen.getByText(loc.lnd.confirmPayment)).toBeTruthy());
+
+    fireEvent.press(screen.getByText(loc.lnd.confirmPayment));
+    await waitFor(() => expect(mockAlert).toHaveBeenCalledWith({ message: loc.lnd.paymentInProgress }));
+    expect(mockPop).toHaveBeenCalled();
   });
 });

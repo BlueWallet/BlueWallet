@@ -6,7 +6,7 @@ import { ThemeProvider } from '@react-navigation/native';
 import LnurlPay from '../../screen/lnd/lnurlPay';
 import { BlueDefaultTheme } from '../../components/themes';
 import Lnurl, { LnurlPayServicePayload } from '../../class/lnurl';
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { LightningArkWallet, PaymentInProgressError } from '../../class/wallets/lightning-ark-wallet';
 import loc from '../../loc';
 
 const wallet = new LightningArkWallet();
@@ -65,6 +65,8 @@ jest.mock('../../components/DismissKeyboardInputAccessory', () => ({
 }));
 const mockAlert = jest.fn();
 jest.mock('../../components/Alert', () => (options: unknown) => mockAlert(options));
+const mockPop = jest.fn();
+jest.mock('../../NavigationService', () => ({ ...jest.requireActual('../../NavigationService'), pop: () => mockPop() }));
 jest.mock('../../blue_modules/hapticFeedback', () => ({
   __esModule: true,
   default: () => {},
@@ -90,6 +92,7 @@ describe('LnurlPay on an Arkade wallet', () => {
     jest.spyOn(Lnurl.prototype, 'getCommentAllowed').mockReturnValue(false);
     mockNavigate.mockClear();
     mockAlert.mockClear();
+    mockPop.mockClear();
     mockRoute.lnurl = 'bob@pay.example';
     mockBiometrics.enabled.mockReset().mockResolvedValue(false);
     mockBiometrics.unlock.mockReset().mockResolvedValue(true);
@@ -194,5 +197,17 @@ describe('LnurlPay on an Arkade wallet', () => {
 
     fireEvent.press(await screen.findByText(loc.lnd.payButton, {}, SLOW));
     await waitFor(() => expect(quoteSend).toHaveBeenLastCalledWith('carol@pay.example', { amountSat: 1000, comment: undefined }));
+  }, 20000);
+
+  it('reports a payment still in flight as in progress and leaves the screen', async () => {
+    jest.spyOn(wallet, 'quoteSend').mockResolvedValue(quote('lnurl-arkade', 0));
+    jest.spyOn(wallet, 'sendQuote').mockRejectedValue(new PaymentInProgressError());
+    const screen = render(tree());
+
+    await confirmTwice(screen);
+
+    await waitFor(() => expect(mockAlert).toHaveBeenCalledWith({ message: loc.lnd.paymentInProgress }));
+    expect(mockPop).toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   }, 20000);
 });

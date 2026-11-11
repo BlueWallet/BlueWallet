@@ -21,7 +21,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { LightningArkWallet, PaymentInProgressError } from '../../class/wallets/lightning-ark-wallet';
 import { TWallet } from '../../class/wallets/types';
 import { pop } from '../../NavigationService';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
@@ -216,6 +216,11 @@ const LnurlPay: React.FC = () => {
       setIsLoading(false);
     } catch (err) {
       console.log((err as Error).message);
+      if (err instanceof PaymentInProgressError) {
+        fetchAndSaveWalletTransactions(walletID);
+        presentAlert({ message: loc.lnd.paymentInProgress });
+        return pop();
+      }
       setIsLoading(false);
       setPayButtonDisabled(false);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);

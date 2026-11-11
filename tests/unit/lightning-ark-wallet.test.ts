@@ -1,13 +1,13 @@
 import assert from 'assert';
 
-import { ArkAddress, TxType } from '@arkade-os/sdk';
+import { ArkAddress, TxType, makeHandle } from '@arkade-os/sdk';
 import bolt11 from 'bolt11';
 import { sha256 } from '@noble/hashes/sha256';
 import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION } from '@arkade-os/sdk/repositories/realm';
 import { AssetSwapRealmSchemas } from '@arkade-os/swap/repositories/realm';
 import { SwapPaymentFailedError, UnsupportedRoute } from '@arkade-os/swap';
 
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
+import { LightningArkWallet, PaymentInProgressError } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetArkadeTestState } from '../helpers/arkadeMocks';
 import { installSdkProviderSpies, restoreSdkProviderSpies } from '../helpers/sdkProviderMocks';
 import { readLockupFate } from '@arkade-os/swap/protocol';
@@ -388,6 +388,7 @@ describe('LightningArkWallet — sending a quote', () => {
     (w as any)._wallet = { getArkadeReader: async () => ({}) };
     (w as any)._swapClient = { swaps: async () => [] };
   });
+  afterEach(() => jest.useRealTimers());
 
   const seedRecord = (record: unknown): void => {
     (w as any)._swapRepository = { getSwapRecordsPage: async () => ({ items: [] }), getSwapRecord: async () => record };
@@ -421,6 +422,14 @@ describe('LightningArkWallet — sending a quote', () => {
       /Lightning payment was refunded/,
     );
     assert.strictEqual((w.last_paid_invoice_result as any)?.payment_preimage, undefined);
+  });
+
+  it('reports a send still in flight after the wait as in progress, not as failed', async () => {
+    jest.useFakeTimers();
+    const inFlight = { ...settling(paid), send: async () => makeHandle('lightning', () => new Promise<never>(() => {})) };
+    const sending = assert.rejects(w.sendQuote(inFlight), PaymentInProgressError);
+    await jest.advanceTimersByTimeAsync(60_000);
+    await sending;
   });
 });
 
