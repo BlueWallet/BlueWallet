@@ -27,6 +27,10 @@ jobs:
           node-version: 24
           cache: 'npm'
 
+      - name: Set npm version
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@12.2.2
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
         with:
@@ -174,6 +178,10 @@ jobs:
         with:
           node-version: 24
           cache: 'npm'
+
+      - name: Set npm version
+        working-directory: ${{ runner.temp }}
+        run: npm install --global npm@12.2.2
 
       - name: Install Node dependencies
         run: npm ci || npm ci

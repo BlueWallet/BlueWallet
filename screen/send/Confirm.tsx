@@ -3,6 +3,7 @@ import { ActivityIndicator, FlatList, Pressable, StyleSheet, Switch, Text, View 
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import BlueCard from '../../components/BlueCard';
+import { formatTransactionOutput } from '../../helpers/formatTransactionOutput';
 import BlueText from '../../components/BlueText';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
@@ -313,19 +314,25 @@ const Confirm: React.FC = () => {
       <>
         <View style={styles.valueWrap}>
           <Text testID="TransactionValue" style={[styles.valueValue, stylesHook.valueValue]}>
-            {item.value && satoshiToBTC(item.value)}
+            {item.value != null ? satoshiToBTC(item.value) : null}
           </Text>
           <Text style={[styles.valueUnit, stylesHook.valueValue]}>{' ' + loc.units[BitcoinUnit.BTC]}</Text>
         </View>
         <Text style={[styles.transactionAmountFiat, stylesHook.transactionAmountFiat]}>
-          {item.value && satoshiToLocalCurrency(item.value)}
+          {item.value != null ? satoshiToLocalCurrency(item.value) : null}
         </Text>
         <BlueCard>
           <Text style={[styles.transactionDetailsTitle, stylesHook.transactionDetailsTitle]}>{loc.send.create_to}</Text>
-          <Text testID="TransactionAddress" style={[styles.transactionDetailsSubtitle, stylesHook.transactionDetailsSubtitle]}>
-            <Text style={stylesHook.addressSection}>{item?.address?.slice(0, 6)}</Text>
-            <Text>{item?.address?.slice(6, -6)}</Text>
-            <Text style={stylesHook.addressSection}>{item?.address?.slice(-6)}</Text>
+          <Text selectable testID="TransactionAddress" style={[styles.transactionDetailsSubtitle, stylesHook.transactionDetailsSubtitle]}>
+            {item.address ? (
+              <>
+                <Text style={stylesHook.addressSection}>{item.address.slice(0, 6)}</Text>
+                <Text>{item.address.slice(6, -6)}</Text>
+                <Text style={stylesHook.addressSection}>{item.address.slice(-6)}</Text>
+              </>
+            ) : (
+              formatTransactionOutput(item)
+            )}
           </Text>
           {contact ? <Text style={[styles.transactionDetailsSubtitle, stylesHook.transactionDetailsSubtitle]}>[{contact}]</Text> : null}
         </BlueCard>
@@ -344,7 +351,7 @@ const Confirm: React.FC = () => {
     <SafeArea style={[styles.root, stylesHook.root]}>
       <View style={styles.cardTop}>
         <FlatList<CreateTransactionTarget>
-          scrollEnabled={recipients.length > 1}
+          style={styles.outputList}
           extraData={recipients}
           data={recipients}
           renderItem={renderItem}
@@ -389,6 +396,7 @@ const Confirm: React.FC = () => {
 export default Confirm;
 
 const styles = StyleSheet.create({
+  outputList: { width: '100%' },
   transactionDetailsTitle: {
     fontWeight: '500',
     fontSize: 17,

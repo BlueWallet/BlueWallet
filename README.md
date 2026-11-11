@@ -26,7 +26,7 @@ Community: [telegram group](https://t.me/bluewallet)
 
 ## BUILD & RUN IT
 
-Please refer to the engines field in package.json file for the minimum required versions of Node and npm. It is preferred that you use an even-numbered version of Node as these are LTS versions.
+Please refer to the engines field in package.json for the minimum required versions of Node and npm. BlueWallet uses npm 12.2.2. It is preferred that you use an even-numbered version of Node as these are LTS versions.
 
 To view the version of Node and npm in your environment, run the following in your console:
 

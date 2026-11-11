@@ -144,7 +144,7 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
               color: colors.successCheck,
             },
           ]}
-          resizeMode="center"
+          resizeMode="contain"
         />
       </View>
     </View>
@@ -194,8 +194,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 53,
   },
+  // bluenice.json is 550x400, drawn 1:1 over a 200x200 footprint
   lottie: {
-    width: 200,
-    height: 200,
+    width: 550,
+    height: 400,
+    marginHorizontal: -175,
+    marginVertical: -100,
   },
 });

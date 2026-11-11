@@ -2759,3 +2759,51 @@ describe('multisig-cosigner', () => {
     ]);
   });
 });
+
+describe('calculateFeeFromPsbt', () => {
+  // Unsigned legacy P2SH vault PSBT from the p2sh fixture: 100000 sats in, 97740 out, fee 2260.
+  // Carries nonWitnessUtxo only (no witnessUtxo).
+  const legacyPsbtBase64 =
+    'cHNidP8BAHUCAAAAAeze/Q5jJotU+uEMc2FdzH9A4DEN1ImGyQujTAt8IgpjAAAAAAAAAACAAhAnAAAAAAAAGXapFBkSnVPmMZuvGdugWb6tFm35Crj1iKy8VgEAAAAAABepFPI8FESPOvVVeCas7ULqnnFYnc5JhwAAAAAAAQD9cwECAAAAAAECEfjNx7ElW40+uVHbL8aWR2aq9ubRtC53fJClKXez6OUAAAAAAP////8AaW8YwJ2ITBACVIJfPKT0HKNfu16YjTUmy9z8swwzWwAAAAAA/////wKghgEAAAAAABepFLPYpQgalHfdXTVNTIp+/A5kaJ0Qh+g0DwAAAAAAFgAU7vEJEUm6Nlil3+nIqJJLOk8OG6oCRzBEAiBoVI1DaXMOkPM9QkNCC0DUx+8kC7rB2zM1TA4QjVA/JAIgYq3MHRl1a8s+yun+mIr3wxR7p99f9rJvShNQN2afzvABIQIR7fi1GKGsKNH5qVal3e3a6g30NfI4bn+4bw6f3oGN2gJHMEQCIDFA+O6DEVYvFesfBi876Y++QWFSYkka1WJdhUHOLkOGAiB3NDiR00ERKit1ZH1aH67A8KedrIBSJJ4i6zlZGku3DAEhAj8FwUXmExHrcl/eqYNP4gxOe7tjne+ORxN6JpYAH56dAAAAAAEER1IhAuKpQFZsreTHbjczMj+gmPaW2MpWjN/NE9t30TCFV6boIQMM4zcNTGSH1VK788aPJgBwsMhTJ20S4lg/3JkC8mJIjVKuIgYC4qlAVmyt5MduNzMyP6CY9pbYylaM380T23fRMIVXpugQFo3WAy0AAIAAAAAAAAAAACIGAwzjNw1MZIfVUrvzxo8mAHCwyFMnbRLiWD/cmQLyYkiNENN+rYgtAACAAAAAAAAAAAAAAAEAR1IhAoJkVao8TQcPGdH2rhAUNLNEoDTaWVlIZXZEEk77O3NoIQOJYtHCrnVaHKX4kVFrtjn9dVGJENMKTTOYLAY/aCS3rFKuIgICgmRVqjxNBw8Z0fauEBQ0s0SgNNpZWUhldkQSTvs7c2gQ036tiC0AAIABAAAAAwAAACICA4li0cKudVocpfiRUWu2Of11UYkQ0wpNM5gsBj9oJLesEBaN1gMtAACAAQAAAAMAAAAA';
+
+  it('uses nonWitnessUtxo amount for legacy inputs', () => {
+    const w = new MultisigHDWallet();
+    const psbt = bitcoin.Psbt.fromBase64(legacyPsbtBase64);
+    assert.ok(psbt.data.inputs[0].nonWitnessUtxo);
+    assert.ok(!psbt.data.inputs[0].witnessUtxo);
+    assert.strictEqual(w.calculateFeeFromPsbt(psbt), 2260);
+  });
+
+  it('ignores a false witnessUtxo when nonWitnessUtxo is present', () => {
+    const w = new MultisigHDWallet();
+    const psbt = bitcoin.Psbt.fromBase64(legacyPsbtBase64);
+    const inputTx = bitcoin.Transaction.fromBuffer(psbt.data.inputs[0].nonWitnessUtxo);
+    const prevout = inputTx.outs[psbt.txInputs[0].index];
+
+    // Attacker supplies a tiny witnessUtxo value next to the real parent tx.
+    // Old code would report fee from 20000 (or negative); fixed code keeps 2260.
+    psbt.data.inputs[0].witnessUtxo = {
+      script: prevout.script,
+      value: 20000n,
+    };
+
+    assert.strictEqual(w.calculateFeeFromPsbt(psbt), 2260);
+  });
+
+  it('still reads witnessUtxo-only inputs', () => {
+    const w = new MultisigHDWallet();
+    const psbt = new bitcoin.Psbt();
+    const script = bitcoin.address.toOutputScript('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4');
+    psbt.addInput({
+      hash: '0000000000000000000000000000000000000000000000000000000000000001',
+      index: 0,
+      witnessUtxo: { script, value: 50000n },
+    });
+    psbt.addOutput({ script, value: 49000n });
+    assert.strictEqual(w.calculateFeeFromPsbt(psbt), 1000);
+
+    // unparsable parent tx must not throw (fee is computed during render), falls back to witnessUtxo
+    psbt.data.inputs[0].nonWitnessUtxo = Uint8Array.of(0);
+    assert.strictEqual(w.calculateFeeFromPsbt(psbt), 1000);
+  });
+});
