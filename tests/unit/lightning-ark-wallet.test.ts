@@ -364,7 +364,9 @@ describe('LightningArkWallet — quoting a BOLT11', () => {
       ],
       quote,
     };
-    await assert.rejects(w.quoteSend(INVOICE), /already has a live swap \(rfq:q\)/);
+    for (const target of [INVOICE, `lightning:${INVOICE}`]) {
+      await assert.rejects(w.quoteSend(target), /already has a live swap \(rfq:q\)/);
+    }
     assert.strictEqual(quote.mock.calls.length, 0);
   });
 });

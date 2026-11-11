@@ -904,13 +904,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
     const raw = target.trim();
     const ctx = { wallet, prefs: {} };
 
-    if (invoiceTarget(raw) !== undefined) {
-      const live = await this.findLiveSwapForInvoice(raw);
+    const invoice = invoiceTarget(raw);
+    if (invoice !== undefined) {
+      const live = await this.findLiveSwapForInvoice(invoice);
       if (live) throw new Error(`This invoice already has a live swap (${live}). Wait for its outcome instead of paying again.`);
       try {
         return await lightningRail(client).quote({ raw }, ctx);
       } catch (e) {
-        throw await this._boundsRefusal(e, raw);
+        throw await this._boundsRefusal(e, invoice);
       }
     }
 
