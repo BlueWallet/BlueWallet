@@ -1122,29 +1122,31 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   calculateFeeFromPsbt(psbt: Psbt) {
     let goesIn = 0;
-    const cacheUtxoAmounts: { [key: string]: number } = {};
-    for (const inp of psbt.data.inputs) {
-      if (inp.witnessUtxo && inp.witnessUtxo.value) {
-        // segwit input
-        goesIn += Number(inp.witnessUtxo.value);
-      } else if (inp.nonWitnessUtxo) {
-        // non-segwit input
-        // lets parse this transaction and cache how much each input was worth
-        const inputTx = bitcoin.Transaction.fromBuffer(inp.nonWitnessUtxo);
-        let index = 0;
-        for (const out of inputTx.outs) {
-          cacheUtxoAmounts[inputTx.getId() + ':' + index] = Number(out.value);
-          index++;
+    // Prefer nonWitnessUtxo per input (same as bitcoinjs-lib). A PSBT may carry both;
+    // trusting witnessUtxo first let a false value hide the real fee on legacy inputs,
+    // and made mixed segwit+legacy PSBTs drop legacy amounts entirely.
+    // Do not throw on a mismatched witnessUtxo: getFee() is called during render without
+    // a try/catch, so we just use the real amount for the fee line.
+    const txInputs = psbt.txInputs; // getter clones all inputs on every access
+    for (let i = 0; i < psbt.data.inputs.length; i++) {
+      const inp = psbt.data.inputs[i];
+      const txInput = txInputs[i];
+
+      if (inp.nonWitnessUtxo) {
+        try {
+          const inputTx = bitcoin.Transaction.fromBuffer(inp.nonWitnessUtxo);
+          const prevout = inputTx.outs[txInput.index];
+          if (prevout && inputTx.getId() === uint8ArrayToHex(new Uint8Array(txInput.hash).reverse())) {
+            goesIn += Number(prevout.value);
+            continue;
+          }
+        } catch {
+          // unparsable parent tx, fall back to witnessUtxo
         }
       }
-    }
 
-    if (goesIn === 0) {
-      // means we failed to get amounts that go in previously, so lets use utxo amounts cache we've build
-      // from non-segwit inputs
-      for (const inp of psbt.txInputs) {
-        const cacheKey = uint8ArrayToHex(new Uint8Array(inp.hash).reverse()) + ':' + inp.index;
-        if (cacheUtxoAmounts[cacheKey]) goesIn += cacheUtxoAmounts[cacheKey];
+      if (inp.witnessUtxo && inp.witnessUtxo.value) {
+        goesIn += Number(inp.witnessUtxo.value);
       }
     }
 
