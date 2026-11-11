@@ -36,13 +36,15 @@ const PAYLOAD: LnurlPayServicePayload = {
 };
 
 const mockNavigate = jest.fn();
+const mockRoute = { lnurl: 'bob@pay.example' };
+const mockBiometrics = { enabled: jest.fn(), unlock: jest.fn() };
 const noop = () => {};
 jest.mock('@react-navigation/native', () => {
   const actual = jest.requireActual('@react-navigation/native');
   return {
     ...actual,
     useNavigation: () => ({ setParams: () => {}, navigate: mockNavigate, goBack: () => {}, addListener: () => () => {} }),
-    useRoute: () => ({ params: { walletID: wallet.getID(), lnurl: 'bob@pay.example' }, name: 'LnurlPay' }),
+    useRoute: () => ({ params: { walletID: wallet.getID(), lnurl: mockRoute.lnurl }, name: 'LnurlPay' }),
     useLocale: () => ({ direction: 'ltr' }),
   };
 });
@@ -50,8 +52,8 @@ jest.mock('../../hooks/context/useStorage', () => ({
   useStorage: () => ({ wallets: [wallet], fetchAndSaveWalletTransactions: async () => {} }),
 }));
 jest.mock('../../hooks/useBiometrics', () => ({
-  useBiometrics: () => ({ isBiometricUseCapableAndEnabled: async () => false }),
-  unlockWithBiometrics: async () => true,
+  useBiometrics: () => ({ isBiometricUseCapableAndEnabled: () => mockBiometrics.enabled() }),
+  unlockWithBiometrics: () => mockBiometrics.unlock(),
 }));
 jest.mock('../../components/SafeArea', () => ({
   __esModule: true,
@@ -88,6 +90,9 @@ describe('LnurlPay on an Arkade wallet', () => {
     jest.spyOn(Lnurl.prototype, 'getCommentAllowed').mockReturnValue(false);
     mockNavigate.mockClear();
     mockAlert.mockClear();
+    mockRoute.lnurl = 'bob@pay.example';
+    mockBiometrics.enabled.mockReset().mockResolvedValue(false);
+    mockBiometrics.unlock.mockReset().mockResolvedValue(true);
   });
   afterEach(() => jest.restoreAllMocks());
 
@@ -157,5 +162,37 @@ describe('LnurlPay on an Arkade wallet', () => {
     await waitFor(() => expect(mockAlert).toHaveBeenCalledWith({ message: loc.lnd.quoteExpired }));
     fireEvent.press(await screen.findByText(loc.lnd.payButton, {}, SLOW));
     await waitFor(() => expect(quoteSend).toHaveBeenCalledTimes(2));
+  }, 20000);
+
+  it('does not send a held quote when the amount changed during the biometric prompt', async () => {
+    jest.spyOn(wallet, 'quoteSend').mockResolvedValue(quote('lnurl-arkade', 0));
+    const sendQuote = jest.spyOn(wallet, 'sendQuote').mockResolvedValue();
+    const screen = render(tree());
+    fireEvent.press(await screen.findByText(loc.lnd.payButton, {}, SLOW));
+    const confirm = await screen.findByText(loc.lnd.confirmPayment, {}, SLOW);
+
+    let unlock: (ok: boolean) => void = noop;
+    mockBiometrics.enabled.mockResolvedValue(true);
+    mockBiometrics.unlock.mockImplementation(() => new Promise(resolve => (unlock = resolve)));
+    fireEvent.press(confirm);
+    await waitFor(() => expect(mockBiometrics.unlock).toHaveBeenCalled());
+    fireEvent.changeText(screen.getByTestId('BitcoinAmountInput'), '2');
+    unlock(true);
+
+    await screen.findByText(loc.lnd.payButton, {}, SLOW);
+    expect(sendQuote).not.toHaveBeenCalled();
+  }, 20000);
+
+  it('drops a held quote when the destination changes', async () => {
+    const quoteSend = jest.spyOn(wallet, 'quoteSend').mockResolvedValue(quote('lnurl-arkade', 0));
+    const screen = render(tree());
+    fireEvent.press(await screen.findByText(loc.lnd.payButton, {}, SLOW));
+    await screen.findByText(loc.lnd.confirmPayment, {}, SLOW);
+
+    mockRoute.lnurl = 'carol@pay.example';
+    screen.rerender(tree());
+
+    fireEvent.press(await screen.findByText(loc.lnd.payButton, {}, SLOW));
+    await waitFor(() => expect(quoteSend).toHaveBeenLastCalledWith('carol@pay.example', { amountSat: 1000, comment: undefined }));
   }, 20000);
 });

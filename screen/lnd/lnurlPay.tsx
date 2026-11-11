@@ -47,12 +47,12 @@ const LnurlPay: React.FC = () => {
   const [amount, setAmount] = useState<string | undefined>();
   // Ark confirm step: the first tap quotes, the second sends that quote.
   const [held, setHeld] = useState<{ quote: RouteQuote; amountSats: number; pr?: string }>();
-  // Bumped on every input change, so a quote still in flight for an older wallet or amount is dropped.
+  // Bumped on every input change, so a quote or tap made for an older destination, wallet or amount is dropped.
   const quoteGeneration = useRef(0);
   useEffect(() => {
     quoteGeneration.current += 1;
     setHeld(undefined);
-  }, [amount, unit, walletID]);
+  }, [amount, unit, walletID, lnurl]);
   const { colors } = useTheme();
   const { direction } = useLocale();
   const stylesHook = StyleSheet.create({
@@ -135,6 +135,11 @@ const LnurlPay: React.FC = () => {
       if (!(await unlockWithBiometrics())) {
         return;
       }
+    }
+    // The inputs changed during the prompt: this tap was for the old ones.
+    if (generation !== quoteGeneration.current) {
+      setPayButtonDisabled(false);
+      return;
     }
 
     let amountSats: number | false;
