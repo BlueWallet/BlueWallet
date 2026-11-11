@@ -217,6 +217,11 @@ const LnurlPay: React.FC = () => {
     } catch (err) {
       console.log((err as Error).message);
       if (err instanceof PaymentInProgressError) {
+        // Store the success action once the payment settles, which works only while the app stays open.
+        if (held?.pr) {
+          const { payment_hash } = wallet.decodeInvoice(held.pr);
+          err.receipt.then(r => (r?.payment_preimage ? _LN.storeSuccess(payment_hash, r.payment_preimage) : undefined)).catch(() => {});
+        }
         fetchAndSaveWalletTransactions(walletID);
         presentAlert({ message: loc.lnd.paymentInProgress });
         return pop();

@@ -82,11 +82,14 @@ const BUNDLED_CARDS: LocalCardInput[] = [{ card: bundledCard as LocalCardInput['
 // How long a screen waits on a send before handing its outcome to the history.
 const SEND_SETTLE_WAIT_MS = 60_000;
 
-/** A send still in flight when the wait ends: neither paid nor failed yet. */
+type PaidReceipt = NonNullable<LightningCustodianWallet['last_paid_invoice_result']>;
+
+/** A send still in flight when the wait ends. `receipt` resolves once it settles, and rejects if it fails. */
 export class PaymentInProgressError extends Error {
-  constructor() {
+  constructor(readonly receipt: Promise<PaidReceipt | undefined>) {
     super('The payment is still in progress');
     this.name = 'PaymentInProgressError';
+    receipt.catch(() => {});
   }
 }
 
@@ -954,17 +957,25 @@ export class LightningArkWallet extends LightningCustodianWallet {
       result = await handle.settled({ timeoutMs: SEND_SETTLE_WAIT_MS });
     } catch (e) {
       if (e instanceof SwapPaymentFailedError) throw new Error(this._sendFailureMessage(e.outcome, e.swap.id));
-      if (handle.status === 'pending' || handle.status === 'sent') throw new PaymentInProgressError();
+      if (handle.status === 'pending' || handle.status === 'sent') {
+        throw new PaymentInProgressError(handle.settled().then(late => this._paidReceipt(late)));
+      }
       throw e;
     }
+    const receipt = await this._paidReceipt(result);
+    if (receipt) this.last_paid_invoice_result = receipt;
+  }
+
+  /** The preimage, payment hash and invoice of a settled Lightning payment; none for an Arkade send. */
+  private async _paidReceipt(result: RouteResult): Promise<PaidReceipt | undefined> {
     this.refreshSwapCaches().catch(() => {});
-    if (!result.swapId) return;
+    if (!result.swapId) return undefined;
     const swapId = result.swapId as AssetSwapId;
     let record: CorridorSwapRecord | undefined;
     try {
       record = (await this._swapRepository?.getSwapRecord(quoteIdOfSwapId(swapId))) as CorridorSwapRecord | undefined;
     } catch {}
-    this.last_paid_invoice_result = {
+    return {
       payment_preimage: await this._settlementPreimage(swapId),
       payment_hash: record?.lock?.hash ?? '',
       payment_request: record ? recordBolt11(record) : '',

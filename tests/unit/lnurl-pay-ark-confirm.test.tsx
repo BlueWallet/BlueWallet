@@ -201,7 +201,7 @@ describe('LnurlPay on an Arkade wallet', () => {
 
   it('reports a payment still in flight as in progress and leaves the screen', async () => {
     jest.spyOn(wallet, 'quoteSend').mockResolvedValue(quote('lnurl-arkade', 0));
-    jest.spyOn(wallet, 'sendQuote').mockRejectedValue(new PaymentInProgressError());
+    jest.spyOn(wallet, 'sendQuote').mockRejectedValue(new PaymentInProgressError(new Promise(noop)));
     const screen = render(tree());
 
     await confirmTwice(screen);
@@ -209,5 +209,24 @@ describe('LnurlPay on an Arkade wallet', () => {
     await waitFor(() => expect(mockAlert).toHaveBeenCalledWith({ message: loc.lnd.paymentInProgress }));
     expect(mockPop).toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();
+  }, 20000);
+
+  it('stores the success action of a Lightning payment that settles after the screen closed', async () => {
+    jest
+      .spyOn(wallet, 'quoteSend')
+      .mockRejectedValueOnce(new Error('No Arkade route for this destination'))
+      .mockResolvedValueOnce(quote('lightning', 7));
+    jest.spyOn(Lnurl.prototype, 'requestBolt11FromLnurlPayService').mockResolvedValue({ pr: INVOICE } as any);
+    const storeSuccess = jest.spyOn(Lnurl.prototype, 'storeSuccess').mockResolvedValue();
+    let settle: (receipt: { payment_preimage: string }) => void = noop;
+    jest.spyOn(wallet, 'sendQuote').mockRejectedValue(new PaymentInProgressError(new Promise(resolve => (settle = resolve))));
+    const screen = render(tree());
+
+    await confirmTwice(screen);
+    await waitFor(() => expect(mockPop).toHaveBeenCalled());
+    expect(storeSuccess).not.toHaveBeenCalled();
+
+    settle({ payment_preimage: 'ab'.repeat(32) });
+    await waitFor(() => expect(storeSuccess).toHaveBeenCalledWith('ef'.repeat(32), 'ab'.repeat(32)));
   }, 20000);
 });

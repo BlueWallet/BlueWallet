@@ -168,7 +168,7 @@ describe('ScanLNDInvoice Arkade quote', () => {
 
   it('reports a payment still in flight as in progress and leaves the screen', async () => {
     jest.spyOn(wallet, 'quoteSend').mockResolvedValue(OLD_QUOTE as any);
-    jest.spyOn(wallet, 'sendQuote').mockRejectedValue(new PaymentInProgressError());
+    jest.spyOn(wallet, 'sendQuote').mockRejectedValue(new PaymentInProgressError(new Promise(() => {})));
     const screen = await openOn(invoice(1000, 'aa'));
     fireEvent.press(screen.getByText(loc.lnd.payButton));
     await waitFor(() => expect(screen.getByText(loc.lnd.confirmPayment)).toBeTruthy());

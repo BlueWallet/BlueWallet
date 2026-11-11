@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import { ArkAddress, TxType, makeHandle } from '@arkade-os/sdk';
+import { ArkAddress, TxType, makeHandle, type RouteResult } from '@arkade-os/sdk';
 import bolt11 from 'bolt11';
 import { sha256 } from '@noble/hashes/sha256';
 import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION } from '@arkade-os/sdk/repositories/realm';
@@ -424,12 +424,21 @@ describe('LightningArkWallet — sending a quote', () => {
     assert.strictEqual((w.last_paid_invoice_result as any)?.payment_preimage, undefined);
   });
 
-  it('reports a send still in flight after the wait as in progress, not as failed', async () => {
+  it('reports a send still in flight after the wait as in progress, and its receipt once it settles', async () => {
     jest.useFakeTimers();
-    const inFlight = { ...settling(paid), send: async () => makeHandle('lightning', () => new Promise<never>(() => {})) };
-    const sending = assert.rejects(w.sendQuote(inFlight), PaymentInProgressError);
+    seedRecord(sendRecord({ settlementPreimageHex: 'ab'.repeat(32) }));
+    let settle: (result: RouteResult) => void = () => {};
+    const inFlight = {
+      ...settling(paid),
+      send: async () => makeHandle('lightning', () => new Promise<RouteResult>(resolve => (settle = resolve))),
+    };
+    const sending = w.sendQuote(inFlight).catch(e => e);
     await jest.advanceTimersByTimeAsync(60_000);
-    await sending;
+    const inProgress = await sending;
+    assert.ok(inProgress instanceof PaymentInProgressError);
+
+    settle({ railId: 'lightning', swapId: 'rfq:quote-send-1' });
+    assert.strictEqual((await inProgress.receipt)?.payment_preimage, 'ab'.repeat(32));
   });
 });
 
