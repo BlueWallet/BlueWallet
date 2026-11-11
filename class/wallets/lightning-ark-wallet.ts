@@ -200,7 +200,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _transactionsHistory: ArkTransaction[] = [];
   private _privateKeyCache = '';
   private _boardingUtxos: ExtendedCoin[] = [];
-  private _lnurlReceiver: Promise<Receiver> | undefined;
+  private _lnurlReceiver: Promise<{ destinations: string; receiver: Receiver }> | undefined;
   // In memory only: the funds arrive whether or not anyone is still watching.
   private _lnurlInvoices: LnurlInvoice[] = [];
 
@@ -1269,20 +1269,24 @@ export class LightningArkWallet extends LightningCustodianWallet {
    * earlier build's nameless receiver is named in place so its LNURL keeps working.
    */
   private _getLnurlReceiver(): Promise<Receiver> {
-    if (!this._lnurlReceiver) {
-      const receiver = (async () => {
-        if (!this._wallet) await this.init();
-        if (!this._wallet) throw new Error('Arkade wallet not initialized');
-        const lnurl = arkadeLnurl({ wallet: this._wallet, baseUrl: LNURL_SERVER });
-        const owned = (await lnurl.owned({ refresh: true })) ?? (await lnurl.claim());
-        return owned.lightningAddress ? owned : owned.upgrade();
-      })();
-      this._lnurlReceiver = receiver;
-      receiver.catch(() => {
-        if (this._lnurlReceiver === receiver) this._lnurlReceiver = undefined;
-      });
-    }
-    return this._lnurlReceiver;
+    // Chained so concurrent callers share one claim; an operator signer change rotates both addresses, so a new pair re-binds.
+    const previous = this._lnurlReceiver;
+    const current = (async () => {
+      if (!this._wallet) await this.init();
+      const wallet = this._wallet;
+      if (!wallet) throw new Error('Arkade wallet not initialized');
+      const destinations = `${await wallet.getAddress()} ${await wallet.getBoardingAddress()}`;
+      const held = await previous?.catch(() => undefined);
+      if (held?.destinations === destinations) return held;
+      const lnurl = arkadeLnurl({ wallet, baseUrl: LNURL_SERVER });
+      const owned = (await lnurl.owned({ refresh: true })) ?? (await lnurl.claim());
+      return { destinations, receiver: owned.lightningAddress ? owned : await owned.upgrade() };
+    })();
+    this._lnurlReceiver = current;
+    current.catch(() => {
+      if (this._lnurlReceiver === current) this._lnurlReceiver = undefined;
+    });
+    return current.then(({ receiver }) => receiver);
   }
 
   async addInvoice(amt: number, memo: string) {

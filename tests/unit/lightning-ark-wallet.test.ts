@@ -807,6 +807,24 @@ describe('LightningArkWallet LNURL receive', () => {
     assert.deepStrictEqual(upgrade?.body, {});
   });
 
+  it('claims once when the receive screen asks for the address and the limits together', async () => {
+    await Promise.all([w.getLightningAddress(), w.getReceiveLimits()]);
+    assert.strictEqual(claims().length, 1);
+  });
+
+  it('re-binds the address when the Arkade address rotates mid-session', async () => {
+    assert.strictEqual(await w.getLightningAddress(), `merry-comet@${DOMAIN}`);
+    const bound = { arkadeAddress: ARK_ADDRESS, claimPublicKey: await claimPublicKey(), boardingAddress: BOARDING_ADDRESS, createdAt: 0 };
+    server.addresses = [named('merry-comet', bound)];
+    const rotated = new ArkAddress(new Uint8Array(32).fill(2), new Uint8Array(32).fill(4), 'ark').encode();
+    (w as any)._wallet.getAddress = async () => rotated;
+
+    assert.strictEqual(await w.getLightningAddress(), `merry-comet@${DOMAIN}`);
+    assert.strictEqual(claims().length, 1);
+    assert.strictEqual(binds().length, 2);
+    assert.strictEqual(binds()[1].body.arkadeAddress, rotated);
+  });
+
   it('refuses when the server offers no Lightning rail', async () => {
     server.paymentOptions = [{ id: 'arkade', type: 'arkade' }];
     await assert.rejects(() => w.addInvoice(1000, ''), /unavailable/);
