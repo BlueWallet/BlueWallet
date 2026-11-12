@@ -37,10 +37,10 @@ function pushClipboardDetectedSheet(params: { payload: string; kind: ClipboardPa
 const useClipboardDetection = (enabled: boolean) => {
   const { wallets } = useStorage();
   const lastSeenClipboardHash = useRef<string | undefined>(undefined);
-  const needsRead = useRef(true);
   const clipboardReadInFlight = useRef(false);
   const retryClipboardAfterPastePrompt = useRef(false);
   const resumedFromBackground = useRef(false);
+  const pendingLaunchRead = useRef(false);
   const clipboardPasteFollowUpAttempts = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignoreLastSeenOnNextRead = useRef(false);
@@ -58,21 +58,25 @@ const useClipboardDetection = (enabled: boolean) => {
       return;
     }
     clipboardReadInFlight.current = true;
-    needsRead.current = false;
     try {
       const { content, pasteBlocked } = await readClipboardForDetection();
       if (pasteBlocked || !content) {
-        // One follow-up while we stay in the foreground. A tight retry loop makes iOS
-        // answer "not authorized" and never show the paste prompt.
-        needsRead.current = true;
-        if (isForegroundAppState(AppState.currentState) && clipboardPasteFollowUpAttempts.current < 1) {
+        // iOS 16+ may return empty before the user answers the paste prompt, so allow
+        // one retry in this foreground session. Further retries loop the prompt: the
+        // dialog flips AppState inactive→active, which is not a real resume.
+        if (clipboardPasteFollowUpAttempts.current < 1) {
           clipboardPasteFollowUpAttempts.current += 1;
+          retryClipboardAfterPastePrompt.current = true;
           ignoreLastSeenOnNextRead.current = true;
-          clearTimer();
-          timer.current = setTimeout(() => {
-            timer.current = null;
-            readRef.current().catch(() => {});
-          }, CLIPBOARD_IDLE_DELAY_MS);
+          if (isForegroundAppState(AppState.currentState)) {
+            clearTimer();
+            timer.current = setTimeout(() => {
+              timer.current = null;
+              readRef.current().catch(() => {});
+            }, CLIPBOARD_IDLE_DELAY_MS);
+          }
+        } else {
+          retryClipboardAfterPastePrompt.current = false;
         }
         return;
       }
@@ -123,7 +127,7 @@ const useClipboardDetection = (enabled: boolean) => {
       // the only scheduled read, and coming back to `active` would not start another.
       if (nextAppState !== 'background') return;
       clearTimer();
-      needsRead.current = true;
+      pendingLaunchRead.current = false;
       clipboardPasteFollowUpAttempts.current = 0;
       resumedFromBackground.current = true;
     },
@@ -133,26 +137,29 @@ const useClipboardDetection = (enabled: boolean) => {
   const onEnterForeground = useCallback(
     (previousState: AppStateStatus, options?: { skipRead?: boolean }) => {
       const cameFromBackground = resumedFromBackground.current || (isDesktop && previousState === 'inactive');
-      const readBecausePending = needsRead.current;
+      const launchPending = pendingLaunchRead.current;
+      pendingLaunchRead.current = false;
       resumedFromBackground.current = false;
       if (!enabled || wallets.length === 0) return;
       const action = clipboardActionOnAppStateChange({
         previous: previousState,
         next: 'active',
         shouldRetryPaste: retryClipboardAfterPastePrompt.current,
-        resumedFromBackground: cameFromBackground || readBecausePending,
+        resumedFromBackground: cameFromBackground,
       });
       // A handled push notification already navigated somewhere; keep the pending read for
       // the next resume instead of covering that screen with the Detected sheet.
       if (options?.skipRead) {
         clearTimer();
+        if (cameFromBackground) resumedFromBackground.current = true;
+        if (launchPending) pendingLaunchRead.current = true;
         return;
       }
       if (action === 'retry_read') {
         ignoreLastSeenOnNextRead.current = true;
         retryClipboardAfterPastePrompt.current = false;
         scheduleRead(CLIPBOARD_RETRY_DELAY_MS);
-      } else if (action === 'read') {
+      } else if (action === 'read' || launchPending) {
         retryClipboardAfterPastePrompt.current = false;
         scheduleRead(CLIPBOARD_IDLE_DELAY_MS);
       }
@@ -165,7 +172,7 @@ const useClipboardDetection = (enabled: boolean) => {
     // Not the shared timer: leaving the foreground must not cancel this first read.
     const initialRead = setTimeout(() => {
       if (!isForegroundAppState(AppState.currentState)) {
-        needsRead.current = true;
+        pendingLaunchRead.current = true;
         return;
       }
       readRef.current().catch(() => {});

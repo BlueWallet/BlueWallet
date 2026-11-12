@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react-native';
 import { AppState, AppStateStatus } from 'react-native';
 
-import { CLIPBOARD_IDLE_DELAY_MS } from '../../blue_modules/clipboardPayment';
+import { CLIPBOARD_IDLE_DELAY_MS, CLIPBOARD_RETRY_DELAY_MS } from '../../blue_modules/clipboardPayment';
 import { readClipboardForDetection } from '../../blue_modules/clipboard';
 import useClipboardDetection from '../../hooks/useClipboardDetection';
 import { navigationRef } from '../../NavigationService';
@@ -106,4 +106,67 @@ it('does not read the clipboard on resume when a push notification was handled',
 
   expect(readClipboardForDetection).not.toHaveBeenCalled();
   expect(navigationRef.dispatch).not.toHaveBeenCalled();
+});
+
+it('retries once after an empty paste read, then stops when the paste dialog flips AppState', async () => {
+  jest.mocked(readClipboardForDetection).mockResolvedValue({ content: undefined, pasteBlocked: true });
+  const hook = renderHook(useClipboardDetection, { initialProps: true });
+  await flush(CLIPBOARD_IDLE_DELAY_MS + 1); // launch read fails
+  expect(readClipboardForDetection).toHaveBeenCalledTimes(1);
+
+  act(() => hook.result.current.onEnterForeground('inactive'));
+  await flush(CLIPBOARD_RETRY_DELAY_MS + 1); // one retry after the prompt
+  expect(readClipboardForDetection).toHaveBeenCalledTimes(2);
+
+  jest.mocked(readClipboardForDetection).mockClear();
+  act(() => hook.result.current.onEnterForeground('inactive'));
+  await flush(CLIPBOARD_IDLE_DELAY_MS + CLIPBOARD_RETRY_DELAY_MS + 1);
+  expect(readClipboardForDetection).not.toHaveBeenCalled();
+  expect(navigationRef.dispatch).not.toHaveBeenCalled();
+});
+
+it('does not keep polling after a failed foreground follow-up', async () => {
+  jest.mocked(readClipboardForDetection).mockResolvedValue({ content: undefined, pasteBlocked: true });
+  renderHook(useClipboardDetection, { initialProps: true });
+  await flush(CLIPBOARD_IDLE_DELAY_MS + 1); // launch read
+  await flush(CLIPBOARD_IDLE_DELAY_MS + 1); // single foreground follow-up
+  expect(readClipboardForDetection).toHaveBeenCalledTimes(2);
+
+  jest.mocked(readClipboardForDetection).mockClear();
+  await flush(CLIPBOARD_IDLE_DELAY_MS * 3);
+  expect(readClipboardForDetection).not.toHaveBeenCalled();
+});
+
+it('presents the Detected sheet when the first paste read is empty and the retry succeeds', async () => {
+  jest
+    .mocked(readClipboardForDetection)
+    .mockResolvedValueOnce({ content: undefined, pasteBlocked: true })
+    .mockResolvedValueOnce({ content: P2WPKH, pasteBlocked: false });
+  const hook = renderHook(useClipboardDetection, { initialProps: true });
+  await flush(CLIPBOARD_IDLE_DELAY_MS + 1);
+  expect(navigationRef.dispatch).not.toHaveBeenCalled();
+
+  act(() => hook.result.current.onEnterForeground('inactive'));
+  await flush(CLIPBOARD_RETRY_DELAY_MS + 1);
+
+  expect(readClipboardForDetection).toHaveBeenCalledTimes(2);
+  expect(navigationRef.dispatch).toHaveBeenCalledWith(expect.objectContaining({ name: 'ClipboardDetected' }));
+});
+
+it('reads again after a real background resume even if the previous paste was denied', async () => {
+  jest.mocked(readClipboardForDetection).mockResolvedValue({ content: undefined, pasteBlocked: true });
+  const hook = renderHook(useClipboardDetection, { initialProps: true });
+  await flush(CLIPBOARD_IDLE_DELAY_MS + 1);
+  act(() => hook.result.current.onEnterForeground('inactive'));
+  await flush(CLIPBOARD_RETRY_DELAY_MS + 1);
+  expect(readClipboardForDetection).toHaveBeenCalledTimes(2);
+
+  jest.mocked(readClipboardForDetection).mockReset();
+  jest.mocked(readClipboardForDetection).mockResolvedValue({ content: P2WPKH, pasteBlocked: false });
+  jest.mocked(navigationRef.dispatch).mockClear();
+
+  await resume(hook, false);
+
+  expect(readClipboardForDetection).toHaveBeenCalledTimes(1);
+  expect(navigationRef.dispatch).toHaveBeenCalledWith(expect.objectContaining({ name: 'ClipboardDetected' }));
 });
