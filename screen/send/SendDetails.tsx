@@ -474,11 +474,8 @@ const SendDetails = () => {
    */
 
   const processAddressData = useCallback(
-    (data: string | { data?: unknown }) => {
+    (data: string) => {
       assert(wallet, 'Internal error: wallet not set');
-      if (typeof data !== 'string') {
-        data = String(data.data);
-      }
       const currentIndex = scrollIndex.current;
       setIsLoading(true);
       if (!data.replace) {
@@ -642,7 +639,7 @@ const SendDetails = () => {
     const change = await getChangeAddressAsync();
     assert(change, 'Could not get change address');
     const requestedSatPerByte = Number(feeRate);
-    const lutxo: CreateTransactionUtxo[] = utxos || (wallet?.getUtxo() ?? []);
+    const lutxo: CreateTransactionUtxo[] = utxos || (wallet.getUtxo() ?? []);
     console.log({ requestedSatPerByte, lutxo: lutxo.length });
 
     const targets: CreateTransactionTarget[] = [];
@@ -666,7 +663,7 @@ const SendDetails = () => {
     // preserving original since it will be mutated
 
     // without forcing `HDSegwitBech32Wallet` i had a weird ts error, complaining about last argument (fp)
-    const { tx, outputs, psbt, fee } = (wallet as HDSegwitBech32Wallet)?.createTransaction(
+    const { tx, outputs, psbt, fee } = (wallet as HDSegwitBech32Wallet).createTransaction(
       lutxo,
       targets,
       requestedSatPerByte,
@@ -687,7 +684,7 @@ const SendDetails = () => {
       );
     }
 
-    if (wallet?.type === WatchOnlyWallet.type) {
+    if (wallet.type === WatchOnlyWallet.type) {
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
       // user whether he wants to broadcast it
@@ -701,7 +698,7 @@ const SendDetails = () => {
       return;
     }
 
-    if (wallet?.type === MultisigHDWallet.type) {
+    if (wallet.type === MultisigHDWallet.type) {
       navigation.navigate('PsbtMultisig', {
         memo: transactionMemo,
         psbtBase64: psbt.toBase64(),
@@ -768,9 +765,8 @@ const SendDetails = () => {
   }, [navigateToQRCodeScanner, presentAlert, wallet?.type]);
 
   const importQrTransactionOnBarScanned = useCallback(
-    (ret: string | { data: string }) => {
+    (data: string) => {
       if (!wallet) return;
-      const data = typeof ret === 'string' ? ret : ret.data;
       if (data.toUpperCase().startsWith('UR')) {
         presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
       } else if (data.indexOf('+') === -1 && data.indexOf('=') === -1 && data.indexOf('=') === -1) {
@@ -896,22 +892,6 @@ const SendDetails = () => {
     return _importTransactionMultisig(false);
   }, [_importTransactionMultisig]);
 
-  const onBarScanned = useCallback(
-    (ret: string | { data: string }) => {
-      const data = typeof ret === 'string' ? ret : ret.data;
-      if (data.toUpperCase().startsWith('UR')) {
-        presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
-      } else if (data.indexOf('+') === -1 && data.indexOf('=') === -1 && data.indexOf('=') === -1) {
-        // this looks like NOT base64, so maybe its transaction's hex
-        // we dont support it in this flow
-      } else {
-        // psbt base64?
-        return _importTransactionMultisig(data);
-      }
-    },
-    [_importTransactionMultisig, presentAlert],
-  );
-
   const handlePsbtSign = useCallback(
     async (psbtBase64: string) => {
       let tx;
@@ -983,7 +963,6 @@ const SendDetails = () => {
     setParams({ onBarScanned: undefined });
   }, [
     importQrTransactionOnBarScanned,
-    onBarScanned,
     routeParams.onBarScanned,
     setParams,
     processAddressData,
@@ -1067,7 +1046,7 @@ const SendDetails = () => {
   const handleCoinControl = useCallback(() => {
     if (!wallet) return;
     navigation.navigate('CoinControl', {
-      walletID: wallet?.getID(),
+      walletID: wallet.getID(),
     });
   }, [navigation, wallet]);
 
@@ -1345,7 +1324,7 @@ const SendDetails = () => {
     scrollIndex.current = index;
   };
 
-  const formatFee = (fee: number) => formatBalance(fee, feeUnit!, true);
+  const formatFee = (fee: number) => formatBalance(fee, feeUnit, true);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -1396,7 +1375,7 @@ const SendDetails = () => {
 
   const renderWalletSelectionOrCoinsSelected = () => {
     if (isVisible) return null;
-    if (utxos && utxos?.length > 0) {
+    if (utxos && utxos.length > 0) {
       return (
         <View style={styles.select}>
           <CoinsSelected

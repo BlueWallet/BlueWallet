@@ -42,7 +42,7 @@ const SLIP39Mixin = {
       map.set(prefix4, !map.has(prefix4) ? word : false);
 
       return map;
-    }, new Map());
+    }, new Map<string, string | false>());
 
     self.secret = newSecret
       .trim()

@@ -134,7 +134,7 @@ const ScanQRCode = () => {
       if (Object.values(animatedQRCodeData).length === total) {
         const payload = decodeUR(Object.values(animatedQRCodeData));
         // lets look inside that data
-        let data: false | string = false;
+        let data: string;
         if (uint8ArrayToString(hexToUint8Array(String(payload))).startsWith('psbt')) {
           // its a psbt, and whoever requested it expects it encoded in base64
           data = uint8ArrayToBase64(hexToUint8Array(String(payload)));

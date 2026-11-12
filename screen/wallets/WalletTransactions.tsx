@@ -95,7 +95,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const [displayUnit, setDisplayUnit] = useState(wallet.preferredBalanceUnit);
   const [isUnitSwitching, setIsUnitSwitching] = useState(false);
   const [isWatchOnlyWarningVisible, setIsWatchOnlyWarningVisible] = useState<boolean>(() => {
-    return wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).isWatchOnlyWarningVisible;
+    return wallet.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible;
   });
   const MAX_FAILURES = 3;
   const flatListRef = useRef<FlatList<Transaction>>(null);
@@ -136,12 +136,12 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   });
 
   const onBarCodeRead = useCallback(
-    (ret?: { data?: string }) => {
+    (ret: { data?: string }) => {
       if (!isLoading) {
         setIsLoading(true);
         const parameters = {
           walletID,
-          uri: ret?.data,
+          uri: ret.data,
         };
         if (wallet.chain === Chain.ONCHAIN) {
           navigate('SendDetailsRoot', {
@@ -174,7 +174,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   }, [wallet, walletID]);
 
   useEffect(() => {
-    setIsWatchOnlyWarningVisible(wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).isWatchOnlyWarningVisible);
+    setIsWatchOnlyWarningVisible(wallet.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
 
@@ -328,7 +328,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   }, [navigate, walletID]);
 
   const onManageFundsPressed = useCallback(
-    (id?: string) => {
+    (id: string) => {
       if (id === actionKeys.Refill) {
         const availableWallets = wallets.filter(item => item.chain === Chain.ONCHAIN && item.allowSend());
         if (availableWallets.length === 0) {
@@ -365,12 +365,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       // back to `txid` prevents multiple Ark rows from sharing
       // `key={undefined}`, which made React reuse stale memoized renders
       // across rows.
-      <TransactionListItem
-        key={item.hash ?? (item as { txid?: string }).txid}
-        item={item}
-        itemPriceUnit={displayUnit}
-        walletID={walletID}
-      />
+      <TransactionListItem key={item.hash ?? item.txid} item={item} itemPriceUnit={displayUnit} walletID={walletID} />
     ),
     [displayUnit, walletID],
   );

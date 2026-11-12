@@ -373,15 +373,6 @@ export class AbstractWallet {
   }
 
   /**
-   * @deprecated
-   * TODO: be more precise on the type
-   */
-
-  createTx(): never {
-    throw Error('not implemented');
-  }
-
-  /**
    *
    * @param utxos {Array.<{vout: Number, value: Number, txid: String, address: String}>} List of spendable utxos
    * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
@@ -407,15 +398,15 @@ export class AbstractWallet {
     throw Error('not implemented');
   }
 
-  getAddress(): string | false | undefined {
+  getAddress(): string | false {
     throw Error('not implemented');
   }
 
-  getAddressAsync(): Promise<string | false | undefined> {
+  getAddressAsync(): Promise<string | false> {
     return Promise.resolve(this.getAddress());
   }
 
-  async getChangeAddressAsync(): Promise<string | false | undefined> {
+  async getChangeAddressAsync(): Promise<string | false> {
     return Promise.resolve(this.getAddress());
   }
 

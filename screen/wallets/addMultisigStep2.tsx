@@ -147,7 +147,7 @@ const WalletsAddMultisigStep2 = () => {
         throw new Error('This should never happen');
     }
     for (const cc of cosigners) {
-      const fp = (cc[1] || getFpCacheForMnemonics(cc[0], cc[3])) as string;
+      const fp = cc[1] || getFpCacheForMnemonics(cc[0], cc[3]);
       const path = typeof cc[2] === 'string' && cc[2] ? cc[2] : getPath();
       w.addCosigner(cc[0], fp, path, cc[3]);
     }
