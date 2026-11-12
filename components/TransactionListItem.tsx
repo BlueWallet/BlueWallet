@@ -173,15 +173,16 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   const rightSubtitle = counterparty ? noteForCopy : (txMetadata?.[item.hash]?.memo || item.memo || '').trim() || addressLabel;
 
   // For LightningArkWallet rows, prepend a kind tag to the date subtitle. Such a
-  // wallet transacts entirely off-chain, so every row is Lightning; the
-  // only genuinely on-chain activity is onboarding/refill (boarding UTXOs),
-  // tagged from the synthetic `boarding-…` txid set in
+  // wallet transacts entirely off-chain: rows are Lightning, except native
+  // Arkade transfers (marked `rail: 'arkade'`) and onboarding/refill, tagged
+  // from the synthetic `boarding-…` txid set in
   // lightning-ark-wallet.getTransactions(). Other wallet types are unaffected.
-  const arkRowKind = useMemo<'Lightning' | 'Refill' | undefined>(() => {
+  const arkRowKind = useMemo<'Lightning' | 'Arkade' | 'Refill' | undefined>(() => {
     const wallet = wallets.find(w => w.getID() === item.walletID);
     if (wallet?.type !== LightningArkWallet.type) return undefined;
     const txid = (item as { txid?: string }).txid;
     if (txid?.startsWith('boarding-')) return 'Refill';
+    if ((item as { rail?: string }).rail === 'arkade') return 'Arkade';
     return 'Lightning';
   }, [item, wallets]);
 
@@ -299,9 +300,9 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
       };
     }
 
-    // Recovered Arkade Lightning legs are bitcoind_tx but represent swaps,
-    // not on-chain transfers — render them with the off-chain (Lightning) icon.
-    if (arkRowKind === 'Lightning' && item.type === 'bitcoind_tx') {
+    // Arkade legs are bitcoind_tx but off-chain (swaps and native transfers):
+    // render them with the off-chain icon.
+    if ((arkRowKind === 'Lightning' || arkRowKind === 'Arkade') && item.type === 'bitcoind_tx') {
       return item.value! < 0
         ? { label: loc.transactions.offchain, icon: <TransactionOffchainIcon /> }
         : { label: loc.transactions.incoming_transaction, icon: <TransactionOffchainIncomingIcon /> };

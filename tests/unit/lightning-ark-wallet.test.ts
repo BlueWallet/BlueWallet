@@ -207,6 +207,16 @@ describe('LightningArkWallet — getTransactions mapping (v2)', () => {
     assert.deepStrictEqual(w.getTransactions(), []);
   });
 
+  it('marks a native Arkade send with its rail and leaves receives unmarked', () => {
+    (w as any)._transactionsHistory = [
+      histTx({ key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'sent-1' } }),
+      histTx({ key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'recv-1' }, type: TxType.TxReceived }),
+    ];
+    const rows = w.getTransactions() as any[];
+    assert.strictEqual(rows.find(r => r.txid === 'ark-sent-1').rail, 'arkade');
+    assert.strictEqual(rows.find(r => r.txid === 'ark-recv-1').rail, undefined);
+  });
+
   it('renders a pending send from the record with no transaction evidence', () => {
     seedCaches(w, [sendRecord()], { 'rfq:quote-send-1': 'funded' });
 

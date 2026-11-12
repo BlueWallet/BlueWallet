@@ -2,13 +2,16 @@ import React from 'react';
 import { render } from '@testing-library/react-native';
 
 import { TransactionListItem } from '../../components/TransactionListItem';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import loc from '../../loc';
 
+let mockWallets: unknown[] = [];
 jest.mock('../../hooks/context/useStorage', () => ({
   useStorage: () => ({
     txMetadata: undefined,
     counterpartyMetadata: undefined,
-    wallets: [],
+    wallets: mockWallets,
   }),
 }));
 
@@ -78,5 +81,33 @@ describe('TransactionListItem', () => {
     );
 
     expect(getByTestId('TransactionListItem')).toBeTruthy();
+  });
+});
+
+describe('TransactionListItem on an Arkade wallet', () => {
+  beforeEach(() => {
+    mockWallets = [{ getID: () => 'ark-wallet', type: LightningArkWallet.type }];
+  });
+  afterEach(() => {
+    mockWallets = [];
+  });
+  const renderRow = (extra: object) =>
+    render(
+      <TransactionListItem
+        walletID="ark-wallet"
+        itemPriceUnit={BitcoinUnit.SATS}
+        item={{ txid: 'ark-abc', walletID: 'ark-wallet', timestamp: 1_700_000_000, value: -1_000, type: 'bitcoind_tx', ...extra } as any}
+      />,
+    );
+
+  it('tags a native Arkade transfer as Arkade, off-chain', () => {
+    const { getByText, getByLabelText } = renderRow({ rail: 'arkade' });
+    expect(getByText(/^Arkade · /)).toBeTruthy();
+    expect(getByLabelText(new RegExp(`^${loc.transactions.offchain}, `))).toBeTruthy();
+  });
+
+  it('keeps tagging other off-chain rows as Lightning', () => {
+    const { getByText } = renderRow({ value: 1_000 });
+    expect(getByText(/^Lightning · /)).toBeTruthy();
   });
 });

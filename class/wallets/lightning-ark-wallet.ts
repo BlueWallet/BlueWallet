@@ -118,7 +118,7 @@ export const __testing__ = {
 };
 
 /** display row built from SDK history / boarding utxos / swaps; see getTransactions() */
-type ArkTxRow = LightningTransaction & { txid: string; walletID: string };
+type ArkTxRow = LightningTransaction & { txid: string; walletID: string; rail?: 'arkade' };
 /** An invoice from the LNURL server, watched while the receive screen is open. */
 type LnurlInvoice = { row: ArkTxRow; verify?: string };
 /** Outcomes that read as settled on a history row. */
@@ -681,6 +681,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
         memo: description,
         value: absAmount * direction,
         timestamp: createdAtSec,
+        // A Lightning send funds a lockup this wallet registered, which nets as change and emits no sent row.
+        ...(histTx.type === TxType.TxSent ? { rail: 'arkade' as const } : {}),
       };
       ret.push(row);
       nativeLegs.push({ row, idKey, consumed: false });
