@@ -24,7 +24,6 @@ export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
   static readonly typeReadable = 'HD Legacy Electrum (BIP32 P2PKH)';
   // @ts-ignore: override
   public readonly type = HDLegacyElectrumSeedP2PKHWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = HDLegacyElectrumSeedP2PKHWallet.typeReadable;
   static readonly derivationPath = 'm';
 

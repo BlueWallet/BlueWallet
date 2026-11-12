@@ -20,7 +20,6 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
   static readonly typeReadable = 'HD Legacy Breadwallet (P2PKH)';
   // @ts-ignore: override
   public readonly type = HDLegacyBreadwalletWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = HDLegacyBreadwalletWallet.typeReadable;
   static readonly derivationPath = "m/0'";
 

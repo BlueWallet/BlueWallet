@@ -77,7 +77,6 @@ export class SLIP39LegacyP2PKHWallet extends HDLegacyP2PKHWallet {
   static readonly typeReadable = 'SLIP39 Legacy (P2PKH)';
   // @ts-ignore: override
   public readonly type = SLIP39LegacyP2PKHWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = SLIP39LegacyP2PKHWallet.typeReadable;
 
   allowBIP47() {
@@ -99,7 +98,6 @@ export class SLIP39SegwitP2SHWallet extends HDSegwitP2SHWallet {
   static readonly typeReadable = 'SLIP39 SegWit (P2SH)';
   // @ts-ignore: override
   public readonly type = SLIP39SegwitP2SHWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = SLIP39SegwitP2SHWallet.typeReadable;
 
   _getSeed = SLIP39Mixin._getSeed;
@@ -117,7 +115,6 @@ export class SLIP39SegwitBech32Wallet extends HDSegwitBech32Wallet {
   static readonly typeReadable = 'SLIP39 SegWit (Bech32)';
   // @ts-ignore: override
   public readonly type = SLIP39SegwitBech32Wallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = SLIP39SegwitBech32Wallet.typeReadable;
 
   allowBIP47() {

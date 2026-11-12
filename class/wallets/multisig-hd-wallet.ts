@@ -67,7 +67,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static readonly typeReadable = 'Multisig Vault';
   // @ts-ignore: override
   public readonly type = MultisigHDWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = MultisigHDWallet.typeReadable;
 
   static FORMAT_P2WSH = 'p2wsh';
