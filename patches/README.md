@@ -115,6 +115,8 @@ ships New-Architecture-safe token delivery.
 - `icon` is read only when the key is present (`action.hasKey("icon")`).
   Defensive only: `getString` already returns null for a missing key and
   `getResourceWithName` tolerates null.
+- on long press, `NativeGestureUtil.notifyNativeGestureStarted()` is called
+  right before `showContextMenu()`, so React Native cancels the JS touch.
 
 **Why:** the floating `ContextMenu` does not draw checkable/`selected`
 items, so toggle entries (e.g. the passphrase switch in the Add Wallet
@@ -122,6 +124,10 @@ header menu) showed no state on Android. `components/TooltipMenu.tsx`
 resolves the pressed action by `indexPath` (two actions may share the same
 title); it already falls back to `[index]` when `indexPath` is missing, so
 always sending it only makes Android consistent with iOS and submenus.
+Without the gesture notification a `Pressable` wrapping the menu (`ToolTipMenu`
+with `onPress`) still got the release and fired `onPress` after the menu
+opened, e.g. long press on an address row opened the menu and the Receive
+screen (PR https://github.com/BlueWallet/BlueWallet/pull/9110).
 
 **Upstream:** no issue filed yet. The dependency is installed from the
 BlueWallet fork (`github:BlueWallet/react-native-context-menu-view`, see
