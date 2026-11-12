@@ -7,7 +7,7 @@ import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION } from '@arkade-os/sdk/reposi
 import { AssetSwapRealmSchemas } from '@arkade-os/swap/repositories/realm';
 import { SwapPaymentFailedError, UnsupportedRoute } from '@arkade-os/swap';
 
-import { LightningArkWallet, PaymentInProgressError } from '../../class/wallets/lightning-ark-wallet.ts';
+import { LightningArkWallet, PaymentInProgressError, __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetArkadeTestState } from '../helpers/arkadeMocks';
 import { installSdkProviderSpies, restoreSdkProviderSpies } from '../helpers/sdkProviderMocks';
 import { readLockupFate } from '@arkade-os/swap/protocol';
@@ -532,6 +532,36 @@ describe('LightningArkWallet — delayed persistence converges without doubling 
     seedCaches(w, [sendRecord({ fundingTxid: 'funding-txid-1' })], { 'rfq:quote-send-1': 'funded' });
     (w as any)._transactionsHistory = [histTx({ key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'funding-txid-1' } })];
     assert.strictEqual(w.getTransactions().length, 1, 'still one row after the write converges');
+  });
+});
+
+describe('LightningArkWallet — swap events reach every instance', () => {
+  it('fans one client subscription out to wallets rebuilt from the cache', async () => {
+    const listeners: Array<(update: unknown) => void> = [];
+    const client = {
+      onUpdate: (listener: (update: unknown) => void) => {
+        listeners.push(listener);
+        return () => {};
+      },
+      swaps: async () => [],
+    };
+    const build = () => {
+      const w = new LightningArkWallet();
+      w.setSecret('arkade://' + TEST_MNEMONIC);
+      return w;
+    };
+    const first = build();
+    const namespace = first.getNamespace();
+    walletTesting.staticWalletCache[namespace] = { getTransactionHistory: async () => [], getBalance: async () => ({}) } as any;
+    walletTesting.staticSwapClientCache[namespace] = client as any;
+    walletTesting.staticSwapRepositoryCache[namespace] = { getSwapRecordsPage: async () => ({ items: [] }) } as any;
+    await first.init();
+    const second = build();
+    await second.init();
+
+    assert.strictEqual(listeners.length, 1);
+    listeners[0]({ swap: { id: 'rfq:x' }, outcome: 'settled' });
+    for (const w of [first, second]) assert.strictEqual((w as any)._outcomes.get('rfq:x'), 'settled');
   });
 });
 

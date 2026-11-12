@@ -102,6 +102,8 @@ const boardingLock: Record<string, boolean> = {};
 // refresh the record cache on the instance the screens render from.
 const namespaceInstances: Map<string, Set<LightningArkWallet>> = new Map();
 const realmListenerAttached: Set<string> = new Set();
+// One swap-event listener per shared client, fanned out like the Realm one: a listener per instance would pile up on rebuilds.
+const swapListenerAttached = new WeakSet<SwapClient>();
 
 // Test-only: exposes module-private caches so unit tests can observe / reset
 // them and verify deletion-vs-init race behavior. Not part of the public API.
@@ -315,6 +317,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
       this._swapClient = cachedClient;
       this._swapRepository = cachedRepository;
       this._registerInstance(namespace);
+      this._attachSwapListener(namespace, cachedClient);
       await this.refreshSwapCaches();
       return;
     }
@@ -382,7 +385,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     this._swapRepository = repository;
     this._registerInstance(namespace);
 
-    this._subscribeToSwapEvents(swapClient);
+    this._attachSwapListener(namespace, swapClient);
     this._attachRecordListener(namespace);
     await this.refreshSwapCaches();
   }
@@ -463,39 +466,44 @@ export class LightningArkWallet extends LightningCustodianWallet {
     await Promise.all([this.refreshSwapRecords(), this.refreshSwapStatuses()]);
   }
 
-  private _subscribeToSwapEvents(swapClient: SwapClient) {
-    // Subscribing replays the current outcome of every known swap and then
-    // streams transitions, so the existing "refresh balance + history on a
-    // swap event" handler maps over directly. `onUpdate` is authoritative
-    // about the outcome it carries and needs nothing from disk — the record
-    // half refreshes on the after-write signal, not here.
+  // Subscribing replays the current outcome of every known swap and then
+  // streams transitions. `onUpdate` is authoritative about the outcome it
+  // carries and needs nothing from disk — the record half refreshes on the
+  // after-write signal, not here.
+  private _attachSwapListener(namespace: string, swapClient: SwapClient): void {
+    if (swapListenerAttached.has(swapClient)) return;
     try {
       swapClient.onUpdate(update => {
-        try {
-          if (this._swapClient !== swapClient) return; // stale subscription after onDelete
-          this._outcomes.set(update.swap.id, update.outcome);
-          this.refreshSwapRecords().catch(() => {});
-          (async () => {
-            try {
-              if (this._wallet) {
-                this._transactionsHistory = await this._wallet.getTransactionHistory();
-                const balance = await this._wallet.getBalance();
-                // Keep this in sync with fetchBalance(): offchain spendable + recoverable,
-                // boarding excluded (see fetchBalance for the double-count rationale).
-                this.balance = balance.available + balance.recoverable;
-              }
-              this._lastBalanceFetch = +new Date();
-              this._lastTxFetch = +new Date();
-            } catch (e) {
-              console.log('[ARK] swap-event refresh failed:', errorMessage(e));
-            }
-          })().catch(() => {});
-        } catch (e) {
-          console.log('[ARK] swap-event handler failed:', errorMessage(e));
-        }
+        for (const instance of namespaceInstances.get(namespace) ?? []) instance._applySwapUpdate(swapClient, update);
       });
+      swapListenerAttached.add(swapClient);
     } catch {
       // Client without a drive (tests) — history refresh stays manual.
+    }
+  }
+
+  private _applySwapUpdate(swapClient: SwapClient, update: SwapUpdate): void {
+    try {
+      if (this._swapClient !== swapClient) return; // stale subscription after onDelete
+      this._outcomes.set(update.swap.id, update.outcome);
+      this.refreshSwapRecords().catch(() => {});
+      (async () => {
+        try {
+          if (this._wallet) {
+            this._transactionsHistory = await this._wallet.getTransactionHistory();
+            const balance = await this._wallet.getBalance();
+            // Keep this in sync with fetchBalance(): offchain spendable + recoverable,
+            // boarding excluded (see fetchBalance for the double-count rationale).
+            this.balance = balance.available + balance.recoverable;
+          }
+          this._lastBalanceFetch = +new Date();
+          this._lastTxFetch = +new Date();
+        } catch (e) {
+          console.log('[ARK] swap-event refresh failed:', errorMessage(e));
+        }
+      })().catch(() => {});
+    } catch (e) {
+      console.log('[ARK] swap-event handler failed:', errorMessage(e));
     }
   }
 
