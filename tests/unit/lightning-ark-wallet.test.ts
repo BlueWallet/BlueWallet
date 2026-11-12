@@ -305,7 +305,6 @@ describe('LightningArkWallet — getTransactions mapping (v2)', () => {
     const view = w.getSwapById('rfq:quote-send-1');
     assert.ok(view, 'resolves across settlement');
     assert.strictEqual(view!.outcome, 'paid');
-    assert.strictEqual(view!.amountSats, 1020);
   });
 
   it('never reads a send swap invoice as one this wallet generated', () => {

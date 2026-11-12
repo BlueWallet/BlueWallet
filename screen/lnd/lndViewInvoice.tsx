@@ -88,8 +88,8 @@ const LNDViewInvoice = () => {
     // Predicted locally: a swap still inside its refund window refuses with
     // `refund-window-open`, so say "not yet — after <time>" up front. The
     // clock here is the record's refundLocktime, compared against our own.
-    if (swap.refundLocktime && swap.refundLocktime * 1000 > Date.now()) {
-      const time = dayjs(swap.refundLocktime * 1000).format('LLL');
+    if (swap.record.refundLocktime && swap.record.refundLocktime * 1000 > Date.now()) {
+      const time = dayjs(swap.record.refundLocktime * 1000).format('LLL');
       presentAlert({ message: loc.formatString(loc.lndViewInvoice.recovery_not_yet, { time }) });
       return;
     }
@@ -114,7 +114,7 @@ const LNDViewInvoice = () => {
           // anyway — do not precompute it, report the refusal instead.
           presentAlert({ message: loc.lndViewInvoice.recovery_nothing_to_recover });
         } else if (refusal.includes('refund-window-open')) {
-          const time = swap.refundLocktime ? dayjs(swap.refundLocktime * 1000).format('LLL') : '';
+          const time = swap.record.refundLocktime ? dayjs(swap.record.refundLocktime * 1000).format('LLL') : '';
           presentAlert({ message: loc.formatString(loc.lndViewInvoice.recovery_not_yet, { time }) });
         } else {
           presentAlert({ message: errorMessage(e) });
@@ -324,13 +324,13 @@ const LNDViewInvoice = () => {
       }
 
       if (needsRecovery && swap) {
-        const notYet = swap.refundLocktime && swap.refundLocktime * 1000 > Date.now();
+        const notYet = swap.record.refundLocktime && swap.record.refundLocktime * 1000 > Date.now();
         return (
           <View style={[styles.activeRoot, stylesHook.root]}>
             <BlueTextCentered>
               {notYet
                 ? loc.formatString(loc.lndViewInvoice.recovery_not_yet, {
-                    time: dayjs((swap.refundLocktime as number) * 1000).format('LLL'),
+                    time: dayjs((swap.record.refundLocktime as number) * 1000).format('LLL'),
                   })
                 : loc.lndViewInvoice.recovery_prompt}
             </BlueTextCentered>

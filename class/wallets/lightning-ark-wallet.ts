@@ -137,18 +137,7 @@ const SAFE_SEND_OUTCOMES: ReadonlySet<Outcome> = new Set(['paid', 'claimed', 're
  */
 export interface ArkSwapView {
   id: AssetSwapId;
-  kind: CorridorSwapRecord['kind'];
   outcome: Outcome;
-  amountSats: number;
-  bolt11: string;
-  paymentHash: string;
-  expiresAt: number;
-  createdAt: number;
-  refundLocktime?: number;
-  fundingTxid?: string;
-  refundTxid?: string;
-  failure?: string;
-  blockedReason?: string;
   record: CorridorSwapRecord;
 }
 
@@ -555,32 +544,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   private _viewOf(record: CorridorSwapRecord, outcome: Outcome): ArkSwapView {
-    const swapId = assetSwapIdOf(record.family, record.id);
-    const leg = record.give as { amount: string };
-    const bolt11 = recordBolt11(record);
-    let expiresAt = record.expiresAt;
-    if (bolt11) {
-      try {
-        const decoded = this.decodeInvoice(bolt11);
-        if (decoded?.timestamp && decoded?.expiry) expiresAt = decoded.timestamp + decoded.expiry;
-      } catch {}
-    }
-    return {
-      id: swapId,
-      kind: record.kind,
-      outcome,
-      amountSats: atomicDecimalToSats(leg?.amount ?? '0'),
-      bolt11,
-      paymentHash: record.lock?.hash ?? '',
-      expiresAt,
-      createdAt: record.createdAt,
-      refundLocktime: record.refundLocktime,
-      fundingTxid: record.fundingTxid,
-      refundTxid: record.refundTxid,
-      failure: record.failure,
-      blockedReason: record.blockedReason,
-      record,
-    };
+    return { id: assetSwapIdOf(record.family, record.id), outcome, record };
   }
 
   isInvoiceGeneratedByWallet(paymentRequest: string) {
