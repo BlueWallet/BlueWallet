@@ -258,11 +258,23 @@ const isCapableURL = URLImpl => {
  */
 const createPatchedURL = (NativeURL, NativeParams) => {
   function PatchedURL(url, base) {
-    const raw = url instanceof PatchedURL || (typeof NativeURL === 'function' && url instanceof NativeURL) ? url.toString() : String(url);
+    const raw = url instanceof PatchedURL ? url.toString() : String(url);
     const scheme = (/^\s*([A-Za-z][A-Za-z0-9+.-]*):/.exec(raw) || [])[1]?.toLowerCase();
     if ((scheme === 'ws' || scheme === 'wss') && raw.includes('://')) return new WsURL(raw, NativeParams);
     return new NativeURL(url, base);
   }
+  // Both return paths must pass `instanceof URL`: the SDK reads `input instanceof URL ? input.href : input.url`.
+  Object.defineProperty(PatchedURL, Symbol.hasInstance, {
+    value: v => (typeof NativeURL === 'function' && v instanceof NativeURL) || v instanceof WsURL,
+  });
+  PatchedURL.canParse = (url, base) => {
+    try {
+      PatchedURL(url, base);
+      return true;
+    } catch {
+      return false;
+    }
+  };
   for (const key of ['createObjectURL', 'revokeObjectURL']) {
     if (typeof NativeURL[key] === 'function') PatchedURL[key] = NativeURL[key].bind(NativeURL);
   }
