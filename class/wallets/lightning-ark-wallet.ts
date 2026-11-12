@@ -1245,6 +1245,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
   // ---------------------------------------------------------------------------
 
   async canDeleteWallet(force = false): Promise<{ safe: boolean; message?: string }> {
+    // An empty swap history needs no network, so init's delegate preflight gets no vote on it.
+    if (await this._swapHistoryIsEmpty()) return { safe: true };
     try {
       if (!this._swapClient || !this._swapRepository) await this.init();
     } catch (e) {
@@ -1295,6 +1297,19 @@ export class LightningArkWallet extends LightningCustodianWallet {
       }
     }
     return { safe: true };
+  }
+
+  /** True only when the local swap records were read and there are none. */
+  private async _swapHistoryIsEmpty(): Promise<boolean> {
+    try {
+      const namespace = this.getNamespace();
+      const repository =
+        this._swapRepository ?? staticSwapRepositoryCache[namespace] ?? new RealmAssetSwapRepository(await getArkadeRealm(namespace));
+      const records = await collectPages<SwapRecord, string>(page => repository.getSwapRecordsPage(page));
+      return records.length === 0;
+    } catch {
+      return false;
+    }
   }
 
   /**

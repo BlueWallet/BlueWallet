@@ -477,6 +477,12 @@ describe('LightningArkWallet — deletion guard', () => {
     (w as any)._wallet = { getArkadeReader: async () => ({ getVtxos: async () => [], getVirtualTxs: async () => [] }) };
   };
 
+  it('allows deleting a wallet with no swap history without the network', async () => {
+    const init = jest.spyOn(w, 'init').mockRejectedValue(new Error('Delegate service unreachable'));
+    assert.strictEqual((await w.canDeleteWallet()).safe, true);
+    assert.strictEqual(init.mock.calls.length, 0);
+  });
+
   it('refuses deletion when the swap records cannot be read, unless forced', async () => {
     seedGuard([], []);
     (w as any)._swapRepository = {
