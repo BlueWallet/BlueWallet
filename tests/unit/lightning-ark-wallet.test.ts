@@ -939,10 +939,15 @@ describe('LightningArkWallet LNURL receive', () => {
     });
   });
 
-  it('keeps LNURL state out of the serialized wallet', async () => {
-    await w.addInvoice(1000, '');
-    const json = JSON.parse(JSON.stringify(w));
-    assert.strictEqual('_lnurlInvoices' in json, false);
-    assert.strictEqual('_lnurlReceiver' in json, false);
+  it('saves unexpired LNURL invoices with the wallet, so a restart keeps the self-payment check', async () => {
+    const pr = await w.addInvoice(1000, '');
+    (w as any)._lnurlInvoices.push({ verify: '', row: { payment_request: 'lnbc1expired', timestamp: 1, expire_time: 1 } });
+    w.prepareForSerialization();
+    const saved = JSON.stringify(w);
+    assert.strictEqual('_lnurlReceiver' in JSON.parse(saved), false);
+
+    const restored = LightningArkWallet.fromJson(saved);
+    assert.ok(restored.isInvoiceGeneratedByWallet(pr));
+    assert.ok(!restored.isInvoiceGeneratedByWallet('lnbc1expired'), 'expired invoices are dropped before saving');
   });
 });

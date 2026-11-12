@@ -228,7 +228,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _privateKeyCache = '';
   private _boardingUtxos: ExtendedCoin[] = [];
   private _lnurlReceiver: Promise<{ destinations: string; receiver: Receiver }> | undefined;
-  // In memory only: the funds arrive whether or not anyone is still watching.
+  // Saved with the wallet until they expire, so a restart keeps their paid mark and the self-payment check.
   private _lnurlInvoices: LnurlInvoice[] = [];
 
   constructor() {
@@ -241,7 +241,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
     Object.defineProperty(this, '_outcomes', { value: new Map(), writable: true, enumerable: false, configurable: true });
     Object.defineProperty(this, '_recordsRefreshInFlight', { value: null, writable: true, enumerable: false, configurable: true });
     Object.defineProperty(this, '_lnurlReceiver', { value: undefined, writable: true, enumerable: false, configurable: true });
-    Object.defineProperty(this, '_lnurlInvoices', { value: [], writable: true, enumerable: false, configurable: true });
   }
 
   /**
@@ -252,9 +251,11 @@ export class LightningArkWallet extends LightningCustodianWallet {
    * `_submarineMinerFees` as stray enumerable properties — and the next
    * `Object.assign` would write them straight back out. Runs on the live
    * wallet immediately before the clone; one save cycle and the blob is
-   * clean.
+   * clean. Expired LNURL invoices are dropped here too.
    */
   prepareForSerialization(): void {
+    const now = Date.now() / 1000;
+    this._lnurlInvoices = this._lnurlInvoices.filter(({ row }) => (row.timestamp ?? 0) + (row.expire_time ?? 0) > now);
     for (const key of [
       '_swapHistory',
       '_limitMin',
