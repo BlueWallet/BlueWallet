@@ -110,8 +110,21 @@ const pendingPrompt = () => {
   return { entered, answer: (ok: boolean) => answer(ok) };
 };
 
+/** Holds a quote for a fresh invoice, then confirms it with `sendQuote` failing as given. */
+const confirmFailing = async (error: Error) => {
+  jest.spyOn(wallet, 'quoteSend').mockResolvedValue(OLD_QUOTE as any);
+  jest.spyOn(wallet, 'sendQuote').mockRejectedValue(error);
+  const screen = await openOn(invoice(1000, 'aa'));
+  fireEvent.press(screen.getByText(loc.lnd.payButton));
+  await waitFor(() => expect(screen.getByText(loc.lnd.confirmPayment)).toBeTruthy());
+  fireEvent.press(screen.getByText(loc.lnd.confirmPayment));
+};
+
 describe('ScanLNDInvoice Arkade quote', () => {
-  beforeEach(() => jest.spyOn(console, 'log').mockImplementation(() => {}));
+  beforeEach(() => {
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    mockAlert.mockClear();
+  });
   afterEach(() => {
     jest.restoreAllMocks();
     mockBiometrics = { on: false, unlock: async () => true };
@@ -166,14 +179,20 @@ describe('ScanLNDInvoice Arkade quote', () => {
     expect(quoteSend).not.toHaveBeenCalled();
   });
 
-  it('reports a payment still in flight as in progress and leaves the screen', async () => {
-    jest.spyOn(wallet, 'quoteSend').mockResolvedValue(OLD_QUOTE as any);
-    jest.spyOn(wallet, 'sendQuote').mockRejectedValue(new PaymentInProgressError(new Promise(() => {})));
-    const screen = await openOn(invoice(1000, 'aa'));
-    fireEvent.press(screen.getByText(loc.lnd.payButton));
-    await waitFor(() => expect(screen.getByText(loc.lnd.confirmPayment)).toBeTruthy());
+  it('drops an expired quote with the quote-expired message', async () => {
+    await confirmFailing(Object.assign(new Error('quote q expired'), { name: 'QuoteExpired' }));
+    await waitFor(() => expect(mockAlert).toHaveBeenCalledWith({ message: loc.lnd.quoteExpired }));
+  });
 
-    fireEvent.press(screen.getByText(loc.lnd.confirmPayment));
+  it('reports a lapsed swap by its own message, not as an expired quote', async () => {
+    const lapsed = 'Lightning payment expired before it could be claimed.';
+    await confirmFailing(new Error(lapsed));
+    await waitFor(() => expect(mockAlert).toHaveBeenCalledWith({ message: lapsed }));
+    expect(mockAlert).not.toHaveBeenCalledWith({ message: loc.lnd.quoteExpired });
+  });
+
+  it('reports a payment still in flight as in progress and leaves the screen', async () => {
+    await confirmFailing(new PaymentInProgressError(new Promise(() => {})));
     await waitFor(() => expect(mockAlert).toHaveBeenCalledWith({ message: loc.lnd.paymentInProgress }));
     expect(mockPop).toHaveBeenCalled();
   });

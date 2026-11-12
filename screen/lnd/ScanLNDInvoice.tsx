@@ -268,7 +268,7 @@ const ScanLNDInvoice = () => {
         try {
           await wallet.sendQuote(heldQuote);
         } catch (Err) {
-          if ((Err as { name?: string })?.name === 'QuoteExpired' || /expired/i.test(errorMessage(Err))) {
+          if ((Err as { name?: string })?.name === 'QuoteExpired') {
             dropHeldQuote();
             setIsLoading(false);
             triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
