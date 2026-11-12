@@ -83,11 +83,17 @@ jobs:
   android:
     name: Android
     needs: plan
+    # Production signing credentials must only be used with trusted master code.
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
     uses: ./.github/workflows/build-release-apk.yml
     with:
       build_number: ${{ needs.plan.outputs.build_number }}
       source_sha: ${{ needs.plan.outputs.source_sha }}
-    secrets: inherit
+    secrets:
+      GIT_URL: ${{ secrets.GIT_URL }}
+      GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
   build:
     name: iOS Build
