@@ -20,7 +20,12 @@ jest.mock('../../blue_modules/hapticFeedback', () => ({
   default: jest.fn(),
   HapticFeedbackTypes: { ImpactLight: 'impactLight' },
 }));
-jest.mock('../../blue_modules/environment', () => ({ isDesktop: false }));
+const environmentState = { isDesktop: false };
+jest.mock('../../blue_modules/environment', () => ({
+  get isDesktop() {
+    return environmentState.isDesktop;
+  },
+}));
 jest.mock('../../hooks/context/useStorage', () => ({
   useStorage: () => ({ wallets: [{ chain: 'ONCHAIN', isAddressValid: () => true, weOwnAddress: () => false }] }),
 }));
@@ -51,6 +56,7 @@ beforeEach(() => {
     appStateListeners.push(listener as (state: AppStateStatus) => void);
     return { remove: () => appStateListeners.splice(appStateListeners.indexOf(listener as never), 1) } as never;
   });
+  environmentState.isDesktop = false;
   (AppState as { currentState: AppStateStatus }).currentState = 'active';
   jest.mocked(readClipboardForDetection).mockResolvedValue({ content: P2WPKH, pasteBlocked: false });
   jest.mocked(navigationRef.isReady).mockReturnValue(true);
@@ -169,4 +175,48 @@ it('reads again after a real background resume even if the previous paste was de
 
   expect(readClipboardForDetection).toHaveBeenCalledTimes(1);
   expect(navigationRef.dispatch).toHaveBeenCalledWith(expect.objectContaining({ name: 'ClipboardDetected' }));
+});
+
+it('does not read the clipboard when detection is disabled', async () => {
+  const hook = renderHook(useClipboardDetection, { initialProps: false });
+  await flush(CLIPBOARD_IDLE_DELAY_MS + 1);
+  expect(readClipboardForDetection).not.toHaveBeenCalled();
+
+  hook.rerender(true);
+  await flush(CLIPBOARD_IDLE_DELAY_MS + 1);
+  expect(readClipboardForDetection).toHaveBeenCalledTimes(1);
+  jest.mocked(readClipboardForDetection).mockClear();
+
+  hook.rerender(false);
+  await resume(hook, false);
+  expect(readClipboardForDetection).not.toHaveBeenCalled();
+});
+
+it('reads on a later resume after a notification-handled skipRead', async () => {
+  const hook = renderHook(useClipboardDetection, { initialProps: true });
+  await flush(CLIPBOARD_IDLE_DELAY_MS + 1);
+  jest.mocked(readClipboardForDetection).mockClear();
+  jest.mocked(navigationRef.dispatch).mockClear();
+
+  await resume(hook, true);
+  expect(readClipboardForDetection).not.toHaveBeenCalled();
+
+  await resume(hook, false);
+  expect(readClipboardForDetection).toHaveBeenCalledTimes(1);
+  expect(navigationRef.dispatch).toHaveBeenCalledWith(expect.objectContaining({ name: 'ClipboardDetected' }));
+});
+
+it('does not loop on desktop inactive→active after a denied paste', async () => {
+  environmentState.isDesktop = true;
+  jest.mocked(readClipboardForDetection).mockResolvedValue({ content: undefined, pasteBlocked: true });
+  const hook = renderHook(useClipboardDetection, { initialProps: true });
+  await flush(CLIPBOARD_IDLE_DELAY_MS + 1);
+  act(() => hook.result.current.onEnterForeground('inactive'));
+  await flush(CLIPBOARD_RETRY_DELAY_MS + 1);
+  expect(readClipboardForDetection).toHaveBeenCalledTimes(2);
+
+  jest.mocked(readClipboardForDetection).mockClear();
+  act(() => hook.result.current.onEnterForeground('inactive'));
+  await flush(CLIPBOARD_IDLE_DELAY_MS + CLIPBOARD_RETRY_DELAY_MS + 1);
+  expect(readClipboardForDetection).not.toHaveBeenCalled();
 });

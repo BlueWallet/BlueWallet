@@ -136,7 +136,11 @@ const useClipboardDetection = (enabled: boolean) => {
 
   const onEnterForeground = useCallback(
     (previousState: AppStateStatus, options?: { skipRead?: boolean }) => {
-      const cameFromBackground = resumedFromBackground.current || (isDesktop && previousState === 'inactive');
+      // Catalyst often reports window unfocus as `inactive` rather than `background`.
+      // Do not treat that as a resume after a paste deny in this foreground session,
+      // or the paste dialog's own inactive→active flip will loop the prompt.
+      const cameFromBackground =
+        resumedFromBackground.current || (isDesktop && previousState === 'inactive' && clipboardPasteFollowUpAttempts.current === 0);
       const launchPending = pendingLaunchRead.current;
       pendingLaunchRead.current = false;
       resumedFromBackground.current = false;
