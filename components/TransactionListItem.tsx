@@ -396,7 +396,9 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
           const normalizedPaymentHash =
             typeof rawPaymentHash === 'string' ? rawPaymentHash : uint8ArrayToHex(new Uint8Array(rawPaymentHash.data));
           const loaded = await LN.loadSuccessfulPayment(normalizedPaymentHash);
-          if (loaded) {
+          // LNURL pay saves a payment still in flight without its preimage; the settled row carries it.
+          if (loaded && !LN.getPreimage() && item.payment_preimage) await LN.storeSuccess(normalizedPaymentHash, item.payment_preimage);
+          if (loaded && LN.getPreimage()) {
             navigate('ScanLNDInvoiceRoot', {
               screen: 'LnurlPaySuccess',
               params: {

@@ -211,7 +211,7 @@ describe('LnurlPay on an Arkade wallet', () => {
     expect(mockNavigate).not.toHaveBeenCalled();
   }, 20000);
 
-  it('stores the success action of a Lightning payment that settles after the screen closed', async () => {
+  it('saves the success action of an in-flight Lightning payment at once, and its preimage once it settles', async () => {
     jest
       .spyOn(wallet, 'quoteSend')
       .mockRejectedValueOnce(new Error('No Arkade route for this destination'))
@@ -224,9 +224,9 @@ describe('LnurlPay on an Arkade wallet', () => {
 
     await confirmTwice(screen);
     await waitFor(() => expect(mockPop).toHaveBeenCalled());
-    expect(storeSuccess).not.toHaveBeenCalled();
+    expect(storeSuccess.mock.calls).toEqual([['ef'.repeat(32), '']]);
 
     settle({ payment_preimage: 'ab'.repeat(32) });
-    await waitFor(() => expect(storeSuccess).toHaveBeenCalledWith('ef'.repeat(32), 'ab'.repeat(32)));
+    await waitFor(() => expect(storeSuccess).toHaveBeenLastCalledWith('ef'.repeat(32), 'ab'.repeat(32)));
   }, 20000);
 });
