@@ -138,10 +138,22 @@ describe('ws-url-polyfill', () => {
   });
 
   it('patched URL preserves native statics (blob URLs)', () => {
-    const createObjectURL = () => 'blob:fake';
-    const sandbox: any = { URL: Object.assign(RNLikeURL, { createObjectURL }), URLSearchParams };
+    class BlobURL extends RNLikeURL {
+      static createObjectURL = () => 'blob:fake';
+    }
+    const sandbox: any = { URL: BlobURL, URLSearchParams };
     installWsUrlSupport(sandbox);
     assert.strictEqual(sandbox.URL.createObjectURL(), 'blob:fake');
+  });
+
+  it('patched URL keeps instanceof and canParse working for both kinds of URL', () => {
+    const sandbox: any = { URL: RNLikeURL, URLSearchParams };
+    installWsUrlSupport(sandbox);
+    assert.ok(new sandbox.URL('https://example.com/') instanceof sandbox.URL);
+    assert.ok(new sandbox.URL('wss://nostr.arkade.sh') instanceof sandbox.URL);
+    assert.ok(!({} instanceof sandbox.URL));
+    assert.strictEqual(sandbox.URL.canParse('wss://nostr.arkade.sh'), true);
+    assert.strictEqual(sandbox.URL.canParse('wss://'), false);
   });
 
   it('nostr-tools stops throwing Invalid URL once the sandbox is patched', async () => {

@@ -1,14 +1,18 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import { TransactionListItem } from '../../components/TransactionListItem';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import loc from '../../loc';
 
+let mockWallets: unknown[] = [];
 jest.mock('../../hooks/context/useStorage', () => ({
   useStorage: () => ({
     txMetadata: undefined,
     counterpartyMetadata: undefined,
-    wallets: [],
+    wallets: mockWallets,
   }),
 }));
 
@@ -19,11 +23,12 @@ jest.mock('../../hooks/context/useSettings', () => ({
   }),
 }));
 
+const mockNavigate = jest.fn();
 jest.mock('@react-navigation/native', () => {
   const actual = jest.requireActual('@react-navigation/native');
   return {
     ...actual,
-    useNavigation: () => ({ navigate: jest.fn() }),
+    useNavigation: () => ({ navigate: mockNavigate }),
   };
 });
 
@@ -78,5 +83,61 @@ describe('TransactionListItem', () => {
     );
 
     expect(getByTestId('TransactionListItem')).toBeTruthy();
+  });
+});
+
+describe('TransactionListItem on an Arkade wallet', () => {
+  beforeEach(() => {
+    mockWallets = [{ getID: () => 'ark-wallet', type: LightningArkWallet.type }];
+  });
+  afterEach(() => {
+    mockWallets = [];
+  });
+  const renderRow = (extra: object) =>
+    render(
+      <TransactionListItem
+        walletID="ark-wallet"
+        itemPriceUnit={BitcoinUnit.SATS}
+        item={{ txid: 'ark-abc', walletID: 'ark-wallet', timestamp: 1_700_000_000, value: -1_000, type: 'bitcoind_tx', ...extra } as any}
+      />,
+    );
+
+  it('tags a native Arkade transfer as Arkade, off-chain', () => {
+    const { getByText, getByLabelText } = renderRow({ rail: 'arkade' });
+    expect(getByText(/^Arkade · /)).toBeTruthy();
+    expect(getByLabelText(new RegExp(`^${loc.transactions.offchain}, `))).toBeTruthy();
+  });
+
+  it('keeps tagging other off-chain rows as Lightning', () => {
+    const { getByText } = renderRow({ value: 1_000 });
+    expect(getByText(/^Lightning · /)).toBeTruthy();
+  });
+
+  describe('an LNURL payment saved while still in flight', () => {
+    const HASH = 'cd'.repeat(32);
+    const KEY = 'lnurlpay_success_data_' + HASH;
+    const lnurlRow = (extra: object) => renderRow({ txid: 'swap-rfq:q', payment_hash: HASH, payment_request: 'lnbc1', ...extra });
+
+    beforeEach(async () => {
+      mockNavigate.mockClear();
+      await AsyncStorage.setItem(
+        KEY,
+        JSON.stringify({ lnurlPayServicePayload: {}, lnurlPayServiceBolt11Payload: {}, lnurl: 'lnurl1', preimage: '' }),
+      );
+    });
+
+    it("completes the success action with the settled row's preimage", async () => {
+      fireEvent.press(lnurlRow({ payment_preimage: 'ab'.repeat(32) }).getByTestId('TransactionListItem'));
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('ScanLNDInvoiceRoot', expect.objectContaining({ screen: 'LnurlPaySuccess' })),
+      );
+      expect(JSON.parse((await AsyncStorage.getItem(KEY))!).preimage).toBe('ab'.repeat(32));
+    });
+
+    it('opens the invoice, not a success page, while the payment has no preimage', async () => {
+      fireEvent.press(lnurlRow({}).getByTestId('TransactionListItem'));
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('LNDViewInvoice', expect.anything()));
+      expect(mockNavigate).not.toHaveBeenCalledWith('ScanLNDInvoiceRoot', expect.anything());
+    });
   });
 });

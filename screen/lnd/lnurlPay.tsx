@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, RouteProp, useLocale, useRoute } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../components/Icon';
 import { btcToSatoshi, fiatToBTC, satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
@@ -21,12 +21,14 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { LightningArkWallet, PaymentInProgressError } from '../../class/wallets/lightning-ark-wallet';
 import { TWallet } from '../../class/wallets/types';
 import { pop } from '../../NavigationService';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { errorMessage } from '../../helpers/errorMessage';
+import type { RouteQuote } from '@arkade-os/sdk';
 
 const _cacheFiatToSat: Record<string, string> = {};
 
@@ -43,51 +45,14 @@ const LnurlPay: React.FC = () => {
   const [payload, setPayload] = useState<LnurlPayServicePayload | undefined>();
   const { setParams, navigate } = useNavigation();
   const [amount, setAmount] = useState<string | undefined>();
-  const [arkFeesReady, setArkFeesReady] = useState<boolean>(false);
-  const isArkWallet = wallet instanceof LightningArkWallet;
-
-  // The one-shot `payInvoice` LNURL uses funds a quote nobody authorised on
-  // a confirm screen, so the screen carries the same fee line ScanLNDInvoice
-  // does: the estimate gives the ceiling a user-visible basis (estimate plus
-  // a stated tolerance, applied inside `payInvoice`), with no extra tap.
+  // Ark confirm step: the first tap quotes, the second sends that quote.
+  const [held, setHeld] = useState<{ quote: RouteQuote; amountSats: number; pr?: string }>();
+  // Bumped on every input change, so a quote or tap made for an older destination, wallet or amount is dropped.
+  const quoteGeneration = useRef(0);
   useEffect(() => {
-    if (!isArkWallet) {
-      setArkFeesReady(false);
-      return;
-    }
-    setArkFeesReady(false);
-    let cancelled = false;
-    (wallet as LightningArkWallet)
-      .ensureLightningFeesLoaded()
-      .then(() => !cancelled && setArkFeesReady(true))
-      .catch(() => {}); // fee label is non-critical; stay silent and keep the line hidden
-    return () => {
-      cancelled = true;
-    };
-  }, [wallet, isArkWallet]);
-
-  const amountToSats = (): number | undefined => {
-    if (!amount) return undefined;
-    switch (unit) {
-      case BitcoinUnit.SATS:
-        return parseInt(amount, 10);
-      case BitcoinUnit.BTC:
-        return btcToSatoshi(amount);
-      case BitcoinUnit.LOCAL_CURRENCY:
-        if (_cacheFiatToSat[String(amount)]) return parseInt(_cacheFiatToSat[amount], 10);
-        return btcToSatoshi(fiatToBTC(parseFloat(amount)));
-      default:
-        return undefined;
-    }
-  };
-
-  const lnurlFeeText = (): string => {
-    if (!isArkWallet || !arkFeesReady) return '';
-    const sats = amountToSats();
-    if (!sats || sats <= 0) return '';
-    const est = (wallet as LightningArkWallet).getSubmarineFeeEstimate(sats);
-    return est === undefined ? '' : `${est} ${BitcoinUnit.SATS}`;
-  };
+    quoteGeneration.current += 1;
+    setHeld(undefined);
+  }, [amount, unit, walletID, lnurl]);
   const { colors } = useTheme();
   const { direction } = useLocale();
   const stylesHook = StyleSheet.create({
@@ -149,15 +114,32 @@ const LnurlPay: React.FC = () => {
     pop();
   };
 
+  // The payee's Arkade rail on our operator, else the BOLT11 its service issues, whose success action the Lnurl keeps.
+  const quoteOnArk = async (ark: LightningArkWallet, ln: Lnurl, amountSats: number, comment?: string) => {
+    try {
+      return { quote: await ark.quoteSend(Lnurl.findlnurl(lnurl) ?? lnurl.trim(), { amountSat: amountSats, comment }), amountSats };
+    } catch (e) {
+      console.log('[ARK] no Arkade rail for this LNURL:', errorMessage(e));
+    }
+    const { pr } = await ln.requestBolt11FromLnurlPayService(amountSats, comment);
+    return { quote: await ark.quoteSend(pr), amountSats, pr };
+  };
+
   const pay = async () => {
     setPayButtonDisabled(true);
     if (!_LN || !amount) return;
+    const generation = quoteGeneration.current;
 
     const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
     if (isBiometricsEnabled) {
       if (!(await unlockWithBiometrics())) {
         return;
       }
+    }
+    // The inputs changed during the prompt: this tap was for the old ones.
+    if (generation !== quoteGeneration.current) {
+      setPayButtonDisabled(false);
+      return;
     }
 
     let amountSats: number | false;
@@ -180,28 +162,42 @@ const LnurlPay: React.FC = () => {
     }
 
     try {
-      let comment: string | undefined;
-      if (_LN.getCommentAllowed()) {
-        comment = await prompt('Comment', '', { cancelable: false, type: 'plain-text' });
+      let pr: string;
+      if (wallet instanceof LightningArkWallet && held?.amountSats === amountSats) {
+        try {
+          await wallet.sendQuote(held.quote);
+        } catch (e) {
+          if ((e as { name?: string })?.name !== 'QuoteExpired') throw e;
+          setHeld(undefined);
+          throw new Error(loc.lnd.quoteExpired);
+        }
+        setHeld(undefined);
+        if (!held.pr) {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          navigate('ScanLNDInvoiceRoot', {
+            screen: 'Success',
+            params: { amount: amountSats, amountUnit: BitcoinUnit.SATS, invoiceDescription: payload?.description },
+          });
+          fetchAndSaveWalletTransactions(walletID);
+          setPayButtonDisabled(false);
+          return;
+        }
+        pr = held.pr;
+      } else {
+        let comment: string | undefined;
+        if (_LN.getCommentAllowed()) {
+          comment = await prompt('Comment', '', { cancelable: false, type: 'plain-text' });
+        }
+        if (wallet instanceof LightningArkWallet) {
+          const quoted = await quoteOnArk(wallet, _LN, amountSats, comment);
+          if (generation === quoteGeneration.current) setHeld(quoted);
+          setPayButtonDisabled(false);
+          return;
+        }
+        pr = (await _LN.requestBolt11FromLnurlPayService(amountSats, comment)).pr;
+        await wallet.payInvoice(pr);
       }
-
-      if (
-        wallet instanceof LightningArkWallet &&
-        (await wallet.payLnurlOnArkade(Lnurl.findlnurl(lnurl) ?? lnurl.trim(), amountSats, comment))
-      ) {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        navigate('ScanLNDInvoiceRoot', {
-          screen: 'Success',
-          params: { amount: amountSats, amountUnit: BitcoinUnit.SATS, invoiceDescription: payload?.description },
-        });
-        fetchAndSaveWalletTransactions(walletID);
-        setPayButtonDisabled(false);
-        return;
-      }
-
-      const bolt11payload = await _LN.requestBolt11FromLnurlPayService(amountSats, comment);
-      await wallet.payInvoice(bolt11payload.pr);
-      const decoded = wallet.decodeInvoice(bolt11payload.pr);
+      const decoded = wallet.decodeInvoice(pr);
       setPayButtonDisabled(false);
 
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -220,6 +216,17 @@ const LnurlPay: React.FC = () => {
       setIsLoading(false);
     } catch (err) {
       console.log((err as Error).message);
+      if (err instanceof PaymentInProgressError) {
+        // Saved now without its preimage so a restart keeps the success action; the history row completes it once settled.
+        if (held?.pr) {
+          const { payment_hash } = wallet.decodeInvoice(held.pr);
+          await _LN.storeSuccess(payment_hash, '').catch(() => {});
+          err.receipt.then(r => (r?.payment_preimage ? _LN.storeSuccess(payment_hash, r.payment_preimage) : undefined)).catch(() => {});
+        }
+        fetchAndSaveWalletTransactions(walletID);
+        presentAlert({ message: loc.lnd.paymentInProgress });
+        return pop();
+      }
       setIsLoading(false);
       setPayButtonDisabled(false);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -256,7 +263,6 @@ const LnurlPay: React.FC = () => {
   );
 
   const renderGotPayload = () => {
-    const feeText = lnurlFeeText();
     return (
       <SafeArea>
         <ScrollView contentContainerStyle={styles.scrollviewContainer}>
@@ -287,10 +293,19 @@ const LnurlPay: React.FC = () => {
             <BlueText style={styles.alignSelfCenter}>{payload?.description}</BlueText>
             <BlueText style={styles.alignSelfCenter}>{payload?.domain}</BlueText>
             <BlueSpacing20 />
-            {feeText !== '' && (
-              <BlueText style={styles.alignSelfCenter}>{loc.formatString(loc.lnd.network_fee, { fee: feeText })}</BlueText>
+            {held && (
+              <>
+                <BlueText style={styles.alignSelfCenter}>
+                  {loc.formatString(loc.lnd.quoteFee, { fee: `${held.quote.fee} ${BitcoinUnit.SATS}` })}
+                </BlueText>
+                <BlueText style={styles.alignSelfCenter}>
+                  {loc.formatString(loc.lnd.quoteTotal, { total: `${held.quote.total} ${BitcoinUnit.SATS}` })}
+                </BlueText>
+                <BlueSpacing20 />
+              </>
             )}
-            {payButtonDisabled ? <BlueLoading /> : <Button title={loc.lnd.payButton} onPress={pay} />}
+            {payButtonDisabled ? <BlueLoading /> : <Button title={held ? loc.lnd.confirmPayment : loc.lnd.payButton} onPress={pay} />}
+            {held && !payButtonDisabled && <Button title={loc._.cancel} onPress={() => setHeld(undefined)} />}
             <BlueSpacing20 />
           </BlueCard>
         </ScrollView>

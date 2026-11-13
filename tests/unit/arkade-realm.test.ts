@@ -7,7 +7,9 @@ import {
   getArkadeRealm,
   __testing__,
 } from '../../blue_modules/arkade-adapters/realm/realmInstance';
+import { BoltzSwapSchema } from '../../blue_modules/arkade-adapters/realm/boltzSwapSchema';
 
+const { ARK_REALM_SCHEMA_VERSION } = require('@arkade-os/sdk/repositories/realm');
 const Keychain = require('react-native-keychain');
 const Realm = require('realm');
 const RNFS = require('react-native-fs');
@@ -53,7 +55,7 @@ describe('arkade realm adapter', () => {
     assert.strictEqual(Realm.open.mock.calls.length, 1);
   });
 
-  it('opens encrypted Realm with Ark + asset-swap schemas (Boltz gone)', async () => {
+  it('opens encrypted Realm with Ark + asset-swap schemas and the kept BoltzSwap table', async () => {
     await getArkadeRealm('ns');
 
     const config = Realm.open.mock.calls[0][0];
@@ -71,9 +73,10 @@ describe('arkade realm adapter', () => {
         `has ${name} schema`,
       );
     }
-    assert.ok(
-      config.schema.every((s: any) => s.name !== 'BoltzSwap'),
-      'BoltzSwap is gone forever — not registered',
+    assert.deepStrictEqual(
+      config.schema.find((s: any) => s.name === 'BoltzSwap'),
+      BoltzSwapSchema,
+      'BoltzSwap stays registered, in the shape boltz-swap wrote',
     );
     assert.ok(
       config.schema.every((s: any) => s.name !== 'ArkSwapNotificationSuppression'),
@@ -90,7 +93,7 @@ describe('arkade realm adapter', () => {
     assert.ok(typeof config.onMigration === 'function', 'onMigration is a function');
   });
 
-  it('migration drops the Boltz and suppression models via deleteModel', async () => {
+  it('migration drops the suppression model and keeps BoltzSwap', async () => {
     await getArkadeRealm('ns-migration');
 
     const config = Realm.open.mock.calls[0][0];
@@ -104,8 +107,46 @@ describe('arkade realm adapter', () => {
         },
       },
     );
-    assert.ok(deleted.includes('BoltzSwap'), 'drops BoltzSwap');
-    assert.ok(deleted.includes('ArkSwapNotificationSuppression'), 'drops suppression table');
+    assert.deepStrictEqual(deleted, ['ArkSwapNotificationSuppression']);
+  });
+
+  it('advances the schema version past every build that already wrote a file', async () => {
+    await getArkadeRealm('ns-version');
+
+    const config = Realm.open.mock.calls[0][0];
+    assert.strictEqual(config.schemaVersion, ARK_REALM_SCHEMA_VERSION + 2);
+    // Released master: SDK 0.4.35's ARK_REALM_SCHEMA_VERSION (2) + offset 1.
+    assert.ok(config.schemaVersion > 2 + 1, 'ahead of the released master build');
+    // This branch's own earlier build: same SDK version, offset 1.
+    assert.ok(config.schemaVersion > ARK_REALM_SCHEMA_VERSION + 1, 'ahead of the dev arkade-0.5 build');
+  });
+
+  it('migrates a Realm whose BoltzSwap model a dev build already dropped', async () => {
+    await getArkadeRealm('ns-dropped');
+
+    const config = Realm.open.mock.calls[0][0];
+    // Realm throws from deleteModel when the model is absent.
+    assert.doesNotThrow(() =>
+      config.onMigration(
+        {},
+        {
+          objects: () => [],
+          deleteModel: (name: string) => {
+            throw new Error(`model ${name} not found`);
+          },
+        },
+      ),
+    );
+  });
+
+  it('starts the BoltzSwap table empty and reads back the rows an upgrade carried in', async () => {
+    const realm = await getArkadeRealm('ns-upgrade');
+    assert.strictEqual(realm.objects('BoltzSwap').length, 0, 'a fresh install has an empty table');
+
+    const stored = { id: 'swap-1', type: 'submarine', status: 'transaction.mempool', createdAt: 1767225600, data: '{"id":"swap-1"}' };
+    realm.write(() => realm.create('BoltzSwap', stored));
+
+    assert.deepStrictEqual(Array.from(realm.objects('BoltzSwap')), [stored], 'the registered table is readable');
   });
 
   it('persists Realm encryption key per namespace and reuses it on reopen', async () => {

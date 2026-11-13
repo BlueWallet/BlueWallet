@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useRoute, useLocale } from '@react-navigation/native';
-import { ActivityIndicator, BackHandler, Pressable, ScrollView, StyleSheet, Text, View, LayoutChangeEvent } from 'react-native';
+import { BackHandler, Pressable, ScrollView, StyleSheet, Text, View, LayoutChangeEvent } from 'react-native';
 import Icon from '../../components/Icon';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -59,9 +59,7 @@ const LNDViewInvoice = () => {
   const outcome = swap?.outcome;
   const [isActioning, setIsActioning] = useState<boolean>(false);
 
-  const isReceive = swap ? swap.direction > 0 : false;
   const isSettled = !!outcome && (outcome === 'paid' || outcome === 'claimed' || outcome === 'filled');
-  const isPending = !!outcome && ['funded', 'open', 'funding', 'accepted', 'cancelling', 'refunding'].includes(outcome);
   // Claim is automatic, so the only manual action left is recover() — and
   // `needs_recovery` is a diagnosis, not a permission (see onRecoverPressed).
   const needsRecovery = outcome === 'needs_recovery';
@@ -90,8 +88,8 @@ const LNDViewInvoice = () => {
     // Predicted locally: a swap still inside its refund window refuses with
     // `refund-window-open`, so say "not yet — after <time>" up front. The
     // clock here is the record's refundLocktime, compared against our own.
-    if (swap.refundLocktime && swap.refundLocktime * 1000 > Date.now()) {
-      const time = dayjs(swap.refundLocktime * 1000).format('LLL');
+    if (swap.record.refundLocktime && swap.record.refundLocktime * 1000 > Date.now()) {
+      const time = dayjs(swap.record.refundLocktime * 1000).format('LLL');
       presentAlert({ message: loc.formatString(loc.lndViewInvoice.recovery_not_yet, { time }) });
       return;
     }
@@ -116,7 +114,7 @@ const LNDViewInvoice = () => {
           // anyway — do not precompute it, report the refusal instead.
           presentAlert({ message: loc.lndViewInvoice.recovery_nothing_to_recover });
         } else if (refusal.includes('refund-window-open')) {
-          const time = swap.refundLocktime ? dayjs(swap.refundLocktime * 1000).format('LLL') : '';
+          const time = swap.record.refundLocktime ? dayjs(swap.record.refundLocktime * 1000).format('LLL') : '';
           presentAlert({ message: loc.formatString(loc.lndViewInvoice.recovery_not_yet, { time }) });
         } else {
           presentAlert({ message: errorMessage(e) });
@@ -325,39 +323,14 @@ const LNDViewInvoice = () => {
         );
       }
 
-      // Receive mid-flight: the solver funded the lockup and the drive is
-      // claiming it. No manual CTA — the claim is the client's — so we just
-      // show a "Receiving" indicator until the outcome transitions and the
-      // success branch above catches it. `lapsed` is said out loud instead:
-      // the solver took the lockup back and the incoming payment never
-      // arrived.
-      if (swap && isReceive && isPending) {
-        return (
-          <View style={[styles.activeRoot, stylesHook.root]}>
-            <ActivityIndicator size="large" color={colors.foregroundColor} />
-            <BlueSpacing20 />
-            <BlueTextCentered>{loc.lndViewInvoice.receiving_payment}</BlueTextCentered>
-          </View>
-        );
-      }
-      if (swap && isReceive && (outcome === 'lapsed' || outcome === 'failed')) {
-        return (
-          <View style={[styles.root, stylesHook.root, styles.justifyContentCenter]}>
-            <View style={[styles.expired, stylesHook.expired]}>
-              <Icon name="times" size={50} type="font-awesome" color={colors.successCheck} />
-            </View>
-            <BlueTextCentered>{loc.lndViewInvoice.payment_lapsed}</BlueTextCentered>
-          </View>
-        );
-      }
       if (needsRecovery && swap) {
-        const notYet = swap.refundLocktime && swap.refundLocktime * 1000 > Date.now();
+        const notYet = swap.record.refundLocktime && swap.record.refundLocktime * 1000 > Date.now();
         return (
           <View style={[styles.activeRoot, stylesHook.root]}>
             <BlueTextCentered>
               {notYet
                 ? loc.formatString(loc.lndViewInvoice.recovery_not_yet, {
-                    time: dayjs((swap.refundLocktime as number) * 1000).format('LLL'),
+                    time: dayjs((swap.record.refundLocktime as number) * 1000).format('LLL'),
                   })
                 : loc.lndViewInvoice.recovery_prompt}
             </BlueTextCentered>

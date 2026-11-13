@@ -1,15 +1,18 @@
 import assert from 'assert';
 
-import { ArkAddress, TxType } from '@arkade-os/sdk';
+import { ArkAddress, TxType, makeHandle, type RouteResult } from '@arkade-os/sdk';
 import bolt11 from 'bolt11';
 import { sha256 } from '@noble/hashes/sha256';
 import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION } from '@arkade-os/sdk/repositories/realm';
 import { AssetSwapRealmSchemas } from '@arkade-os/swap/repositories/realm';
+import { SwapPaymentFailedError, UnsupportedRoute } from '@arkade-os/swap';
 
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
+import { LightningArkWallet, PaymentInProgressError, __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetArkadeTestState } from '../helpers/arkadeMocks';
 import { installSdkProviderSpies, restoreSdkProviderSpies } from '../helpers/sdkProviderMocks';
 import { readLockupFate } from '@arkade-os/swap/protocol';
+import { hexToUint8Array } from '../../blue_modules/uint8array-extras/index';
+import { SENDER, storedChainSwap, storedReceive, storedSend } from '../helpers/strandedSend';
 
 jest.mock('@arkade-os/swap/protocol', () => ({
   ...jest.requireActual('@arkade-os/swap/protocol'),
@@ -19,21 +22,6 @@ jest.mock('@arkade-os/swap/protocol', () => ({
 const readLockupFateMock = readLockupFate as jest.Mock;
 
 const TEST_MNEMONIC = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
-
-// Card-shaped market mirroring blue_modules/arkade-solver.card.json (beta
-// solver): send (quote side) and receive (base side) both 500–50 000 sats at
-// fee_bps 30.
-const BUNDLED_MARKET = {
-  pair: 'BTC/lightning:BTC',
-  base_asset: { id: 'btc', name: 'Bitcoin', ticker: 'BTC', decimals: 8 },
-  quote_asset: { id: 'btc', name: 'Bitcoin', ticker: 'BTC', decimals: 8 },
-  quote_corridor: 'lightning',
-  fee_bps: 30,
-  min_base_amount: '500',
-  max_base_amount: '50000',
-  min_quote_amount: '500',
-  max_quote_amount: '50000',
-} as any;
 
 const sendRecord = (overrides: Record<string, any> = {}): any => ({
   id: 'quote-send-1',
@@ -62,38 +50,9 @@ const sendRecord = (overrides: Record<string, any> = {}): any => ({
   ...overrides,
 });
 
-const receiveRecord = (overrides: Record<string, any> = {}): any => ({
-  id: 'quote-recv-1',
-  family: 'rfq',
-  kind: 'lightning_receive',
-  route: {
-    give: {
-      corridor: 'lightning',
-      asset: 'bolt11:bitcoin/slip44:0',
-      instrument: { kind: 'invoice', bolt11: 'lnbc10n1recv', paymentHash: 'cc'.repeat(32), expiresAt: 1900000000 },
-    },
-    take: { corridor: 'arkade', asset: 'arkade:bitcoin/slip44:0', instrument: { kind: 'wallet' } },
-  },
-  give: { asset: 'bolt11:bitcoin/slip44:0', amount: '1000' },
-  take: { asset: 'arkade:bitcoin/slip44:0', amount: '1000' },
-  fee: { asset: 'arkade:bitcoin/slip44:0', amount: '0' },
-  market: { pair: 'BTC/lightning:BTC' },
-  artifact: { kind: 'invoice', bolt11: 'lnbc10n1recv' },
-  expiresAt: 1800000000,
-  createdAt: 1700000100,
-  updatedAt: 1700000100,
-  lock: { hash: 'cc'.repeat(32) },
-  lockupAddress: 'ark1testrecv',
-  lockupPkScript: 'dd'.repeat(32),
-  rfqId: 'rfq-2',
-  state: 'pending',
-  ...overrides,
-});
-
 const seedCaches = (w: LightningArkWallet, records: any[], outcomes: Record<string, string>): void => {
   (w as any)._swapRecords = records;
   (w as any)._outcomes = new Map(Object.entries(outcomes));
-  (w as any)._swaps = new Map(records.map(r => [`rfq:${r.id}`, { id: `rfq:${r.id}`, outcome: outcomes[`rfq:${r.id}`] ?? 'funding' }]));
 };
 
 const histTx = (overrides: Record<string, any> = {}): any => ({
@@ -210,13 +169,13 @@ describe('LightningArkWallet — realm schema set', () => {
     for (const sdkSchema of ArkRealmSchemas) {
       assert.ok(names.includes((sdkSchema as any).name), `has SDK schema ${(sdkSchema as any).name}`);
     }
-    assert.ok(!names.includes('BoltzSwap'), 'BoltzSwap is gone');
+    assert.ok(names.includes('BoltzSwap'), 'BoltzSwap is kept so stranded swaps stay recoverable');
     assert.ok(!names.includes('ArkSwapNotificationSuppression'), 'suppression schema is gone');
-    assert.strictEqual(config.schemaVersion, ARK_REALM_SCHEMA_VERSION + 1, 'local offset keeps app schemas ahead of the SDK version');
+    assert.strictEqual(config.schemaVersion, ARK_REALM_SCHEMA_VERSION + 2, 'local offset keeps app schemas ahead of the SDK version');
     closeAllArkadeRealms();
   });
 
-  it('migration drops the Boltz and suppression models', async () => {
+  it('migration drops the suppression model and keeps BoltzSwap', async () => {
     const { getArkadeRealm, closeAllArkadeRealms } = await import('../../blue_modules/arkade-adapters/realm/realmInstance');
     const Realm = require('realm');
     Realm.open.mockClear();
@@ -232,8 +191,7 @@ describe('LightningArkWallet — realm schema set', () => {
         },
       },
     );
-    assert.ok(deleted.includes('BoltzSwap'), 'drops BoltzSwap');
-    assert.ok(deleted.includes('ArkSwapNotificationSuppression'), 'drops suppression table');
+    assert.deepStrictEqual(deleted, ['ArkSwapNotificationSuppression']);
     closeAllArkadeRealms();
   });
 });
@@ -248,6 +206,16 @@ describe('LightningArkWallet — getTransactions mapping (v2)', () => {
 
   it('returns an empty list when there is no swap or boarding history', () => {
     assert.deepStrictEqual(w.getTransactions(), []);
+  });
+
+  it('marks a native Arkade send with its rail and leaves receives unmarked', () => {
+    (w as any)._transactionsHistory = [
+      histTx({ key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'sent-1' } }),
+      histTx({ key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'recv-1' }, type: TxType.TxReceived }),
+    ];
+    const rows = w.getTransactions() as any[];
+    assert.strictEqual(rows.find(r => r.txid === 'ark-sent-1').rail, 'arkade');
+    assert.strictEqual(rows.find(r => r.txid === 'ark-recv-1').rail, undefined);
   });
 
   it('renders a pending send from the record with no transaction evidence', () => {
@@ -329,20 +297,6 @@ describe('LightningArkWallet — getTransactions mapping (v2)', () => {
     assert.strictEqual(txs.length, 1, 'one swap owns several transactions — one row, not one per txid');
   });
 
-  it('hides an unpaid receive unless includeUnpaidInvoices, and labels lapsed as Failed:', () => {
-    seedCaches(w, [receiveRecord()], { 'rfq:quote-recv-1': 'open' });
-    assert.deepStrictEqual(w.getTransactions(), [], 'unpaid receive hidden from the history list');
-    const withUnpaid = w.getTransactions(true);
-    assert.strictEqual(withUnpaid.length, 1, 'discoverable by the receive-screen poll with includeUnpaidInvoices=true');
-    assert.ok(withUnpaid[0].value! > 0);
-
-    seedCaches(w, [receiveRecord()], { 'rfq:quote-recv-1': 'lapsed' });
-    const lapsed = w.getTransactions();
-    assert.strictEqual(lapsed.length, 1);
-    assert.ok(String(lapsed[0].memo).startsWith('Failed: '), 'lapsed = incoming payment never arrived, said out loud');
-    assert.strictEqual(lapsed[0].failed, true);
-  });
-
   it('getSwapById still resolves its subject after settlement', () => {
     seedCaches(w, [sendRecord({ fundingTxid: 'funding-txid-1' })], { 'rfq:quote-send-1': 'paid' });
     (w as any)._transactionsHistory = [histTx({ key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'funding-txid-1' } })];
@@ -352,195 +306,149 @@ describe('LightningArkWallet — getTransactions mapping (v2)', () => {
     const view = w.getSwapById('rfq:quote-send-1');
     assert.ok(view, 'resolves across settlement');
     assert.strictEqual(view!.outcome, 'paid');
-    assert.strictEqual(view!.amountSats, 1020);
-    assert.strictEqual(view!.direction, -1);
   });
 
-  it('isInvoiceGeneratedByWallet joins on lock.hash, receive-only', () => {
-    const recv = receiveRecord({ lock: { hash: 'cc'.repeat(32) } });
-    seedCaches(w, [recv, sendRecord({ lock: { hash: 'aa'.repeat(32) } })], {
-      'rfq:quote-recv-1': 'open',
-      'rfq:quote-send-1': 'funded',
-    });
-
-    // A send's bolt11 must not match: today's semantics are receive-only.
+  it('never reads a send swap invoice as one this wallet generated', () => {
+    seedCaches(w, [sendRecord()], { 'rfq:quote-send-1': 'funded' });
     assert.strictEqual(w.isInvoiceGeneratedByWallet('lnbc10n1send'), false);
-    assert.strictEqual(w.isInvoiceGeneratedByWallet('lnbc10n1recv'), true);
   });
 });
 
-describe('LightningArkWallet — limits and fee estimate off the card', () => {
+const marketLeg = (asset: string, min: bigint, max: bigint) => ({ asset, decimals: 8, limits: { min, max } });
+const lightningMarket = (min: bigint, max: bigint) => ({
+  legs: [marketLeg('arkade:bitcoin/slip44:0', 1n, 9n), marketLeg('bolt11:bitcoin/slip44:0', min, max)],
+});
+
+describe('LightningArkWallet — send limits', () => {
+  it('spans the Lightning legs of the solvers markets and ignores other corridors', async () => {
+    const w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    (w as any)._swapClient = {
+      markets: async () => [
+        lightningMarket(500n, 50000n),
+        lightningMarket(300n, 20000n),
+        { legs: [marketLeg('arkade:bitcoin/slip44:0', 1n, 9n), marketLeg('onchain:bitcoin/slip44:0', 10n, 99999999n)] },
+      ],
+    };
+    assert.deepStrictEqual(await w.getSendLimits(), { min: 300, max: 50000 });
+  });
+});
+
+describe('LightningArkWallet — quoting a BOLT11', () => {
   let w: LightningArkWallet;
+  const INVOICE = bolt11.sign(
+    bolt11.encode({
+      network: { bech32: 'bc', pubKeyHash: 0, scriptHash: 5, validWitnessVersions: [0, 1] },
+      satoshis: 1000,
+      timestamp: Math.floor(Date.now() / 1000),
+      tags: [
+        { tagName: 'payment_hash', data: 'cd'.repeat(32) },
+        { tagName: 'expire_time', data: 3600 },
+      ],
+    }),
+    '11'.repeat(32),
+  ).paymentRequest!;
 
   beforeEach(() => {
     w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
-    (w as any)._markets = [BUNDLED_MARKET];
+    (w as any)._wallet = {};
   });
 
-  it('reads the send bracket live off the card', () => {
-    assert.deepStrictEqual(w.getSendLimits(), { min: 500, max: 50000 });
-  });
-
-  it('estimates the send fee synchronously off fee_bps', () => {
-    assert.strictEqual(w.getSubmarineFeeEstimate(10000), 30);
-    assert.strictEqual(w.getSubmarineFeeEstimate(500), 2, 'ceil(500 * 30 / 10000)');
-  });
-
-  it('returns undefined estimates with no market set', () => {
-    (w as any)._markets = [];
-    assert.strictEqual(w.getSubmarineFeeEstimate(10000), undefined);
-    assert.strictEqual(w.getSendLimits(), null);
-  });
-});
-
-describe('LightningArkWallet — quote gates', () => {
-  let w: LightningArkWallet;
-
-  beforeEach(() => {
-    w = new LightningArkWallet();
-    w.setSecret('arkade://' + TEST_MNEMONIC);
-    (w as any)._markets = [BUNDLED_MARKET];
-    (w as any)._swapClient = { resolve: async () => ({}), quote: async () => ({ id: 'q' }), swaps: async () => [] };
-  });
-
-  it('refuses an unparseable invoice before any solver is contacted', async () => {
-    await assert.rejects(w.quoteInvoice('not-an-invoice'), /not a valid BOLT11 invoice/);
-  });
-
-  it('refuses a wrong-network invoice', async () => {
-    // A mainnet invoice decoded against the testnet network: the checksum is
-    // valid, only the prefix mismatches — so the gate (not the parser) refuses.
-    const { toInvoiceFacts } = await import('../../blue_modules/arkade-bolt11');
-    const mainnetInvoice =
-      'lnbc20n1p59n9nkpp58s49flel3cz5u3lrve8qeqzxljxmu0gja06elfcgwrx2e9nq959ssp5z7ytwq0rm6yq8evn2kteduj6a0rs4svn3sfwvg92a29f8l022jjqxq9z0rgqnp4qvyndeaqzman7h898jxm98dzkm0mlrsx36s93smrur7h0azyyuxc5rzjq25carzepgd4vqsyn44jrk85ezrpju92xyrk9apw4cdjh6yrwt5jgqqqqrt49lmtcqqqqqqqqqqq86qq9qrzjqwghf7zxvfkxq5a6sr65g0gdkv768p83mhsnt0msszapamzx2qvuxqqqqrt49lmtcqqqqqqqqqqq86qq9qcqzpgdq023mk7gryv9uhxgq9qyyssqy4mv8te3l6mrc7qf4pksh4m4z76jz7s2qrwxd7q2s22ghnanqt33e9p0nahz9fr32g00vn2vhc9rrhpvtr54s40tle25tyyvp59sdpsqty30rp';
-    assert.throws(() => toInvoiceFacts(mainnetInvoice, 'testnet'), /invoice is not for testnet/);
-    // And quoteInvoice enforces the wallet's own network the same way.
-    await assert.rejects(w.quoteInvoice('not-an-invoice'), /not a valid BOLT11 invoice/);
-  });
-});
-
-describe('LightningArkWallet — quote/accept orchestration', () => {
-  let w: LightningArkWallet;
-  const BOLT11 = 'lnbc10n1send';
-
-  const fakeQuote = (overrides: Record<string, any> = {}): any => ({
-    id: 'quote-1',
-    route: {
-      give: { corridor: 'arkade', asset: 'arkade:bitcoin/slip44:0', instrument: { kind: 'wallet' } },
-      take: {
-        corridor: 'lightning',
-        asset: 'bolt11:bitcoin/slip44:0',
-        instrument: { kind: 'invoice', bolt11: BOLT11, paymentHash: 'aa'.repeat(32), expiresAt: 1900000000 },
-      },
-    },
-    give: { asset: 'arkade:bitcoin/slip44:0', amount: 1020n },
-    take: { asset: 'bolt11:bitcoin/slip44:0', amount: 1000n },
-    fee: { asset: 'arkade:bitcoin/slip44:0', amount: 20n },
-    market: {},
-    expiresAt: Math.floor(Date.now() / 1000) + 300,
-    ...overrides,
-  });
-
-  beforeEach(() => {
-    w = new LightningArkWallet();
-    w.setSecret('arkade://' + TEST_MNEMONIC);
-  });
-
-  const seedClient = (client: Record<string, any>, repository: Record<string, any> = {}): void => {
+  it('names the solvers bounds when the amount is outside them', async () => {
     (w as any)._swapClient = {
       swaps: async () => [],
-      onUpdate: () => () => {},
-      ...client,
+      quote: async () => {
+        throw new UnsupportedRoute('no eligible market');
+      },
+      markets: async () => [lightningMarket(5000n, 50000n)],
     };
-    (w as any)._swapRepository = {
-      getSwapRecordsPage: async () => ({ items: [] }),
-      getSwapRecord: async () => undefined,
-      ...repository,
+    await assert.rejects(w.quoteSend(INVOICE), /Minimum you can send is 5000 sat/);
+  });
+
+  it('refuses to quote an invoice a live swap is already paying', async () => {
+    const quote = jest.fn();
+    (w as any)._swapClient = {
+      swaps: async () => [
+        { id: 'rfq:q', outcome: 'funded', route: { take: { instrument: { kind: 'invoice', bolt11: INVOICE.toUpperCase() } } } },
+      ],
+      quote,
     };
+    for (const target of [INVOICE, `lightning:${INVOICE}`]) {
+      await assert.rejects(w.quoteSend(target), /already has a live swap \(rfq:q\)/);
+    }
+    assert.strictEqual(quote.mock.calls.length, 0);
+  });
+});
+
+describe('LightningArkWallet — sending a quote', () => {
+  let w: LightningArkWallet;
+  const settling = (settled: () => Promise<unknown>): any => ({
+    railId: 'lightning',
+    amount: 1000,
+    fee: 20,
+    total: 1020,
+    send: async () => ({ settled }),
+  });
+  const paid = async () => ({ railId: 'lightning', swapId: 'rfq:quote-send-1' });
+
+  beforeEach(() => {
+    w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
     (w as any)._wallet = { getArkadeReader: async () => ({}) };
+    (w as any)._swapClient = { swaps: async () => [] };
+  });
+  afterEach(() => jest.useRealTimers());
+
+  const seedRecord = (record: unknown): void => {
+    (w as any)._swapRepository = { getSwapRecordsPage: async () => ({ items: [] }), getSwapRecord: async () => record };
   };
 
-  it('payQuotedInvoice accepts the held object and fills last_paid_invoice_result on paid', async () => {
-    const quote = fakeQuote();
-    seedClient(
-      {
-        accept: async () => ({ id: 'rfq:quote-1' }),
-        onUpdate: (fn: any) => {
-          fn({ swap: { id: 'rfq:quote-1' }, outcome: 'paid', detail: {} });
-          return () => {};
-        },
-      },
-      { getSwapRecord: async () => ({ settlementPreimageHex: 'ab'.repeat(32), lock: { hash: 'aa'.repeat(32) } }) },
-    );
-
-    await w.payQuotedInvoice(quote);
-
+  it('records the preimage, payment hash and invoice of a settled Lightning payment', async () => {
+    seedRecord(sendRecord({ settlementPreimageHex: 'ab'.repeat(32) }));
+    await w.sendQuote(settling(paid));
     assert.strictEqual(w.last_paid_invoice_result?.payment_preimage, 'ab'.repeat(32));
     assert.strictEqual(w.last_paid_invoice_result?.payment_hash, 'aa'.repeat(32));
-    assert.strictEqual(w.last_paid_invoice_result?.payment_request, BOLT11);
+    assert.strictEqual(w.last_paid_invoice_result?.payment_request, 'lnbc10n1send');
   });
 
-  it('payQuotedInvoice refuses a fee above the confirmed ceiling without funding', async () => {
-    const quote = fakeQuote();
-    let accepted = false;
-    seedClient({
-      accept: async () => {
-        accepted = true;
-        return { id: 'rfq:quote-1' };
-      },
-    });
-
-    await assert.rejects(w.payQuotedInvoice(quote, 5), /exceeds the confirmed maximum/);
-    assert.strictEqual(accepted, false, 'refusal is free: nothing has been funded');
-  });
-
-  it('payQuotedInvoice backfills the preimage via readLockupFate when the record predates the receipt', async () => {
-    const quote = fakeQuote();
-    seedClient(
-      {
-        accept: async () => ({ id: 'rfq:quote-1' }),
-        onUpdate: (fn: any) => {
-          fn({ swap: { id: 'rfq:quote-1' }, outcome: 'paid', detail: {} });
-          return () => {};
-        },
-      },
-      {
-        getSwapRecord: async () => ({
-          // No settlementPreimageHex: settled by an older build.
-          lockupPkScript: 'bb'.repeat(32),
-          lock: { hash: 'aa'.repeat(32) },
-        }),
-      },
-    );
+  it('backfills the preimage via readLockupFate when the record predates the receipt', async () => {
+    seedRecord(sendRecord());
     readLockupFateMock.mockResolvedValue({ fate: 'claimed', preimage: new Uint8Array(32).fill(7), spends: [] });
-
-    await w.payQuotedInvoice(quote);
-
+    await w.sendQuote(settling(paid));
     assert.strictEqual(readLockupFateMock.mock.calls.length, 1);
     assert.strictEqual(w.last_paid_invoice_result?.payment_preimage, '07'.repeat(32));
   });
 
-  it('payQuotedInvoice surfaces terminal failures instead of reporting success', async () => {
-    const quote = fakeQuote();
-    seedClient({
-      accept: async () => ({ id: 'rfq:quote-1' }),
-      onUpdate: (fn: any) => {
-        fn({ swap: { id: 'rfq:quote-1' }, outcome: 'failed', detail: {} });
-        return () => {};
-      },
-    });
-
-    await assert.rejects(w.payQuotedInvoice(quote), /failed/);
+  it('reports a swap that ended without paying instead of success', async () => {
+    seedRecord(undefined);
+    const refunded = new SwapPaymentFailedError('lightning', 'refunded', { id: 'rfq:quote-send-1' } as any);
+    await assert.rejects(
+      w.sendQuote(
+        settling(async () => {
+          throw refunded;
+        }),
+      ),
+      /Lightning payment was refunded/,
+    );
     assert.strictEqual((w.last_paid_invoice_result as any)?.payment_preimage, undefined);
   });
 
-  it('a retry for the same bolt11 consults the live swap instead of re-quoting', async () => {
-    seedCaches(w, [sendRecord({ id: 'quote-1' })], { 'rfq:quote-1': 'funded' });
-    (w as any)._swapClient = { swaps: async () => [{ id: 'rfq:quote-1', outcome: 'funded' }] };
+  it('reports a send still in flight after the wait as in progress, and its receipt once it settles', async () => {
+    jest.useFakeTimers();
+    seedRecord(sendRecord({ settlementPreimageHex: 'ab'.repeat(32) }));
+    let settle: (result: RouteResult) => void = () => {};
+    const inFlight = {
+      ...settling(paid),
+      send: async () => makeHandle('lightning', () => new Promise<RouteResult>(resolve => (settle = resolve))),
+    };
+    const sending = w.sendQuote(inFlight).catch(e => e);
+    await jest.advanceTimersByTimeAsync(60_000);
+    const inProgress = await sending;
+    assert.ok(inProgress instanceof PaymentInProgressError);
 
-    const live = await w.findLiveSwapForInvoice(BOLT11);
-    assert.strictEqual(live, 'rfq:quote-1');
+    settle({ railId: 'lightning', swapId: 'rfq:quote-send-1' });
+    assert.strictEqual((await inProgress.receipt)?.payment_preimage, 'ab'.repeat(32));
   });
 });
 
@@ -549,7 +457,7 @@ describe('LightningArkWallet — serialization', () => {
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
     // Live swap cache with real bigints (non-enumerable by construction).
-    (w as any)._swaps.set('rfq:q', { id: 'rfq:q', give: { amount: 1000n } });
+    (w as any)._swapClient = { held: { id: 'rfq:q', give: { amount: 1000n } } };
     // Legacy blob keys restored as stray enumerable properties.
     (w as any)._swapHistory = [{ id: 'old' }];
     (w as any)._limitMin = 333;
@@ -579,11 +487,79 @@ describe('LightningArkWallet — deletion guard', () => {
     (w as any)._wallet = { getArkadeReader: async () => ({ getVtxos: async () => [], getVirtualTxs: async () => [] }) };
   };
 
-  it('a receive in lapsed does not block deletion', async () => {
-    seedGuard([receiveRecord()], [{ id: 'rfq:quote-recv-1', outcome: 'lapsed' }]);
+  // Rows a Boltz build left behind, read under the key their lockups were made with.
+  const storeBoltzSwaps = async (...swaps: { id: string; type: string; status: string }[]) => {
+    const { getArkadeRealm } = await import('../../blue_modules/arkade-adapters/realm/realmInstance');
+    const realm = await getArkadeRealm(w.getNamespace());
+    realm.write(() => {
+      for (const swap of swaps) {
+        realm.create('BoltzSwap', { id: swap.id, type: swap.type, status: swap.status, createdAt: 1, data: JSON.stringify(swap) });
+      }
+    });
+    jest.spyOn(w, '_getIdentity').mockReturnValue({ xOnlyPublicKey: async () => hexToUint8Array(SENDER) } as any);
+  };
+
+  // Like the SDK's, the manager reports only lockups registered with it.
+  const lockupHolds = (coins: number) => {
+    const registered = new Set<string>();
+    const getContractsWithVtxos = jest.fn(async ({ script }: { script: string[] }) =>
+      script.filter(s => registered.has(s)).map(s => ({ contract: { script: s }, vtxos: Array(coins).fill({}) })),
+    );
+    (w as any)._wallet = {
+      identity: { xOnlyPublicKey: async () => hexToUint8Array(SENDER) },
+      getContractManager: async () => ({
+        createContract: async ({ script }: { script: string }) => registered.add(script),
+        getContractsWithVtxos,
+      }),
+    };
+    return getContractsWithVtxos;
+  };
+
+  it('refuses deletion while a failed Boltz send still holds its sats, unless forced', async () => {
+    await storeBoltzSwaps(storedSend({ status: 'invoice.failedToPay' }));
+    lockupHolds(1);
     const verdict = await w.canDeleteWallet();
-    assert.strictEqual(verdict.safe, true);
-    assert.strictEqual(readLockupFateMock.mock.calls.length, 0, 'no chain read for receives');
+    assert.strictEqual(verdict.safe, false);
+    assert.match(verdict.message ?? '', /1 failed Lightning payment/);
+    assert.strictEqual((await w.canDeleteWallet(true)).safe, true);
+  });
+
+  it('allows deletion once a Boltz send lockup is empty, whatever its last status', async () => {
+    await storeBoltzSwaps(storedSend({ status: 'swap.created' }));
+    lockupHolds(0);
+    assert.strictEqual((await w.canDeleteWallet()).safe, true);
+  });
+
+  it('does not let Boltz receives or chain swaps block deletion, nor go online for them', async () => {
+    await storeBoltzSwaps(storedReceive({ status: 'swap.created' }), storedChainSwap({ status: 'transaction.claimed' }));
+    const init = jest.spyOn(w, 'init').mockRejectedValue(new Error('Delegate service unreachable'));
+    assert.strictEqual((await w.canDeleteWallet()).safe, true);
+    assert.strictEqual(init.mock.calls.length, 0);
+  });
+
+  it('refuses deletion when a Boltz send lockup cannot be read fresh', async () => {
+    await storeBoltzSwaps(storedSend());
+    lockupHolds(1).mockRejectedValue(new Error('Spendable VTXO read requires an online contract sync'));
+    const verdict = await w.canDeleteWallet();
+    assert.strictEqual(verdict.safe, false);
+    assert.match(verdict.message ?? '', /Cannot verify failed Lightning payments/);
+  });
+
+  it('allows deleting a wallet with no swap history without the network', async () => {
+    const init = jest.spyOn(w, 'init').mockRejectedValue(new Error('Delegate service unreachable'));
+    assert.strictEqual((await w.canDeleteWallet()).safe, true);
+    assert.strictEqual(init.mock.calls.length, 0);
+  });
+
+  it('refuses deletion when the swap records cannot be read, unless forced', async () => {
+    seedGuard([], []);
+    (w as any)._swapRepository = {
+      getSwapRecordsPage: async () => {
+        throw new Error('realm closed');
+      },
+    };
+    assert.strictEqual((await w.canDeleteWallet()).safe, false);
+    assert.strictEqual((await w.canDeleteWallet(true)).safe, true);
   });
 
   it('a send in terminal failed with an unspent lockup refuses deletion', async () => {
@@ -630,6 +606,59 @@ describe('LightningArkWallet — delayed persistence converges without doubling 
     seedCaches(w, [sendRecord({ fundingTxid: 'funding-txid-1' })], { 'rfq:quote-send-1': 'funded' });
     (w as any)._transactionsHistory = [histTx({ key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'funding-txid-1' } })];
     assert.strictEqual(w.getTransactions().length, 1, 'still one row after the write converges');
+  });
+});
+
+describe('LightningArkWallet — swap events reach every instance', () => {
+  it('fans one client subscription out to wallets rebuilt from the cache', async () => {
+    const listeners: Array<(update: unknown) => void> = [];
+    const client = {
+      onUpdate: (listener: (update: unknown) => void) => {
+        listeners.push(listener);
+        return () => {};
+      },
+      swaps: async () => [],
+    };
+    const build = () => {
+      const w = new LightningArkWallet();
+      w.setSecret('arkade://' + TEST_MNEMONIC);
+      return w;
+    };
+    const first = build();
+    const namespace = first.getNamespace();
+    walletTesting.staticWalletCache[namespace] = { getTransactionHistory: async () => [], getBalance: async () => ({}) } as any;
+    walletTesting.staticSwapClientCache[namespace] = client as any;
+    walletTesting.staticSwapRepositoryCache[namespace] = { getSwapRecordsPage: async () => ({ items: [] }) } as any;
+    await first.init();
+    const second = build();
+    await second.init();
+
+    assert.strictEqual(listeners.length, 1);
+    listeners[0]({ swap: { id: 'rfq:x' }, outcome: 'settled' });
+    for (const w of [first, second]) assert.strictEqual((w as any)._outcomes.get('rfq:x'), 'settled');
+  });
+
+  it('holds instances weakly and drops a copy the runtime has collected', async () => {
+    const listeners: Array<(update: unknown) => void> = [];
+    const w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    const namespace = w.getNamespace();
+    walletTesting.staticWalletCache[namespace] = { getTransactionHistory: async () => [], getBalance: async () => ({}) } as any;
+    walletTesting.staticSwapClientCache[namespace] = {
+      onUpdate: (l: (u: unknown) => void) => listeners.push(l),
+      swaps: async () => [],
+    } as any;
+    walletTesting.staticSwapRepositoryCache[namespace] = { getSwapRecordsPage: async () => ({ items: [] }) } as any;
+    await w.init();
+    await w.init();
+
+    const refs = walletTesting.namespaceInstances.get(namespace)!;
+    assert.strictEqual(refs.size, 1);
+    assert.ok([...refs].every(ref => ref instanceof (globalThis as any).WeakRef));
+    refs.add({ deref: () => undefined } as any);
+    listeners[0]({ swap: { id: 'rfq:x' }, outcome: 'settled' });
+    assert.strictEqual((w as any)._outcomes.get('rfq:x'), 'settled');
+    assert.strictEqual(refs.size, 1);
   });
 });
 
@@ -684,8 +713,20 @@ describe('LightningArkWallet — full init pipeline (offline)', () => {
     await w.init();
 
     // Registry unreachable (fetch stubbed) → bundled bootstrap, not a throw.
-    assert.deepStrictEqual(w.getSendLimits(), { min: 500, max: 100000 });
-    assert.strictEqual(w.getSubmarineFeeEstimate(10000), 30);
+    assert.deepStrictEqual(await w.getSendLimits(), { min: 500, max: 100000 });
+    const regtestInvoice = bolt11.sign(
+      bolt11.encode({
+        network: { bech32: 'bcrt', pubKeyHash: 111, scriptHash: 196, validWitnessVersions: [0, 1] },
+        satoshis: 1000,
+        timestamp: Math.floor(Date.now() / 1000),
+        tags: [
+          { tagName: 'payment_hash', data: 'cd'.repeat(32) },
+          { tagName: 'expire_time', data: 3600 },
+        ],
+      }),
+      '11'.repeat(32),
+    ).paymentRequest!;
+    await assert.rejects(w.quoteSend(regtestInvoice), /regtest invoice and the wallet is on bitcoin/);
 
     // Offline, the SDK's wallet.dispose() drains its background loops on
     // timers, so the fake clock must advance for onDelete() to settle.
@@ -700,7 +741,23 @@ describe('LightningArkWallet — full init pipeline (offline)', () => {
 
 describe('LightningArkWallet LNURL receive', () => {
   const ARK_ADDRESS = new ArkAddress(new Uint8Array(32).fill(2), new Uint8Array(32).fill(3), 'ark').encode();
+  const BOARDING_ADDRESS = 'bc1pboardingaddress';
+  const DOMAIN = 'lnurl.arkade.sh';
   const PREIMAGE = 'ab'.repeat(32);
+  const named = (username: string, extra: Record<string, unknown> = {}) => ({
+    username,
+    handle: username,
+    lightningAddress: `${username}@${DOMAIN}`,
+    domain: DOMAIN,
+    status: 'active',
+    nameless: false,
+    sessionLnurl: null,
+    ...extra,
+  });
+  const nameless = () => ({
+    ...named('sid', { username: null, lightningAddress: null, nameless: true }),
+    sessionLnurl: `https://${DOMAIN}/lnurl/sid`,
+  });
   const makeInvoice = (timestamp = Math.floor(Date.now() / 1000)) =>
     bolt11.sign(
       bolt11.encode({
@@ -726,6 +783,7 @@ describe('LightningArkWallet LNURL receive', () => {
     destination: string | undefined;
     verify: Record<string, unknown>;
     down: boolean;
+    namingRefused: boolean;
     calls: { method: string; url: string; body?: any }[];
   };
 
@@ -750,6 +808,7 @@ describe('LightningArkWallet LNURL receive', () => {
       destination: undefined,
       verify: { status: 'OK', settled: false, preimage: null },
       down: false,
+      namingRefused: false,
       calls: [],
     };
     global.fetch = jest.fn(async (input: any, init: any) => {
@@ -760,11 +819,11 @@ describe('LightningArkWallet LNURL receive', () => {
       const { pathname } = new URL(url);
       let body: unknown;
       if (pathname === '/lnurl/address' && method === 'GET') body = server.addresses;
-      else if (pathname === '/lnurl/domain') {
-        body = { domain: 'lnurl.arkade.sh', allocationModes: ['random', 'admin', 'session'], usernameRules: {}, requireApiKey: false };
-      } else if (pathname === '/lnurl/address') {
-        body = { handle: 'h1', domain: 'lnurl.arkade.sh', status: 'active', sessionLnurl: 'https://lnurl.arkade.sh/lnurl/session-id' };
-      } else if (pathname === '/lnurl/address/h1/arkade') body = {};
+      else if (pathname === '/lnurl/address') body = JSON.parse(init.body).nameless ? nameless() : named('merry-comet');
+      else if (pathname.endsWith('/arkade')) body = {};
+      else if (method === 'PATCH' && server.namingRefused)
+        return new Response(JSON.stringify({ error: 'no names available' }), { status: 409 });
+      else if (method === 'PATCH') body = named('quiet-marlin', { sessionLnurl: `https://${DOMAIN}/lnurl/sid` });
       else if (pathname.endsWith('/callback')) {
         body = server.destination
           ? { paymentOption: 'arkade', paymentDestination: server.destination }
@@ -777,28 +836,86 @@ describe('LightningArkWallet LNURL receive', () => {
     w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
     send = jest.fn(async () => 'txid');
-    (w as any)._wallet = { getAddress: async () => ARK_ADDRESS, send };
+    (w as any)._wallet = {
+      identity: w._getIdentity(),
+      getAddress: async () => ARK_ADDRESS,
+      getBoardingAddress: async () => BOARDING_ADDRESS,
+      send,
+    };
     jest.spyOn(w, 'fetchTransactions').mockResolvedValue(undefined as any);
   });
+
+  const claimPublicKey = async () => Buffer.from(await w._getIdentity().compressedPublicKey()).toString('hex');
+  const claims = () => server.calls.filter(c => c.method === 'POST' && c.url.endsWith('/lnurl/address'));
+  const binds = () => server.calls.filter(c => c.url.endsWith('/arkade'));
 
   afterEach(() => {
     global.fetch = originalFetch;
     jest.restoreAllMocks();
   });
 
-  it('claims a nameless address bound to the Arkade address once, and asks for the Lightning rail', async () => {
+  it('claims a receiver bound to the Arkade and boarding addresses once, names it in place, and asks for the Lightning rail', async () => {
     const first = await w.addInvoice(1000, 'coffee');
     await w.addInvoice(1000, 'tea');
 
     assert.strictEqual(first, server.invoice);
-    const claims = server.calls.filter(c => c.method === 'POST' && c.url.endsWith('/lnurl/address'));
-    assert.strictEqual(claims.length, 1);
-    assert.strictEqual(claims[0].body.nameless, true);
-    const bind = server.calls.find(c => c.url.endsWith('/lnurl/address/h1/arkade'));
-    assert.strictEqual(bind?.body.arkadeAddress, ARK_ADDRESS);
+    assert.strictEqual(await w.getLightningAddress(), `quiet-marlin@${DOMAIN}`);
+    assert.strictEqual(claims().length, 1);
+    assert.strictEqual(claims()[0].body.nameless, true);
+    assert.strictEqual(server.calls.filter(c => c.method === 'PATCH').length, 1);
+    assert.strictEqual(binds().length, 1);
+    assert.ok(binds()[0].url.endsWith('/lnurl/address/sid/arkade'));
+    assert.strictEqual(binds()[0].body.arkadeAddress, ARK_ADDRESS);
+    assert.strictEqual(binds()[0].body.boardingAddress, BOARDING_ADDRESS);
     const callback = server.calls.find(c => c.url.includes('/callback'));
     assert.ok(callback?.url.includes('paymentOption=offline-swap'));
     assert.ok(callback?.url.includes('amount=1000000'));
+  });
+
+  it('adopts the address it already owns, re-binding it when the boarding address moved', async () => {
+    const bound = { arkadeAddress: ARK_ADDRESS, claimPublicKey: await claimPublicKey(), createdAt: 0 };
+    server.addresses = [named('merry-comet', { ...bound, boardingAddress: 'bc1pold' })];
+
+    assert.strictEqual(await w.getLightningAddress(), `merry-comet@${DOMAIN}`);
+    assert.strictEqual(claims().length, 0);
+    assert.strictEqual(binds().length, 1);
+    assert.strictEqual(binds()[0].body.boardingAddress, BOARDING_ADDRESS);
+  });
+
+  it('names a nameless receiver from an earlier build in place instead of claiming another', async () => {
+    server.addresses = [nameless()];
+
+    assert.strictEqual(await w.getLightningAddress(), `quiet-marlin@${DOMAIN}`);
+    assert.strictEqual(claims().length, 0);
+    const upgrade = server.calls.find(c => c.method === 'PATCH');
+    assert.ok(upgrade?.url.includes('/lnurl/address/sid'));
+    assert.deepStrictEqual(upgrade?.body, {});
+  });
+
+  it('keeps receiving without a Lightning address when the server refuses a name', async () => {
+    server.namingRefused = true;
+    assert.strictEqual(await w.addInvoice(1000, ''), server.invoice);
+    assert.strictEqual((await w.getReceiveLimits())?.min, 500);
+    assert.strictEqual(await w.getLightningAddress(), undefined);
+    assert.strictEqual(claims().length, 1);
+  });
+
+  it('claims once when the receive screen asks for the address and the limits together', async () => {
+    await Promise.all([w.getLightningAddress(), w.getReceiveLimits()]);
+    assert.strictEqual(claims().length, 1);
+  });
+
+  it('re-binds the address when the Arkade address rotates mid-session', async () => {
+    assert.strictEqual(await w.getLightningAddress(), `quiet-marlin@${DOMAIN}`);
+    const bound = { arkadeAddress: ARK_ADDRESS, claimPublicKey: await claimPublicKey(), boardingAddress: BOARDING_ADDRESS, createdAt: 0 };
+    server.addresses = [named('merry-comet', bound)];
+    const rotated = new ArkAddress(new Uint8Array(32).fill(2), new Uint8Array(32).fill(4), 'ark').encode();
+    (w as any)._wallet.getAddress = async () => rotated;
+
+    assert.strictEqual(await w.getLightningAddress(), `merry-comet@${DOMAIN}`);
+    assert.strictEqual(claims().length, 1);
+    assert.strictEqual(binds().length, 2);
+    assert.strictEqual(binds()[1].body.arkadeAddress, rotated);
   });
 
   it('refuses when the server offers no Lightning rail', async () => {
@@ -857,65 +974,75 @@ describe('LightningArkWallet LNURL receive', () => {
     assert.strictEqual(row.ispaid, false);
   });
 
-  describe('payLnurlOnArkade', () => {
+  describe('sending to an LNURL over its Arkade rail', () => {
     const PAYEE = new ArkAddress(new Uint8Array(32).fill(2), new Uint8Array(32).fill(9), 'ark').encode();
 
-    it('sends the sats to the destination the rail returns', async () => {
+    beforeEach(() => {
+      (w as any)._swapClient = { swaps: async () => [] };
+    });
+
+    it('quotes the Arkade rail and sends the sats to the destination it returns', async () => {
       server.destination = PAYEE;
 
-      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000, 'hi'), true);
+      const quote = await w.quoteSend('bob@example.com', { amountSat: 1000, comment: 'hi' });
+      assert.strictEqual(quote.railId, 'lnurl-arkade');
+      assert.strictEqual(quote.fee, 0);
+      await w.sendQuote(quote);
 
-      assert.strictEqual(send.mock.calls.length, 1);
       assert.deepStrictEqual(send.mock.calls[0][0], { address: PAYEE, amount: 1000 });
       const callback = server.calls.find(c => c.url.includes('/callback'));
       assert.ok(callback?.url.includes('paymentOption=arkade'));
       assert.ok(callback?.url.includes('comment=hi'));
     });
 
-    it('leaves the payment to Lightning when there is no usable Arkade rail', async () => {
+    it('refuses to quote without a usable Arkade rail', async () => {
       server.destination = PAYEE;
-      server.paymentOptions = [{ id: 'offline-swap', type: 'lightning' }];
-      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000), false);
-
-      server.paymentOptions = [{ id: 'arkade', type: 'arkade', available: false }];
-      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000), false);
-
-      server.paymentOptions = [{ id: 'arkade', type: 'arkade', minSendable: 5000000, maxSendable: 6000000 }];
-      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000), false);
-
-      server.paymentOptions = undefined;
-      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000), false);
-
+      for (const paymentOptions of [
+        [{ id: 'offline-swap', type: 'lightning' }],
+        [{ id: 'arkade', type: 'arkade', available: false }],
+        [{ id: 'arkade', type: 'arkade', minSendable: 5000000, maxSendable: 6000000 }],
+        undefined,
+      ]) {
+        server.paymentOptions = paymentOptions;
+        await assert.rejects(w.quoteSend('bob@example.com', { amountSat: 1000 }));
+      }
       assert.strictEqual(send.mock.calls.length, 0);
     });
 
-    it('leaves the payment to Lightning for a destination on another operator or a malformed one', async () => {
-      server.destination = new ArkAddress(new Uint8Array(32).fill(7), new Uint8Array(32).fill(9), 'ark').encode();
-      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000), false);
-
-      server.destination = 'bc1qnotanarkaddress';
-      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000), false);
-
+    it('refuses a destination on another operator or a malformed one', async () => {
+      for (const destination of [
+        new ArkAddress(new Uint8Array(32).fill(7), new Uint8Array(32).fill(9), 'ark').encode(),
+        'bc1qnotanarkaddress',
+      ]) {
+        server.destination = destination;
+        await assert.rejects(w.quoteSend('bob@example.com', { amountSat: 1000 }));
+      }
       assert.strictEqual(send.mock.calls.length, 0);
     });
 
-    it('leaves the payment to Lightning when the payee cannot be reached', async () => {
+    it('refuses when the payee cannot be reached', async () => {
       server.down = true;
-      assert.strictEqual(await w.payLnurlOnArkade('bob@example.com', 1000), false);
+      await assert.rejects(w.quoteSend('bob@example.com', { amountSat: 1000 }));
       assert.strictEqual(send.mock.calls.length, 0);
     });
 
-    it('rejects a failed send rather than letting the caller pay again over Lightning', async () => {
+    it('rejects a failed send instead of reporting success', async () => {
       server.destination = PAYEE;
       send.mockRejectedValueOnce(new Error('insufficient funds'));
-      await assert.rejects(() => w.payLnurlOnArkade('bob@example.com', 1000), /insufficient funds/);
+      const quote = await w.quoteSend('bob@example.com', { amountSat: 1000 });
+      await assert.rejects(w.sendQuote(quote), /insufficient funds/);
     });
   });
 
-  it('keeps LNURL state out of the serialized wallet', async () => {
-    await w.addInvoice(1000, '');
-    const json = JSON.parse(JSON.stringify(w));
-    assert.strictEqual('_lnurlInvoices' in json, false);
-    assert.strictEqual('_lnurlReceiver' in json, false);
+  it('saves unexpired LNURL invoices with the wallet, so a restart keeps the self-payment check', async () => {
+    const pr = await w.addInvoice(1000, '');
+    (w as any)._lnurlInvoices.push({ verify: '', row: { payment_request: 'lnbc1expired', timestamp: 1, expire_time: 1 } });
+    w.prepareForSerialization();
+    const saved = JSON.stringify(w);
+    assert.strictEqual('_lnurlReceiver' in JSON.parse(saved), false);
+
+    const restored = LightningArkWallet.fromJson(saved);
+    assert.ok(restored.isInvoiceGeneratedByWallet(pr));
+    assert.ok(!restored.isInvoiceGeneratedByWallet('lnbc1expired'), 'expired invoices are dropped before saving');
   });
 });

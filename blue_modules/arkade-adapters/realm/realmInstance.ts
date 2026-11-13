@@ -6,15 +6,19 @@ import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION, runArkRealmMigrations } from
 import { AssetSwapRealmSchemas } from '@arkade-os/swap/repositories/realm';
 import { randomBytes } from '../../../class/rng';
 import { uint8ArrayToHex, hexToUint8Array } from '../../uint8array-extras';
+import { BoltzSwapSchema } from './boltzSwapSchema';
 import { errorMessage } from '../../../helpers/errorMessage';
 
-const AllArkadeSchemas = [...ArkRealmSchemas, ...AssetSwapRealmSchemas];
+// BoltzSwap is app-owned: the only record of lockups still to recover.
+const AllArkadeSchemas = [...ArkRealmSchemas, ...AssetSwapRealmSchemas, BoltzSwapSchema];
 
 // App-owned schemas added on top of the SDK's. Bump when an app-owned schema
 // changes; SDK bumps are handled by ARK_REALM_SCHEMA_VERSION. Realm requires
 // a strictly increasing schemaVersion when objects are added; computing
 // `SDK + offset` keeps the local additions ahead of any future SDK bump.
-const LOCAL_ARK_SCHEMA_OFFSET = 1;
+// Offset 2 re-adds BoltzSwap, which a dev build of this branch already opened
+// at offset 1 with the model dropped.
+const LOCAL_ARK_SCHEMA_OFFSET = 2;
 const ARKADE_REALM_SCHEMA_VERSION = ARK_REALM_SCHEMA_VERSION + LOCAL_ARK_SCHEMA_OFFSET;
 
 const realmInstances: Map<string, Realm> = new Map();
@@ -94,15 +98,11 @@ export async function getArkadeRealm(namespace: string): Promise<Realm> {
       schemaVersion: ARKADE_REALM_SCHEMA_VERSION,
       onMigration: (oldRealm, newRealm) => {
         runArkRealmMigrations(oldRealm, newRealm);
-        // Boltz is gone forever: drop the dead tables rather than leaving a
-        // "we might read it later" story behind. There is no rescue path for
-        // in-flight Boltz swaps at cutover (accepted exposure).
-        for (const model of ['BoltzSwap', 'ArkSwapNotificationSuppression']) {
-          try {
-            newRealm.deleteModel(model);
-          } catch {
-            // Model absent on fresh installs — nothing to drop.
-          }
+        // BoltzSwap is kept; the suppression table has no subject left.
+        try {
+          newRealm.deleteModel('ArkSwapNotificationSuppression');
+        } catch {
+          // Model absent on fresh installs — nothing to drop.
         }
       },
       path: realmPathFor(namespace),
