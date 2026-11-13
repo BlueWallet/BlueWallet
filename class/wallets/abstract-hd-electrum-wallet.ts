@@ -40,8 +40,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   static finalRBFSequence = 4294967295; // 0xFFFFFFFF
   // @ts-ignore: override
   public readonly type = AbstractHDElectrumWallet.type;
-  // @ts-ignore: override
-  public readonly typeReadable = AbstractHDElectrumWallet.typeReadable;
+  public readonly typeReadable: string = AbstractHDElectrumWallet.typeReadable;
 
   _balances_by_external_index: Record<number, BalanceByIndex>;
   _balances_by_internal_index: Record<number, BalanceByIndex>;

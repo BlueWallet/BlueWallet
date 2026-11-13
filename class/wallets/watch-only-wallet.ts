@@ -17,7 +17,6 @@ export class WatchOnlyWallet extends LegacyWallet {
   static readonly typeReadable = 'Watch-only';
   // @ts-ignore: override
   public readonly type = WatchOnlyWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = WatchOnlyWallet.typeReadable;
   public isWatchOnlyWarningVisible = true;
 

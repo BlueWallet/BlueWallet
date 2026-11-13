@@ -593,15 +593,15 @@ const SendDetails = () => {
         }
 
         if (transaction.address.startsWith('PM')) {
-          if (!wallet.allowBIP47()) {
+          if (!(wallet instanceof AbstractHDElectrumWallet) || !wallet.allowBIP47()) {
             console.log('validation error');
             error = loc.send.cant_send_to_bip47;
-          } else if (!(wallet as unknown as AbstractHDElectrumWallet).getBIP47NotificationTransaction(transaction.address)) {
+          } else if (!wallet.getBIP47NotificationTransaction(transaction.address)) {
             console.log('validation error');
             error = loc.send.cant_find_bip47_notification;
           } else {
             // BIP47 is allowed, notif tx is in place, lets sync joint addresses with the receiver
-            await (wallet as unknown as AbstractHDElectrumWallet).syncBip47ReceiversAddresses(transaction.address);
+            await wallet.syncBip47ReceiversAddresses(transaction.address);
           }
         }
       }

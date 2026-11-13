@@ -143,7 +143,7 @@ const WalletDetails: React.FC = () => {
   // Fetch ark address when wallet is a LightningArkWallet
   useEffect(() => {
     const fetchArkAddress = async () => {
-      if (wallet.type === LightningArkWallet.type && wallet.getArkAddress) {
+      if (wallet.type === LightningArkWallet.type) {
         try {
           const address = await wallet.getArkAddress();
           setArkAddress(address);
@@ -158,10 +158,10 @@ const WalletDetails: React.FC = () => {
 
   const [isRestoringSwaps, setIsRestoringSwaps] = useState<boolean>(false);
   const onRestoreSwapsPressed = useCallback(async () => {
-    if (wallet.type !== LightningArkWallet.type || !(wallet as unknown as LightningArkWallet).restoreSwaps) return;
+    if (wallet.type !== LightningArkWallet.type) return;
     setIsRestoringSwaps(true);
     try {
-      await (wallet as unknown as LightningArkWallet).restoreSwaps();
+      await wallet.restoreSwaps();
       await fetchAndSaveWalletTransactions(wallet.getID());
       presentAlert({ message: loc.wallets.restore_swap_activity_done });
     } catch (e) {

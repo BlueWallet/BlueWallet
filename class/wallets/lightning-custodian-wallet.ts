@@ -16,8 +16,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   static readonly subtitleReadable = 'LNDhub';
   // @ts-ignore: override
   public readonly type = LightningCustodianWallet.type;
-  // @ts-ignore: override
-  public readonly typeReadable = LightningCustodianWallet.typeReadable;
+  public readonly typeReadable: string = LightningCustodianWallet.typeReadable;
 
   baseURI?: string;
   refresh_token: string = '';
