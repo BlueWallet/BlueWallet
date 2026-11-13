@@ -10,6 +10,7 @@ import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import SeedWords from '../../components/SeedWords';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
+import { AbstractHDWallet } from '../../class/wallets/abstract-hd-wallet';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'PleaseBackup'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'PleaseBackup'>;
@@ -65,7 +66,9 @@ const PleaseBackup: React.FC = () => {
       contentInsetAdjustmentBehavior="automatic"
     >
       <View style={styles.please}>
-        <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</Text>
+        <Text style={[styles.pleaseText, stylesHook.pleaseText]}>
+          {wallet instanceof AbstractHDWallet && wallet.getPassphrase() ? loc.pleasebackup.text_passphrase : loc.pleasebackup.text}
+        </Text>
       </View>
       <View style={styles.list}>
         <SeedWords seed={wallet.getSecret()} />
