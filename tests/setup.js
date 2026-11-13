@@ -256,6 +256,7 @@ jest.mock('realm', () => {
     ArkadeAssetSwapMarketsCache: 'key',
     ArkadeRfqSwap: 'rfqId',
     ArkadeSwapRecord: 'id',
+    BoltzSwap: 'id',
   };
 
   // Split a query string at a top-level separator (i.e. not inside parens/braces).

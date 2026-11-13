@@ -167,13 +167,13 @@ describe('LightningArkWallet — realm schema set', () => {
     for (const sdkSchema of ArkRealmSchemas) {
       assert.ok(names.includes((sdkSchema as any).name), `has SDK schema ${(sdkSchema as any).name}`);
     }
-    assert.ok(!names.includes('BoltzSwap'), 'BoltzSwap is gone');
+    assert.ok(names.includes('BoltzSwap'), 'BoltzSwap is kept so stranded swaps stay recoverable');
     assert.ok(!names.includes('ArkSwapNotificationSuppression'), 'suppression schema is gone');
-    assert.strictEqual(config.schemaVersion, ARK_REALM_SCHEMA_VERSION + 1, 'local offset keeps app schemas ahead of the SDK version');
+    assert.strictEqual(config.schemaVersion, ARK_REALM_SCHEMA_VERSION + 2, 'local offset keeps app schemas ahead of the SDK version');
     closeAllArkadeRealms();
   });
 
-  it('migration drops the Boltz and suppression models', async () => {
+  it('migration drops the suppression model and keeps BoltzSwap', async () => {
     const { getArkadeRealm, closeAllArkadeRealms } = await import('../../blue_modules/arkade-adapters/realm/realmInstance');
     const Realm = require('realm');
     Realm.open.mockClear();
@@ -189,8 +189,7 @@ describe('LightningArkWallet — realm schema set', () => {
         },
       },
     );
-    assert.ok(deleted.includes('BoltzSwap'), 'drops BoltzSwap');
-    assert.ok(deleted.includes('ArkSwapNotificationSuppression'), 'drops suppression table');
+    assert.deepStrictEqual(deleted, ['ArkSwapNotificationSuppression']);
     closeAllArkadeRealms();
   });
 });
