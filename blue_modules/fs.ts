@@ -400,13 +400,16 @@ const readFileAsBase64 = async (uri: string): Promise<string> => {
   }
 };
 
-const handleImageFile = async (fileCopyUri: string): Promise<{ data: string | false; uri: string | false }> => {
-  const base64 = await readFileAsBase64(fileCopyUri);
+export const readQRCodeFromImageFile = async (uri: string): Promise<string> => {
+  const base64 = await readFileAsBase64(uri);
   const result = await detectQRCodeInImage(base64);
-  if (result) {
-    return { data: result, uri: fileCopyUri };
-  }
+  if (result) return result;
   throw new Error(loc.send.qr_error_no_qrcode);
+};
+
+const handleImageFile = async (fileCopyUri: string): Promise<{ data: string | false; uri: string | false }> => {
+  const result = await readQRCodeFromImageFile(fileCopyUri);
+  return { data: result, uri: fileCopyUri };
 };
 
 export const readFileOutsideSandbox = (filePath: string) => {

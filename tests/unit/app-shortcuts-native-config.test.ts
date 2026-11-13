@@ -5,6 +5,49 @@ const repositoryRoot = path.join(__dirname, '../..');
 const readRepositoryFile = (relativePath: string) => readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
 
 describe('native app shortcut configuration', () => {
+  it('registers image sharing as a Mac Catalyst-only extension', () => {
+    const extensionInfo = readRepositoryFile('ios/ShareExtension/Info.plist');
+    const extensionController = readRepositoryFile('ios/ShareExtension/ShareViewController.swift');
+    const sharedImageStore = readRepositoryFile('ios/ShareExtension/SharedImageStore.swift');
+    const appDelegate = readRepositoryFile('ios/BlueWallet/AppDelegate.swift');
+    const sceneDelegate = readRepositoryFile('ios/BlueWallet/SceneDelegate.swift');
+    const eventEmitter = readRepositoryFile('ios/Components/EventEmitter.swift');
+    const project = readRepositoryFile('ios/BlueWallet.xcodeproj/project.pbxproj');
+    const blueWalletScheme = readRepositoryFile('ios/BlueWallet.xcodeproj/xcshareddata/xcschemes/BlueWallet.xcscheme');
+    const fastfile = readRepositoryFile('fastlane/Fastfile');
+    const matchfile = readRepositoryFile('fastlane/Matchfile');
+    const companionListeners = readRepositoryFile('hooks/useCompanionListeners.ts');
+
+    expect(extensionInfo).toContain('<string>com.apple.share-services</string>');
+    expect(extensionInfo).toContain('<key>NSExtensionActivationSupportsImageWithMaxCount</key>');
+    expect(extensionController).toContain('SharedImageStore.appGroupStore()');
+    expect(sharedImageStore).toContain('copyItem(at: sourceURL, to: destinationURL)');
+    expect(sharedImageStore).toContain('pendingSharedImageFilename');
+    expect(project.match(/platformFilter = maccatalyst;/g)).toHaveLength(2);
+    expect(project).toContain('SUPPORTS_MACCATALYST = YES;');
+    expect(project).toContain('match AppStore io.bluewallet.bluewallet.ShareExtension catalyst');
+    expect(fastfile).toContain('Contents/PlugIns/ShareExtension.appex/Contents/MacOS/ShareExtension');
+    expect(fastfile).toContain('File.join(archived_app, "Contents/PlugIns/ShareExtension.appex")');
+    expect(matchfile).toContain('"io.bluewallet.bluewallet.ShareExtension"');
+    expect(companionListeners).not.toContain("decodedUrl.includes('/shared-images/')");
+    expect(companionListeners).toContain('isSharedImageEvent(event)');
+    expect(companionListeners).toContain('readQRCodeFromImageFile(decodedUrl)');
+    expect(extensionController).toContain('CFNotificationCenterPostNotification');
+    expect(appDelegate).toContain('CFNotificationCenterAddObserver');
+    expect(appDelegate).toContain('handlePendingSharedImageNotification()');
+    expect(appDelegate).toContain('EventEmitter.shared()?.sendSharedImagePending()');
+    expect(appDelegate).not.toContain('SharedImageStore.appGroupStore()?.consumePendingImageURL()');
+    expect(sceneDelegate).not.toContain('forwardPendingSharedImageToReactNative()');
+    expect(sharedImageStore).toContain('io.bluewallet.bluewallet.shared-image-imported');
+    expect(appDelegate).toContain('CFNotificationCenterRemoveObserver');
+    expect(sharedImageStore).toContain('guard !requestedName.isEmpty');
+    expect(sharedImageStore).toContain('consumePendingImageURL()');
+    expect(sharedImageStore).toContain('defaults.synchronize()');
+    expect(eventEmitter).toContain('consumePendingSharedImage');
+    expect(blueWalletScheme).toContain('BlueprintName = "BlueWalletUITests"');
+    expect(blueWalletScheme).not.toContain('BlueprintName = "ShareExtensionTests"');
+  });
+
   it('limits Android browsable links to the static BlueWallet shortcut routes', () => {
     const manifest = readRepositoryFile('android/app/src/main/AndroidManifest.xml');
     const browsableFilters = manifest
