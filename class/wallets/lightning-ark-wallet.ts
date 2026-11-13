@@ -53,7 +53,8 @@ import assert from 'assert';
 import ecc from '../../blue_modules/noble_ecc.ts';
 import { Measure } from '../measure.ts';
 import { deleteArkadeRealm, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm/realmInstance';
-import { processStrandedBoltzSwaps } from '../../blue_modules/arkade-stranded-sends';
+import { isSettledBoltzRow, processStrandedBoltzSwaps, type BoltzSwapRow } from '../../blue_modules/arkade-stranded-sends';
+import { BoltzSwapSchema } from '../../blue_modules/arkade-adapters/realm/boltzSwapSchema';
 import { errorMessage } from '../../helpers/errorMessage';
 import bundledCard from '../../blue_modules/arkade-solver.card.json';
 
@@ -1242,6 +1243,17 @@ export class LightningArkWallet extends LightningCustodianWallet {
   // ---------------------------------------------------------------------------
 
   async canDeleteWallet(force = false): Promise<{ safe: boolean; message?: string }> {
+    // A Boltz lockup can be rebuilt only from its row, and deleting the wallet deletes the rows.
+    const strandedBoltz = await this._strandedBoltzSwapCount();
+    if (strandedBoltz !== 0 && !force) {
+      return {
+        safe: false,
+        message:
+          strandedBoltz === undefined
+            ? 'Cannot verify Boltz swap state: the swap records could not be read'
+            : `This wallet has ${strandedBoltz} Boltz swap(s) still being recovered. Deleting now may make their funds unrecoverable. Let them settle first, or delete anyway knowing the funds may be lost.`,
+      };
+    }
     // An empty swap history needs no network, so init's delegate preflight gets no vote on it.
     if (await this._swapHistoryIsEmpty()) return { safe: true };
     try {
@@ -1294,6 +1306,16 @@ export class LightningArkWallet extends LightningCustodianWallet {
       }
     }
     return { safe: true };
+  }
+
+  /** Boltz rows whose funds may still move, or undefined when they cannot be read. */
+  private async _strandedBoltzSwapCount(): Promise<number | undefined> {
+    try {
+      const realm = await getArkadeRealm(this.getNamespace());
+      return Array.from(realm.objects<BoltzSwapRow>(BoltzSwapSchema.name)).filter(row => !isSettledBoltzRow(row)).length;
+    } catch {
+      return undefined;
+    }
   }
 
   /** True only when the local swap records were read and there are none. */

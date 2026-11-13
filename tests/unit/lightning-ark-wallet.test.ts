@@ -485,6 +485,27 @@ describe('LightningArkWallet — deletion guard', () => {
     (w as any)._wallet = { getArkadeReader: async () => ({ getVtxos: async () => [], getVirtualTxs: async () => [] }) };
   };
 
+  const storeBoltzRow = async (status: string) => {
+    const { getArkadeRealm } = await import('../../blue_modules/arkade-adapters/realm/realmInstance');
+    const realm = await getArkadeRealm(w.getNamespace());
+    realm.write(() =>
+      realm.create('BoltzSwap', { id: 'send-1', type: 'submarine', status, createdAt: 1, data: JSON.stringify({ status }) }),
+    );
+  };
+
+  it('refuses deletion while a Boltz swap may still be recovered, unless forced', async () => {
+    await storeBoltzRow('transaction.mempool');
+    const verdict = await w.canDeleteWallet();
+    assert.strictEqual(verdict.safe, false);
+    assert.match(verdict.message ?? '', /Boltz swap/);
+    assert.strictEqual((await w.canDeleteWallet(true)).safe, true);
+  });
+
+  it('does not let a settled Boltz row block deletion', async () => {
+    await storeBoltzRow('transaction.claimed');
+    assert.strictEqual((await w.canDeleteWallet()).safe, true);
+  });
+
   it('allows deleting a wallet with no swap history without the network', async () => {
     const init = jest.spyOn(w, 'init').mockRejectedValue(new Error('Delegate service unreachable'));
     assert.strictEqual((await w.canDeleteWallet()).safe, true);
