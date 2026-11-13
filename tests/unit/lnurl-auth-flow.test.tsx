@@ -65,6 +65,7 @@ function makeWallet(id: string, chain: Chain) {
   return {
     chain,
     allowLnurlAuth: () => true,
+    allowSend: () => true,
     getID: () => id,
     getLabel: () => id,
     getBalance: () => 0,
@@ -246,7 +247,7 @@ describe('LNURL-auth from Lightning Send', () => {
     render(<ScanLNDInvoice />);
     expect(mockNavigation.navigate).toHaveBeenCalledWith('LNDCreateInvoiceRoot', {
       screen: 'LNDCreateInvoice',
-      params: { uri: lnurl },
+      params: { uri: lnurl, walletID: 'lightning' },
     });
     expect(mockNavigation.goBack).not.toHaveBeenCalled();
     expect(mockDispatch).not.toHaveBeenCalled();

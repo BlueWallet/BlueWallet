@@ -37,7 +37,7 @@ const ScanLNDInvoiceRoot = () => {
           statusBarStyle: 'light',
           closeButtonPosition: CloseButtonPosition.Right,
         })(theme)}
-        initialParams={{ uri: undefined, walletID: undefined }}
+        initialParams={{ uri: undefined }}
       />
       <Stack.Screen
         name="SelectWallet"
