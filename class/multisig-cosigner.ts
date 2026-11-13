@@ -107,6 +107,28 @@ export class MultisigCosigner {
       this._valid = false;
     }
 
+    // is it crypto-account URv2 with several keys?
+    try {
+      const json = JSON.parse(data);
+      if (Array.isArray(json)) {
+        const keys = json
+          .map(key => new MultisigCosigner(JSON.stringify(key)))
+          .filter(cc => cc.isValid() && MultisigCosigner.isXpubValid(cc.getXpub()));
+        this._fp = keys.length === 1 ? keys[0].getFp() : '';
+        if (keys.length === 1) {
+          this._xpub = keys[0].getXpub();
+          this._path = keys[0].getPath();
+          this._cosigners = [true];
+        } else {
+          this._cosigners = keys;
+        }
+        this._valid = keys.length > 0;
+        return;
+      }
+    } catch (_) {
+      this._valid = false;
+    }
+
     // is it coldcard / unchained json?
     try {
       const json = JSON.parse(data);

@@ -2476,6 +2476,41 @@ describe('multisig-cosigner', () => {
     assert.strictEqual(cosigner.getFp(), '01EBDA7D');
   });
 
+  it('can parse URv2 account with several keys', () => {
+    // from the sparrowwallet/hummingbird tests: pkh, sh(wpkh), wpkh and the three multisig cosigner keys of one seed
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(
+      'UR:CRYPTO-ACCOUNT/OEADCYEMREWYTYAOLNTAADMUTAADDLOXAXHDCLAXWMFMDEIAMECSDSEMGTVSJZCNCYGRKOWTRONTZSCHGEZOKSTSWKKSCFMKLRTAUTEYAAHDCXIEHFONURDPPFYNTAPEJPPROYPEGRDAWKGMAEWEJLSFDTSRFYBDEHCAFLMTRLBDHPAMTAADDYOYADLNCSDWYKAEYKAEYKAYCYNLYTSNYLTAADMHTAADMWTAADDLOXAXHDCLAOSTVELFEMDYYNWYDWYAIEVOSRGMAMBKLOVABDGYPDGLLDVESPSTHYSADAMHPMJEINAAHDCXNTDLLNAAEYKOYTDACYGEGWHGJSIYONPYWMCMRPWPHSVODSREROZSBYAXLUZCOXDPAMTAADDYOYADLNCSEHYKAEYKAEYKAYCYPDBSKEUYTAADMWTAADDLOXAXHDCLAXZCFXEEGDRPMOGRGWKBZCTLTTWEADKIENGRWLHTPRREMOUOLUUTQDPFBNCEDKYNFHAAHDCXJPWEVDEOGTHTTKMESWZCOLCPSAAHCFNSHKHTEHYTCLMNTEATMOTEADTLWYNNFTLOAMTAADDYOYADLNCSGHYKAEYKAEYKAYCYBTHLVYTSTAADMHTAADDLOXAXHDCLAXHHSNHDRPFTDWUOCNTILYDIBEHNECMOVDFEKPJKCLCSLASBHKPAWSADDMCMMNAHNYAAHDCXLOTEDTNDFYMYLTCLHLMTPFSADSCNHTZTAOLBNNKISTAEDEGWFMMEDREETNWMCYCNAMTAADDYOYADLFCSDPYKAYCYEMREWYTYTAADMHTAADMETAADDLOXAXHDCLAXDWKSWMZTPYTNSWTSECNBLFBAYAJKDLDECLQZZOLRSNHLJEDSGMINETYTBNAHATBYAAHDCXKKGUWSVYIMJKVWTEYTWZTYSWVENDTPMNCPASFRRYLPRNHTKBLNDRGRMKOYJTBKRPAMTAADDYOYADLOCSDYYKAEYKAEYKADYKAYCYHKRPNDDRTAADMETAADDLOXAXHDCLAOHNHFFMVSBNDSLRFGCLPFJEJYATBDPEBACNZOKOTOFXNTAOEMVSKPAOWMRYFNOTFGAAHDCXDLNBVECENTSSFSSSGYLNHKRSTOYTECRDLYADREKIRFAYBGLAHLTALSRFCAEEROBWAMTAADDYOYADLOCSDYYKAEYKAEYKAOYKAYCYHKRPNDDRGDAOGYKB',
+    );
+
+    const cosigner = new MultisigCosigner(decoder.toString());
+    assert.ok(cosigner.isValid());
+    assert.deepStrictEqual(
+      cosigner.getAllCosigners().map(cc => cc.getPath()),
+      ["m/44'/0'/0'", "m/49'/0'/0'", "m/84'/0'/0'", "m/45'", "m/48'/0'/0'/1'", "m/48'/0'/0'/2'"],
+    );
+    const nativeSegwit = cosigner.getAllCosigners().find(cc => cc.getPath() === MultisigHDWallet.PATH_NATIVE_SEGWIT);
+    assert.strictEqual(nativeSegwit.getFp(), '37B5EED4');
+    assert.ok(nativeSegwit.getXpub().startsWith('Zpub'));
+
+    const single = new MultisigCosigner(JSON.stringify([JSON.parse(decoder.toString())[5], { foo: 'bar' }]));
+    assert.ok(single.isValid());
+    assert.strictEqual(single.howManyCosignersWeHave(), 1);
+    assert.strictEqual(single.getPath(), MultisigHDWallet.PATH_NATIVE_SEGWIT);
+    assert.strictEqual(single.getXpub(), nativeSegwit.getXpub());
+    assert.strictEqual(single.getFp(), '37B5EED4');
+
+    assert.strictEqual(cosigner.getFp(), '');
+    assert.ok(!new MultisigCosigner('[]').isValid());
+    assert.ok(!new MultisigCosigner('[{"foo":"bar"}]').isValid());
+    // a key bip32 does not accept is not offered as a vault key
+    const broken = {
+      ...JSON.parse(decoder.toString())[5],
+      ExtPubKey: 'Zpub6wEDxYmXGQN97V8bBt7gQN7zkXa8znsysLfBVJ3XcwsnNcanR1rpDgMEu9dcsvPuyL66vpHmX4KwAKtZi8dAnBgyKPDqvVFRVUpDZZ2YFjL',
+    };
+    assert.ok(!new MultisigCosigner(JSON.stringify([broken, { foo: 'bar' }])).isValid());
+  });
+
   it('can parse coldcardQ json', () => {
     const coldcardQjson = require('./fixtures/coldcardQ.json');
 
