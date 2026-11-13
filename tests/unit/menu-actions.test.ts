@@ -1,6 +1,25 @@
 import { availableMenuActions, nativeSendDetailsAction } from '../../blue_modules/menuActions';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
+it('loads native actions before wallet translations are needed and resolves shortcut labels at display time', () => {
+  const translations: { wallets?: { details_export_bip329_shortcut: string; details_export_bip329_availability: string } } = {};
+  jest.isolateModules(() => {
+    jest.doMock('../../loc', () => ({ __esModule: true, default: translations }));
+    const { availableMenuActions: available, menuShortcuts } = require('../../blue_modules/menuActions');
+    expect(available(undefined, [], false)).toEqual([]);
+    translations.wallets = {
+      details_export_bip329_shortcut: 'Export wallet labels',
+      details_export_bip329_availability: 'Wallets with transactions or owned labels',
+    };
+    const shortcut = menuShortcuts.find((item: { key: string }) => item.key === 'Alt+Shift+B');
+    expect(shortcut.title).toBe('Export wallet labels');
+    expect(shortcut.where).toBe('Wallets with transactions or owned labels');
+    translations.wallets.details_export_bip329_shortcut = 'Translated export';
+    expect(shortcut.title).toBe('Translated export');
+  });
+  jest.dontMock('../../loc');
+});
+
 it('maps Send Details tooltip identifiers to native menu actions without changing the shared identifiers', () => {
   expect(CommonToolTipActions.AddRecipient.id).toBe('AddRecipient');
   expect(CommonToolTipActions.RemoveRecipient.id).toBe('RemoveRecipient');

@@ -46,10 +46,22 @@ enum class WalletMenuAction(
     SIGN_PSBT("sign_psbt", R.id.wallet_menu_sign_psbt, R.string.wallet_menu_sign_psbt, android.R.drawable.ic_menu_edit, KeyEvent.KEYCODE_S, 's', KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON, Group.SEND),
     INSERT_CONTACT("insert_contact", R.id.wallet_menu_insert_contact, R.string.wallet_menu_insert_contact, android.R.drawable.ic_menu_add, KeyEvent.KEYCODE_P, 'p', KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON, Group.SEND),
     COIN_CONTROL("coin_control", R.id.wallet_menu_coin_control, R.string.wallet_menu_coin_control, android.R.drawable.ic_menu_manage, KeyEvent.KEYCODE_O, 'o', KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON, Group.SEND),
+    EDIT_WALLET_NAME("editWalletName", R.id.wallet_menu_edit_wallet_name, R.string.wallet_menu_edit_wallet_name, android.R.drawable.ic_menu_edit, KeyEvent.KEYCODE_N, 'n', KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON, Group.EDIT),
+    SHOW_ADDRESSES("showAddresses", R.id.wallet_menu_show_addresses, R.string.wallet_menu_show_addresses, android.R.drawable.ic_menu_agenda, KeyEvent.KEYCODE_A, 'a', KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON, Group.VIEW),
+    SHOW_XPUB("showXpub", R.id.wallet_menu_show_xpub, R.string.wallet_menu_show_xpub, android.R.drawable.ic_menu_info_details, KeyEvent.KEYCODE_X, 'x', KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON, Group.VIEW),
+    SIGN_VERIFY("signVerify", R.id.wallet_menu_sign_verify, R.string.wallet_menu_sign_verify, android.R.drawable.ic_menu_edit, KeyEvent.KEYCODE_V, 'v', KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON, Group.VIEW),
+    IMPORT_WALLET_NOTES("importWalletNotes", R.id.wallet_menu_import_notes, R.string.wallet_menu_import_notes, android.R.drawable.ic_menu_upload, KeyEvent.KEYCODE_I, 'i', KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON, Group.WALLET),
+    EXPORT_WALLET_BACKUP("exportWalletBackup", R.id.wallet_menu_export_wallet, R.string.wallet_menu_export_wallet, android.R.drawable.ic_menu_save, KeyEvent.KEYCODE_E, 'e', KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON, Group.WALLET),
+    EXPORT_ACCOUNTING_CSV("exportAccountingCsv", R.id.wallet_menu_export_csv, R.string.wallet_menu_export_csv, android.R.drawable.ic_menu_save, KeyEvent.KEYCODE_C, 'c', KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON or KeyEvent.META_SHIFT_ON, Group.EXPORT_HISTORY),
+    EXPORT_BIP329_LABELS("exportBip329Backup", R.id.wallet_menu_export_labels, R.string.wallet_menu_export_labels, android.R.drawable.ic_menu_save, KeyEvent.KEYCODE_B, 'b', KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON or KeyEvent.META_SHIFT_ON, Group.EXPORT_HISTORY),
+    DELETE_WALLET("deleteWallet", R.id.wallet_menu_delete_wallet, R.string.wallet_menu_delete_wallet, android.R.drawable.ic_menu_delete, group = Group.WALLET),
     SHORTCUTS("keyboardShortcuts", R.id.wallet_menu_shortcuts, R.string.wallet_menu_shortcuts, android.R.drawable.ic_menu_help, KeyEvent.KEYCODE_SLASH, '/'),
     SETTINGS("settings", R.id.wallet_menu_settings, R.string.wallet_menu_settings, android.R.drawable.ic_menu_preferences, KeyEvent.KEYCODE_COMMA, ',');
 
     fun matches(event: KeyEvent): Boolean = keyCode != null && event.keyCode == keyCode && event.hasModifiers(modifiers)
 
-    enum class Group { GENERAL, WALLET, EDIT, VIEW, SEND, TOOLS }
+    fun groupFor(available: Collection<WalletMenuAction>): Group =
+        if (this == COIN_CONTROL && EDIT_WALLET_NAME in available) Group.VIEW else group
+
+    enum class Group { GENERAL, WALLET, EDIT, VIEW, SEND, TOOLS, EXPORT_HISTORY }
 }

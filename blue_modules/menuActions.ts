@@ -1,3 +1,5 @@
+import loc from '../loc';
+
 export type ScreenMenuAction =
   | 'reloadTransactions'
   | 'send'
@@ -17,7 +19,16 @@ export type ScreenMenuAction =
   | 'co_sign_transaction'
   | 'sign_psbt'
   | 'insert_contact'
-  | 'coin_control';
+  | 'coin_control'
+  | 'editWalletName'
+  | 'showAddresses'
+  | 'showXpub'
+  | 'signVerify'
+  | 'importWalletNotes'
+  | 'exportWalletBackup'
+  | 'exportAccountingCsv'
+  | 'exportBip329Backup'
+  | 'deleteWallet';
 export type MenuAction =
   | ScreenMenuAction
   | 'settings'
@@ -34,7 +45,7 @@ export type MenuActionHandlers = Partial<Record<ScreenMenuAction, () => void>>;
 export type MenuActionState = { disabled?: boolean; checked?: boolean };
 export type MenuActionStates = Partial<Record<ScreenMenuAction, MenuActionState>>;
 
-export type MenuActionTitles = Record<MenuAction | 'tools' | 'openRecent' | 'noRecent' | 'unlockRecent', string>;
+export type MenuActionTitles = Record<MenuAction | 'tools' | 'openRecent' | 'noRecent' | 'unlockRecent' | 'exportHistory', string>;
 
 const sendDetailsActionAliases: Readonly<Record<string, ScreenMenuAction>> = {
   AddRecipient: 'add_recipient',
@@ -60,6 +71,18 @@ const screenActions: Record<string, readonly ScreenMenuAction[]> = {
     'sign_psbt',
     'insert_contact',
     'coin_control',
+  ],
+  WalletDetails: [
+    'editWalletName',
+    'showAddresses',
+    'showXpub',
+    'signVerify',
+    'coin_control',
+    'importWalletNotes',
+    'exportWalletBackup',
+    'exportAccountingCsv',
+    'exportBip329Backup',
+    'deleteWallet',
   ],
 };
 const walletDetailScreens = new Set(['WalletTransactions', 'WalletDetails', 'TransactionStatus', 'ReceiveDetails', 'WalletAddresses']);
@@ -115,6 +138,23 @@ export const menuShortcuts: readonly { title: string; key: string; where: string
   { title: 'Sign a Transaction', key: 'Alt+S', where: 'Send details' },
   { title: 'Insert Contact', key: 'Alt+P', where: 'Send details' },
   { title: 'Coin Control', key: 'Alt+O', where: 'Send details' },
+  { title: 'Edit Wallet Name', key: 'Alt+N', where: 'Wallet details' },
+  { title: 'Show Addresses', key: 'Alt+A', where: 'Wallet details, for HD wallets' },
+  { title: 'Show Extended Public Key', key: 'Alt+X', where: 'Wallet details, when available' },
+  { title: 'Sign/Verify Message', key: 'Alt+V', where: 'Wallet details, when available' },
+  { title: 'Coin Control', key: 'Alt+O', where: 'Wallet details, when coins are available' },
+  { title: 'Import Wallet Notes', key: 'Alt+I', where: 'On-chain wallet details with transaction history' },
+  { title: 'Export Wallet Backup', key: 'Alt+E', where: 'Wallet details' },
+  { title: 'Export Accounting CSV', key: 'Alt+Shift+C', where: 'Wallet details with transaction history' },
+  {
+    get title() {
+      return loc.wallets.details_export_bip329_shortcut;
+    },
+    key: 'Alt+Shift+B',
+    get where() {
+      return loc.wallets.details_export_bip329_availability;
+    },
+  },
   { title: 'Settings', key: ',', where: 'Anywhere after unlocking' },
   { title: 'Keyboard Shortcuts…', key: '/', where: 'Anywhere after unlocking' },
 ] as const;

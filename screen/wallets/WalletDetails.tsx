@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   applyWalletHistoryNoteUpdates,
-  encodeBip329TransactionLabel,
-  encodeCsvRow,
   parseWalletHistoryNotes,
   planWalletHistoryNoteImport,
   selectWalletHistoryNoteUpdates,
@@ -11,7 +9,6 @@ import {
   writeFileAndExport,
 } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
 import { HDAezeedWallet } from '../../class/wallets/hd-aezeed-wallet';
@@ -41,7 +38,6 @@ import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { Action } from '../../components/types';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
@@ -50,11 +46,28 @@ import { navigateToWalletsList } from '../../NavigationService';
 import { removeRecentMenuItemsForWallets } from '../../components/Context/recentMenuItems';
 import { errorMessage } from '../../helpers/errorMessage';
 import { AbstractHDWallet } from '../../class/wallets/abstract-hd-wallet';
+import {
+  createAccountingHistoryCsv,
+  createHistoryExportFileNames,
+  createHistoryExportMenuActions,
+  IMPORT_NOTES_ACTION_ID,
+  removeTrailingEllipsis,
+  SAVE_ACCOUNTING_ACTION_ID,
+  SAVE_BACKUP_ACTION_ID,
+  SHARE_ACCOUNTING_ACTION_ID,
+  SHARE_BACKUP_ACTION_ID,
+} from '../../blue_modules/wallet-history-export';
+import { createBip329WalletHistoryBackup, getBip329Origin } from '../../blue_modules/bip329-wallet-history';
+import { isDesktop } from '../../blue_modules/environment';
+import useScreenMenuActions from '../../hooks/useScreenMenuActions';
+import useWalletHistorySummary from '../../hooks/useWalletHistorySummary';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
-const IMPORT_NOTES_ACTION_ID = 'import_notes';
 
-function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: number | null } {
+function getCoinControlStats(w: TWallet): {
+  hasCoinControl: boolean;
+  utxoCount: number | null;
+} {
   if (typeof w.getUtxo !== 'function') return { hasCoinControl: false, utxoCount: null };
   try {
     return { hasCoinControl: true, utxoCount: w.getUtxo().length };
@@ -64,7 +77,15 @@ function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: 
 }
 
 const WalletDetails: React.FC = () => {
-  const { saveToDisk, wallets, txMetadata = {}, handleWalletDeletion, fetchAndSaveWalletTransactions, sleep } = useStorage();
+  const {
+    saveToDisk,
+    wallets,
+    txMetadata = {},
+    addressMetadata = {},
+    handleWalletDeletion,
+    fetchAndSaveWalletTransactions,
+    sleep,
+  } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
   const { direction } = useLocale();
@@ -93,7 +114,15 @@ const WalletDetails: React.FC = () => {
   const [importedNoteResults, setImportedNoteResults] = useState<Map<string, string>>(new Map());
   const [pendingNoteUpdates, setPendingNoteUpdates] = useState<Map<string, string>>(new Map());
   const [selectedNoteOverwrites, setSelectedNoteOverwrites] = useState<Set<string>>(new Set());
-  const walletTransactionsLength = useMemo<number>(() => wallet.getTransactions().length, [wallet]);
+  const [historyRevision, setHistoryRevision] = useState(0);
+  const { transactionCount: walletTransactionsLength, hasAddressLabels } = useWalletHistorySummary(
+    wallet,
+    wallets,
+    addressMetadata,
+    historyRevision,
+  );
+  const canExportLabels = wallet.chain === Chain.ONCHAIN && (walletTransactionsLength > 0 || hasAddressLabels);
+  const hasHistoryMenu = walletTransactionsLength > 0 || canExportLabels;
   const [coinControlStats, setCoinControlStats] = useState(() => getCoinControlStats(wallet));
 
   useEffect(() => {
@@ -189,7 +218,11 @@ const WalletDetails: React.FC = () => {
       const walletBalanceConfirmation = await prompt(
         loc.wallets.details_delete_wallet,
         loc.formatString(loc.wallets.details_del_wb_q, { balance }),
-        { type: 'numeric', destructive: true, continueButtonText: loc.wallets.details_delete },
+        {
+          type: 'numeric',
+          destructive: true,
+          continueButtonText: loc.wallets.details_delete,
+        },
       );
       // Remove any non-numeric characters before comparison
       const cleanedConfirmation = (walletBalanceConfirmation || '').replace(/[^0-9]/g, '');
@@ -242,58 +275,16 @@ const WalletDetails: React.FC = () => {
     });
   }, [isBiometricUseCapableAndEnabled, navigateToOverviewAndDeleteWallet, presentWalletHasBalanceAlert, wallet]);
 
-  const exportHistoryContent = useCallback(() => {
-    const transactions = wallet.getTransactions();
+  const createBip329Backup = useCallback(
+    () => createBip329WalletHistoryBackup(wallet, txMetadata, addressMetadata),
+    [wallet, txMetadata, addressMetadata],
+  );
 
-    if (wallet.chain === Chain.ONCHAIN) {
-      return transactions
-        .flatMap(transaction => {
-          const transactionId = transaction.hash || transaction.txid;
-          if (!transactionId) return [];
-
-          const memo = txMetadata?.[transactionId]?.memo?.trim();
-          return [encodeBip329TransactionLabel(transactionId, memo || undefined)];
-        })
-        .join('\n');
-    }
-
-    const headers = [loc.transactions.date, loc.transactions.txid, `${loc.send.create_amount} (${BitcoinUnit.BTC})`, loc.send.create_memo];
-    headers.push(loc.lnd.payment);
-
-    const rows = [encodeCsvRow(headers)];
-
-    transactions.forEach((transaction: Transaction & LightningTransaction) => {
-      const value = formatBalanceWithoutSuffix(transaction.value || 0, BitcoinUnit.BTC, true);
-      let hash: string = transaction.hash || transaction.txid || '';
-      const metadataKey = transaction.hash || transaction.txid;
-      let memo = (metadataKey && txMetadata?.[metadataKey]?.memo?.trim()) || '';
-      let status = '';
-
-      if (wallet.chain === Chain.OFFCHAIN) {
-        const paymentHash = transaction.payment_hash;
-        hash = typeof paymentHash === 'string' ? paymentHash : paymentHash ? uint8ArrayToHex(new Uint8Array(paymentHash.data)) : '';
-        memo = memo || transaction.memo || '';
-        status = transaction.ispaid ? loc._.success : loc.lnd.expired;
-      }
-
-      const date = transaction.timestamp ? new Date(transaction.timestamp * 1000).toString() : '';
-      const data = [date, hash, value, memo];
-
-      if (wallet.chain === Chain.OFFCHAIN) {
-        data.push(status);
-      }
-
-      rows.push(encodeCsvRow(data));
-    });
-
-    return rows.join('\n');
+  const createAccountingExport = useCallback(() => {
+    return createAccountingHistoryCsv(wallet.getTransactions() as Array<Transaction & LightningTransaction>, wallet.chain, txMetadata);
   }, [wallet, txMetadata]);
 
-  const fileName = useMemo(() => {
-    const label = wallet.getLabel().replace(' ', '-');
-    const extension = wallet.chain === Chain.ONCHAIN ? 'jsonl' : 'csv';
-    return `${label}-history.${extension}`;
-  }, [wallet]);
+  const exportFileNames = useMemo(() => createHistoryExportFileNames(walletName), [walletName]);
 
   const applyNoteUpdates = useCallback(
     async (updates: ReadonlyMap<string, string>) => {
@@ -315,13 +306,20 @@ const WalletDetails: React.FC = () => {
 
   const importNotes = useCallback(async () => {
     if (wallet.chain !== Chain.ONCHAIN) return;
+    const importTitle = removeTrailingEllipsis(loc.wallets.details_import_notes);
 
-    const { data } = await showFilePickerAndReadFile();
+    const { data, unsupportedFileType, fileName } = await showFilePickerAndReadFile();
+    if (unsupportedFileType === 'numbers') {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
+      presentAlert({ title: importTitle, message: loc.wallets.details_import_numbers_unsupported });
+      return;
+    }
     if (data === false) return;
 
     let importedNotes;
+    const diagnostics = { originMismatchCount: 0, invalidLineCount: 0 };
     try {
-      importedNotes = parseWalletHistoryNotes(data);
+      importedNotes = parseWalletHistoryNotes(data, getBip329Origin(wallet), diagnostics, fileName);
     } catch {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ message: loc.wallets.import_error });
@@ -335,11 +333,38 @@ const WalletDetails: React.FC = () => {
     }
 
     const { updates, overwriteCount } = planWalletHistoryNoteImport(importedNotes, transactionMetadataKeys, txMetadata);
+    const skippedMessage = [
+      diagnostics.originMismatchCount
+        ? String(loc.formatString(loc.wallets.details_import_notes_origin_skipped, { count: diagnostics.originMismatchCount }))
+        : '',
+      diagnostics.invalidLineCount
+        ? String(loc.formatString(loc.wallets.details_import_notes_invalid_skipped, { count: diagnostics.invalidLineCount }))
+        : '',
+    ]
+      .filter(Boolean)
+      .join('\n\n');
 
     if (updates.size === 0) {
-      presentAlert({ message: loc.wallets.details_import_notes_no_changes });
+      presentAlert({
+        title: importTitle,
+        message: [loc.wallets.details_import_notes_no_changes, loc.wallets.details_import_notes_scope, skippedMessage]
+          .filter(Boolean)
+          .join('\n\n'),
+      });
       return;
     }
+
+    const confirmed = await new Promise<boolean>(resolve => {
+      presentAlert({
+        title: importTitle,
+        message: [loc.wallets.details_import_notes_scope, skippedMessage].filter(Boolean).join('\n\n'),
+        buttons: [
+          { text: loc._.cancel, style: 'cancel', onPress: () => resolve(false) },
+          { text: loc._.ok, onPress: () => resolve(true) },
+        ],
+      });
+    });
+    if (!confirmed) return;
 
     if (overwriteCount === 0) {
       await applyNoteUpdates(updates);
@@ -378,34 +403,35 @@ const WalletDetails: React.FC = () => {
 
   const toolTipOnPressMenuItem = useCallback(
     async (id: string) => {
-      if (id === CommonToolTipActions.Share.id) {
-        await writeFileAndExport(fileName, exportHistoryContent(), true);
-      } else if (id === CommonToolTipActions.SaveFile.id) {
-        await writeFileAndExport(fileName, exportHistoryContent(), false);
-      } else if (id === IMPORT_NOTES_ACTION_ID) {
-        await importNotes();
+      try {
+        if (id === SHARE_ACCOUNTING_ACTION_ID || id === SAVE_ACCOUNTING_ACTION_ID) {
+          const contents = createAccountingExport();
+          await writeFileAndExport(exportFileNames.accounting, contents, id === SHARE_ACCOUNTING_ACTION_ID);
+        } else if (id === SHARE_BACKUP_ACTION_ID || id === SAVE_BACKUP_ACTION_ID) {
+          const contents = createBip329Backup();
+          await writeFileAndExport(exportFileNames.backup, contents, id === SHARE_BACKUP_ACTION_ID);
+        } else if (id === IMPORT_NOTES_ACTION_ID) {
+          await importNotes();
+        }
+      } catch (error) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: errorMessage(error) });
       }
     },
-    [exportHistoryContent, fileName, importNotes],
+    [createAccountingExport, createBip329Backup, exportFileNames, importNotes],
   );
 
   const transactionsBoxMenuActions = useMemo(
-    (): Action[] => [
-      {
-        id: loc.wallets.details_export_history,
-        text: loc.wallets.details_export_history,
-        displayInline: true,
-        hidden: walletTransactionsLength === 0,
-        subactions: [CommonToolTipActions.Share, CommonToolTipActions.SaveFile],
-      },
-      {
-        id: IMPORT_NOTES_ACTION_ID,
-        text: loc.wallets.details_import_notes,
-        icon: CommonToolTipActions.ImportFile.icon,
-        hidden: walletTransactionsLength === 0 || wallet.chain !== Chain.ONCHAIN,
-      },
-    ],
-    [wallet.chain, walletTransactionsLength],
+    (): Action[] =>
+      createHistoryExportMenuActions(
+        wallet.chain,
+        walletTransactionsLength,
+        loc.wallets.details_export_history,
+        loc.wallets.details_import_notes,
+        isDesktop,
+        hasAddressLabels,
+      ),
+    [wallet.chain, walletTransactionsLength, hasAddressLabels],
   );
 
   useEffect(() => {
@@ -572,12 +598,16 @@ const WalletDetails: React.FC = () => {
       hd._lastBalanceFetch = 0;
       presentAlert({ message: msg });
     }
+    setHistoryRevision(revision => revision + 1);
   };
 
   const handleEditWalletName = useCallback(async () => {
     let newName: string;
     try {
-      newName = await prompt(loc.wallets.add_wallet_name, '', { type: 'plain-text', defaultValue: wallet.getLabel() });
+      newName = await prompt(loc.wallets.add_wallet_name, '', {
+        type: 'plain-text',
+        defaultValue: wallet.getLabel(),
+      });
     } catch (_) {
       // User cancelled
       return;
@@ -594,7 +624,9 @@ const WalletDetails: React.FC = () => {
       wallet.setLabel(previousLabel);
       setWalletName(previousLabel);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: error instanceof Error ? error.message : String(error) });
+      presentAlert({
+        message: error instanceof Error ? error.message : String(error),
+      });
     }
   }, [wallet, saveToDisk]);
 
@@ -650,6 +682,29 @@ const WalletDetails: React.FC = () => {
   if (isMasterFingerPrintVisible) {
     onMasterFingerprintPress = isWatchOnlyHd ? onEditMasterFingerprintPress : undefined;
   }
+
+  useScreenMenuActions({
+    editWalletName: handleEditWalletName,
+    showAddresses:
+      wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd())
+        ? navigateToAddresses
+        : undefined,
+    showXpub: wallet.allowXpub && wallet.allowXpub() ? navigateToXPub : undefined,
+    signVerify: wallet.allowSignVerifyMessage && wallet.allowSignVerifyMessage() ? navigateToSignVerify : undefined,
+    coin_control:
+      hasCoinControl && utxoCount !== null && utxoCount > 0
+        ? () =>
+            navigate('SendDetailsRoot', {
+              screen: 'CoinControl',
+              params: { walletID },
+            })
+        : undefined,
+    importWalletNotes: wallet.chain === Chain.ONCHAIN && walletTransactionsLength > 0 ? importNotes : undefined,
+    exportWalletBackup: navigateToWalletExport,
+    exportAccountingCsv: walletTransactionsLength > 0 ? () => toolTipOnPressMenuItem(SAVE_ACCOUNTING_ACTION_ID) : undefined,
+    exportBip329Backup: canExportLabels ? () => toolTipOnPressMenuItem(SAVE_BACKUP_ACTION_ID) : undefined,
+    deleteWallet: handleDeleteButtonTapped,
+  });
 
   return (
     <SafeAreaScrollView centerContent={isLoading} testID="WalletDetailsScroll">
@@ -720,14 +775,24 @@ const WalletDetails: React.FC = () => {
                     <Text onPress={purgeTransactions} style={[styles.textLabel2, stylesHook.textLabel2]} testID="PurgeBackdoorButton">
                       {loc.transactions.list_title}
                     </Text>
-                    {walletTransactionsLength > 0 && (
+                    {hasHistoryMenu && (
                       <ToolTipMenu
                         isButton
                         shouldOpenOnLongPress={false}
                         onPressMenuItem={toolTipOnPressMenuItem}
                         actions={transactionsBoxMenuActions}
+                        buttonStyle={styles.statsMenuButton}
+                        accessibilityLabel={loc.wallets.details_export_history}
+                        accessibilityRole="button"
+                        testID="TransactionHistoryMenuButton"
                       >
-                        <Icon name="more-horiz" type="material" size={20} color={colors.alternativeTextColor} />
+                        <Icon
+                          name="more-horiz"
+                          type="material"
+                          size={20}
+                          color={colors.alternativeTextColor}
+                          style={styles.statsMenuIcon}
+                        />
                       </ToolTipMenu>
                     )}
                   </View>
@@ -736,7 +801,12 @@ const WalletDetails: React.FC = () => {
                 {hasCoinControl && utxoCount !== null && utxoCount > 0 ? (
                   <Pressable
                     style={({ pressed }) => [styles.statsBox, stylesHook.statsBox, pressed && styles.pressablePressed]}
-                    onPress={() => navigate('SendDetailsRoot', { screen: 'CoinControl', params: { walletID } })}
+                    onPress={() =>
+                      navigate('SendDetailsRoot', {
+                        screen: 'CoinControl',
+                        params: { walletID },
+                      })
+                    }
                     testID="CoinsStatsBox"
                   >
                     <View style={styles.statsBoxTitleRow}>
@@ -1024,7 +1094,9 @@ const WalletDetails: React.FC = () => {
             <Text style={[styles.importResultsSummary, { color: colors.alternativeTextColor }]}>
               {pendingNoteUpdates.size > 0
                 ? loc.wallets.details_import_notes_review
-                : loc.formatString(loc.wallets.details_import_notes_success, { count: importedNoteResults.size })}
+                : loc.formatString(loc.wallets.details_import_notes_success, {
+                    count: importedNoteResults.size,
+                  })}
             </Text>
             <FlatList
               data={pendingNoteUpdates.size > 0 ? overwriteNoteUpdates : [...importedNoteResults]}
@@ -1223,6 +1295,18 @@ const styles = StyleSheet.create({
   statsBoxTitleRowSpacer: {
     width: 20,
     height: 20,
+  },
+  statsMenuButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statsMenuIcon: {
+    width: 20,
+    height: 20,
+    lineHeight: 20,
+    textAlign: 'center',
   },
   statsBoxNumber: {
     fontSize: 32,

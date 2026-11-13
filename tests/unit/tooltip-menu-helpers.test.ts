@@ -74,6 +74,80 @@ describe('TooltipMenu.helpers', () => {
       expect(ids[0].children?.map(n => n.id)).toEqual(['export-share', 'export-save']);
     });
 
+    it('preserves ordinary Android inline sections with their title, subtitle, selection, and index paths', () => {
+      const section: Action = {
+        id: 'suggested',
+        text: 'Suggested servers',
+        subtitle: 'Choose a server',
+        displayInline: true,
+        subactions: [
+          { id: 'hidden', text: 'Hidden', hidden: true },
+          { id: 'server', text: 'Server', menuState: true },
+        ],
+      };
+      const { items, ids } = buildMenu([section], 'android');
+
+      expect(items).toHaveLength(1);
+      expect(items[0]).toMatchObject({ title: 'Suggested servers', subtitle: 'Choose a server' });
+      expect(items[0].actions).toEqual([expect.objectContaining({ title: 'Server', selected: true })]);
+      expect(lookupId(ids, [0, 0])).toBe('server');
+    });
+
+    it('does not lift children out of disabled or hidden Android sections', () => {
+      const section: Action = {
+        id: 'section',
+        text: 'Section',
+        displayInline: true,
+        disabled: true,
+        subactions: [{ id: 'category', text: 'Category', subactions: [share] }],
+      };
+      expect(buildMenu([section], 'android').items).toEqual([expect.objectContaining({ title: 'Section', disabled: true })]);
+      expect(buildMenu([{ ...section, hidden: true }], 'android')).toEqual({ items: [], ids: [] });
+    });
+
+    it('does not flatten Android sections because of hidden nested submenus', () => {
+      const { items, ids } = buildMenu(
+        [
+          {
+            id: 'section',
+            text: 'Section',
+            displayInline: true,
+            subactions: [copyAddress, { id: 'hidden', text: 'Hidden', hidden: true, subactions: [share] }],
+          },
+        ],
+        'android',
+      );
+      expect(items.map(item => item.title)).toEqual(['Section']);
+      expect(lookupId(ids, [0, 0])).toBe('copy-address');
+    });
+
+    it('lifts nested submenus out of Android inline sections so export formats remain reachable', () => {
+      const exportHistory: Action = {
+        id: 'export-history',
+        text: 'Export History',
+        displayInline: true,
+        subactions: [
+          {
+            id: 'accounting',
+            text: 'Accounting',
+            subactions: [{ id: 'csv', text: 'CSV' }],
+          },
+          {
+            id: 'backup',
+            text: 'Backup',
+            subactions: [{ id: 'jsonl', text: 'BIP-329 JSONL' }],
+          },
+        ],
+      };
+      const { items, ids } = buildMenu([exportHistory], 'android');
+
+      expect(items.map(item => item.title)).toEqual(['Accounting', 'Backup']);
+      expect(items[0].actions?.map(item => item.title)).toEqual(['CSV']);
+      expect(items[1].actions?.map(item => item.title)).toEqual(['BIP-329 JSONL']);
+      expect(lookupId(ids, [0, 0])).toBe('csv');
+      expect(lookupId(ids, [1, 0])).toBe('jsonl');
+    });
+
     it('assigns icons to the platform-appropriate field', () => {
       const withIcon: Action = { id: 'x', text: 'X', icon: { iconValue: 'star' } };
       expect(buildMenu([withIcon], 'ios').items[0]).toMatchObject({ systemIcon: 'star', icon: undefined });

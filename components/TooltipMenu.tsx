@@ -106,7 +106,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
           onPress={handlePressMenuItem}
           actions={items}
           dropdownMenuMode={!shouldOpenOnLongPress}
-          style={styles.menuFlex}
+          style={isButton ? styles.menuButtonContent : styles.menuFlex}
         >
           {children}
         </ContextMenu>
@@ -139,6 +139,12 @@ export default ToolTipMenu;
 const styles = StyleSheet.create({
   button: { alignSelf: 'center' },
   menuFlex: { flex: 1 },
+  menuButtonContent: {
+    flex: 1,
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   menuButtonInner: {
     flexGrow: 0,
     flexShrink: 0,

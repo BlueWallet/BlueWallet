@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleIdentifier</key><string>io.bluewallet.preview-smoke</string>
+<key>CFBundleExecutable</key><string>PreviewSmoke</string>
+<key>CFBundleName</key><string>Preview Smoke Tests</string>
+<key>CFBundleVersion</key><string>1</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>LSRequiresIPhoneOS</key><true/>
+<key>UIDeviceFamily</key><array><integer>1</integer><integer>2</integer></array>
+<key>UILaunchScreen</key><dict/>
+<key>UIApplicationSceneManifest</key><dict><key>UIApplicationSupportsMultipleScenes</key><false/></dict>
+</dict></plist>

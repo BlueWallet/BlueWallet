@@ -1,11 +1,23 @@
 import QuickLook
 import UIKit
 
+private struct PreviewRecord {
+    let section: String
+    let label: String
+    let detail: String
+    let symbol: String
+}
+
 final class PreviewViewController: UIViewController, QLPreviewingController, UITableViewDataSource, UITableViewDelegate {
     private let titleLabel = UILabel()
     private let summaryLabel = UILabel()
+    private let viewControl = UISegmentedControl(items: ["Records", "Raw"])
     private let tableView = UITableView(frame: .zero, style: .insetGrouped)
-    private var records: [(label: String, detail: String, symbol: String)] = []
+    private let rawContainer = UIView()
+    private let rawTextView = UITextView()
+    private let rawFormatLabel = UILabel()
+    private let copyRawButton = UIButton(type: .system)
+    private var sections: [(title: String, records: [PreviewRecord])] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -13,30 +25,121 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
         view.backgroundColor = .systemGroupedBackground
 
         titleLabel.text = "BIP-329 Wallet Labels"
-        titleLabel.font = .systemFont(ofSize: 21, weight: .semibold)
+        titleLabel.font = UIFontMetrics(forTextStyle: .title2).scaledFont(for: .systemFont(ofSize: 22, weight: .semibold))
         titleLabel.adjustsFontForContentSizeCategory = true
+        titleLabel.numberOfLines = 0
 
         summaryLabel.font = .preferredFont(forTextStyle: .subheadline)
         summaryLabel.textColor = .secondaryLabel
         summaryLabel.adjustsFontForContentSizeCategory = true
+        summaryLabel.numberOfLines = 0
 
-        let header = UIStackView(arrangedSubviews: [titleLabel, summaryLabel])
+        viewControl.selectedSegmentIndex = 0
+        viewControl.isHidden = true
+        viewControl.accessibilityLabel = "Preview format"
+        viewControl.addTarget(self, action: #selector(selectedViewDidChange), for: .valueChanged)
+
+        let header = UIStackView(arrangedSubviews: [titleLabel, summaryLabel, viewControl])
         header.axis = .vertical
         header.spacing = 6
+        header.setCustomSpacing(14, after: summaryLabel)
         header.layoutMargins = UIEdgeInsets(top: 22, left: 20, bottom: 18, right: 20)
         header.isLayoutMarginsRelativeArrangement = true
-        header.backgroundColor = .secondarySystemGroupedBackground
-        header.layer.cornerRadius = 16
-        header.layer.cornerCurve = .continuous
 
         tableView.dataSource = self
         tableView.delegate = self
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 72
+        tableView.estimatedRowHeight = 96
         tableView.backgroundColor = .clear
-        tableView.separatorStyle = .none
+        tableView.separatorStyle = .singleLine
+        tableView.cellLayoutMarginsFollowReadableWidth = true
+        tableView.sectionHeaderTopPadding = 12
 
-        let stack = UIStackView(arrangedSubviews: [header, tableView])
+        rawContainer.backgroundColor = .secondarySystemGroupedBackground
+        rawContainer.layer.cornerRadius = 12
+        rawContainer.layer.cornerCurve = .continuous
+        rawContainer.layer.borderWidth = 1 / UIScreen.main.scale
+        rawContainer.layer.borderColor = UIColor.separator.cgColor
+        rawContainer.clipsToBounds = true
+        rawContainer.isHidden = true
+
+        let rawIcon = UIImageView(image: UIImage(systemName: "doc.plaintext"))
+        rawIcon.tintColor = .secondaryLabel
+        rawIcon.setContentHuggingPriority(.required, for: .horizontal)
+
+        rawFormatLabel.text = "JSON Lines · UTF-8"
+        rawFormatLabel.font = .preferredFont(forTextStyle: .subheadline)
+        rawFormatLabel.textColor = .secondaryLabel
+        rawFormatLabel.adjustsFontForContentSizeCategory = true
+
+        var copyConfiguration = UIButton.Configuration.plain()
+        copyConfiguration.title = "Copy"
+        copyConfiguration.image = UIImage(systemName: "doc.on.doc")
+        copyConfiguration.imagePadding = 6
+        copyConfiguration.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 8, bottom: 6, trailing: 8)
+        copyRawButton.configuration = copyConfiguration
+        copyRawButton.addTarget(self, action: #selector(copyRawContents), for: .touchUpInside)
+        copyRawButton.accessibilityLabel = "Copy raw JSONL"
+
+        let rawHeader = UIStackView(arrangedSubviews: [rawIcon, rawFormatLabel, UIView(), copyRawButton])
+        rawHeader.axis = .horizontal
+        rawHeader.alignment = .center
+        rawHeader.spacing = 8
+        rawHeader.layoutMargins = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 8)
+        rawHeader.isLayoutMarginsRelativeArrangement = true
+
+        let rawDivider = UIView()
+        rawDivider.backgroundColor = .separator
+
+        rawTextView.isEditable = false
+        rawTextView.isSelectable = true
+        rawTextView.alwaysBounceVertical = true
+        rawTextView.backgroundColor = .secondarySystemGroupedBackground
+        rawTextView.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: .monospacedSystemFont(ofSize: 15, weight: .regular))
+        rawTextView.adjustsFontForContentSizeCategory = true
+        rawTextView.textColor = .label
+        rawTextView.textContainerInset = UIEdgeInsets(top: 18, left: 16, bottom: 18, right: 16)
+        rawTextView.accessibilityLabel = "Raw JSONL"
+
+        rawHeader.translatesAutoresizingMaskIntoConstraints = false
+        rawDivider.translatesAutoresizingMaskIntoConstraints = false
+        rawTextView.translatesAutoresizingMaskIntoConstraints = false
+        rawContainer.addSubview(rawHeader)
+        rawContainer.addSubview(rawDivider)
+        rawContainer.addSubview(rawTextView)
+
+        NSLayoutConstraint.activate([
+            rawHeader.topAnchor.constraint(equalTo: rawContainer.topAnchor),
+            rawHeader.leadingAnchor.constraint(equalTo: rawContainer.leadingAnchor),
+            rawHeader.trailingAnchor.constraint(equalTo: rawContainer.trailingAnchor),
+            rawDivider.topAnchor.constraint(equalTo: rawHeader.bottomAnchor),
+            rawDivider.leadingAnchor.constraint(equalTo: rawContainer.leadingAnchor),
+            rawDivider.trailingAnchor.constraint(equalTo: rawContainer.trailingAnchor),
+            rawDivider.heightAnchor.constraint(equalToConstant: 1 / UIScreen.main.scale),
+            rawTextView.topAnchor.constraint(equalTo: rawDivider.bottomAnchor),
+            rawTextView.leadingAnchor.constraint(equalTo: rawContainer.leadingAnchor),
+            rawTextView.trailingAnchor.constraint(equalTo: rawContainer.trailingAnchor),
+            rawTextView.bottomAnchor.constraint(equalTo: rawContainer.bottomAnchor),
+        ])
+
+        let contentView = UIView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        rawContainer.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(tableView)
+        contentView.addSubview(rawContainer)
+
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            rawContainer.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            rawContainer.leadingAnchor.constraint(equalTo: contentView.readableContentGuide.leadingAnchor, constant: 16),
+            rawContainer.trailingAnchor.constraint(equalTo: contentView.readableContentGuide.trailingAnchor, constant: -16),
+            rawContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
+        ])
+
+        let stack = UIStackView(arrangedSubviews: [header, contentView])
         stack.axis = .vertical
         stack.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stack)
@@ -50,113 +153,177 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
     }
 
     func preparePreviewOfFile(at url: URL) async throws {
-		let parsed = try await Task.detached(priority: .userInitiated) {
-			if let psbt = try? PSBTPreview.parse(file: url) {
-				return (psbt.title, psbt.summary, psbt.records)
-			}
-			if let transaction = try? TransactionPreview.parse(file: url) {
-				return (transaction.title, transaction.summary, transaction.records)
-			}
+        loadViewIfNeeded()
 
-            let contents = try String(contentsOf: url, encoding: .utf8)
-            var records: [(label: String, detail: String, symbol: String)] = []
-            var invalidLineCount = 0
-
-            for rawLine in contents.split(whereSeparator: \.isNewline) {
-                let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !line.isEmpty,
-                      let data = line.data(using: .utf8),
-                      let value = try? JSONSerialization.jsonObject(with: data),
-                      let object = value as? [String: Any],
-                      let type = object["type"] as? String,
-                      let reference = object["ref"] as? String else {
-                    invalidLineCount += 1
-                    continue
+        do {
+			let parsed = try await Task.detached(priority: .userInitiated) {
+                let pathExtension = url.pathExtension.lowercased()
+                if pathExtension == "psbt" {
+                    let psbt = try PSBTPreview.parse(file: url)
+                    return (psbt.title, psbt.summary, previewRecords(psbt.records, section: "PSBT Details"), nil as String?)
+                }
+                if pathExtension == "txn" {
+                    let transaction = try TransactionPreview.parse(file: url)
+                    return (transaction.title, transaction.summary, previewRecords(transaction.records, section: "Transaction Details"), nil as String?)
+                }
+                if pathExtension != "jsonl" {
+                    if let psbt = try? PSBTPreview.parse(file: url) {
+                        return (psbt.title, psbt.summary, previewRecords(psbt.records, section: "PSBT Details"), nil as String?)
+                    }
+                    if let transaction = try? TransactionPreview.parse(file: url) {
+                        return (transaction.title, transaction.summary, previewRecords(transaction.records, section: "Transaction Details"), nil as String?)
+                    }
                 }
 
-                let label = (object["label"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "No label"
-                var details = [type.uppercased(), reference]
+                let contents = try String(contentsOf: url, encoding: .utf8)
+                var records: [PreviewRecord] = []
+                var invalidLineCount = 0
+                var typeCounts: [String: Int] = [:]
 
-                if let origin = object["origin"] as? String, !origin.isEmpty {
-                    details.append("Origin: \(origin)")
-                }
-                if let spendable = object["spendable"] as? Bool {
-                    details.append(spendable ? "Spendable" : "Not spendable")
+                for rawLine in contents.split(whereSeparator: \.isNewline) {
+                    let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !line.isEmpty,
+                          let data = line.data(using: .utf8),
+                          let value = try? JSONSerialization.jsonObject(with: data),
+                          let object = value as? [String: Any],
+                          let type = object["type"] as? String,
+                          let reference = object["ref"] as? String else {
+                        invalidLineCount += 1
+                        continue
+                    }
+
+                    let label = (object["label"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "No label"
+                    var details = ["\(type.uppercased()) · \(reference)"]
+                    for key in object.keys.sorted() where !["label", "type", "ref"].contains(key) {
+                        guard let value = displayValue(object[key], forKey: key) else { continue }
+                        details.append("\(displayLabel(forKey: key)): \(value)")
+                    }
+                    typeCounts[type, default: 0] += 1
+
+                    let symbol: String
+                    switch type {
+                    case "tx": symbol = "arrow.left.arrow.right"
+                    case "addr": symbol = "qrcode"
+                    case "pubkey", "xpub": symbol = "key"
+                    case "input": symbol = "arrow.down.to.line"
+                    case "output": symbol = "arrow.up.from.line"
+                    default: symbol = "tag"
+                    }
+
+                    records.append(
+                        PreviewRecord(
+                            section: bip329SectionTitle(type),
+                            label: label,
+                            detail: details.joined(separator: "\n"),
+                            symbol: symbol
+                        )
+                    )
                 }
 
-                let symbol: String
-                switch type {
-                case "tx": symbol = "arrow.left.arrow.right"
-                case "addr": symbol = "qrcode"
-                case "pubkey", "xpub": symbol = "key"
-                case "input": symbol = "arrow.down.to.line"
-                case "output": symbol = "arrow.up.from.line"
-                default: symbol = "tag"
+                let summary: String
+                if records.isEmpty {
+                    summary = invalidLineCount == 0 ? "No records in this file" : "No valid BIP-329 records"
+                } else {
+                    let recordCount = records.count == 1 ? "1 record" : "\(records.count) records"
+                    let types = typeCounts.keys.sorted().map { "\(typeCounts[$0] ?? 0) \($0.uppercased())" }.joined(separator: " · ")
+                    let skipped = invalidLineCount == 0 ? nil : (invalidLineCount == 1 ? "1 invalid line skipped" : "\(invalidLineCount) invalid lines skipped")
+                    summary = ([recordCount, types] + [skipped].compactMap { $0 }).joined(separator: " · ")
                 }
+                return ("BIP-329 Wallet Labels", summary, records, contents)
+            }.value
 
-                records.append((label, details.joined(separator: " · "), symbol))
+            applyPreview(title: parsed.0, summary: parsed.1, records: parsed.2, rawContents: parsed.3)
+        } catch {
+            applyPreview(
+                title: "Preview unavailable",
+                summary: "The file could not be read or contains invalid data.",
+                records: [],
+                rawContents: nil
+            )
+            throw error
+        }
+    }
+
+    private func applyPreview(title: String, summary: String, records: [PreviewRecord], rawContents: String?) {
+        titleLabel.text = title
+        summaryLabel.text = summary
+        var grouped: [(title: String, records: [PreviewRecord])] = []
+        for record in records {
+            if let index = grouped.firstIndex(where: { $0.title == record.section }) {
+                grouped[index].records.append(record)
+            } else {
+                grouped.append((record.section, [record]))
             }
-
-			let summary: String
-			if records.isEmpty {
-				summary = invalidLineCount == 0 ? "No labels in this file" : "No valid BIP-329 records"
-			} else if invalidLineCount == 0 {
-				summary = records.count == 1 ? "1 label" : "\(records.count) labels"
-			} else {
-				let labels = records.count == 1 ? "1 label" : "\(records.count) labels"
-				let skipped = invalidLineCount == 1 ? "1 invalid line skipped" : "\(invalidLineCount) invalid lines skipped"
-				summary = "\(labels) · \(skipped)"
-			}
-			return ("BIP-329 Wallet Labels", summary, records)
-        }.value
-
-		titleLabel.text = parsed.0
-		summaryLabel.text = parsed.1
-		records = parsed.2
+        }
+        sections = grouped
+        rawTextView.text = rawContents
+        viewControl.isHidden = rawContents == nil
+        viewControl.selectedSegmentIndex = 0
+        selectedViewDidChange()
         tableView.reloadData()
     }
 
+    @objc private func selectedViewDidChange() {
+        let showsRawSource = !viewControl.isHidden && viewControl.selectedSegmentIndex == 1
+        tableView.isHidden = showsRawSource
+        rawContainer.isHidden = !showsRawSource
+        if showsRawSource {
+            rawTextView.setContentOffset(.zero, animated: false)
+        }
+    }
+
+    @objc private func copyRawContents() {
+        UIPasteboard.general.string = rawTextView.text
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        sections.count
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        records.count
+        sections[section].records.count
+    }
+
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        let group = sections[section]
+        return group.records.count == 1 ? group.title : "\(group.title) · \(group.records.count)"
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
-        let record = records[indexPath.row]
+        let record = sections[indexPath.section].records[indexPath.row]
 
         var content = cell.defaultContentConfiguration()
         content.text = record.label
-        content.secondaryText = record.detail
-        content.textProperties.font = .systemFont(ofSize: 17, weight: .semibold)
-        content.secondaryTextProperties.font = .preferredFont(forTextStyle: .subheadline)
+        content.secondaryAttributedText = attributedDetail(record.detail)
+        content.textProperties.font = .preferredFont(forTextStyle: .headline)
         content.secondaryTextProperties.color = .secondaryLabel
         content.secondaryTextProperties.numberOfLines = 0
         content.image = UIImage(systemName: record.symbol)
-        content.imageProperties.tintColor = .systemBlue
-        content.imageProperties.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold)
+        content.imageProperties.tintColor = tintColor(for: record.section)
+        content.imageProperties.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 21, weight: .semibold)
         cell.contentConfiguration = content
         cell.backgroundColor = .secondarySystemGroupedBackground
-        cell.layer.cornerRadius = 14
-        cell.layer.cornerCurve = .continuous
-        cell.clipsToBounds = true
-        cell.layoutMargins = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)
-        cell.accessoryType = .none
+        cell.layoutMargins = UIEdgeInsets(top: 14, left: 16, bottom: 14, right: 12)
+        cell.accessoryType = .disclosureIndicator
 
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let record = records[indexPath.row]
-        let copyValue: String
-        if record.label.hasPrefix("Input ") || record.label.hasPrefix("Output ") {
-            copyValue = record.detail.components(separatedBy: " · ").first ?? record.detail
-        } else {
-            copyValue = record.detail
-        }
+        let record = sections[indexPath.section].records[indexPath.row]
+        let firstLine = record.detail.components(separatedBy: .newlines).first ?? record.detail
+        let reference = firstLine.components(separatedBy: " · ").dropFirst().joined(separator: " · ")
         let sheet = UIAlertController(title: record.label, message: record.detail, preferredStyle: .actionSheet)
-        sheet.addAction(UIAlertAction(title: "Copy", style: .default) { _ in
-            UIPasteboard.general.string = copyValue
+        if !reference.isEmpty {
+            sheet.addAction(UIAlertAction(title: "Copy Reference", style: .default) { _ in
+                UIPasteboard.general.string = reference
+            })
+        }
+        sheet.addAction(UIAlertAction(title: "Copy Details", style: .default) { _ in
+            UIPasteboard.general.string = record.detail
         })
         sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         if let popover = sheet.popoverPresentationController, let cell = tableView.cellForRow(at: indexPath) {
@@ -165,6 +332,139 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
         }
         present(sheet, animated: true)
     }
+
+    private func attributedDetail(_ detail: String) -> NSAttributedString {
+        let output = NSMutableAttributedString()
+        let lines = detail.components(separatedBy: .newlines)
+        for (index, line) in lines.enumerated() {
+            if index > 0 { output.append(NSAttributedString(string: "\n")) }
+            if index == 0 {
+                output.append(
+                    NSAttributedString(
+                        string: line,
+                        attributes: [
+                            .font: UIFontMetrics(forTextStyle: .subheadline).scaledFont(
+                                for: .monospacedSystemFont(ofSize: 14, weight: .regular)
+                            ),
+                            .foregroundColor: UIColor.secondaryLabel,
+                        ]
+                    )
+                )
+                continue
+            }
+
+            if let separator = line.firstIndex(of: ":") {
+                let label = String(line[...separator])
+                let value = String(line[line.index(after: separator)...])
+                output.append(
+                    NSAttributedString(
+                        string: label,
+                        attributes: [
+                            .font: UIFont.preferredFont(forTextStyle: .subheadline).withTraits(.traitBold),
+                            .foregroundColor: UIColor.label,
+                        ]
+                    )
+                )
+                output.append(
+                    NSAttributedString(
+                        string: value,
+                        attributes: [
+                            .font: UIFont.preferredFont(forTextStyle: .subheadline),
+                            .foregroundColor: UIColor.secondaryLabel,
+                        ]
+                    )
+                )
+            } else {
+                output.append(
+                    NSAttributedString(
+                        string: line,
+                        attributes: [
+                            .font: UIFont.preferredFont(forTextStyle: .subheadline),
+                            .foregroundColor: UIColor.secondaryLabel,
+                        ]
+                    )
+                )
+            }
+        }
+        return output
+    }
+
+    private func tintColor(for section: String) -> UIColor {
+        switch section {
+        case "Transactions": return .systemBlue
+        case "Addresses": return .systemPurple
+        case "Inputs": return .systemOrange
+        case "Outputs": return .systemGreen
+        case "Keys": return .systemIndigo
+        default: return .systemBlue
+        }
+    }
+}
+
+private func previewRecords(
+    _ records: [(label: String, detail: String, symbol: String)],
+    section: String
+) -> [PreviewRecord] {
+    records.map { PreviewRecord(section: section, label: $0.label, detail: $0.detail, symbol: $0.symbol) }
+}
+
+private func bip329SectionTitle(_ type: String) -> String {
+    switch type {
+    case "tx": return "Transactions"
+    case "addr": return "Addresses"
+    case "input": return "Inputs"
+    case "output": return "Outputs"
+    case "pubkey", "xpub": return "Keys"
+    case "spscan": return "Silent Payments"
+    default: return "Other Labels"
+    }
+}
+
+private extension UIFont {
+    func withTraits(_ traits: UIFontDescriptor.SymbolicTraits) -> UIFont {
+        guard let descriptor = fontDescriptor.withSymbolicTraits(traits) else { return self }
+        return UIFont(descriptor: descriptor, size: pointSize)
+    }
+}
+
+private func displayLabel(forKey key: String) -> String {
+    switch key {
+    case "time": return "Date"
+    case "fee": return "Fee"
+    case "value": return "Value"
+    default: return key.capitalized
+    }
+}
+
+private func displayValue(_ optionalValue: Any?, forKey key: String) -> String? {
+    guard let value = optionalValue, !(value is NSNull) else { return nil }
+    if key == "time", let source = value as? String, let date = bip329Date(from: source) {
+        return date.formatted(date: .abbreviated, time: .shortened)
+    }
+    if ["fee", "value"].contains(key), let number = value as? NSNumber {
+        return "\(number.int64Value.formatted(.number.grouping(.automatic))) sats"
+    }
+    switch value {
+    case let value as String:
+        return value.isEmpty ? "Empty" : value
+    case let value as NSNumber:
+        if CFGetTypeID(value) == CFBooleanGetTypeID() { return value.boolValue ? "Yes" : "No" }
+        return value.stringValue
+    case let value where JSONSerialization.isValidJSONObject(value):
+        guard let data = try? JSONSerialization.data(withJSONObject: value, options: [.sortedKeys]),
+              let text = String(data: data, encoding: .utf8) else { return nil }
+        return text
+    default:
+        return String(describing: value)
+    }
+}
+
+private func bip329Date(from source: String) -> Date? {
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    if let date = formatter.date(from: source) { return date }
+    formatter.formatOptions = [.withInternetDateTime]
+    return formatter.date(from: source)
 }
 
 private enum TransactionPreview {

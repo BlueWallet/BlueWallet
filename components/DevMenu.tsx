@@ -4,7 +4,100 @@ import { useStorage } from '../hooks/context/useStorage';
 import { HDSegwitBech32Wallet } from '../class/wallets/hd-segwit-bech32-wallet';
 import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { TWallet } from '../class/wallets/types';
+import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
+import { encodeBip329Record, encodeBip329TransactionLabel, writeFileAndExport } from '../blue_modules/fs';
+import { createAccountingHistoryCsv, createHistoryExportFileNames, removeTrailingEllipsis } from '../blue_modules/wallet-history-export';
+import { Chain } from '../models/bitcoinUnits';
+import loc from '../loc';
+
+const DEV_SAMPLE_TXID = 'f91d0a8a78462bc59398f2c5d7a84fcff491c26ba54c4833478b202796c8aafd';
+const DEV_SAMPLE_PREVIOUS_TXID = 'f546156d9044844e02b181026a1a407abfca62e7ea1159f87bbeaa77b4286c74';
+const DEV_SAMPLE_ORIGIN = "wpkh([d34db33f/84'/0'/0'])";
+const DEV_SAMPLE_TIMESTAMP = Date.UTC(2025, 0, 23, 11, 40, 35) / 1000;
+
+export const createDeveloperAccountingSample = (): string => {
+  const transaction = createDeveloperTransaction();
+
+  return createAccountingHistoryCsv([transaction], Chain.ONCHAIN, {
+    [DEV_SAMPLE_TXID]: { memo: 'Developer sample, "coffee"' },
+  });
+};
+
+const createDeveloperTransaction = (): Transaction & LightningTransaction =>
+  ({
+    txid: DEV_SAMPLE_TXID,
+    hash: DEV_SAMPLE_TXID,
+    version: 2,
+    size: 222,
+    vsize: 141,
+    weight: 561,
+    locktime: 0,
+    inputs: [
+      {
+        txid: DEV_SAMPLE_PREVIOUS_TXID,
+        vout: 0,
+        scriptSig: { asm: '', hex: '' },
+        txinwitness: [],
+        sequence: 0xfffffffd,
+        address: 'bc1q2wae8w8z8n8z0v8j2x6rrz3q9d9w6hyn0k2e4g',
+        value: 0.0011,
+      },
+    ],
+    outputs: [
+      {
+        value: 0.001,
+        n: 0,
+        scriptPubKey: {
+          asm: '',
+          hex: '',
+          reqSigs: 1,
+          type: 'witness_v0_keyhash',
+          addresses: ['bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'],
+        },
+      },
+    ],
+    blockhash: '00000000000000000001d8f981c0a6f1d49ea12d7c8ca251b3687727f9e21a00',
+    confirmations: 12,
+    blocktime: DEV_SAMPLE_TIMESTAMP,
+    timestamp: DEV_SAMPLE_TIMESTAMP,
+    value: -100_000,
+    counterparty: 'Developer sample merchant',
+  }) as Transaction & LightningTransaction;
+
+export const createDeveloperBip329Sample = (): string =>
+  [
+    encodeBip329TransactionLabel(DEV_SAMPLE_TXID, 'Developer sample transaction', {
+      origin: DEV_SAMPLE_ORIGIN,
+      time: new Date(DEV_SAMPLE_TIMESTAMP * 1000).toISOString(),
+      fee: 10_000,
+      value: -100_000,
+    }),
+    encodeBip329Record({
+      type: 'addr',
+      ref: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+      label: 'Developer sample address',
+      origin: DEV_SAMPLE_ORIGIN,
+      keypath: '/0/7',
+    }),
+    encodeBip329Record({
+      type: 'input',
+      ref: `${DEV_SAMPLE_TXID}:0`,
+      origin: DEV_SAMPLE_ORIGIN,
+      keypath: '/0/3',
+      value: 110_000,
+      time: new Date(DEV_SAMPLE_TIMESTAMP * 1000).toISOString(),
+    }),
+    encodeBip329Record({
+      type: 'output',
+      ref: `${DEV_SAMPLE_TXID}:0`,
+      label: 'Developer frozen output',
+      origin: DEV_SAMPLE_ORIGIN,
+      keypath: '/0/7',
+      spendable: false,
+      value: 100_000,
+      time: new Date(DEV_SAMPLE_TIMESTAMP * 1000).toISOString(),
+    }),
+  ].join('\n');
 
 const getRandomLabelFromSecret = (secret: string): string => {
   const words = secret.split(' ');
@@ -135,6 +228,56 @@ const DevMenu: React.FC = () => {
           },
           wallet => typeof wallet.getXpub === 'function',
         );
+      });
+
+      DevSettings.addMenuItem('Test History Export Menu', () => {
+        const fileNames = createHistoryExportFileNames('[Developer] Sample Wallet');
+        const shareTitle = removeTrailingEllipsis(loc.receive.details_share);
+        const saveTitle = removeTrailingEllipsis(loc._.save);
+        const exportSample = async (format: 'accountingCsv' | 'backup', share: boolean) => {
+          try {
+            if (format === 'accountingCsv') {
+              await writeFileAndExport(fileNames.accounting, createDeveloperAccountingSample(), share);
+            } else {
+              await writeFileAndExport(fileNames.backup, createDeveloperBip329Sample(), share);
+            }
+          } catch (error) {
+            Alert.alert(loc.wallets.details_export_history, error instanceof Error ? error.message : String(error));
+          }
+        };
+        const showAccountingFormats = (share: boolean) => {
+          Alert.alert(loc.wallets.details_export_accounting, loc.wallets.details_export_accounting_description, [
+            {
+              text: loc.wallets.details_export_csv,
+              onPress: async () => await exportSample('accountingCsv', share),
+            },
+            { text: loc._.cancel, style: 'cancel' },
+          ]);
+        };
+
+        const showBackupFormats = (share: boolean) => {
+          Alert.alert(loc.wallets.details_export_backup_category, loc.wallets.details_export_backup_description, [
+            {
+              text: loc.wallets.details_export_bip329,
+              onPress: async () => await exportSample('backup', share),
+            },
+            { text: loc._.cancel, style: 'cancel' },
+          ]);
+        };
+
+        const showCategories = (share: boolean) => {
+          Alert.alert(share ? shareTitle : saveTitle, '', [
+            { text: loc.wallets.details_export_accounting, onPress: () => showAccountingFormats(share) },
+            { text: loc.wallets.details_export_backup_category, onPress: () => showBackupFormats(share) },
+            { text: loc._.cancel, style: 'cancel' },
+          ]);
+        };
+
+        Alert.alert(loc.wallets.details_export_history, '', [
+          { text: shareTitle, onPress: () => showCategories(true) },
+          { text: saveTitle, onPress: () => showCategories(false) },
+          { text: loc._.cancel, style: 'cancel' },
+        ]);
       });
 
       DevSettings.addMenuItem('Purge Wallet Transactions', () => {
