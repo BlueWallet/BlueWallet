@@ -17,7 +17,7 @@ import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
-import { navigationRef } from '../NavigationService';
+import { getCurrentWalletID, navigationRef } from '../NavigationService';
 import { useSettings } from './context/useSettings';
 import { useStorage } from './context/useStorage';
 import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
@@ -300,6 +300,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             addWallet,
             saveToDisk,
             setSharedCosigner,
+            preferredWalletID: getCurrentWalletID(),
           });
         } else {
           DeeplinkSchemaMatch.navigationRouteFor(event, value => navigationRef.navigate(...value), {
@@ -307,6 +308,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             addWallet,
             saveToDisk,
             setSharedCosigner,
+            preferredWalletID: getCurrentWalletID(),
           });
         }
       } catch (err) {

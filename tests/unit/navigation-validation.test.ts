@@ -400,6 +400,56 @@ describe('navigation validation', () => {
     expect(nextState?.routes[nextState.index ?? 0].name).toBe('WalletExport');
   });
 
+  it('lets a nested navigator apply the params of a validated parent action', () => {
+    const rootOriginal = StackRouter({});
+    const rootRouter = navigationGuardRouter(rootOriginal);
+    const rootOptions = {
+      routeNames: ['Home', 'SendDetailsRoot'],
+      routeParamList: { Home: undefined, SendDetailsRoot: undefined },
+      routeGetIdList: { Home: undefined, SendDetailsRoot: undefined },
+    };
+    const nestedOriginal = StackRouter({});
+    const nestedRouter = navigationGuardRouter(nestedOriginal);
+    const nestedOptions = {
+      routeNames: ['SendDetails', 'WalletExport'],
+      routeParamList: { SendDetails: undefined, WalletExport: undefined },
+      routeGetIdList: { SendDetails: undefined, WalletExport: undefined },
+    };
+    const nestedState = nestedOriginal.getInitialState(nestedOptions);
+    const action = CommonActions.navigate('SendDetailsRoot', { screen: 'SendDetails', params: { uri: 'bitcoin:bc1qexample' } });
+    const nestedAction = (params: object) => CommonActions.navigate('SendDetails', params) as any;
+
+    expect(nestedRouter.getStateForAction(nestedState, nestedAction({ uri: 'bitcoin:bc1qexample' }), nestedOptions)).toBeNull();
+
+    const rootState = rootRouter.getStateForAction(
+      rootOriginal.getInitialState(rootOptions),
+      { ...action, navigationGuardValidated: true } as any,
+      rootOptions,
+    );
+    const rootParams = rootState?.routes[rootState.index ?? 0].params as { params: object };
+    const updated = nestedRouter.getStateForAction(nestedState, nestedAction(rootParams.params), nestedOptions);
+    expect(updated?.routes[0].params).toEqual({ uri: 'bitcoin:bc1qexample' });
+
+    expect(nestedRouter.getStateForAction(nestedState, nestedAction({ uri: 'bitcoin:bc1qother' }), nestedOptions)).toBeNull();
+    expect(
+      nestedRouter.getStateForAction(nestedState, CommonActions.navigate('WalletExport', rootParams.params) as any, nestedOptions),
+    ).toBeNull();
+
+    const smuggled = { walletID: 'wallet-1' };
+    rootRouter.getStateForAction(
+      rootOriginal.getInitialState(rootOptions),
+      {
+        ...CommonActions.navigate('SendDetailsRoot', {
+          screen: 'SendDetails',
+          params: { params: { screen: 'WalletExport', params: smuggled } },
+        }),
+        navigationGuardValidated: true,
+      } as any,
+      rootOptions,
+    );
+    expect(nestedRouter.getStateForAction(nestedState, CommonActions.navigate('WalletExport', smuggled) as any, nestedOptions)).toBeNull();
+  });
+
   it('holds shortcut actions until the guard resolves their destination', () => {
     const original = StackRouter({});
     const router = { ...original, ...navigationGuardRouter(original) };
