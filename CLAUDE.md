@@ -27,7 +27,7 @@ Integration and some unit tests need secrets in env (`HD_MNEMONIC`, `HD_MNEMONIC
 
 **Boot:** `index.js` (shims, headless Ark task) -> `App.tsx` (providers + NavigationContainer) -> `navigation/MasterView.tsx`.
 
-**State:** React Context, no Redux. `components/Context/StorageProvider.tsx` wraps the `BlueApp` singleton (`class/blue-app.ts`) which owns wallets, tx/address/counterparty metadata and disk persistence (AsyncStorage + secure keystore, optional encryption; Realm caches txs). `SettingsProvider.tsx` holds prefs. Consume via `hooks/context/useStorage.ts` and `useSettings.ts`.
+**State:** React Context, no Redux. `components/Context/StorageProvider.tsx` wraps the `BlueApp` singleton (`class/blue-app.ts`) which owns wallets, tx/address/counterparty metadata and disk persistence (AsyncStorage + React Native Keychain, optional encryption; Realm caches txs). `SettingsProvider.tsx` holds prefs. Consume via `hooks/context/useStorage.ts` and `useSettings.ts`.
 
 **Wallets** (`class/wallets/`): class hierarchy, every wallet serializes to JSON and lives in the storage bucket.
 - `AbstractWallet` -> `LegacyWallet` -> `SegwitP2SHWallet`, `SegwitBech32Wallet` -> `TaprootWallet`, `WatchOnlyWallet`
