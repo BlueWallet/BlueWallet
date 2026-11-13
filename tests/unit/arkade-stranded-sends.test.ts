@@ -3,6 +3,7 @@ import { ArkAddress, CreateContractParams, VHTLCContractHandler } from '@arkade-
 
 import {
   BoltzSwapRow,
+  fundedStrandedSendCount,
   isSettledBoltzRow,
   processStrandedBoltzSwaps,
   pruneSettledBoltzRows,
@@ -226,6 +227,36 @@ describe('arkade-stranded-sends — refundStrandedSends', () => {
     assert.strictEqual(await refundStrandedSends(fakeRealm(storedSend({ status: 'transaction.claimed' })).realm, wallet), false);
     assert.strictEqual(createContract.mock.calls.length, 0);
     assert.strictEqual(recoverVtxos.mock.calls.length, 0);
+  });
+});
+
+describe('arkade-stranded-sends — fundedStrandedSendCount', () => {
+  it('counts a send whose lockup still holds a coin, registering it first', async () => {
+    const { wallet } = fakeWallet(0n, [LOCKUP.currentSigner]);
+    const { realm } = fakeRealm(
+      storedSend(),
+      storedSend({ id: 'send-2', response: { ...storedSend().response, address: LOCKUP.previousSigner } }),
+    );
+    assert.strictEqual(await fundedStrandedSendCount(realm, wallet), 1);
+  });
+
+  it('reads the lockups fresh, so an offline read refuses instead of trusting the cache', async () => {
+    const { wallet } = fakeWallet(0n, [LOCKUP.currentSigner]);
+    const manager = await wallet.getContractManager();
+    await fundedStrandedSendCount(fakeRealm(storedSend()).realm, wallet);
+    assert.deepStrictEqual((manager.getContractsWithVtxos as jest.Mock).mock.calls[0][2], { unspentOnly: true, requireSynced: true });
+  });
+
+  it('counts nothing, and touches no contract, when no send can be refunded', async () => {
+    const { wallet, createContract } = fakeWallet(0n, [LOCKUP.currentSigner]);
+    const { realm } = fakeRealm(storedSend({ status: 'invoice.paid' }), storedReceive({ status: 'swap.created' }), storedChainSwap());
+    assert.strictEqual(await fundedStrandedSendCount(realm, wallet), 0);
+    assert.strictEqual(createContract.mock.calls.length, 0);
+  });
+
+  it('throws when a lockup cannot be registered, rather than reading it as empty', async () => {
+    const { wallet } = fakeWallet(0n, [LOCKUP.currentSigner], [], [LOCKUP.currentSigner]);
+    await assert.rejects(fundedStrandedSendCount(fakeRealm(storedSend()).realm, wallet), /indexer unreachable/);
   });
 });
 

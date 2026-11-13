@@ -102,9 +102,30 @@ export function strandedSendContracts(rows: BoltzSwapRow[], senderXOnly: Uint8Ar
   return contracts;
 }
 
-async function fundedLockups(contractManager: IContractManager, contracts: CreateContractParams[]): Promise<Set<string>> {
-  const held = await contractManager.getContractsWithVtxos({ script: contracts.map(c => c.script) }, undefined, { unspentOnly: true });
+async function fundedLockups(
+  contractManager: IContractManager,
+  contracts: CreateContractParams[],
+  { requireSynced = false } = {},
+): Promise<Set<string>> {
+  const held = await contractManager.getContractsWithVtxos({ script: contracts.map(c => c.script) }, undefined, {
+    unspentOnly: true,
+    requireSynced,
+  });
   return new Set(held.filter(({ vtxos }) => vtxos.length > 0).map(({ contract }) => contract.script));
+}
+
+/**
+ * Stored sends whose lockup still holds a coin: deleting the wallet deletes the
+ * only record that can refund them. Throws when that cannot be read fresh.
+ */
+export async function fundedStrandedSendCount(realm: Realm, wallet: Pick<Wallet, 'identity' | 'getContractManager'>): Promise<number> {
+  const rows = Array.from(realm.objects<BoltzSwapRow>(BoltzSwapSchema.name));
+  const contracts = strandedSendContracts(rows, await wallet.identity.xOnlyPublicKey());
+  if (contracts.length === 0) return 0;
+  const contractManager = await wallet.getContractManager();
+  // An unregistered lockup reads as empty, so register first; here a failure must refuse, not under-count.
+  for (const contract of contracts) await contractManager.createContract(contract);
+  return (await fundedLockups(contractManager, contracts, { requireSynced: true })).size;
 }
 
 function markRows(realm: Realm, rows: BoltzSwapRow[], ids: Set<string>, fields: Partial<StoredSubmarineSwap>) {

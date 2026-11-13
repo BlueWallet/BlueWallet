@@ -11,6 +11,8 @@ import { LightningArkWallet, PaymentInProgressError, __testing__ as walletTestin
 import { resetArkadeTestState } from '../helpers/arkadeMocks';
 import { installSdkProviderSpies, restoreSdkProviderSpies } from '../helpers/sdkProviderMocks';
 import { readLockupFate } from '@arkade-os/swap/protocol';
+import { hexToUint8Array } from '../../blue_modules/uint8array-extras/index';
+import { SENDER, storedChainSwap, storedReceive, storedSend } from '../helpers/strandedSend';
 
 jest.mock('@arkade-os/swap/protocol', () => ({
   ...jest.requireActual('@arkade-os/swap/protocol'),
@@ -485,25 +487,62 @@ describe('LightningArkWallet — deletion guard', () => {
     (w as any)._wallet = { getArkadeReader: async () => ({ getVtxos: async () => [], getVirtualTxs: async () => [] }) };
   };
 
-  const storeBoltzRow = async (status: string) => {
+  // Rows a Boltz build left behind, read under the key their lockups were made with.
+  const storeBoltzSwaps = async (...swaps: { id: string; type: string; status: string }[]) => {
     const { getArkadeRealm } = await import('../../blue_modules/arkade-adapters/realm/realmInstance');
     const realm = await getArkadeRealm(w.getNamespace());
-    realm.write(() =>
-      realm.create('BoltzSwap', { id: 'send-1', type: 'submarine', status, createdAt: 1, data: JSON.stringify({ status }) }),
-    );
+    realm.write(() => {
+      for (const swap of swaps) {
+        realm.create('BoltzSwap', { id: swap.id, type: swap.type, status: swap.status, createdAt: 1, data: JSON.stringify(swap) });
+      }
+    });
+    jest.spyOn(w, '_getIdentity').mockReturnValue({ xOnlyPublicKey: async () => hexToUint8Array(SENDER) } as any);
   };
 
-  it('refuses deletion while a Boltz swap may still be recovered, unless forced', async () => {
-    await storeBoltzRow('transaction.mempool');
+  // Like the SDK's, the manager reports only lockups registered with it.
+  const lockupHolds = (coins: number) => {
+    const registered = new Set<string>();
+    const getContractsWithVtxos = jest.fn(async ({ script }: { script: string[] }) =>
+      script.filter(s => registered.has(s)).map(s => ({ contract: { script: s }, vtxos: Array(coins).fill({}) })),
+    );
+    (w as any)._wallet = {
+      identity: { xOnlyPublicKey: async () => hexToUint8Array(SENDER) },
+      getContractManager: async () => ({
+        createContract: async ({ script }: { script: string }) => registered.add(script),
+        getContractsWithVtxos,
+      }),
+    };
+    return getContractsWithVtxos;
+  };
+
+  it('refuses deletion while a failed Boltz send still holds its sats, unless forced', async () => {
+    await storeBoltzSwaps(storedSend({ status: 'invoice.failedToPay' }));
+    lockupHolds(1);
     const verdict = await w.canDeleteWallet();
     assert.strictEqual(verdict.safe, false);
-    assert.match(verdict.message ?? '', /Boltz swap/);
+    assert.match(verdict.message ?? '', /1 failed Lightning payment/);
     assert.strictEqual((await w.canDeleteWallet(true)).safe, true);
   });
 
-  it('does not let a settled Boltz row block deletion', async () => {
-    await storeBoltzRow('transaction.claimed');
+  it('allows deletion once a Boltz send lockup is empty, whatever its last status', async () => {
+    await storeBoltzSwaps(storedSend({ status: 'swap.created' }));
+    lockupHolds(0);
     assert.strictEqual((await w.canDeleteWallet()).safe, true);
+  });
+
+  it('does not let Boltz receives or chain swaps block deletion, nor go online for them', async () => {
+    await storeBoltzSwaps(storedReceive({ status: 'swap.created' }), storedChainSwap({ status: 'transaction.claimed' }));
+    const init = jest.spyOn(w, 'init').mockRejectedValue(new Error('Delegate service unreachable'));
+    assert.strictEqual((await w.canDeleteWallet()).safe, true);
+    assert.strictEqual(init.mock.calls.length, 0);
+  });
+
+  it('refuses deletion when a Boltz send lockup cannot be read fresh', async () => {
+    await storeBoltzSwaps(storedSend());
+    lockupHolds(1).mockRejectedValue(new Error('Spendable VTXO read requires an online contract sync'));
+    const verdict = await w.canDeleteWallet();
+    assert.strictEqual(verdict.safe, false);
+    assert.match(verdict.message ?? '', /Cannot verify failed Lightning payments/);
   });
 
   it('allows deleting a wallet with no swap history without the network', async () => {

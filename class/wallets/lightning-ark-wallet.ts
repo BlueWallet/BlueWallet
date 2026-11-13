@@ -53,7 +53,12 @@ import assert from 'assert';
 import ecc from '../../blue_modules/noble_ecc.ts';
 import { Measure } from '../measure.ts';
 import { deleteArkadeRealm, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm/realmInstance';
-import { isSettledBoltzRow, processStrandedBoltzSwaps, type BoltzSwapRow } from '../../blue_modules/arkade-stranded-sends';
+import {
+  fundedStrandedSendCount,
+  processStrandedBoltzSwaps,
+  strandedSendContracts,
+  type BoltzSwapRow,
+} from '../../blue_modules/arkade-stranded-sends';
 import { BoltzSwapSchema } from '../../blue_modules/arkade-adapters/realm/boltzSwapSchema';
 import { errorMessage } from '../../helpers/errorMessage';
 import bundledCard from '../../blue_modules/arkade-solver.card.json';
@@ -1243,16 +1248,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
   // ---------------------------------------------------------------------------
 
   async canDeleteWallet(force = false): Promise<{ safe: boolean; message?: string }> {
-    // A Boltz lockup can be rebuilt only from its row, and deleting the wallet deletes the rows.
-    const strandedBoltz = await this._strandedBoltzSwapCount();
-    if (strandedBoltz !== 0 && !force) {
-      return {
-        safe: false,
-        message:
-          strandedBoltz === undefined
-            ? 'Cannot verify Boltz swap state: the swap records could not be read'
-            : `This wallet has ${strandedBoltz} Boltz swap(s) still being recovered. Deleting now may make their funds unrecoverable. Let them settle first, or delete anyway knowing the funds may be lost.`,
-      };
+    if (!force) {
+      const refusal = await this._boltzDeletionRefusal();
+      if (refusal) return { safe: false, message: refusal };
     }
     // An empty swap history needs no network, so init's delegate preflight gets no vote on it.
     if (await this._swapHistoryIsEmpty()) return { safe: true };
@@ -1308,13 +1306,24 @@ export class LightningArkWallet extends LightningCustodianWallet {
     return { safe: true };
   }
 
-  /** Boltz rows whose funds may still move, or undefined when they cannot be read. */
-  private async _strandedBoltzSwapCount(): Promise<number | undefined> {
+  /**
+   * Why deleting would lose a Boltz refund, or undefined when it would not. A
+   * Boltz lockup can be rebuilt only from its row, and deleting the wallet
+   * deletes the rows; only a send whose lockup still holds a coin has funds at stake.
+   */
+  private async _boltzDeletionRefusal(): Promise<string | undefined> {
     try {
       const realm = await getArkadeRealm(this.getNamespace());
-      return Array.from(realm.objects<BoltzSwapRow>(BoltzSwapSchema.name)).filter(row => !isSettledBoltzRow(row)).length;
+      const rows = Array.from(realm.objects<BoltzSwapRow>(BoltzSwapSchema.name));
+      // No rebuildable send means nothing to lose, and no reason to go online.
+      if (strandedSendContracts(rows, await this._getIdentity().xOnlyPublicKey()).length === 0) return undefined;
+      if (!this._wallet) await this.init();
+      if (!this._wallet) throw new Error('Arkade wallet not initialized');
+      const funded = await fundedStrandedSendCount(realm, this._wallet);
+      if (funded === 0) return undefined;
+      return `This wallet has ${funded} failed Lightning payment(s) whose funds are still being returned. Deleting it now would lose them. Open the app again later so the refund can complete.`;
     } catch {
-      return undefined;
+      return 'Cannot verify failed Lightning payments right now. Connect to the internet and try again.';
     }
   }
 
