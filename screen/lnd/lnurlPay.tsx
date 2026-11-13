@@ -104,12 +104,13 @@ const LnurlPay: React.FC = () => {
   };
 
   const pay = async () => {
-    setPayButtonDisabled(true);
     if (!_LN || !amount) return;
+    setPayButtonDisabled(true);
 
     const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
     if (isBiometricsEnabled) {
       if (!(await unlockWithBiometrics())) {
+        setPayButtonDisabled(false);
         return;
       }
     }
