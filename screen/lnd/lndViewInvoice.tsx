@@ -34,8 +34,7 @@ const LNDViewInvoice = () => {
   const { goBack, navigate, setParams } = useNavigation();
 
   const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet | undefined;
-  const arkWallet =
-    wallet && (wallet as { type?: string }).type === LightningArkWallet.type ? (wallet as unknown as LightningArkWallet) : undefined;
+  const arkWallet = wallet instanceof LightningArkWallet ? wallet : undefined;
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);

@@ -24,7 +24,6 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
   static readonly typeReadable = 'HD Electrum (BIP32 P2WPKH)';
   // @ts-ignore: override
   public readonly type = HDSegwitElectrumSeedP2WPKHWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = HDSegwitElectrumSeedP2WPKHWallet.typeReadable;
   static readonly derivationPath = "m/0'";
 

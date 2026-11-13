@@ -15,7 +15,6 @@ export class TaprootWallet extends SegwitBech32Wallet {
   static readonly typeReadable = 'Taproot (P2TR)';
   // @ts-ignore: override
   public readonly type = TaprootWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = TaprootWallet.typeReadable;
   // @ts-ignore: override
   public readonly segwitType = 'p2tr';

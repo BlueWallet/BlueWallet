@@ -143,7 +143,7 @@ const WalletDetails: React.FC = () => {
   // Fetch ark address when wallet is a LightningArkWallet
   useEffect(() => {
     const fetchArkAddress = async () => {
-      if (wallet.type === LightningArkWallet.type && wallet.getArkAddress) {
+      if (wallet.type === LightningArkWallet.type) {
         try {
           const address = await wallet.getArkAddress();
           setArkAddress(address);

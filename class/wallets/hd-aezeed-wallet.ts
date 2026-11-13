@@ -26,7 +26,6 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
   static readonly derivationPath = "m/84'/0'/0'";
   // @ts-ignore: override
   public readonly type = HDAezeedWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = HDAezeedWallet.typeReadable;
 
   private _entropyHex?: string;

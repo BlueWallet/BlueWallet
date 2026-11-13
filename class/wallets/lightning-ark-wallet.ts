@@ -187,7 +187,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
   static readonly subtitleReadable = 'Arkade';
   // @ts-ignore: override
   public readonly type = LightningArkWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = LightningArkWallet.typeReadable;
 
   // Runtime SDK objects. The constructor re-defines these as non-enumerable so
