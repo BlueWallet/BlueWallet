@@ -2,6 +2,7 @@ import BIP32Factory from 'bip32';
 import b58 from 'bs58check';
 
 import ecc from '../blue_modules/noble_ecc';
+import { concatUint8Arrays, hexToUint8Array } from '../blue_modules/uint8array-extras';
 import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
 import assert from 'assert';
 const bip32 = BIP32Factory(ecc);
@@ -59,6 +60,7 @@ export class MultisigCosigner {
         }
         this._cosigners = [true];
         this._valid = true;
+        this._setXpubPrefixByPath();
         return;
       }
     }
@@ -73,18 +75,8 @@ export class MultisigCosigner {
         this._cosigners = [true];
         this._valid = true;
 
-        // a bit more logic here: according to the formal BIP48 spec, this xpub field _can_ start with 'xpub', but
-        // the actual type of segwit can be inferred from the path
         assert(this._xpub);
-        if (
-          this._xpub.startsWith('xpub') &&
-          [MultisigHDWallet.PATH_NATIVE_SEGWIT, MultisigHDWallet.PATH_WRAPPED_SEGWIT].includes(this._path)
-        ) {
-          const w = new MultisigHDWallet();
-          w.addCosigner(this._xpub, '00000000', this._path);
-          w.setDerivationPath(this._path);
-          this._xpub = w.convertXpubToMultisignatureXpub(this._xpub);
-        }
+        this._setXpubPrefixByPath();
 
         return;
       }
@@ -101,6 +93,7 @@ export class MultisigCosigner {
         this._path = json.AccountKeyPath;
         this._cosigners = [true];
         this._valid = true;
+        this._setXpubPrefixByPath();
         return;
       }
     } catch (_) {
@@ -174,6 +167,18 @@ export class MultisigCosigner {
     } catch (_) {
       this._valid = false;
     }
+  }
+
+  /**
+   * BIP48 keeps the script type in the path, the SLIP-132 prefix of the key is optional: signers send a plain xpub, and
+   * our own UR decoder labels multisig keys Zpub or zpub. isNativeSegwit() and friends go by the prefix, so it has to
+   * follow the path. m/45' says nothing about the script, such keys are left alone
+   */
+  private _setXpubPrefixByPath() {
+    const scriptType = /^m\/48'\/0'\/\d+'\/([12])'$/.exec(this._path)?.[1];
+    if (!scriptType || !MultisigHDWallet.isXpubString(this._xpub)) return;
+    const version = scriptType === '2' ? '02aa7ed3' : '0295b43f';
+    this._xpub = b58.encode(concatUint8Arrays([hexToUint8Array(version), b58.decode(this._xpub).slice(4)]));
   }
 
   static isXpubValid(key: string) {
