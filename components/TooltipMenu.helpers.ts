@@ -18,7 +18,7 @@ export const normalizeMenuState = (menuState?: Action['menuState']): boolean | u
 };
 
 const mapLeaf = (action: Action, platform: Platform): { item: ContextMenuAction; idNode: IdNode } | null => {
-  if (!action?.id || action.hidden) return null;
+  if (action?.id === undefined || action.id === null || action.id === '' || action.hidden) return null;
 
   const subResults = (action.subactions ?? [])
     .map(sub => mapLeaf(sub, platform))

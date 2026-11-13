@@ -485,17 +485,20 @@ const ReceiveDetails = () => {
   const renderReceiveSkeleton = () => {
     const showTabs = Boolean(wallet && isBIP47Enabled);
     return (
-      <View style={styles.cardPressable} testID="ReceiveCardSkeleton">
-        <View style={[styles.receiveCard, stylesHook.receiveCard, stylesHook.receiveCardColumn]}>
-          {showTabs && (
-            <View style={styles.tabsInsideCard} onStartShouldSetResponder={() => true}>
-              <SegmentedControl
-                values={segmentControlValues}
-                selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
-                onChange={index => setCurrentTab(segmentControlValues[index])}
-              />
-            </View>
-          )}
+      <View
+        style={[styles.cardPressable, styles.receiveCard, stylesHook.receiveCard, stylesHook.receiveCardColumn]}
+        testID="ReceiveCardSkeleton"
+      >
+        {showTabs && (
+          <View style={styles.cardTabs}>
+            <SegmentedControl
+              values={segmentControlValues}
+              selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
+              onChange={index => setCurrentTab(segmentControlValues[index])}
+            />
+          </View>
+        )}
+        <View style={styles.cardContent}>
           <View style={styles.qrCardWrapper}>
             <View style={[styles.qrPlaceholder, stylesHook.qrPlaceholderFill, { width: qrCodeSize, height: qrCodeSize }]} />
           </View>
@@ -525,32 +528,29 @@ const ReceiveDetails = () => {
     const displayCopyText = copyText && isAddressTab ? toBalancedMultilineText(copyText) : undefined;
 
     return (
-      <Pressable
-        onPress={handleCardPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        disabled={!copyText}
-        style={styles.cardPressable}
-        accessibilityRole="button"
-        accessibilityLabel={loc.transactions.details_copy}
-        testID="ReceiveCard"
+      <Animated.View
+        style={[styles.cardPressable, styles.receiveCard, stylesHook.receiveCard, stylesHook.receiveCardColumn, pressAnimatedStyle]}
       >
-        <Animated.View style={[styles.receiveCard, stylesHook.receiveCard, stylesHook.receiveCardColumn, pressAnimatedStyle]}>
-          {showTabs && (
-            <View
-              style={styles.tabsInsideCard}
-              // Keep tab interactions local: tapping segmented control should not
-              // trigger the parent receive-card copy press.
-              onStartShouldSetResponder={() => true}
-            >
-              <SegmentedControl
-                values={segmentControlValues}
-                selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
-                onChange={index => setCurrentTab(segmentControlValues[index])}
-              />
-            </View>
-          )}
-
+        {/* The tabs sit beside the Copy button, not inside it, so assistive technology reaches both. */}
+        {showTabs && (
+          <View style={styles.cardTabs}>
+            <SegmentedControl
+              values={segmentControlValues}
+              selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
+              onChange={index => setCurrentTab(segmentControlValues[index])}
+            />
+          </View>
+        )}
+        <Pressable
+          onPress={handleCardPress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          disabled={!copyText}
+          style={styles.cardContent}
+          accessibilityRole="button"
+          accessibilityLabel={loc.transactions.details_copy}
+          testID="ReceiveCard"
+        >
           {showTip && <BlueText style={[styles.paymentCodeDescription, stylesHook.label]}>{loc.receive.bip47_explanation}</BlueText>}
 
           {showCustomAmount && (
@@ -595,8 +595,8 @@ const ReceiveDetails = () => {
               </View>
             </>
           )}
-        </Animated.View>
-      </Pressable>
+        </Pressable>
+      </Animated.View>
     );
   };
 
@@ -832,11 +832,15 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     alignItems: 'center',
   },
-  tabsInsideCard: {
+  cardTabs: {
     width: '100%',
     paddingHorizontal: 8,
     paddingTop: 4,
     paddingBottom: 8,
+  },
+  cardContent: {
+    alignSelf: 'stretch',
+    alignItems: 'center',
   },
   paymentCodeDescription: {
     alignSelf: 'stretch',
