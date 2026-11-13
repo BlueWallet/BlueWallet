@@ -340,7 +340,8 @@ const WalletsAddMultisigStep2 = () => {
           if (jsonText.path) {
             path = jsonText.path;
           }
-          return tryUsingXpub(jsonText.xpub, fp, path);
+          // a file with several keys has no key of its own: then the top level xpub is used, as before
+          return tryUsingXpub(new MultisigCosigner(textToUse).getXpub() || jsonText.xpub, fp, path);
         }
       } catch {}
       const hd = new HDSegwitBech32Wallet();
