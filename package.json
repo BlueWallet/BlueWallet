@@ -193,6 +193,9 @@
     "wif": "2.0.6"
   },
   "overrides": {
+    "@arkade-os/sdk": {
+      "@noble/secp256k1": "$@noble/secp256k1"
+    },
     "silent-payments": {
       "bip39": "3.1.2",
       "bitcoinjs-lib": "7.0.5"

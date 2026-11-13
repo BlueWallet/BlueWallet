@@ -31,6 +31,10 @@ necc.hashes.sha256 = sha256 as NonNullable<typeof necc.hashes.sha256>;
 necc.hashes.hmacSha256 = ((key: Uint8Array, message: Uint8Array) => hmac(sha256, key, message)) as NonNullable<
   typeof necc.hashes.hmacSha256
 >;
+// The async defaults need crypto.subtle, which Hermes lacks; the Arkade SDK signs messages through them.
+necc.hashes.sha256Async = (async (message: Uint8Array) => sha256(message)) as typeof necc.hashes.sha256Async;
+necc.hashes.hmacSha256Async = (async (key: Uint8Array, message: Uint8Array) =>
+  hmac(sha256, key, message)) as typeof necc.hashes.hmacSha256Async;
 
 // Removed from @noble/secp256k1 v1.7; vendored from noble test vectors.
 // @see https://github.com/paulmillr/noble-secp256k1/blob/1.7.2/test/index.ts
