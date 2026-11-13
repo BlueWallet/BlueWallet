@@ -10,7 +10,7 @@ import { useTheme } from '../../components/themes';
 import type { Theme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
-import HeaderRightButton from '../../components/HeaderRightButton';
+import HeaderRightButton, { createHeaderRightButtonOptions } from '../../components/HeaderRightButton';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'MultisigAdvanced'>;
@@ -187,20 +187,22 @@ const MultisigAdvanced: React.FC = () => {
     navigation.goBack();
   }, [onSave, currentM, currentN, currentFormat, navigation]);
 
-  const SaveButton = useCallback(
-    () => <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!isValidSelection} testID="ModalDoneButton" />,
+  const headerRightOptions = React.useMemo(
+    () =>
+      createHeaderRightButtonOptions({
+        title: loc.send.input_done,
+        onPress: handleSave,
+        disabled: !isValidSelection,
+        testID: 'ModalDoneButton',
+      }),
     [handleSave, isValidSelection],
   );
 
-  const renderHeaderRight = useCallback(() => SaveButton(), [SaveButton]);
-
   React.useLayoutEffect(() => {
     if (Platform.OS !== 'android') {
-      navigation.setOptions({
-        headerRight: renderHeaderRight,
-      });
+      navigation.setOptions(headerRightOptions);
     }
-  }, [navigation, renderHeaderRight]);
+  }, [headerRightOptions, navigation]);
 
   return (
     <SafeArea style={stylesHook.root}>

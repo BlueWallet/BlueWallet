@@ -303,51 +303,6 @@ const DetailViewStackScreensStack = () => {
       return null;
     };
 
-    if (isIOS26OrHigher) {
-      // Status pills: `unstable_headerLeftItems` + `hidesSharedBackground` avoids the
-      // navigation bar's shared liquid-glass chrome on the pill (solid colors only).
-      return {
-        title: isWideLayout ? loc.wallets.list_title : '',
-        headerLargeTitle: false,
-        headerTransparent: true,
-        unstable_headerLeftItems: (): NativeStackHeaderItem[] => {
-          const element = renderHeaderLeft();
-          if (element == null) {
-            return [];
-          }
-          return [{ type: 'custom', element, hidesSharedBackground: true }];
-        },
-        unstable_headerRightItems: () => {
-          if (isDesktop) {
-            return [];
-          }
-          const items: HeaderRightItem[] = [
-            {
-              type: 'button',
-              label: loc.wallets.add_title,
-              icon: { type: 'sfSymbol', name: 'plus' },
-              variant: 'prominent',
-              tintColor: theme.colors.headerProminentButtonBackgroundColor,
-              identifier: 'AddWalletButton',
-              accessibilityLabel: 'AddWalletButton',
-              onPress: navigateToAddWallet,
-            },
-          ];
-          if (!isWideLayout) {
-            items.push({
-              type: 'button',
-              label: loc.settings.default_title,
-              icon: { type: 'sfSymbol', name: 'ellipsis' },
-              identifier: 'SettingsButton',
-              accessibilityLabel: 'SettingsButton',
-              onPress: navigateToSettings,
-            });
-          }
-          return items;
-        },
-      };
-    }
-
     return {
       title: isWideLayout ? loc.wallets.list_title : '',
       headerLargeTitle: false,
@@ -357,6 +312,43 @@ const DetailViewStackScreensStack = () => {
       },
       headerLeft: renderHeaderLeft,
       headerRight: () => (isDesktop ? undefined : RightBarButtons),
+      // Native header items take precedence on iOS. The React elements above
+      // remain available as the fallback on other platforms.
+      unstable_headerLeftItems: (): NativeStackHeaderItem[] => {
+        const element = renderHeaderLeft();
+        if (element == null) {
+          return [];
+        }
+        return [{ type: 'custom', element, hidesSharedBackground: true }];
+      },
+      unstable_headerRightItems: () => {
+        if (isDesktop) {
+          return [];
+        }
+        const items: HeaderRightItem[] = [
+          {
+            type: 'button',
+            label: loc.wallets.add_title,
+            icon: { type: 'sfSymbol', name: 'plus' },
+            variant: 'prominent',
+            tintColor: theme.colors.headerProminentButtonBackgroundColor,
+            identifier: 'AddWalletButton',
+            accessibilityLabel: 'AddWalletButton',
+            onPress: navigateToAddWallet,
+          },
+        ];
+        if (!isWideLayout) {
+          items.push({
+            type: 'button',
+            label: loc.settings.default_title,
+            icon: { type: 'sfSymbol', name: 'ellipsis' },
+            identifier: 'SettingsButton',
+            accessibilityLabel: 'SettingsButton',
+            onPress: navigateToSettings,
+          });
+        }
+        return items;
+      },
     };
   }, [
     RightBarButtons,
