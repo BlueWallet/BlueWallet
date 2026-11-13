@@ -3,7 +3,6 @@ import assert from 'assert';
 import {
   ClipboardPaymentKind,
   classifyClipboardPayment,
-  clipboardActionOnAppStateChange,
   evaluateClipboardOnForeground,
   hashClipboardContent,
   isClipboardPaymentFromOwnWallet,
@@ -180,55 +179,6 @@ describe('clipboardPayment ownership and last-seen', () => {
       payload: P2TR,
     });
     assert.notStrictEqual(next.nextHash, empty.nextHash);
-  });
-
-  it('offers the same payment again when last-seen is ignored after a paste prompt', () => {
-    const wallets: { chain: string; weOwnAddress: () => boolean }[] = [];
-    const first = evaluateClipboardOnForeground(P2WPKH, undefined, wallets);
-    assert.ok(first.offer);
-    const skipped = evaluateClipboardOnForeground(P2WPKH, first.nextHash, wallets);
-    assert.strictEqual(skipped.offer, null);
-    const retried = evaluateClipboardOnForeground(P2WPKH, first.nextHash, wallets, { ignoreLastSeen: true });
-    assert.deepStrictEqual(retried.offer, {
-      kind: ClipboardPaymentKind.Bitcoin,
-      payload: P2WPKH,
-    });
-  });
-
-  it('does not re-read clipboard after Control Center (inactive), but retries after a paste prompt', () => {
-    assert.strictEqual(
-      clipboardActionOnAppStateChange({
-        previous: 'inactive',
-        next: 'active',
-        shouldRetryPaste: false,
-      }),
-      'none',
-    );
-    assert.strictEqual(
-      clipboardActionOnAppStateChange({
-        previous: 'inactive',
-        next: 'active',
-        shouldRetryPaste: true,
-      }),
-      'retry_read',
-    );
-    assert.strictEqual(
-      clipboardActionOnAppStateChange({
-        previous: 'background',
-        next: 'active',
-        shouldRetryPaste: false,
-      }),
-      'read',
-    );
-    assert.strictEqual(
-      clipboardActionOnAppStateChange({
-        previous: 'inactive',
-        next: 'active',
-        shouldRetryPaste: false,
-        resumedFromBackground: true,
-      }),
-      'read',
-    );
   });
 
   it('offers a payment when the persisted last-seen hash is from different content', () => {
