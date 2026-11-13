@@ -53,6 +53,7 @@ import assert from 'assert';
 import ecc from '../../blue_modules/noble_ecc.ts';
 import { Measure } from '../measure.ts';
 import { deleteArkadeRealm, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm/realmInstance';
+import { processStrandedBoltzSwaps } from '../../blue_modules/arkade-stranded-sends';
 import { errorMessage } from '../../helpers/errorMessage';
 import bundledCard from '../../blue_modules/arkade-solver.card.json';
 
@@ -370,6 +371,12 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // where there is live work. The client is idempotent about arming.
         await swapClient.ready;
 
+        // Once per fresh init, so an app launch is enough to self-heal (#8804).
+        // Not awaited: best-effort, never a gate on wallet startup.
+        this._processStrandedBoltzSwaps(realm, wallet).catch((e: unknown) => {
+          console.log('[ARK] stranded Boltz swap recovery failed:', errorMessage(e));
+        });
+
         return { wallet, swapClient, repository };
       })();
 
@@ -403,6 +410,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
       namespaceInstances.set(namespace, refs);
     }
     refs.add(refTo(this));
+  }
+
+  private async _processStrandedBoltzSwaps(realm: Realm, wallet: Wallet) {
+    if (!(await processStrandedBoltzSwaps(realm, wallet))) return;
+    if (this._wallet === wallet) {
+      await this.fetchBalance();
+      await this.fetchTransactions();
+    }
   }
 
   /**

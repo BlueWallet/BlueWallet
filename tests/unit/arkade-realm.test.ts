@@ -110,8 +110,6 @@ describe('arkade realm adapter', () => {
     assert.deepStrictEqual(deleted, ['ArkSwapNotificationSuppression']);
   });
 
-  // A dev build of this branch dropped BoltzSwap at offset 1, so re-registering
-  // the model has to advance the version or Realm refuses to reopen the file.
   it('advances the schema version past every build that already wrote a file', async () => {
     await getArkadeRealm('ns-version');
 
