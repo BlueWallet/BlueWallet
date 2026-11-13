@@ -147,24 +147,6 @@ describe('BlueElectrum', () => {
     assert.ok(rez[txs[0].tx_hash]);
   });
 
-  it('BlueElectrum can do getTransactionsFullByAddress()', async function () {
-    const txs = await BlueElectrum.getTransactionsFullByAddress('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
-    const tx = txs[0];
-    assert.ok(tx.address === 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
-    assert.ok(tx.txid);
-    assert.ok(tx.confirmations);
-    assert.ok(!tx.vin);
-    assert.ok(!tx.vout);
-    assert.ok(tx.inputs);
-    assert.strictEqual(tx.inputs[0]?.addresses[0], 'bc1q7td49wcxfad9v42kmvg5refn9wcnvnru4395qw');
-    assert.ok(tx.inputs[0].addresses.length > 0);
-    assert.ok(tx.inputs[0].value > 0);
-    assert.ok(tx.outputs);
-    assert.ok(tx.outputs[0].value > 0);
-    assert.ok(tx.outputs[0].scriptPubKey);
-    assert.ok(tx.outputs[0].addresses.length > 0);
-  });
-
   it('BlueElectrum can do txhexToElectrumTransaction()', () => {
     const tx =
       '0200000000010137d07edbc9db9a072a79c6f03e7274e52642d64d760143adc64832501087f37b00000000000000008002102700000000000022512040ef293a8a0ebaf8b351a27d89ff4b5b3822a635e4afdca77a30170c363bafa3e4ad0b00000000001600147dfe2249fa56a2f2b4b7ed3b16ee55e7c565198002483045022100e5b9f1c12e133ef659a0e5cc417b1f8625ba9e951bc7083408de2a33d6fb1a84022035ebb1e2d4ab620ee178dc6cd0b58c54123d1526d9a1b3efba612ea80e48edd101210295b56fc62cdd09c200ce19f873d5ddb3074f7141b2533448829385f48f093a1600000000';

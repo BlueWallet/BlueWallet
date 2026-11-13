@@ -141,7 +141,7 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
 
     assert.strictEqual(
       w.getTransactions().find(tx => tx.txid === '06b4c14587182fd0474f265a77b156519b4778769a99c21623863a8194d0fa4f')?.outputs?.[1]
-        .scriptPubKey.addresses[0],
+        .scriptPubKey.addresses?.[0],
       bobBip47.getNotificationAddress(),
     ); // transaction is to Bob's notification address
   });

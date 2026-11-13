@@ -298,7 +298,7 @@ export class LegacyWallet extends AbstractWallet {
           const inpVout = vin.vout;
           // got txid and output number of _previous_ transaction we shoud look into
 
-          if (vintxdatas[inpTxid] && vintxdatas[inpTxid].vout[inpVout]) {
+          if (inpTxid !== undefined && inpVout !== undefined && vintxdatas[inpTxid] && vintxdatas[inpTxid].vout[inpVout]) {
             return {
               ...vin,
               addresses: vintxdatas[inpTxid].vout[inpVout].scriptPubKey.addresses,
