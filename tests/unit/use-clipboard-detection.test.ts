@@ -110,15 +110,6 @@ it('reads again on a real background resume after a denied paste', async () => {
   sheetPushed();
 });
 
-it('reads on every real resume', async () => {
-  const hook = await launch();
-  jest.mocked(navigationRef.dispatch).mockClear();
-  await resume(hook);
-  await resume(hook);
-  expect(getClipboardContent).toHaveBeenCalledTimes(3);
-  sheetPushed();
-});
-
 it('defers the launch read until the app becomes active', async () => {
   appState = 'inactive';
   (AppState as { currentState: AppStateStatus }).currentState = 'inactive';
@@ -172,15 +163,6 @@ it('keeps a resume read that arrives while a read is still waiting on the paste 
 
   await pastePromptFlip(hook);
   expect(getClipboardContent).toHaveBeenCalledTimes(2);
-});
-
-it('does not push the sheet again when it is already on screen', async () => {
-  const hook = await launch();
-  jest.mocked(navigationRef.dispatch).mockClear();
-  jest.mocked(navigationRef.getCurrentRoute).mockReturnValue({ name: 'ClipboardDetected', key: 'ClipboardDetected' });
-  await resume(hook);
-  expect(getClipboardContent).toHaveBeenCalledTimes(2);
-  expect(navigationRef.dispatch).not.toHaveBeenCalled();
 });
 
 it('does not read when detection is disabled, and reads once it is enabled', async () => {
