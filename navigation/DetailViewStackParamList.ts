@@ -57,11 +57,11 @@ export type DetailViewStackParamList = {
   WalletDetails: { walletID: string };
   TransactionStatus: { hash: string; walletID: string; tx?: Transaction };
   CPFP: {
-    wallet: TWallet | null;
+    wallet: TWallet;
     txid: string;
   };
-  RBFBumpFee: { txid: string; wallet: TWallet | null };
-  RBFCancel: { txid: string; wallet: TWallet | null };
+  RBFBumpFee: { txid: string; wallet: TWallet };
+  RBFCancel: { txid: string; wallet: TWallet };
   SelectWallet: SelectWalletParams;
   AppShortcut: { selectionMode: 'send' | 'receive' | 'scan' };
   LNDViewInvoice: { invoice: LightningTransaction | string; walletID: string };
