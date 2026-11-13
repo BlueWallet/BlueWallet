@@ -3,7 +3,7 @@ import { SelectWalletParams, SuccessParams } from './SendDetailsStackParamList';
 
 export type LNDStackParamsList = {
   ScanLNDInvoice: {
-    walletID?: string;
+    walletID: string;
     uri?: string;
     onBarScanned?: string;
     openScanner?: boolean;
@@ -13,7 +13,7 @@ export type LNDStackParamsList = {
   ScanQRCode: ScanQRCodeParamList;
   SelectWallet: SelectWalletParams;
   Success: SuccessParams;
-  LNDCreateInvoice: { walletID?: string; uri?: string };
+  LNDCreateInvoice: { walletID: string; uri?: string };
   LNDViewInvoice: DetailViewStackParamList['LNDViewInvoice'];
   LNDViewAdditionalInvoicePreImage: DetailViewStackParamList['LNDViewAdditionalInvoicePreImage'];
 };

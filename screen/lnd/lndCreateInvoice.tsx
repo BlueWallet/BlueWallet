@@ -40,7 +40,7 @@ import { errorMessage } from '../../helpers/errorMessage';
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk } = useStorage();
   const { uri, walletID } = useRoute<RouteProp<LNDStackParamsList, 'LNDCreateInvoice'>>().params;
-  const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
+  const wallet = useRef(wallets.find(item => item.getID() === walletID));
   const { colors } = useTheme();
   const { navigate, goBack, setParams } = useNavigation();
   const [unit, setUnit] = useState(wallet.current?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
@@ -102,7 +102,7 @@ const LNDCreateInvoice = () => {
               name: 'LnurlAuth',
               params: {
                 lnurl: data,
-                walletID: walletID ?? wallet.current?.getID(),
+                walletID,
               },
             }),
           );
@@ -128,7 +128,7 @@ const LNDCreateInvoice = () => {
             screen: 'LnurlPay',
             params: {
               lnurl: data,
-              walletID: walletID ?? wallet.current.getID(),
+              walletID,
             },
           });
           return;

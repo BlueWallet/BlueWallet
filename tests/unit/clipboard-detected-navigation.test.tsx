@@ -15,7 +15,7 @@ jest.mock('@react-navigation/native', () => ({
   useRoute: () => ({ params: { payload: 'bitcoin:test-address', contentHash: 'test-hash' } }),
   useFocusEffect: () => {},
 }));
-jest.mock('../../NavigationService', () => ({ navigationRef: { navigate: jest.fn() } }));
+jest.mock('../../NavigationService', () => ({ navigationRef: { navigate: jest.fn() }, getCurrentWalletID: jest.fn() }));
 jest.mock('../../class/deeplink-schema-match', () => ({
   __esModule: true,
   default: { navigationRouteFor: jest.fn((_input, callback) => callback(['SendDetailsRoot', { address: 'test-address' }])) },
