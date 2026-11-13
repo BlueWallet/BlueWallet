@@ -2459,6 +2459,45 @@ describe('multisig-cosigner', () => {
     assert.ok(!cosigner.isWrappedSegwit());
   });
 
+  it('key prefix follows the BIP48 path', () => {
+    // BCR-2020-015 test seed, its sh(wsh()) cosigner key as a single-key crypto-account
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(
+      'UR:CRYPTO-ACCOUNT/OEADCYEMREWYTYAOLYTAADMHTAADMETAADDLOXAXHDCLAXDWKSWMZTPYTNSWTSECNBLFBAYAJKDLDECLQZZOLRSNHLJEDSGMINETYTBNAHATBYAAHDCXKKGUWSVYIMJKVWTEYTWZTYSWVENDTPMNCPASFRRYLPRNHTKBLNDRGRMKOYJTBKRPAMTAADDYOTADLOCSDYYKAEYKAEYKADYKAOCYEMREWYTYAXAAAYCYHKRPNDDRONSPPDRL',
+    );
+    const [account] = JSON.parse(decoder.toString());
+
+    const wrapped = new MultisigCosigner(JSON.stringify(account));
+    assert.strictEqual(wrapped.getPath(), MultisigHDWallet.PATH_WRAPPED_SEGWIT);
+    assert.strictEqual(
+      wrapped.getXpub(),
+      'Ypub6jvW62AgxwWefTBi58HAe5XRCHBUyWbHmncYJtaa2mxqeN2eMw3BJUK2d5UBw8fhVqt8xhVz92NK77bjmgvDGmCvLXqaePsj8YELrpuEG6b',
+    );
+    assert.ok(wrapped.isWrappedSegwit());
+
+    const key = { MasterFingerprint: account.MasterFingerprint, ExtPubKey: account.ExtPubKey };
+    assert.ok(new MultisigCosigner(JSON.stringify({ ...key, AccountKeyPath: "m/48'/0'/3'/2'" })).isNativeSegwit());
+    assert.ok(new MultisigCosigner(JSON.stringify({ ...key, AccountKeyPath: "m/48'/0'/3'/1'" })).isWrappedSegwit());
+    // m/45' is used with any script type, and a testnet key is not ours to relabel: both are left as they came
+    assert.strictEqual(new MultisigCosigner(JSON.stringify({ ...key, AccountKeyPath: "m/45'" })).getXpub(), account.ExtPubKey);
+    const tpub = 'tpubDEcvDfTW4ysWhGzYtqCCHRoPJ4WybWk8rf2mPaYKkAoj5AQzHxUjGKWYBwTKP2hBuzGzSVMBcRhjh1UxDqo8K7k7Dj87k6UPYc2a3cExYTr';
+    assert.strictEqual(new MultisigCosigner(JSON.stringify({ ...key, ExtPubKey: tpub, AccountKeyPath: "m/48'/1'/0'/2'" })).getXpub(), tpub);
+    assert.strictEqual(new MultisigCosigner(JSON.stringify({ ...key, AccountKeyPath: "m/48'/1'/0'/1'" })).getXpub(), account.ExtPubKey);
+    assert.ok(new MultisigCosigner(MultisigCosigner.exportToJson('37B5EED4', account.ExtPubKey, "m/48'/0'/0'/1'")).isWrappedSegwit());
+    // what the UR decoder gives for sh(wsh()) on an account other than 0
+    assert.ok(
+      new MultisigCosigner(
+        JSON.stringify({
+          ...key,
+          ExtPubKey: 'zpub6srgGT7AYfVm6BDSxpbp26H7eTHfhmuCNdV6B2Cv31WK5HGxrBpTqR7EqaUJNc6ig1vxqb6RiULMsEbYCABGvWmrNQRbpuEDWY27fShLKWD',
+          AccountKeyPath: "m/48'/0'/3'/1'",
+        }),
+      ).isWrappedSegwit(),
+    );
+    // the same key as a descriptor gives the same string
+    assert.strictEqual(new MultisigCosigner(`[37b5eed4/48h/0h/0h/1h]${account.ExtPubKey}`).getXpub(), wrapped.getXpub());
+  });
+
   it('can parse cobo URv2 account', () => {
     let decoded = decodeUR([
       'UR:CRYPTO-ACCOUNT/OEADCYADWMTNKIAOLYTAADMETAADDLOLAOWKAXHDCLAXHPDIHNWKMYCFHNROCARHSESKLDPDSWOTMWGTJNGWIYHYYNWSOLENTSUEMKTOTAVDAAHDCXBDHHBZSBURBSMKZOECOEHHJPHTSRVACMBGHEROMYCKHHNBHFHGNBGMNYAESPNDFHAHTAADEHOEADADAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYADWMTNKIAXAAAYCYLOWLDITOJTCNDTAY',
@@ -2564,7 +2603,7 @@ describe('multisig-cosigner', () => {
     assert.strictEqual(cosigner.getFp(), '73c5da0a');
     assert.strictEqual(
       cosigner.getXpub(),
-      'xpub6DkFAXWQ2dHxq2vatrt9qyA3bXYU4ToWQwCHbf5XB2mSTexcHZCeKS1VZYcPoBd5X8yVcbXFHJR9R8UCVpt82VX1VhR28mCyxUFL4r6KFrf',
+      'Zpub74Jru6aftwwHxCUCWEvP6DgrfFsdA4U6ZRtQ5i8qJpMcC39yZGv3egBhQfV3MS9pZtH5z8iV5qWkJsK6ESs6mSzt4qvGhzJxPeeVS2e1zUG',
     );
     assert.strictEqual(cosigner.getPath(), "m/48'/0'/0'/2'");
     assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
