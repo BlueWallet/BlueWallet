@@ -16,6 +16,7 @@ import ViewEditMultisigCosignerViewSheet from '../screen/wallets/ViewEditMultisi
 import ViewEditMultisigProvideMnemonicsSheet from '../screen/wallets/ViewEditMultisigProvideMnemonicsSheet';
 import ViewEditMultisigShareCosignerSheet from '../screen/wallets/ViewEditMultisigShareCosignerSheet';
 import ClipboardDetected from '../screen/ClipboardDetected';
+import ElectrumCertificateSheet from '../screen/settings/ElectrumCertificateSheet';
 import { navigationGuardRouter } from './navigationGuard';
 import AppShortcut from '../screen/AppShortcut';
 import { isIOS26OrHigher } from '../blue_modules/environment';
@@ -242,6 +243,16 @@ const MainRoot = () => {
               closeButtonPosition: CloseButtonPosition.Right,
               title: loc.wallets.detect_on_clipboard,
               headerShown: Platform.OS === 'ios',
+            })(theme)}
+          />
+          <DetailViewStack.Screen
+            name="ElectrumCertificateSheet"
+            component={ElectrumCertificateSheet}
+            options={navigationStyle({
+              presentation: 'formSheet',
+              sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.8],
+              sheetGrabberVisible: true,
+              headerShown: false,
             })(theme)}
           />
           <DetailViewStack.Screen

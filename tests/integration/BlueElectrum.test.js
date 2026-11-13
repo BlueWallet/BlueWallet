@@ -100,8 +100,10 @@ describe('BlueElectrum', () => {
     assert.ok(!(await BlueElectrum.testConnection('joyreactor.cc', 80, false)));
     assert.ok(!(await BlueElectrum.testConnection('joyreactor.cc', false, 80)));
 
-    assert.ok(await BlueElectrum.testConnection('mainnet.foundationdevices.com', false, 50002));
-    assert.ok(await BlueElectrum.testConnection('electrum1.bluewallet.io', false, 443));
+    assert.ok(await BlueElectrum.testConnection('mainnet-0.foundation.xyz', false, 50002));
+    // public key of this one is pinned: if this throws, server's key was changed
+    assert.ok(await BlueElectrum.testConnection('bitcoin.lu.ke', false, 50002));
+    assert.ok(await BlueElectrum.testConnection('electrum2.bluewallet.io', false, 443));
   });
 
   it('ElectrumClient can estimate fees', async () => {

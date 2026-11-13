@@ -2,6 +2,7 @@ import type { NativeStackNavigationOptions } from '@react-navigation/native-stac
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
+import { ServerKeyChange } from '../blue_modules/electrumServerIdentity';
 import { SelectWalletParams, SendDetailsParams, SendDetailsStackParamList, SuccessParams } from './SendDetailsStackParamList';
 import { ReceiveDetailsStackParamList } from './ReceiveDetailsStackParamList';
 import type { AddWalletStackParamList } from './AddWalletStack';
@@ -93,6 +94,7 @@ export type DetailViewStackParamList = {
   About: undefined;
   // DefaultView: undefined; // Commented out - not accessible from UI
   // server: "host:port:t|s" as the setelectrumserver deeplink sends it
+  ElectrumCertificateSheet: ServerKeyChange;
   ElectrumSettings: { server?: string; onBarScanned?: string; headerRight?: HeaderRightRenderer | null } | undefined;
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
