@@ -361,7 +361,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         const inpTxid = txdatas[txid].vin[inpNum].txid;
         const inpVout = txdatas[txid].vin[inpNum].vout;
         // got txid and output number of _previous_ transaction we shoud look into
-        if (vintxdatas[inpTxid]?.vout[inpVout]) {
+        if (inpTxid !== undefined && inpVout !== undefined && vintxdatas[inpTxid]?.vout[inpVout]) {
           // extracting amount & addresses from previous output and adding it to _our_ input:
           txdatas[txid].vin[inpNum].addresses = vintxdatas[inpTxid].vout[inpVout].scriptPubKey.addresses;
           txdatas[txid].vin[inpNum].value = vintxdatas[inpTxid].vout[inpVout].value;
@@ -1480,7 +1480,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         this.getTransactions()
           .find(parent => parent.txid === firstInput.txid)
           ?.outputs.find(output => output.n === firstInput.vout)?.scriptPubKey?.addresses?.[0];
-      if (!inputAddress) continue;
+      if (!inputAddress || firstInput.txid === undefined || firstInput.vout === undefined) continue;
 
       try {
         const wif = this._getWifForAddress(inputAddress); // cached; throws if address is not ours
