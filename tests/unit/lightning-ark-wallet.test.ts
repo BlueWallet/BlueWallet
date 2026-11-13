@@ -754,6 +754,10 @@ describe('LightningArkWallet LNURL receive', () => {
     sessionLnurl: null,
     ...extra,
   });
+  const nameless = () => ({
+    ...named('sid', { username: null, lightningAddress: null, nameless: true }),
+    sessionLnurl: `https://${DOMAIN}/lnurl/sid`,
+  });
   const makeInvoice = (timestamp = Math.floor(Date.now() / 1000)) =>
     bolt11.sign(
       bolt11.encode({
@@ -779,6 +783,7 @@ describe('LightningArkWallet LNURL receive', () => {
     destination: string | undefined;
     verify: Record<string, unknown>;
     down: boolean;
+    namingRefused: boolean;
     calls: { method: string; url: string; body?: any }[];
   };
 
@@ -803,6 +808,7 @@ describe('LightningArkWallet LNURL receive', () => {
       destination: undefined,
       verify: { status: 'OK', settled: false, preimage: null },
       down: false,
+      namingRefused: false,
       calls: [],
     };
     global.fetch = jest.fn(async (input: any, init: any) => {
@@ -813,8 +819,10 @@ describe('LightningArkWallet LNURL receive', () => {
       const { pathname } = new URL(url);
       let body: unknown;
       if (pathname === '/lnurl/address' && method === 'GET') body = server.addresses;
-      else if (pathname === '/lnurl/address') body = named('merry-comet');
+      else if (pathname === '/lnurl/address') body = JSON.parse(init.body).nameless ? nameless() : named('merry-comet');
       else if (pathname.endsWith('/arkade')) body = {};
+      else if (method === 'PATCH' && server.namingRefused)
+        return new Response(JSON.stringify({ error: 'no names available' }), { status: 409 });
       else if (method === 'PATCH') body = named('quiet-marlin', { sessionLnurl: `https://${DOMAIN}/lnurl/sid` });
       else if (pathname.endsWith('/callback')) {
         body = server.destination
@@ -846,17 +854,17 @@ describe('LightningArkWallet LNURL receive', () => {
     jest.restoreAllMocks();
   });
 
-  it('claims a server-named address bound to the Arkade and boarding addresses once, and asks for the Lightning rail', async () => {
+  it('claims a receiver bound to the Arkade and boarding addresses once, names it in place, and asks for the Lightning rail', async () => {
     const first = await w.addInvoice(1000, 'coffee');
     await w.addInvoice(1000, 'tea');
 
     assert.strictEqual(first, server.invoice);
-    assert.strictEqual(await w.getLightningAddress(), `merry-comet@${DOMAIN}`);
+    assert.strictEqual(await w.getLightningAddress(), `quiet-marlin@${DOMAIN}`);
     assert.strictEqual(claims().length, 1);
-    assert.strictEqual(claims()[0].body.nameless, undefined);
-    assert.strictEqual(claims()[0].body.username, undefined);
+    assert.strictEqual(claims()[0].body.nameless, true);
+    assert.strictEqual(server.calls.filter(c => c.method === 'PATCH').length, 1);
     assert.strictEqual(binds().length, 1);
-    assert.ok(binds()[0].url.endsWith('/lnurl/address/merry-comet/arkade'));
+    assert.ok(binds()[0].url.endsWith('/lnurl/address/sid/arkade'));
     assert.strictEqual(binds()[0].body.arkadeAddress, ARK_ADDRESS);
     assert.strictEqual(binds()[0].body.boardingAddress, BOARDING_ADDRESS);
     const callback = server.calls.find(c => c.url.includes('/callback'));
@@ -875,9 +883,7 @@ describe('LightningArkWallet LNURL receive', () => {
   });
 
   it('names a nameless receiver from an earlier build in place instead of claiming another', async () => {
-    server.addresses = [
-      { ...named('sid', { username: null, lightningAddress: null, nameless: true }), sessionLnurl: `https://${DOMAIN}/lnurl/sid` },
-    ];
+    server.addresses = [nameless()];
 
     assert.strictEqual(await w.getLightningAddress(), `quiet-marlin@${DOMAIN}`);
     assert.strictEqual(claims().length, 0);
@@ -886,13 +892,21 @@ describe('LightningArkWallet LNURL receive', () => {
     assert.deepStrictEqual(upgrade?.body, {});
   });
 
+  it('keeps receiving without a Lightning address when the server refuses a name', async () => {
+    server.namingRefused = true;
+    assert.strictEqual(await w.addInvoice(1000, ''), server.invoice);
+    assert.strictEqual((await w.getReceiveLimits())?.min, 500);
+    assert.strictEqual(await w.getLightningAddress(), undefined);
+    assert.strictEqual(claims().length, 1);
+  });
+
   it('claims once when the receive screen asks for the address and the limits together', async () => {
     await Promise.all([w.getLightningAddress(), w.getReceiveLimits()]);
     assert.strictEqual(claims().length, 1);
   });
 
   it('re-binds the address when the Arkade address rotates mid-session', async () => {
-    assert.strictEqual(await w.getLightningAddress(), `merry-comet@${DOMAIN}`);
+    assert.strictEqual(await w.getLightningAddress(), `quiet-marlin@${DOMAIN}`);
     const bound = { arkadeAddress: ARK_ADDRESS, claimPublicKey: await claimPublicKey(), boardingAddress: BOARDING_ADDRESS, createdAt: 0 };
     server.addresses = [named('merry-comet', bound)];
     const rotated = new ArkAddress(new Uint8Array(32).fill(2), new Uint8Array(32).fill(4), 'ark').encode();

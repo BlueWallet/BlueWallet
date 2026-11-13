@@ -1054,9 +1054,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   /**
-   * Our Lightning address: a server-picked name bound to our Arkade and boarding addresses. The key
-   * owns it, so a restore finds it again; `refresh` re-binds it if either address rotated, and an
-   * earlier build's nameless receiver is named in place so its LNURL keeps working.
+   * Our receiver, bound to our Arkade and boarding addresses. The key owns it, so a restore finds it
+   * again; `refresh` re-binds it if either address rotated. It is claimed nameless, then named in
+   * place with a server-picked name; naming is best-effort, so a refusal leaves receive working
+   * without a Lightning address until the next launch retries it.
    */
   private _getLnurlReceiver(): Promise<Receiver> {
     // Chained so concurrent callers share one claim; an operator signer change rotates both addresses, so a new pair re-binds.
@@ -1069,8 +1070,13 @@ export class LightningArkWallet extends LightningCustodianWallet {
       const held = await previous?.catch(() => undefined);
       if (held?.destinations === destinations) return held;
       const lnurl = arkadeLnurl({ wallet, baseUrl: LNURL_SERVER });
-      const owned = (await lnurl.owned({ refresh: true })) ?? (await lnurl.claim());
-      return { destinations, receiver: owned.lightningAddress ? owned : await owned.upgrade() };
+      const owned = (await lnurl.owned({ refresh: true })) ?? (await lnurl.claim({ nameless: true }));
+      if (owned.lightningAddress) return { destinations, receiver: owned };
+      const receiver = await owned.upgrade().catch((e: unknown) => {
+        console.log('[ARK] Lightning address naming failed:', errorMessage(e));
+        return owned;
+      });
+      return { destinations, receiver };
     })();
     this._lnurlReceiver = current;
     current.catch(() => {
