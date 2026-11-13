@@ -176,6 +176,11 @@ let disconnectGeneration = 0;
 const txhashHeightCache: Record<string, number> = {};
 let _realm: Realm | undefined;
 
+type TCacheRow = {
+  cache_key: string;
+  cache_value: string;
+};
+
 function bitcoinjs_crypto_sha256(buffer: Uint8Array): Uint8Array {
   return _sha256(buffer);
 }
@@ -189,7 +194,7 @@ async function _getRealm() {
   const encryptionKey = Int8Array.from(buf);
   const path = `${cacheFolderPath}/electrumcache.realm`; // Use cache folder path
 
-  const schema = [
+  const schema: Realm.ObjectSchema[] = [
     {
       name: 'Cache',
       primaryKey: 'cache_key',
@@ -200,7 +205,6 @@ async function _getRealm() {
     },
   ];
 
-  // @ts-ignore schema doesn't match Realm's schema type
   _realm = await Realm.open({
     schema,
     path,
@@ -1166,10 +1170,10 @@ export async function multiGetTransactionByTxid<T extends boolean>(
   const cacheKeySuffix = verbose ? '_verbose' : '_non_verbose';
   const keysCacheMiss = [];
   for (const txid of txids) {
-    const jsonString = realm.objectForPrimaryKey('Cache', txid + cacheKeySuffix); // search for a realm object with a primary key
+    const jsonString = realm.objectForPrimaryKey<TCacheRow>('Cache', txid + cacheKeySuffix); // search for a realm object with a primary key
     if (jsonString && jsonString.cache_value) {
       try {
-        ret[txid] = JSON.parse(jsonString.cache_value as string);
+        ret[txid] = JSON.parse(jsonString.cache_value);
       } catch (error) {
         console.log('[electrum]', error, 'cache failed to parse', jsonString.cache_value);
       }
@@ -1286,7 +1290,7 @@ export async function multiGetTransactionByTxid<T extends boolean>(
           {
             cache_key: txid + cacheKeySuffix,
             cache_value: JSON.stringify(ret[txid]),
-          },
+          } satisfies TCacheRow,
           Realm.UpdateMode.Modified,
         );
       }
