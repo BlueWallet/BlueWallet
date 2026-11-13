@@ -43,6 +43,7 @@ const useClipboardDetection = (enabled: boolean) => {
   const readClipboard = useCallback(async () => {
     if (!enabled || wallets.length === 0 || clipboardReadInFlight.current) return;
     clipboardReadInFlight.current = true;
+    readOnNextForeground.current = false;
     try {
       const content = await getClipboardContent();
       if (!content) return;
@@ -82,9 +83,11 @@ const useClipboardDetection = (enabled: boolean) => {
       if (!enabled || wallets.length === 0) return;
       // Catalyst reports window unfocus as `inactive` rather than `background`.
       if (!readOnNextForeground.current && !(isDesktop && previousState === 'inactive')) return;
-      // A handled push notification already navigated somewhere; keep the read for the next resume.
-      if (options?.skipRead) return;
-      readOnNextForeground.current = false;
+      // A handled push notification already navigated somewhere; skip this resume's read.
+      if (options?.skipRead) {
+        readOnNextForeground.current = false;
+        return;
+      }
       readRef.current().catch(() => {});
     },
     [enabled, wallets.length],
@@ -92,7 +95,6 @@ const useClipboardDetection = (enabled: boolean) => {
 
   useEffect(() => {
     if (!enabled || wallets.length === 0 || !isForegroundAppState(AppState.currentState)) return;
-    readOnNextForeground.current = false;
     readRef.current().catch(() => {});
   }, [enabled, wallets.length]);
 

@@ -143,17 +143,35 @@ it('treats a Catalyst window refocus as a resume, even after an empty clipboard'
   sheetPushed();
 });
 
-it('keeps the pending read when a push notification was handled', async () => {
+it('skips the read on a resume that opened a push notification, until the next real resume', async () => {
   const hook = await launch();
   jest.mocked(navigationRef.dispatch).mockClear();
 
   await resume(hook, true);
+  await pastePromptFlip(hook);
   expect(getClipboardContent).toHaveBeenCalledTimes(1);
   expect(navigationRef.dispatch).not.toHaveBeenCalled();
 
+  await resume(hook);
+  expect(getClipboardContent).toHaveBeenCalledTimes(2);
+  sheetPushed();
+});
+
+it('keeps a resume read that arrives while a read is still waiting on the paste prompt', async () => {
+  let answerPrompt: (value: string | undefined) => void = () => {};
+  jest.mocked(getClipboardContent).mockImplementationOnce(() => new Promise(resolve => (answerPrompt = resolve)));
+  const hook = await launch();
+
+  await resume(hook);
+  expect(getClipboardContent).toHaveBeenCalledTimes(1);
+
+  await act(async () => answerPrompt(undefined));
   await pastePromptFlip(hook);
   expect(getClipboardContent).toHaveBeenCalledTimes(2);
   sheetPushed();
+
+  await pastePromptFlip(hook);
+  expect(getClipboardContent).toHaveBeenCalledTimes(2);
 });
 
 it('does not push the sheet again when it is already on screen', async () => {
