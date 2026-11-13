@@ -1,20 +1,14 @@
 import { CommonActions } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
-import { AppState, AppStateStatus, Platform } from 'react-native';
+import { AppState, AppStateStatus } from 'react-native';
 
 import {
+  getClipboardContent,
   getLastSeenClipboardHash,
   isClipboardSheetFocused,
-  readClipboardForDetection,
   setLastSeenClipboardHash,
 } from '../blue_modules/clipboard';
-import {
-  CLIPBOARD_IDLE_DELAY_MS,
-  CLIPBOARD_RETRY_DELAY_MS,
-  ClipboardPaymentKind,
-  clipboardActionOnAppStateChange,
-  evaluateClipboardOnForeground,
-} from '../blue_modules/clipboardPayment';
+import { ClipboardPaymentKind, evaluateClipboardOnForeground } from '../blue_modules/clipboardPayment';
 import { isDesktop } from '../blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { navigationRef } from '../NavigationService';
@@ -33,62 +27,28 @@ function pushClipboardDetectedSheet(params: { payload: string; kind: ClipboardPa
   return true;
 }
 
-/** Detects payment data on the clipboard after launch/resume and presents ClipboardDetected. */
+/**
+ * Detects payment data on the clipboard once at launch and once per resume, and presents
+ * ClipboardDetected. A failed, empty or denied read is never retried: on iOS the read already
+ * waits for the paste prompt, and the prompt's own inactive→active flip is not a resume.
+ */
 const useClipboardDetection = (enabled: boolean) => {
   const { wallets } = useStorage();
   const lastSeenClipboardHash = useRef<string | undefined>(undefined);
   const clipboardReadInFlight = useRef(false);
-  const retryClipboardAfterPastePrompt = useRef(false);
-  const resumedFromBackground = useRef(false);
-  const pendingLaunchRead = useRef(false);
-  const clipboardPasteFollowUpAttempts = useRef(0);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const ignoreLastSeenOnNextRead = useRef(false);
+  // Launch counts as a resume; a launch while not yet foreground is read on the first `active`.
+  const readOnNextForeground = useRef(true);
   const readRef = useRef<() => Promise<void>>(async () => {});
 
-  const clearTimer = () => {
-    if (!timer.current) return;
-    clearTimeout(timer.current);
-    timer.current = null;
-  };
-
   const readClipboard = useCallback(async () => {
-    if (!enabled || wallets.length === 0 || clipboardReadInFlight.current) {
-      if (clipboardReadInFlight.current && Platform.OS === 'ios') retryClipboardAfterPastePrompt.current = true;
-      return;
-    }
+    if (!enabled || wallets.length === 0 || clipboardReadInFlight.current) return;
     clipboardReadInFlight.current = true;
     try {
-      const { content, pasteBlocked } = await readClipboardForDetection();
-      if (pasteBlocked || !content) {
-        // iOS 16+ may return empty before the user answers the paste prompt, so allow
-        // one retry in this foreground session. Further retries loop the prompt: the
-        // dialog flips AppState inactive→active, which is not a real resume.
-        if (clipboardPasteFollowUpAttempts.current < 1) {
-          clipboardPasteFollowUpAttempts.current += 1;
-          retryClipboardAfterPastePrompt.current = true;
-          ignoreLastSeenOnNextRead.current = true;
-          if (isForegroundAppState(AppState.currentState)) {
-            clearTimer();
-            timer.current = setTimeout(() => {
-              timer.current = null;
-              readRef.current().catch(() => {});
-            }, CLIPBOARD_IDLE_DELAY_MS);
-          }
-        } else {
-          retryClipboardAfterPastePrompt.current = false;
-        }
-        return;
-      }
+      const content = await getClipboardContent();
+      if (!content) return;
 
-      clipboardPasteFollowUpAttempts.current = 0;
-      const ignoreLastSeen = ignoreLastSeenOnNextRead.current;
-      ignoreLastSeenOnNextRead.current = false;
-      retryClipboardAfterPastePrompt.current = false;
-      const lastSeenHash = ignoreLastSeen
-        ? lastSeenClipboardHash.current
-        : ((await getLastSeenClipboardHash()) ?? lastSeenClipboardHash.current);
-      const { offer, nextHash } = evaluateClipboardOnForeground(content, lastSeenHash, wallets, { ignoreLastSeen });
+      const lastSeenHash = (await getLastSeenClipboardHash()) ?? lastSeenClipboardHash.current;
+      const { offer, nextHash } = evaluateClipboardOnForeground(content, lastSeenHash, wallets);
       if (!offer) {
         lastSeenClipboardHash.current = nextHash;
         await setLastSeenClipboardHash(nextHash);
@@ -112,82 +72,32 @@ const useClipboardDetection = (enabled: boolean) => {
   }, [enabled, wallets]);
   readRef.current = readClipboard;
 
-  const scheduleRead = useCallback((delayMs: number) => {
-    clearTimer();
-    timer.current = setTimeout(() => {
-      timer.current = null;
-      readRef.current().catch(() => {});
-    }, delayMs);
+  const onLeaveForeground = useCallback((nextAppState: AppStateStatus) => {
+    // `inactive` is also Control Center and the iOS paste prompt, so only `background` is a resume.
+    if (nextAppState === 'background') readOnNextForeground.current = true;
   }, []);
 
-  const onLeaveForeground = useCallback(
-    (nextAppState: AppStateStatus) => {
+  const onEnterForeground = useCallback(
+    (previousState: AppStateStatus, options?: { skipRead?: boolean }) => {
       if (!enabled || wallets.length === 0) return;
-      // `inactive` is also the launch transition and Control Center. Cancelling here drops
-      // the only scheduled read, and coming back to `active` would not start another.
-      if (nextAppState !== 'background') return;
-      clearTimer();
-      pendingLaunchRead.current = false;
-      clipboardPasteFollowUpAttempts.current = 0;
-      resumedFromBackground.current = true;
+      // Catalyst reports window unfocus as `inactive` rather than `background`.
+      if (!readOnNextForeground.current && !(isDesktop && previousState === 'inactive')) return;
+      // A handled push notification already navigated somewhere; keep the read for the next resume.
+      if (options?.skipRead) return;
+      readOnNextForeground.current = false;
+      readRef.current().catch(() => {});
     },
     [enabled, wallets.length],
   );
 
-  const onEnterForeground = useCallback(
-    (previousState: AppStateStatus, options?: { skipRead?: boolean }) => {
-      // Catalyst often reports window unfocus as `inactive` rather than `background`.
-      // Do not treat that as a resume after a paste deny in this foreground session,
-      // or the paste dialog's own inactive→active flip will loop the prompt.
-      const cameFromBackground =
-        resumedFromBackground.current || (isDesktop && previousState === 'inactive' && clipboardPasteFollowUpAttempts.current === 0);
-      const launchPending = pendingLaunchRead.current;
-      pendingLaunchRead.current = false;
-      resumedFromBackground.current = false;
-      if (!enabled || wallets.length === 0) return;
-      const action = clipboardActionOnAppStateChange({
-        previous: previousState,
-        next: 'active',
-        shouldRetryPaste: retryClipboardAfterPastePrompt.current,
-        resumedFromBackground: cameFromBackground,
-      });
-      // A handled push notification already navigated somewhere; keep the pending read for
-      // the next resume instead of covering that screen with the Detected sheet.
-      if (options?.skipRead) {
-        clearTimer();
-        if (cameFromBackground) resumedFromBackground.current = true;
-        if (launchPending) pendingLaunchRead.current = true;
-        return;
-      }
-      if (action === 'retry_read') {
-        ignoreLastSeenOnNextRead.current = true;
-        retryClipboardAfterPastePrompt.current = false;
-        scheduleRead(CLIPBOARD_RETRY_DELAY_MS);
-      } else if (action === 'read' || launchPending) {
-        retryClipboardAfterPastePrompt.current = false;
-        scheduleRead(CLIPBOARD_IDLE_DELAY_MS);
-      }
-    },
-    [enabled, scheduleRead, wallets.length],
-  );
-
   useEffect(() => {
-    if (!enabled || wallets.length === 0) return;
-    // Not the shared timer: leaving the foreground must not cancel this first read.
-    const initialRead = setTimeout(() => {
-      if (!isForegroundAppState(AppState.currentState)) {
-        pendingLaunchRead.current = true;
-        return;
-      }
-      readRef.current().catch(() => {});
-    }, CLIPBOARD_IDLE_DELAY_MS);
-    return () => clearTimeout(initialRead);
+    if (!enabled || wallets.length === 0 || !isForegroundAppState(AppState.currentState)) return;
+    readOnNextForeground.current = false;
+    readRef.current().catch(() => {});
   }, [enabled, wallets.length]);
 
   // AppState transitions are owned by useCompanionListeners, which calls onLeaveForeground /
   // onEnterForeground so notification handling and clipboard detection cannot race.
-  useEffect(() => () => clearTimer(), []);
-
   return { onLeaveForeground, onEnterForeground };
 };
 
