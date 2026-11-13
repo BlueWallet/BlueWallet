@@ -99,8 +99,23 @@ const staticSwapRepositoryCache: Record<string, RealmAssetSwapRepository> = {};
 const initInFlight: Map<string, Promise<{ wallet: Wallet; swapClient: SwapClient; repository: RealmAssetSwapRepository }>> = new Map();
 const boardingLock: Record<string, boolean> = {};
 // Live wallet instances per namespace, so the Realm after-write listener can
-// refresh the record cache on the instance the screens render from.
-const namespaceInstances: Map<string, Set<LightningArkWallet>> = new Map();
+// refresh the record cache on the instance the screens render from. Held
+// weakly where the runtime has WeakRef, so a copy a rebuild left behind can be
+// collected rather than refreshed on every update.
+type InstanceRef = { deref(): LightningArkWallet | undefined };
+const WeakRefImpl = (globalThis as { WeakRef?: new (target: LightningArkWallet) => InstanceRef }).WeakRef;
+const refTo = (instance: LightningArkWallet): InstanceRef => (WeakRefImpl ? new WeakRefImpl(instance) : { deref: () => instance });
+const namespaceInstances: Map<string, Set<InstanceRef>> = new Map();
+const liveInstances = (namespace: string): LightningArkWallet[] => {
+  const refs = namespaceInstances.get(namespace);
+  const live: LightningArkWallet[] = [];
+  for (const ref of refs ?? []) {
+    const instance = ref.deref();
+    if (instance) live.push(instance);
+    else refs!.delete(ref);
+  }
+  return live;
+};
 const realmListenerAttached: Set<string> = new Set();
 // One swap-event listener per shared client, fanned out like the Realm one: a listener per instance would pile up on rebuilds.
 const swapListenerAttached = new WeakSet<SwapClient>();
@@ -381,12 +396,13 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   private _registerInstance(namespace: string): void {
-    let set = namespaceInstances.get(namespace);
-    if (!set) {
-      set = new Set();
-      namespaceInstances.set(namespace, set);
+    if (liveInstances(namespace).includes(this)) return;
+    let refs = namespaceInstances.get(namespace);
+    if (!refs) {
+      refs = new Set();
+      namespaceInstances.set(namespace, refs);
     }
-    set.add(this);
+    refs.add(refTo(this));
   }
 
   /**
@@ -407,8 +423,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
       const objects = typeof realm?.objects === 'function' ? realm.objects('ArkadeSwapRecord') : undefined;
       if (objects && typeof objects.addListener === 'function') {
         objects.addListener(() => {
-          const instances = namespaceInstances.get(namespace);
-          if (instances) for (const instance of instances) instance.refreshSwapRecords().catch(() => {});
+          for (const instance of liveInstances(namespace)) instance.refreshSwapRecords().catch(() => {});
         });
         realmListenerAttached.add(namespace);
       }
@@ -464,7 +479,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (swapListenerAttached.has(swapClient)) return;
     try {
       swapClient.onUpdate(update => {
-        for (const instance of namespaceInstances.get(namespace) ?? []) instance._applySwapUpdate(swapClient, update);
+        for (const instance of liveInstances(namespace)) instance._applySwapUpdate(swapClient, update);
       });
       swapListenerAttached.add(swapClient);
     } catch {
@@ -1296,8 +1311,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
     const namespace = this.getNamespace();
 
     delete boardingLock[namespace];
-    namespaceInstances.get(namespace)?.delete(this);
-    if (namespaceInstances.get(namespace)?.size === 0) {
+    const refs = namespaceInstances.get(namespace);
+    for (const ref of refs ?? []) if (ref.deref() === this) refs!.delete(ref);
+    if (refs && liveInstances(namespace).length === 0) {
       namespaceInstances.delete(namespace);
       realmListenerAttached.delete(namespace);
     }

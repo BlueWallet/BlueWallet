@@ -578,6 +578,29 @@ describe('LightningArkWallet — swap events reach every instance', () => {
     listeners[0]({ swap: { id: 'rfq:x' }, outcome: 'settled' });
     for (const w of [first, second]) assert.strictEqual((w as any)._outcomes.get('rfq:x'), 'settled');
   });
+
+  it('holds instances weakly and drops a copy the runtime has collected', async () => {
+    const listeners: Array<(update: unknown) => void> = [];
+    const w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    const namespace = w.getNamespace();
+    walletTesting.staticWalletCache[namespace] = { getTransactionHistory: async () => [], getBalance: async () => ({}) } as any;
+    walletTesting.staticSwapClientCache[namespace] = {
+      onUpdate: (l: (u: unknown) => void) => listeners.push(l),
+      swaps: async () => [],
+    } as any;
+    walletTesting.staticSwapRepositoryCache[namespace] = { getSwapRecordsPage: async () => ({ items: [] }) } as any;
+    await w.init();
+    await w.init();
+
+    const refs = walletTesting.namespaceInstances.get(namespace)!;
+    assert.strictEqual(refs.size, 1);
+    assert.ok([...refs].every(ref => ref instanceof (globalThis as any).WeakRef));
+    refs.add({ deref: () => undefined } as any);
+    listeners[0]({ swap: { id: 'rfq:x' }, outcome: 'settled' });
+    assert.strictEqual((w as any)._outcomes.get('rfq:x'), 'settled');
+    assert.strictEqual(refs.size, 1);
+  });
 });
 
 describe('LightningArkWallet — recovery gating', () => {
