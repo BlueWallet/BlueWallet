@@ -29,6 +29,7 @@ import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetScanWasBBQR } from '../../helpers/scan-qr.ts';
 import { errorMessage } from '../../helpers/errorMessage';
+import prompt from '../../helpers/prompt';
 
 const ButtonSelected = {
   ONCHAIN: Chain.ONCHAIN,
@@ -121,6 +122,7 @@ const WalletsAdd: React.FC = () => {
     words,
     selectedIndex: routeSelectedIndex,
     selectedWalletType: routeSelectedWalletType,
+    askPassphraseMenuState = false,
   } = route.params || {};
   const selectedIndex = typeof routeSelectedIndex === 'number' ? routeSelectedIndex : state.selectedIndex;
   const selectedWalletType: ButtonSelected =
@@ -266,6 +268,15 @@ const WalletsAdd: React.FC = () => {
 
       assert(w!, 'Internal error: could not decide which wallet to create');
 
+      if (askPassphraseMenuState) {
+        const passphrase = await askNewPassphrase();
+        if (!passphrase) {
+          setIsLoading(false);
+          return;
+        }
+        w.setPassphrase(passphrase);
+      }
+
       if (selectedWalletType === ButtonSelected.ONCHAIN) {
         if (entropy) {
           try {
@@ -293,6 +304,32 @@ const WalletsAdd: React.FC = () => {
     } else if (selectedWalletType === ButtonSelected.VAULT) {
       setIsLoading(false);
       navigate('WalletsAddMultisig', { walletLabel: label.trim().length > 0 ? label : loc.multisig.default_label });
+    }
+  };
+
+  /**
+   * Asks the user to enter a new BIP39 passphrase twice. Re-prompts with an error note until both entries match
+   * and are not empty, so the user has to type the passphrase twice correctly before the wallet is created.
+   * Resolves to undefined if the user cancels.
+   */
+  const askNewPassphrase = async (): Promise<string | undefined> => {
+    let errorNote = '';
+    for (;;) {
+      let first: string;
+      let confirmation: string;
+      try {
+        first = await prompt(loc.wallets.add_passphrase_title, `${errorNote}${loc.wallets.add_passphrase_message}`);
+        confirmation = await prompt(loc.wallets.add_passphrase_title, loc.wallets.add_passphrase_confirm_message);
+      } catch {
+        return undefined; // user cancelled
+      }
+      if (!first) {
+        errorNote = `${loc.wallets.add_passphrase_empty}\n\n`;
+      } else if (first !== confirmation) {
+        errorNote = `${loc.wallets.add_passphrase_mismatch}\n\n`;
+      } else {
+        return first;
+      }
     }
   };
 
