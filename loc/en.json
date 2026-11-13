@@ -575,6 +575,7 @@
     "provide_signature_next_steps": "Scan or Import Signed Transaction",
     "provide_signature_next_steps_details": "Once your wallet has successfully signed the transaction, scan the provided QR code or import the accompanying file, and then review all the transaction details before broadcasting it.",
     "vault_key": "Vault Key {number}",
+    "seed_qr": "SeedQR (scan with SeedSigner to verify the seed)",
     "required_keys_out_of_total": "Required keys out of the total",
     "fee": "Fee: {number}",
     "fee_btc": "{number} BTC",

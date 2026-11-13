@@ -1,17 +1,21 @@
 import React, { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { mnemonicToSeedQR } from '../../blue_modules/seedQR';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import BlueTextCentered from '../../components/BlueTextCentered';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';
+import QRCode from '../../components/QRCode';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+
+const SEED_QR_SIZE = 240;
 
 const ViewEditMultisigCosignerViewSheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigCosignerViewSheet'>>();
@@ -22,6 +26,8 @@ const ViewEditMultisigCosignerViewSheet = () => {
   const hasSeed = Boolean(vaultKeyData.seed);
 
   const seedWords = useMemo(() => (vaultKeyData.seed ? vaultKeyData.seed.split(' ') : []), [vaultKeyData.seed]);
+
+  const seedQR = useMemo(() => (vaultKeyData.seed ? mnemonicToSeedQR(vaultKeyData.seed) : null), [vaultKeyData.seed]);
 
   const handleShare = () => {
     if (!vaultKeyData.xpub || !vaultKeyData.cosignerXpubURv2 || !vaultKeyData.exportFilename) return;
@@ -39,7 +45,7 @@ const ViewEditMultisigCosignerViewSheet = () => {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.elevated }]} edges={['bottom', 'left', 'right']}>
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content}>
         <View style={[styles.vaultKeyCircleSuccess, { backgroundColor: colors.msSuccessBG }]}>
           <Icon size={24} name="checkmark" type="ionicons" color={colors.msSuccessCheck} />
         </View>
@@ -64,9 +70,17 @@ const ViewEditMultisigCosignerViewSheet = () => {
             <BlueSpacing10 />
             <SquareEnumeratedWords contentAlign={SquareEnumeratedWordsContentAlign.left} entries={seedWords} appendNumber />
             {vaultKeyData.passphrase ? <BlueTextCentered>{vaultKeyData.passphrase}</BlueTextCentered> : null}
+            {seedQR && (
+              <>
+                <BlueSpacing20 />
+                <BlueTextCentered>{loc.multisig.seed_qr}</BlueTextCentered>
+                <BlueSpacing10 />
+                <QRCode value={seedQR} size={SEED_QR_SIZE} isMenuAvailable={false} />
+              </>
+            )}
           </>
         )}
-      </View>
+      </ScrollView>
       <View style={styles.footer}>
         {vaultKeyData.xpub && vaultKeyData.cosignerXpubURv2 && vaultKeyData.exportFilename ? (
           <Button testID="VaultCosignerViewShare" title={loc.multisig.share} onPress={handleShare} />
