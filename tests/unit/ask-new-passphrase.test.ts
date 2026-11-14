@@ -10,7 +10,7 @@ jest.mock('../../helpers/prompt', () => ({
 const TITLE = loc.wallets.add_passphrase_title;
 const MESSAGE = loc.wallets.add_passphrase_message;
 const CONFIRM = loc.wallets.add_passphrase_confirm_message;
-const PLAIN = { type: 'plain-text' };
+const SECURE = { type: 'secure-text' };
 
 describe('askNewPassphrase', () => {
   beforeEach(() => {
@@ -23,8 +23,8 @@ describe('askNewPassphrase', () => {
     await expect(askNewPassphrase()).resolves.toBe('correct horse');
 
     expect(mockPrompt).toHaveBeenCalledTimes(2);
-    expect(mockPrompt).toHaveBeenNthCalledWith(1, TITLE, MESSAGE, { type: 'plain-text' });
-    expect(mockPrompt).toHaveBeenNthCalledWith(2, TITLE, CONFIRM, { type: 'plain-text' });
+    expect(mockPrompt).toHaveBeenNthCalledWith(1, TITLE, MESSAGE, SECURE);
+    expect(mockPrompt).toHaveBeenNthCalledWith(2, TITLE, CONFIRM, SECURE);
   });
 
   it('re-prompts with the empty note when the first entry is empty, then accepts a valid pair', async () => {
@@ -33,8 +33,8 @@ describe('askNewPassphrase', () => {
     await expect(askNewPassphrase()).resolves.toBe('secret');
 
     expect(mockPrompt).toHaveBeenCalledTimes(4);
-    expect(mockPrompt).toHaveBeenNthCalledWith(3, TITLE, `${loc.wallets.add_passphrase_empty}\n\n${MESSAGE}`, PLAIN);
-    expect(mockPrompt).toHaveBeenNthCalledWith(4, TITLE, CONFIRM, PLAIN);
+    expect(mockPrompt).toHaveBeenNthCalledWith(3, TITLE, `${loc.wallets.add_passphrase_empty}\n\n${MESSAGE}`, SECURE);
+    expect(mockPrompt).toHaveBeenNthCalledWith(4, TITLE, CONFIRM, SECURE);
   });
 
   it('treats a whitespace-only first entry as empty', async () => {
@@ -42,7 +42,7 @@ describe('askNewPassphrase', () => {
 
     await expect(askNewPassphrase()).resolves.toBe('secret');
 
-    expect(mockPrompt).toHaveBeenNthCalledWith(3, TITLE, `${loc.wallets.add_passphrase_empty}\n\n${MESSAGE}`, PLAIN);
+    expect(mockPrompt).toHaveBeenNthCalledWith(3, TITLE, `${loc.wallets.add_passphrase_empty}\n\n${MESSAGE}`, SECURE);
   });
 
   it('returns the passphrase untrimmed, exactly as typed', async () => {
@@ -61,8 +61,8 @@ describe('askNewPassphrase', () => {
     await expect(askNewPassphrase()).resolves.toBe('second try');
 
     expect(mockPrompt).toHaveBeenCalledTimes(4);
-    expect(mockPrompt).toHaveBeenNthCalledWith(3, TITLE, `${loc.wallets.add_passphrase_mismatch}\n\n${MESSAGE}`, PLAIN);
-    expect(mockPrompt).toHaveBeenNthCalledWith(4, TITLE, CONFIRM, PLAIN);
+    expect(mockPrompt).toHaveBeenNthCalledWith(3, TITLE, `${loc.wallets.add_passphrase_mismatch}\n\n${MESSAGE}`, SECURE);
+    expect(mockPrompt).toHaveBeenNthCalledWith(4, TITLE, CONFIRM, SECURE);
   });
 
   it('resolves undefined and skips the confirmation prompt when the first prompt is cancelled', async () => {
@@ -71,7 +71,7 @@ describe('askNewPassphrase', () => {
     await expect(askNewPassphrase()).resolves.toBeUndefined();
 
     expect(mockPrompt).toHaveBeenCalledTimes(1);
-    expect(mockPrompt).toHaveBeenCalledWith(TITLE, MESSAGE, PLAIN);
+    expect(mockPrompt).toHaveBeenCalledWith(TITLE, MESSAGE, SECURE);
   });
 
   it('resolves undefined when the confirmation prompt is cancelled', async () => {
@@ -80,6 +80,6 @@ describe('askNewPassphrase', () => {
     await expect(askNewPassphrase()).resolves.toBeUndefined();
 
     expect(mockPrompt).toHaveBeenCalledTimes(2);
-    expect(mockPrompt).toHaveBeenNthCalledWith(2, TITLE, CONFIRM, PLAIN);
+    expect(mockPrompt).toHaveBeenNthCalledWith(2, TITLE, CONFIRM, SECURE);
   });
 });
