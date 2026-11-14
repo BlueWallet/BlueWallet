@@ -29,6 +29,7 @@ import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetScanWasBBQR } from '../../helpers/scan-qr.ts';
 import { errorMessage } from '../../helpers/errorMessage';
+import { askNewPassphrase } from '../../helpers/askNewPassphrase';
 
 const ButtonSelected = {
   ONCHAIN: Chain.ONCHAIN,
@@ -121,6 +122,7 @@ const WalletsAdd: React.FC = () => {
     words,
     selectedIndex: routeSelectedIndex,
     selectedWalletType: routeSelectedWalletType,
+    askPassphraseMenuState = false,
   } = route.params || {};
   const selectedIndex = typeof routeSelectedIndex === 'number' ? routeSelectedIndex : state.selectedIndex;
   const selectedWalletType: ButtonSelected =
@@ -266,6 +268,15 @@ const WalletsAdd: React.FC = () => {
 
       assert(w!, 'Internal error: could not decide which wallet to create');
 
+      if (askPassphraseMenuState) {
+        const passphrase = await askNewPassphrase();
+        if (!passphrase) {
+          setIsLoading(false);
+          return;
+        }
+        w.setPassphrase(passphrase);
+      }
+
       if (selectedWalletType === ButtonSelected.ONCHAIN) {
         if (entropy) {
           try {
@@ -273,6 +284,7 @@ const WalletsAdd: React.FC = () => {
           } catch (e) {
             console.log(String(e));
             presentAlert({ message: String(e) });
+            setIsLoading(false);
             return;
           }
         } else {
