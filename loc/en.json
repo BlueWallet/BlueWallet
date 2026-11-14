@@ -98,7 +98,7 @@
     "ok": "OK, I wrote it down.",
     "ok_lnd": "OK, I have saved it.",
     "text": "Please take a moment to write down this mnemonic phrase on a piece of paper.\nIt’s your backup and you can use it to recover the wallet.",
-    "text_passphrase": "Please take a moment to write down this mnemonic phrase on a piece of paper and be sure to also remember your passphrase.\nIt’s your backup and you can use it to recover the wallet.",
+    "text_passphrase": "Please take a moment to write down this recovery phrase on a piece of paper. Your passphrase is hidden for security, is case- and space-sensitive, and is strictly required alongside these words to recover this wallet(restoring without it will load a different, empty wallet).",
     "text_lnd": "Please save this wallet backup. It allows you to restore the wallet in case of loss.",
     "title": "Your wallet has been created."
   },
