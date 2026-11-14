@@ -226,12 +226,12 @@ function extractSingleWorkload(arg: string): number[] {
  * @param masterFingerprint
  *   Fingerprint from the outer CryptoAccount / CryptoMultiAccounts object, because individual
  *   HDKey entries may not carry the master fingerprint themselves.
- * @param script outermost script expression of the output the key came from, if any
+ * @param scripts script expressions of the output the key came from, outermost first
  */
 function _hdKeyToResult(
   hdKey: CryptoHDKey | undefined,
   masterFingerprint: string | null,
-  script?: string,
+  scripts: ReturnType<CryptoOutput['getScriptExpressions']> = [],
   bitcoinOnly = true,
 ): TAccountResult | null {
   const origin = hdKey?.getOrigin();
@@ -249,17 +249,17 @@ function _hdKeyToResult(
 
   const derivationPath = 'm/' + origin.getPath();
 
-  const isMultisig =
-    script === ScriptExpressions.WITNESS_SCRIPT_HASH.getExpression() ||
-    // fallback to paths (unreliable).
-    // dont know how to add ms p2sh (legacy) or p2sh-p2wsh (wrapped segwit) atm
-    derivationPath === MultisigHDWallet.PATH_LEGACY ||
-    derivationPath === MultisigHDWallet.PATH_WRAPPED_SEGWIT ||
-    derivationPath === MultisigHDWallet.PATH_NATIVE_SEGWIT;
-
-  // BlueWallet recognises the wallet type from the prefix: Zpub for multisig, zpub by default (BIP-84, and BIP-86,
+  // BlueWallet recognises the wallet type from the prefix. Multisig: Zpub for wsh, Ypub for sh(wsh), xpub for sh;
+  // when the script does not tell, the default multisig paths do. Single sig: zpub by default (BIP-84, and BIP-86,
   // where taproot is detected by the path), ypub for BIP-49, xpub for BIP-44
-  let version = isMultisig ? '02aa7ed3' : '04b24746';
+  const [outer, inner] = scripts.map(s => s.getExpression());
+  let version = '04b24746';
+  if (outer === 'wsh') version = '02aa7ed3';
+  else if (outer === 'sh' && inner === 'wsh') version = '0295b43f';
+  else if (outer === 'sh' && !inner) version = '0488b21e';
+  else if (derivationPath === MultisigHDWallet.PATH_NATIVE_SEGWIT) version = '02aa7ed3';
+  else if (derivationPath === MultisigHDWallet.PATH_WRAPPED_SEGWIT) version = '0295b43f';
+  else if (derivationPath === MultisigHDWallet.PATH_LEGACY) version = '0488b21e';
   if (derivationPath.startsWith("m/49'/0'/")) version = '049d7cb2';
   if (derivationPath.startsWith("m/44'/0'/")) version = '0488b21e';
 
@@ -318,7 +318,7 @@ function decodeUR(arg: string[]): string | undefined {
   const result = _hdKeyToResult(
     output.getHDKey(),
     uint8ArrayToHex(cryptoAccount.getMasterFingerprint()).toUpperCase(),
-    output.getScriptExpressions()[0]?.getExpression(),
+    output.getScriptExpressions(),
     false,
   );
   if (!result) throw new Error('crypto-account: output without a usable HD key');
@@ -363,7 +363,7 @@ class BlueURDecoder extends URDecoder {
 
       const results = [];
       for (const output of cryptoAccount.getOutputDescriptors()) {
-        const result = _hdKeyToResult(output.getHDKey(), masterFingerprint, output.getScriptExpressions()[0]?.getExpression(), false);
+        const result = _hdKeyToResult(output.getHDKey(), masterFingerprint, output.getScriptExpressions(), false);
         if (!result) throw new Error('crypto-account: output without a usable HD key');
         results.push(result);
       }
