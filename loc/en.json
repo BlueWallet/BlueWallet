@@ -98,7 +98,7 @@
     "ok": "OK, I wrote it down.",
     "ok_lnd": "OK, I have saved it.",
     "text": "Please take a moment to write down this mnemonic phrase on a piece of paper.\nIt’s your backup and you can use it to recover the wallet.",
-    "text_passphrase": "Please take a moment to write down this recovery phrase on a piece of paper. Your passphrase is hidden for security, is case- and space-sensitive, and is strictly required alongside these words to recover this wallet(restoring without it will load a different, empty wallet).",
+    "text_passphrase": "Please write down this mnemonic phrase on a piece of paper and be sure to also remember your passphrase.\nThey will both be required to recover the wallet.",
     "text_lnd": "Please save this wallet backup. It allows you to restore the wallet in case of loss.",
     "title": "Your wallet has been created."
   },
@@ -423,7 +423,7 @@
     "add_create": "Create",
     "add_passphrase_subtitle": "BIP39 extra security",
     "add_passphrase_title": "Set Passphrase",
-    "add_passphrase_message": "Please set a secure passphrase that you can easily remember and keep it safe. It cannot be recovered if lost.",
+    "add_passphrase_message": "Please set a secure passphrase that you can easily remember and keep it safe(it is case- and space-sensitive). It cannot be recovered if lost.",
     "add_passphrase_confirm_message": "Confirm your passphrase",
     "add_passphrase_mismatch": "Passphrases do not match. Please try again.",
     "add_passphrase_empty": "Passphrase cannot be empty. Please try again.",
