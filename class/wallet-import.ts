@@ -632,6 +632,8 @@ const startImport = (
             const wallet = new WatchOnlyWallet();
             wallet.setSecret(JSON.stringify(account));
             wallet.init();
+            // multisig vault keys are not wallets of their own: Ypub / Zpub are not valid here, the rest goes by BIP45 / BIP48 path
+            if (!wallet.valid() || /^(m\/)?(45'|48'\/\d+'\/\d+'\/\d+')/.test(account.AccountKeyPath)) continue;
             yield { wallet };
           }
         }
