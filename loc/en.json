@@ -423,7 +423,7 @@
     "add_create": "Create",
     "add_passphrase_subtitle": "BIP39 extra security",
     "add_passphrase_title": "Set Passphrase",
-    "add_passphrase_message": "Please set a secure passphrase. Write it down and keep it safe. It cannot be recovered if lost.",
+    "add_passphrase_message": "Please set a secure passphrase that you can easily remember and keep it safe. It cannot be recovered if lost.",
     "add_passphrase_confirm_message": "Confirm your passphrase",
     "add_passphrase_mismatch": "Passphrases do not match. Please try again.",
     "add_passphrase_empty": "Passphrase cannot be empty. Please try again.",

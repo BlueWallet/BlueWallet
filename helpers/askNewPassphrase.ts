@@ -13,8 +13,8 @@ export const askNewPassphrase = async (): Promise<string | undefined> => {
     let first: string;
     let confirmation: string;
     try {
-      first = await prompt(loc.wallets.add_passphrase_title, `${errorNote}${loc.wallets.add_passphrase_message}`, { type: 'plain-text' });
-      confirmation = await prompt(loc.wallets.add_passphrase_title, loc.wallets.add_passphrase_confirm_message, { type: 'plain-text' });
+      first = await prompt(loc.wallets.add_passphrase_title, `${errorNote}${loc.wallets.add_passphrase_message}`, { type: 'secure-text' });
+      confirmation = await prompt(loc.wallets.add_passphrase_title, loc.wallets.add_passphrase_confirm_message, { type: 'secure-text' });
     } catch {
       return undefined; // user cancelled
     }
