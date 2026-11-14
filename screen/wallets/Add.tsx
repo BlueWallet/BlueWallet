@@ -284,6 +284,7 @@ const WalletsAdd: React.FC = () => {
           } catch (e) {
             console.log(String(e));
             presentAlert({ message: String(e) });
+            setIsLoading(false);
             return;
           }
         } else {
