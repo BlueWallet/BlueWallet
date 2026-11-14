@@ -43,6 +43,7 @@ export type OptionsFormatter<P extends ParamListBase = ParamListBase, R extends 
 type RouteParamHeaderOptions = {
   headerLeft?: boolean;
   headerRight?: boolean;
+  unstable_headerRightItems?: boolean;
   headerBackVisible?: boolean;
   statusBarStyle?: boolean;
 };
@@ -55,7 +56,7 @@ export type NavigationOptionsGetter<P extends ParamListBase = ParamListBase, R e
 /** params a screen may receive to override its header; see RouteParamHeaderOptions */
 type HeaderParams = Pick<
   NativeStackNavigationOptions,
-  'headerLeft' | 'headerRight' | 'headerBackVisible' | 'statusBarStyle' | 'presentation'
+  'headerLeft' | 'headerRight' | 'unstable_headerRightItems' | 'headerBackVisible' | 'statusBarStyle' | 'presentation'
 >;
 
 const withRouteParamHeaderOptions =
@@ -66,6 +67,9 @@ const withRouteParamHeaderOptions =
       ...options,
       ...(config.headerLeft && routeParams.headerLeft !== undefined ? { headerLeft: routeParams.headerLeft } : {}),
       ...(config.headerRight && routeParams.headerRight !== undefined ? { headerRight: routeParams.headerRight } : {}),
+      ...(config.unstable_headerRightItems && routeParams.unstable_headerRightItems !== undefined
+        ? { unstable_headerRightItems: routeParams.unstable_headerRightItems }
+        : {}),
       ...(config.headerBackVisible && routeParams.headerBackVisible !== undefined
         ? { headerBackVisible: routeParams.headerBackVisible }
         : {}),

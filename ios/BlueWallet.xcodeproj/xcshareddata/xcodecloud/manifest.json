@@ -1,0 +1,9 @@
+{
+  "id" : "c320d802-5a30-453f-a1b7-fed7030060ed",
+  "targets" : [
+    {
+      "id" : "72C93C37-6F6E-4B0A-80D7-66B404EBCF9D",
+      "name" : "BlueWallet"
+    }
+  ]
+}

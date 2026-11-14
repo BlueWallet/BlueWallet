@@ -18,6 +18,7 @@ jest.mock('../../hooks/context/useSettings', () => ({ useSettings: () => ({ isEl
 jest.mock('@react-navigation/native', () => ({
   ...jest.requireActual('@react-navigation/native'),
   useNavigation: () => ({}),
+  useLinkTo: () => jest.fn(),
   useIsFocused: () => true,
   useFocusEffect: () => {},
 }));

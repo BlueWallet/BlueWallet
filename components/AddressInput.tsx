@@ -10,6 +10,9 @@ interface AddressInputProps {
   placeholder?: string;
   onChangeText: (text: string) => void;
   editable?: boolean;
+  multiline?: boolean;
+  showScanButton?: boolean;
+  accessibilityState?: React.ComponentProps<typeof TextInput>['accessibilityState'];
   inputAccessoryViewID?: string;
   onFocus?: () => void;
   onBlur?: () => void;
@@ -29,6 +32,11 @@ interface AddressInputProps {
     | 'twitter'
     | 'web-search'
     | 'visible-password';
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  inputRef?: React.Ref<TextInput>;
+  returnKeyType?: 'next' | 'done';
+  onSubmitEditing?: () => void;
 }
 
 const AddressInput = ({
@@ -38,11 +46,19 @@ const AddressInput = ({
   placeholder = loc.send.details_address,
   onChangeText,
   editable = true,
+  multiline,
+  showScanButton = true,
+  accessibilityState,
   inputAccessoryViewID,
   onFocus = () => {},
   onBlur = () => {},
   keyboardType = 'default',
   style,
+  accessibilityLabel,
+  accessibilityHint,
+  inputRef,
+  returnKeyType,
+  onSubmitEditing,
 }: AddressInputProps) => {
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
@@ -59,6 +75,7 @@ const AddressInput = ({
   return (
     <View style={[styles.root, stylesHook.root, style]}>
       <TextInput
+        ref={inputRef}
         testID={testID}
         onChangeText={onChangeText}
         placeholder={placeholder}
@@ -66,7 +83,7 @@ const AddressInput = ({
         value={address}
         style={[styles.input, stylesHook.input]}
         editable={!isLoading && editable}
-        multiline={!editable}
+        multiline={multiline ?? !editable}
         inputAccessoryViewID={inputAccessoryViewID}
         clearButtonMode="while-editing"
         onFocus={onFocus}
@@ -74,8 +91,13 @@ const AddressInput = ({
         autoCorrect={false}
         keyboardType={keyboardType}
         onBlur={onBlur}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
+        accessibilityState={accessibilityState}
+        returnKeyType={returnKeyType}
+        onSubmitEditing={onSubmitEditing}
       />
-      {editable ? <AddressInputScanButton isLoading={isLoading} onChangeText={onChangeText} /> : null}
+      {editable && showScanButton ? <AddressInputScanButton isLoading={isLoading} onChangeText={onChangeText} /> : null}
     </View>
   );
 };
