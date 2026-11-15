@@ -11,7 +11,7 @@ import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet'
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import presentAlert from '../../components/Alert';
+import presentAlert, { runAfterAlertDismissed } from '../../components/Alert';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';
 import { useTheme } from '../../components/themes';
@@ -102,6 +102,35 @@ const walletReducer = (state: State, action: TAction): State => {
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'AddWallet'>;
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'AddWallet'>;
+
+// Resolves after the user taps OK and the dialog is gone, so navigation to the backup screen cannot race the alert.
+// If the dismissal signal never arrives, a fallback timer started on OK press still resolves the promise so the
+// Create flow cannot stay stuck in its loading state after the wallet has already been saved.
+const PASSPHRASE_USAGE_FALLBACK_MS = 2000;
+const acknowledgePassphraseUsage = () =>
+  new Promise<void>(resolve => {
+    let fallbackTimer: ReturnType<typeof setTimeout> | undefined;
+    const done = () => {
+      if (fallbackTimer !== undefined) clearTimeout(fallbackTimer);
+      resolve();
+    };
+    presentAlert({
+      title: loc.wallets.add_passphrase_usage_title,
+      message: loc.wallets.add_passphrase_usage_message,
+      buttons: [
+        {
+          text: loc._.ok,
+          onPress: () => {
+            if (runAfterAlertDismissed(done)) {
+              fallbackTimer = setTimeout(done, PASSPHRASE_USAGE_FALLBACK_MS);
+            } else {
+              done();
+            }
+          },
+        },
+      ],
+    });
+  });
 
 const WalletsAdd: React.FC = () => {
   const { colors } = useTheme();
@@ -268,6 +297,7 @@ const WalletsAdd: React.FC = () => {
 
       assert(w!, 'Internal error: could not decide which wallet to create');
 
+      let passphraseSet = false;
       if (askPassphraseMenuState) {
         const passphrase = await askNewPassphrase();
         if (!passphrase) {
@@ -275,6 +305,7 @@ const WalletsAdd: React.FC = () => {
           return;
         }
         w.setPassphrase(passphrase);
+        passphraseSet = true;
       }
 
       if (selectedWalletType === ButtonSelected.ONCHAIN) {
@@ -295,6 +326,7 @@ const WalletsAdd: React.FC = () => {
 
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         if (w.type === HDLegacyP2PKHWallet.type || w.type === HDSegwitBech32Wallet.type || w.type === HDTaprootWallet.type) {
+          if (passphraseSet) await acknowledgePassphraseUsage();
           navigate('PleaseBackup', {
             walletID: w.getID(),
           });

@@ -1,5 +1,6 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
+import { Modal } from 'react-native';
 
 import loc from '../../loc';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
@@ -8,19 +9,22 @@ import PleaseBackup from '../../screen/wallets/PleaseBackup';
 const MNEMONIC = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 
 let mockWallets: HDSegwitBech32Wallet[] = [];
+let mockIsPrivacyBlurEnabled = false;
+const mockEnableScreenProtect = jest.fn();
+const mockDisableScreenProtect = jest.fn();
 
 jest.mock('../../hooks/context/useStorage', () => ({
   useStorage: () => ({ wallets: mockWallets }),
 }));
 
 jest.mock('../../hooks/context/useSettings', () => ({
-  useSettings: () => ({ isPrivacyBlurEnabled: false }),
+  useSettings: () => ({ isPrivacyBlurEnabled: mockIsPrivacyBlurEnabled }),
 }));
 
 jest.mock('../../hooks/useScreenProtect', () => ({
   useScreenProtect: () => ({
-    enableScreenProtect: jest.fn(),
-    disableScreenProtect: jest.fn(),
+    enableScreenProtect: mockEnableScreenProtect,
+    disableScreenProtect: mockDisableScreenProtect,
   }),
 }));
 
@@ -50,6 +54,11 @@ const buildWallet = (passphrase?: string) => {
 };
 
 describe('PleaseBackup passphrase text', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockIsPrivacyBlurEnabled = false;
+  });
+
   it('shows the passphrase reminder for an HD wallet created with a passphrase', () => {
     mockWallets = [buildWallet('my passphrase')];
 
@@ -59,35 +68,99 @@ describe('PleaseBackup passphrase text', () => {
     expect(queryByText(loc.pleasebackup.text)).toBeNull();
   });
 
-  it('shows the passphrase and the separation warning for an HD wallet with a passphrase', () => {
+  it('keeps the passphrase hidden until the view passphrase button is pressed', () => {
+    mockWallets = [buildWallet('my passphrase')];
+
+    const { getByTestId, queryByTestId } = render(<PleaseBackup />);
+
+    expect(queryByTestId('BackupPassphrase')).toBeNull();
+    fireEvent.press(getByTestId('ViewPassphraseButton'));
+    expect(getByTestId('BackupPassphrase').props.children).toBe('my passphrase');
+  });
+
+  it('shows the separation warning for an HD wallet with a passphrase', () => {
     mockWallets = [buildWallet('my passphrase')];
 
     const { getByTestId, getByText } = render(<PleaseBackup />);
 
-    expect(getByTestId('BackupPassphrase').props.children).toBe('my passphrase');
     expect(getByTestId('PassphraseWarning')).toBeTruthy();
     expect(getByText(loc.pleasebackup.passphrase_warning)).toBeTruthy();
   });
 
-  it('renders all seed words in one grid for a 24-word seed and numbers the passphrase 25', () => {
+  it('hides the passphrase again when the dialog is closed', () => {
+    mockWallets = [buildWallet('my passphrase')];
+
+    const { getByTestId, queryByTestId } = render(<PleaseBackup />);
+
+    fireEvent.press(getByTestId('ViewPassphraseButton'));
+    fireEvent.press(getByTestId('ClosePassphraseButton'));
+    expect(queryByTestId('BackupPassphrase')).toBeNull();
+  });
+
+  it('enables screen protection when the passphrase is revealed', () => {
+    mockWallets = [buildWallet('my passphrase')];
+
+    const { getByTestId } = render(<PleaseBackup />);
+
+    fireEvent.press(getByTestId('ViewPassphraseButton'));
+    expect(mockEnableScreenProtect).toHaveBeenCalledTimes(1);
+    expect(mockDisableScreenProtect).not.toHaveBeenCalled();
+  });
+
+  it('disables screen protection when the dialog is closed and privacy blur is off', () => {
+    mockWallets = [buildWallet('my passphrase')];
+
+    const { getByTestId } = render(<PleaseBackup />);
+
+    fireEvent.press(getByTestId('ViewPassphraseButton'));
+    fireEvent.press(getByTestId('ClosePassphraseButton'));
+    expect(mockDisableScreenProtect).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes the passphrase dialog and disables screen protection on Android back (requestClose)', () => {
+    mockWallets = [buildWallet('my passphrase')];
+
+    const { getByTestId, queryByTestId, UNSAFE_getByType } = render(<PleaseBackup />);
+
+    fireEvent.press(getByTestId('ViewPassphraseButton'));
+    expect(getByTestId('BackupPassphrase')).toBeTruthy();
+
+    fireEvent(UNSAFE_getByType(Modal), 'requestClose');
+    expect(queryByTestId('BackupPassphrase')).toBeNull();
+    expect(mockDisableScreenProtect).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps screen protection on after closing the dialog when privacy blur is on', () => {
+    mockIsPrivacyBlurEnabled = true;
+    mockWallets = [buildWallet('my passphrase')];
+
+    const { getByTestId } = render(<PleaseBackup />);
+
+    fireEvent.press(getByTestId('ViewPassphraseButton'));
+    fireEvent.press(getByTestId('ClosePassphraseButton'));
+    expect(mockDisableScreenProtect).not.toHaveBeenCalled();
+  });
+
+  it('renders all seed words in one grid for a 24-word seed', () => {
     const words24 = Array(23).fill('abandon').concat('art').join(' ');
     mockWallets = [buildWallet('my passphrase')];
     mockWallets[0].setSecret(words24);
 
-    const { UNSAFE_getAllByType, getByText } = render(<PleaseBackup />);
+    const { UNSAFE_getAllByType } = render(<PleaseBackup />);
     const seeds = UNSAFE_getAllByType('SeedWords' as unknown as React.ComponentType);
 
     expect(seeds).toHaveLength(1);
     expect(seeds[0].props.seed.split(' ')).toHaveLength(24);
-    expect(getByText('25. ')).toBeTruthy();
   });
 
-  it('numbers the passphrase 13 for a 12-word seed', () => {
+  it('shows the passphrase without a seed word number prefix', () => {
     mockWallets = [buildWallet('my passphrase')];
 
-    const { getByText } = render(<PleaseBackup />);
+    const { getByTestId, getByText } = render(<PleaseBackup />);
 
-    expect(getByText('13. ')).toBeTruthy();
+    fireEvent.press(getByTestId('ViewPassphraseButton'));
+    expect(getByText(loc.wallets.import_passphrase_title)).toBeTruthy();
+    expect(getByTestId('BackupPassphrase').props.children).toBe('my passphrase');
   });
 
   it('shows the default backup text for an HD wallet without a passphrase', () => {
