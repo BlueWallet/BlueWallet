@@ -98,7 +98,8 @@
     "ok": "OK, I wrote it down.",
     "ok_lnd": "OK, I have saved it.",
     "text": "Please take a moment to write down this mnemonic phrase on a piece of paper.\nIt’s your backup and you can use it to recover the wallet.",
-    "text_passphrase": "Please write down this mnemonic phrase on a piece of paper and be sure to also remember your passphrase.\nThey will both be required to recover the wallet.",
+    "text_passphrase": "Please take a moment to write down this mnemonic phrase and passphrase on a piece of paper.\nThey will both be required to recover the wallet.",
+    "passphrase_warning": "WARNING: Do not save or back up the mnemonic phrase and the passphrase (13 or 25) in the same place or on the same piece of paper! Keep them completely separate for security.",
     "text_lnd": "Please save this wallet backup. It allows you to restore the wallet in case of loss.",
     "title": "Your wallet has been created."
   },

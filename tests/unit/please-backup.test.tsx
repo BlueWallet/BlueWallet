@@ -18,7 +18,10 @@ jest.mock('../../hooks/context/useSettings', () => ({
 }));
 
 jest.mock('../../hooks/useScreenProtect', () => ({
-  useScreenProtect: () => ({ enableScreenProtect: jest.fn(), disableScreenProtect: jest.fn() }),
+  useScreenProtect: () => ({
+    enableScreenProtect: jest.fn(),
+    disableScreenProtect: jest.fn(),
+  }),
 }));
 
 jest.mock('../../components/SeedWords', () => 'SeedWords');
@@ -56,12 +59,45 @@ describe('PleaseBackup passphrase text', () => {
     expect(queryByText(loc.pleasebackup.text)).toBeNull();
   });
 
+  it('shows the passphrase and the separation warning for an HD wallet with a passphrase', () => {
+    mockWallets = [buildWallet('my passphrase')];
+
+    const { getByTestId, getByText } = render(<PleaseBackup />);
+
+    expect(getByTestId('BackupPassphrase').props.children).toBe('my passphrase');
+    expect(getByTestId('PassphraseWarning')).toBeTruthy();
+    expect(getByText(loc.pleasebackup.passphrase_warning)).toBeTruthy();
+  });
+
+  it('renders all seed words in one grid for a 24-word seed and numbers the passphrase 25', () => {
+    const words24 = Array(23).fill('abandon').concat('art').join(' ');
+    mockWallets = [buildWallet('my passphrase')];
+    mockWallets[0].setSecret(words24);
+
+    const { UNSAFE_getAllByType, getByText } = render(<PleaseBackup />);
+    const seeds = UNSAFE_getAllByType('SeedWords' as unknown as React.ComponentType);
+
+    expect(seeds).toHaveLength(1);
+    expect(seeds[0].props.seed.split(' ')).toHaveLength(24);
+    expect(getByText('25. ')).toBeTruthy();
+  });
+
+  it('numbers the passphrase 13 for a 12-word seed', () => {
+    mockWallets = [buildWallet('my passphrase')];
+
+    const { getByText } = render(<PleaseBackup />);
+
+    expect(getByText('13. ')).toBeTruthy();
+  });
+
   it('shows the default backup text for an HD wallet without a passphrase', () => {
     mockWallets = [buildWallet()];
 
-    const { getByText, queryByText } = render(<PleaseBackup />);
+    const { getByText, queryByText, queryByTestId } = render(<PleaseBackup />);
 
     expect(getByText(loc.pleasebackup.text)).toBeTruthy();
     expect(queryByText(loc.pleasebackup.text_passphrase)).toBeNull();
+    expect(queryByTestId('BackupPassphrase')).toBeNull();
+    expect(queryByTestId('PassphraseWarning')).toBeNull();
   });
 });
