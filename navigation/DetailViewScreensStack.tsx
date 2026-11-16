@@ -306,6 +306,7 @@ const DetailViewStackScreensStack = () => {
 
     const renderHeaderLeft = () => {
       const statusPill = renderStatusPill();
+      if (!isWideLayout) return statusPill;
 
       return (
         <View style={styles.headerLeftRow}>
