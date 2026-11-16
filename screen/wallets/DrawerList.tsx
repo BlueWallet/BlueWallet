@@ -274,7 +274,6 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
     >
       <Header
         leftText={loc.wallets.list_title}
-        onNewWalletPress={onNewWalletPress}
         onSettingsPress={isDrawerVisible ? undefined : onSettingsPress}
         onManageWalletsPress={handleLongPress}
         isDrawerList
