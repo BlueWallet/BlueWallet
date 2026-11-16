@@ -19,10 +19,13 @@ const Drawer = createDrawerNavigator<DrawerParamList>();
 const DrawerContent = ({ navigation, ...props }: DrawerContentComponentProps) => {
   const { width } = useWindowDimensions();
   const isWideLayout = shouldUseWideLayout(width);
+  const drawerStatus = useDrawerStatus();
 
   useEffect(() => {
     navigation.dispatch(isWideLayout ? DrawerActions.openDrawer() : DrawerActions.closeDrawer());
   }, [isWideLayout, navigation]);
+
+  if (!isWideLayout && drawerStatus === 'closed') return null;
 
   return <DrawerList {...props} navigation={navigation} />;
 };
