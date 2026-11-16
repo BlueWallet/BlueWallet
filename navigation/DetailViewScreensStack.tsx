@@ -1,5 +1,5 @@
 import { StackActions, useNavigation } from '@react-navigation/native';
-import { DrawerToggleButton, useDrawerStatus } from '@react-navigation/drawer';
+import { DrawerToggleButton } from '@react-navigation/drawer';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
 import Share from 'react-native-share';
@@ -168,8 +168,6 @@ const DetailViewStackScreensStack = () => {
   const { isElectrumDisabled } = useSettings();
   const { width: windowWidth } = useWindowDimensions();
   const isWideLayout = shouldUseWideLayout(windowWidth);
-  const drawerStatus = useDrawerStatus();
-  const isDrawerVisible = isWideLayout && drawerStatus === 'open';
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
   // Probe connection health from the UI (e.g. WalletsList focus / 30s timer).
@@ -322,7 +320,7 @@ const DetailViewStackScreensStack = () => {
       // Status pills: `unstable_headerLeftItems` + `hidesSharedBackground` avoids the
       // navigation bar's shared liquid-glass chrome on the pill (solid colors only).
       return {
-        title: isWideLayout && !isDrawerVisible ? loc.wallets.list_title : '',
+        title: isWideLayout ? loc.wallets.list_title : '',
         headerLargeTitle: false,
         headerTransparent: true,
         unstable_headerLeftItems: (): NativeStackHeaderItem[] => {
@@ -333,7 +331,7 @@ const DetailViewStackScreensStack = () => {
           return [{ type: 'custom', element, hidesSharedBackground: true }];
         },
         unstable_headerRightItems: () => {
-          if (isDrawerVisible || isDesktop) {
+          if (isDesktop) {
             return [];
           }
           const items: HeaderRightItem[] = [
@@ -364,18 +362,17 @@ const DetailViewStackScreensStack = () => {
     }
 
     return {
-      title: isWideLayout && !isDrawerVisible ? loc.wallets.list_title : '',
+      title: isWideLayout ? loc.wallets.list_title : '',
       headerLargeTitle: false,
       headerShadowVisible: false,
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
       headerLeft: renderHeaderLeft,
-      headerRight: () => (isDrawerVisible || isDesktop ? undefined : RightBarButtons),
+      headerRight: () => (isDesktop ? undefined : RightBarButtons),
     };
   }, [
     RightBarButtons,
-    isDrawerVisible,
     isWideLayout,
     theme.colors.customHeader,
     theme.colors.headerProminentButtonBackgroundColor,
