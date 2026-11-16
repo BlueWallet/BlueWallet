@@ -3,13 +3,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform } from 'react-native';
 import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
-import { isIOS26OrHigher } from '../blue_modules/environment';
 import { useTheme } from '../components/themes';
 import { Action } from '../components/types';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { CoinControlSortDirection, CoinControlSortType, SendDetailsStackParamList } from './SendDetailsStackParamList';
-import HeaderRightButton from '../components/HeaderRightButton';
+import { createHeaderRightButtonOptions } from '../components/HeaderRightButton';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import SelectFeeScreen from '../screen/SelectFeeScreen';
 import CoinControlOutputSheet from '../screen/send/CoinControlOutputSheet';
@@ -45,8 +44,8 @@ const ScanQRCodeComponent = withLazySuspense(ScanQRCode);
 
 const SendDetailsStack = () => {
   const theme = useTheme();
-  const DetailsButton = useMemo(
-    () => <HeaderRightButton testID="TransactionDetailsButton" disabled={true} title={loc.send.create_details} />,
+  const detailsButtonOptions = useMemo(
+    () => createHeaderRightButtonOptions({ testID: 'TransactionDetailsButton', disabled: true, title: loc.send.create_details }),
     [],
   );
 
@@ -102,7 +101,7 @@ const SendDetailsStack = () => {
       return {
         ...options,
         headerRight: hasUtxos ? headerMenuOptions.headerRight : undefined,
-        ...(isIOS26OrHigher ? { unstable_headerRightItems: hasUtxos ? headerMenuOptions.unstable_headerRightItems : undefined } : {}),
+        unstable_headerRightItems: hasUtxos ? headerMenuOptions.unstable_headerRightItems : undefined,
       };
     },
   )(theme);
@@ -143,7 +142,7 @@ const SendDetailsStack = () => {
         name="Confirm"
         component={ConfirmComponent}
         options={navigationStyle(
-          { title: loc.send.confirm_header, headerRight: () => DetailsButton },
+          { title: loc.send.confirm_header, ...detailsButtonOptions },
           withRouteParamHeaderOptions({ headerRight: true }),
         )(theme)}
       />
