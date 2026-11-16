@@ -101,8 +101,8 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
   const { colors } = useTheme();
   const isFocused = useIsFocused();
   const { isTotalBalanceEnabled } = useSettings();
-  const { height, width } = useWindowDimensions();
-  const isDrawerVisible = shouldUseWideLayout(width, height);
+  const { width } = useWindowDimensions();
+  const isDrawerVisible = shouldUseWideLayout(width);
   const [sidebarMode, setSidebarMode] = useState<'wallets' | 'settings'>('wallets');
   const prevWalletCount = useRef(wallets.length);
 
