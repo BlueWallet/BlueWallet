@@ -238,16 +238,17 @@ const DetailViewStackScreensStack = () => {
   }, [navigation]);
 
   const RightBarButtons = useMemo(
-    () =>
-      isWideLayout ? (
+    () => (
+      <>
         <AddWalletButton onPress={navigateToAddWallet} />
-      ) : (
-        <>
-          <AddWalletButton onPress={navigateToAddWallet} />
-          <View style={styles.width24} />
-          <SettingsButton onPress={navigateToSettings} onManageWalletPress={navigateToManageWallets} />
-        </>
-      ),
+        {!isWideLayout && !isDesktop && (
+          <>
+            <View style={styles.width24} />
+            <SettingsButton onPress={navigateToSettings} onManageWalletPress={navigateToManageWallets} />
+          </>
+        )}
+      </>
+    ),
     [isWideLayout, navigateToAddWallet, navigateToManageWallets, navigateToSettings],
   );
 
@@ -331,9 +332,6 @@ const DetailViewStackScreensStack = () => {
           return [{ type: 'custom', element, hidesSharedBackground: true }];
         },
         unstable_headerRightItems: () => {
-          if (isDesktop) {
-            return [];
-          }
           const items: HeaderRightItem[] = [
             {
               type: 'button',
@@ -346,7 +344,7 @@ const DetailViewStackScreensStack = () => {
               onPress: navigateToAddWallet,
             },
           ];
-          if (!isWideLayout) {
+          if (!isWideLayout && !isDesktop) {
             items.push({
               type: 'button',
               label: loc.settings.default_title,
@@ -369,7 +367,7 @@ const DetailViewStackScreensStack = () => {
         backgroundColor: theme.colors.customHeader,
       },
       headerLeft: renderHeaderLeft,
-      headerRight: () => (isDesktop ? undefined : RightBarButtons),
+      headerRight: () => RightBarButtons,
     };
   }, [
     RightBarButtons,
