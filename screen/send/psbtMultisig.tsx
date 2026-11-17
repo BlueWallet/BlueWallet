@@ -296,7 +296,9 @@ const PsbtMultisig = () => {
     const outputs = displayData.targets;
     const addressOutputs = outputs.filter((output): output is DestinationTarget & { address: string } => Boolean(output.address));
     const scriptOutputs = outputs.filter(output => !output.address);
-    const shownAddresses = addressOutputs.slice(0, 2);
+    // While change is hidden, cap a long recipient list at two rows.
+    // The unfiltered view is how change is revealed, so it shows every address.
+    const shownAddresses = preferFiltered ? addressOutputs.slice(0, 2) : addressOutputs;
     const hiddenAddressCount = addressOutputs.length - shownAddresses.length;
     const views = shownAddresses.map((output, index) => {
       const address = output.address;
