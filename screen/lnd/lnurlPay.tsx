@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, RouteProp, useLocale, useRoute } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../components/Icon';
 import { btcToSatoshi, fiatToBTC, satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
@@ -21,6 +21,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
 import KeyboardAccessoryDone from '../../components/KeyboardAccessoryDone';
+import { useScrollAboveKeyboardDock } from '../../hooks/useScrollAboveKeyboardDock';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { TWallet } from '../../class/wallets/types';
 import { pop } from '../../NavigationService';
@@ -44,6 +45,8 @@ const LnurlPay: React.FC = () => {
   const { setParams, navigate } = useNavigation();
   const [amount, setAmount] = useState<string | undefined>();
   const [keyboardAccessoryActive, setKeyboardAccessoryActive] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+  const { onScroll, scrollEventThrottle } = useScrollAboveKeyboardDock(scrollRef, keyboardAccessoryActive);
   const { colors } = useTheme();
   const { direction } = useLocale();
   const stylesHook = StyleSheet.create({
@@ -214,7 +217,13 @@ const LnurlPay: React.FC = () => {
     return (
       <KeyboardAccessoryDock active={keyboardAccessoryActive} accessory={<KeyboardAccessoryDone />}>
         <SafeArea>
-          <ScrollView contentContainerStyle={styles.scrollviewContainer} automaticallyAdjustKeyboardInsets={false}>
+          <ScrollView
+            ref={scrollRef}
+            contentContainerStyle={styles.scrollviewContainer}
+            automaticallyAdjustKeyboardInsets={false}
+            onScroll={onScroll}
+            scrollEventThrottle={scrollEventThrottle}
+          >
             <BlueCard>
               <AmountInput.AmountInput
                 isLoading={isLoading}

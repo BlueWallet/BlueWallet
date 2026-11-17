@@ -21,17 +21,20 @@ export const KEYBOARD_ACCESSORY_IOS_CAPSULE_MARGIN_BOTTOM = 4;
 export const KEYBOARD_ACCESSORY_IOS_CAPSULE_RADIUS = 20;
 
 /** Whether the dock should render floating capsule chrome (iOS 26+). */
-export const useKeyboardAccessoryCapsuleChrome = isIOS26OrHigher;
+export const keyboardAccessoryUsesCapsuleChrome = isIOS26OrHigher;
 
 /**
  * Extra height the dock reserves below the bar (capsule bottom margin on iOS 26+).
  * Used so screen content padding matches the visible chrome.
  */
 export const getKeyboardAccessoryChromeExtraHeight = (): number =>
-  useKeyboardAccessoryCapsuleChrome ? KEYBOARD_ACCESSORY_IOS_CAPSULE_MARGIN_BOTTOM : 0;
+  keyboardAccessoryUsesCapsuleChrome ? KEYBOARD_ACCESSORY_IOS_CAPSULE_MARGIN_BOTTOM : 0;
 
 /** Default padding height for KeyboardAccessoryDock (bar + platform chrome). */
 export const getKeyboardAccessoryDockPaddingHeight = (): number => KEYBOARD_ACCESSORY_BAR_HEIGHT + getKeyboardAccessoryChromeExtraHeight();
 
 /** Android full-bleed bars get a hairline separator; iOS capsule does not. */
-export const useKeyboardAccessoryAndroidSeparator = Platform.OS === 'android';
+export const keyboardAccessoryUsesAndroidSeparator = Platform.OS === 'android';
+
+/** Lets a nested field tell a screen-level dock that it is focused. */
+export const SetKeyboardAccessoryActiveContext = createContext<(active: boolean) => void>(() => {});

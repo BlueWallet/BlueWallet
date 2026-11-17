@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useRoute, useLocale } from '@react-navigation/native';
 import { ActivityIndicator, Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../components/Icon';
@@ -19,6 +19,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
 import KeyboardAccessoryDone from '../../components/KeyboardAccessoryDone';
+import { useScrollAboveKeyboardDock } from '../../hooks/useScrollAboveKeyboardDock';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { LNDStackParamsList } from '../../navigation/LNDStackParamsList';
 import { RootParamList } from '../../navigation/RootParamList';
@@ -56,6 +57,8 @@ const ScanLNDInvoice = () => {
   const [expiresIn, setExpiresIn] = useState<string | undefined>();
   const [arkFeesReady, setArkFeesReady] = useState<boolean>(false);
   const [keyboardAccessoryActive, setKeyboardAccessoryActive] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+  const { onScroll, scrollEventThrottle } = useScrollAboveKeyboardDock(scrollRef, keyboardAccessoryActive);
   const stylesHook = StyleSheet.create({
     walletWrapLabel: {
       color: colors.buttonAlternativeTextColor,
@@ -400,11 +403,14 @@ const ScanLNDInvoice = () => {
       <SafeArea style={stylesHook.root}>
         <View style={[styles.root, stylesHook.root]}>
           <ScrollView
+            ref={scrollRef}
             contentContainerStyle={styles.scroll}
             keyboardShouldPersistTaps="handled"
             automaticallyAdjustContentInsets
             automaticallyAdjustKeyboardInsets={false}
             contentInsetAdjustmentBehavior="automatic"
+            onScroll={onScroll}
+            scrollEventThrottle={scrollEventThrottle}
             scrollToOverflowEnabled
           >
             <View style={styles.scrollMargin}>

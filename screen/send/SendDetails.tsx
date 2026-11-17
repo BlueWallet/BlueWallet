@@ -44,6 +44,7 @@ import CoinsSelected from '../../components/CoinsSelected';
 import { createEllipsisHeaderMenuOptions } from '../../components/headerMenuOptions';
 import KeyboardAccessoryAllFunds from '../../components/KeyboardAccessoryAllFunds';
 import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
+import { useScrollAboveKeyboardDock } from '../../hooks/useScrollAboveKeyboardDock';
 import KeyboardAccessoryDone from '../../components/KeyboardAccessoryDone';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
@@ -127,6 +128,11 @@ const SendDetails = () => {
   const [wallet, setWallet] = useState<TWallet | null>(null);
   const { isVisible } = useKeyboard();
   const [focusedAccessory, setFocusedAccessory] = useState<'amount' | 'address' | 'memo' | null>(null);
+  const detailsScrollRef = useRef<ScrollView>(null);
+  const { onScroll: onDetailsScroll, scrollEventThrottle: detailsScrollThrottle } = useScrollAboveKeyboardDock(
+    detailsScrollRef,
+    focusedAccessory,
+  );
   const [addresses, setAddresses] = useState<IPaymentDestinations[]>([{ address: '', key: String(Math.random()), unit: amountUnit }]);
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
   const [networkTransactionFeesIsLoading, setNetworkTransactionFeesIsLoading] = useState(false);
@@ -1594,10 +1600,13 @@ const SendDetails = () => {
     <KeyboardAccessoryDock active={focusedAccessory != null} accessory={keyboardAccessory}>
       <SafeArea style={[styles.root, stylesHook.root]} ignoreTopInset>
         <ScrollView
+          ref={detailsScrollRef}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.screenContent}
           automaticallyAdjustKeyboardInsets={false}
           contentInsetAdjustmentBehavior="never"
+          onScroll={onDetailsScroll}
+          scrollEventThrottle={detailsScrollThrottle}
         >
           <View>
             <FlatList

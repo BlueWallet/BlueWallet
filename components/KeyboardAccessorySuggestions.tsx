@@ -4,7 +4,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 
 import BlueButtonLink from './BlueButtonLink';
-import { KEYBOARD_ACCESSORY_BAR_HEIGHT, useKeyboardAccessoryCapsuleChrome } from './keyboardAccessory';
+import { KEYBOARD_ACCESSORY_BAR_HEIGHT, keyboardAccessoryUsesCapsuleChrome } from './keyboardAccessory';
 import { useTheme } from './themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { withAlpha } from './color';
@@ -78,10 +78,10 @@ const SuggestionChip: React.FC<SuggestionChipProps> = ({ word, chipStyle, chipTe
 const KeyboardAccessorySuggestions: React.FC<KeyboardAccessorySuggestionsProps> = ({ suggestions, onSuggestionTapped }) => {
   const { colors } = useTheme();
   const isDark = useColorScheme() === 'dark';
-  const useIosCapsule = useKeyboardAccessoryCapsuleChrome;
+  const isIosCapsule = keyboardAccessoryUsesCapsuleChrome;
 
   const styleHooks = StyleSheet.create({
-    chip: useIosCapsule
+    chip: isIosCapsule
       ? {
           backgroundColor: isDark ? colors.buttonDisabledBackgroundColor : withAlpha(colors.shadowColor, 0.06),
         }
@@ -89,7 +89,7 @@ const KeyboardAccessorySuggestions: React.FC<KeyboardAccessorySuggestionsProps> 
           backgroundColor: colors.buttonDisabledBackgroundColor,
         },
     chipText: {
-      color: useIosCapsule && isDark ? colors.buttonDisabledTextColor : colors.alternativeTextColor,
+      color: isIosCapsule && isDark ? colors.buttonDisabledTextColor : colors.alternativeTextColor,
     },
     doneText: {
       color: colors.foregroundColor,
@@ -136,7 +136,7 @@ const KeyboardAccessorySuggestions: React.FC<KeyboardAccessorySuggestionsProps> 
           style={styles.rightEdgeFade}
         />
       </View>
-      {useIosCapsule ? (
+      {isIosCapsule ? (
         <Pressable
           accessibilityRole="button"
           onPress={Keyboard.dismiss}

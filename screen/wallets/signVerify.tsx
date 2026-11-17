@@ -25,6 +25,8 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import KeyboardAccessoryClearPasteDone from '../../components/KeyboardAccessoryClearPasteDone';
 import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
+import KeyboardAccessoryDone from '../../components/KeyboardAccessoryDone';
+import { useScrollAboveKeyboardDock } from '../../hooks/useScrollAboveKeyboardDock';
 import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
 import ActionSheet from '../ActionSheet.ts';
@@ -36,6 +38,8 @@ const SignVerify = () => {
   const insets = useSafeAreaInsets();
   const { sleep } = useStorage();
   const scrollViewRef = React.useRef<ScrollView>(null);
+  const [focusedField, setFocusedField] = useState<'address' | 'message' | 'signature' | null>(null);
+  const { onScroll, scrollEventThrottle } = useScrollAboveKeyboardDock(scrollViewRef, focusedField);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const { address: _address, walletID } = useRoute<RouteProp<SignVerifyStackParamList, 'SignVerify'>>().params;
 
@@ -43,7 +47,6 @@ const SignVerify = () => {
   const [message, setMessage] = useState('');
   const [signature, setSignature] = useState('');
   const [loading, setLoading] = useState(false);
-  const [messageHasFocus, setMessageHasFocus] = useState(false);
   const [isShareVisible, setIsShareVisible] = useState(false);
 
   const wallet = useWalletSubscribe(walletID);
@@ -135,9 +138,14 @@ const SignVerify = () => {
     setLoading(false);
   };
 
-  const handleFocus = (value: boolean) => {
+  const handleFocus = (field: 'address' | 'message' | 'signature') => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setMessageHasFocus(value);
+    setFocusedField(field);
+  };
+
+  const handleBlur = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setFocusedField(null);
   };
 
   if (loading)
@@ -149,24 +157,29 @@ const SignVerify = () => {
 
   const scrollBottomPad = isShareVisible && !isKeyboardVisible ? insets.bottom + 80 : undefined;
 
-  const keyboardAccessory = (
-    <KeyboardAccessoryClearPasteDone
-      onClearTapped={() => setMessage('')}
-      onPasteTapped={text => {
-        setMessage(text);
-        Keyboard.dismiss();
-      }}
-    />
-  );
+  const keyboardAccessory =
+    focusedField === 'message' ? (
+      <KeyboardAccessoryClearPasteDone
+        onClearTapped={() => setMessage('')}
+        onPasteTapped={text => {
+          setMessage(text);
+          Keyboard.dismiss();
+        }}
+      />
+    ) : (
+      <KeyboardAccessoryDone />
+    );
 
   return (
     <View style={[styles.screenRoot, stylesHooks.screen]}>
-      <KeyboardAccessoryDock active={messageHasFocus} accessory={keyboardAccessory}>
+      <KeyboardAccessoryDock active={focusedField != null} accessory={keyboardAccessory}>
         <ScrollView
           ref={scrollViewRef}
           automaticallyAdjustContentInsets
           automaticallyAdjustKeyboardInsets={false}
           contentInsetAdjustmentBehavior="automatic"
+          onScroll={onScroll}
+          scrollEventThrottle={scrollEventThrottle}
           scrollToOverflowEnabled
           contentContainerStyle={[styles.root, scrollBottomPad !== undefined && { paddingBottom: scrollBottomPad }]}
           style={styles.scroll}
@@ -192,6 +205,8 @@ const SignVerify = () => {
             autoCorrect={false}
             autoCapitalize="none"
             spellCheck={false}
+            onFocus={() => handleFocus('address')}
+            onBlur={handleBlur}
           />
           <BlueSpacing10 />
 
@@ -208,8 +223,8 @@ const SignVerify = () => {
             spellCheck={false}
             scrollEnabled
             textAlignVertical="top"
-            onFocus={() => handleFocus(true)}
-            onBlur={() => handleFocus(false)}
+            onFocus={() => handleFocus('message')}
+            onBlur={handleBlur}
           />
           <BlueSpacing10 />
 
@@ -226,6 +241,8 @@ const SignVerify = () => {
             autoCorrect={false}
             autoCapitalize="none"
             spellCheck={false}
+            onFocus={() => handleFocus('signature')}
+            onBlur={handleBlur}
           />
           <BlueSpacing40 />
 

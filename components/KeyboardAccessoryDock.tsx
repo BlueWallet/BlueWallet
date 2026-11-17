@@ -9,8 +9,8 @@ import {
   KEYBOARD_ACCESSORY_IOS_CAPSULE_MARGIN_BOTTOM,
   KEYBOARD_ACCESSORY_IOS_CAPSULE_MARGIN_H,
   KEYBOARD_ACCESSORY_IOS_CAPSULE_RADIUS,
-  useKeyboardAccessoryAndroidSeparator,
-  useKeyboardAccessoryCapsuleChrome,
+  keyboardAccessoryUsesAndroidSeparator,
+  keyboardAccessoryUsesCapsuleChrome,
 } from './keyboardAccessory';
 import { useTheme } from './themes';
 
@@ -44,7 +44,8 @@ const DockShell: React.FC<DockShellProps> = ({ accessory, children, settledHeigh
   const layoutStyle = StyleSheet.create({
     shell: {
       flex: 1,
-      backgroundColor: colors.elevated,
+      // Capsule margins must show the screen, not the elevated fill. Full-bleed bars keep the elevated shell.
+      backgroundColor: keyboardAccessoryUsesCapsuleChrome ? 'transparent' : colors.elevated,
       paddingBottom: settledHeight > 0 ? settledHeight + barHeight : 0,
     },
     dock: {
@@ -82,8 +83,8 @@ const DockShell: React.FC<DockShellProps> = ({ accessory, children, settledHeigh
             <View
               style={[
                 layoutStyle.chrome,
-                useKeyboardAccessoryCapsuleChrome && layoutStyle.chromeCapsule,
-                useKeyboardAccessoryAndroidSeparator && layoutStyle.chromeAndroid,
+                keyboardAccessoryUsesCapsuleChrome && layoutStyle.chromeCapsule,
+                keyboardAccessoryUsesAndroidSeparator && layoutStyle.chromeAndroid,
               ]}
             >
               {accessory}
@@ -179,12 +180,8 @@ const IOSKeyboardDock: React.FC<KeyboardAccessoryDockProps> = ({
     };
   }, [placement]);
 
-  useEffect(() => {
-    if (!active) {
-      setKeyboardHeight(0);
-    }
-  }, [active]);
-
+  // Keep the last non-zero height. Blur then focus of the next field does not emit keyboardDidShow again,
+  // so clearing here hides the bar until the keyboard is dismissed and shown.
   const settledHeight = active && keyboardHeight > 0 ? keyboardHeight : 0;
 
   return (

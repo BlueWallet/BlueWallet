@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Keyboard, StyleSheet, TextInput, TextInputSelectionChangeEvent, TouchableWithoutFeedback, View } from 'react-native';
+import { Keyboard, ScrollView, StyleSheet, TextInput, TextInputSelectionChangeEvent, TouchableWithoutFeedback, View } from 'react-native';
 import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
 import BlueFormLabel from '../../components/BlueFormLabel';
 import BlueFormMultiInput from '../../components/BlueFormMultiInput';
@@ -15,6 +15,7 @@ import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { useScrollAboveKeyboardDock } from '../../hooks/useScrollAboveKeyboardDock';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { getImportWalletSuggestions, getWordFragmentAtCursor, replaceWordFragment } from '../../blue_modules/bip39WordSuggestions';
 
@@ -39,7 +40,9 @@ const ImportWallet = () => {
   const selectionRef = useRef({ start: label.length, end: label.length });
   const speedBackdoorTapCountRef = useRef(0);
   const inputRef = useRef<TextInput>(null);
+  const importScrollRef = useRef<ScrollView>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const { onScroll, scrollEventThrottle } = useScrollAboveKeyboardDock(importScrollRef, isInputFocused);
   const askPassphraseMenuState = route.params?.askPassphraseMenuState ?? false;
   const searchAccountsMenuState = route.params?.searchAccountsMenuState ?? false;
   const clearClipboardMenuState = route.params?.clearClipboardMenuState ?? true;
@@ -219,11 +222,14 @@ const ImportWallet = () => {
 
   const scrollView = (
     <SafeAreaScrollView
+      ref={importScrollRef}
       style={styles.screen}
       contentContainerStyle={[styles.root, styles.scrollContent]}
       keyboardShouldPersistTaps="always"
       // IME lift comes from KeyboardAccessoryDock on both platforms.
       automaticallyAdjustKeyboardInsets={false}
+      onScroll={onScroll}
+      scrollEventThrottle={scrollEventThrottle}
       scrollToOverflowEnabled={false}
     >
       <BlueSpacing20 />

@@ -408,8 +408,8 @@ const LNDCreateInvoice = () => {
   }
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAccessoryDock active={keyboardAccessoryActive} accessory={<KeyboardAccessoryDone />}>
+    <KeyboardAccessoryDock active={keyboardAccessoryActive} accessory={<KeyboardAccessoryDone />}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={[styles.root, styleHooks.root]}>
           <View style={[styles.amount, styleHooks.amount]}>
             <AmountInput.AmountInput
@@ -441,8 +441,8 @@ const LNDCreateInvoice = () => {
           </View>
           {renderWalletSelectionButton()}
         </View>
-      </KeyboardAccessoryDock>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+    </KeyboardAccessoryDock>
   );
 };
 

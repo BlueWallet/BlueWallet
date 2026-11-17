@@ -10,7 +10,6 @@ interface AddressInputProps {
   placeholder?: string;
   onChangeText: (text: string) => void;
   editable?: boolean;
-  inputAccessoryViewID?: string;
   onFocus?: () => void;
   onBlur?: () => void;
   testID?: string;
@@ -38,7 +37,6 @@ const AddressInput = ({
   placeholder = loc.send.details_address,
   onChangeText,
   editable = true,
-  inputAccessoryViewID,
   onFocus = () => {},
   onBlur = () => {},
   keyboardType = 'default',
@@ -67,7 +65,6 @@ const AddressInput = ({
         style={[styles.input, stylesHook.input]}
         editable={!isLoading && editable}
         multiline={!editable}
-        inputAccessoryViewID={inputAccessoryViewID}
         clearButtonMode="while-editing"
         onFocus={onFocus}
         autoCapitalize="none"
