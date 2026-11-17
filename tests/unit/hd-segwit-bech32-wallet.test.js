@@ -333,4 +333,19 @@ describe('Bech32 Segwit HD (BIP84)', () => {
 
     assert.ok(!hd4.validateMnemonic());
   });
+
+  it('persists the BIP39 passphrase through JSON serialization', () => {
+    const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(mnemonic);
+    hd.setPassphrase('my passphrase');
+
+    const restored = HDSegwitBech32Wallet.fromJson(JSON.stringify(hd));
+    assert.strictEqual(restored.getPassphrase(), 'my passphrase');
+    assert.strictEqual(restored.getSecret(), mnemonic);
+
+    const noPassphrase = new HDSegwitBech32Wallet();
+    noPassphrase.setSecret(mnemonic);
+    assert.ok(!HDSegwitBech32Wallet.fromJson(JSON.stringify(noPassphrase)).getPassphrase());
+  });
 });

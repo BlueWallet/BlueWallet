@@ -3,6 +3,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BackHandler, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Button from '../../components/Button';
+import Icon from '../../components/Icon';
 import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -11,7 +12,6 @@ import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import SeedWords from '../../components/SeedWords';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { AbstractHDWallet } from '../../class/wallets/abstract-hd-wallet';
-import WarningBanner from '../../components/WarningBanner';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'PleaseBackup'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'PleaseBackup'>;
@@ -34,6 +34,13 @@ const PleaseBackup: React.FC = () => {
     pleaseText: {
       color: colors.foregroundColor,
       writingDirection: direction,
+    },
+    warningBanner: {
+      backgroundColor: colors.warningBannerBackground,
+      borderColor: colors.warningBannerBorder,
+    },
+    warningBannerText: {
+      color: colors.warningBannerText,
     },
     modalBackdrop: {
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -110,7 +117,10 @@ const PleaseBackup: React.FC = () => {
         {passphrase ? (
           <>
             <SeedWords seed={secretWords.join(' ')} />
-            <WarningBanner text={loc.pleasebackup.passphrase_warning} testID="PassphraseWarning" />
+            <View testID="PassphraseWarning" style={[styles.warningBanner, stylesHook.warningBanner]}>
+              <Icon name="warning" color={colors.warningBannerText} size={20} />
+              <Text style={[styles.warningBannerText, stylesHook.warningBannerText]}>{loc.pleasebackup.passphrase_warning}</Text>
+            </View>
             <View style={styles.passphraseContainer}>
               <Button
                 testID="ViewPassphraseButton"
@@ -182,6 +192,21 @@ const styles = StyleSheet.create({
   passphraseContainer: {
     alignItems: 'center',
     marginTop: 8,
+  },
+  warningBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    marginVertical: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  warningBannerText: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 15,
+    lineHeight: 20,
+    textAlign: 'left',
   },
   modalBackdrop: {
     flex: 1,

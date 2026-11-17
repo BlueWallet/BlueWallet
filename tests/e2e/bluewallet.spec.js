@@ -20,6 +20,7 @@ import {
   tapAndTapAgainIfElementIsNotVisible,
   tapHeaderMenuItem,
   tapIfTextPresent,
+  typeTextIntoAlertInput,
   waitForId,
   waitForKeyboardToClose,
   waitForText,
@@ -1118,6 +1119,50 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await helperCreateWallet();
     // nop
     await helperDeleteWallet('cr34t3d');
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can create HD wallet with BIP39 passphrase and reveal it on the backup screen', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t-passphrase-backup');
+    if (process.env.CI) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t-passphrase-backup'), 'as it previously passed on Travis');
+    }
+    await device.clearKeychain();
+    await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
+    await waitForId('WalletsList');
+
+    await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'WalletNameInput');
+    await element(by.id('WalletNameInput')).replaceText('passphrase wallet');
+    await waitForId('ActivateBitcoinButton');
+    await element(by.id('ActivateBitcoinButton')).tap();
+    await tapHeaderMenuItem('Passphrase');
+    await element(by.id('Create')).tap();
+
+    // passphrase prompt: enter it twice, then acknowledge the usage alert
+    await typeTextIntoAlertInput('e2e passphrase');
+    await confirmPasswordDialog();
+    await typeTextIntoAlertInput('e2e passphrase');
+    await confirmPasswordDialog();
+    await confirmPasswordDialog();
+
+    await waitFor(element(by.id('PleaseBackupScrollView')))
+      .toBeVisible()
+      .withTimeout(15000);
+    await expect(element(by.id('PassphraseWarning'))).toBeVisible();
+    await expect(element(by.id('BackupPassphrase'))).not.toExist();
+
+    await element(by.id('ViewPassphraseButton')).tap();
+    await expect(element(by.text('e2e passphrase'))).toBeVisible();
+    await element(by.id('ClosePassphraseButton')).tap();
+    await expect(element(by.id('BackupPassphrase'))).not.toExist();
+
+    await waitFor(element(by.id('PleasebackupOk')))
+      .toBeVisible()
+      .whileElement(by.id('PleaseBackupScrollView'))
+      .scroll(500, 'down');
+    await element(by.id('PleasebackupOk')).tap();
+    await waitForId('WalletsList');
+
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
