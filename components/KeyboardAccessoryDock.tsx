@@ -21,11 +21,6 @@ export interface KeyboardAccessoryDockProps {
   active?: boolean;
   /** Height reserved for the accessory chrome (bar + platform margins). Defaults to shared padding height. */
   barHeight?: number;
-  /**
-   * overlay pins the bar to the IME over a full-screen parent.
-   * inline lays the bar out under the children when the keyboard is open, for fitToContents sheets that must not use flex:1.
-   */
-  placement?: 'overlay' | 'inline';
 }
 
 interface DockShellProps {
@@ -34,12 +29,10 @@ interface DockShellProps {
   /** Live IME height — updates when the keyboard type/size changes. */
   settledHeight: number;
   barHeight: number;
-  placement: 'overlay' | 'inline';
 }
 
-const DockShell: React.FC<DockShellProps> = ({ accessory, children, settledHeight, barHeight, placement }) => {
+const DockShell: React.FC<DockShellProps> = ({ accessory, children, settledHeight, barHeight }) => {
   const { colors } = useTheme();
-  const overlay = placement === 'overlay';
 
   const layoutStyle = StyleSheet.create({
     shell: {
@@ -76,10 +69,10 @@ const DockShell: React.FC<DockShellProps> = ({ accessory, children, settledHeigh
 
   return (
     <KeyboardDockActiveContext.Provider value={settledHeight > 0}>
-      <View style={overlay ? layoutStyle.shell : undefined}>
+      <View style={layoutStyle.shell}>
         {children}
         {settledHeight > 0 && (
-          <View pointerEvents="box-none" style={overlay ? layoutStyle.dock : undefined}>
+          <View pointerEvents="box-none" style={layoutStyle.dock}>
             <View
               style={[
                 layoutStyle.chrome,
@@ -106,7 +99,6 @@ const AndroidImeDock: React.FC<KeyboardAccessoryDockProps> = ({
   children,
   active = true,
   barHeight = getKeyboardAccessoryDockPaddingHeight(),
-  placement = 'overlay',
 }) => {
   const keyboard = useAnimatedKeyboard();
   const activeSv = useSharedValue(active ? 1 : 0);
@@ -135,7 +127,7 @@ const AndroidImeDock: React.FC<KeyboardAccessoryDockProps> = ({
   );
 
   return (
-    <DockShell accessory={accessory} settledHeight={settledHeight} barHeight={barHeight} placement={placement}>
+    <DockShell accessory={accessory} settledHeight={settledHeight} barHeight={barHeight}>
       {children}
     </DockShell>
   );
@@ -144,14 +136,12 @@ const AndroidImeDock: React.FC<KeyboardAccessoryDockProps> = ({
 /**
  * iOS: didShow/didHide gate visibility (avoid willShow jump). didChangeFrame keeps the
  * dock pinned when switching keyboard types (emoji, numbers, languages) changes height.
- * Inline sheets follow willShow/willHide so the bar moves with the sheet, which already tracks those events.
  */
 const IOSKeyboardDock: React.FC<KeyboardAccessoryDockProps> = ({
   accessory,
   children,
   active = true,
   barHeight = getKeyboardAccessoryDockPaddingHeight(),
-  placement = 'overlay',
 }) => {
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
@@ -167,25 +157,22 @@ const IOSKeyboardDock: React.FC<KeyboardAccessoryDockProps> = ({
       setKeyboardHeight(0);
     };
 
-    const showEvent = placement === 'inline' ? 'keyboardWillShow' : 'keyboardDidShow';
-    const hideEvent = placement === 'inline' ? 'keyboardWillHide' : 'keyboardDidHide';
-    const showSub = Keyboard.addListener(showEvent, applyHeight);
-    // Inline sheets hide on willHide. didChangeFrame would put the bar back mid-dismiss.
-    const changeSub = placement === 'overlay' ? Keyboard.addListener('keyboardDidChangeFrame', applyHeight) : undefined;
-    const hideSub = Keyboard.addListener(hideEvent, onHide);
+    const showSub = Keyboard.addListener('keyboardDidShow', applyHeight);
+    const changeSub = Keyboard.addListener('keyboardDidChangeFrame', applyHeight);
+    const hideSub = Keyboard.addListener('keyboardDidHide', onHide);
     return () => {
       showSub.remove();
-      changeSub?.remove();
+      changeSub.remove();
       hideSub.remove();
     };
-  }, [placement]);
+  }, []);
 
   // Keep the last non-zero height. Blur then focus of the next field does not emit keyboardDidShow again,
   // so clearing here hides the bar until the keyboard is dismissed and shown.
   const settledHeight = active && keyboardHeight > 0 ? keyboardHeight : 0;
 
   return (
-    <DockShell accessory={accessory} settledHeight={settledHeight} barHeight={barHeight} placement={placement}>
+    <DockShell accessory={accessory} settledHeight={settledHeight} barHeight={barHeight}>
       {children}
     </DockShell>
   );

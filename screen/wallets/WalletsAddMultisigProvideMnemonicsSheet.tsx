@@ -8,11 +8,8 @@ import BlueFormMultiInput from '../../components/BlueFormMultiInput';
 import BlueTextCentered from '../../components/BlueTextCentered';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
-import KeyboardAccessoryClearPasteDone from '../../components/KeyboardAccessoryClearPasteDone';
-import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
-import { getKeyboardAccessoryDockPaddingHeight } from '../../components/keyboardAccessory';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
-import SheetKeyboardForm, { SHEET_KEYBOARD_FORM_CHROME } from '../../components/SheetKeyboardForm';
+import SheetKeyboardForm from '../../components/SheetKeyboardForm';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import SheetHeader, { useSheetBottomPadding } from '../../components/SheetHeader';
 import { useTheme } from '../../components/themes';
@@ -30,8 +27,6 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
 
   const [importText, setImportText] = useState(initialImportText);
   const [askPassphrase, setAskPassphrase] = useState(initialAskPassphrase);
-  const [isInputFocused, setIsInputFocused] = useState(false);
-  const showAccessory = isInputFocused && isKeyboardVisible;
   const scanTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const handleImport = useCallback(
@@ -74,52 +69,43 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
     [navigation],
   );
 
-  const keyboardAccessory = <KeyboardAccessoryClearPasteDone onClearTapped={() => setImportText('')} onPasteTapped={setImportText} />;
-
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
       // No flex:1 — fitToContents treats it as full height and the form lands at the bottom of the sheet.
-      paddingBottom: showAccessory ? 0 : bottomPadding,
+      paddingBottom: bottomPadding,
     },
   });
 
   return (
     <View style={stylesHook.root}>
       <SheetHeader title={loc.wallets.import_title} onClose={() => navigation.goBack()} />
-      <KeyboardAccessoryDock placement="inline" active={isInputFocused} accessory={keyboardAccessory}>
-        <SheetKeyboardForm
-          style={styles.contentContainer}
-          reservedHeight={SHEET_KEYBOARD_FORM_CHROME + (showAccessory ? getKeyboardAccessoryDockPaddingHeight() - bottomPadding : 0)}
-        >
-          <BlueTextCentered>{loc.multisig.type_seed_or_public_key}</BlueTextCentered>
-          <BlueSpacing20 />
-          <BlueFormMultiInput
-            value={importText}
-            onChangeText={setImportText}
-            onFocus={() => setIsInputFocused(true)}
-            onBlur={() => setIsInputFocused(false)}
-            testID="MnemonicInputSheet"
-            style={[styles.mnemonicInput, isKeyboardVisible && styles.mnemonicInputCompact]}
-          />
-          <BlueSpacing20 />
-          <View style={styles.toggleRow}>
-            <BlueFormLabel>{loc.wallets.import_passphrase_title}</BlueFormLabel>
-            <Switch value={askPassphrase} onValueChange={setAskPassphrase} />
-          </View>
-          <BlueSpacing20 />
-          <Button testID="DoImportKeyButton" title={loc.wallets.import_do_import} onPress={() => handleImport()} />
-          <BlueSpacing20 />
-          <AddressInputScanButton
-            type="link"
-            testID="ScanOrOpenFile"
-            onChangeText={text => {
-              setImportText(text);
-              handleScanResult(text);
-            }}
-          />
-        </SheetKeyboardForm>
-      </KeyboardAccessoryDock>
+      <SheetKeyboardForm style={styles.contentContainer}>
+        <BlueTextCentered>{loc.multisig.type_seed_or_public_key}</BlueTextCentered>
+        <BlueSpacing20 />
+        <BlueFormMultiInput
+          value={importText}
+          onChangeText={setImportText}
+          testID="MnemonicInputSheet"
+          style={[styles.mnemonicInput, isKeyboardVisible && styles.mnemonicInputCompact]}
+        />
+        <BlueSpacing20 />
+        <View style={styles.toggleRow}>
+          <BlueFormLabel>{loc.wallets.import_passphrase_title}</BlueFormLabel>
+          <Switch value={askPassphrase} onValueChange={setAskPassphrase} />
+        </View>
+        <BlueSpacing20 />
+        <Button testID="DoImportKeyButton" title={loc.wallets.import_do_import} onPress={() => handleImport()} />
+        <BlueSpacing20 />
+        <AddressInputScanButton
+          type="link"
+          testID="ScanOrOpenFile"
+          onChangeText={text => {
+            setImportText(text);
+            handleScanResult(text);
+          }}
+        />
+      </SheetKeyboardForm>
     </View>
   );
 };
