@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, SectionList, SectionListProps, Platform, StatusBar } from 'react-native';
-import { useIsFocused } from '@react-navigation/native';
-
+import { useKeyboardInsetsEnabled } from '../hooks/useKeyboardInsetsEnabled';
 import { useTheme } from './themes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -23,8 +22,7 @@ const SafeAreaSectionList = <ItemT, SectionT>(props: SafeAreaSectionListProps<It
   } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const isFocused = useIsFocused();
-  const shouldAdjustKeyboardInsets = Boolean(automaticallyAdjustKeyboardInsets) && isFocused;
+  const shouldAdjustKeyboardInsets = useKeyboardInsetsEnabled(automaticallyAdjustKeyboardInsets);
 
   const componentStyle = useMemo(() => {
     return StyleSheet.compose({ flex: 1, backgroundColor: colors.background }, style);
@@ -66,6 +64,7 @@ const SafeAreaSectionList = <ItemT, SectionT>(props: SafeAreaSectionListProps<It
       // `automaticallyAdjustKeyboardInsets` is opt-in: RN's keyboard handler also fires for screens below the
       // stack top and clamps their offset (RCTScrollViewComponentView `_keyboardWillChangeFrame` / `scrollTo:`),
       // scrolling the previous screen. Screens with text inputs pass the prop explicitly.
+      // After blur the flag stays on until keyboardDidHide, so the hide can clear an inset already applied.
       // `scrollToOverflowEnabled` works around the same handler for screens that do opt in: it re-applies the current
       // offset via `scrollTo:`, which clamps to the raw `contentInset` instead of `adjustedContentInset`, so content under
       // a large-title header jumps up by the header height when the keyboard opens.
