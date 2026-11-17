@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import DefaultPreference from 'react-native-default-preference';
 import * as RNLocalize from 'react-native-localize';
 
-import { FiatUnit, FiatUnitType, getFiatRate } from '../models/fiatUnit';
+import { FiatUnit, TFiatUnit, getFiatRate } from '../models/fiatUnit';
 
 const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
 const PREFERRED_CURRENCY_LOCALE_STORAGE_KEY = 'preferredCurrencyLocale';
@@ -21,7 +21,7 @@ interface ExchangeRates {
   LAST_UPDATED_ERROR: boolean;
 }
 
-let preferredFiatCurrency: FiatUnitType = FiatUnit.USD;
+let preferredFiatCurrency: TFiatUnit = FiatUnit.USD;
 let exchangeRates: ExchangeRates = { LAST_UPDATED_ERROR: false };
 let lastTimeUpdateExchangeRateWasCalled: number = 0;
 let skipUpdateExchangeRate: boolean = false;
@@ -60,7 +60,7 @@ async function storeExchangeRate(endPointKey: string, rate: number): Promise<voi
 }
 
 /** `prefetchedRate` (already fetched by the caller) is stored as fresh so the daemon doesn't fetch it a second time */
-async function setPreferredCurrency(item: FiatUnitType, prefetchedRate?: number): Promise<void> {
+async function setPreferredCurrency(item: TFiatUnit, prefetchedRate?: number): Promise<void> {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   try {
     await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, item.endPointKey);
@@ -144,7 +144,7 @@ async function updateExchangeRate(): Promise<void> {
   }
 }
 
-async function getPreferredCurrency(): Promise<FiatUnitType> {
+async function getPreferredCurrency(): Promise<TFiatUnit> {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   const preferredCurrencyValue = await DefaultPreference.get(PREFERRED_CURRENCY_STORAGE_KEY);
   let preferredCurrency: string | null = null;
@@ -402,7 +402,7 @@ function formatBTC(btc: BigNumber.Value): string {
   return new BigNumber(btc).toFormat(8);
 }
 
-function _setPreferredFiatCurrency(currency: FiatUnitType): void {
+function _setPreferredFiatCurrency(currency: TFiatUnit): void {
   preferredFiatCurrency = currency;
 }
 

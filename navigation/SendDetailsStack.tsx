@@ -50,7 +50,7 @@ const SendDetailsStack = () => {
     [],
   );
 
-  const coinControlOptions = navigationStyle(
+  const coinControlOptions = navigationStyle<SendDetailsStackParamList, 'CoinControl'>(
     {
       title: loc.cc.header,
       closeButtonIfFirstInStack: CloseButtonPosition.Left,
@@ -165,12 +165,20 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="PsbtMultisig"
         component={PsbtMultisigComponent}
-        options={navigationStyle({ title: loc.multisig.header })(theme)}
+        options={navigationStyle({
+          title: loc.multisig.header,
+          headerStyle: { backgroundColor: theme.colors.elevated },
+          contentStyle: { backgroundColor: theme.colors.elevated },
+        })(theme)}
       />
       <Stack.Screen
         name="PsbtMultisigQRCode"
         component={PsbtMultisigQRCodeComponent}
-        options={navigationStyle({ title: loc.multisig.header })(theme)}
+        options={navigationStyle({
+          title: loc.multisig.header,
+          headerStyle: { backgroundColor: theme.colors.elevated },
+          contentStyle: { backgroundColor: theme.colors.elevated },
+        })(theme)}
       />
       <Stack.Screen
         name="Success"

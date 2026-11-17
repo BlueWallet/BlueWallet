@@ -13,6 +13,20 @@ if [[ ! -L "$framework/Versions/Current" ]]; then
   ln -s A "$framework/Versions/Current"
 fi
 
+# RN 0.88 also leaves headers/modules and its privacy manifest at the root.
+# Versioned macOS frameworks permit links here, but not these regular files.
+for directory in Headers Modules Resources; do
+  if [[ -d "$framework/$directory" && ! -L "$framework/$directory" ]]; then
+    mkdir -p "$framework/Versions/A/$directory"
+    /usr/bin/ditto "$framework/$directory" "$framework/Versions/A/$directory"
+    rm -rf "$framework/$directory"
+  fi
+done
+if [[ -f "$framework/PrivacyInfo.xcprivacy" && ! -L "$framework/PrivacyInfo.xcprivacy" ]]; then
+  mkdir -p "$framework/Versions/A/Resources"
+  mv "$framework/PrivacyInfo.xcprivacy" "$framework/Versions/A/Resources/PrivacyInfo.xcprivacy"
+fi
+
 for entry in "$framework/Versions/A/"*; do
   name="$(basename "$entry")"
   [[ "$name" == "_CodeSignature" ]] && continue

@@ -10,7 +10,7 @@ import { base64ToUint8Array, hexToUint8Array, uint8ArrayToHex, uint8ArrayToStrin
 
 const ONION_REGEX = /^(http:\/\/[^/:@]+\.onion(?::\d{1,5})?)(\/.*)?$/; // regex for onion URL
 
-interface LnurlPayServicePayload {
+export interface LnurlPayServicePayload {
   callback: string;
   fixed: boolean;
   min: number;
@@ -23,12 +23,18 @@ interface LnurlPayServicePayload {
   commentAllowed?: number;
 }
 
+/** LUD-09 */
+export type LnurlSuccessAction =
+  | { tag: 'message'; message: string }
+  | { tag: 'url'; description: string; url: string }
+  | { tag: 'aes'; description: string; ciphertext: string; iv: string };
+
 interface LnurlPayServiceBolt11Payload {
   pr: string;
-  successAction?: any;
+  successAction?: LnurlSuccessAction;
   disposable?: boolean;
   tag: string;
-  metadata: any;
+  metadata: string;
   minSendable: number;
   maxSendable: number;
   callback: string;
@@ -41,13 +47,18 @@ interface DecodedInvoice {
   num_millisatoshis: string;
   timestamp: string;
   fallback_addr: string;
-  route_hints: any[];
+  route_hints: unknown[];
   payment_hash?: string;
   description_hash?: string;
   cltv_expiry?: string;
   expiry?: string;
   description?: string;
 }
+
+type LnurlStorage = {
+  getItem(key: string): Promise<string | null>;
+  setItem(key: string, value: string): Promise<void>;
+};
 
 /**
  * @see https://github.com/btcontract/lnurl-rfc/blob/master/lnurl-pay.md
@@ -60,10 +71,10 @@ export default class Lnurl {
   private _lnurl: string;
   private _lnurlPayServiceBolt11Payload: LnurlPayServiceBolt11Payload | false;
   private _lnurlPayServicePayload: LnurlPayServicePayload | false;
-  private _AsyncStorage: any;
+  private _AsyncStorage: LnurlStorage | undefined;
   private _preimage: string | false;
 
-  constructor(url: string | false, AsyncStorage?: any) {
+  constructor(url: string | false, AsyncStorage?: LnurlStorage) {
     this._lnurl = url || '';
     this._lnurlPayServiceBolt11Payload = false;
     this._lnurlPayServicePayload = false;
@@ -111,7 +122,7 @@ export default class Lnurl {
     return [baseURI, path];
   }
 
-  async fetchGet(url: string): Promise<any> {
+  async fetchGet<T = unknown>(url: string): Promise<T> {
     const resp = await fetch(url, { method: 'GET' });
     if (resp.status >= 300) {
       throw new Error('Bad response from server');
@@ -139,7 +150,7 @@ export default class Lnurl {
       const { tagName, data } = tags[i];
       switch (tagName) {
         case 'payment_hash':
-          decoded.payment_hash = String(data);
+          decoded.payment_hash ||= String(data);
           break;
         case 'purpose_commit_hash':
           decoded.description_hash = String(data);
@@ -185,7 +196,7 @@ export default class Lnurl {
     if (comment) comment = `&comment=${encodeURIComponent(comment)}`;
     const urlToFetch =
       this._lnurlPayServicePayload.callback + separator + 'amount=' + Math.floor(amountSat * 1000) + '&nonce=' + nonce + comment;
-    this._lnurlPayServiceBolt11Payload = (await this.fetchGet(urlToFetch)) as LnurlPayServiceBolt11Payload;
+    this._lnurlPayServiceBolt11Payload = await this.fetchGet<LnurlPayServiceBolt11Payload>(urlToFetch);
 
     // check pr description_hash, amount etc:
     const decoded = this.decodeInvoice(this._lnurlPayServiceBolt11Payload.pr);
@@ -205,7 +216,7 @@ export default class Lnurl {
     const url = Lnurl.getUrlFromLnurl(this._lnurl);
     if (!url) throw new Error('Invalid LNURL');
     // calling the url
-    const reply = (await this.fetchGet(url)) as LnurlPayServiceBolt11Payload;
+    const reply = await this.fetchGet<LnurlPayServiceBolt11Payload>(url);
 
     if (reply.tag !== Lnurl.TAG_PAY_REQUEST) {
       throw new Error('lnurl-pay expected, found tag ' + reply.tag);
@@ -255,8 +266,9 @@ export default class Lnurl {
     if (!paymentHash) throw new Error('No paymentHash provided');
     let data;
     try {
-      data = await this._AsyncStorage.getItem('lnurlpay_success_data_' + paymentHash);
-      data = JSON.parse(data);
+      const raw = await this._AsyncStorage?.getItem('lnurlpay_success_data_' + paymentHash);
+      if (!raw) return false;
+      data = JSON.parse(raw);
     } catch (_) {
       return false;
     }
@@ -277,6 +289,7 @@ export default class Lnurl {
     }
     this._preimage = preimage;
 
+    if (!this._AsyncStorage) throw new Error('Lnurl: no storage to save the payment');
     await this._AsyncStorage.setItem(
       'lnurlpay_success_data_' + paymentHash,
       JSON.stringify({
@@ -288,7 +301,7 @@ export default class Lnurl {
     );
   }
 
-  getSuccessAction(): any | undefined {
+  getSuccessAction(): LnurlSuccessAction | undefined {
     return this._lnurlPayServiceBolt11Payload && 'successAction' in this._lnurlPayServiceBolt11Payload
       ? this._lnurlPayServiceBolt11Payload.successAction
       : undefined;
@@ -376,7 +389,9 @@ export default class Lnurl {
     }
     const signature = ecc.signDER(hexToUint8Array(url.query.k1 as string), privateKey);
 
-    const reply = await this.fetchGet(`${url.href}&sig=${uint8ArrayToHex(signature)}&key=${uint8ArrayToHex(publicKey)}`);
+    const reply = await this.fetchGet<{ status: string; reason?: string }>(
+      `${url.href}&sig=${uint8ArrayToHex(signature)}&key=${uint8ArrayToHex(publicKey)}`,
+    );
     if (reply.status === 'OK') {
       // Authentication successful
     } else {

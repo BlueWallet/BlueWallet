@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import { LayoutChangeEvent, ScrollView, StyleSheet, Pressable, View } from 'react-native';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
@@ -18,9 +19,9 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import useAppState from '../../hooks/useAppState';
 import loc from '../../loc';
-import { WalletExportStackParamList } from '../../navigation/WalletExportStack';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
-type RouteProps = RouteProp<WalletExportStackParamList, 'WalletExport'>;
+type RouteProps = RouteProp<DetailViewStackParamList, 'WalletExport'>;
 
 const HORIZONTAL_PADDING = 20;
 
@@ -58,7 +59,7 @@ const DoNotDisclose: React.FC = () => {
 const WalletExport: React.FC = () => {
   const { wallets } = useStorage();
   const { walletID } = useRoute<RouteProps>().params;
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<DetailViewStackParamList, 'WalletExport'>>();
   const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
   const wallet = wallets.find(w => w.getID() === walletID)!;

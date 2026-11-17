@@ -17,14 +17,15 @@ import { SettingsListItem, settingsListCard, settingsSectionHeaderText } from '.
 import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
 import loc from '../../loc';
-import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
+import { FiatUnit, FiatUnitSource, TFiatUnit, getFiatRate } from '../../models/fiatUnit';
+import { errorMessage } from '../../helpers/errorMessage';
 
 dayjs.extend(calendar);
 
 const Currency: React.FC = () => {
   const { setPreferredFiatCurrencyStorage } = useSettings();
-  const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState<FiatUnitType | undefined>();
-  const [selectedCurrency, setSelectedCurrency] = useState<FiatUnitType>(FiatUnit.USD);
+  const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState<TFiatUnit | undefined>();
+  const [selectedCurrency, setSelectedCurrency] = useState<TFiatUnit>(FiatUnit.USD);
   const [currencyRate, setCurrencyRate] = useState<CurrencyRate>({
     LastUpdated: null,
     Rate: null,
@@ -88,7 +89,7 @@ const Currency: React.FC = () => {
   );
 
   const renderItem = useCallback(
-    (props: { item: FiatUnitType; index: number }) => {
+    (props: { item: TFiatUnit; index: number }) => {
       const { item, index } = props;
       const isSelected = selectedCurrency.endPointKey === item.endPointKey;
       // Lock every row while a selection is in flight so two fetches can't race on the stored preference
@@ -115,10 +116,12 @@ const Currency: React.FC = () => {
               await fetchCurrency();
               setSelectedCurrency(item);
               setPreferredFiatCurrencyStorage(FiatUnit[item.endPointKey]);
-            } catch (error: any) {
+            } catch (error) {
               console.log(error);
               presentAlert({
-                message: error.message ? `${loc.settings.currency_fetch_error}: ${error.message}` : loc.settings.currency_fetch_error,
+                message: errorMessage(error)
+                  ? `${loc.settings.currency_fetch_error}: ${errorMessage(error)}`
+                  : loc.settings.currency_fetch_error,
               });
             } finally {
               setIsSavingNewPreferredCurrency(undefined);
@@ -131,7 +134,7 @@ const Currency: React.FC = () => {
     [isSavingNewPreferredCurrency, selectedCurrency, filteredCurrencies.length, fetchCurrency, setPreferredFiatCurrencyStorage],
   );
 
-  const keyExtractor = useCallback((item: FiatUnitType) => `${item.endPointKey}-${item.locale}`, []);
+  const keyExtractor = useCallback((item: TFiatUnit) => `${item.endPointKey}-${item.locale}`, []);
 
   const listHeader =
     isSearchFocused || !selectedCurrencyVisible ? null : (

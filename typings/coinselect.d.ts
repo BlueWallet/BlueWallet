@@ -16,24 +16,16 @@ declare module 'coinselect' {
     value: number;
     txid: string;
     address?: string;
-    wif?: string;
+    /** false when the wallet has no key for it (watch-only, multisig, derived from history) */
+    wif?: string | false;
     txhex?: string;
     script?: {
       length: number;
     };
   };
 
-  export type CoinSelectReturnInput = {
-    vout: number;
-    value: number;
-    txid: string;
-    address?: string;
-    wif?: string;
-    txhex?: string;
-    script?: {
-      length: number;
-    };
-  };
+  /** coinselect returns the utxos it picked unchanged */
+  export type CoinSelectReturnInput = CoinSelectUtxo;
 
   export type CoinSelectOutput = {
     address?: string; // if output has no address - this is a change output

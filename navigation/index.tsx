@@ -1,6 +1,7 @@
 import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
 import { Platform } from 'react-native';
+import Share from 'react-native-share';
 import UnlockWith from '../screen/UnlockWith';
 import KeyboardShortcuts from '../screen/settings/KeyboardShortcuts';
 import { withLazySuspense } from './LazyLoadingIndicator';
@@ -16,6 +17,9 @@ import ViewEditMultisigProvideMnemonicsSheet from '../screen/wallets/ViewEditMul
 import ViewEditMultisigShareCosignerSheet from '../screen/wallets/ViewEditMultisigShareCosignerSheet';
 import ClipboardDetected from '../screen/ClipboardDetected';
 import { navigationGuardRouter } from './navigationGuard';
+import AppShortcut from '../screen/AppShortcut';
+import { isIOS26OrHigher } from '../blue_modules/environment';
+import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 
 // Lazy load all components except UnlockWith
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
@@ -61,10 +65,9 @@ const LazyExportMultisigCoordinationSetupStack = withLazySuspense(ExportMultisig
 const LazyViewEditMultisigCosigners = withLazySuspense(ViewEditMultisigCosigners);
 const LazySignVerifyStackRoot = withLazySuspense(SignVerifyStackRoot);
 const LazyScanQRCodeComponent = withLazySuspense(ScanQRCode);
-const multisigSheetAllowedDetents = Platform.OS === 'ios' ? 'fitToContents' : [0.9];
 
 const MainRoot = () => {
-  const { walletsInitialized } = useStorage();
+  const { wallets, walletsInitialized } = useStorage();
   const theme = useTheme();
 
   return (
@@ -74,6 +77,7 @@ const MainRoot = () => {
       ) : (
         <>
           <DetailViewStack.Screen name="DrawerRoot" component={LazyDrawerRoot} />
+          <DetailViewStack.Screen name="AppShortcut" component={AppShortcut} />
 
           <DetailViewStack.Screen
             name="KeyboardShortcuts"
@@ -97,13 +101,44 @@ const MainRoot = () => {
           <DetailViewStack.Screen
             name="WalletExport"
             component={WalletExport}
-            options={navigationStyle({
-              headerBackVisible: false,
-              title: loc.wallets.export_title,
-              presentation: 'modal',
-              headerShown: true,
-              closeButtonPosition: CloseButtonPosition.Right,
-            })(theme)}
+            options={navigationStyle<DetailViewStackParamList, 'WalletExport'>(
+              {
+                headerBackVisible: false,
+                title: loc.wallets.export_title,
+                presentation: 'modal',
+                headerShown: true,
+                closeButtonPosition: CloseButtonPosition.Right,
+              },
+              (options, { route }) => {
+                if (!isIOS26OrHigher) return options;
+
+                const wallet = wallets.find(candidate => candidate.getID() === route.params.walletID);
+                let shareMessage: string | undefined;
+                try {
+                  const secret: unknown = wallet instanceof WatchOnlyWallet ? wallet.getSecretForExport() : wallet?.getSecret();
+                  if (typeof secret === 'string') {
+                    shareMessage = secret;
+                  } else if (Array.isArray(secret) && secret.length === 1) {
+                    shareMessage = secret[0];
+                  }
+                } catch (_) {}
+                return {
+                  ...options,
+                  unstable_headerLeftItems: shareMessage
+                    ? () => [
+                        {
+                          type: 'button',
+                          label: loc.receive.details_share,
+                          icon: { type: 'sfSymbol', name: 'square.and.arrow.up' },
+                          identifier: 'ShareButton',
+                          accessibilityLabel: loc.receive.details_share,
+                          onPress: () => Share.open({ message: shareMessage }).catch(console.log),
+                        },
+                      ]
+                    : undefined,
+                };
+              },
+            )(theme)}
           />
           <DetailViewStack.Screen
             name="ExportMultisigCoordinationSetupRoot"
@@ -119,7 +154,10 @@ const MainRoot = () => {
                 presentation: 'modal',
                 headerShown: true,
                 gestureEnabled: false,
-                closeButtonPosition: CloseButtonPosition.Right,
+                // Android already shows the system back button for this modal.
+                closeButtonPosition: Platform.OS === 'android' ? CloseButtonPosition.None : CloseButtonPosition.Right,
+                headerStyle: { backgroundColor: theme.colors.elevated },
+                contentStyle: { backgroundColor: theme.colors.elevated },
               },
               withRouteParamHeaderOptions({ headerRight: true }),
             )(theme)}
@@ -127,25 +165,42 @@ const MainRoot = () => {
           <DetailViewStack.Screen
             name="ViewEditMultisigCosignerViewSheet"
             component={ViewEditMultisigCosignerViewSheet}
-            options={navigationStyle({
-              presentation: 'formSheet',
-              sheetAllowedDetents: multisigSheetAllowedDetents,
-              sheetGrabberVisible: true,
-              closeButtonPosition: CloseButtonPosition.Right,
-              headerShown: true,
-              headerTitle: '',
-            })(theme)}
+            options={navigationStyle<DetailViewStackParamList, 'ViewEditMultisigCosignerViewSheet'>(
+              {
+                presentation: 'formSheet',
+                // Content must not use flex:1 or Android fitToContents expands to full height.
+                sheetAllowedDetents: 'fitToContents',
+                sheetGrabberVisible: true,
+                // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Title and close stay in the content.
+                headerShown: Platform.OS === 'ios',
+                headerBackVisible: false,
+                closeButtonPosition: CloseButtonPosition.Right,
+                headerStyle: { backgroundColor: theme.colors.elevated },
+                contentStyle: { backgroundColor: theme.colors.elevated },
+              },
+              (options, { route }) => ({
+                ...options,
+                headerTitle: loc.formatString(loc.multisig.vault_key, {
+                  number: route.params?.vaultKeyData.keyIndex ?? '',
+                }),
+              }),
+            )(theme)}
           />
           <DetailViewStack.Screen
             name="ViewEditMultisigProvideMnemonicsSheet"
             component={ViewEditMultisigProvideMnemonicsSheet}
             options={navigationStyle({
               presentation: 'formSheet',
-              sheetAllowedDetents: multisigSheetAllowedDetents,
+              // Content must not use flex:1 or Android fitToContents expands to full height.
+              sheetAllowedDetents: 'fitToContents',
               sheetGrabberVisible: true,
+              // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Title and close stay in the content.
+              headerShown: Platform.OS === 'ios',
+              headerTitle: loc.wallets.import_title,
+              headerBackVisible: false,
               closeButtonPosition: CloseButtonPosition.Right,
-              headerShown: true,
-              headerTitle: '',
+              headerStyle: { backgroundColor: theme.colors.elevated },
+              contentStyle: { backgroundColor: theme.colors.elevated },
             })(theme)}
           />
           <DetailViewStack.Screen
@@ -153,22 +208,47 @@ const MainRoot = () => {
             component={ViewEditMultisigShareCosignerSheet}
             options={navigationStyle({
               presentation: 'formSheet',
-              sheetAllowedDetents: multisigSheetAllowedDetents,
+              // Content must not use flex:1 or Android fitToContents expands to full height.
+              sheetAllowedDetents: 'fitToContents',
               sheetGrabberVisible: true,
-              closeButtonPosition: CloseButtonPosition.Right,
-              headerShown: true,
+              // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Close stays in the content.
+              headerShown: Platform.OS === 'ios',
               headerTitle: '',
+              headerBackVisible: false,
+              closeButtonPosition: CloseButtonPosition.Right,
+              headerStyle: { backgroundColor: theme.colors.elevated },
+              contentStyle: { backgroundColor: theme.colors.elevated },
             })(theme)}
           />
           <DetailViewStack.Screen
             name="WalletXpub"
             component={WalletXpub}
-            options={navigationStyle({
-              title: loc.wallets.xpub_title,
-              presentation: 'modal',
-              headerShown: true,
-              closeButtonPosition: CloseButtonPosition.Right,
-            })(theme)}
+            options={navigationStyle<DetailViewStackParamList, 'WalletXpub'>(
+              {
+                title: loc.wallets.xpub_title,
+                presentation: 'modal',
+                headerShown: true,
+                closeButtonPosition: CloseButtonPosition.Right,
+              },
+              (options, { route }) => {
+                if (!isIOS26OrHigher) return options;
+
+                const shareMessage = route.params.xpub;
+                return {
+                  ...options,
+                  unstable_headerLeftItems: () => [
+                    {
+                      type: 'button',
+                      label: loc.receive.details_share,
+                      icon: { type: 'sfSymbol', name: 'square.and.arrow.up' },
+                      identifier: 'ShareButton',
+                      accessibilityLabel: loc.receive.details_share,
+                      onPress: () => Share.open({ message: shareMessage }).catch(console.log),
+                    },
+                  ],
+                };
+              },
+            )(theme)}
           />
           <DetailViewStack.Screen
             name="SignVerifyRoot"

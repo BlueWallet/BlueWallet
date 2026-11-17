@@ -8,6 +8,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
 import Lnurl from '../../class/lnurl';
+import type { LnurlPayServicePayload } from '../../class/lnurl';
 import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
@@ -25,25 +26,21 @@ import { TWallet } from '../../class/wallets/types';
 import { pop } from '../../NavigationService';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
-
-type RouteParams = {
-  walletID: string;
-  lnurl: string;
-};
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 const _cacheFiatToSat: Record<string, string> = {};
 
 const LnurlPay: React.FC = () => {
   const { wallets } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
-  const route = useRoute<RouteProp<Record<string, RouteParams>, string>>();
+  const route = useRoute<RouteProp<DetailViewStackParamList, 'LnurlPay'>>();
   const { walletID, lnurl } = route.params;
   const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet;
   const [unit, setUnit] = useState<BitcoinUnit>(wallet?.getPreferredBalanceUnit() ?? BitcoinUnit.BTC);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [_LN, setLN] = useState<Lnurl | undefined>();
   const [payButtonDisabled, setPayButtonDisabled] = useState<boolean>(true);
-  const [payload, setPayload] = useState<any>();
+  const [payload, setPayload] = useState<LnurlPayServicePayload | undefined>();
   const { setParams, navigate } = useNavigation();
   const [amount, setAmount] = useState<string | undefined>();
   const [keyboardAccessoryActive, setKeyboardAccessoryActive] = useState(false);
@@ -141,7 +138,10 @@ const LnurlPay: React.FC = () => {
     try {
       let comment: string | undefined;
       if (_LN.getCommentAllowed()) {
-        comment = await prompt('Comment', '', { cancelable: false, type: 'plain-text' });
+        comment = await prompt('Comment', '', {
+          cancelable: false,
+          type: 'plain-text',
+        });
       }
 
       const bolt11payload = await _LN.requestBolt11FromLnurlPayService(amountSats, comment);
@@ -178,7 +178,12 @@ const LnurlPay: React.FC = () => {
         <TouchableOpacity
           accessibilityRole="button"
           style={styles.walletSelectTouch}
-          onPress={() => navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN })}
+          onPress={() =>
+            navigate('SelectWallet', {
+              onWalletSelect,
+              chainType: Chain.OFFCHAIN,
+            })
+          }
         >
           <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
           <Icon name={direction === 'rtl' ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
@@ -188,7 +193,12 @@ const LnurlPay: React.FC = () => {
         <TouchableOpacity
           accessibilityRole="button"
           style={styles.walletWrapTouch}
-          onPress={() => navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN })}
+          onPress={() =>
+            navigate('SelectWallet', {
+              onWalletSelect,
+              chainType: Chain.OFFCHAIN,
+            })
+          }
         >
           <Text style={[styles.walletWrapLabel, stylesHook.walletWrapLabel]}>{wallet.getLabel()}</Text>
           <Text style={[styles.walletWrapBalance, stylesHook.walletWrapBalance]}>
@@ -218,8 +228,8 @@ const LnurlPay: React.FC = () => {
               />
               <BlueText style={styles.alignSelfCenter}>
                 {loc.formatString(loc.lndViewInvoice.please_pay_between_and, {
-                  min: formatBalance(payload?.min, unit),
-                  max: formatBalance(payload?.max, unit),
+                  min: formatBalance(payload?.min ?? 0, unit),
+                  max: formatBalance(payload?.max ?? 0, unit),
                 })}
               </BlueText>
               <BlueSpacing20 />

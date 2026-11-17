@@ -16,10 +16,8 @@ import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { withLazySuspense } from './LazyLoadingIndicator';
-import { ScanQRCodeParamList } from './DetailViewStackParamList';
+import { HeaderRightRenderer, ScanQRCodeParamList } from './DetailViewStackParamList';
 import { navigationGuardRouter } from './navigationGuard';
-
-type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 
 export type AddWalletStackParamList = {
   AddWallet: {
@@ -68,14 +66,13 @@ export type AddWalletStackParamList = {
     n: number;
     format: string;
     onSave: (m: number, n: number, format: string) => void;
-    headerRight?: HeaderRightRenderer;
   };
   WalletsAddMultisigStep2: {
     m: number;
     n: number;
     walletLabel: string;
     format: string;
-    onBarScanned?: string;
+    onBarScanned?: { data: string };
     sheetAction?: string;
     sheetImportText?: string;
     sheetAskPassphrase?: boolean;
@@ -133,7 +130,6 @@ const WalletsAddMultisigVaultKeySheetComponent = withLazySuspense(WalletsAddMult
 const WalletsAddMultisigProvideMnemonicsSheetComponent = withLazySuspense(WalletsAddMultisigProvideMnemonicsSheet);
 const WalletsAddMultisigCosignerXpubSheetComponent = withLazySuspense(WalletsAddMultisigCosignerXpubSheet);
 const ScanQRCodeComponent = withLazySuspense(ScanQRCode);
-const multisigSheetAllowedDetents = Platform.OS === 'ios' ? 'fitToContents' : [0.9];
 
 const styles = StyleSheet.create({
   closeButton: {
@@ -165,84 +161,95 @@ const addWalletTypes = [
 ];
 
 const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
-  navigationStyle({ closeButtonPosition: CloseButtonPosition.Left, title: loc.wallets.add_title }, (options, { navigation, route }) => {
-    const selectedIndex = route.params?.selectedIndex ?? 0;
-    const selectedWalletType = route.params?.selectedWalletType ?? Chain.ONCHAIN;
-    const words = route.params?.words;
-    const entropyHex = route.params?.entropy;
-    const hasEntropy = !!entropyHex;
-    const providedEntropyBytes = route.params?.providedEntropyBytes || (entropyHex ? Math.floor(entropyHex.length / 2) : 0);
+  navigationStyle<AddWalletStackParamList, 'AddWallet'>(
+    {
+      closeButtonPosition: CloseButtonPosition.Left,
+      title: loc.wallets.add_title,
+    },
+    (options, { navigation, route }) => {
+      const selectedIndex = route.params?.selectedIndex ?? 0;
+      const selectedWalletType = route.params?.selectedWalletType ?? Chain.ONCHAIN;
+      const words = route.params?.words;
+      const entropyHex = route.params?.entropy;
+      const hasEntropy = !!entropyHex;
+      const providedEntropyBytes = route.params?.providedEntropyBytes || (entropyHex ? Math.floor(entropyHex.length / 2) : 0);
 
-    const entropyButtonText = hasEntropy
-      ? loc.formatString(loc.wallets.add_entropy_bytes, {
-          bytes: providedEntropyBytes,
-        })
-      : loc.wallets.add_entropy_provide;
+      const entropyButtonText = hasEntropy
+        ? loc.formatString(loc.wallets.add_entropy_bytes, {
+            bytes: providedEntropyBytes,
+          })
+        : loc.wallets.add_entropy_provide;
 
-    const onPressMenuItem = (id: string) => {
-      if (id === LightningCustodianWallet.type) {
-        navigation.setParams({ selectedWalletType: Chain.OFFCHAIN });
-      } else if (id === '12_words') {
-        navigation.navigate('ProvideEntropy', { words: 12, entropy: entropyHex });
-      } else if (id === '24_words') {
-        navigation.navigate('ProvideEntropy', { words: 24, entropy: entropyHex });
-      } else if (id === CommonToolTipActions.ResetToDefault.id) {
-        navigation.setParams({ entropy: undefined, providedEntropyBytes: undefined, words: undefined, selectedWalletType: Chain.ONCHAIN });
-      } else {
-        const nextIndex = addWalletTypes.findIndex(item => item.id === id);
-        if (nextIndex >= 0) {
-          navigation.setParams({ selectedIndex: nextIndex, selectedWalletType: Chain.ONCHAIN });
+      const onPressMenuItem = (id: string) => {
+        if (id === LightningCustodianWallet.type) {
+          navigation.setParams({ selectedWalletType: Chain.OFFCHAIN });
+        } else if (id === '12_words') {
+          navigation.navigate('ProvideEntropy', { words: 12, entropy: entropyHex });
+        } else if (id === '24_words') {
+          navigation.navigate('ProvideEntropy', { words: 24, entropy: entropyHex });
+        } else if (id === CommonToolTipActions.ResetToDefault.id) {
+          navigation.setParams({
+            entropy: undefined,
+            providedEntropyBytes: undefined,
+            words: undefined,
+            selectedWalletType: Chain.ONCHAIN,
+          });
+        } else {
+          const nextIndex = addWalletTypes.findIndex(item => item.id === id);
+          if (nextIndex >= 0) {
+            navigation.setParams({ selectedIndex: nextIndex, selectedWalletType: Chain.ONCHAIN });
+          }
         }
+      };
+
+      const actions: Action[] = [
+        {
+          id: 'wallets',
+          text: loc.multisig.wallet_type,
+          displayInline: true,
+          subactions: addWalletTypes.map((walletType, index) => ({
+            id: walletType.id,
+            text: walletType.text,
+            subtitle: walletType.subtitle,
+            menuState: index === selectedIndex && selectedWalletType === Chain.ONCHAIN,
+          })),
+        },
+      ];
+
+      if (selectedWalletType === Chain.ONCHAIN) {
+        actions.push({
+          id: CommonToolTipActions.Entropy.id,
+          text: entropyButtonText,
+          subactions: [
+            {
+              id: '12_words',
+              text: loc.wallets.add_wallet_seed_length_12,
+              subtitle: loc.wallets.add_wallet_seed_length,
+              menuState: words === 12,
+            },
+            {
+              id: '24_words',
+              text: loc.wallets.add_wallet_seed_length_24,
+              subtitle: loc.wallets.add_wallet_seed_length,
+              menuState: words === 24,
+            },
+            { ...CommonToolTipActions.ResetToDefault, hidden: !hasEntropy },
+          ],
+        });
       }
-    };
 
-    const actions: Action[] = [
-      {
-        id: 'wallets',
-        text: loc.multisig.wallet_type,
-        displayInline: true,
-        subactions: addWalletTypes.map((walletType, index) => ({
-          id: walletType.id,
-          text: walletType.text,
-          subtitle: walletType.subtitle,
-          menuState: index === selectedIndex && selectedWalletType === Chain.ONCHAIN,
-        })),
-      },
-    ];
+      const headerMenuOptions = createEllipsisHeaderMenuOptions({ actions, onPressMenuItem, title: '' });
 
-    if (selectedWalletType === Chain.ONCHAIN) {
-      actions.push({
-        id: CommonToolTipActions.Entropy.id,
-        text: entropyButtonText,
-        subactions: [
-          {
-            id: '12_words',
-            text: loc.wallets.add_wallet_seed_length_12,
-            subtitle: loc.wallets.add_wallet_seed_length,
-            menuState: words === 12,
-          },
-          {
-            id: '24_words',
-            text: loc.wallets.add_wallet_seed_length_24,
-            subtitle: loc.wallets.add_wallet_seed_length,
-            menuState: words === 24,
-          },
-          { ...CommonToolTipActions.ResetToDefault, hidden: !hasEntropy },
-        ],
-      });
-    }
-
-    const headerMenuOptions = createEllipsisHeaderMenuOptions({ actions, onPressMenuItem, title: '' });
-
-    return {
-      ...options,
-      headerRight: headerMenuOptions.headerRight,
-      ...(isIOS26OrHigher ? { unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems } : {}),
-    };
-  })(theme);
+      return {
+        ...options,
+        headerRight: headerMenuOptions.headerRight,
+        ...(isIOS26OrHigher ? { unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems } : {}),
+      };
+    },
+  )(theme);
 
 export const createImportWalletOptions = (theme: ReturnType<typeof useTheme>) =>
-  navigationStyle({ title: loc.wallets.import_title }, (options, { navigation, route }) => {
+  navigationStyle<AddWalletStackParamList, 'ImportWallet'>({ title: loc.wallets.import_title }, (options, { navigation, route }) => {
     const askPassphraseMenuState = route.params?.askPassphraseMenuState ?? false;
     const searchAccountsMenuState = route.params?.searchAccountsMenuState ?? false;
     const clearClipboardMenuState = route.params?.clearClipboardMenuState ?? true;
@@ -333,23 +340,31 @@ const AddWalletStack = () => {
       <Stack.Screen
         name="WalletsAddMultisig"
         component={WalletsAddMultisigComponent}
-        options={navigationStyle({ title: '' })(theme)}
+        options={navigationStyle({
+          title: '',
+          headerStyle: { backgroundColor: theme.colors.elevated },
+          contentStyle: { backgroundColor: theme.colors.elevated },
+        })(theme)}
         initialParams={{ walletLabel: loc.multisig.default_label }}
       />
       <Stack.Screen
         name="MultisigAdvanced"
         component={MultisigAdvancedComponent}
-        options={navigationStyle(
-          {
-            title: loc.multisig.vault_advanced_customize,
-            presentation: 'formSheet',
-            sheetAllowedDetents: multisigSheetAllowedDetents,
-            sheetGrabberVisible: true,
-            headerShown: true,
-            headerTitle: loc.multisig.vault_advanced_customize,
-          },
-          withRouteParamHeaderOptions({ headerRight: true }),
-        )(theme)}
+        options={navigationStyle({
+          title: loc.multisig.vault_advanced_customize,
+          presentation: 'formSheet',
+          // Compact settings sheet — avoid the shared 0.9 Android detent used by taller multisig sheets.
+          // Content must not use flex:1 or Android fitToContents expands to full height.
+          sheetAllowedDetents: 'fitToContents',
+          sheetGrabberVisible: true,
+          // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Title and close stay in the content.
+          headerShown: Platform.OS === 'ios',
+          headerTitle: loc.multisig.vault_advanced_customize,
+          headerBackVisible: false,
+          closeButtonPosition: CloseButtonPosition.Right,
+          headerStyle: { backgroundColor: theme.colors.elevated },
+          contentStyle: { backgroundColor: theme.colors.elevated },
+        })(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisigStep2"
@@ -359,25 +374,41 @@ const AddWalletStack = () => {
       <Stack.Screen
         name="WalletsAddMultisigVaultKeySheet"
         component={WalletsAddMultisigVaultKeySheetComponent}
-        options={navigationStyle({
-          presentation: 'formSheet',
-          sheetAllowedDetents: multisigSheetAllowedDetents,
-          sheetGrabberVisible: true,
-          headerShown: true,
-          headerTitle: '',
-          closeButtonPosition: CloseButtonPosition.Right,
-        })(theme)}
+        options={navigationStyle<AddWalletStackParamList, 'WalletsAddMultisigVaultKeySheet'>(
+          {
+            presentation: 'formSheet',
+            // Fixed detent so Done can pin to the bottom and the seed grid can center in the middle.
+            sheetAllowedDetents: [0.55],
+            sheetGrabberVisible: true,
+            // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Title and close stay in the content.
+            headerShown: Platform.OS === 'ios',
+            headerBackVisible: false,
+            // Close on the right like the other creation sheets. Done stays the primary action.
+            closeButtonPosition: CloseButtonPosition.Right,
+            headerStyle: { backgroundColor: theme.colors.elevated },
+            contentStyle: { backgroundColor: theme.colors.elevated },
+          },
+          (options, { route }) => ({
+            ...options,
+            headerTitle: loc.formatString(loc.multisig.vault_key, { number: route.params?.keyIndex ?? '' }),
+          }),
+        )(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisigProvideMnemonicsSheet"
         component={WalletsAddMultisigProvideMnemonicsSheetComponent}
         options={navigationStyle({
           presentation: 'formSheet',
-          sheetAllowedDetents: multisigSheetAllowedDetents,
+          // Content must not use flex:1 or Android fitToContents expands to full height.
+          sheetAllowedDetents: 'fitToContents',
           sheetGrabberVisible: true,
-          headerShown: true,
-          headerTitle: '',
+          // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Title and close stay in the content.
+          headerShown: Platform.OS === 'ios',
+          headerTitle: loc.wallets.import_title,
+          headerBackVisible: false,
           closeButtonPosition: CloseButtonPosition.Right,
+          headerStyle: { backgroundColor: theme.colors.elevated },
+          contentStyle: { backgroundColor: theme.colors.elevated },
         })(theme)}
       />
       <Stack.Screen
@@ -385,11 +416,16 @@ const AddWalletStack = () => {
         component={WalletsAddMultisigCosignerXpubSheetComponent}
         options={navigationStyle({
           presentation: 'formSheet',
-          sheetAllowedDetents: multisigSheetAllowedDetents,
+          // Content must not use flex:1 or Android fitToContents expands to full height.
+          sheetAllowedDetents: 'fitToContents',
           sheetGrabberVisible: true,
-          headerShown: true,
+          // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Close stays in the content.
+          headerShown: Platform.OS === 'ios',
           headerTitle: '',
+          headerBackVisible: false,
           closeButtonPosition: CloseButtonPosition.Right,
+          headerStyle: { backgroundColor: theme.colors.elevated },
+          contentStyle: { backgroundColor: theme.colors.elevated },
         })(theme)}
       />
       <Stack.Screen

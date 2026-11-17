@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Switch, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, Switch, View } from 'react-native';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -11,7 +10,11 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
 import KeyboardAccessoryClearPasteDone from '../../components/KeyboardAccessoryClearPasteDone';
 import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
+import { getKeyboardAccessoryDockPaddingHeight } from '../../components/keyboardAccessory';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
+import SheetKeyboardForm, { SHEET_KEYBOARD_FORM_CHROME } from '../../components/SheetKeyboardForm';
+import { useKeyboard } from '../../hooks/useKeyboard';
+import SheetHeader, { useSheetBottomPadding } from '../../components/SheetHeader';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -20,6 +23,9 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigProvideMnemonicsSheet'>>();
   const route = useRoute<RouteProp<DetailViewStackParamList, 'ViewEditMultisigProvideMnemonicsSheet'>>();
   const { colors } = useTheme();
+  const bottomPadding = useSheetBottomPadding();
+  // On a short phone the 220pt field plus the keyboard leave no room for Import, so the field shrinks while typing
+  const { isVisible: isKeyboardVisible } = useKeyboard();
   const {
     importText: initialImportText = '',
     askPassphrase: initialAskPassphrase = false,
@@ -30,6 +36,7 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
   const [importText, setImportText] = useState(initialImportText);
   const [askPassphrase, setAskPassphrase] = useState(initialAskPassphrase);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const showAccessory = isInputFocused && isKeyboardVisible;
 
   const handleImport = useCallback(
     (text?: string) => {
@@ -40,7 +47,6 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
           'ViewEditMultisigCosigners',
           {
             walletID,
-            cosigners: [],
             sheetAction: 'importMnemonic',
             sheetImportText: textToUse,
             sheetAskPassphrase: askPassphrase,
@@ -55,10 +61,22 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
 
   const keyboardAccessory = <KeyboardAccessoryClearPasteDone onClearTapped={() => setImportText('')} onPasteTapped={setImportText} />;
 
+  const stylesHook = StyleSheet.create({
+    root: {
+      backgroundColor: colors.elevated,
+      // No flex:1 — fitToContents treats it as full height and the form lands at the bottom of the sheet.
+      paddingBottom: showAccessory ? 0 : bottomPadding,
+    },
+  });
+
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.elevated }]} edges={['bottom', 'left', 'right']}>
-      <KeyboardAccessoryDock active={isInputFocused} accessory={keyboardAccessory}>
-        <ScrollView contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="always">
+    <View style={stylesHook.root}>
+      <SheetHeader title={loc.wallets.import_title} onClose={() => navigation.goBack()} />
+      <KeyboardAccessoryDock placement="inline" active={isInputFocused} accessory={keyboardAccessory}>
+        <SheetKeyboardForm
+          style={styles.contentContainer}
+          reservedHeight={SHEET_KEYBOARD_FORM_CHROME + (showAccessory ? getKeyboardAccessoryDockPaddingHeight() - bottomPadding : 0)}
+        >
           <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
           <BlueSpacing20 />
           <BlueFormMultiInput
@@ -67,7 +85,7 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
             onFocus={() => setIsInputFocused(true)}
             onBlur={() => setIsInputFocused(false)}
             testID="MnemonicInputSheet"
-            style={styles.mnemonicInput}
+            style={[styles.mnemonicInput, isKeyboardVisible && styles.mnemonicInputCompact]}
           />
           <BlueSpacing20 />
           <View style={styles.toggleRow}>
@@ -85,19 +103,17 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
               handleImport(text);
             }}
           />
-        </ScrollView>
+        </SheetKeyboardForm>
       </KeyboardAccessoryDock>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
   contentContainer: {
-    flexGrow: 1,
     paddingHorizontal: 24,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
   toggleRow: {
     flexDirection: 'row',
@@ -109,6 +125,10 @@ const styles = StyleSheet.create({
     maxHeight: 220,
     flex: 0,
     marginHorizontal: 0,
+  },
+  mnemonicInputCompact: {
+    minHeight: 96,
+    maxHeight: 96,
   },
 });
 

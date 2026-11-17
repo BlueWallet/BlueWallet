@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 
-const useAppState = (): { currentAppState: AppStateStatus, previousAppState: AppStateStatus | null } => {
+const useAppState = (): { currentAppState: AppStateStatus; previousAppState: AppStateStatus | null } => {
   const [currentAppState, setCurrentAppState] = useState<AppStateStatus>(AppState.currentState);
   const previousAppState = useRef<AppStateStatus | null>(null);
 

@@ -15,6 +15,7 @@ export type MaterialDesignIconName = React.ComponentProps<typeof MaterialDesignI
 export type EntypoIconName = React.ComponentProps<typeof Entypo>['name'];
 
 type IconType = 'font-awesome' | 'font-awesome-6' | 'ionicons' | 'material' | 'material-community' | 'entypo';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- six icon libraries with incompatible `name` unions behind one prop
 type IconComponentType = React.ComponentType<any>;
 
 type IconNameFor<T extends IconType> = T extends 'font-awesome'
@@ -68,6 +69,7 @@ const Icon = <T extends IconType = 'font-awesome'>({
   accessibilityLabel,
   testID,
 }: IconProps<T>): React.ReactElement | null => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- see IconComponentType
   const IconComponent = ICON_COMPONENTS[type ?? 'font-awesome'] as React.ComponentType<any>;
   const isFa6 = type === 'font-awesome-6';
   const fa6IconStyle = isFa6 ? (typeof iconStyle === 'string' ? iconStyle : 'solid') : undefined;

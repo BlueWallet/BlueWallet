@@ -187,7 +187,7 @@ const PromptPasswordConfirmationSheet = () => {
     });
   };
 
-  const animatedViewStyle: Animated.WithAnimatedObject<any> = {
+  const animatedViewStyle: Animated.WithAnimatedObject<ViewStyle> = {
     width: '100%',
   };
 

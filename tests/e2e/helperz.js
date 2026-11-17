@@ -363,19 +363,34 @@ export async function dismissAlertByText(text, timeoutMs = 10000) {
   }
   const deadline = Date.now() + timeoutMs;
   let dismissed = false;
+  // Tap can land while the alert is still animating in and get swallowed (#9045).
+  const alertClosed = async () => {
+    try {
+      await waitFor(element(by.text(text)))
+        .not.toExist()
+        .withTimeout(2000);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
   try {
     while (Date.now() < deadline) {
       // by.text — works on pre–iOS 26 and some iOS 26 alerts
       try {
         await element(by.text(text)).atIndex(0).tap();
-        dismissed = true;
-        break;
+        if (await alertClosed()) {
+          dismissed = true;
+          break;
+        }
       } catch (_) {}
       // by.label — accessibility label, works when text matching differs
       try {
         await element(by.label(text)).atIndex(0).tap();
-        dismissed = true;
-        break;
+        if (await alertClosed()) {
+          dismissed = true;
+          break;
+        }
       } catch (_) {}
       await sleep(500);
     }
@@ -442,6 +457,10 @@ export async function scanText(text, { restoreSynchronization = true } = {}) {
     for (let c = 0; c <= 5; c++) {
       await element(by.id('ScanQrBackdoorButton')).tap();
     }
+    // Sync is off here: wait for the backdoor modal to mount (#9045).
+    await waitFor(element(by.id('scanQrBackdoorInput')))
+      .toExist()
+      .withTimeout(10_000);
     await element(by.id('scanQrBackdoorInput')).replaceText(text);
     await element(by.id('scanQrBackdoorOkButton')).tap();
     await sleep(300);

@@ -6,7 +6,11 @@ import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
 
-const Stack = createNativeStackNavigator();
+export type SignVerifyStackParamList = {
+  SignVerify: { walletID: string; address: string };
+};
+
+const Stack = createNativeStackNavigator<SignVerifyStackParamList>();
 
 const SignVerify = lazy(() => import('../screen/wallets/signVerify'));
 const SignVerifyComponent = withLazySuspense(SignVerify);

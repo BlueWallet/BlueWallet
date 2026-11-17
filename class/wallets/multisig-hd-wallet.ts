@@ -67,7 +67,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static readonly typeReadable = 'Multisig Vault';
   // @ts-ignore: override
   public readonly type = MultisigHDWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = MultisigHDWallet.typeReadable;
 
   static FORMAT_P2WSH = 'p2wsh';
@@ -134,6 +133,27 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return this._cosigners.length;
   }
 
+  /**
+   * Editable copy of the already-parsed cosigners.
+   * Round-tripping through getSecret()/setSecret() re-runs BIP39 for every seed.
+   */
+  cloneCosigners(): MultisigHDWallet {
+    const clone = new MultisigHDWallet();
+    const label = this.getLabel();
+    if (label) clone.setLabel(label);
+    clone.setM(this.getM());
+    clone._derivationPath = this._derivationPath;
+    clone._isNativeSegwit = this._isNativeSegwit;
+    clone._isWrappedSegwit = this._isWrappedSegwit;
+    clone._isLegacy = this._isLegacy;
+    clone._cosigners = this._cosigners.slice();
+    clone._cosignersFingerprints = this._cosignersFingerprints.slice();
+    clone._cosignersCustomPaths = this._cosignersCustomPaths.slice();
+    clone._cosignersPassphrases = this._cosignersPassphrases.slice();
+    clone._cosignerXpubCache = { ...this._cosignerXpubCache };
+    return clone;
+  }
+
   setDerivationPath(path: string) {
     this._derivationPath = path;
     switch (this._derivationPath) {
@@ -161,6 +181,14 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   getCosigner(index: number) {
     if (index === 0) throw new Error('cosigners indexation starts from 1');
     return this._cosigners[index - 1];
+  }
+
+  /**
+   * Cosigner's xpub, taken from the cache when its seed was already derived
+   */
+  getCosignerXpub(index: number): string {
+    if (index === 0) throw new Error('cosigners indexation starts from 1');
+    return this._getXpubFromCosignerIndex(index - 1);
   }
 
   getFingerprint(index: number) {
@@ -1122,29 +1150,31 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   calculateFeeFromPsbt(psbt: Psbt) {
     let goesIn = 0;
-    const cacheUtxoAmounts: { [key: string]: number } = {};
-    for (const inp of psbt.data.inputs) {
-      if (inp.witnessUtxo && inp.witnessUtxo.value) {
-        // segwit input
-        goesIn += Number(inp.witnessUtxo.value);
-      } else if (inp.nonWitnessUtxo) {
-        // non-segwit input
-        // lets parse this transaction and cache how much each input was worth
-        const inputTx = bitcoin.Transaction.fromBuffer(inp.nonWitnessUtxo);
-        let index = 0;
-        for (const out of inputTx.outs) {
-          cacheUtxoAmounts[inputTx.getId() + ':' + index] = Number(out.value);
-          index++;
+    // Prefer nonWitnessUtxo per input (same as bitcoinjs-lib). A PSBT may carry both;
+    // trusting witnessUtxo first let a false value hide the real fee on legacy inputs,
+    // and made mixed segwit+legacy PSBTs drop legacy amounts entirely.
+    // Do not throw on a mismatched witnessUtxo: getFee() is called during render without
+    // a try/catch, so we just use the real amount for the fee line.
+    const txInputs = psbt.txInputs; // getter clones all inputs on every access
+    for (let i = 0; i < psbt.data.inputs.length; i++) {
+      const inp = psbt.data.inputs[i];
+      const txInput = txInputs[i];
+
+      if (inp.nonWitnessUtxo) {
+        try {
+          const inputTx = bitcoin.Transaction.fromBuffer(inp.nonWitnessUtxo);
+          const prevout = inputTx.outs[txInput.index];
+          if (prevout && inputTx.getId() === uint8ArrayToHex(new Uint8Array(txInput.hash).reverse())) {
+            goesIn += Number(prevout.value);
+            continue;
+          }
+        } catch {
+          // unparsable parent tx, fall back to witnessUtxo
         }
       }
-    }
 
-    if (goesIn === 0) {
-      // means we failed to get amounts that go in previously, so lets use utxo amounts cache we've build
-      // from non-segwit inputs
-      for (const inp of psbt.txInputs) {
-        const cacheKey = uint8ArrayToHex(new Uint8Array(inp.hash).reverse()) + ':' + inp.index;
-        if (cacheUtxoAmounts[cacheKey]) goesIn += cacheUtxoAmounts[cacheKey];
+      if (inp.witnessUtxo && inp.witnessUtxo.value) {
+        goesIn += Number(inp.witnessUtxo.value);
       }
     }
 
@@ -1156,15 +1186,115 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return goesIn - goesOut;
   }
 
+  static _isPsbtInputFinalized(input: Psbt['data']['inputs'][number]) {
+    return !!(input.finalScriptSig || input.finalScriptWitness);
+  }
+
+  /**
+   * Signatures the input has towards the quorum, the same way bitcoinjs counts them when finalizing:
+   * only signatures by keys from the input's multisig script
+   */
+  _countInputSignatures(psbt: Psbt, inputIndex: number) {
+    const input = psbt.data.inputs[inputIndex];
+    // finalized input has no partialSig anymore, but it means we have enough
+    // He who knows that enough is enough will always have enough. Lao Tzu
+    if (MultisigHDWallet._isPsbtInputFinalized(input)) return this.getM();
+
+    let sigs = 0;
+    for (const { pubkey } of input.partialSig || []) {
+      try {
+        if (psbt.inputHasPubkey(inputIndex, pubkey)) sigs++;
+      } catch (_) {
+        sigs++; // cannot verify against the script (missing or mismatched), assume the signature counts
+      }
+    }
+    return sigs;
+  }
+
+  /**
+   * Finalizes inputs that are not finalized yet, finalizing an input twice throws
+   */
+  static finalizeUnfinalizedInputs(psbt: Psbt) {
+    for (let cc = 0; cc < psbt.inputCount; cc++) {
+      if (!MultisigHDWallet._isPsbtInputFinalized(psbt.data.inputs[cc])) psbt.finalizeInput(cc);
+    }
+  }
+
+  /**
+   * Drops partial signatures beyond the quorum, in place. bitcoinjs refuses to finalize an input with more
+   * signatures than M ("Too many signatures"), but any M valid signatures are enough, so the surplus is just removed.
+   * Signatures by keys that are not in the input's script are dropped first, then ones that do not verify.
+   */
+  _dropSurplusSignatures(psbt: Psbt) {
+    const m = this.getM();
+    for (let cc = 0; cc < psbt.inputCount; cc++) {
+      const input = psbt.data.inputs[cc];
+      if (MultisigHDWallet._isPsbtInputFinalized(input) || !input.partialSig || input.partialSig.length <= m) continue;
+
+      const inScript = input.partialSig.filter(({ pubkey }) => {
+        try {
+          return psbt.inputHasPubkey(cc, pubkey);
+        } catch (_) {
+          return true; // cannot verify against the script, keep it and let finalize decide
+        }
+      });
+      const verifies = ({ pubkey }: { pubkey: Uint8Array }) => {
+        try {
+          return psbt.validateSignaturesOfInput(cc, (pk, msghash, sig) => ecc.verify(msghash, pk, sig), pubkey);
+        } catch (_) {
+          return false; // e.g. no UTXO to compute the sighash; such a signature goes after the verified ones
+        }
+      };
+      const verified = inScript.filter(verifies);
+      input.partialSig = [...verified, ...inScript.filter(sig => !verified.includes(sig))].slice(0, m);
+    }
+  }
+
+  /**
+   * Returns a finalized copy and leaves the passed PSBT untouched. Surplus signatures are dropped first, so an
+   * over-signed PSBT finalizes too. Throws when an input cannot be finalized (missing script, missing UTXO, too few
+   * signatures). Finalizing in place is not safe: bitcoinjs finalizes input by input, so a throw on a later input
+   * leaves the earlier ones finalized with their `partialSig` already deleted
+   */
+  finalizedCopy(psbt: Psbt): Psbt {
+    const copy = psbt.clone();
+    this._dropSurplusSignatures(copy);
+    MultisigHDWallet.finalizeUnfinalizedInputs(copy);
+    return copy;
+  }
+
+  /**
+   * What importing a PSBT to co-sign does with it. Never modifies the passed PSBT.
+   * - Quorum already reached: a finalized copy, without adding a signature (another one would only be surplus).
+   * - Below quorum and this vault holds keys: a copy with our signatures, finalized if that reaches the quorum.
+   * - Below quorum and watch-only: the PSBT as it is, to review or export.
+   * Finalize errors throw, so the caller alerts instead of presenting a PSBT that can never be finalized.
+   */
+  prepareImportedPsbt(psbt: Psbt): Psbt {
+    if (this.calculateHowManySignaturesWeHaveFromPsbt(psbt) >= this.getM()) return this.finalizedCopy(psbt);
+    if (!this.willCosignImportedPsbt(psbt)) return psbt;
+    const copy = psbt.clone();
+    this.cosignPsbt(copy);
+    return copy;
+  }
+
+  /**
+   * Whether prepareImportedPsbt() adds our signatures. Signing derives seeds, which is slow.
+   */
+  willCosignImportedPsbt(psbt: Psbt): boolean {
+    return this.calculateHowManySignaturesWeHaveFromPsbt(psbt) < this.getM() && this.howManySignaturesCanWeMake() > 0;
+  }
+
+  /**
+   * Number of signatures that every input has, i.e. the least signed input decides
+   */
   calculateHowManySignaturesWeHaveFromPsbt(psbt: Psbt) {
-    let sigsHave = 0;
-    for (const inp of psbt.data.inputs) {
-      sigsHave = Math.max(sigsHave, inp.partialSig?.length || 0);
-      if (inp.finalScriptSig || inp.finalScriptWitness) sigsHave = this.getM(); // hacky, but it means we have enough
-      // He who knows that enough is enough will always have enough. Lao Tzu
+    let sigsHave = Infinity;
+    for (let cc = 0; cc < psbt.inputCount; cc++) {
+      sigsHave = Math.min(sigsHave, this._countInputSignatures(psbt, cc));
     }
 
-    return sigsHave;
+    return sigsHave === Infinity ? 0 : sigsHave;
   }
 
   /**
@@ -1193,7 +1323,13 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
 
     for (let cc = 0; cc < psbt.inputCount; cc++) {
+      const input = psbt.data.inputs[cc];
+      if (MultisigHDWallet._isPsbtInputFinalized(input)) continue;
+
       for (const { cosignerIndex, hdRoot } of hdRoots) {
+        // dont sign more than we need, otherwise there will be "Too many signatures" error
+        if (this._countInputSignatures(psbt, cc) >= this.getM()) break;
+
         try {
           psbt.signInputHD(cc, hdRoot);
         } catch (_) {} // protects agains duplicate cosignings
@@ -1231,8 +1367,10 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
 
     if (this.calculateHowManySignaturesWeHaveFromPsbt(psbt) >= this.getM()) {
-      const tx = psbt.finalizeAllInputs().extractTransaction();
-      return { tx };
+      // an input that arrived with more signatures than M would make finalize throw; any M of them are enough
+      this._dropSurplusSignatures(psbt);
+      MultisigHDWallet.finalizeUnfinalizedInputs(psbt);
+      return { tx: psbt.extractTransaction() };
     }
 
     return { tx: false };

@@ -12,6 +12,7 @@ import type { HDSegwitBech32Wallet as HDSegwitBech32WalletT } from './hd-segwit-
 import { randomBytes } from '../rng';
 import { AbstractWallet } from './abstract-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
+import { errorMessage } from '../../helpers/errorMessage';
 const ECPair: ECPairAPI = ECPairFactory(ecc);
 bitcoin.initEccLib(ecc);
 
@@ -24,7 +25,6 @@ export class LegacyWallet extends AbstractWallet {
   static readonly defaultTypeReadable = 'Legacy (P2PKH)';
   // @ts-ignore: override
   public readonly type = LegacyWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable: string;
 
   _txs_by_external_index: Record<number, Transaction[]> = {};
@@ -707,8 +707,8 @@ export class LegacyWallet extends AbstractWallet {
     // undefined, true so it can verify Electrum signatures without errors
     try {
       return bitcoinMessage.verify(message, address, signature, undefined, true);
-    } catch (e: any) {
-      if (e.message === 'checkSegwitAlways can only be used with a compressed pubkey signature flagbyte') {
+    } catch (e) {
+      if (errorMessage(e) === 'checkSegwitAlways can only be used with a compressed pubkey signature flagbyte') {
         // If message created with uncompressed private key, it will throw this error
         // in this case we should re-try with checkSegwitAlways flag off
         // node_modules/bitcoinjs-message/index.js:187

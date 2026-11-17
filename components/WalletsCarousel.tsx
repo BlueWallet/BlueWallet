@@ -27,12 +27,12 @@ import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
 import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
 import WalletGradient from '../class/wallet-gradient';
-import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
+import { shouldUseWideLayout } from '../blue_modules/layout';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { withAlpha } from './color';
 import { useTheme } from './themes';
-import { Transaction, TWallet } from '../class/wallets/types';
+import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { BlueSpacing10 } from './BlueSpacing';
 import { useLocale } from '@react-navigation/native';
 
@@ -69,7 +69,7 @@ export const walletHasPendingTransaction = (item: TWallet): boolean => {
   const isLightningShaped = item.type === LightningCustodianWallet.type || item.type === LightningArkWallet.type;
   // Lightning/Ark: `ispaid === false` alone is not pending (failed/refunded swaps stay in history).
   if (isLightningShaped) {
-    return item.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed);
+    return item.getTransactions().some((tx: Pick<LightningTransaction, 'ispaid' | 'failed'>) => tx.ispaid === false && !tx.failed);
   }
   return item.getTransactions().some((tx: Transaction) => tx.confirmations === 0);
 };
@@ -107,11 +107,11 @@ const nStyles = StyleSheet.create({
 
 const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
   const { colors } = useTheme();
-  const { width } = useWindowDimensions();
+  const { height, width } = useWindowDimensions();
   const itemWidth = getWalletCarouselItemWidth(width);
-  const { isLarge } = useSizeClass();
+  const isWideLayout = shouldUseWideLayout(width, height);
   const nStylesHooks = StyleSheet.create({
-    container: isLarge
+    container: isWideLayout
       ? {
           paddingHorizontal: 24,
           marginVertical: 16,
@@ -140,7 +140,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
       onPress={onPress}
       testID="CreateAWallet"
       style={({ pressed }) => [
-        isLarge ? {} : { width: itemWidth * 1.2 },
+        isWideLayout ? {} : { width: itemWidth * 1.2 },
         {
           opacity: pressed ? 0.9 : 1.0,
         },
@@ -153,7 +153,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
           nStyles.container,
           nStylesHooks.container,
           { backgroundColor: colors.lightButton },
-          isLarge ? {} : { width: itemWidth },
+          isWideLayout ? {} : { width: itemWidth },
           animatedScaleStyle,
         ]}
       >
@@ -317,9 +317,9 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
   const balanceOpacity = useSharedValue(1);
   const balanceTranslateY = useSharedValue(0);
   const { colors } = useTheme();
-  const { width, fontScale } = useWindowDimensions();
+  const { height, width, fontScale } = useWindowDimensions();
   const itemWidth = getWalletCarouselItemWidth(width);
-  const { sizeClass } = useSizeClass();
+  const isWideLayout = shouldUseWideLayout(width, height);
   const isCompact = sizeVariant === 'compact';
   const { direction } = useLocale();
   const scaledCardStyles = useMemo(
@@ -450,9 +450,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
   return (
     <Animated.View
       style={[
-        sizeClass === SizeClass.Large || !horizontal
-          ? [iStyles.rootLargeDevice, customStyle]
-          : [iStyles.root, { width: itemWidth }, customStyle],
+        isWideLayout || !horizontal ? [iStyles.rootLargeDevice, customStyle] : [iStyles.root, { width: itemWidth }, customStyle],
         animatedCardStyle,
       ]}
     >
@@ -537,7 +535,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
   );
 };
 
-interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
+interface WalletsCarouselProps extends Partial<FlatListProps<TWallet>> {
   horizontal?: boolean;
   isFlatList?: boolean;
   selectedWallet?: string;
@@ -551,7 +549,17 @@ interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   animateChanges?: boolean;
 }
 
-export type CarouselListRefType = FlatList<TWallet>;
+/** what the carousel actually exposes through its ref (a subset of FlatList in list mode) */
+export type CarouselListRefType = {
+  scrollToEnd: (params?: { animated?: boolean | null }) => void;
+  scrollToIndex: (params: { animated?: boolean | null; index: number; viewOffset?: number; viewPosition?: number }) => void;
+  scrollToItem: (params: { animated?: boolean | null; item: TWallet; viewOffset?: number; viewPosition?: number }) => void;
+  scrollToOffset: (params: { animated?: boolean | null; offset: number }) => void;
+  recordInteraction: () => void;
+  flashScrollIndicators: () => void;
+  getNativeScrollRef: () => unknown;
+  getWalletPosition?: (walletId: string) => Promise<{ x: number; y: number; width: number; height: number } | null>;
+};
 
 const styles = StyleSheet.create({
   listHeaderSeparator: {
@@ -577,7 +585,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
     animateChanges = false,
   } = props;
 
-  const { width, fontScale } = useWindowDimensions();
+  const { height, width, fontScale } = useWindowDimensions();
   const itemWidth = React.useMemo(() => getWalletCarouselItemWidth(width), [width]);
   const snapInterval = React.useMemo(() => itemWidth, [itemWidth]);
   const snapOffsets = React.useMemo(() => {
@@ -600,9 +608,9 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
   const flatListRef = useRef<FlatList<TWallet>>(null);
   const walletRefs = useRef<Record<string, React.MutableRefObject<View | null>>>({});
 
-  const { sizeClass } = useSizeClass();
+  const isWideLayout = shouldUseWideLayout(width, height);
 
-  useImperativeHandle(ref, (): any => {
+  useImperativeHandle(ref, (): CarouselListRefType => {
     if (isFlatList) {
       return {
         scrollToEnd: (params: { animated?: boolean | null | undefined } | undefined) => flatListRef.current?.scrollToEnd(params),
@@ -614,7 +622,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
         }) => flatListRef.current?.scrollToIndex(params),
         scrollToItem: (params: {
           animated?: boolean | null | undefined;
-          item: any;
+          item: TWallet;
           viewOffset?: number | undefined;
           viewPosition?: number | undefined;
         }) => flatListRef.current?.scrollToItem(params),
@@ -895,7 +903,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       paddingBottom: scaleLayoutUp(WALLET_CAROUSEL_PADDING_BOTTOM, fontScale),
     },
     contentLargeScreen: {
-      paddingHorizontal: sizeClass === SizeClass.Large ? 16 : 12,
+      paddingHorizontal: isWideLayout ? 16 : 12,
     },
   });
 

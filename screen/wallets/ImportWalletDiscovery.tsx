@@ -22,6 +22,7 @@ import { THDWalletForWatchOnly, TWallet } from '../../class/wallets/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
+import { errorMessage } from '../../helpers/errorMessage';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
@@ -118,8 +119,8 @@ const ImportWalletDiscovery: React.FC = () => {
         const pass = await prompt(title, subtitle);
         setPassword(pass);
         return pass;
-      } catch (e: any) {
-        if (e.message === 'Cancel Pressed') {
+      } catch (e) {
+        if (errorMessage(e) === 'Cancel Pressed') {
           navigation.goBack();
         }
         throw e;
