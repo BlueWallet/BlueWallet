@@ -45,7 +45,7 @@ const SET_PREFERRED_PREFIX = 'set_preferred_';
 const ElectrumSettings: React.FC = () => {
   const { colors } = useTheme();
   const params = useRoute<RouteProps>().params;
-  const { server } = params;
+  const server = params?.server;
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
   const [serverHistory, setServerHistory] = useState<Set<ElectrumServerItem>>(new Set());
@@ -221,13 +221,13 @@ const ElectrumSettings: React.FC = () => {
     if (server) {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
       Alert.alert(
-        loc.formatString(loc.settings.set_electrum_server_as_default, { server: (server as ElectrumServerItem).host }),
+        loc.formatString(loc.settings.set_electrum_server_as_default, { server }),
         '',
         [
           {
             text: loc._.ok,
             onPress: () => {
-              onBarScanned(JSON.stringify(server));
+              onBarScanned(server);
             },
             style: 'default',
           },
@@ -498,12 +498,12 @@ const ElectrumSettings: React.FC = () => {
   };
 
   useEffect(() => {
-    const data = params.onBarScanned;
+    const data = params?.onBarScanned;
     if (data) {
       onBarScanned(data);
       navigation.setParams({ onBarScanned: undefined });
     }
-  }, [navigation, params.onBarScanned]);
+  }, [navigation, params?.onBarScanned]);
 
   const onSSLPortChange = (value: boolean) => {
     Keyboard.dismiss();

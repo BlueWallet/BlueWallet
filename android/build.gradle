@@ -4,21 +4,21 @@ buildscript {
     ext {
         minSdkVersion = 24
       
-        buildToolsVersion = "36.0.0"
-        compileSdkVersion = 36
+        buildToolsVersion = "37.0.0"
+        compileSdkVersion = 37
         targetSdkVersion = 36
         googlePlayServicesVersion = "16.1.0"
         googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "21.1.0"
         ndkVersion = "28.2.13676358"
-        kotlinVersion = '2.1.20'
+        kotlinVersion = '2.2.0'
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.13.2")
+        classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
 	    classpath 'com.google.gms:google-services:4.5.0'  // Google Services plugin
@@ -131,8 +131,8 @@ subprojects { project ->
     afterEvaluate {proj ->
         if (proj.hasProperty("android")) {
             android {
-                buildToolsVersion "36.0.0"
-                compileSdkVersion 36
+                buildToolsVersion "37.0.0"
+                compileSdkVersion 37
                  defaultConfig {
                     minSdkVersion 24
                 }

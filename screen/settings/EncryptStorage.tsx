@@ -15,10 +15,10 @@ enum ActionType {
   SetModalType = 'SET_MODAL_TYPE',
 }
 
-interface Action {
-  type: ActionType;
-  payload?: any;
-}
+type Action =
+  | { type: ActionType.SetLoading | ActionType.SetStorageEncryptedSwitch | ActionType.SetDeviceBiometricCapable; payload: boolean }
+  | { type: ActionType.SetCurrentLoadingSwitch; payload: string | null }
+  | { type: ActionType.SetModalType; payload: keyof typeof MODAL_TYPES };
 
 interface State {
   isLoading: boolean;

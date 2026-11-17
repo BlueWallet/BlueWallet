@@ -24,6 +24,7 @@ import Icon, { type FontAwesome6IconName } from '../../components/Icon';
 import SafeArea from '../../components/SafeArea';
 import { Tabs } from '../../components/Tabs';
 import { BlueCurrentTheme, useTheme } from '../../components/themes';
+import type { Theme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 
@@ -221,7 +222,7 @@ const buttonFontSize =
     ? 22
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
-const Buttons = ({ pop, save, colors }: { pop: TPop; save: () => void; colors: any }) => (
+const Buttons = ({ pop, save, colors }: { pop: TPop; save: () => void; colors: Theme['colors'] }) => (
   <FContainer>
     <FButton
       testID="UndoEntropy"

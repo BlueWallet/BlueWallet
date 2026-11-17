@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
 import { Alert, findNodeHandle, FlatList, GestureResponderEvent, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Badge from '../../components/Badge';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
-import BlueCard from '../../components/BlueCard';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
@@ -25,9 +25,9 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import { navigateToWalletsList } from '../../NavigationService';
+import { errorMessage } from '../../helpers/errorMessage';
 
 type RouteParams = RouteProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
 type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
@@ -35,6 +35,7 @@ type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'ViewE
 const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const { wallets, setWalletsWithNewOrder } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
@@ -53,11 +54,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [isVaultKeyIndexDataLoading, setIsVaultKeyIndexDataLoading] = useState<number | undefined>(undefined);
   const [askPassphrase, setAskPassphrase] = useState(false);
   const [walletData, setWalletData] = useState<TWallet[]>([]);
-  /* discardChangesRef is only so the action sheet can be shown on mac catalyst when a
-    user tries to leave the screen with unsaved changes.
-    Why the container view ? It was the easiest to get the ref for. No other reason.
-  */
-  const discardChangesRef = useRef<View>(null);
+  const saveButtonRef = useRef<React.ElementRef<typeof Button>>(null);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -73,13 +70,15 @@ const ViewEditMultisigCosigners: React.FC = () => {
     tipLabelText: {
       color: colors.buttonTextColor,
     },
+    footer: {
+      paddingBottom: Math.max(insets.bottom, 16),
+    },
   });
 
   usePreventRemove(!isSaveButtonDisabled, ({ data }) => {
-    if (isDesktop) {
-      if (!discardChangesRef.current) return dispatch(data.action);
-      const anchor = findNodeHandle(discardChangesRef.current);
-      if (!anchor) return dispatch(data.action);
+    const anchor = isDesktop && saveButtonRef.current ? findNodeHandle(saveButtonRef.current) : null;
+
+    if (anchor) {
       ActionSheet.showActionSheetWithOptions(
         {
           options: [loc._.cancel, loc._.ok],
@@ -94,16 +93,17 @@ const ViewEditMultisigCosigners: React.FC = () => {
           }
         },
       );
-    } else {
-      Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
-        { text: loc._.cancel, style: 'cancel', onPress: () => {} },
-        {
-          text: loc._.ok,
-          style: 'default',
-          onPress: () => dispatch(data.action),
-        },
-      ]);
+      return;
     }
+
+    Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
+      { text: loc._.cancel, style: 'cancel', onPress: () => {} },
+      {
+        text: loc._.ok,
+        style: 'default',
+        onPress: () => dispatch(data.action),
+      },
+    ]);
   });
 
   const onSave = async () => {
@@ -138,10 +138,10 @@ const ViewEditMultisigCosigners: React.FC = () => {
         setTimeout(() => {
           navigateToWalletsList();
         }, 500);
-      } catch (error: any) {
+      } catch (error) {
         setIsLoading(false);
         setParams({ headerRight: undefined });
-        presentAlert({ message: error?.message ?? String(error) });
+        presentAlert({ message: errorMessage(error) });
       }
     }, 100);
   };
@@ -161,9 +161,12 @@ const ViewEditMultisigCosigners: React.FC = () => {
             w.current.setNativeSegwit();
           } else {
             try {
-              tempWallet.current.setSecret(w.current.getSecret());
+              if (!(w.current instanceof MultisigHDWallet)) {
+                throw new Error('Not a multisig wallet');
+              }
+              tempWallet.current = w.current.cloneCosigners();
               if (!cancelled) {
-                setWalletData(new Array(tempWallet.current.getN()));
+                setWalletData(Array.from({ length: tempWallet.current.getN() }));
                 setWallet(tempWallet.current);
               }
             } catch (_) {
@@ -200,7 +203,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     }, [walletID]),
   );
 
-  const _renderKeyItem = (el: ListRenderItemInfo<any>) => {
+  const _renderKeyItem = (el: ListRenderItemInfo<TWallet>) => {
     if (!wallet) {
       // failsafe
       return null;
@@ -224,6 +227,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       <View>
         <MultipleStepsListItem
           checked
+          circledText={String(el.index + 1)}
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
           dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Bottom : MultipleStepsListItemDashType.TopAndBottom}
         />
@@ -235,6 +239,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                 button={{
                   testID: 'VaultCosignerView' + String(el.index + 1),
                   buttonType: MultipleStepsListItemButtonType.Partial,
+                  leadingIcon: 'eye',
                   leftText,
                   text: loc.multisig.view,
                   showActivityIndicator: isVaultKeyIndexDataLoading === el.index + 1,
@@ -315,6 +320,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                   disabled: vaultKeyData.isLoading,
                   showActivityIndicator: isVaultKeyIndexDataLoading === el.index + 1,
                   buttonType: MultipleStepsListItemButtonType.Partial,
+                  leadingIcon: 'signature',
                   onPress: () => {
                     setIsVaultKeyIndexDataLoading(el.index + 1);
                     setTimeout(() => {
@@ -336,7 +342,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                         presentAlert({ message: 'Cannot find derivation path for this cosigner' });
                         return;
                       }
-                      const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
+                      const xpub = wallet.convertXpubToMultisignatureXpub(wallet.getCosignerXpub(keyIndex));
                       const exportJson = MultisigCosigner.exportToJson(fp, xpub, path);
                       const exportFilenameValue = 'bw-cosigner-' + fp + '.json';
                       const exportUr = encodeUR(exportJson, 175, null)[0];
@@ -420,9 +426,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
         return presentAlert({ message: loc.multisig.invalid_mnemonics });
       try {
         wallet.replaceCosignerXpubWithSeed(cosignerNum, hd.getSecret(), passphrase);
-      } catch (e: any) {
+      } catch (e) {
         console.log(e);
-        return presentAlert({ message: e.message });
+        return presentAlert({ message: errorMessage(e) });
       }
 
       setWallet(wallet);
@@ -446,8 +452,8 @@ const ViewEditMultisigCosigners: React.FC = () => {
       if (shouldAskPassphrase) {
         try {
           passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
-        } catch (e: any) {
-          if (e.message === 'Cancel Pressed') {
+        } catch (e) {
+          if (errorMessage(e) === 'Cancel Pressed') {
             setIsLoading(false);
             return;
           }
@@ -463,9 +469,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
     return new Promise((resolve, reject) => {
       try {
         wallet?.replaceCosignerSeedWithXpub(index);
-      } catch (e: any) {
+      } catch (e) {
         reject(e);
-        return presentAlert({ message: e.message });
+        return presentAlert({ message: errorMessage(e) });
       }
       setWallet(wallet);
       setIsSaveButtonDisabled(false);
@@ -507,42 +513,46 @@ const ViewEditMultisigCosigners: React.FC = () => {
       </View>
     );
 
-  const howMany = (
-    <Badge
-      value={wallet?.getM() ?? 0}
-      badgeStyle={[styles.tipLabel, stylesHook.tipLabel]}
-      textStyle={[styles.tipLabelText, stylesHook.tipLabelText]}
-    />
-  );
-
-  const andHere = (
-    <Badge
-      value={wallet?.howManySignaturesCanWeMake() ?? 0}
-      badgeStyle={[styles.tipLabel, stylesHook.tipLabel]}
-      textStyle={[styles.tipLabelText, stylesHook.tipLabelText]}
-    />
-  );
+  const renderCountPhrase = (template: string, value: number) => {
+    const [before = '', after = ''] = template.split('{number}');
+    const leading = before.trim();
+    const trailing = after.trim();
+    return (
+      <View style={styles.tipPhrase}>
+        {leading.length > 0 ? <Text style={[styles.tipKeys, stylesHook.tipKeys]}>{leading}</Text> : null}
+        <Badge
+          value={value}
+          badgeStyle={[styles.tipLabel, stylesHook.tipLabel]}
+          textStyle={[styles.tipLabelText, stylesHook.tipLabelText]}
+        />
+        {trailing.length > 0 ? <Text style={[styles.tipKeys, stylesHook.tipKeys]}>{trailing}</Text> : null}
+      </View>
+    );
+  };
 
   const tipKeys = () => {
     return (
-      <View>
-        <BlueSpacing20 />
-        <Text style={[styles.tipKeys, stylesHook.tipKeys]}>
-          {loc.formatString(loc.multisig.signatures_required_to_spend, { number: howMany })}
-          {loc.formatString(loc.multisig.signatures_we_can_make, { number: andHere })}
-        </Text>
-        <BlueSpacing10 />
-        <BlueSpacing20 />
+      <View style={styles.tipKeysContainer}>
+        <View style={styles.tipKeysRow}>
+          {renderCountPhrase(loc.multisig.signatures_required_to_spend, wallet?.getM() ?? 0)}
+          {renderCountPhrase(loc.multisig.signatures_we_can_make, wallet?.howManySignaturesCanWeMake() ?? 0)}
+        </View>
       </View>
     );
   };
 
   const footer = (
-    <Button testID="VaultCosignersSave" disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />
+    <Button
+      ref={saveButtonRef}
+      testID="VaultCosignersSave"
+      disabled={vaultKeyData.isLoading || isSaveButtonDisabled}
+      title={loc._.save}
+      onPress={onSave}
+    />
   );
 
   return (
-    <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
+    <View style={[styles.root, stylesHook.root]}>
       <FlatList
         testID="ViewEditMultisigCosignersFlatList"
         ListHeaderComponent={tipKeys}
@@ -550,14 +560,13 @@ const ViewEditMultisigCosigners: React.FC = () => {
         extraData={vaultKeyData}
         renderItem={_renderKeyItem}
         automaticallyAdjustKeyboardInsets
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
+        automaticallyAdjustContentInsets={false}
         scrollToOverflowEnabled
-        automaticallyAdjustContentInsets
         keyExtractor={(_item, index) => `${index}`}
         contentContainerStyle={styles.contentContainerStyle}
       />
-      <BlueCard>{footer}</BlueCard>
-      <BlueSpacing20 />
+      <View style={[styles.footer, stylesHook.footer]}>{footer}</View>
     </View>
   );
 };
@@ -565,24 +574,53 @@ const ViewEditMultisigCosigners: React.FC = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    justifyContent: 'space-between',
   },
   contentContainerStyle: {
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 16,
+  },
+  tipKeysContainer: {
+    paddingTop: 16,
+    paddingBottom: 28,
+  },
+  footer: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+  },
+  tipKeysRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    columnGap: 10,
+    rowGap: 8,
+  },
+  tipPhrase: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   tipKeys: {
     fontSize: 15,
     fontWeight: '600',
-    flex: 1,
+    lineHeight: 20,
+    includeFontPadding: false,
   },
   tipLabel: {
-    width: 30,
-    marginRight: 6,
-    position: 'relative',
-    bottom: -3,
+    width: 28,
+    height: 28,
+    minWidth: 28,
+    minHeight: 28,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    borderRadius: 14,
   },
   tipLabelText: {
-    fontWeight: '500',
+    fontSize: 15,
+    fontWeight: '600',
+    lineHeight: 18,
+    textAlign: 'center',
+    includeFontPadding: false,
   },
 });
 

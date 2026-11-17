@@ -6,7 +6,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
-import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
+import { HDSegwitBech32Transaction, TxVerificationError } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
@@ -152,9 +152,9 @@ export default class CPFP extends Component {
     });
     try {
       await this.checkPossibilityOfCPFP();
-    } catch (_) {
+    } catch (error) {
       // if anything goes wrong we just show "this is not bumpable" message
-      this.setState({ nonReplaceable: true, isLoading: false });
+      this.setState({ nonReplaceable: true, unverified: error instanceof TxVerificationError, isLoading: false });
     }
   }
 
@@ -256,7 +256,7 @@ export default class CPFP extends Component {
           <BlueSpacing20 />
           <BlueSpacing20 />
 
-          <BlueText h4>{loc.transactions.cpfp_no_bump}</BlueText>
+          <BlueText h4>{this.state.unverified ? loc.transactions.rbf_unverified : loc.transactions.cpfp_no_bump}</BlueText>
         </SafeArea>
       );
     }

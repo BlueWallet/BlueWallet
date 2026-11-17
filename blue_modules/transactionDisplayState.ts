@@ -1,3 +1,4 @@
+import type { LightningTransaction, Transaction } from '../class/wallets/types';
 // Display state for the transaction detail screen.
 //
 // On-chain rows (a real Bitcoin txid is present in `hash`) keep the existing
@@ -13,11 +14,13 @@
 // cases are handled defensively.
 export type TxDisplayState = 'pending' | 'sent' | 'received';
 
-export function isOnChainTransaction(tx: any): boolean {
+type TxLike = Partial<Transaction & LightningTransaction> | null | undefined;
+
+export function isOnChainTransaction(tx: TxLike): boolean {
   return typeof tx?.hash === 'string' && tx.hash.length > 0;
 }
 
-export function resolveTxDisplayState(tx: any): TxDisplayState {
+export function resolveTxDisplayState(tx: TxLike): TxDisplayState {
   if (isOnChainTransaction(tx)) {
     const confs = Number(tx?.confirmations);
     const pending = Number.isFinite(confs) ? confs <= 0 : !tx?.confirmations;

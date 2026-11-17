@@ -33,4 +33,8 @@
     <string name="cache_cleared_title">Cache Cleared</string>
     <string name="cache_cleared_message">The document, cache, and temp directories have been cleared.</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="app_shortcut_send">Send</string>
+    <string name="app_shortcut_receive">Receive</string>
+    <string name="app_shortcut_scan">Scan</string>
+    <string name="app_shortcut_manage_wallets">Manage Wallets</string>
 </resources>

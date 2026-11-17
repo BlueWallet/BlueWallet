@@ -8,8 +8,10 @@ import Azteco from './azteco';
 import { ContactList } from './contact-list';
 import Lnurl from './lnurl';
 import type { TWallet } from './wallets/types';
+import type { RootParamList } from '../navigation/RootParamList';
+import type { TNavigationWrapper } from '../navigation/SendDetailsStackParamList';
 
-type TCompletionHandlerParams = [string, object];
+type TCompletionHandlerParams = { [K in keyof RootParamList]-?: [K, RootParamList[K]] }[keyof RootParamList];
 type TContext = {
   wallets: TWallet[];
   saveToDisk: () => void;
@@ -139,7 +141,7 @@ class DeeplinkSchemaMatch {
       completionHandler([
         'SelectWallet',
         {
-          onWalletSelect: (wallet: TWallet, { navigation }: any) => {
+          onWalletSelect: (wallet: TWallet, { navigation }: TNavigationWrapper) => {
             navigation.pop(); // close select wallet screen
             navigation.navigate(...DeeplinkSchemaMatch.isBothBitcoinAndLightningOnWalletSelect(wallet, isBothBitcoinAndLightning));
           },
@@ -228,7 +230,7 @@ class DeeplinkSchemaMatch {
               completionHandler([
                 'ElectrumSettings',
                 {
-                  server: DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(event.url),
+                  server: DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(event.url) || undefined,
                 },
               ]);
               break;
@@ -236,7 +238,7 @@ class DeeplinkSchemaMatch {
               completionHandler([
                 'LightningSettings',
                 {
-                  url: DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(event.url),
+                  url: DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(event.url) || undefined,
                 },
               ]);
               break;
@@ -286,7 +288,7 @@ class DeeplinkSchemaMatch {
     return filePath.toLowerCase().endsWith('.bwcosigner');
   }
 
-  static isBothBitcoinAndLightningOnWalletSelect(wallet: TWallet, uri: any): TCompletionHandlerParams {
+  static isBothBitcoinAndLightningOnWalletSelect(wallet: TWallet, uri: NonNullable<TBothBitcoinAndLightning>): TCompletionHandlerParams {
     if (wallet.chain === Chain.ONCHAIN) {
       return [
         'SendDetailsRoot',
@@ -429,6 +431,7 @@ class DeeplinkSchemaMatch {
     let address = uri || '';
     let memo = '';
     let payjoinUrl = '';
+    let disableOutputSubstitution = false;
     try {
       const parsedBitcoinUri = DeeplinkSchemaMatch.bip21decode(uri);
       address = parsedBitcoinUri.address ? parsedBitcoinUri.address.toString() : address;
@@ -441,10 +444,12 @@ class DeeplinkSchemaMatch {
         }
         if (parsedBitcoinUri.options.pj) {
           payjoinUrl = parsedBitcoinUri.options.pj;
+          // BIP78: pjos=0 means the sender MUST disallow payment output substitution
+          disableOutputSubstitution = String(parsedBitcoinUri.options.pjos) === '0';
         }
       }
     } catch (_) {}
-    return { address, amount, memo, payjoinUrl };
+    return { address, amount, memo, payjoinUrl, disableOutputSubstitution };
   }
 }
 

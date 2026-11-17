@@ -4,8 +4,15 @@ import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
+import type { AztecoVoucher } from '../class/azteco';
+import type { SelectWalletParams } from './SendDetailsStackParamList';
 
-const Stack = createNativeStackNavigator();
+export type AztecoRedeemStackParamList = {
+  AztecoRedeem: { aztecoVoucher: AztecoVoucher };
+  SelectWallet: SelectWalletParams;
+};
+
+const Stack = createNativeStackNavigator<AztecoRedeemStackParamList>();
 
 const AztecoRedeem = lazy(() => import('../screen/receive/AztecoRedeem'));
 const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));

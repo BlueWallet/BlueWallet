@@ -21,6 +21,8 @@ import { useTheme } from './themes';
 export const TX_ROW_BASE_HEIGHT = 64;
 
 export interface ListItemProps {
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
   leftAvatar?: React.JSX.Element;
   containerStyle?: StyleProp<ViewStyle>;
   noFeedback?: boolean;
@@ -47,6 +49,8 @@ export interface ListItemProps {
 const ListItem: React.FC<ListItemProps> = React.memo(
   ({
     leftAvatar,
+    accessibilityLabel,
+    accessibilityHint,
     containerStyle,
     noFeedback = false,
     bottomDivider = true,
@@ -198,7 +202,11 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         testID={testID}
         onPress={onPress}
         disabled={disabled}
+        accessible
         accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel ?? title}
+        accessibilityHint={accessibilityHint}
+        accessibilityState={{ disabled: !!disabled }}
         android_ripple={enableFeedback ? { color: colors.androidRippleColor } : undefined}
         style={({ pressed }) => [
           stylesHook.containerStyle,

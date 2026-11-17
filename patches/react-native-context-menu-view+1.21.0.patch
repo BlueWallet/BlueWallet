@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-native-context-menu-view/android/src/main/java/com/mpiannucci/reactnativecontextmenu/ContextMenuView.java b/node_modules/react-native-context-menu-view/android/src/main/java/com/mpiannucci/reactnativecontextmenu/ContextMenuView.java
-index c6f5b9a..d1b85e6 100644
+index c6f5b9a..407fc67 100644
 --- a/node_modules/react-native-context-menu-view/android/src/main/java/com/mpiannucci/reactnativecontextmenu/ContextMenuView.java
 +++ b/node_modules/react-native-context-menu-view/android/src/main/java/com/mpiannucci/reactnativecontextmenu/ContextMenuView.java
 @@ -19,6 +19,7 @@ import android.view.MenuItem;
@@ -10,7 +10,15 @@ index c6f5b9a..d1b85e6 100644
  
  import androidx.annotation.NonNull;
  import androidx.core.content.res.ResourcesCompat;
-@@ -99,9 +100,8 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+@@ -29,6 +30,7 @@ import com.facebook.react.bridge.ReadableArray;
+ import com.facebook.react.bridge.ReadableMap;
+ import com.facebook.react.bridge.WritableArray;
+ import com.facebook.react.bridge.WritableMap;
++import com.facebook.react.uimanager.events.NativeGestureUtil;
+ import com.facebook.react.uimanager.events.RCTEventEmitter;
+ import com.facebook.react.views.view.ReactViewGroup;
+ 
+@@ -99,9 +101,8 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
              @Override
              public boolean onSingleTapConfirmed(MotionEvent e) {
                  if (dropdownMenuMode && !disabled) {
@@ -22,7 +30,16 @@ index c6f5b9a..d1b85e6 100644
                  }
                  return super.onSingleTapConfirmed(e);
              }
-@@ -160,19 +160,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+@@ -124,6 +125,8 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+ 
+                 if (!dropdownMenuMode && !disabled) {
+                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
++                        // Cancel the JS touch, otherwise a wrapping Pressable fires onPress on release.
++                        NativeGestureUtil.notifyNativeGestureStarted(ContextMenuView.this, e);
+                         showContextMenu(e.getX(), e.getY());
+                     }
+                 }
+@@ -160,19 +163,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
      public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
          contextMenu.clear();
          setMenuIconDisplay(contextMenu, true);
@@ -43,7 +60,7 @@ index c6f5b9a..d1b85e6 100644
      }
  
      public void setActions(@Nullable ReadableArray actions) {
-@@ -191,6 +179,52 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+@@ -191,6 +182,52 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
          this.fontName = fontName;
      }
  
@@ -96,7 +113,7 @@ index c6f5b9a..d1b85e6 100644
      private Typeface getCustomFont() {
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && fontName != null) {
              try {
-@@ -218,7 +252,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+@@ -218,7 +255,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
  
          Menu parentMenu = menu.addSubMenu(spannableTitle);
  
@@ -105,7 +122,7 @@ index c6f5b9a..d1b85e6 100644
          menu.getItem(i).setIcon(icon);  // set icon to current item.
  
          for (int j = 0; j < childActions.size(); j++) {
-@@ -230,7 +264,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+@@ -230,7 +267,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
  
      private void createContextMenuAction(Menu menu, ReadableMap action, int i, int parentIndex) {
          String title = action.getString("title");
@@ -114,7 +131,7 @@ index c6f5b9a..d1b85e6 100644
  
          // Create spannable string with custom font
          SpannableString spannableTitle = new SpannableString(title);
-@@ -256,6 +290,11 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+@@ -256,6 +293,11 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
              item.setTitle(redTitle);
          }
  
@@ -126,7 +143,7 @@ index c6f5b9a..d1b85e6 100644
          // We need a different listener for nested menus and parent menus
          item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
              @Override
-@@ -265,12 +304,12 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+@@ -265,12 +307,12 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
                  WritableMap event = Arguments.createMap();
                  event.putInt("index", i);
                  event.putString("name", title);

@@ -115,7 +115,6 @@ const LnurlPaySuccess: React.FC = () => {
                 navigate('ScanLNDInvoiceRoot', {
                   screen: 'LnurlPay',
                   params: {
-                    // @ts-ignore  fixme
                     lnurl,
                     walletID: fromWalletID,
                   },

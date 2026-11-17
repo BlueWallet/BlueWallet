@@ -7,6 +7,7 @@ import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 import { randomBytes } from '../../../class/rng';
 import { uint8ArrayToHex, hexToUint8Array } from '../../uint8array-extras';
 import { ArkSwapNotificationSuppressionSchema } from './notificationSuppressionRepository';
+import { errorMessage } from '../../../helpers/errorMessage';
 
 const AllArkadeSchemas = [...ArkRealmSchemas, ...BoltzRealmSchemas, ArkSwapNotificationSuppressionSchema];
 
@@ -159,8 +160,8 @@ export async function deleteArkadeRealm(namespace: string): Promise<void> {
       Realm.deleteFile({ path });
     }
     realmRemoved = true;
-  } catch (e: any) {
-    console.log(`[ArkadeRealm] Realm.deleteFile failed for ${path}:`, e?.message ?? e);
+  } catch (e) {
+    console.log(`[ArkadeRealm] Realm.deleteFile failed for ${path}:`, errorMessage(e));
   }
 
   // Best-effort sweep of any sibling files Realm.deleteFile might have left
@@ -169,8 +170,8 @@ export async function deleteArkadeRealm(namespace: string): Promise<void> {
     const sibling = `${path}${suffix}`;
     try {
       if (await RNFS.exists(sibling)) await RNFS.unlink(sibling);
-    } catch (e: any) {
-      console.log(`[ArkadeRealm] failed to delete ${sibling}:`, e?.message ?? e);
+    } catch (e) {
+      console.log(`[ArkadeRealm] failed to delete ${sibling}:`, errorMessage(e));
     }
   }
 
@@ -183,8 +184,8 @@ export async function deleteArkadeRealm(namespace: string): Promise<void> {
 
   try {
     await Keychain.resetGenericPassword({ service: keychainServiceFor(namespace) });
-  } catch (e: any) {
-    console.log(`[ArkadeRealm] failed to reset keychain for ${namespace}:`, e?.message ?? e);
+  } catch (e) {
+    console.log(`[ArkadeRealm] failed to reset keychain for ${namespace}:`, errorMessage(e));
   }
 }
 

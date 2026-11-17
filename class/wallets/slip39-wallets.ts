@@ -13,14 +13,14 @@ type TWalletThis = Omit<HDLegacyP2PKHWallet | HDSegwitP2SHWallet | HDSegwitBech3
 
 // collection of SLIP39 functions
 const SLIP39Mixin = {
-  _getSeed(): Uint8Array {
-    const self = this as unknown as TWalletThis;
+  _getSeed(this: unknown): Uint8Array {
+    const self = this as TWalletThis;
     const master = slip39.recoverSecret(self.secret, self.passphrase);
     return Uint8Array.from(master);
   },
 
-  validateMnemonic() {
-    const self = this as unknown as TWalletThis;
+  validateMnemonic(this: unknown) {
+    const self = this as TWalletThis;
     if (!self.secret.every(m => slip39.validateMnemonic(m))) return false;
 
     try {
@@ -31,8 +31,8 @@ const SLIP39Mixin = {
     return true;
   },
 
-  setSecret(newSecret: string) {
-    const self = this as unknown as TWalletThis;
+  setSecret(this: unknown, newSecret: string) {
+    const self = this as TWalletThis;
     // Try to match words to the default slip39 wordlist and complete partial words
     const lookupMap = WORD_LIST.reduce((map, word) => {
       const prefix3 = word.substr(0, 3);
@@ -65,8 +65,8 @@ const SLIP39Mixin = {
     return self;
   },
 
-  getID() {
-    const self = this as unknown as TWalletThis;
+  getID(this: unknown) {
+    const self = this as TWalletThis;
     const string2hash = self.secret.sort().join(',') + (self.getPassphrase() || '');
     return uint8ArrayToHex(sha256(string2hash));
   },
@@ -77,7 +77,6 @@ export class SLIP39LegacyP2PKHWallet extends HDLegacyP2PKHWallet {
   static readonly typeReadable = 'SLIP39 Legacy (P2PKH)';
   // @ts-ignore: override
   public readonly type = SLIP39LegacyP2PKHWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = SLIP39LegacyP2PKHWallet.typeReadable;
 
   allowBIP47() {
@@ -86,8 +85,11 @@ export class SLIP39LegacyP2PKHWallet extends HDLegacyP2PKHWallet {
 
   _getSeed = SLIP39Mixin._getSeed;
   validateMnemonic = SLIP39Mixin.validateMnemonic;
-  // @ts-ignore: this type mismatch
-  setSecret = SLIP39Mixin.setSecret;
+  setSecret(newSecret: string): this {
+    SLIP39Mixin.setSecret.call(this, newSecret);
+    return this;
+  }
+
   getID = SLIP39Mixin.getID;
 }
 
@@ -96,13 +98,15 @@ export class SLIP39SegwitP2SHWallet extends HDSegwitP2SHWallet {
   static readonly typeReadable = 'SLIP39 SegWit (P2SH)';
   // @ts-ignore: override
   public readonly type = SLIP39SegwitP2SHWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = SLIP39SegwitP2SHWallet.typeReadable;
 
   _getSeed = SLIP39Mixin._getSeed;
   validateMnemonic = SLIP39Mixin.validateMnemonic;
-  // @ts-ignore: this type mismatch
-  setSecret = SLIP39Mixin.setSecret;
+  setSecret(newSecret: string): this {
+    SLIP39Mixin.setSecret.call(this, newSecret);
+    return this;
+  }
+
   getID = SLIP39Mixin.getID;
 }
 
@@ -111,7 +115,6 @@ export class SLIP39SegwitBech32Wallet extends HDSegwitBech32Wallet {
   static readonly typeReadable = 'SLIP39 SegWit (Bech32)';
   // @ts-ignore: override
   public readonly type = SLIP39SegwitBech32Wallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = SLIP39SegwitBech32Wallet.typeReadable;
 
   allowBIP47() {
@@ -120,7 +123,10 @@ export class SLIP39SegwitBech32Wallet extends HDSegwitBech32Wallet {
 
   _getSeed = SLIP39Mixin._getSeed;
   validateMnemonic = SLIP39Mixin.validateMnemonic;
-  // @ts-ignore: this type mismatch
-  setSecret = SLIP39Mixin.setSecret;
+  setSecret(newSecret: string): this {
+    SLIP39Mixin.setSecret.call(this, newSecret);
+    return this;
+  }
+
   getID = SLIP39Mixin.getID;
 }

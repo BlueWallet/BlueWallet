@@ -33,6 +33,7 @@ import { SuccessView } from '../send/success';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { isIOS26OrHigher } from '../../blue_modules/environment';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
@@ -706,15 +707,24 @@ const ReceiveDetails = () => {
     }
   };
 
-  const handleShareButtonPressed = () => {
-    const message = currentTab === segmentControlValues[0] ? bip21encoded : paymentCodeString;
+  const shareMessage = currentTab === segmentControlValues[0] ? bip21encoded : paymentCodeString;
 
-    if (!message) {
+  useEffect(() => {
+    if (!isIOS26OrHigher) return;
+
+    const headerShareMessage = shareMessage || undefined;
+    if (route.params.headerShareMessage !== headerShareMessage) {
+      setParams({ headerShareMessage });
+    }
+  }, [route.params.headerShareMessage, setParams, shareMessage]);
+
+  const handleShareButtonPressed = () => {
+    if (!shareMessage) {
       presentAlert({ title: loc.errors.error, message: loc.bip47.not_found });
       return;
     }
 
-    Share.open({ message }).catch(error => console.debug('Error sharing:', error));
+    Share.open({ message: shareMessage }).catch(error => console.debug('Error sharing:', error));
   };
 
   return (
@@ -763,11 +773,13 @@ const ReceiveDetails = () => {
                 onPress={showMoreOptionsSheet}
               />
             )}
-            <Button
-              onPress={handleShareButtonPressed}
-              title={loc.receive.details_share}
-              disabled={!bip21encoded && !(currentTab === segmentControlValues[1] && isBIP47Enabled)}
-            />
+            {!isIOS26OrHigher && (
+              <Button
+                onPress={handleShareButtonPressed}
+                title={loc.receive.details_share}
+                disabled={!bip21encoded && !(currentTab === segmentControlValues[1] && isBIP47Enabled)}
+              />
+            )}
           </BlueCard>
         </View>
       </SafeAreaScrollView>

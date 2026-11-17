@@ -15,7 +15,6 @@ export class HDTaprootWallet extends AbstractHDElectrumWallet {
   static readonly typeReadable = 'HD Taproot (BIP86)';
   // @ts-ignore: override
   public readonly type = HDTaprootWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = HDTaprootWallet.typeReadable;
   public readonly segwitType = 'p2tr';
   static readonly derivationPath = "m/86'/0'/0'";

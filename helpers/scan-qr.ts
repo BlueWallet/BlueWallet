@@ -19,7 +19,7 @@ const scanQrHelper = async (): Promise<string> => {
     if (navigationRef.isReady()) {
       navigationRef.navigate('ScanQRCode', {
         showFileImportButton: true,
-        onBarScanned: (data: string, useBBQR: true) => {
+        onBarScanned: (data: string, useBBQR: boolean) => {
           // this is not a flag of most recent BBQR format, its a flag if in a lifetime or app there was a BBQR scan
           scanWasBBQR = scanWasBBQR || useBBQR;
           resolve(data);

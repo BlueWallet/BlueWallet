@@ -230,7 +230,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       const currentDate = new Date();
       const now = Math.floor(currentDate.getTime() / 1000);
-      const invoiceExpiration = item.timestamp! + item.expire_time!;
+      const invoiceExpiration = item.timestamp + (item.expire_time ?? 3600);
       if (invoiceExpiration > now || item.ispaid) {
         return formattedAmount;
       } else {
@@ -246,7 +246,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-      const invoiceExpiration = item.timestamp! + item.expire_time!;
+      const invoiceExpiration = item.timestamp + (item.expire_time ?? 3600);
 
       if (invoiceExpiration > now) {
         color = colors.successColor;
@@ -324,7 +324,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-      const invoiceExpiration = item.timestamp! + item.expire_time!;
+      const invoiceExpiration = item.timestamp + (item.expire_time ?? 3600);
       if (!item.ispaid && invoiceExpiration < now) {
         return {
           label: loc.transactions.expired_transaction,
@@ -393,7 +393,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
           const rawPaymentHash = item.payment_hash;
           if (!rawPaymentHash) throw new Error('Missing payment hash');
           const normalizedPaymentHash =
-            typeof rawPaymentHash === 'string' ? rawPaymentHash : uint8ArrayToHex(new Uint8Array((rawPaymentHash as any).data));
+            typeof rawPaymentHash === 'string' ? rawPaymentHash : uint8ArrayToHex(new Uint8Array(rawPaymentHash.data));
           const loaded = await LN.loadSuccessfulPayment(normalizedPaymentHash);
           if (loaded) {
             navigate('ScanLNDInvoiceRoot', {
@@ -466,7 +466,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   }, [item.hash, selectedBlockExplorer]);
 
   const onToolTipPress = useCallback(
-    (id: any) => {
+    (id: string) => {
       if (id === CommonToolTipActions.CopyAmount.id) {
         handleOnCopyAmountTap();
       } else if (id === CommonToolTipActions.CopyNote.id) {

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking } from 'react-native';
 import { reconcileArkBackgroundTaskResults } from '../blue_modules/arkade-background';
 import { updateExchangeRate } from '../blue_modules/currency';
+import { showFilePickerAndReadFile } from '../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import {
   clearStoredNotifications,
@@ -22,11 +23,12 @@ import { useStorage } from './context/useStorage';
 import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 import RNFS from 'react-native-fs';
 import presentAlert from '../components/Alert';
+import { setAvailableRecentWalletIDs, setHiddenRecentWalletIDs, setRecentMenuItemsEnabled } from '../components/Context/recentMenuItems';
 import useWidgetCommunication from './useWidgetCommunication';
-import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
-import useMenuElements from './useMenuElements';
+import useMenuActions, { setNativeMenuWalletsInitialized, setNativeOpenFileHandler } from './useMenuActions';
 import useClipboardDetection from './useClipboardDetection';
+import { errorMessage } from '../helpers/errorMessage';
 
 /**
  * Hook that initializes all companion listeners and functionality without rendering a component
@@ -40,8 +42,10 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     refreshAllWalletTransactions,
     setSharedCosigner,
     walletsInitialized,
+    isStorageEncrypted,
   } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
+  const hasHandledInitialURL = useRef(false);
   const navigation = useNavigation();
 
   // We need to call hooks unconditionally before any conditional logic
@@ -54,8 +58,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   // Initialize other hooks regardless of activation status
   // They'll handle their own conditional logic internally
   useWidgetCommunication();
-  useMenuElements();
-  useDeviceQuickActions();
+  useMenuActions();
   useHandoffListener();
 
   const processPushNotifications = useCallback(async () => {
@@ -88,11 +91,8 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         if (+payload.type === 100) {
           const arkWallet = wallets.find(w => w.getID() === payload.walletID);
           if (!arkWallet || !(arkWallet instanceof LightningArkWallet)) {
-            if (wasTapped) {
-              navigation.navigate('WalletTransactions', {
-                walletID: payload.walletID,
-                walletType: arkWallet?.type,
-              });
+            if (wasTapped && payload.walletID) {
+              navigation.navigate('WalletTransactions', { walletID: payload.walletID });
               return true;
             }
             continue;
@@ -105,8 +105,8 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
           try {
             await arkWallet.fetchTransactions();
             await saveToDisk();
-          } catch (e: any) {
-            console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', e?.message ?? e);
+          } catch (e) {
+            console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', errorMessage(e));
           }
 
           if (wasTapped) {
@@ -180,8 +180,8 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             try {
               await arkWallet.fetchTransactions();
               await saveToDisk();
-            } catch (e: any) {
-              console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', e?.message ?? e);
+            } catch (e) {
+              console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', errorMessage(e));
             }
 
             if (wasTapped) {
@@ -295,28 +295,68 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             throw new Error(loc.send.qr_error_no_qrcode);
           }
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          DeeplinkSchemaMatch.navigationRouteFor({ url: qrValue }, (value: [string, any]) => navigationRef.navigate(...value), {
+          DeeplinkSchemaMatch.navigationRouteFor({ url: qrValue }, value => navigationRef.navigate(...value), {
             wallets,
             addWallet,
             saveToDisk,
             setSharedCosigner,
           });
         } else {
-          DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
+          DeeplinkSchemaMatch.navigationRouteFor(event, value => navigationRef.navigate(...value), {
             wallets,
             addWallet,
             saveToDisk,
             setSharedCosigner,
           });
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error('Error in handleOpenURL:', err);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: err.message || loc.send.qr_error_no_qrcode });
+        presentAlert({ message: errorMessage(err) || loc.send.qr_error_no_qrcode });
       }
     },
     [wallets, addWallet, saveToDisk, setSharedCosigner, shouldActivateListeners],
   );
+
+  useEffect(() => {
+    setNativeMenuWalletsInitialized(walletsInitialized);
+    return () => setNativeMenuWalletsInitialized(false);
+  }, [walletsInitialized]);
+
+  useEffect(() => {
+    if (!walletsInitialized) return;
+    setAvailableRecentWalletIDs(new Set(wallets.map(wallet => wallet.getID())));
+    setHiddenRecentWalletIDs(new Set(wallets.filter(wallet => wallet.getHideTransactionsInWalletsList?.()).map(wallet => wallet.getID())));
+  }, [wallets, walletsInitialized]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!walletsInitialized) {
+      setRecentMenuItemsEnabled(false).catch(error => console.warn('Failed to disable native menu history:', error));
+      return;
+    }
+
+    isStorageEncrypted()
+      .then(encrypted => {
+        if (!cancelled) return setRecentMenuItemsEnabled(!encrypted);
+      })
+      .catch(error => console.warn('Failed to update native menu history privacy:', error));
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isStorageEncrypted, walletsInitialized]);
+
+  useEffect(() => {
+    if (!walletsInitialized) return;
+    setNativeOpenFileHandler(async () => {
+      const { data, uri } = await showFilePickerAndReadFile();
+      const fileUrl = uri && /\.(psbt|bwcosigner)$/i.test(uri) ? uri : data;
+      if (fileUrl) await handleOpenURL({ url: fileUrl });
+    });
+    return () => setNativeOpenFileHandler(undefined);
+  }, [handleOpenURL, walletsInitialized]);
 
   const handleAppStateChange = useCallback(
     async (nextAppState: AppStateStatus) => {
@@ -363,11 +403,22 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   useEffect(() => {
     const subscriptions = addListeners();
 
+    if (shouldActivateListeners && !hasHandledInitialURL.current) {
+      hasHandledInitialURL.current = true;
+      Linking.getInitialURL()
+        .then(url => {
+          if (url && DeeplinkSchemaMatch.hasSchema(url)) {
+            return handleOpenURL({ url });
+          }
+        })
+        .catch(error => console.error('Failed to handle initial URL:', error));
+    }
+
     return () => {
       subscriptions.urlSubscription?.remove?.();
       subscriptions.appStateSubscription?.remove?.();
     };
-  }, [addListeners]);
+  }, [addListeners, handleOpenURL, shouldActivateListeners]);
 };
 
 export default useCompanionListeners;

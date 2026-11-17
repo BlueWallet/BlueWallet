@@ -1,0 +1,26 @@
+diff --git a/node_modules/react-native-screens/ios/RNSBarButtonItem.mm b/node_modules/react-native-screens/ios/RNSBarButtonItem.mm
+index c435fdd..d527cd6 100644
+--- a/node_modules/react-native-screens/ios/RNSBarButtonItem.mm
++++ b/node_modules/react-native-screens/ios/RNSBarButtonItem.mm
+@@ -81,6 +81,7 @@ - (instancetype)initWithConfig:(NSDictionary<NSString *, id> *)dict
+     NSString *identifier = dict[@"identifier"];
+     if (identifier != nil) {
+       self.identifier = identifier;
++      self.accessibilityIdentifier = identifier;
+     }
+     NSDictionary *badgeConfig = dict[@"badge"];
+     if (badgeConfig != nil) {
+@@ -223,9 +224,11 @@ + (UIAction *)createActionItemFromConfig:(NSDictionary *)dict
+ {
+   NSString *menuId = dict[@"menuId"];
+ 
++  NSString *identifier = dict[@"identifier"];
++
+   UIAction *actionElement = [UIAction actionWithTitle:dict[@"title"]
+-                                                image:nil
+-                                           identifier:nil
++                                               image:nil
++                                           identifier:identifier
+                                               handler:^(__kindof UIAction *_Nonnull a) {
+                                                 menuAction(menuId);
+                                               }];
