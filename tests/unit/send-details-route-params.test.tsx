@@ -52,15 +52,6 @@ jest.mock('../../components/SafeArea', () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-jest.mock('../../components/DismissKeyboardInputAccessory', () => ({
-  DismissKeyboardInputAccessory: () => null,
-  DismissKeyboardInputAccessoryViewID: 'DismissKeyboardInputAccessoryViewID',
-}));
-jest.mock('../../components/InputAccessoryAllFunds', () => ({
-  __esModule: true,
-  default: () => null,
-  InputAccessoryAllFundsAccessoryViewID: 'InputAccessoryAllFundsAccessoryViewID',
-}));
 jest.mock('@react-native-async-storage/async-storage', () => ({
   __esModule: true,
   default: { getItem: async () => null, setItem: async () => {} },
