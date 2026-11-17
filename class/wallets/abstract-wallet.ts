@@ -17,8 +17,7 @@ export class AbstractWallet {
   static readonly typeReadable = 'abstract';
   // @ts-ignore: override
   public readonly type = AbstractWallet.type;
-  // @ts-ignore: override
-  public readonly typeReadable = AbstractWallet.typeReadable;
+  public readonly typeReadable: string = AbstractWallet.typeReadable;
 
   static fromJson<T extends object>(this: new () => T, obj: string): T {
     const obj2: Record<string, unknown> = JSON.parse(obj);

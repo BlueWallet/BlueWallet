@@ -7,6 +7,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import assert from 'assert';
 
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import BlueText from '../../components/BlueText';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
@@ -21,13 +22,14 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { combinePSBTs } from '../../util/combinePSBTs.ts';
 import { errorMessage } from '../../helpers/errorMessage';
+import { formatTransactionOutput } from '../../helpers/formatTransactionOutput';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'PsbtMultisig'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'PsbtMultisig'>;
 
-type DestinationTarget = { address: string; value: number };
+type DestinationTarget = { address?: string; value: number; script?: { hex: string } };
 
 const normalizeAddress = (address: string) => address.trim().toLowerCase();
 
@@ -64,12 +66,17 @@ export const getDestinationData = (psbt: bitcoin.Psbt, wallet: MultisigHDWallet,
   const targets: DestinationTarget[] = [];
   for (const output of psbt.txOutputs) {
     const address = resolveOutputAddress(output);
-    if (!address) continue;
-    if (changeAddresses?.has(normalizeAddress(address))) continue;
     const value = Number(output.value);
+    if (address) {
+      if (changeAddresses?.has(normalizeAddress(address))) continue;
+      totalSat += value;
+      addresses.push(address);
+      targets.push({ address, value });
+      continue;
+    }
+    // P2PK and OP_RETURN have no address. Keep the script so the review can label them.
     totalSat += value;
-    addresses.push(address);
-    targets.push({ address, value });
+    targets.push({ value, script: { hex: output.script ? uint8ArrayToHex(output.script) : '' } });
   }
   return { addresses, totalSat, targets };
 };
@@ -152,8 +159,9 @@ const PsbtMultisig = () => {
   );
 
   // Default: hide change. Tap amount to toggle and include change outputs.
+  // A script-only payment (P2PK, OP_RETURN) has no address, so the fallback keys off targets.
   const targets = filteredData.targets.length > 0 ? filteredData.targets : unfilteredData.targets;
-  const preferFiltered = isFiltered && filteredData.addresses.length > 0;
+  const preferFiltered = isFiltered && filteredData.targets.length > 0;
   const displayData = preferFiltered ? filteredData : unfilteredData;
   const displayTotalBtc = new BigNumber(displayData.totalSat).dividedBy(100000000).toNumber();
   const displayTotalFiat = satoshiToLocalCurrency(displayData.totalSat);
@@ -285,33 +293,45 @@ const PsbtMultisig = () => {
   };
 
   const destinationAddress = () => {
-    const addrs = preferFiltered ? filteredData.addresses : unfilteredData.addresses;
-    const displayAddrs = preferFiltered ? addrs : [...new Set(addrs)];
-    const destinationAddressView = [];
-    const destinations = Object.entries(displayAddrs);
-    for (const [index, address] of destinations) {
-      if (Number(index) > 1) {
-        destinationAddressView.push(
-          <View style={styles.destinationTextContainer} key={`end-${index}`}>
-            <Text numberOfLines={0} style={[styles.addressSection, stylesHook.textFiat]}>
-              and {destinations.length - 2} more...
-            </Text>
-          </View>,
-        );
-        break;
-      } else {
-        destinationAddressView.push(
-          <View style={styles.destinationTextContainer} key={`${address}-${index}`}>
-            <Text style={styles.textAlignCenter} selectable>
-              <Text style={[styles.addressSection, stylesHook.addressSection]}>{address.slice(0, 6)}</Text>
-              <Text style={[styles.textDestination, stylesHook.textFiat]}>{address.slice(6, -6)}</Text>
-              <Text style={[styles.addressSection, stylesHook.addressSection]}>{address?.slice(-6)}</Text>
-            </Text>
-          </View>,
-        );
-      }
+    const outputs = displayData.targets;
+    const addressOutputs = outputs.filter((output): output is DestinationTarget & { address: string } => Boolean(output.address));
+    const scriptOutputs = outputs.filter(output => !output.address);
+    const shownAddresses = addressOutputs.slice(0, 2);
+    const hiddenAddressCount = addressOutputs.length - shownAddresses.length;
+    const views = shownAddresses.map((output, index) => {
+      const address = output.address;
+      return (
+        <View style={styles.destinationTextContainer} key={`${address}-${index}`}>
+          <Text style={styles.textAlignCenter} selectable>
+            <Text style={[styles.addressSection, stylesHook.addressSection]}>{address.slice(0, 6)}</Text>
+            <Text style={[styles.textDestination, stylesHook.textFiat]}>{address.slice(6, -6)}</Text>
+            <Text style={[styles.addressSection, stylesHook.addressSection]}>{address.slice(-6)}</Text>
+          </Text>
+        </View>
+      );
+    });
+    if (hiddenAddressCount > 0) {
+      views.push(
+        <View style={styles.destinationTextContainer} key="more-addresses">
+          <Text numberOfLines={0} style={[styles.addressSection, stylesHook.textFiat]}>
+            and {hiddenAddressCount} more...
+          </Text>
+        </View>,
+      );
     }
-    return destinationAddressView;
+    // Script outputs stay in full. Collapsing them would hide a P2PK or OP_RETURN behind "and N more".
+    scriptOutputs.forEach((output, index) => {
+      views.push(
+        <View style={styles.destinationTextContainer} key={`script-${index}`}>
+          <Text style={[styles.textDestination, stylesHook.textFiat]} selectable>
+            {formatTransactionOutput(output)}
+            {'\n'}
+            {satoshiToBTC(output.value)} {BitcoinUnit.BTC}
+          </Text>
+        </View>,
+      );
+    });
+    return views;
   };
 
   return (
@@ -413,6 +433,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
     justifyContent: 'center',
   },
+  textAlignCenter: {
+    textAlign: 'center',
+  },
   textFiat: {
     fontSize: 16,
     fontWeight: '500',
@@ -422,9 +445,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 30,
   },
-  textAlignCenter: {
-    textAlign: 'center',
-  },
   addressSection: {
     fontSize: 14,
     fontWeight: '500',
@@ -432,6 +452,7 @@ const styles = StyleSheet.create({
   textDestination: {
     fontSize: 14,
     flexWrap: 'wrap',
+    flexShrink: 1,
   },
   textBtcUnit: {
     justifyContent: 'flex-end',

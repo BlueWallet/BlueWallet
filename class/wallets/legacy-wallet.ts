@@ -25,7 +25,6 @@ export class LegacyWallet extends AbstractWallet {
   static readonly defaultTypeReadable = 'Legacy (P2PKH)';
   // @ts-ignore: override
   public readonly type = LegacyWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable: string;
 
   _txs_by_external_index: Record<number, Transaction[]> = {};

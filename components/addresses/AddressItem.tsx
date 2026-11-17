@@ -95,7 +95,7 @@ const AddressItem = ({
 
   const menuActions = useMemo(
     () => [
-      CommonToolTipActions.CopyTXID,
+      { ...CommonToolTipActions.CopyToClipboard, text: loc.menu.copy_address },
       CommonToolTipActions.Share,
       {
         ...CommonToolTipActions.SignVerify,
@@ -152,7 +152,7 @@ const AddressItem = ({
 
   const onToolTipPress = useCallback(
     async (id: string) => {
-      if (id === CommonToolTipActions.CopyTXID.id) {
+      if (id === CommonToolTipActions.CopyToClipboard.id) {
         handleCopyPress();
       } else if (id === CommonToolTipActions.Share.id) {
         handleSharePress();

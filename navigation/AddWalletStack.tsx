@@ -72,7 +72,7 @@ export type AddWalletStackParamList = {
     n: number;
     walletLabel: string;
     format: string;
-    onBarScanned?: string;
+    onBarScanned?: { data: string };
     sheetAction?: string;
     sheetImportText?: string;
     sheetAskPassphrase?: boolean;

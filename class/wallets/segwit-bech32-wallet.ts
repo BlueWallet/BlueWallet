@@ -14,8 +14,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
   static readonly typeReadable = 'SegWit (P2WPKH)';
   // @ts-ignore: override
   public readonly type = SegwitBech32Wallet.type;
-  // @ts-ignore: override
-  public readonly typeReadable = SegwitBech32Wallet.typeReadable;
+  public readonly typeReadable: string = SegwitBech32Wallet.typeReadable;
   public readonly segwitType = 'p2wpkh';
 
   getAddress(): string | false {
