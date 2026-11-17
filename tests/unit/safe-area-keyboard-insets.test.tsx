@@ -43,7 +43,7 @@ describe('keyboard inset focus gate', () => {
         remove: () => {
           listeners[type] = bucket.filter(item => item !== listener);
         },
-      };
+      } as ReturnType<typeof Keyboard.addListener>;
     });
     jest.spyOn(Keyboard, 'metrics').mockImplementation(() => metrics as never);
   });
