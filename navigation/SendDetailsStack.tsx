@@ -12,6 +12,7 @@ import { CoinControlSortDirection, CoinControlSortType, SendDetailsStackParamLis
 import HeaderRightButton from '../components/HeaderRightButton';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import SelectFeeScreen from '../screen/SelectFeeScreen';
+import SendAddressHelperSheet from '../screen/send/SendAddressHelperSheet';
 import CoinControlOutputSheet from '../screen/send/CoinControlOutputSheet';
 import PsbtRawSheet from '../components/PsbtRawSheet';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
@@ -217,6 +218,18 @@ const SendDetailsStack = () => {
         name="PaymentCodeList"
         component={PaymentCodesListComponent}
         options={navigationStyle({ title: loc.bip47.contacts })(theme)}
+      />
+      <Stack.Screen
+        name="SendAddressHelper"
+        component={SendAddressHelperSheet}
+        options={navigationStyle({
+          presentation: 'formSheet',
+          headerShown: false,
+          sheetAllowedDetents: Platform.OS === 'ios' ? [0.55] : [0.5],
+          sheetGrabberVisible: true,
+          sheetExpandsWhenScrolledToEdge: false,
+          contentStyle: { backgroundColor: theme.colors.modal },
+        })(theme)}
       />
       <Stack.Screen
         name="ScanQRCode"
