@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Keyboard, KeyboardEvent, Platform, StyleSheet, View } from 'react-native';
 import { KeyboardState, runOnJS, useAnimatedKeyboard, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
 
@@ -90,9 +90,22 @@ const DockShell: React.FC<DockShellProps> = ({ accessory, children, settledHeigh
 };
 
 /**
+ * useAnimatedKeyboard reports the final IME height as soon as it is OPEN, while the
+ * keyboard is still rising. Wait for keyboardDidShow before using that height, or the
+ * bar appears above the keyboard and then jumps down.
+ */
+export function androidSettledHeight(active: boolean, keyboardShown: boolean, isOpen: boolean, height: number): number {
+  'worklet';
+  if (!active || !keyboardShown || !isOpen || height <= 0) {
+    return 0;
+  }
+  return height;
+}
+
+/**
  * Android edge-to-edge: useAnimatedKeyboard tracks live IME height (including when the
- * user switches keyboard types). Gate on `active` + OPEN so focus does not reuse a stale
- * height before the keyboard rises.
+ * user switches keyboard types). Only snap once the show event has fired, so a leading
+ * OPEN height cannot place the bar early.
  */
 const AndroidImeDock: React.FC<KeyboardAccessoryDockProps> = ({
   accessory,
@@ -102,23 +115,46 @@ const AndroidImeDock: React.FC<KeyboardAccessoryDockProps> = ({
 }) => {
   const keyboard = useAnimatedKeyboard();
   const activeSv = useSharedValue(active ? 1 : 0);
+  const keyboardShownSv = useSharedValue(0);
+  const activeRef = useRef(active);
+  activeRef.current = active;
   const [settledHeight, setSettledHeight] = useState(0);
 
   useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', () => {
+      if (activeRef.current) {
+        keyboardShownSv.value = 1;
+      }
+    });
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      keyboardShownSv.value = 0;
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [keyboardShownSv]);
+
+  useEffect(() => {
+    activeRef.current = active;
     activeSv.value = active ? 1 : 0;
     if (!active) {
+      keyboardShownSv.value = 0;
       setSettledHeight(0);
+      return;
     }
-  }, [active, activeSv]);
+    // Refocus while the IME is already up does not emit another didShow.
+    keyboardShownSv.value = Keyboard.isVisible() ? 1 : 0;
+  }, [active, activeSv, keyboardShownSv]);
 
   useAnimatedReaction(
-    () => {
-      if (activeSv.value !== 1) {
-        return 0;
-      }
-      // Track height whenever the IME is open — including height changes from keyboard-type switches.
-      return keyboard.state.value === KeyboardState.OPEN && keyboard.height.value > 0 ? keyboard.height.value : 0;
-    },
+    () =>
+      androidSettledHeight(
+        activeSv.value === 1,
+        keyboardShownSv.value === 1,
+        keyboard.state.value === KeyboardState.OPEN,
+        keyboard.height.value,
+      ),
     (height, previous) => {
       if (height !== previous) {
         runOnJS(setSettledHeight)(height);
