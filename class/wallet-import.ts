@@ -19,8 +19,8 @@ import { SegwitP2SHWallet } from './wallets/segwit-p2sh-wallet';
 import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './wallets/slip39-wallets';
 import { TaprootWallet } from './wallets/taproot-wallet';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
-import bip39WalletFormatsElectrum from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
-import bip39WalletFormatsBlueWallet from './bip39_wallet_formats_bluewallet.json';
+import bip39WalletFormatsElectrum from './bip39_wallet_formats.json' with { type: 'json' }; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
+import bip39WalletFormatsBlueWallet from './bip39_wallet_formats_bluewallet.json' with { type: 'json' };
 import type { TWallet } from './wallets/types';
 import { errorMessage } from '../helpers/errorMessage';
 
