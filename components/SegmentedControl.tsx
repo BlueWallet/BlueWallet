@@ -7,13 +7,15 @@ interface SegmentedControlProps {
   selectedIndex: number;
   onChange: (index: number) => void;
   testID?: string;
+  /** Use the platform control instead of the accent color override. */
+  usePlatformStyle?: boolean;
 }
 
 interface SegmentedControlEvent {
   selectedIndex: number;
 }
 
-const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedIndex, onChange, testID }) => {
+const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedIndex, onChange, testID, usePlatformStyle = false }) => {
   const handleChange = useCallback(
     (event: NativeSyntheticEvent<SegmentedControlEvent>) => {
       if (event?.nativeEvent?.selectedIndex !== undefined) {
@@ -33,9 +35,9 @@ const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedInd
         values={values}
         selectedIndex={selectedIndex}
         enabled
-        backgroundColor="transparent"
-        tintColor="#007AFF"
-        textColor="#007AFF"
+        backgroundColor={usePlatformStyle ? undefined : 'transparent'}
+        tintColor={usePlatformStyle ? undefined : '#007AFF'}
+        textColor={usePlatformStyle ? undefined : '#007AFF'}
         momentary={false}
         style={styles.segmentedControl}
         onChange={handleChange}

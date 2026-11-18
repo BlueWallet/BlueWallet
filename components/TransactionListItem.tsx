@@ -127,7 +127,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
 }: TransactionListItemProps) => {
   const { colors } = useTheme();
   const { navigate } = useNavigation<NavigationProps>();
-  const { txMetadata, counterpartyMetadata, wallets } = useStorage();
+  const { txMetadata, counterpartyMetadata, addressMetadata, wallets } = useStorage();
   const { language, selectedBlockExplorer } = useSettings();
   const insets = useSafeAreaInsets();
   const { fontScale } = useWindowDimensions();
@@ -150,8 +150,27 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   if (item.counterparty) {
     counterparty = counterpartyMetadata?.[item.counterparty]?.label ?? item.counterparty;
   }
-  const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (txMetadata[item.hash]?.memo ?? '');
+  const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (txMetadata?.[item.hash]?.memo ?? '');
   const noteForCopy = (txMemo || item.memo || '').trim() || undefined;
+
+  // Labels of every address in this tx, comma separated. Not memoized: addressMetadata is mutated in
+  // place, so a useMemo keyed on it would return a stale label after every edit.
+  const addressLabel = ((): string | undefined => {
+    if (!addressMetadata || Object.keys(addressMetadata).length === 0) return undefined;
+    const labels = new Set<string>();
+    const txAddresses = [
+      ...(item.outputs ?? []).flatMap(o => o?.scriptPubKey?.addresses ?? []),
+      ...(item.inputs ?? []).flatMap(i => i?.addresses ?? (i?.address ? [i.address] : [])),
+    ];
+    for (const addr of txAddresses) {
+      const label = addressMetadata[addr]?.label;
+      if (label) labels.add(label);
+    }
+    return labels.size > 0 ? [...labels].join(', ') : undefined;
+  })();
+
+  // Priority: contact > memo/note > address label > empty.
+  const rightSubtitle = counterparty ? noteForCopy : (txMetadata?.[item.hash]?.memo || item.memo || '').trim() || addressLabel;
 
   // For LightningArkWallet rows, prepend a kind tag to the date subtitle. Such a
   // wallet transacts entirely via Boltz swaps, so every row is Lightning; the
@@ -211,7 +230,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       const currentDate = new Date();
       const now = Math.floor(currentDate.getTime() / 1000);
-      const invoiceExpiration = item.timestamp! + item.expire_time!;
+      const invoiceExpiration = item.timestamp + (item.expire_time ?? 3600);
       if (invoiceExpiration > now || item.ispaid) {
         return formattedAmount;
       } else {
@@ -227,7 +246,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-      const invoiceExpiration = item.timestamp! + item.expire_time!;
+      const invoiceExpiration = item.timestamp + (item.expire_time ?? 3600);
 
       if (invoiceExpiration > now) {
         color = colors.successColor;
@@ -305,7 +324,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-      const invoiceExpiration = item.timestamp! + item.expire_time!;
+      const invoiceExpiration = item.timestamp + (item.expire_time ?? 3600);
       if (!item.ispaid && invoiceExpiration < now) {
         return {
           label: loc.transactions.expired_transaction,
@@ -374,7 +393,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
           const rawPaymentHash = item.payment_hash;
           if (!rawPaymentHash) throw new Error('Missing payment hash');
           const normalizedPaymentHash =
-            typeof rawPaymentHash === 'string' ? rawPaymentHash : uint8ArrayToHex(new Uint8Array((rawPaymentHash as any).data));
+            typeof rawPaymentHash === 'string' ? rawPaymentHash : uint8ArrayToHex(new Uint8Array(rawPaymentHash.data));
           const loaded = await LN.loadSuccessfulPayment(normalizedPaymentHash);
           if (loaded) {
             navigate('ScanLNDInvoiceRoot', {
@@ -447,7 +466,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   }, [item.hash, selectedBlockExplorer]);
 
   const onToolTipPress = useCallback(
-    (id: any) => {
+    (id: string) => {
       if (id === CommonToolTipActions.CopyAmount.id) {
         handleOnCopyAmountTap();
       } else if (id === CommonToolTipActions.CopyNote.id) {
@@ -553,7 +572,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
           chevron={false}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}
-          rightSubtitle={noteForCopy}
+          rightSubtitle={rightSubtitle}
           rightSubtitleStyle={styles.rightColumn}
           containerStyle={combinedStyle}
           testID="TransactionListItem"

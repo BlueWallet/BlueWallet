@@ -16,35 +16,34 @@ declare module 'coinselect' {
     value: number;
     txid: string;
     address?: string;
-    wif?: string;
+    /** false when the wallet has no key for it (watch-only, multisig, derived from history) */
+    wif?: string | false;
     txhex?: string;
     script?: {
       length: number;
     };
   };
 
-  export type CoinSelectReturnInput = {
-    vout: number;
-    value: number;
-    txid: string;
-    address?: string;
-    wif?: string;
-    txhex?: string;
-    script?: {
-      length: number;
-    };
-  };
+  /** coinselect returns the utxos it picked unchanged */
+  export type CoinSelectReturnInput = CoinSelectUtxo;
 
   export type CoinSelectOutput = {
     address?: string; // if output has no address - this is a change output
     value: number;
   };
 
+  export type CoinSelectOptions = {
+    /** scriptPubKey change is going to, p2pkh (25 bytes) is assumed by default. Used for change output size and its dust limit */
+    changeScript?: { length: number };
+    /** bytes of the transaction the lib is not aware of, e.g. segwit marker & flag */
+    txExtraBytes?: number;
+  };
+
   export default function coinSelect(
     utxos: CoinSelectUtxo[],
     targets: CoinSelectTarget[],
     feeRate: number,
-    changeAddress?: string,
+    options?: CoinSelectOptions,
   ): {
     inputs: CoinSelectReturnInput[];
     outputs: CoinSelectOutput[];
@@ -63,7 +62,7 @@ declare module 'coinselect/split' {
     utxos: U[],
     targets: { address: string; value?: number }[],
     feeRate: number,
-    changeAddress?: string,
+    options?: import('coinselect').CoinSelectOptions,
   ): {
     inputs: CoinselectReturnInput[];
     outputs: {

@@ -9,7 +9,8 @@ import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet'
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
-import { validateBip32 } from '../../class/wallet-import';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
+import { normalizeDerivationPath, validateBip32 } from '../../class/wallet-import';
 import { TWallet } from '../../class/wallets/types';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
@@ -45,7 +46,21 @@ const ImportCustomDerivationPath: React.FC = () => {
   const { colors } = useTheme();
   const { importText, password } = useRoute<RouteProps>().params;
   const { addAndSaveWallet } = useStorage();
-  const [path, setPath] = useState<string>("m/84'/0'/0'");
+  const watchOnlyImport = useMemo(() => {
+    const fallback = { isWatchOnlyHd: false, defaultPath: "m/84'/0'/0'" };
+    try {
+      const wallet = new WatchOnlyWallet();
+      wallet.setSecret(importText);
+      if (!(wallet.valid() && wallet.isHd())) return fallback;
+      wallet.init();
+      // belt and braces: keep the field canonical whatever getDerivationPath returns, so importing
+      // without editing never stores a raw h/H path
+      return { isWatchOnlyHd: true, defaultPath: normalizeDerivationPath(wallet.getDerivationPath() || fallback.defaultPath) };
+    } catch {
+      return fallback;
+    }
+  }, [importText]);
+  const [path, setPath] = useState<string>(watchOnlyImport.defaultPath);
   const [wallets, setWallets] = useState<TWalletsByPath>({});
   const [used, setUsed] = useState<TUsedByPath>({});
   const [selected, setSelected] = useState<string>('');
@@ -61,14 +76,28 @@ const ImportCustomDerivationPath: React.FC = () => {
 
       // create wallets
       const newWallets: { [type: string]: TWallet } = {};
-      for (const Wallet of [HDLegacyP2PKHWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet, HDTaprootWallet]) {
-        const wallet = new Wallet();
-        wallet.setSecret(importText);
-        if (password) {
-          wallet.setPassphrase(password);
+      const watchOnly = new WatchOnlyWallet();
+      let isWatchOnlyHd = false;
+      try {
+        watchOnly.setSecretForCustomPathImport(importText, newPath);
+        isWatchOnlyHd = watchOnly.valid() && watchOnly.isHd();
+      } catch {
+        isWatchOnlyHd = false;
+      }
+      if (isWatchOnlyHd) {
+        watchOnly.init();
+        watchOnly.setDerivationPath(newPath);
+        newWallets[WatchOnlyWallet.type] = watchOnly;
+      } else {
+        for (const Wallet of [HDLegacyP2PKHWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet, HDTaprootWallet]) {
+          const wallet = new Wallet();
+          wallet.setSecret(importText);
+          if (password) {
+            wallet.setPassphrase(password);
+          }
+          wallet.setDerivationPath(newPath);
+          newWallets[Wallet.type] = wallet;
         }
-        wallet.setDerivationPath(newPath);
-        newWallets[Wallet.type] = wallet;
       }
       setWallets(ws => ({ ...ws, [newPath]: newWallets }));
 
@@ -102,15 +131,20 @@ const ImportCustomDerivationPath: React.FC = () => {
     debouncedSavePath.current(path);
   }, [path, wallets]);
 
+  const isWatchOnlyImport = watchOnlyImport.isWatchOnlyHd;
+
   const items: TItem[] = useMemo(() => {
     if (wallets[path] === WRONG_PATH) return [];
+    if (isWatchOnlyImport) {
+      return [[WatchOnlyWallet.type, WatchOnlyWallet.typeReadable, used[path]?.[WatchOnlyWallet.type]]];
+    }
     return [
       [HDLegacyP2PKHWallet.type, HDLegacyP2PKHWallet.typeReadable, used[path]?.[HDLegacyP2PKHWallet.type]],
       [HDSegwitP2SHWallet.type, HDSegwitP2SHWallet.typeReadable, used[path]?.[HDSegwitP2SHWallet.type]],
       [HDSegwitBech32Wallet.type, HDSegwitBech32Wallet.typeReadable, used[path]?.[HDSegwitBech32Wallet.type]],
       [HDTaprootWallet.type, HDTaprootWallet.typeReadable, used[path]?.[HDTaprootWallet.type]],
     ];
-  }, [path, used, wallets]);
+  }, [isWatchOnlyImport, path, used, wallets]);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -156,10 +190,9 @@ const ImportCustomDerivationPath: React.FC = () => {
 
   const disabled = wallets[path] === WRONG_PATH || wallets[path]?.[selected] === undefined;
 
-  // iOS smart punctuation turns ' into ’ and " into ”. Normalize back to ASCII so derivation paths parse.
+  // normalize as typed/pasted (smart quotes, h/H → ') so the stored path is canonical
   const handlePathChange = useCallback((text: string) => {
-    const normalized = text.split('‘').join("'").split('’').join("'").split('“').join('"').split('”').join('"');
-    setPath(normalized);
+    setPath(normalizeDerivationPath(text));
   }, []);
 
   return (

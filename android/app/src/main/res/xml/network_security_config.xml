@@ -5,6 +5,8 @@
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">onion</domain>
         <domain includeSubdomains="true">tailscale.net</domain>
+        <domain includeSubdomains="true">local</domain>
+        <domain includeSubdomains="false">umbrel</domain>
         <domain includeSubdomains="true">192.168.0.0</domain>
         <domain includeSubdomains="true">192.168.0.1</domain>
         <domain includeSubdomains="true">192.168.0.2</domain>

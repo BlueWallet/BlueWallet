@@ -18,6 +18,8 @@ type CopyTextToClipboardProps = TextProps & {
   selectable?: boolean;
   textAlign?: 'left' | 'center' | 'right' | 'auto' | 'justify';
   containerStyle?: ViewStyle;
+  copiedContainerStyle?: ViewStyle;
+  copiedTextStyle?: TextStyle;
   isAddress?: boolean;
   interactive?: boolean;
   buttonTestID?: string;
@@ -60,6 +62,8 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
       selectable,
       textAlign,
       containerStyle,
+      copiedContainerStyle,
+      copiedTextStyle,
       accessibilityLabel,
       isAddress,
       interactive = true,
@@ -136,9 +140,12 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
     const textAlignStyle = textAlign ? { textAlign } : undefined;
     const finalNumberOfLines = isCopiedState ? 1 : numberOfLines !== undefined ? numberOfLines : truncated ? 1 : 0;
     const finalEllipsizeMode = isCopiedState ? undefined : ellipsizeMode || (truncated ? 'middle' : undefined);
+    const resolvedContainerStyle = isCopiedState && copiedContainerStyle ? [containerStyle, copiedContainerStyle] : containerStyle;
+    const resolvedTextStyle = isCopiedState && copiedTextStyle ? [mergedTextStyle, textAlignStyle, copiedTextStyle] : null;
 
     const textStyleArray =
-      containerStyle && !isCopiedState ? [mergedTextStyle, styles.textFillContainer, textAlignStyle] : [mergedTextStyle, textAlignStyle];
+      resolvedTextStyle ??
+      (containerStyle && !isCopiedState ? [mergedTextStyle, styles.textFillContainer, textAlignStyle] : [mergedTextStyle, textAlignStyle]);
 
     const renderHighlightedAddress = () => {
       // While showing the "Copied!" feedback, render plain text without highlights.
@@ -219,7 +226,7 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
     if (!interactive) {
       return (
         <View
-          style={containerStyle ?? styles.nonInteractiveContainer}
+          style={resolvedContainerStyle ?? styles.nonInteractiveContainer}
           testID={buttonTestID}
           accessible
           accessibilityRole="text"
@@ -238,9 +245,9 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
         disabled={hasTappedText || !text || text === '-'}
         testID={buttonTestID}
         activeOpacity={0.7}
-        style={containerStyle}
+        style={resolvedContainerStyle}
       >
-        {containerStyle ? <View style={containerStyle}>{textContent}</View> : textContent}
+        {resolvedContainerStyle ? <View style={resolvedContainerStyle}>{textContent}</View> : textContent}
       </TouchableOpacity>
     );
   },

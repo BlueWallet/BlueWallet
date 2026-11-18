@@ -10,7 +10,6 @@ import {
   hashIt,
   helperImportWallet,
   scanText,
-  scrollUpOnHomeScreen,
   setCustomFeeRate,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
@@ -203,16 +202,14 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('BitcoinAmountInput')).replaceText('0.0001\n');
     await waitForKeyboardToClose();
 
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Add Recipient')).tap();
+    await tapHeaderMenuItem('Add Recipient');
     await waitForId('Transaction1');
     await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0002');
     await waitForKeyboardToClose();
 
     // Now remove all recipients before proceeding
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Remove All Recipients')).tap();
+    await tapHeaderMenuItem('Remove All Recipients');
     await element(by.text('OK')).tap();
 
     // Now, let's proceed with the batch send process again
@@ -226,28 +223,24 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await setCustomFeeRate(feeRate);
 
     // Let's add another two outputs
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Add Recipient')).tap();
+    await tapHeaderMenuItem('Add Recipient');
     await waitForId('Transaction1'); // Adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0002');
     await waitForKeyboardToClose();
 
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Add Recipient')).tap();
+    await tapHeaderMenuItem('Add Recipient');
     await waitForId('Transaction2'); // Adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003');
     await waitForKeyboardToClose();
 
     // Remove last output, check if second output is shown
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Remove Recipient')).tap();
+    await tapHeaderMenuItem('Remove Recipient');
     await waitForId('Transaction1');
 
     // Add it again
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Add Recipient')).tap();
+    await tapHeaderMenuItem('Add Recipient');
     await waitForId('Transaction2'); // Adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003');
@@ -256,8 +249,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // Remove second output
     await element(by.id('Transaction2')).swipe('right', 'fast', NaN, 0.2);
     await sleep(1000);
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Remove Recipient')).tap();
+    await tapHeaderMenuItem('Remove Recipient');
 
     // Creating and verifying. tx should have 3 outputs
     await element(by.id('CreateTransactionButton')).tap();
@@ -300,8 +292,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
     await element(by.id('BitcoinAmountInput')).replaceText('0.0001');
     await waitForKeyboardToClose();
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Use Full Balance')).tap();
+    await tapHeaderMenuItem('Use Full Balance');
     await element(by.text('OK')).tap();
 
     await element(by.id('CreateTransactionButton')).tap();
@@ -316,8 +307,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // add second output with amount
     await goBack();
     await goBack();
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Add Recipient')).tap();
+    await tapHeaderMenuItem('Add Recipient');
     await waitForId('Transaction1');
     await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0001');
@@ -400,11 +390,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // switch on BIP47 slider if its not switched
     if (!(await getSwitchValue('BIP47Switch'))) {
       await expect(element(by.text('Contacts'))).not.toBeVisible();
-      // Scroll down so Options section (BIP47 switch) is on screen
-      await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
-      await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+      // scrollTo instead of swipes: Detox does not wait for scroll deceleration, tap gets swallowed (#9045).
+      await element(by.id('WalletDetailsScroll')).scrollTo('bottom');
       await waitFor(element(by.id('BIP47Switch')))
-        .toExist()
+        .toBeVisible()
         .withTimeout(5000);
       await element(by.id('BIP47Switch')).tap();
       await waitFor(element(by.text('Contacts')))
@@ -512,7 +501,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await goBack();
     await goBack();
     await goBack();
-    await scrollUpOnHomeScreen(); // on the ios we need to scroll up to the wallet list
 
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await waitForId('SendButton');
@@ -712,19 +700,20 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitForKeyboardToClose();
     await element(by.id('FreezeSwitch')).tap(); // freeze switch
     await waitForSwitchValue('FreezeSwitch', true);
-    await element(by.id('CoinControlOutputDone')).tap();
-    await waitFor(element(by.id('CoinControlOutputDone')))
+    await goBack();
+    await waitFor(element(by.id('OutputMemo')))
       .not.toBeVisible()
       .withTimeout(20000);
     await expect(element(by.id('OutputMemoLabel').and(by.text('Test2')))).toBeVisible();
     await expect(element(by.id('FrozenBadge'))).toBeVisible();
 
-    // use frozen output to create tx using "Use coin" feature
+    // A frozen coin cannot be spent. Unfreeze it, then use that coin.
     await element(by.text('Test2')).atIndex(0).tap();
+    await element(by.id('FreezeSwitch')).tap();
+    await waitForSwitchValue('FreezeSwitch', false);
     await element(by.id('UseCoin')).tap();
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Use Full Balance')).tap();
+    await tapHeaderMenuItem('Use Full Balance');
     await element(by.text('OK')).tap();
     // setting fee rate:
     await setCustomFeeRate(1);
@@ -746,12 +735,23 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await goBack();
     await goBack();
 
-    // create tx with unfrozen input
+    // Freeze that coin again so full balance skips it and spends the other coins.
     await waitForId('SendButton');
     await element(by.id('SendButton')).tap();
+    await tapHeaderMenuItem('Coin Control', { actionId: 'coin_control' });
+    await waitFor(element(by.id('Loading')))
+      .not.toExist()
+      .withTimeout(300 * 1000);
+    await element(by.text('Test2')).atIndex(0).tap();
+    await element(by.id('FreezeSwitch')).tap();
+    await waitForSwitchValue('FreezeSwitch', true);
+    await goBack();
+    await goBack();
+
+    // create tx with the remaining unfrozen inputs
+    await waitForId('AddressInput');
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Use Full Balance')).tap();
+    await tapHeaderMenuItem('Use Full Balance');
     await element(by.text('OK')).tap();
     // setting fee rate:
     await setCustomFeeRate(1);
@@ -766,8 +766,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(uint8ArrayToHex(tx2.outs[0].script), '00147ea385f352be696ab0f6e94a0ee0e3c6d4b14a53');
     assert.strictEqual(tx2.outs[0].value, 35369n);
     assert.strictEqual(tx2.ins.length, 3);
-    assert.strictEqual(uint8ArrayToHex(tx2.ins[0].hash), 'd479264875a0f7c4a84e47141be005404531a8655f2388ae21e89a9701f14c10');
-    assert.strictEqual(tx2.ins[0].index, 0);
+    const tx2InputHashes = tx2.ins.map(input => uint8ArrayToHex(input.hash));
+    // Full balance must skip the frozen coin. Input order follows the latest UTXO fetch, so don't require a specific input to be first.
+    assert.ok(!tx2InputHashes.includes('20ecd27b453461df63079782874226386901f873dcd3e021e0126319c7b20a8b'));
+    assert.ok(tx2InputHashes.includes('d479264875a0f7c4a84e47141be005404531a8655f2388ae21e89a9701f14c10'));
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });

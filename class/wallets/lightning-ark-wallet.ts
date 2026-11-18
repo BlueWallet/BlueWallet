@@ -30,6 +30,7 @@ import ecc from '../../blue_modules/noble_ecc.ts';
 import { Measure } from '../measure.ts';
 import { deleteArkadeRealm, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm/realmInstance';
 import { registerArkPaymentPush } from '../../blue_modules/notifications';
+import { errorMessage } from '../../helpers/errorMessage';
 const { bech32m } = require('bech32');
 
 const bip32 = BIP32Factory(ecc);
@@ -67,13 +68,15 @@ export const __testing__ = {
   restoreInFlight,
 };
 
+/** display row built from SDK history / boarding utxos / swaps; see getTransactions() */
+type ArkTxRow = LightningTransaction & { txid: string; walletID: string };
+
 export class LightningArkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningArkWallet';
   static readonly typeReadable = 'Lightning Arkade';
   static readonly subtitleReadable = 'Arkade';
   // @ts-ignore: override
   public readonly type = LightningArkWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = LightningArkWallet.typeReadable;
 
   // Runtime SDK objects. The constructor re-defines these as non-enumerable so
@@ -183,9 +186,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (!inFlight) {
       inFlight = (async () => {
         const realm = await getArkadeRealm(namespace);
-        const walletRepository = new RealmWalletRepository(realm as any);
-        const contractRepository = new RealmContractRepository(realm as any);
-        const swapRepository = new RealmSwapRepository(realm as any);
+        const walletRepository = new RealmWalletRepository(realm);
+        const contractRepository = new RealmContractRepository(realm);
+        const swapRepository = new RealmSwapRepository(realm);
 
         // Resolve the delegator URL up front and preflight it. A mismatched
         // URL silently builds the wrong offchain tapscript, and a flaky
@@ -198,8 +201,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
           delegatorProvider = new RestDelegatorProvider(delegatorUrl);
           try {
             await delegatorProvider.getDelegateInfo();
-          } catch (e: any) {
-            throw new Error(`Delegate service unreachable (${delegatorUrl}): ${e?.message ?? e}`);
+          } catch (e) {
+            throw new Error(`Delegate service unreachable (${delegatorUrl}): ${errorMessage(e)}`);
           }
         }
 
@@ -229,6 +232,22 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // reflect SwapManager's autonomous claim/refund actions without
         // waiting for the next user-driven fetchBalance tick.
         this._subscribeToSwapEvents(arkadeSwaps);
+
+        // SwapManager only auto-refunds a failed submarine swap while it is
+        // actually alive and watching it (WebSocket/poll). On a backgrounded
+        // or killed app — the common case for a Lightning send that fails a
+        // few seconds after being fired off — nothing is watching, so the
+        // locked VHTLC funds never come back on their own; only the
+        // per-swap "Refund" button (lndViewInvoice.tsx) or the "Restore swap
+        // activity" button (WalletDetails.tsx) would catch it, and both
+        // require the user to know to go look (#8804: "the failed invoices
+        // balance never came back"). Sweep once per fresh init using the
+        // SDK's own reconciliation API so a fresh app launch self-heals
+        // without the user's help. Not awaited: this is a best-effort
+        // background reconciliation, not a gate on wallet startup.
+        this._recoverStrandedSubmarineFunds(arkadeSwaps).catch((e: unknown) => {
+          console.log('[ARK] stranded-funds recovery failed:', errorMessage(e));
+        });
 
         return { wallet, arkadeSwaps };
       })();
@@ -268,14 +287,32 @@ export class LightningArkWallet extends LightningCustodianWallet {
         }
         this._lastBalanceFetch = +new Date();
         this._lastTxFetch = +new Date();
-      } catch (e: any) {
-        console.log('[ARK] swap-event refresh failed:', e?.message ?? e);
+      } catch (e) {
+        console.log('[ARK] swap-event refresh failed:', errorMessage(e));
       }
     };
 
     swapManager.onSwapCompleted(refresh).catch(() => {});
     swapManager.onSwapFailed(refresh).catch(() => {});
     swapManager.onActionExecuted(refresh).catch(() => {});
+  }
+
+  // One-shot reconciliation for submarine swaps whose failure SwapManager
+  // never got to observe live (app backgrounded/killed mid-swap). Scan is
+  // side-effect free and cheap (one batched spendable + one batched
+  // recoverable indexer query); only swaps already past their refund CLTV
+  // (`status === 'recoverable'`) are swept, matching what the manual
+  // "Refund" button would do for each one individually.
+  private async _recoverStrandedSubmarineFunds(arkadeSwaps: ArkadeSwaps) {
+    const candidates = await arkadeSwaps.scanRecoverableSubmarineSwaps();
+    const swaps = candidates.filter(c => c.status === 'recoverable').map(c => c.swap);
+    if (swaps.length === 0) return;
+
+    await arkadeSwaps.recoverAllSubmarineFunds(swaps);
+    if (this._arkadeSwaps === arkadeSwaps) {
+      await this.fetchBalance();
+      await this.fetchTransactions();
+    }
   }
 
   private async _fetchLightningFeesAndLimits() {
@@ -291,8 +328,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
       if (!fees.reverse?.percentage) {
         console.log('warning: unexpected fees response from boltz:', JSON.stringify(fees, null, 2));
       }
-    } catch (e: any) {
-      console.log('[ARK] Failed to fetch Boltz fees/limits:', e?.message ?? e);
+    } catch (e) {
+      console.log('[ARK] Failed to fetch Boltz fees/limits:', errorMessage(e));
     }
   }
 
@@ -368,14 +405,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
    */
   getTransactions(includeUnpaidInvoices = false): (Transaction & LightningTransaction)[] {
     const walletID = this.getID();
-    const ret: any[] = [];
+    const ret: ArkTxRow[] = [];
     const MATCH_WINDOW_SEC = 30 * 60;
 
     // Pass 1 — base rows from the SDK transaction history (single source of
     // truth). `key.boardingTxid` is set only on boarding outputs, so it is an
     // exclusive refill discriminator; every other entry is a native Ark leg a
     // settled swap may later enrich in place.
-    type NativeLeg = { row: any; arkType: TxType; absAmount: number; matched: boolean };
+    type NativeLeg = { row: ArkTxRow; arkType: TxType; absAmount: number; matched: boolean };
     const nativeLegs: NativeLeg[] = [];
 
     // Boarding txids already surfaced as a settled "Refill" (pass 1). A boarding
@@ -409,7 +446,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
       const direction = histTx.type === TxType.TxSent ? -1 : 1;
       const idKey = histTx.key.arkTxid || histTx.key.commitmentTxid || `${histTx.type}-${createdAtSec}-${absAmount}`;
       const description = histTx.type === TxType.TxSent ? 'Sent' : 'Received';
-      const row: any = {
+      const row: ArkTxRow = {
         txid: `ark-${idKey}`,
         type: 'bitcoind_tx',
         walletID,
@@ -592,7 +629,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
       });
     }
 
-    return ret;
+    // rows carry only the lightning fields; callers treat them as the on-chain shape too
+    return ret as (Transaction & LightningTransaction)[];
   }
 
   async fetchUserInvoices() {
@@ -757,7 +795,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
     return this._swapHistory.some(
       swap =>
         swap.type === 'reverse' &&
-        ((swap.request as any)?.invoice === paymentRequest || (swap.response as any)?.invoice === paymentRequest),
+        (('invoice' in swap.request && swap.request.invoice === paymentRequest) ||
+          ('invoice' in swap.response && swap.response.invoice === paymentRequest)),
     );
   }
 
@@ -924,19 +963,19 @@ export class LightningArkWallet extends LightningCustodianWallet {
     // Type guards: real SDK objects always have dispose; unit-test stubs may not.
     try {
       if (typeof cachedSwaps?.dispose === 'function') await cachedSwaps.dispose();
-    } catch (e: any) {
-      console.log(`[LightningArkWallet] arkadeSwaps.dispose failed for ${namespace}:`, e?.message ?? e);
+    } catch (e) {
+      console.log(`[LightningArkWallet] arkadeSwaps.dispose failed for ${namespace}:`, errorMessage(e));
     }
     try {
       if (typeof cachedWallet?.dispose === 'function') await cachedWallet.dispose();
-    } catch (e: any) {
-      console.log(`[LightningArkWallet] wallet.dispose failed for ${namespace}:`, e?.message ?? e);
+    } catch (e) {
+      console.log(`[LightningArkWallet] wallet.dispose failed for ${namespace}:`, errorMessage(e));
     }
 
     try {
       await deleteArkadeRealm(namespace);
-    } catch (e: any) {
-      console.log(`[LightningArkWallet] onDelete cleanup failed for ${namespace}:`, e?.message ?? e);
+    } catch (e) {
+      console.log(`[LightningArkWallet] onDelete cleanup failed for ${namespace}:`, errorMessage(e));
     }
   }
 }

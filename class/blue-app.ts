@@ -8,6 +8,7 @@ import Realm from 'realm';
 
 import * as encryption from '../blue_modules/encryption';
 import presentAlert from '../components/Alert';
+import loc from '../loc';
 import { randomBytes } from './rng';
 import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
 import { HDLegacyBreadwalletWallet } from './wallets/hd-legacy-breadwallet-wallet';
@@ -28,9 +29,16 @@ import { getLNDHub } from '../helpers/lndHub';
 import { LightningArkWallet } from './wallets/lightning-ark-wallet.ts';
 import { hexToUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
+import { TaprootWallet } from './wallets/taproot-wallet';
+import { errorMessage } from '../helpers/errorMessage';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
+
+function isRealmDecryptionError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  return message.includes('Realm file decryption failed') || message.includes('failed the HMAC check');
+}
 
 export type TTXMetadata = {
   [txid: string]: {
@@ -54,6 +62,12 @@ export type TCounterpartyMetadata = {
   };
 };
 
+export type TAddressMetadata = {
+  [address: string]: {
+    label: string;
+  };
+};
+
 type TRealmTransaction = {
   internal: boolean;
   index: number;
@@ -64,6 +78,7 @@ type TBucketStorage = {
   wallets: string[]; // array of serialized wallets, not actual wallet objects
   tx_metadata: TTXMetadata;
   counterparty_metadata: TCounterpartyMetadata;
+  address_metadata?: TAddressMetadata; // absent in older buckets
 };
 
 const isReactNative = typeof navigator !== 'undefined' && navigator?.product === 'ReactNative';
@@ -81,12 +96,14 @@ export class BlueApp {
   public cachedPassword?: false | string;
   public tx_metadata: TTXMetadata;
   public counterparty_metadata: TCounterpartyMetadata;
+  public address_metadata: TAddressMetadata;
   public wallets: TWallet[];
 
   constructor() {
     this.wallets = [];
     this.tx_metadata = {};
     this.counterparty_metadata = {};
+    this.address_metadata = {};
     this.cachedPassword = false;
   }
 
@@ -119,7 +136,7 @@ export class BlueApp {
    * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
    * used for cli/tests
    */
-  setItem = (key: string, value: any): Promise<any> => {
+  setItem = (key: string, value: string): Promise<void> => {
     if (isReactNative) {
       return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
     } else {
@@ -131,7 +148,7 @@ export class BlueApp {
    * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
    * used for cli/tests
    */
-  getItem = (key: string): Promise<any> => {
+  getItem = (key: string): Promise<string | null> => {
     if (isReactNative) {
       return RNSecureKeyStore.get(key);
     } else {
@@ -139,12 +156,12 @@ export class BlueApp {
     }
   };
 
-  getItemWithFallbackToRealm = async (key: string): Promise<any | null> => {
+  getItemWithFallbackToRealm = async (key: string): Promise<string | null> => {
     let value;
     try {
       return await this.getItem(key);
-    } catch (error: any) {
-      console.warn('error reading', key, error.message);
+    } catch (error) {
+      console.warn('error reading', key, errorMessage(error));
       console.warn('fallback to realm');
       const realmKeyValue = await this.openRealmKeyValue();
       const obj = realmKeyValue.objectForPrimaryKey<{ key: string; value: string }>('KeyValue', key);
@@ -162,8 +179,8 @@ export class BlueApp {
     let data;
     try {
       data = await this.getItemWithFallbackToRealm(BlueApp.FLAG_ENCRYPTED);
-    } catch (error: any) {
-      console.warn('error reading `' + BlueApp.FLAG_ENCRYPTED + '` key:', error.message);
+    } catch (error) {
+      console.warn('error reading `' + BlueApp.FLAG_ENCRYPTED + '` key:', errorMessage(error));
       return false;
     }
 
@@ -172,9 +189,8 @@ export class BlueApp {
 
   isPasswordInUse = async (password: string) => {
     try {
-      let data = await this.getItem('data');
-      data = this.decryptData(data, password);
-      return Boolean(data);
+      const data = await this.getItem('data');
+      return Boolean(data && this.decryptData(data, password));
     } catch (_e) {
       return false;
     }
@@ -184,7 +200,7 @@ export class BlueApp {
    * Iterates through all values of `data` trying to
    * decrypt each one, and returns first one successfully decrypted
    */
-  decryptData(data: string, password: string): boolean | string {
+  decryptData(data: string, password: string): false | string {
     data = JSON.parse(data);
     let decrypted;
     let num = 0;
@@ -208,6 +224,7 @@ export class BlueApp {
       this.wallets = [];
       this.tx_metadata = {};
       this.counterparty_metadata = {};
+      this.address_metadata = {};
       return this.loadFromDisk();
     } else {
       throw new Error('Incorrect password. Please, try again.');
@@ -217,15 +234,13 @@ export class BlueApp {
   encryptStorage = async (password: string): Promise<void> => {
     // assuming the storage is not yet encrypted
     await this.saveToDisk();
-    let data = await this.getItem('data');
+    const data = await this.getItem('data');
     // TODO: refactor ^^^ (should not save & load to fetch data)
+    if (data === null) throw new Error(loc.settings.encrypt_storage_empty);
 
     const encrypted = encryption.encrypt(data, password);
-    data = [];
-    data.push(encrypted); // putting in array as we might have many buckets with storages
-    data = JSON.stringify(data);
     this.cachedPassword = password;
-    await this.setItem('data', data);
+    await this.setItem('data', JSON.stringify([encrypted])); // array as we might have many buckets with storages
     await this.setItem(BlueApp.FLAG_ENCRYPTED, '1');
   };
 
@@ -238,15 +253,18 @@ export class BlueApp {
     this.wallets = [];
     this.tx_metadata = {};
     this.counterparty_metadata = {};
+    this.address_metadata = {};
 
     const data: TBucketStorage = {
       wallets: [],
       tx_metadata: {},
       counterparty_metadata: {},
+      address_metadata: {},
     };
 
-    let buckets = await this.getItem('data');
-    buckets = JSON.parse(buckets);
+    const raw = await this.getItem('data');
+    if (raw === null) throw new Error(loc.settings.encrypt_storage_empty);
+    const buckets: string[] = JSON.parse(raw);
     buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
     this.cachedPassword = fakePassword;
     const bucketsString = JSON.stringify(buckets);
@@ -298,7 +316,6 @@ export class BlueApp {
    * @returns {Promise<Realm>}
    */
   async openRealmKeyValue(): Promise<Realm> {
-    const cacheFolderPath = RNFS.CachesDirectoryPath; // Path to cache folder
     const service = 'realm_encryption_key';
     let password;
     const credentials = await Keychain.getGenericPassword({ service });
@@ -312,7 +329,7 @@ export class BlueApp {
 
     const buf = hexToUint8Array(password);
     const encryptionKey = Int8Array.from(buf);
-    const path = `${cacheFolderPath}/keyvalue.realm`; // Use cache folder path
+    const path = this.keyValueRealmPath();
 
     const schema = [
       {
@@ -334,7 +351,7 @@ export class BlueApp {
     });
   }
 
-  saveToRealmKeyValue(realmkeyValue: Realm, key: string, value: any) {
+  saveToRealmKeyValue(realmkeyValue: Realm, key: string, value: string) {
     realmkeyValue.write(() => {
       realmkeyValue.create(
         'KeyValue',
@@ -358,71 +375,79 @@ export class BlueApp {
     // Wrap inside a try so if anything goes wrong it wont block loadFromDisk from continuing
     try {
       await this.moveRealmFilesToCacheDirectory();
-    } catch (error: any) {
-      console.warn('moveRealmFilesToCacheDirectory error:', error.message);
+    } catch (error) {
+      console.warn('moveRealmFilesToCacheDirectory error:', errorMessage(error));
     }
-    let dataRaw = await this.getItemWithFallbackToRealm('data');
-    if (password) {
+    let dataRaw: string | false | null = await this.getItemWithFallbackToRealm('data');
+    if (password && dataRaw !== null) {
       dataRaw = this.decryptData(dataRaw, password);
       if (dataRaw) {
         // password is good, cache it
         this.cachedPassword = password;
       }
     }
-    if (dataRaw !== null) {
+    if (dataRaw !== null && dataRaw !== false) {
       let realm;
       try {
         realm = await this.getRealmForTransactions();
-      } catch (error: any) {
-        presentAlert({ message: error.message });
+      } catch (error) {
+        presentAlert({ message: errorMessage(error) });
       }
       const data: TBucketStorage = JSON.parse(dataRaw);
       if (!data.wallets) return false;
       const wallets = data.wallets;
+      // Bucket-wide, not per-wallet, so hoisted out of the loop: an empty wallets array must still
+      // load it. `?? {}` because older buckets predate some of these fields.
+      this.tx_metadata = data.tx_metadata ?? {};
+      this.counterparty_metadata = data.counterparty_metadata ?? {};
+      this.address_metadata = data.address_metadata ?? {};
       for (const key of wallets) {
         // deciding which type is wallet and instantiating correct object
         const tempObj = JSON.parse(key);
         let unserializedWallet: TWallet;
         switch (tempObj.type) {
           case SegwitBech32Wallet.type:
-            unserializedWallet = SegwitBech32Wallet.fromJson(key) as unknown as SegwitBech32Wallet;
+            unserializedWallet = SegwitBech32Wallet.fromJson(key);
             break;
           case SegwitP2SHWallet.type:
-            unserializedWallet = SegwitP2SHWallet.fromJson(key) as unknown as SegwitP2SHWallet;
+            unserializedWallet = SegwitP2SHWallet.fromJson(key);
             break;
           case WatchOnlyWallet.type:
-            unserializedWallet = WatchOnlyWallet.fromJson(key) as unknown as WatchOnlyWallet;
+            unserializedWallet = WatchOnlyWallet.fromJson(key);
             unserializedWallet.init();
             if (unserializedWallet.isHd() && !unserializedWallet.isXpubValid()) {
               continue;
             }
             break;
           case HDLegacyP2PKHWallet.type:
-            unserializedWallet = HDLegacyP2PKHWallet.fromJson(key) as unknown as HDLegacyP2PKHWallet;
+            unserializedWallet = HDLegacyP2PKHWallet.fromJson(key);
             break;
           case HDSegwitP2SHWallet.type:
-            unserializedWallet = HDSegwitP2SHWallet.fromJson(key) as unknown as HDSegwitP2SHWallet;
+            unserializedWallet = HDSegwitP2SHWallet.fromJson(key);
             break;
           case HDSegwitBech32Wallet.type:
-            unserializedWallet = HDSegwitBech32Wallet.fromJson(key) as unknown as HDSegwitBech32Wallet;
+            unserializedWallet = HDSegwitBech32Wallet.fromJson(key);
             break;
           case HDTaprootWallet.type:
-            unserializedWallet = HDTaprootWallet.fromJson(key) as unknown as HDTaprootWallet;
+            unserializedWallet = HDTaprootWallet.fromJson(key);
+            break;
+          case TaprootWallet.type:
+            unserializedWallet = TaprootWallet.fromJson(key);
             break;
           case HDLegacyBreadwalletWallet.type:
-            unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key) as unknown as HDLegacyBreadwalletWallet;
+            unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key);
             break;
           case HDLegacyElectrumSeedP2PKHWallet.type:
-            unserializedWallet = HDLegacyElectrumSeedP2PKHWallet.fromJson(key) as unknown as HDLegacyElectrumSeedP2PKHWallet;
+            unserializedWallet = HDLegacyElectrumSeedP2PKHWallet.fromJson(key);
             break;
           case HDSegwitElectrumSeedP2WPKHWallet.type:
-            unserializedWallet = HDSegwitElectrumSeedP2WPKHWallet.fromJson(key) as unknown as HDSegwitElectrumSeedP2WPKHWallet;
+            unserializedWallet = HDSegwitElectrumSeedP2WPKHWallet.fromJson(key);
             break;
           case MultisigHDWallet.type:
-            unserializedWallet = MultisigHDWallet.fromJson(key) as unknown as MultisigHDWallet;
+            unserializedWallet = MultisigHDWallet.fromJson(key);
             break;
           case HDAezeedWallet.type:
-            unserializedWallet = HDAezeedWallet.fromJson(key) as unknown as HDAezeedWallet;
+            unserializedWallet = HDAezeedWallet.fromJson(key);
             // migrate password to this.passphrase field
             // remove this code somewhere in year 2022
             if (unserializedWallet.secret.includes(':')) {
@@ -433,20 +458,20 @@ export class BlueApp {
 
             break;
           case SLIP39SegwitP2SHWallet.type:
-            unserializedWallet = SLIP39SegwitP2SHWallet.fromJson(key) as unknown as SLIP39SegwitP2SHWallet;
+            unserializedWallet = SLIP39SegwitP2SHWallet.fromJson(key);
             break;
           case SLIP39LegacyP2PKHWallet.type:
-            unserializedWallet = SLIP39LegacyP2PKHWallet.fromJson(key) as unknown as SLIP39LegacyP2PKHWallet;
+            unserializedWallet = SLIP39LegacyP2PKHWallet.fromJson(key);
             break;
           case SLIP39SegwitBech32Wallet.type:
-            unserializedWallet = SLIP39SegwitBech32Wallet.fromJson(key) as unknown as SLIP39SegwitBech32Wallet;
+            unserializedWallet = SLIP39SegwitBech32Wallet.fromJson(key);
             break;
           case LightningArkWallet.type:
-            unserializedWallet = LightningArkWallet.fromJson(key) as unknown as LightningArkWallet;
+            unserializedWallet = LightningArkWallet.fromJson(key);
             break;
           case LightningCustodianWallet.type: {
-            unserializedWallet = LightningCustodianWallet.fromJson(key) as unknown as LightningCustodianWallet;
-            let lndhub: false | any = false;
+            unserializedWallet = LightningCustodianWallet.fromJson(key);
+            let lndhub: string | undefined;
             try {
               lndhub = await getLNDHub();
             } catch (error) {
@@ -472,22 +497,20 @@ export class BlueApp {
             break;
           case LegacyWallet.type:
           default:
-            unserializedWallet = LegacyWallet.fromJson(key) as unknown as LegacyWallet;
+            unserializedWallet = LegacyWallet.fromJson(key);
             break;
         }
 
         try {
           if (realm) this.inflateWalletFromRealm(realm, unserializedWallet);
-        } catch (error: any) {
-          presentAlert({ message: error.message });
+        } catch (error) {
+          presentAlert({ message: errorMessage(error) });
         }
 
         // done
         const ID = unserializedWallet.getID();
         if (!this.wallets.some(wallet => wallet.getID() === ID)) {
           this.wallets.push(unserializedWallet);
-          this.tx_metadata = data.tx_metadata;
-          this.counterparty_metadata = data.counterparty_metadata;
         }
       }
       if (realm) realm.close();
@@ -614,23 +637,22 @@ export class BlueApp {
       return this.saveToDisk();
     }
     savingInProgress = 1;
+    let primaryStorageCommitted = false;
 
     try {
       const walletsToSave: string[] = []; // serialized wallets
       let realm;
       try {
         realm = await this.getRealmForTransactions();
-      } catch (error: any) {
-        presentAlert({ message: error.message });
+      } catch (error) {
+        presentAlert({ message: errorMessage(error) });
       }
       for (const key of this.wallets) {
         if (typeof key === 'boolean') continue;
         key.prepareForSerialization();
-        // @ts-ignore wtf is wallet.current? Does it even exist?
-        delete key.current;
         const keyCloned = Object.assign({}, key); // stripped-down version of a wallet to save to secure keystore
         if ('_hdWalletInstance' in key) {
-          const k = keyCloned as any & WatchOnlyWallet;
+          const k = keyCloned as WatchOnlyWallet;
           k._hdWalletInstance = Object.assign({}, key._hdWalletInstance);
           k._hdWalletInstance._txs_by_external_index = {};
           k._hdWalletInstance._txs_by_internal_index = {};
@@ -654,12 +676,14 @@ export class BlueApp {
         wallets: walletsToSave,
         tx_metadata: this.tx_metadata,
         counterparty_metadata: this.counterparty_metadata,
+        address_metadata: this.address_metadata,
       };
 
       if (this.cachedPassword) {
         // should find the correct bucket, encrypt and then save
-        let buckets = await this.getItemWithFallbackToRealm('data');
-        buckets = JSON.parse(buckets);
+        const raw = await this.getItemWithFallbackToRealm('data');
+        if (raw === null) throw new Error(loc.settings.encrypt_storage_empty);
+        const buckets: string[] = JSON.parse(raw);
         const newData: string[] = []; // serialized buckets
         let num = 0;
         for (const bucket of buckets) {
@@ -692,19 +716,14 @@ export class BlueApp {
 
       await this.setItem('data', JSON.stringify(data));
       await this.setItem(BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
+      primaryStorageCommitted = true;
 
-      // now, backing up same data in realm:
-      const realmkeyValue = await this.openRealmKeyValue();
-      this.saveToRealmKeyValue(realmkeyValue, 'data', JSON.stringify(data));
-      this.saveToRealmKeyValue(realmkeyValue, BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
-      realmkeyValue.close();
-    } catch (error: any) {
-      console.error('save to disk exception:', error.message);
-      presentAlert({ message: 'save to disk exception: ' + error.message });
-      if (error.message.includes('Realm file decryption failed')) {
-        console.warn('purging realm key-value database file');
-        this.purgeRealmKeyValueFile();
-      }
+      // Realm copy is a backup of what was just committed to secure storage.
+      await this.backupToRealmKeyValue(JSON.stringify(data));
+    } catch (error) {
+      console.error('save to disk exception:', errorMessage(error));
+      presentAlert({ message: 'save to disk exception: ' + errorMessage(error) });
+      if (!primaryStorageCommitted) throw error;
     } finally {
       savingInProgress = 0;
     }
@@ -910,11 +929,60 @@ export class BlueApp {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
 
-  purgeRealmKeyValueFile() {
-    const path = 'keyvalue.realm';
-    return Realm.deleteFile({
-      path,
-    });
+  /**
+   * Absolute path of the encrypted key/value backup. Must stay in sync with
+   * openRealmKeyValue(); a relative path is resolved against Documents, not Caches.
+   */
+  keyValueRealmPath(): string {
+    return `${RNFS.CachesDirectoryPath}/keyvalue.realm`;
+  }
+
+  /**
+   * Writes the secure-storage payload into the key/value Realm.
+   * If the file cannot be decrypted (keychain key rotated, or the file left
+   * behind after a signing-team change), delete that cache file and write a
+   * fresh backup. The previous purge used a relative path, so the Caches file
+   * survived and every later save raised the same alert.
+   */
+  async backupToRealmKeyValue(payload: string): Promise<void> {
+    const write = (realmkeyValue: Realm) => {
+      try {
+        this.saveToRealmKeyValue(realmkeyValue, 'data', payload);
+        this.saveToRealmKeyValue(realmkeyValue, BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
+      } finally {
+        if (!realmkeyValue.isClosed) realmkeyValue.close();
+      }
+    };
+
+    try {
+      write(await this.openRealmKeyValue());
+    } catch (error) {
+      if (!isRealmDecryptionError(error)) throw error;
+      console.warn('keyvalue realm decryption failed; recreating backup');
+      await this.purgeRealmKeyValueFile();
+      write(await this.openRealmKeyValue());
+    }
+  }
+
+  async purgeRealmKeyValueFile(): Promise<void> {
+    const path = this.keyValueRealmPath();
+    try {
+      if (Realm.exists({ path })) {
+        Realm.deleteFile({ path });
+      }
+    } catch (error) {
+      console.warn('Realm.deleteFile failed for keyvalue realm:', errorMessage(error));
+    }
+
+    // Realm.deleteFile removes the .realm, .lock, .fresh.lock, .note, and .management siblings,
+    // but it may have thrown above. Sweep whatever is left.
+    for (const sibling of [path, `${path}.lock`, `${path}.fresh.lock`, `${path}.note`, `${path}.management`]) {
+      try {
+        if (await RNFS.exists(sibling)) await RNFS.unlink(sibling);
+      } catch (error) {
+        console.warn('failed to delete', sibling, errorMessage(error));
+      }
+    }
   }
 
   async moveRealmFilesToCacheDirectory() {

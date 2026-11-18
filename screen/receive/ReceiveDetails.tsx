@@ -1,3 +1,5 @@
+import Clipboard from '@react-native-clipboard/clipboard';
+import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -8,6 +10,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
+import AddressLabelBadge from '../../components/AddressLabelBadge';
 import BlueButtonLink from '../../components/BlueButtonLink';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
@@ -30,6 +33,7 @@ import { SuccessView } from '../send/success';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { isIOS26OrHigher } from '../../blue_modules/environment';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
@@ -146,7 +150,7 @@ type RouteProps = RouteProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 const ReceiveDetails = () => {
   const route = useRoute<RouteProps>();
   const { walletID, address } = route.params;
-  const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
+  const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions, addressMetadata } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { colors } = useTheme();
   const isDarkTheme = useColorScheme() === 'dark';
@@ -201,6 +205,15 @@ const ReceiveDetails = () => {
   });
 
   const copyRef = useRef<CopyTextToClipboardHandle>(null);
+  useScreenMenuActions({
+    copyAddress:
+      showAddress && currentTab === segmentControlValues[0] && !!address
+        ? () => {
+            Clipboard.setString(address);
+            triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+          }
+        : undefined,
+  });
   const scrollLayoutRef = useRef({ width: 0, height: 0 });
   const pressScale = useSharedValue(1);
   const pressAnimatedStyle = useAnimatedStyle(() => ({
@@ -258,7 +271,8 @@ const ReceiveDetails = () => {
           newAddress = wallet.getAddress();
         }
       } else {
-        saveToDisk(); // caching whatever getAddressAsync() generated internally
+        // caching whatever getAddressAsync() generated internally
+        saveToDisk().catch((error: unknown) => console.warn('ReceiveDetails: saveToDisk failed', error));
       }
     } else {
       try {
@@ -271,7 +285,8 @@ const ReceiveDetails = () => {
         console.warn('either sleep expired or getAddressAsync threw an exception');
         newAddress = wallet.getAddress();
       } else {
-        saveToDisk(); // caching whatever getAddressAsync() generated internally
+        // caching whatever getAddressAsync() generated internally
+        saveToDisk().catch((error: unknown) => console.warn('ReceiveDetails: saveToDisk failed', error));
       }
     }
 
@@ -290,14 +305,6 @@ const ReceiveDetails = () => {
     }
   }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
-  const onEnablePaymentsCodeSwitchValue = useCallback(() => {
-    if (wallet && wallet.allowBIP47()) {
-      wallet.switchBIP47(!wallet.isBIP47Enabled());
-    }
-    saveToDisk();
-    obtainWalletAddress();
-  }, [wallet, saveToDisk, obtainWalletAddress]);
-
   useEffect(() => {
     if (showConfirmedBalance) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -310,25 +317,13 @@ const ReceiveDetails = () => {
     }
   }, [address, isCustom, setAddressBIP21Encoded]);
 
-  useEffect(() => {
-    setParams({
-      allowBIP47: Boolean(wallet?.allowBIP47()),
-      isBIP47Enabled: Boolean(isBIP47Enabled),
-    });
-  }, [isBIP47Enabled, setParams, wallet]);
+  // Derived read: the label sheet mutates addressMetadata in place, and saving re-renders this screen.
+  const addressLabel = address ? (addressMetadata[address]?.label ?? '') : '';
 
-  const lastToggleRequestRef = useRef<number | undefined>(undefined);
-  const toggleBIP47RequestedAt = route.params?.toggleBIP47RequestedAt;
-
-  useEffect(() => {
-    if (!toggleBIP47RequestedAt || toggleBIP47RequestedAt === lastToggleRequestRef.current) {
-      return;
-    }
-
-    lastToggleRequestRef.current = toggleBIP47RequestedAt;
-    onEnablePaymentsCodeSwitchValue();
-    setParams({ toggleBIP47RequestedAt: undefined });
-  }, [toggleBIP47RequestedAt, onEnablePaymentsCodeSwitchValue, setParams]);
+  const navigateToAddressLabel = useCallback(() => {
+    if (!address) return;
+    navigate('ReceiveAddressLabel', { address });
+  }, [address, navigate]);
 
   // re-fetching address balance periodically
   useEffect(() => {
@@ -635,9 +630,9 @@ const ReceiveDetails = () => {
     }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded, isCustom, hasIncomingCustomParams]),
   );
 
-  const showCustomAmountModal = useCallback(() => {
+  const showMoreOptionsSheet = useCallback(() => {
     if (!address) return;
-    navigate('ReceiveCustomAmount', {
+    navigate('ReceiveMoreOptions', {
       address,
       currentLabel: customLabel,
       currentAmount: customAmount,
@@ -712,15 +707,24 @@ const ReceiveDetails = () => {
     }
   };
 
-  const handleShareButtonPressed = () => {
-    const message = currentTab === segmentControlValues[0] ? bip21encoded : paymentCodeString;
+  const shareMessage = currentTab === segmentControlValues[0] ? bip21encoded : paymentCodeString;
 
-    if (!message) {
+  useEffect(() => {
+    if (!isIOS26OrHigher) return;
+
+    const headerShareMessage = shareMessage || undefined;
+    if (route.params.headerShareMessage !== headerShareMessage) {
+      setParams({ headerShareMessage });
+    }
+  }, [route.params.headerShareMessage, setParams, shareMessage]);
+
+  const handleShareButtonPressed = () => {
+    if (!shareMessage) {
       presentAlert({ title: loc.errors.error, message: loc.bip47.not_found });
       return;
     }
 
-    Share.open({ message }).catch(error => console.debug('Error sharing:', error));
+    Share.open({ message: shareMessage }).catch(error => console.debug('Error sharing:', error));
   };
 
   return (
@@ -737,6 +741,15 @@ const ReceiveDetails = () => {
         onLayout={onScrollViewLayout}
       >
         {showAddress && renderReceiveCard()}
+        {showAddress && currentTab === segmentControlValues[0] && addressLabel ? (
+          <AddressLabelBadge
+            label={addressLabel}
+            style={styles.addressLabelPill}
+            onPress={navigateToAddressLabel}
+            accessibilityLabel={`${loc.receive.option_label}: ${addressLabel}`}
+            testID="ReceiveAddressLabel"
+          />
+        ) : null}
         {showReceiveSkeleton && renderReceiveSkeleton()}
         {showAddress && address !== undefined && (
           <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
@@ -755,16 +768,18 @@ const ReceiveDetails = () => {
             {showAddress && currentTab === loc.wallets.details_address && (
               <BlueButtonLink
                 style={styles.link}
-                testID="SetCustomAmountButton"
-                title={loc.receive.details_setAmount}
-                onPress={showCustomAmountModal}
+                testID="ReceiveMoreOptionsButton"
+                title={loc.receive.details_more_options}
+                onPress={showMoreOptionsSheet}
               />
             )}
-            <Button
-              onPress={handleShareButtonPressed}
-              title={loc.receive.details_share}
-              disabled={!bip21encoded && !(currentTab === segmentControlValues[1] && isBIP47Enabled)}
-            />
+            {!isIOS26OrHigher && (
+              <Button
+                onPress={handleShareButtonPressed}
+                title={loc.receive.details_share}
+                disabled={!bip21encoded && !(currentTab === segmentControlValues[1] && isBIP47Enabled)}
+              />
+            )}
           </BlueCard>
         </View>
       </SafeAreaScrollView>
@@ -860,6 +875,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     minHeight: 48,
     justifyContent: 'center',
+  },
+  addressLabelPill: {
+    alignSelf: 'center',
+    maxWidth: '86%',
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    marginTop: 8,
   },
   bip47NotFoundContainer: {
     paddingVertical: 40,

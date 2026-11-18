@@ -24,6 +24,10 @@ jobs:
         node-version: 24
         cache: 'npm'
 
+    - name: Set npm version
+      working-directory: ${{ runner.temp }}
+      run: npm install --global npm@12.2.2
+
     - name: Install node_modules
       run: npm ci || npm ci
 
@@ -43,6 +47,10 @@ jobs:
       with:
         node-version: 24
         cache: 'npm'
+
+    - name: Set npm version
+      working-directory: ${{ runner.temp }}
+      run: npm install --global npm@12.2.2
 
     - name: Install node_modules
       run: npm ci || npm ci
@@ -75,6 +83,10 @@ jobs:
         node-version: 24
         cache: 'npm'
 
+    - name: Set npm version
+      working-directory: ${{ runner.temp }}
+      run: npm install --global npm@12.2.2
+
     - name: Install node_modules
       run: npm ci || npm ci
 
@@ -91,4 +103,5 @@ jobs:
         FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
         MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
         MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
+        MNEMONICS_KEYSTONE: ${{ secrets.MNEMONICS_KEYSTONE }}
         RETRY: 1

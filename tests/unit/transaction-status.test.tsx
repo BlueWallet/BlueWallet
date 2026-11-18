@@ -39,19 +39,20 @@ jest.mock('../../hooks/useWalletSubscribe', () => ({
   default: () => mockWalletSubscribe,
 }));
 
-let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet' };
+let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet', key: 'transaction-status-test' };
 
 jest.mock('@react-navigation/native', () => {
   const actual = jest.requireActual('@react-navigation/native');
   return {
     ...actual,
-    useRoute: () => ({ params: routeParams }),
+    useRoute: () => ({ params: routeParams, key: routeParams.key }),
     useNavigation: () => ({
       navigate: jest.fn(),
       setOptions: jest.fn(),
       goBack: jest.fn(),
       addListener: jest.fn(),
     }),
+    useFocusEffect: (effect: () => void | (() => void)) => effect(),
   };
 });
 
@@ -207,6 +208,7 @@ jest.mock('../../loc', () => ({
       cancel: 'Cancel',
     },
   },
+  formatBalance: (value: number | string, unit: string) => `${value} ${unit}`,
   formatBalanceWithoutSuffix: (value: number | string) => String(value),
 }));
 
@@ -320,6 +322,104 @@ describe('TransactionStatus regression', () => {
       '', // message empty so content is not in alert body
       { type: 'plain-text', defaultValue: existingMemo }, // defaultValue: pre-fill input for easy editing
     );
+  });
+
+  it('saves a note entered through the alert', async () => {
+    mockPrompt.mockResolvedValue('Saved from alert');
+    const { view } = setup(1, 1000);
+
+    fireEvent.press(view.getByText('Add note'));
+
+    await waitFor(() => {
+      expect(mockStorageState.saveToDisk).toHaveBeenCalledTimes(1);
+    });
+    expect(mockStorageState.txMetadata['mock-tx']).toEqual({ memo: 'Saved from alert' });
+  });
+
+  it('renders while transaction metadata is still unavailable', async () => {
+    mockStorageState = { ...mockStorageState, txMetadata: undefined } as unknown as MockStorage;
+
+    const { view } = setup(1, 1000);
+
+    await waitFor(() => {
+      expect(view.getByText('received')).toBeTruthy();
+    });
+  });
+
+  it('keeps a hash-only transaction on screen when electrum answers after the loading watchdog', async () => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    jest.useFakeTimers();
+    (BlueElectrum.multiGetTransactionByTxid as jest.Mock).mockImplementationOnce(
+      (txids: string[]) =>
+        new Promise(resolve =>
+          setTimeout(
+            () => resolve(Object.fromEntries(txids.map(txid => [txid, { hash: txid, value: 1200, confirmations: 1, vin: [], vout: [] }]))),
+            11000,
+          ),
+        ),
+    );
+    routeParams = { hash: 'mock-tx' };
+    const view = render(<TransactionStatus />);
+
+    await act(async () => {
+      jest.advanceTimersByTime(10001);
+    });
+    expect(view.getByText('loading error')).toBeTruthy();
+
+    await act(async () => {
+      jest.advanceTimersByTime(1000);
+    });
+    await waitFor(() => {
+      expect(view.getByText('confirmations: 1')).toBeTruthy();
+    });
+    expect(view.queryByText('loading error')).toBeNull();
+    jest.useRealTimers();
+  });
+
+  it('keeps a hash-only transaction when the watchdog fires during the previous-output lookup', async () => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    jest.useFakeTimers();
+    const row = { hash: 'mock-tx', value: 1200, confirmations: 1, vin: [{ txid: 'prev-tx', vout: 0 }], vout: [] };
+    (BlueElectrum.multiGetTransactionByTxid as jest.Mock)
+      // the tx itself lands just before the watchdog
+      .mockImplementationOnce(() => new Promise(resolve => setTimeout(() => resolve({ 'mock-tx': row }), 9999)))
+      // the previous outputs land well after it
+      .mockImplementationOnce(
+        () =>
+          new Promise(resolve =>
+            setTimeout(() => resolve({ 'prev-tx': { vout: [{ value: 0.5, scriptPubKey: { addresses: ['bc1qprev'] } }] } }), 5000),
+          ),
+      );
+    routeParams = { hash: 'mock-tx' };
+    const view = render(<TransactionStatus />);
+
+    await act(async () => {
+      jest.advanceTimersByTime(10001);
+    });
+    expect(view.getByText('confirmations: 1')).toBeTruthy();
+    expect(view.queryByText('loading error')).toBeNull();
+
+    await act(async () => {
+      jest.advanceTimersByTime(5000);
+    });
+    expect(view.getByText('confirmations: 1')).toBeTruthy();
+    expect(view.queryByText('loading error')).toBeNull();
+    expect(BlueElectrum.multiGetTransactionByTxid).toHaveBeenCalledTimes(2);
+    jest.useRealTimers();
+  });
+
+  it('shows a hash-only transaction whose electrum row has no vin/vout instead of the loading error', async () => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    (BlueElectrum.multiGetTransactionByTxid as jest.Mock).mockImplementationOnce(() =>
+      Promise.resolve({ 'mock-tx': { hash: 'mock-tx', value: 1200, confirmations: 1 } }),
+    );
+    routeParams = { hash: 'mock-tx' };
+    const view = render(<TransactionStatus />);
+
+    await waitFor(() => {
+      expect(view.getByText('confirmations: 1')).toBeTruthy();
+    });
+    expect(view.queryByText('loading error')).toBeNull();
   });
 
   it('renders an Arkade row as received (not pending) and never queries Electrum for its synthetic id', async () => {
@@ -466,5 +566,33 @@ describe('TransactionStatus regression', () => {
 
     expect(BlueElectrum.getConfirmedBlockHeight).not.toHaveBeenCalled();
     expect(BlueElectrum.getBlockTimestamps).not.toHaveBeenCalled();
+  });
+
+  it('opens mempool.space when an unconfirmed tx cannot be sped up in-app', async () => {
+    const { Linking } = require('react-native');
+    const openURL = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+
+    const walletMock = {
+      getID: () => 'mock-wallet',
+      getTransactions: jest.fn(() => [{ ...mockTxBase, confirmations: 0 }]),
+      getLastTxFetch: jest.fn(() => 1000),
+      allowRBF: jest.fn(() => false),
+      preferredBalanceUnit: 'BTC',
+      type: 'watchOnly',
+    } as any;
+    mockStorageState = { ...mockStorageState, wallets: [walletMock] };
+    mockWalletSubscribe = walletMock;
+
+    const view = render(<TransactionStatus />);
+
+    await waitFor(() => {
+      expect(view.getByText('Pending')).toBeTruthy();
+      expect(view.getByText('Bump Fee')).toBeTruthy();
+    });
+
+    fireEvent.press(view.getByText('Bump Fee'));
+
+    expect(openURL).toHaveBeenCalledWith('https://mempool.space/tx/mock-tx#accelerate&partnerCode=bluewallet');
+    openURL.mockRestore();
   });
 });

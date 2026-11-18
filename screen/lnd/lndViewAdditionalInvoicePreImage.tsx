@@ -9,14 +9,11 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-
-type LNDViewAdditionalInvoicePreImageRouteParams = {
-  preImageData: string;
-};
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 const LNDViewAdditionalInvoicePreImage = () => {
   const { colors } = useTheme();
-  const { preImageData } = useRoute<RouteProp<{ params: LNDViewAdditionalInvoicePreImageRouteParams }, 'params'>>().params;
+  const { preImageData } = useRoute<RouteProp<DetailViewStackParamList, 'LNDViewAdditionalInvoicePreImage'>>().params;
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,

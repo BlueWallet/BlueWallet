@@ -14,6 +14,7 @@
     "resolveJsonModule": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    "customConditions": ["react-native", "react-native-legacy-deep-imports"],
     "types": ["jest"],
     "paths": {}
   },

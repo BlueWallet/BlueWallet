@@ -1,30 +1,35 @@
-import React, { Component } from 'react';
-import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { Component, useRef } from 'react';
+import { ActivityIndicator, Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import PropTypes from 'prop-types';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
-import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
+import { HDSegwitBech32Transaction, TxVerificationError } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
 import { StorageContext } from '../../components/Context/StorageProvider';
 import ReplaceFeeSuggestions from '../../components/ReplaceFeeSuggestions';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { BlueSpacing, BlueSpacing20 } from '../../components/BlueSpacing';
+import { useKeyboard } from '../../hooks/useKeyboard';
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
     paddingTop: 20,
   },
-  explain: {
-    paddingBottom: 16,
+  scrollContent: {
+    flexGrow: 1,
+  },
+  stage: {
+    paddingTop: 16,
   },
   center: {
     alignItems: 'center',
@@ -56,6 +61,36 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 });
+
+const FeeSelectionLayout = ({ children }) => {
+  const scrollRef = useRef(null);
+  const { height: keyboardHeight, isVisible } = useKeyboard();
+  const androidKeyboardInset = Platform.OS === 'android' && isVisible ? keyboardHeight + 24 : 0;
+
+  const scrollFocusedFieldIntoView = () => {
+    if (androidKeyboardInset > 0) {
+      scrollRef.current?.scrollToEnd({ animated: true });
+    }
+  };
+
+  return (
+    <SafeAreaScrollView
+      ref={scrollRef}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
+      automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+      floatingButtonHeight={androidKeyboardInset}
+      contentContainerStyle={styles.scrollContent}
+      onContentSizeChange={scrollFocusedFieldIntoView}
+    >
+      {children}
+    </SafeAreaScrollView>
+  );
+};
+
+FeeSelectionLayout.propTypes = {
+  children: PropTypes.node,
+};
 
 export default class CPFP extends Component {
   static contextType = StorageContext;
@@ -101,7 +136,11 @@ export default class CPFP extends Component {
     this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
     majorTomToGroundControl([], [], [this.state.newTxid]);
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
-    this.props.navigation.navigate('Success', { amount: undefined });
+    this.props.navigation.navigate('Success', {
+      amount: undefined,
+      walletID: this.state.wallet.getID(),
+      walletType: this.state.wallet.type,
+    });
   }
 
   async componentDidMount() {
@@ -113,9 +152,9 @@ export default class CPFP extends Component {
     });
     try {
       await this.checkPossibilityOfCPFP();
-    } catch (_) {
+    } catch (error) {
       // if anything goes wrong we just show "this is not bumpable" message
-      this.setState({ nonReplaceable: true, isLoading: false });
+      this.setState({ nonReplaceable: true, unverified: error instanceof TxVerificationError, isLoading: false });
     }
   }
 
@@ -134,7 +173,7 @@ export default class CPFP extends Component {
   }
 
   async createTransaction() {
-    const newFeeRate = parseInt(this.state.newFeeRate, 10);
+    const newFeeRate = Number(this.state.newFeeRate);
     if (newFeeRate > this.state.feeRate) {
       /** @type {HDSegwitBech32Transaction} */
       const tx = this.state.tx;
@@ -152,21 +191,24 @@ export default class CPFP extends Component {
 
   renderStage1(text) {
     return (
-      <SafeArea style={styles.root}>
-        <BlueSpacing />
-        <BlueCard style={styles.center}>
+      <View style={styles.stage}>
+        <BlueCard>
           <BlueText>{text}</BlueText>
           <BlueSpacing20 />
           <ReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
           <BlueSpacing />
           <Button
-            disabled={this.state.newFeeRate <= this.state.feeRate}
+            disabled={this.state.newFeeRate <= this.state.feeRate || !Number.isFinite(this.state.newFeeRate)}
             onPress={() => this.createTransaction()}
             title={loc.transactions.cpfp_create}
           />
         </BlueCard>
-      </SafeArea>
+      </View>
     );
+  }
+
+  renderFeeSelection(text) {
+    return <FeeSelectionLayout>{this.renderStage1(text)}</FeeSelectionLayout>;
   }
 
   renderStage2() {
@@ -214,23 +256,12 @@ export default class CPFP extends Component {
           <BlueSpacing20 />
           <BlueSpacing20 />
 
-          <BlueText h4>{loc.transactions.cpfp_no_bump}</BlueText>
+          <BlueText h4>{this.state.unverified ? loc.transactions.rbf_unverified : loc.transactions.cpfp_no_bump}</BlueText>
         </SafeArea>
       );
     }
 
-    return (
-      <SafeArea style={styles.explain}>
-        <ScrollView
-          automaticallyAdjustContentInsets
-          automaticallyAdjustKeyboardInsets
-          automaticallyAdjustsScrollIndicatorInsets
-          contentInsetAdjustmentBehavior="automatic"
-        >
-          {this.renderStage1(loc.transactions.cpfp_exp)}
-        </ScrollView>
-      </SafeArea>
-    );
+    return this.renderFeeSelection(loc.transactions.cpfp_exp);
   }
 }
 

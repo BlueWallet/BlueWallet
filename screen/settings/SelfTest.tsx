@@ -4,8 +4,7 @@ import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { Component } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
-// @ts-ignore theres no type declaration for this
-import BlueCrypto from 'react-native-blue-crypto';
+import * as BlueCrypto from 'react-native-blue-crypto';
 import wif from 'wif';
 
 import * as encryption from '../../blue_modules/encryption';
@@ -57,7 +56,7 @@ const styles = StyleSheet.create({
 export default class SelfTest extends Component {
   state: TState;
 
-  constructor(props: any) {
+  constructor(props: object) {
     super(props);
     this.state = {
       started: false,
@@ -212,7 +211,7 @@ export default class SelfTest extends Component {
       const tx = bitcoin.Transaction.fromHex(txNew.tx!.toHex());
       assertStrictEqual(
         txNew.tx!.toHex(),
-        '020000000001010c86eb9013616e38b4752e56e5683e864cb34fcd7fe790bdc006b60c08446ba50000000017160014139dc70d73097f9d775f8a3280ba3e3435515641ffffffff02905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88aca73303000000000017a914749118baa93fb4b88c28909c8bf0a8202a0484f4870248304502210080545d30e3d30dff272ab11c91fd6150170b603239b48c3d56a3fa66bf240085022003762404e1b45975adc89f61ec1569fa19d6d4a8d405e060897754c489ebeade012103a5de146762f84055db3202c1316cd9008f16047f4f408c1482fdb108217eda0800000000',
+        '020000000001010c86eb9013616e38b4752e56e5683e864cb34fcd7fe790bdc006b60c08446ba50000000017160014139dc70d73097f9d775f8a3280ba3e3435515641ffffffff02905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88aca63303000000000017a914749118baa93fb4b88c28909c8bf0a8202a0484f48702473044022018c9d23201ddc1daf5092b21a0c5000f748f435ab0e10a8c08e13582f54e5a0402202d40dfc7ef2b34371010d282daef6892ada7d1617205636fc2c4fcbb0e4be228012103a5de146762f84055db3202c1316cd9008f16047f4f408c1482fdb108217eda0800000000',
       );
       assertStrictEqual(tx.ins.length, 1);
       assertStrictEqual(tx.outs.length, 2);

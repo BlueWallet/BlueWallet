@@ -5,7 +5,6 @@ import {
   helperDeleteWallet,
   helperImportWallet,
   scanText,
-  scrollUpOnHomeScreen,
   sleep,
   tapHeaderMenuItem,
   waitForId,
@@ -63,7 +62,8 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await element(by.id('ReceiveButton')).tap();
     await expect(element(by.id('BitcoinAddressQRCode'))).toBeVisible();
     await expect(element(by.label('bc1qgrhr5xc5774maph97d73ydrjlqqmg2v6jjlr29'))).toBeVisible();
-    await element(by.id('SetCustomAmountButton')).tap();
+    await element(by.id('ReceiveMoreOptionsButton')).tap();
+    await element(by.id('ReceiveWithAmountOption')).tap();
     await element(by.id('BitcoinAmountInput')).replaceText('1');
     await element(by.id('CustomAmountDescription')).typeText('Test');
     await element(by.id('CustomAmountDescription')).tapReturnKey();
@@ -115,7 +115,6 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await goBack();
     await goBack();
     await goBack();
-    await scrollUpOnHomeScreen(); // on the ios we need to scroll up to the wallet list
 
     await helperDeleteWallet('Imported Watch-only', '10000');
 

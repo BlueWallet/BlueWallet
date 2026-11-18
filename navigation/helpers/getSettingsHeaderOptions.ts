@@ -1,6 +1,8 @@
 import { Platform, PlatformColor } from 'react-native';
-import { isIOS26OrHigher } from '../../blue_modules/environment';
+
+import navigationStyle from '../../components/navigationStyle';
 import type { Theme } from '../../components/themes';
+import { isIOS26OrHigher } from '../../blue_modules/environment';
 
 // Consistent header configuration for all settings screens
 export const getSettingsHeaderOptions = (title: string, theme: Theme) => {
@@ -27,3 +29,6 @@ export const getSettingsHeaderOptions = (title: string, theme: Theme) => {
     },
   };
 };
+
+export const createSettingsScreenOptions = (theme: Theme) => (title: string) =>
+  isIOS26OrHigher ? getSettingsHeaderOptions(title, theme) : navigationStyle(getSettingsHeaderOptions(title, theme))(theme);

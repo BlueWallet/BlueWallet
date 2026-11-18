@@ -38,7 +38,6 @@ const LANG_EXCEPTIONS = new Set([
 const KEY_EXCEPTIONS = new Set([
   // --- Pure format strings (placeholders + punctuation only) ---
   'transactions.received_with_amount',   // "+{amt1} ({amt2})"
-  'transactions.list_conf',              // "Conf: {number}"
   'transactions.details_inputs_count',   // "Inputs ({count})"
   'transactions.details_outputs_count',  // "Outputs ({count})"
   'transactions.confirmations_lowercase',// "{confirmations} confirmations"
@@ -83,7 +82,6 @@ const KEY_EXCEPTIONS = new Set([
   '_.port',                              // "Port"
   '_.ssl_port',                          // "SSL Port"
   '_.clipboard',                         // "Clipboard"
-  '_.no',                                // "No" — Romance cognate
   'settings.electrum_status',            // "Status"
   'cc.sort_status',                      // "Status"
   'settings.widgets',                    // "Widgets"
@@ -121,6 +119,7 @@ const KEY_EXCEPTIONS = new Set([
   'wallets.add_entropy',                 // "Entropy"
   'entropy.title',                       // "Entropy"
   'cc.sort_label',                       // "Label"
+  'receive.option_label',                // "Label" — cy/fil/id/ms glossaries: `label` is the standard loanword
   'addresses.sign_placeholder_message',  // "Message"
   'addresses.sign_placeholder_signature',// "Signature"
   'addresses.transactions',              // "Transactions"
@@ -130,8 +129,8 @@ const KEY_EXCEPTIONS = new Set([
 // Per-file exceptions: a key intentionally identical to English in ONE specific
 // locale only (not exempt globally). `<file>` -> set of `section.key`.
 const FILE_KEY_EXCEPTIONS = {
-  // French "Options" is genuinely identical to the English label.
-  'fr_fr.json': new Set(['wallets.details_options']),
+  // French "Options" and "Transactions" are genuinely identical to the English labels.
+  'fr_fr.json': new Set(['wallets.details_options', 'transactions.list_title']),
   // Faroese maintainer intentionally uses the international "Send" as the button label.
   'fo.json': new Set(['send.header']),
 };

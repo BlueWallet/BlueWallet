@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation, RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
+import { CommonActions, useNavigation, RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import assert from 'assert';
@@ -9,7 +9,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
+  AlertButton,
   Dimensions,
   findNodeHandle,
   FlatList,
@@ -23,11 +23,13 @@ import {
   Pressable,
   ScrollView,
   View,
+  LayoutChangeEvent,
 } from 'react-native';
 import RNFS from 'react-native-fs';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { nativeSendDetailsAction } from '../../blue_modules/menuActions';
 import BlueText from '../../components/BlueText';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
@@ -37,7 +39,6 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../../class/wallets/types';
 import AddressInput from '../../components/AddressInput';
-import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
@@ -49,6 +50,7 @@ import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useKeyboard } from '../../hooks/useKeyboard';
+import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from '../../models/networkTransactionFees';
@@ -58,6 +60,7 @@ import ActionSheet from '../ActionSheet';
 import { isCancel, pickTransaction } from '../../blue_modules/fs';
 import { Measure } from '../../class/measure';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
+import { errorMessage } from '../../helpers/errorMessage';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -88,9 +91,31 @@ const SendDetails = () => {
   const transactionMemo = route.params?.transactionMemo;
   const utxos = route.params?.utxos;
   const payjoinUrl = route.params?.payjoinUrl;
+  const payjoinAddress = route.params?.payjoinAddress;
+  const payjoinDisableOutputSubstitution = route.params?.payjoinDisableOutputSubstitution;
   const isTransactionReplaceable = route.params?.isTransactionReplaceable;
   const routeParams = route.params;
   const scrollView = useRef<FlatList<IPaymentDestinations>>(null);
+  const presentAlert = useCallback(
+    ({ title, message, buttons = [{ text: loc._.ok }] }: { title?: string; message: string; buttons?: AlertButton[] }) => {
+      const anchor = findNodeHandle(scrollView.current);
+      if (anchor === null) return;
+      const cancelButtonIndex = buttons.findIndex(button => button.style === 'cancel');
+      const destructiveButtonIndex = buttons.findIndex(button => button.style === 'destructive');
+      ActionSheet.showActionSheetWithOptions(
+        {
+          title,
+          message,
+          options: buttons.map(button => button.text ?? ''),
+          cancelButtonIndex: cancelButtonIndex >= 0 ? cancelButtonIndex : undefined,
+          destructiveButtonIndex: destructiveButtonIndex >= 0 ? destructiveButtonIndex : undefined,
+          anchor,
+        },
+        buttonIndex => buttons[buttonIndex]?.onPress?.(),
+      );
+    },
+    [],
+  );
   const scrollIndex = useRef(0);
   /** Used so we only clear coin-selection (utxos) when the user switches wallet, not on first mount (e.g. Send opened from wallet details with pre-selected UTXOs). */
   const prevWalletIdForCoinResetRef = useRef<string | null>(null);
@@ -157,11 +182,23 @@ const SendDetails = () => {
   }, [customFee, selectedPresetFeeRate, feePrecalc, networkTransactionFees]);
 
   useEffect(() => {
+    if (!routeParams.openScanner) return;
+    setParams({ openScanner: undefined });
+    navigation.navigate('ScanQRCode', { showFileImportButton: true });
+  }, [navigation, routeParams.openScanner, setParams]);
+
+  useEffect(() => {
     // decode route params
     const currentAddress = addresses[scrollIndex.current];
     if (routeParams.uri) {
       try {
-        const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
+        const {
+          address,
+          amount,
+          memo,
+          payjoinUrl: pjUrl,
+          disableOutputSubstitution,
+        } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
 
         setAddresses(addrs => {
           addrs[scrollIndex.current].unit = BitcoinUnit.BTC;
@@ -185,7 +222,12 @@ const SendDetails = () => {
         if (memo?.trim().length > 0) {
           setParams({ transactionMemo: memo });
         }
-        setParams({ payjoinUrl: pjUrl, amountUnit: BitcoinUnit.BTC });
+        setParams({
+          payjoinUrl: pjUrl,
+          payjoinAddress: pjUrl ? address : '',
+          payjoinDisableOutputSubstitution: disableOutputSubstitution,
+          amountUnit: BitcoinUnit.BTC,
+        });
       } catch (error) {
         console.log(error);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -228,15 +270,8 @@ const SendDetails = () => {
   }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
 
   useEffect(() => {
-    // check if we have a suitable wallet
     const suitable = wallets.filter(w => w.chain === Chain.ONCHAIN && w.allowSend());
-    if (suitable.length === 0) {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ title: loc.errors.error, message: loc.send.details_wallet_before_tx });
-      navigation.goBack();
-      return;
-    }
-    const newWallet = (routeParams.walletID && wallets.find(w => w.getID() === routeParams.walletID)) || suitable[0];
+    const newWallet = (routeParams.walletID && wallets.find(w => w.getID() === routeParams.walletID)) || suitable[0]!;
     setWallet(newWallet);
     setParams({ feeUnit: newWallet.getPreferredBalanceUnit(), amountUnit: newWallet.getPreferredBalanceUnit() });
 
@@ -318,7 +353,7 @@ const SendDetails = () => {
       { key: 'fastestFee', fee: fees.fastestFee },
     ] as const;
 
-    const newFeePrecalc: /* Record<string, any> */ IFee = { ...feePrecalc };
+    const newFeePrecalc: IFee = { ...feePrecalc };
 
     let targets = [];
     for (const transaction of addresses) {
@@ -362,8 +397,8 @@ const SendDetails = () => {
           const { fee } = wallet.coinselect(lutxo, targets, opt.fee);
           newFeePrecalc[opt.key] = fee;
           break;
-        } catch (e: any) {
-          if (e.message.includes('Not enough') && !flag) {
+        } catch (e) {
+          if (errorMessage(e).includes('Not enough') && !flag) {
             flag = true;
             targets = targets.map((t, index) => (index > 0 ? { ...t, value: 546 } : { address: t.address }));
             continue;
@@ -399,7 +434,7 @@ const SendDetails = () => {
     }, []),
   );
 
-  const handleLayout = (event: any) => {
+  const handleLayout = (event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
     setDimensions({ width, height });
   };
@@ -439,7 +474,7 @@ const SendDetails = () => {
    */
 
   const processAddressData = useCallback(
-    (data: string | { data?: any }) => {
+    (data: string | { data?: unknown }) => {
       assert(wallet, 'Internal error: wallet not set');
       if (typeof data !== 'string') {
         data = String(data.data);
@@ -493,14 +528,20 @@ const SendDetails = () => {
           addrs[scrollIndex.current].unit = BitcoinUnit.BTC;
           return [...addrs];
         });
-        setParams({ transactionMemo: options.label || '', amountUnit: BitcoinUnit.BTC, payjoinUrl: options.pj || '' }); // there used to be `options.message` here as well. bug?
+        setParams({
+          transactionMemo: options.label || '',
+          amountUnit: BitcoinUnit.BTC,
+          payjoinUrl: options.pj || '',
+          payjoinAddress: options.pj ? address : '',
+          payjoinDisableOutputSubstitution: String(options.pjos) === '0',
+        }); // there used to be `options.message` here as well. bug?
         // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
         setTimeout(() => scrollView.current?.scrollToIndex({ index: currentIndex, animated: false }), 50);
       }
 
       setIsLoading(false);
     },
-    [setParams, wallet],
+    [presentAlert, setParams, wallet],
   );
 
   const createTransaction = async () => {
@@ -516,7 +557,7 @@ const SendDetails = () => {
       } else if (parseFloat(String(transaction.amountSats)) <= 500) {
         error = loc.send.details_amount_field_is_less_than_minimum_amount_sat;
         console.log('validation error');
-      } else if (!requestedSatPerByte || parseFloat(requestedSatPerByte) < 0) {
+      } else if (!requestedSatPerByte || parseFloat(requestedSatPerByte) <= 0) {
         error = loc.send.details_fee_field_is_not_valid;
         console.log('validation error');
       } else if (!transaction.address) {
@@ -544,7 +585,7 @@ const SendDetails = () => {
 
       // validating payment codes, if any
       if (!error) {
-        if (transaction.address.startsWith('sp1')) {
+        if (transaction.address.toLowerCase().startsWith('sp1')) {
           if (!wallet.allowSilentPaymentSend()) {
             console.log('validation error');
             error = loc.send.cant_send_to_silentpayment_adress;
@@ -552,15 +593,15 @@ const SendDetails = () => {
         }
 
         if (transaction.address.startsWith('PM')) {
-          if (!wallet.allowBIP47()) {
+          if (!(wallet instanceof AbstractHDElectrumWallet) || !wallet.allowBIP47()) {
             console.log('validation error');
             error = loc.send.cant_send_to_bip47;
-          } else if (!(wallet as unknown as AbstractHDElectrumWallet).getBIP47NotificationTransaction(transaction.address)) {
+          } else if (!wallet.getBIP47NotificationTransaction(transaction.address)) {
             console.log('validation error');
             error = loc.send.cant_find_bip47_notification;
           } else {
             // BIP47 is allowed, notif tx is in place, lets sync joint addresses with the receiver
-            await (wallet as unknown as AbstractHDElectrumWallet).syncBip47ReceiversAddresses(transaction.address);
+            await wallet.syncBip47ReceiversAddresses(transaction.address);
           }
         }
       }
@@ -583,9 +624,9 @@ const SendDetails = () => {
 
     try {
       await createPsbtTransaction();
-    } catch (Err: any) {
+    } catch (Err) {
       setIsLoading(false);
-      presentAlert({ title: loc.errors.error, message: Err.message });
+      presentAlert({ title: loc.errors.error, message: errorMessage(Err) });
       console.log(Err);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
@@ -638,9 +679,12 @@ const SendDetails = () => {
     if (tx && routeParams.launchedBy && psbt) {
       console.warn('navigating back to ', routeParams.launchedBy);
 
-      // @ts-ignore idk how to fix FIXME?
-
-      navigation.navigate(routeParams.launchedBy, { psbt });
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: routeParams.launchedBy,
+          params: { psbt },
+        }),
+      );
     }
 
     if (wallet?.type === WatchOnlyWallet.type) {
@@ -692,6 +736,8 @@ const SendDetails = () => {
       recipients,
       satoshiPerByte: requestedSatPerByte,
       payjoinUrl,
+      payjoinAddress,
+      payjoinDisableOutputSubstitution,
       psbt,
     });
     setIsLoading(false);
@@ -719,15 +765,15 @@ const SendDetails = () => {
     }
 
     navigateToQRCodeScanner();
-  }, [navigateToQRCodeScanner, wallet?.type]);
+  }, [navigateToQRCodeScanner, presentAlert, wallet?.type]);
 
   const importQrTransactionOnBarScanned = useCallback(
-    (ret: any) => {
+    (ret: string | { data: string }) => {
       if (!wallet) return;
-      if (!ret.data) ret = { data: ret };
-      if (ret.data.toUpperCase().startsWith('UR')) {
+      const data = typeof ret === 'string' ? ret : ret.data;
+      if (data.toUpperCase().startsWith('UR')) {
         presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
-      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      } else if (data.indexOf('+') === -1 && data.indexOf('=') === -1 && data.indexOf('=') === -1) {
         // this looks like NOT base64, so maybe its transaction's hex
         // we dont support it in this flow
       } else {
@@ -735,7 +781,7 @@ const SendDetails = () => {
 
         // we construct PSBT object and pass to next screen
         // so user can do smth with it:
-        const psbt = bitcoin.Psbt.fromBase64(ret.data);
+        const psbt = bitcoin.Psbt.fromBase64(data);
 
         navigation.navigate('PsbtWithHardwareWallet', {
           memo: transactionMemo,
@@ -746,7 +792,7 @@ const SendDetails = () => {
         setIsLoading(false);
       }
     },
-    [navigation, transactionMemo, wallet],
+    [navigation, presentAlert, transactionMemo, wallet],
   );
 
   /**
@@ -803,49 +849,35 @@ const SendDetails = () => {
 
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ title: loc.errors.error, message: loc.send.details_unrecognized_file_format });
-    } catch (err: any) {
-      console.error('error picking transaction:', err?.message);
+    } catch (err) {
+      console.error('error picking transaction:', errorMessage(err));
       if (!isCancel(err)) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });
       }
     }
-  }, [navigation, setIsLoading, transactionMemo, wallet]);
-
-  const askCosignThisTransaction = async () => {
-    return new Promise(resolve => {
-      Alert.alert(
-        '',
-        loc.multisig.cosign_this_transaction,
-        [
-          {
-            text: loc._.no,
-            style: 'cancel',
-            onPress: () => resolve(false),
-          },
-          {
-            text: loc._.yes,
-            onPress: () => resolve(true),
-          },
-        ],
-        { cancelable: false },
-      );
-    });
-  };
+  }, [navigation, presentAlert, setIsLoading, transactionMemo, wallet]);
 
   const _importTransactionMultisig = useCallback(
     async (base64arg: string | false) => {
       try {
         const base64 = base64arg || (await fs.openSignedTransaction());
         if (!base64) return;
-        const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
+        let psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
-        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
-          setIsLoading(true);
-          await sleep(100);
-          (wallet as MultisigHDWallet).cosignPsbt(psbt);
-          setIsLoading(false);
-          await sleep(100);
+        if (wallet?.type === MultisigHDWallet.type) {
+          const multisig = wallet as MultisigHDWallet;
+          // Finalize at quorum, otherwise add our signatures. Signing derives seeds, so show the spinner for it.
+          const willSign = multisig.willCosignImportedPsbt(psbt);
+          if (willSign) {
+            setIsLoading(true);
+            await sleep(100);
+          }
+          psbt = multisig.prepareImportedPsbt(psbt);
+          if (willSign) {
+            setIsLoading(false);
+            await sleep(100);
+          }
         }
 
         if (wallet) {
@@ -855,13 +887,16 @@ const SendDetails = () => {
             walletID: wallet.getID(),
           });
         }
-      } catch (error: any) {
+      } catch (error) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
+        presentAlert({
+          title: loc.send.problem_with_psbt,
+          message: errorMessage(error),
+        });
       }
       setIsLoading(false);
     },
-    [navigation, sleep, transactionMemo, wallet],
+    [navigation, presentAlert, sleep, transactionMemo, wallet],
   );
 
   const importTransactionMultisig = useCallback(() => {
@@ -869,19 +904,19 @@ const SendDetails = () => {
   }, [_importTransactionMultisig]);
 
   const onBarScanned = useCallback(
-    (ret: any) => {
-      if (!ret.data) ret = { data: ret };
-      if (ret.data.toUpperCase().startsWith('UR')) {
+    (ret: string | { data: string }) => {
+      const data = typeof ret === 'string' ? ret : ret.data;
+      if (data.toUpperCase().startsWith('UR')) {
         presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
-      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      } else if (data.indexOf('+') === -1 && data.indexOf('=') === -1 && data.indexOf('=') === -1) {
         // this looks like NOT base64, so maybe its transaction's hex
         // we dont support it in this flow
       } else {
         // psbt base64?
-        return _importTransactionMultisig(ret.data);
+        return _importTransactionMultisig(data);
       }
     },
-    [_importTransactionMultisig],
+    [_importTransactionMultisig, presentAlert],
   );
 
   const handlePsbtSign = useCallback(
@@ -891,9 +926,9 @@ const SendDetails = () => {
       try {
         psbt = bitcoin.Psbt.fromBase64(psbtBase64);
         tx = (wallet as MultisigHDWallet).cosignPsbt(psbt).tx;
-      } catch (e: any) {
+      } catch (e) {
         console.log(e);
-        presentAlert({ title: loc.errors.error, message: e.message });
+        presentAlert({ title: loc.errors.error, message: errorMessage(e) });
         return;
       } finally {
         setIsLoading(false);
@@ -903,10 +938,10 @@ const SendDetails = () => {
 
       // we need to remove change address from recipients, so that Confirm screen show more accurate info
       const changeAddresses: string[] = [];
-      // @ts-ignore hacky
-      for (let c = 0; c < wallet.next_free_change_address_index + wallet.gap_limit; c++) {
-        // @ts-ignore hacky
-        changeAddresses.push(wallet._getInternalAddressByIndex(c));
+      if (wallet instanceof AbstractHDElectrumWallet) {
+        for (let c = 0; c < wallet.next_free_change_address_index + wallet.gap_limit; c++) {
+          changeAddresses.push(wallet._getInternalAddressByIndex(c));
+        }
       }
       const recipients = psbt.txOutputs
         .filter(({ address }) => !changeAddresses.includes(String(address)))
@@ -922,7 +957,7 @@ const SendDetails = () => {
         psbt,
       });
     },
-    [navigation, wallet],
+    [navigation, presentAlert, wallet],
   );
 
   useEffect(() => {
@@ -985,7 +1020,7 @@ const SendDetails = () => {
         animated: true,
       });
     }, 0);
-  }, [addresses, amountUnit]);
+  }, [addresses, amountUnit, presentAlert]);
 
   const onRemoveAllRecipientsConfirmed = useCallback(() => {
     scrollIndex.current = 0;
@@ -996,18 +1031,22 @@ const SendDetails = () => {
   }, [amountUnit]);
 
   const handleRemoveAllRecipients = useCallback(() => {
-    Alert.alert(loc.send.details_recipients_title, loc.send.details_add_recc_rem_all_alert_description, [
-      {
-        text: loc._.cancel,
-        onPress: () => {},
-        style: 'cancel',
-      },
-      {
-        text: loc._.ok,
-        onPress: onRemoveAllRecipientsConfirmed,
-      },
-    ]);
-  }, [onRemoveAllRecipientsConfirmed]);
+    presentAlert({
+      title: loc.send.details_recipients_title,
+      message: loc.send.details_add_recc_rem_all_alert_description,
+      buttons: [
+        {
+          text: loc._.cancel,
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: loc._.ok,
+          onPress: onRemoveAllRecipientsConfirmed,
+        },
+      ],
+    });
+  }, [onRemoveAllRecipientsConfirmed, presentAlert]);
 
   const handleRemoveRecipient = useCallback(() => {
     if (addresses.length > 1) {
@@ -1056,12 +1095,13 @@ const SendDetails = () => {
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
 
     const anchor = findNodeHandle(scrollView.current);
+    if (anchor === null) return;
     const options = {
       title: loc.send.details_adv_full,
       message,
       options: [loc._.cancel, loc._.ok],
       cancelButtonIndex: 0,
-      anchor: anchor ?? undefined,
+      anchor,
     };
 
     ActionSheet.showActionSheetWithOptions(options, buttonIndex => {
@@ -1206,6 +1246,42 @@ const SendDetails = () => {
 
   const headerRightActionGroups = useMemo(() => headerRightActions(), [headerRightActions]);
 
+  const nativeMenuActions = useMemo(
+    () =>
+      Object.fromEntries(
+        headerRightActionGroups
+          .flat()
+          .filter(action => !action.hidden)
+          .flatMap(action => {
+            const actionId = String(action.id);
+            const nativeAction = nativeSendDetailsAction(actionId);
+            return nativeAction ? [[nativeAction, () => headerRightOnPress(actionId)] as const] : [];
+          }),
+      ),
+    [headerRightActionGroups, headerRightOnPress],
+  );
+  const nativeMenuActionStates = useMemo(
+    () =>
+      Object.fromEntries(
+        headerRightActionGroups
+          .flat()
+          .filter(action => !action.hidden)
+          .flatMap(action => {
+            const nativeAction = nativeSendDetailsAction(String(action.id));
+            return nativeAction
+              ? [
+                  [
+                    nativeAction,
+                    { disabled: !!action.disabled, ...(action.menuState === undefined ? {} : { checked: action.menuState === true }) },
+                  ] as const,
+                ]
+              : [];
+          }),
+      ),
+    [headerRightActionGroups],
+  );
+  useScreenMenuActions(nativeMenuActions, undefined, nativeMenuActionStates);
+
   const headerMenuOptions = useMemo(
     () =>
       createEllipsisHeaderMenuOptions({
@@ -1301,12 +1377,6 @@ const SendDetails = () => {
     },
     feeValue: {
       color: colors.feeValue,
-    },
-    warningContainer: {
-      backgroundColor: colors.changeBackground,
-    },
-    warningText: {
-      color: colors.changeText,
     },
   });
 
@@ -1454,7 +1524,13 @@ const SendDetails = () => {
           <AddressInput
             onChangeText={text => {
               const trimmedText = text.trim();
-              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(trimmedText);
+              const {
+                address,
+                amount,
+                memo,
+                payjoinUrl: pjUrl,
+                disableOutputSubstitution,
+              } = DeeplinkSchemaMatch.decodeBitcoinUri(trimmedText);
               const hasPositiveAmount = Number(amount) > 0;
               setAddresses(addrs => {
                 const updatedAddresses = [...addrs];
@@ -1474,7 +1550,12 @@ const SendDetails = () => {
                 setParams({ transactionMemo: memo });
               }
               setIsLoading(false);
-              setParams(hasPositiveAmount ? { payjoinUrl: pjUrl, amountUnit: BitcoinUnit.BTC } : { payjoinUrl: pjUrl });
+              const payjoinParams = {
+                payjoinUrl: pjUrl,
+                payjoinAddress: pjUrl ? address : '',
+                payjoinDisableOutputSubstitution: disableOutputSubstitution,
+              };
+              setParams(hasPositiveAmount ? { ...payjoinParams, amountUnit: BitcoinUnit.BTC } : payjoinParams);
             }}
             address={item.address}
             isLoading={isLoading}
@@ -1493,18 +1574,7 @@ const SendDetails = () => {
     );
   };
 
-  const renderCustomFeeWarning = () => {
-    if (!customFee || Number(customFee) >= 1) return;
-
-    return (
-      <View style={[styles.warningContainer, stylesHook.warningContainer]}>
-        <Text style={[styles.warningHeader, stylesHook.warningText]}>{loc.transactions.custom_fee_warning_title}</Text>
-        <Text style={stylesHook.warningText}>{loc.transactions.custom_fee_warning_description}</Text>
-      </View>
-    );
-  };
-
-  const getItemLayout = (_: any, index: number) => ({
+  const getItemLayout = (_: unknown, index: number) => ({
     length: dimensions.width,
     offset: dimensions.width * index,
     index,
@@ -1580,7 +1650,6 @@ const SendDetails = () => {
               )}
             </View>
           </Pressable>
-          {renderCustomFeeWarning()}
           {renderCreateButton()}
         </View>
       </ScrollView>
@@ -1709,16 +1778,5 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.6,
-  },
-  warningContainer: {
-    flexDirection: 'column',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginHorizontal: 16,
-    borderRadius: 4,
-    marginTop: 12,
-  },
-  warningHeader: {
-    fontWeight: 'bold',
   },
 });

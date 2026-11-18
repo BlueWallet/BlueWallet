@@ -1,11 +1,12 @@
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
+import Share from 'react-native-share';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
-import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
+import type { ScreenDeps } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
-import { Action } from '../components/types';
+import type { Theme } from '../components/themes';
 import loc from '../loc';
 import LNDViewAdditionalInvoicePreImage from '../screen/lnd/lndViewAdditionalInvoicePreImage';
 import LNDViewInvoice from '../screen/lnd/lndViewInvoice';
@@ -52,16 +53,18 @@ import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import SettingsTools from '../screen/settings/SettingsTools';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
-import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
-import { getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
+import { createSettingsScreenOptions, getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
 import { isDesktop, isIOS26OrHigher } from '../blue_modules/environment';
+import { shouldUseWideLayout } from '../blue_modules/layout';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
-import { CommonToolTipActions } from '../typings/CommonToolTipActions';
+import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
+import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
+import type { DetailViewStackParamList } from './DetailViewStackParamList';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
@@ -99,7 +102,7 @@ const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = (
 
 type ManageWalletsCloseButtonProps = {
   onPress: () => void;
-  closeImage: any;
+  closeImage: Theme['closeImage'];
 };
 
 const ManageWalletsCloseButton: React.FC<ManageWalletsCloseButtonProps> = ({ onPress, closeImage }) => (
@@ -114,7 +117,10 @@ const ManageWalletsCloseButton: React.FC<ManageWalletsCloseButtonProps> = ({ onP
   </Pressable>
 );
 
-const makeManageWalletsHeaderLeft = (onPress: () => void, closeImage: any): NonNullable<NativeStackNavigationOptions['headerLeft']> => {
+const makeManageWalletsHeaderLeft = (
+  onPress: () => void,
+  closeImage: Theme['closeImage'],
+): NonNullable<NativeStackNavigationOptions['headerLeft']> => {
   return () => React.createElement(ManageWalletsCloseButton, { onPress, closeImage });
 };
 
@@ -159,7 +165,8 @@ const DetailViewStackScreensStack = () => {
   const navigation = useNavigation();
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
-  const { sizeClass } = useSizeClass();
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+  const isWideLayout = shouldUseWideLayout(windowWidth, windowHeight);
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
   // Probe connection health from the UI (e.g. WalletsList focus / 30s timer).
@@ -223,18 +230,24 @@ const DetailViewStackScreensStack = () => {
     });
   }, [navigation]);
 
+  const navigateToManageWallets = useCallback(() => {
+    navigation.navigate('DetailViewStackScreensStack', {
+      screen: 'ManageWallets',
+    });
+  }, [navigation]);
+
   const RightBarButtons = useMemo(
     () =>
-      sizeClass === SizeClass.Large ? (
+      isWideLayout ? (
         <AddWalletButton onPress={navigateToAddWallet} />
       ) : (
         <>
           <AddWalletButton onPress={navigateToAddWallet} />
           <View style={styles.width24} />
-          <SettingsButton />
+          <SettingsButton onPress={navigateToSettings} onManageWalletPress={navigateToManageWallets} />
         </>
       ),
-    [sizeClass, navigateToAddWallet],
+    [isWideLayout, navigateToAddWallet, navigateToManageWallets, navigateToSettings],
   );
 
   const navigateToElectrumSettings = useCallback(() => {
@@ -247,9 +260,12 @@ const DetailViewStackScreensStack = () => {
   }, [navigation]);
 
   const renderManageWalletsHeaderLeft = useCallback(
-    (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any; route: any; theme: any }) => ({
+    (options: NativeStackNavigationOptions, { navigation: screenNavigation }: ScreenDeps) => ({
       ...options,
-      headerLeft: makeManageWalletsHeaderLeft(screenNavigation.goBack, theme.closeImage),
+      headerLeft: makeManageWalletsHeaderLeft(() => {
+        if (screenNavigation.canGoBack()) screenNavigation.goBack();
+        else screenNavigation.dispatch(StackActions.popTo('WalletsList'));
+      }, theme.closeImage),
     }),
     [theme.closeImage],
   );
@@ -291,7 +307,7 @@ const DetailViewStackScreensStack = () => {
       // Status pills: `unstable_headerLeftItems` + `hidesSharedBackground` avoids the
       // navigation bar's shared liquid-glass chrome on the pill (solid colors only).
       return {
-        title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
+        title: isWideLayout ? loc.wallets.list_title : '',
         headerLargeTitle: false,
         headerTransparent: true,
         unstable_headerLeftItems: (): NativeStackHeaderItem[] => {
@@ -317,7 +333,7 @@ const DetailViewStackScreensStack = () => {
               onPress: navigateToAddWallet,
             },
           ];
-          if (sizeClass !== SizeClass.Large) {
+          if (!isWideLayout) {
             items.push({
               type: 'button',
               label: loc.settings.default_title,
@@ -333,7 +349,7 @@ const DetailViewStackScreensStack = () => {
     }
 
     return {
-      title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
+      title: isWideLayout ? loc.wallets.list_title : '',
       headerLargeTitle: false,
       headerShadowVisible: false,
       headerStyle: {
@@ -344,7 +360,7 @@ const DetailViewStackScreensStack = () => {
     };
   }, [
     RightBarButtons,
-    sizeClass,
+    isWideLayout,
     theme.colors.customHeader,
     theme.colors.headerProminentButtonBackgroundColor,
     theme.colors.foregroundColor,
@@ -361,8 +377,7 @@ const DetailViewStackScreensStack = () => {
     walletTransactionUpdateStatus,
   ]);
 
-  const settingsScreenOptions = (title: string) =>
-    isIOS26OrHigher ? getSettingsHeaderOptions(title, theme) : navigationStyle(getSettingsHeaderOptions(title, theme))(theme);
+  const settingsScreenOptions = createSettingsScreenOptions(theme);
 
   return (
     <ConnectionPollContext.Provider value={connectionPollContextValue}>
@@ -372,7 +387,18 @@ const DetailViewStackScreensStack = () => {
         screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
       >
         <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
-        <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
+        <DetailViewStack.Screen
+          name="WalletTransactions"
+          component={WalletTransactions}
+          options={({ route }) =>
+            getWalletTransactionsOptions({
+              route,
+              screenWidth: windowWidth,
+              headerTintColor: theme.colors.foregroundColor,
+              dark: theme.dark,
+            })
+          }
+        />
         <DetailViewStack.Screen
           name="WalletDetails"
           component={WalletDetails}
@@ -436,7 +462,6 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="IsItMyAddress"
           component={IsItMyAddress}
-          initialParams={{ address: undefined }}
           options={settingsScreenOptions(loc.is_it_my_address.title)}
         />
         <DetailViewStack.Screen name="GenerateWord" component={GenerateWord} options={settingsScreenOptions(loc.autofill_word.title)} />
@@ -479,43 +504,7 @@ const DetailViewStackScreensStack = () => {
           options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
         />
 
-        <DetailViewStack.Screen
-          name="Settings"
-          component={Settings}
-          options={
-            isIOS26OrHigher
-              ? getSettingsHeaderOptions(loc.settings.header, theme)
-              : navigationStyle({
-                  title: loc.settings.header,
-                  headerBackButtonDisplayMode: 'minimal',
-                  headerBackTitle: '',
-                  headerShadowVisible: false,
-                  // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
-                  headerLargeTitle: Platform.OS === 'ios',
-                  headerLargeTitleStyle:
-                    Platform.OS === 'ios'
-                      ? {
-                          color:
-                            typeof theme.colors.foregroundColor === 'string'
-                              ? theme.colors.foregroundColor
-                              : String(theme.colors.foregroundColor),
-                        }
-                      : undefined,
-                  headerTitleStyle: {
-                    color:
-                      typeof theme.colors.foregroundColor === 'string'
-                        ? theme.colors.foregroundColor
-                        : String(theme.colors.foregroundColor),
-                  },
-                  headerTransparent: false,
-                  headerBlurEffect: undefined,
-                  headerStyle: {
-                    backgroundColor: theme.colors.background,
-                  },
-                  animationTypeForReplace: 'push',
-                })(theme)
-          }
-        />
+        <DetailViewStack.Screen name="Settings" component={Settings} options={settingsScreenOptions(loc.settings.header)} />
         <DetailViewStack.Screen name="Currency" component={Currency} options={settingsScreenOptions(loc.settings.currency)} />
         <DetailViewStack.Screen name="GeneralSettings" component={GeneralSettings} options={settingsScreenOptions(loc.settings.general)} />
         <DetailViewStack.Screen
@@ -601,13 +590,17 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ReceiveCustomAmount"
           component={ReceiveCustomAmountSheet}
-          options={navigationStyle({
-            presentation: 'formSheet',
-            sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
-            headerTitle: loc.receive.details_setAmount,
-            sheetGrabberVisible: true,
-            closeButtonPosition: CloseButtonPosition.Right,
-          })(theme)}
+          options={receiveSheetOptions(loc.receive.details_setAmount, 0.9)(theme)}
+        />
+        <DetailViewStack.Screen
+          name="ReceiveMoreOptions"
+          component={ReceiveMoreOptionsSheet}
+          options={receiveSheetOptions(loc.receive.details_more_options)(theme)}
+        />
+        <DetailViewStack.Screen
+          name="ReceiveAddressLabel"
+          component={ReceiveAddressLabelSheet}
+          options={receiveSheetOptions(loc.receive.option_label)(theme)}
         />
       </DetailViewStack.Navigator>
     </ConnectionPollContext.Provider>
@@ -651,59 +644,37 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
-  receiveHeaderEmptyLeftSlot: {
-    width: 40,
-  },
 });
 
 const createReceiveDetailsOptions = (theme: ReturnType<typeof useTheme>) =>
-  navigationStyle(
+  navigationStyle<DetailViewStackParamList, 'ReceiveDetails'>(
     {
       title: loc.receive.header,
-      closeButtonPosition: CloseButtonPosition.Left,
+      closeButtonPosition: CloseButtonPosition.Right,
       headerShown: true,
       presentation: 'modal',
+      headerBackVisible: false,
     },
-    (options, { navigation, route }) => {
-      const allowBIP47 = route.params?.allowBIP47 ?? false;
-      const isBIP47Enabled = route.params?.isBIP47Enabled ?? false;
-      const showBip47Menu = allowBIP47;
-      const onPressMenuItem = () => {
-        navigation.setParams({ toggleBIP47RequestedAt: Date.now() });
-      };
+    (options, { route }) => {
+      if (!isIOS26OrHigher) return options;
 
-      const actions: Action[] = [{ ...CommonToolTipActions.PaymentsCode, menuState: isBIP47Enabled }];
-      const headerMenuOptions = createEllipsisHeaderMenuOptions({ actions, onPressMenuItem });
-      const emptyLeft = () => React.createElement(View, { style: styles.receiveHeaderEmptyLeftSlot });
-
-      if (showBip47Menu) {
-        return {
-          ...options,
-          headerLeft: options.headerLeft,
-          headerRight: headerMenuOptions.headerRight,
-          unstable_headerLeftItems: options.unstable_headerLeftItems,
-          unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems,
-        };
-      }
-
-      const renderCloseRight = () => (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={loc._.close}
-          style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
-          onPress={navigation.goBack}
-          testID="NavigationCloseButton"
-        >
-          <Image source={theme.closeImage} />
-        </Pressable>
-      );
-
+      const shareMessage = route.params.headerShareMessage;
       return {
         ...options,
-        headerLeft: emptyLeft,
-        headerRight: renderCloseRight,
-        unstable_headerLeftItems: () => [],
-        unstable_headerRightItems: options.unstable_headerRightItems,
+        unstable_headerLeftItems: () => [
+          {
+            type: 'button',
+            label: loc.receive.details_share,
+            icon: { type: 'sfSymbol', name: 'square.and.arrow.up' },
+            identifier: 'ShareButton',
+            accessibilityLabel: loc.receive.details_share,
+            disabled: !shareMessage,
+            onPress: () => {
+              if (!shareMessage) return;
+              Share.open({ message: shareMessage }).catch(error => console.debug('Error sharing:', error));
+            },
+          },
+        ],
       };
     },
   )(theme);

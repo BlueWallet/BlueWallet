@@ -1454,3 +1454,85 @@ describe('LightningArkWallet — per-swap claim/refund + restore', () => {
     assert.strictEqual(fakeArkadeSwaps.restoreSwaps.mock.calls.length, 2);
   });
 });
+
+describe('LightningArkWallet — _recoverStrandedSubmarineFunds (#8804)', () => {
+  // SwapManager only auto-refunds a failed submarine swap while it is alive
+  // and watching it. A payment that fails while the app is backgrounded or
+  // killed is never seen live, so the locked VHTLC sats never come back on
+  // their own — the only recovery paths were the manual per-swap "Refund"
+  // button and the manual "Restore swap activity" button, both easy to miss.
+  // This sweeps scanRecoverableSubmarineSwaps()/recoverAllSubmarineFunds()
+  // once per fresh init so a plain app relaunch self-heals.
+  let w: LightningArkWallet;
+  const fakeArkadeSwaps: {
+    scanRecoverableSubmarineSwaps: jest.Mock;
+    recoverAllSubmarineFunds: jest.Mock;
+  } = {
+    scanRecoverableSubmarineSwaps: jest.fn(),
+    recoverAllSubmarineFunds: jest.fn(),
+  };
+
+  beforeEach(() => {
+    w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    fakeArkadeSwaps.scanRecoverableSubmarineSwaps.mockReset().mockResolvedValue([]);
+    fakeArkadeSwaps.recoverAllSubmarineFunds.mockReset().mockResolvedValue([]);
+    (w as any)._arkadeSwaps = fakeArkadeSwaps;
+    jest.spyOn(w, 'fetchBalance').mockResolvedValue();
+    jest.spyOn(w, 'fetchTransactions').mockResolvedValue();
+  });
+
+  it('sweeps swaps whose status is "recoverable" and refreshes balance + transaction/swap history', async () => {
+    const recoverable = { swap: { id: 's1', type: 'submarine' }, status: 'recoverable', vtxoCount: 1, amountSats: 5_000 };
+    fakeArkadeSwaps.scanRecoverableSubmarineSwaps.mockResolvedValue([recoverable]);
+
+    await (w as any)._recoverStrandedSubmarineFunds(fakeArkadeSwaps);
+
+    assert.strictEqual(fakeArkadeSwaps.recoverAllSubmarineFunds.mock.calls.length, 1);
+    assert.deepStrictEqual(fakeArkadeSwaps.recoverAllSubmarineFunds.mock.calls[0][0], [recoverable.swap]);
+    // @ts-expect-error spy
+    assert.strictEqual(w.fetchBalance.mock.calls.length, 1);
+    // @ts-expect-error spy
+    assert.strictEqual(w.fetchTransactions.mock.calls.length, 1);
+  });
+
+  it('leaves pre_cltv / already_spent / invalid_swap candidates alone and skips the refresh', async () => {
+    fakeArkadeSwaps.scanRecoverableSubmarineSwaps.mockResolvedValue([
+      { swap: { id: 's2', type: 'submarine' }, status: 'pre_cltv', vtxoCount: 1, amountSats: 1_000 },
+      { swap: { id: 's3', type: 'submarine' }, status: 'already_spent', vtxoCount: 0, amountSats: 0 },
+      { swap: { id: 's4', type: 'submarine' }, status: 'invalid_swap', vtxoCount: 0, amountSats: 0, error: 'bad script' },
+    ]);
+
+    await (w as any)._recoverStrandedSubmarineFunds(fakeArkadeSwaps);
+
+    assert.strictEqual(fakeArkadeSwaps.recoverAllSubmarineFunds.mock.calls.length, 0);
+    // @ts-expect-error spy
+    assert.strictEqual(w.fetchBalance.mock.calls.length, 0);
+    // @ts-expect-error spy
+    assert.strictEqual(w.fetchTransactions.mock.calls.length, 0);
+  });
+
+  it('does nothing when the scan finds no candidates at all', async () => {
+    await (w as any)._recoverStrandedSubmarineFunds(fakeArkadeSwaps);
+
+    assert.strictEqual(fakeArkadeSwaps.recoverAllSubmarineFunds.mock.calls.length, 0);
+    // @ts-expect-error spy
+    assert.strictEqual(w.fetchBalance.mock.calls.length, 0);
+    // @ts-expect-error spy
+    assert.strictEqual(w.fetchTransactions.mock.calls.length, 0);
+  });
+
+  it("skips the refresh if the wallet has since been re-init'd (stale arkadeSwaps ref)", async () => {
+    const recoverable = { swap: { id: 's5', type: 'submarine' }, status: 'recoverable', vtxoCount: 1, amountSats: 2_000 };
+    fakeArkadeSwaps.scanRecoverableSubmarineSwaps.mockResolvedValue([recoverable]);
+    (w as any)._arkadeSwaps = { different: true }; // simulate onDelete/re-init happening mid-scan
+
+    await (w as any)._recoverStrandedSubmarineFunds(fakeArkadeSwaps);
+
+    assert.strictEqual(fakeArkadeSwaps.recoverAllSubmarineFunds.mock.calls.length, 1, 'the sweep itself still runs');
+    // @ts-expect-error spy
+    assert.strictEqual(w.fetchBalance.mock.calls.length, 0, 'but must not touch a stale instance state');
+    // @ts-expect-error spy
+    assert.strictEqual(w.fetchTransactions.mock.calls.length, 0, 'but must not touch a stale instance state');
+  });
+});

@@ -1,5 +1,7 @@
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { TWallet } from '../class/wallets/types';
+import { Chain } from '../models/bitcoinUnits';
+import { SelectWalletParams } from '../navigation/SendDetailsStackParamList';
 
 /**
  * Helper function to select wallet.
@@ -17,22 +19,14 @@ import { TWallet } from '../class/wallets/types';
 export default function (
   navigation: Pick<NavigationProp<ParamListBase>, 'goBack' | 'navigate'>,
   currentScreenName: string,
-  chainType: string | null,
+  chainType: Chain | null,
   availableWallets?: TWallet[],
   noWalletExplanationText = '',
 ): Promise<TWallet> {
   return new Promise((resolve, reject) => {
     if (!currentScreenName) return reject(new Error('currentScreenName is not provided'));
 
-    const params: {
-      chainType: string | null;
-      availableWallets?: TWallet[];
-      noWalletExplanationText?: string;
-      onWalletSelect: (selectedWallet: TWallet) => void;
-    } = {
-      chainType: null,
-      onWalletSelect: (selectedWallet: TWallet) => {},
-    };
+    const params: SelectWalletParams = {};
     if (chainType) params.chainType = chainType;
     if (availableWallets) params.availableWallets = availableWallets;
     if (noWalletExplanationText) params.noWalletExplanationText = noWalletExplanationText;

@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import BlueText from '../../components/BlueText';
-import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
+import { HDSegwitBech32Transaction, TxVerificationError } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import presentAlert from '../../components/Alert';
 import SafeArea from '../../components/SafeArea';
@@ -21,7 +21,12 @@ export default class RBFCancel extends CPFP {
       newFeeRate: '',
       nonReplaceable: false,
     });
-    await this.checkPossibilityOfRBFCancel();
+    try {
+      await this.checkPossibilityOfRBFCancel();
+    } catch (error) {
+      // if anything goes wrong we just show "this is not bumpable" message
+      this.setState({ nonReplaceable: true, unverified: error instanceof TxVerificationError, isLoading: false });
+    }
   }
 
   async checkPossibilityOfRBFCancel() {
@@ -53,7 +58,7 @@ export default class RBFCancel extends CPFP {
   }
 
   async createTransaction() {
-    const newFeeRate = parseInt(this.state.newFeeRate, 10);
+    const newFeeRate = Number(this.state.newFeeRate);
     if (newFeeRate > this.state.feeRate) {
       /** @type {HDSegwitBech32Transaction} */
       const tx = this.state.tx;
@@ -107,7 +112,11 @@ export default class RBFCancel extends CPFP {
       this.context.txMetadata[this.state.newTxid].memo = 'Cancelled transaction';
     }
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
-    this.props.navigation.navigate('Success', { amount: undefined });
+    this.props.navigation.navigate('Success', {
+      amount: undefined,
+      walletID: this.state.wallet.getID(),
+      walletType: this.state.wallet.type,
+    });
   }
 
   render() {
@@ -132,23 +141,12 @@ export default class RBFCancel extends CPFP {
           <BlueSpacing20 />
           <BlueSpacing20 />
 
-          <BlueText h4>{loc.transactions.cancel_no}</BlueText>
+          <BlueText h4>{this.state.unverified ? loc.transactions.rbf_unverified : loc.transactions.cancel_no}</BlueText>
         </SafeArea>
       );
     }
 
-    return (
-      <SafeArea>
-        <ScrollView
-          automaticallyAdjustContentInsets
-          automaticallyAdjustKeyboardInsets
-          automaticallyAdjustsScrollIndicatorInsets
-          contentInsetAdjustmentBehavior="automatic"
-        >
-          {this.renderStage1(loc.transactions.cancel_explain)}
-        </ScrollView>
-      </SafeArea>
-    );
+    return this.renderFeeSelection(loc.transactions.cancel_explain);
   }
 }
 

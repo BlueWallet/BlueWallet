@@ -5,6 +5,7 @@ import * as bip39custom from '../../blue_modules/bip39';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { LegacyWallet } from './legacy-wallet';
 import { Transaction } from './types';
+import { errorMessage } from '../../helpers/errorMessage';
 
 type AbstractHDWalletStatics = {
   derivationPath?: string;
@@ -18,8 +19,7 @@ export class AbstractHDWallet extends LegacyWallet {
   static readonly typeReadable = 'abstract';
   // @ts-ignore: override
   public readonly type = AbstractHDWallet.type;
-  // @ts-ignore: override
-  public readonly typeReadable = AbstractHDWallet.typeReadable;
+  public readonly typeReadable: string = AbstractHDWallet.typeReadable;
 
   next_free_address_index: number;
   next_free_change_address_index: number;
@@ -176,8 +176,8 @@ export class AbstractHDWallet extends LegacyWallet {
       let txs = [];
       try {
         txs = await BlueElectrum.getTransactionsByAddress(address);
-      } catch (Err: any) {
-        console.warn('BlueElectrum.getTransactionsByAddress()', Err.message);
+      } catch (Err) {
+        console.warn('BlueElectrum.getTransactionsByAddress()', errorMessage(Err));
       }
       if (txs.length === 0) {
         // found free address

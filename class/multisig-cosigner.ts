@@ -12,7 +12,8 @@ export class MultisigCosigner {
   private _xpub: string = '';
   private _path: string = '';
   private _valid: boolean = false;
-  private _cosigners: any[];
+  /** `true` stands for the single plain-xpub cosigner this object was built from */
+  private _cosigners: (MultisigCosigner | true)[];
 
   constructor(data: string) {
     this._data = data;

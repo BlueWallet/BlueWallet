@@ -1,0 +1,12 @@
+diff --git a/node_modules/@bugsnag/react-native/android/build.gradle b/node_modules/@bugsnag/react-native/android/build.gradle
+index fdf534e..619dae6 100644
+--- a/node_modules/@bugsnag/react-native/android/build.gradle
++++ b/node_modules/@bugsnag/react-native/android/build.gradle
+@@ -24,7 +24,6 @@ android {
+         targetSdkVersion safeExtGet('targetSdkVersion', 28)
+         versionCode 1
+         versionName '7.0.0'
+-        consumerProguardFiles 'proguard-rules.pro'
+         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+     }
+     lintOptions {

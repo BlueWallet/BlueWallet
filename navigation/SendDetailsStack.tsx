@@ -13,6 +13,7 @@ import HeaderRightButton from '../components/HeaderRightButton';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import SelectFeeScreen from '../screen/SelectFeeScreen';
 import CoinControlOutputSheet from '../screen/send/CoinControlOutputSheet';
+import PsbtRawSheet from '../components/PsbtRawSheet';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { navigationGuardRouter } from './navigationGuard';
 
@@ -49,10 +50,16 @@ const SendDetailsStack = () => {
     [],
   );
 
-  const coinControlOptions = navigationStyle(
+  const coinControlOptions = navigationStyle<SendDetailsStackParamList, 'CoinControl'>(
     {
       title: loc.cc.header,
       closeButtonIfFirstInStack: CloseButtonPosition.Left,
+      headerStyle: {
+        backgroundColor: theme.colors.background,
+      },
+      contentStyle: {
+        backgroundColor: theme.colors.background,
+      },
     },
     (options, { navigation, route }) => {
       const sortDirection = route.params?.sortDirection ?? CoinControlSortDirection.ASC;
@@ -127,7 +134,7 @@ const SendDetailsStack = () => {
           headerTitle: '',
           sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.45],
           sheetGrabberVisible: true,
-          contentStyle: { flex: 1 },
+          closeButtonPosition: CloseButtonPosition.Right,
           keyboardHandlingEnabled: true,
           navigationBarTranslucent: false,
         })(theme)}
@@ -143,7 +150,12 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="PsbtWithHardwareWallet"
         component={PsbtWithHardwareWalletComponent}
-        options={navigationStyle({ title: loc.send.header, gestureEnabled: false, fullScreenGestureEnabled: false })(theme)}
+        options={navigationStyle({
+          title: loc.send.header,
+          closeButtonPosition: CloseButtonPosition.Right,
+          gestureEnabled: false,
+          fullScreenGestureEnabled: false,
+        })(theme)}
       />
       <Stack.Screen
         name="CreateTransaction"
@@ -153,12 +165,20 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="PsbtMultisig"
         component={PsbtMultisigComponent}
-        options={navigationStyle({ title: loc.multisig.header })(theme)}
+        options={navigationStyle({
+          title: loc.multisig.header,
+          headerStyle: { backgroundColor: theme.colors.elevated },
+          contentStyle: { backgroundColor: theme.colors.elevated },
+        })(theme)}
       />
       <Stack.Screen
         name="PsbtMultisigQRCode"
         component={PsbtMultisigQRCodeComponent}
-        options={navigationStyle({ title: loc.multisig.header })(theme)}
+        options={navigationStyle({
+          title: loc.multisig.header,
+          headerStyle: { backgroundColor: theme.colors.elevated },
+          contentStyle: { backgroundColor: theme.colors.elevated },
+        })(theme)}
       />
       <Stack.Screen
         name="Success"
@@ -173,6 +193,17 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="CoinControlOutput"
         component={CoinControlOutputSheet}
+        options={navigationStyle({
+          presentation: 'formSheet',
+          sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
+          headerTitle: '',
+          sheetGrabberVisible: true,
+          closeButtonPosition: CloseButtonPosition.Right,
+        })(theme)}
+      />
+      <Stack.Screen
+        name="PsbtRaw"
+        component={PsbtRawSheet}
         options={navigationStyle({
           presentation: 'formSheet',
           sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],

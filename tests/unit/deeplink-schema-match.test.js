@@ -127,6 +127,34 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
         expected: ['SendDetailsRoot', { screen: 'SendDetails', params: { uri: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' } }],
       },
       {
+        argument: {
+          url: 'sp1qqgste7k9hx0qftg6qmwlkqtwuy6cycyavzmzj85c6qdfhjdpdjtdgqjuexzk6murw56suy3e0rd2cgqvycxttddwsvgxe2usfpxumr70xc9pkqwv',
+        },
+        expected: [
+          'SendDetailsRoot',
+          {
+            screen: 'SendDetails',
+            params: {
+              uri: 'sp1qqgste7k9hx0qftg6qmwlkqtwuy6cycyavzmzj85c6qdfhjdpdjtdgqjuexzk6murw56suy3e0rd2cgqvycxttddwsvgxe2usfpxumr70xc9pkqwv',
+            },
+          },
+        ],
+      },
+      {
+        argument: {
+          url: 'PM8TJS2JxQ5ztXUpBBRnpTbcUXbUHy2T1abfrb3KkAAtMEGNbey4oumH7Hc578WgQJhPjBxteQ5GHHToTYHE3A1w6p7tU6KSoFmWBVbFGjKPisZDbP97',
+        },
+        expected: [
+          'SendDetailsRoot',
+          {
+            screen: 'SendDetails',
+            params: {
+              uri: 'PM8TJS2JxQ5ztXUpBBRnpTbcUXbUHy2T1abfrb3KkAAtMEGNbey4oumH7Hc578WgQJhPjBxteQ5GHHToTYHE3A1w6p7tU6KSoFmWBVbFGjKPisZDbP97',
+            },
+          },
+        ],
+      },
+      {
         argument: { url: `bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG` },
         expected: ['SendDetailsRoot', { screen: 'SendDetails', params: { uri: 'bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' } }],
       },
@@ -394,6 +422,21 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
         amount: 0.0001,
         memo: '',
         payjoinUrl: 'https://btc.donate.kukks.org/BTC/pj',
+        disableOutputSubstitution: false,
+      },
+    );
+
+    // BIP78: pjos=0 means the sender MUST disallow payment output substitution
+    assert.deepStrictEqual(
+      DeeplinkSchemaMatch.decodeBitcoinUri(
+        `bitcoin:${suffix}bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.0001&pj=https://btc.donate.kukks.org/BTC/pj&pjos=0`,
+      ),
+      {
+        address: 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7',
+        amount: 0.0001,
+        memo: '',
+        payjoinUrl: 'https://btc.donate.kukks.org/BTC/pj',
+        disableOutputSubstitution: true,
       },
     );
 
@@ -404,6 +447,7 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
         amount: 20.3,
         memo: 'Foobar',
         payjoinUrl: '',
+        disableOutputSubstitution: false,
       },
     );
   });

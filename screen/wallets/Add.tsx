@@ -28,15 +28,15 @@ import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetScanWasBBQR } from '../../helpers/scan-qr.ts';
+import { errorMessage } from '../../helpers/errorMessage';
 
-enum ButtonSelected {
-  // @ts-ignore: Return later to update
-  ONCHAIN = Chain.ONCHAIN,
-  // @ts-ignore: Return later to update
-  OFFCHAIN = Chain.OFFCHAIN,
-  VAULT = 'VAULT',
-  ARK = 'ARK',
-}
+const ButtonSelected = {
+  ONCHAIN: Chain.ONCHAIN,
+  OFFCHAIN: Chain.OFFCHAIN,
+  VAULT: 'VAULT',
+  ARK: 'ARK',
+} as const;
+type ButtonSelected = (typeof ButtonSelected)[keyof typeof ButtonSelected];
 
 interface State {
   isLoading: boolean;
@@ -55,10 +55,11 @@ const ActionTypes = {
 } as const;
 type ActionTypes = (typeof ActionTypes)[keyof typeof ActionTypes];
 
-interface TAction {
-  type: ActionTypes;
-  payload?: any;
-}
+type TAction =
+  | { type: typeof ActionTypes.SET_LOADING; payload: boolean }
+  | { type: typeof ActionTypes.SET_WALLET_BASE_URI | typeof ActionTypes.SET_LABEL; payload: string }
+  | { type: typeof ActionTypes.SET_SELECTED_INDEX; payload: number }
+  | { type: typeof ActionTypes.SET_SELECTED_WALLET_TYPE; payload: ButtonSelected };
 
 const index2walletType: Record<number, { text: string; subtitle: string; walletType: string }> = {
   0: { subtitle: 'p2wpkh/HD', text: `${loc.multisig.native_segwit_title}`, walletType: HDSegwitBech32Wallet.type },
@@ -269,9 +270,9 @@ const WalletsAdd: React.FC = () => {
         if (entropy) {
           try {
             await w.generateFromEntropy(entropy);
-          } catch (e: any) {
-            console.log(e.toString());
-            presentAlert({ message: e.toString() });
+          } catch (e) {
+            console.log(String(e));
+            presentAlert({ message: String(e) });
             return;
           }
         } else {
@@ -312,11 +313,11 @@ const WalletsAdd: React.FC = () => {
       }
       await wallet.createAccount();
       await wallet.authorize();
-    } catch (Err: any) {
+    } catch (Err) {
       setIsLoading(false);
       console.warn('lnd create failure', Err);
-      if (Err.message) {
-        return presentAlert({ message: Err.message });
+      if (errorMessage(Err)) {
+        return presentAlert({ message: errorMessage(Err) });
       } else {
         return presentAlert({ message: loc.wallets.add_lndhub_error });
       }
@@ -338,10 +339,10 @@ const WalletsAdd: React.FC = () => {
     wallet.setLabel(label || loc.wallets.details_title);
     try {
       await wallet.generate();
-    } catch (Err: any) {
+    } catch (Err) {
       setIsLoading(false);
       console.warn('lightning ark create failure', Err);
-      return presentAlert({ message: Err.message ?? '' });
+      return presentAlert({ message: errorMessage(Err) });
     }
 
     addWallet(wallet);

@@ -1,16 +1,18 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BlueApp as BlueAppClass, TCounterpartyMetadata, TTXMetadata } from '../../class/blue-app';
+import { BlueApp as BlueAppClass, TCounterpartyMetadata, TTXMetadata, TAddressMetadata } from '../../class/blue-app';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { removeRecentMenuItemsForWallets } from './recentMenuItems';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import type { TWallet } from '../../class/wallets/types';
+import type { NavigationRoute, ParamListBase, PartialRoute, Route } from '@react-navigation/native';
 import presentAlert from '../../components/Alert';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { registerArkBackgroundTask, stopArkBackgroundTask } from '../../blue_modules/arkade-background';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
-import { isNotificationsEnabled, majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
+import { majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { navigationRef } from '../../NavigationService';
 import { getScanWasBBQR } from '../../helpers/scan-qr.ts';
@@ -26,6 +28,7 @@ interface StorageContextType {
   setWalletsWithNewOrder: (wallets: TWallet[]) => void;
   txMetadata: TTXMetadata;
   counterpartyMetadata: TCounterpartyMetadata;
+  addressMetadata: TAddressMetadata;
   saveToDisk: (force?: boolean) => Promise<void>;
   selectedWalletID: () => string | undefined; // Change from string|undefined to a function
   addWallet: (wallet: TWallet) => void;
@@ -54,8 +57,8 @@ interface StorageContextType {
   cachedPassword: typeof BlueApp.cachedPassword;
   getItem: typeof BlueApp.getItem;
   setItem: typeof BlueApp.setItem;
-  handleWalletDeletion: (walletID: string, forceDelete?: boolean) => Promise<boolean>;
-  confirmWalletDeletion: (wallet: any, onConfirmed: () => void) => void;
+  handleWalletDeletion: (walletID: string) => Promise<boolean>;
+  confirmWalletDeletion: (wallet: TWallet, onConfirmed: () => void) => void;
 }
 
 export enum WalletTransactionsStatus {
@@ -63,12 +66,12 @@ export enum WalletTransactionsStatus {
   ALL = 'ALL',
 }
 
-// @ts-ignore default value does not match the type
-export const StorageContext = createContext<StorageContextType>(undefined);
+export const StorageContext = createContext<StorageContextType | undefined>(undefined);
 
 export const StorageProvider = ({ children }: { children: React.ReactNode }) => {
-  const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata);
+  const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata ?? {});
   const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
+  const addressMetadata = useRef<TAddressMetadata>(BlueApp.address_metadata || {});
 
   const [wallets, setWallets] = useState<TWallet[]>([]);
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState<WalletTransactionsStatus | string>(
@@ -76,6 +79,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   );
   const [walletsInitialized, setWalletsInitialized] = useState<boolean>(false);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState<string>('');
+  // Metadata refs are mutated in place, so their identity never changes; bumped on save to rebuild the context value.
+  const [metadataVersion, setMetadataVersion] = useState(0);
 
   const selectedWalletID = useCallback((): string | undefined => {
     if (!navigationRef.current || !navigationRef.current.isReady()) return undefined;
@@ -127,12 +132,17 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const findWalletIDInNavigationState = (routes: any[], screenName: string): string | undefined => {
+  type WalletRouteParams = { walletID?: string; screen?: string; params?: { walletID?: string } };
+  const findWalletIDInNavigationState = (
+    routes: (NavigationRoute<ParamListBase, string> | PartialRoute<Route<string>>)[],
+    screenName: string,
+  ): string | undefined => {
     for (let i = routes.length - 1; i >= 0; i--) {
       const route = routes[i];
+      const params = route.params as WalletRouteParams | undefined;
 
-      if (route.name === screenName && (route.params as { walletID?: string }).walletID) {
-        return (route.params as { walletID?: string }).walletID;
+      if (route.name === screenName && params?.walletID) {
+        return params.walletID;
       }
 
       if (route.state?.routes) {
@@ -140,12 +150,12 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         if (walletID) return walletID;
       }
 
-      if (route.params?.screen === screenName && route.params?.params?.walletID) {
-        return route.params.params.walletID;
+      if (params?.screen === screenName && params.params?.walletID) {
+        return params.params.walletID;
       }
 
-      if (route.name === 'DetailViewStackScreensStack' && route.params?.screen === screenName && route.params?.params?.walletID) {
-        return route.params.params.walletID;
+      if (route.name === 'DetailViewStackScreensStack' && params?.screen === screenName && params.params?.walletID) {
+        return params.params.walletID;
       }
     }
 
@@ -160,12 +170,14 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       }
       BlueApp.tx_metadata = txMetadata.current;
       BlueApp.counterparty_metadata = counterpartyMetadata.current;
+      BlueApp.address_metadata = addressMetadata.current;
       await BlueApp.saveToDisk();
       const w: TWallet[] = [...BlueApp.getWallets()];
       setWallets(w);
+      setMetadataVersion(v => v + 1);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [txMetadata.current, counterpartyMetadata.current],
+    [txMetadata.current, counterpartyMetadata.current, addressMetadata.current],
   );
 
   const addWallet = useCallback((wallet: TWallet) => {
@@ -175,6 +187,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const deleteWallet = useCallback((wallet: TWallet) => {
     BlueApp.deleteWallet(wallet);
+    removeRecentMenuItemsForWallets(new Set([wallet.getID()]));
     setWallets([...BlueApp.getWallets()]);
     if (wallet.type === LightningArkWallet.type) {
       // Fire-and-forget: cleans up the per-wallet Arkade Realm (close + delete files)
@@ -188,7 +201,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   }, []);
 
   const handleWalletDeletion = useCallback(
-    async (walletID: string, forceDelete = false): Promise<boolean> => {
+    async (walletID: string): Promise<boolean> => {
       console.debug(`handleWalletDeletion: invoked for walletID ${walletID}`);
       const wallet = wallets.find(w => w.getID() === walletID);
       if (!wallet) {
@@ -196,107 +209,29 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         return false;
       }
 
-      if (forceDelete) {
+      const externalAddresses = wallet.getAllExternalAddresses();
+
+      try {
         deleteWallet(wallet);
         await saveToDisk(true);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        return true;
-      }
-
-      let isNotificationsSettingsEnabled = false;
-      try {
-        isNotificationsSettingsEnabled = await isNotificationsEnabled();
-      } catch (error) {
-        console.error(`handleWalletDeletion: error checking notifications for wallet ${walletID}`, error);
-        return await new Promise<boolean>(resolve => {
-          presentAlert({
-            title: loc.errors.error,
-            message: loc.wallets.details_delete_wallet_error_message,
-            buttons: [
-              {
-                text: loc.wallets.details_delete_anyway,
-                onPress: async () => {
-                  const result = await handleWalletDeletion(walletID, true);
-                  resolve(result);
-                },
-                style: 'destructive',
-              },
-              {
-                text: loc.wallets.list_tryagain,
-                onPress: async () => {
-                  const result = await handleWalletDeletion(walletID);
-                  resolve(result);
-                },
-              },
-              {
-                text: loc._.cancel,
-                onPress: () => resolve(false),
-                style: 'cancel',
-              },
-            ],
-            options: { cancelable: false },
-          });
-        });
-      }
-
-      try {
-        if (isNotificationsSettingsEnabled) {
-          const externalAddresses = wallet.getAllExternalAddresses();
-          if (externalAddresses.length > 0) {
-            console.debug(`handleWalletDeletion: unsubscribing addresses for wallet ${walletID}`);
-            try {
-              await unsubscribe(externalAddresses, [], []);
-              console.debug(`handleWalletDeletion: unsubscribe succeeded for wallet ${walletID}`);
-            } catch (unsubscribeError) {
-              console.error(`handleWalletDeletion: unsubscribe failed for wallet ${walletID}`, unsubscribeError);
-              presentAlert({
-                title: loc.errors.error,
-                message: loc.wallets.details_delete_wallet_error_message,
-                buttons: [{ text: loc._.ok, onPress: () => {} }],
-                options: { cancelable: false },
-              });
-              return false;
-            }
-          }
-        }
-        deleteWallet(wallet);
-        console.debug(`handleWalletDeletion: wallet ${walletID} deleted successfully`);
-        await saveToDisk(true);
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        return true;
       } catch (e: unknown) {
         console.error(`handleWalletDeletion: encountered error for wallet ${walletID}`, e);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        return await new Promise<boolean>(resolve => {
+        return false;
+      }
+
+      if (externalAddresses.length > 0) {
+        unsubscribe(externalAddresses, [], []).catch(error => {
+          console.error(`handleWalletDeletion: unsubscribe failed for wallet ${walletID}`, error);
           presentAlert({
             title: loc.errors.error,
             message: loc.wallets.details_delete_wallet_error_message,
-            buttons: [
-              {
-                text: loc.wallets.details_delete_anyway,
-                onPress: async () => {
-                  const result = await handleWalletDeletion(walletID, true);
-                  resolve(result);
-                },
-                style: 'destructive',
-              },
-              {
-                text: loc.wallets.list_tryagain,
-                onPress: async () => {
-                  const result = await handleWalletDeletion(walletID);
-                  resolve(result);
-                },
-              },
-              {
-                text: loc._.cancel,
-                onPress: () => resolve(false),
-                style: 'cancel',
-              },
-            ],
-            options: { cancelable: false },
           });
         });
       }
+
+      return true;
     },
     [deleteWallet, saveToDisk, wallets],
   );
@@ -308,7 +243,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const setWalletsWithNewOrder = useCallback(
     (wlts: TWallet[]) => {
       BlueApp.wallets = wlts;
-      saveToDisk();
+      saveToDisk().catch((error: unknown) => console.warn('setWalletsWithNewOrder: saveToDisk failed', error));
     },
     [saveToDisk],
   );
@@ -316,8 +251,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   // Initialize wallets
   useEffect(() => {
     if (walletsInitialized) {
-      txMetadata.current = BlueApp.tx_metadata;
-      counterpartyMetadata.current = BlueApp.counterparty_metadata;
+      txMetadata.current = BlueApp.tx_metadata ?? {};
+      BlueApp.tx_metadata = txMetadata.current;
+      counterpartyMetadata.current = BlueApp.counterparty_metadata ?? {};
+      addressMetadata.current = BlueApp.address_metadata ?? {};
       const loaded = BlueApp.getWallets();
       setWallets(loaded);
       if (loaded.some(w => w.type === LightningArkWallet.type)) {
@@ -500,7 +437,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     [wallets, addWallet, saveToDisk],
   );
 
-  function confirmWalletDeletion(wallet: any, onConfirmed: () => void) {
+  function confirmWalletDeletion(wallet: TWallet, onConfirmed: () => void) {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     try {
       const balance = formatBalanceWithoutSuffix(wallet.getBalance(), BitcoinUnit.SATS, true);
@@ -535,6 +472,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       setWalletsWithNewOrder,
       txMetadata: txMetadata.current,
       counterpartyMetadata: counterpartyMetadata.current,
+      addressMetadata: addressMetadata.current,
       saveToDisk,
       getTransactions: BlueApp.getTransactions,
       selectedWalletID,
@@ -566,6 +504,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       handleWalletDeletion,
       confirmWalletDeletion,
     }),
+    // metadataVersion is deliberate: it is what rebuilds this value after an in-place metadata edit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       wallets,
       setWalletsWithNewOrder,
@@ -582,6 +522,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       resetWallets,
       walletTransactionUpdateStatus,
       handleWalletDeletion,
+      metadataVersion,
     ],
   );
 

@@ -22,9 +22,18 @@ import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import bip39WalletFormatsElectrum from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
 import bip39WalletFormatsBlueWallet from './bip39_wallet_formats_bluewallet.json';
 import type { TWallet } from './wallets/types';
+import { errorMessage } from '../helpers/errorMessage';
+
+// Canonicalize a user-typed derivation path: trim, iOS smart quotes and h/H hardened notation
+// become ', a leading M becomes m. The stored form must use ' because bitcoinjs derivePath
+// rejects h notation (its schema is /^(m\/)?(\d+'?\/)*\d+'?$/).
+export const normalizeDerivationPath = (path: string): string =>
+  path.trim().replace(/[‘’]/g, "'").replace(/[hH]/g, "'").replace(/^M\//, 'm/');
 
 // https://github.com/bitcoinjs/bip32/blob/master/ts-src/bip32.ts#L43
-export const validateBip32 = (path: string) => path.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;
+// require m/ so bip174 does not drop the first path level (it treats index 0 as m); normalize
+// first so h notation (m/84h/0h/0h) is accepted the same as m/84'/0'/0'
+export const validateBip32 = (path: string) => normalizeDerivationPath(path).match(/^m\/(\d+'?\/)*\d+'?$/) !== null;
 
 // because original file bip39WalletFormatsElectrum is from Electrum X and doesn't contain p2tr wallets, we need to add it
 bip39WalletFormatsElectrum.push({
@@ -44,6 +53,15 @@ export type TImport = {
   promise: Promise<TStatus>;
   stop: () => void;
 };
+
+// script type prefixes for single private keys, same spelling as Electrum (p2wpkh:WIF)
+const PREFIXED_WIF_WALLETS = {
+  p2pkh: LegacyWallet,
+  p2wpkh: SegwitBech32Wallet,
+  'p2wpkh-p2sh': SegwitP2SHWallet,
+  p2tr: TaprootWallet,
+} as const;
+const PREFIXED_WIF_REGEX = /^(p2pkh|p2wpkh-p2sh|p2wpkh|p2tr):\s*(\S+)$/i;
 
 /**
  * Function that starts wallet search and import process. It has async generator inside, so
@@ -67,7 +85,7 @@ const startImport = (
 ): TImport => {
   // state
   let promiseResolve: (arg: TStatus) => void;
-  let promiseReject: (reason?: any) => void;
+  let promiseReject: (reason?: unknown) => void;
   let running = true; // if you put it to false, internal generator stops
   const wallets: TWallet[] = [];
   const promise = new Promise<TStatus>((resolve, reject) => {
@@ -115,6 +133,7 @@ const startImport = (
     // 3.2 check if its AEZEED
     // 3.3 check if its SLIP39
     // 3.4 check if its HDTaprootWallet (BIP86)
+    // 3.5 check if its a WIF with a script type prefix (p2wpkh:WIF)
     // 4. check if its Segwit WIF (P2SH)
     // 4.5 check if its Taproot WIF
     // 5. check if its Legacy WIF
@@ -124,6 +143,23 @@ const startImport = (
     // 8. check if its a json array from BC-UR with multiple accounts
     let text = importTextOrig.trim();
     let password;
+
+    // WIF with a script type prefix, as used by Electrum and printed on paper wallets (p2wpkh:WIF):
+    // the prefix says which address the key controls, so there is nothing to probe.
+    // If the key is not valid for that script type (garbage, testnet, or an uncompressed key with
+    // a segwit/taproot prefix) we fall through and the rest of the procedure finds nothing
+    const prefixed = text.match(PREFIXED_WIF_REGEX);
+    if (prefixed) {
+      const scriptType = prefixed[1].toLowerCase() as keyof typeof PREFIXED_WIF_WALLETS;
+      const wallet = new PREFIXED_WIF_WALLETS[scriptType]();
+      wallet.setSecret(prefixed[2]);
+      if (wallet.getAddress()) {
+        yield { progress: 'wif ' + scriptType };
+        await fetch(wallet, true);
+        yield { wallet };
+        return;
+      }
+    }
 
     // BIP38 password required
     if (text.startsWith('6P')) {
@@ -233,17 +269,17 @@ const startImport = (
           // wallets.
           try {
             await ark.restoreSwaps();
-          } catch (e: any) {
-            console.log('[wallet-import] restoreSwaps failed:', e?.message ?? e);
+          } catch (e) {
+            console.log('[wallet-import] restoreSwaps failed:', errorMessage(e));
           }
           try {
             await ark.fetchBalance();
             await ark.fetchTransactions();
-          } catch (e: any) {
-            console.log('[wallet-import] initial Ark sync failed:', e?.message ?? e);
+          } catch (e) {
+            console.log('[wallet-import] initial Ark sync failed:', errorMessage(e));
           }
-        } catch (e: any) {
-          console.log('[wallet-import] Ark init failed; deferring to next open:', e?.message ?? e);
+        } catch (e) {
+          console.log('[wallet-import] Ark init failed; deferring to next open:', errorMessage(e));
         }
       }
       yield { wallet: ark };

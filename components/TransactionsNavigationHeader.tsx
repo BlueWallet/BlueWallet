@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { findNodeHandle, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from './themes';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
@@ -41,6 +41,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   unit = BitcoinUnit.BTC,
   unitSwitching = false,
 }) => {
+  const manageFundsRef = useRef<View>(null);
   const { colors } = useTheme();
   const { hideBalance } = wallet;
   const isLightningWallet = wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type;
@@ -123,8 +124,11 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   // overlapping the wallet label. A plain TouchableOpacity + ActionSheet lays
   // out correctly (same pattern as the Multisig button below).
   const showManageFundsActionSheet = useCallback(() => {
+    const anchor = findNodeHandle(manageFundsRef.current);
+    if (anchor === null) return;
     ActionSheet.showActionSheetWithOptions(
       {
+        anchor,
         title: loc.lnd.title,
         options: [loc._.cancel, loc.lnd.refill, loc.lnd.refill_external],
         cancelButtonIndex: 0,
@@ -168,8 +172,12 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         ];
   }, [hideBalance]);
 
+  // Hero extends under the transparent nav bar (paddingTop: headerOverlayHeight).
+  // Without box-none / none, that overlay and absoluteFill gradient steal taps from
+  // JS headerRight (Wallet Details "…") on iOS < 26 and Mac Catalyst.
   return (
     <View
+      pointerEvents="box-none"
       style={[
         styles.lineaderGradient,
         {
@@ -179,7 +187,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         },
       ]}
     >
-      <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={StyleSheet.absoluteFill} />
+      <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={StyleSheet.absoluteFill} pointerEvents="none" />
       <View style={styles.contentContainer}>
         <Text testID="WalletLabel" numberOfLines={1} style={[styles.walletLabel, { writingDirection: direction }]}>
           {wallet.getLabel()}
@@ -219,7 +227,12 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
             )}
           </View>
           {(wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) && allowOnchainAddress && (
-            <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={showManageFundsActionSheet}>
+            <TouchableOpacity
+              style={styles.manageFundsButton}
+              accessibilityRole="button"
+              ref={manageFundsRef}
+              onPress={showManageFundsActionSheet}
+            >
               <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
             </TouchableOpacity>
           )}

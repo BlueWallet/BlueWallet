@@ -10,8 +10,7 @@ export class HDSegwitBech32Wallet extends AbstractHDElectrumWallet {
   static readonly typeReadable = 'HD SegWit (BIP84 Bech32 Native)';
   // @ts-ignore: override
   public readonly type = HDSegwitBech32Wallet.type;
-  // @ts-ignore: override
-  public readonly typeReadable = HDSegwitBech32Wallet.typeReadable;
+  public readonly typeReadable: string = HDSegwitBech32Wallet.typeReadable;
   public readonly segwitType = 'p2wpkh';
   static readonly derivationPath = "m/84'/0'/0'";
 

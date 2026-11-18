@@ -4,11 +4,14 @@ import {
   Alert,
   BackHandler,
   Linking,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
+  StyleProp,
+  TextStyle,
 } from 'react-native';
 import { sha256 } from '@noble/hashes/sha256';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
@@ -18,18 +21,19 @@ import dayjs from 'dayjs';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import type { ElectrumTransaction } from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import AddressLabelBadge from '../../components/AddressLabelBadge';
 import BlueText from '../../components/BlueText';
 import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import { BlueLoading } from '../../components/BlueLoading';
-import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
-import Button from '../../components/Button';
-import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import CopyTextToClipboard, { CopyTextToClipboardHandle } from '../../components/CopyTextToClipboard';
+import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
 import BlocksAccordion from '../../components/BlocksAccordion';
 import TransactionStateHeader from '../../components/TransactionStateHeader';
@@ -40,25 +44,28 @@ import prompt from '../../helpers/prompt';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe';
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { isOnChainTransaction, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
+import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 
 dayjs.extend(relativeTime);
 
-/** Mutates Electrum `vin` entries with `value` from previous outputs so fee = sum(inputs) − sum(outputs) works. */
-async function populateVinValuesFromPrevTxs(fetchedTx: any): Promise<void> {
+/** Mutates Electrum `vin` entries with `value` and `addresses` from previous outputs so fee = sum(inputs) − sum(outputs) works. */
+async function populateVinValuesFromPrevTxs(fetchedTx: ElectrumTransaction): Promise<void> {
   if (!fetchedTx?.vin?.length) return;
-  const vinTxids = fetchedTx.vin.map((vin: any) => vin.txid).filter((tid: string) => !!tid);
+  const vinTxids = fetchedTx.vin.map(vin => vin.txid).filter(tid => !!tid);
   if (vinTxids.length === 0) return;
   try {
     const prevTransactions = await BlueElectrum.multiGetTransactionByTxid(vinTxids, true, 10);
     for (let i = 0; i < fetchedTx.vin.length; i++) {
       const vin = fetchedTx.vin[i];
-      if (prevTransactions[vin.txid]?.vout?.[vin.vout]) {
-        vin.value = prevTransactions[vin.txid].vout[vin.vout].value;
+      const prevOut = prevTransactions[vin.txid]?.vout?.[vin.vout];
+      if (prevOut) {
+        vin.value = prevOut.value;
+        if (prevOut.scriptPubKey?.addresses) vin.addresses = prevOut.scriptPubKey.addresses;
       }
     }
   } catch (err) {
@@ -96,7 +103,7 @@ interface State {
   isCPFPPossible: ButtonStatus;
   isRBFBumpFeePossible: ButtonStatus;
   isRBFCancelPossible: ButtonStatus;
-  tx: any;
+  tx: Transaction | undefined;
   isLoading: boolean;
   eta: string;
   intervalMs: number;
@@ -116,7 +123,21 @@ const initialState: State = {
   loadingError: false,
 };
 
-const reducer = (state: State, action: { type: ActionType; payload?: any }): State => {
+type Action =
+  | {
+      type: ActionType.SetCPFPPossible | ActionType.SetRBFBumpFeePossible | ActionType.SetRBFCancelPossible | ActionType.SetAllButtonStatus;
+      payload: ButtonStatus;
+    }
+  | { type: ActionType.SetTransaction; payload: Transaction | undefined }
+  | {
+      type: ActionType.SetLoading | ActionType.SetLoadingError;
+      payload: boolean;
+    }
+  | { type: ActionType.SetEta; payload: string }
+  | { type: ActionType.SetIntervalMs; payload: number }
+  | { type: ActionType.SetWallet; payload: TWallet | null };
+
+const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case ActionType.SetCPFPPossible:
       return { ...state, isCPFPPossible: action.payload };
@@ -146,8 +167,8 @@ const reducer = (state: State, action: { type: ActionType; payload?: any }): Sta
 type TransactionDetailHeaderTitleProps = {
   direction: string;
   date: string;
-  directionStyle: any;
-  dateStyle: any;
+  directionStyle: StyleProp<TextStyle>;
+  dateStyle: StyleProp<TextStyle>;
 };
 
 const TransactionDetailHeaderTitle: React.FC<TransactionDetailHeaderTitleProps> = ({ direction, date, directionStyle, dateStyle }) => (
@@ -169,8 +190,47 @@ const TransactionStatus: React.FC = () => {
     isLoading: !initialTx,
   });
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
-  const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
+  // a tx that is already in state wins over a stale loading error (watchdog or a failed enrichment)
+  const showLoadingError = loadingError && !tx;
+  const transactionId = tx?.hash || tx?.txid;
+  const transactionIdCopyRef = useRef<CopyTextToClipboardHandle>(null);
+  const { wallets, txMetadata, counterpartyMetadata, addressMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const subscribedWallet = useWalletSubscribe(walletID);
+  const recentOwningWallet = wallet ?? subscribedWallet ?? wallets.find(candidate => candidate.getID() === walletID);
+  const hideBalanceInRecentMenu = recentOwningWallet?.hideBalance;
+  const hideFromRecentMenu = recentOwningWallet?.getHideTransactionsInWalletsList?.() ?? false;
+  const recentBalanceUnit = recentOwningWallet ? (recentOwningWallet.preferredBalanceUnit ?? BitcoinUnit.BTC) : undefined;
+  const recentWalletLabel = recentOwningWallet?.getLabel?.();
+  const recentTransaction = useMemo(() => {
+    const id = transactionId ?? hash;
+    const value = Number(tx?.value);
+    const formattedValue =
+      !hideBalanceInRecentMenu && recentBalanceUnit && Number.isFinite(value) ? formatBalance(value, recentBalanceUnit, true) : '';
+    const label = txMetadata?.[id]?.memo || `Transaction ${id.slice(0, 12)}…`;
+    return {
+      id: `transaction:${walletID}:${id}`,
+      kind: 'transaction' as const,
+      title: [label, formattedValue, recentWalletLabel].filter(Boolean).join(' — '),
+      walletID,
+      transactionID: id,
+    };
+  }, [hash, hideBalanceInRecentMenu, recentBalanceUnit, recentWalletLabel, transactionId, tx?.value, txMetadata, walletID]);
+  const showMempoolSpeedUp =
+    Boolean(tx?.hash) && isRBFBumpFeePossible === ButtonStatus.NotPossible && isCPFPPossible === ButtonStatus.NotPossible;
+  const handleOpenMempoolAccelerator = useCallback(() => {
+    if (!tx?.hash) return;
+    Linking.openURL(`https://mempool.space/tx/${tx.hash}#accelerate&partnerCode=bluewallet`).catch(e => {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ message: e.message });
+    });
+  }, [tx?.hash]);
+  useScreenMenuActions(
+    {
+      copyTransactionId: transactionId && !showLoadingError ? () => transactionIdCopyRef.current?.copy() : undefined,
+      accelerateTransaction: showMempoolSpeedUp ? handleOpenMempoolAccelerator : undefined,
+    },
+    hideFromRecentMenu ? undefined : recentTransaction,
+  );
   const { navigate, goBack, setOptions } = useNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { width: windowWidth, fontScale } = useWindowDimensions();
@@ -243,7 +303,7 @@ const TransactionStatus: React.FC = () => {
   const [isLoadingHex, setIsLoadingHex] = useState(false);
   const [from, setFrom] = useState<string[]>([]);
   const [to, setTo] = useState<string[]>([]);
-  const [txFromElectrum, setTxFromElectrum] = useState<any>(null);
+  const [txFromElectrum, setTxFromElectrum] = useState<ElectrumTransaction | null>(null);
   const [mempoolFee, setMempoolFee] = useState<number | null>(null);
   const [counterpartyLabel, setCounterpartyLabel] = useState<string | null>(null);
   const [paymentCode, setPaymentCode] = useState<string | null>(null);
@@ -290,7 +350,10 @@ const TransactionStatus: React.FC = () => {
     rowValue: { color: colors.alternativeTextColor },
   });
 
-  const setTX = (value: any) => {
+  // mirrors tx state synchronously: the watchdog timeout and the fetch catch may run before the dispatch commits
+  const txRef = useRef<Transaction | undefined>(undefined);
+  const setTX = (value: Transaction | undefined) => {
+    txRef.current = value;
     dispatch({ type: ActionType.SetTransaction, payload: value });
   };
 
@@ -515,7 +578,7 @@ const TransactionStatus: React.FC = () => {
 
           // Populate vin.value for fee calculation when transaction becomes confirmed
           if (fetchedTx.vin && fetchedTx.vin.length > 0) {
-            const vinTxids = fetchedTx.vin.map((vin: any) => vin.txid).filter((tid: string) => !!tid);
+            const vinTxids = fetchedTx.vin.map(vin => vin.txid).filter(tid => !!tid);
             if (vinTxids.length > 0) {
               try {
                 const prevTxs = await BlueElectrum.multiGetTransactionByTxid(vinTxids, true, 10);
@@ -627,7 +690,23 @@ const TransactionStatus: React.FC = () => {
           const transactions = await BlueElectrum.multiGetTransactionByTxid([hash], true, 10);
           const fetchedTx = transactions[hash];
           if (fetchedTx) {
-            setTX(fetchedTx);
+            const asTransaction = () => ({
+              ...fetchedTx,
+              inputs: fetchedTx.vin,
+              outputs: fetchedTx.vout,
+              timestamp: fetchedTx.time ?? fetchedTx.blocktime ?? 0,
+            });
+            // store before the prev-output round trip: the 10 s watchdog only disarms once a tx is on screen, and it may
+            // already have fired during a slow fetch, so its error flag is cleared here too
+            setTX(asTransaction());
+            setIsLoading(false);
+            dispatch({ type: ActionType.SetLoadingError, payload: false });
+            // same normalization BlueElectrum applies to wallet transactions: input values and addresses from prev outputs
+            await populateVinValuesFromPrevTxs(fetchedTx);
+            setFrom((fetchedTx.vin ?? []).flatMap(vin => vin.addresses ?? []));
+            setTo((fetchedTx.vout ?? []).flatMap(vout => vout.scriptPubKey?.addresses ?? []));
+            setTX(asTransaction());
+            dispatch({ type: ActionType.SetLoadingError, payload: false });
             // Raw Electrum tx has no top-level .value; refetch wallet so it computes value and we can show balance
             if (subscribedWallet) {
               fetchAndSaveWalletTransactions(subscribedWallet.getID()).then(() => {
@@ -645,7 +724,7 @@ const TransactionStatus: React.FC = () => {
           }
         } catch (error) {
           console.error('Error fetching transaction:', error);
-          dispatch({ type: ActionType.SetLoadingError, payload: true });
+          if (!txRef.current) dispatch({ type: ActionType.SetLoadingError, payload: true });
           dispatch({ type: ActionType.SetLoading, payload: false });
         }
       };
@@ -654,10 +733,10 @@ const TransactionStatus: React.FC = () => {
   }, [tx, hash, subscribedWallet, fetchAndSaveWalletTransactions]);
 
   useEffect(() => {
-    if (isLoading) {
+    if (isLoading && !tx) {
       let isComponentMounted = true;
       const loadingTimeout = setTimeout(() => {
-        if (isComponentMounted && isLoading) {
+        if (isComponentMounted && !txRef.current) {
           dispatch({ type: ActionType.SetLoadingError, payload: true });
           dispatch({ type: ActionType.SetLoading, payload: false });
           console.error('Loading timed out. There was an issue fetching the transaction.');
@@ -669,7 +748,7 @@ const TransactionStatus: React.FC = () => {
         clearTimeout(loadingTimeout);
       };
     }
-  }, [isLoading]);
+  }, [isLoading, tx]);
 
   const checkPossibilityOfCPFP = async () => {
     if (!wallet || !tx?.hash) {
@@ -781,12 +860,13 @@ const TransactionStatus: React.FC = () => {
   };
 
   const handleNotePress = useCallback(async () => {
+    if (!tx) return;
     // Ark rows have no on-chain hash; use their synthetic txid as fallback key.
     const metadataKey = tx.hash ?? (tx as { txid?: string }).txid;
-    const currentMemo = (metadataKey && txMetadata[metadataKey]?.memo) || '';
+    const currentMemo = (metadataKey && txMetadata?.[metadataKey]?.memo) || '';
     try {
       const newMemo = await prompt(loc.send.details_note_placeholder, '', { type: 'plain-text', defaultValue: currentMemo });
-      if (newMemo !== undefined && metadataKey) {
+      if (newMemo !== undefined && metadataKey && txMetadata) {
         txMetadata[metadataKey] = { memo: newMemo };
         await saveToDisk();
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -795,6 +875,13 @@ const TransactionStatus: React.FC = () => {
       // User cancelled
     }
   }, [tx, txMetadata, saveToDisk]);
+
+  const handleAddressLabelPress = useCallback(
+    (address: string) => {
+      navigate('ReceiveAddressLabel', { address });
+    },
+    [navigate],
+  );
 
   const handleOpenBlockExplorer = useCallback(() => {
     if (!tx?.hash || !selectedBlockExplorer) return;
@@ -822,24 +909,6 @@ const TransactionStatus: React.FC = () => {
       });
   }, [tx?.hash, selectedBlockExplorer]);
 
-  const renderCPFP = (transaction: Transaction, w: TWallet) => {
-    if (isCPFPPossible === ButtonStatus.Unknown) {
-      return (
-        <>
-          <ActivityIndicator />
-          <BlueSpacing20 />
-        </>
-      );
-    } else if (isCPFPPossible === ButtonStatus.Possible) {
-      return (
-        <>
-          <Button onPress={() => navigateToCPFP(transaction, w)} title={loc.transactions.status_bump} />
-          <BlueSpacing10 />
-        </>
-      );
-    }
-  };
-
   const shortenCounterpartyName = (addr: string): string => {
     if (addr.length < 20) return addr;
     return addr.substr(0, 10) + '...' + addr.substr(addr.length - 10, 10);
@@ -854,12 +923,12 @@ const TransactionStatus: React.FC = () => {
     return null;
   };
 
-  const onlyUnique = (value: any, index: number, self: any[]) => {
+  const onlyUnique = <T,>(value: T, index: number, self: T[]) => {
     return self.indexOf(value) === index;
   };
 
-  const arrDiff = (a1: any[], a2: any[]) => {
-    const ret = [];
+  const arrDiff = (a1: string[], a2: string[]) => {
+    const ret: string[] = [];
     for (const v of a2) {
       if (a1.indexOf(v) === -1) {
         ret.push(v);
@@ -868,17 +937,25 @@ const TransactionStatus: React.FC = () => {
     return ret;
   };
 
-  const renderSection = (array: any[]) => {
+  const renderSection = (array: string[]) => {
     const fromArray = [];
 
-    for (const [index, address] of array.entries()) {
+    for (const address of array) {
       const isWeOwnAddress = weOwnAddress(address);
       const addressStyle = isWeOwnAddress ? [styles.weOwnAddress, stylesHook.rowValue] : [stylesHook.rowValue];
+      const label = addressMetadata[address]?.label;
 
       fromArray.push(
         <View key={address} style={styles.addressRow}>
           <CopyTextToClipboard text={address} style={StyleSheet.flatten(addressStyle)} interactive={false} selectable />
-          {index !== array.length - 1 && <BlueText style={addressStyle}>,</BlueText>}
+          {label ? (
+            <AddressLabelBadge
+              label={label}
+              style={styles.addressLabelPill}
+              onPress={() => handleAddressLabelPress(address)}
+              accessibilityLabel={`${loc.receive.option_label}: ${label}`}
+            />
+          ) : null}
         </View>,
       );
     }
@@ -939,7 +1016,6 @@ const TransactionStatus: React.FC = () => {
   const isOnChainTx = isOnChainTransaction(tx);
   const isPending = resolveTxDisplayState(tx) === 'pending';
   const preferredBalanceUnit = wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC;
-
   const showBlocksAccordion = isOnChainTx && !isPending && parsedConfirmations > 0;
 
   const onBlocksHeaderPress = useCallback(() => {
@@ -953,7 +1029,7 @@ const TransactionStatus: React.FC = () => {
   const transactionDate = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
 
   // Get memo
-  const memo = tx?.hash ? txMetadata[tx.hash]?.memo || '' : '';
+  const memo = tx?.hash ? txMetadata?.[tx.hash]?.memo || '' : '';
 
   const shortenContactName = (name: string): string => {
     if (name.length < 20) return name;
@@ -975,18 +1051,13 @@ const TransactionStatus: React.FC = () => {
     }
 
     try {
-      const maybeWallet: any = wallet;
-      if (
-        typeof maybeWallet.allowBIP47 === 'function' &&
-        typeof maybeWallet.isBIP47Enabled === 'function' &&
-        'getBip47CounterpartyByTxid' in maybeWallet
-      ) {
-        if (!maybeWallet.allowBIP47() || !maybeWallet.isBIP47Enabled()) {
+      if (wallet instanceof AbstractHDElectrumWallet) {
+        if (!wallet.allowBIP47() || !wallet.isBIP47Enabled()) {
           setCounterpartyLabel(null);
           setPaymentCode(null);
           return;
         }
-        const foundPaymentCode = maybeWallet.getBip47CounterpartyByTxid(tx.hash);
+        const foundPaymentCode = wallet.getBip47CounterpartyByTxid(tx.hash);
         if (foundPaymentCode) {
           const meta = counterpartyMetadata[foundPaymentCode];
           setPaymentCode(foundPaymentCode);
@@ -1046,7 +1117,7 @@ const TransactionStatus: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx, transactionDirection, transactionDate, setOptions, colors, windowWidth, scaledStyles]);
 
-  if (loadingError) {
+  if (showLoadingError) {
     return (
       <SafeAreaScrollView>
         <View style={[styles.card, stylesHook.card]}>
@@ -1125,28 +1196,50 @@ const TransactionStatus: React.FC = () => {
                   </BlueText>
                 </View>
               </View>
-              {wallet && (isRBFBumpFeePossible === ButtonStatus.Possible || isRBFCancelPossible === ButtonStatus.Possible) && (
-                <View style={styles.stateButtons}>
-                  {isRBFBumpFeePossible === ButtonStatus.Possible && (
-                    <TouchableOpacity
-                      onPress={() => navigateToRBF('RBFBumpFee', tx, wallet)}
-                      style={[styles.speedUpButton, stylesHook.speedUpButton]}
-                      accessibilityRole="button"
-                    >
-                      <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>{loc.transactions.status_bump}</BlueText>
-                    </TouchableOpacity>
-                  )}
-                  {isRBFCancelPossible === ButtonStatus.Possible && (
-                    <TouchableOpacity
-                      onPress={() => navigateToRBF('RBFCancel', tx, wallet)}
-                      style={[styles.cancelButton, stylesHook.cancelButton]}
-                      accessibilityRole="button"
-                    >
-                      <BlueText style={[styles.cancelButtonText, stylesHook.cancelButtonText]}>{loc.transactions.status_cancel}</BlueText>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              )}
+              {wallet &&
+                (isRBFBumpFeePossible === ButtonStatus.Possible ||
+                  isRBFCancelPossible === ButtonStatus.Possible ||
+                  isCPFPPossible === ButtonStatus.Possible ||
+                  showMempoolSpeedUp) && (
+                  <View style={styles.stateButtons}>
+                    {isRBFBumpFeePossible === ButtonStatus.Possible && (
+                      <TouchableOpacity
+                        onPress={() => navigateToRBF('RBFBumpFee', tx, wallet)}
+                        style={[styles.speedUpButton, stylesHook.speedUpButton]}
+                        accessibilityRole="button"
+                      >
+                        <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>{loc.transactions.status_bump}</BlueText>
+                      </TouchableOpacity>
+                    )}
+                    {isCPFPPossible === ButtonStatus.Possible && (
+                      <TouchableOpacity
+                        onPress={() => navigateToCPFP(tx, wallet)}
+                        style={[styles.speedUpButton, stylesHook.speedUpButton]}
+                        accessibilityRole="button"
+                      >
+                        <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>{loc.transactions.status_bump}</BlueText>
+                      </TouchableOpacity>
+                    )}
+                    {showMempoolSpeedUp && (
+                      <Pressable
+                        onPress={handleOpenMempoolAccelerator}
+                        style={[styles.speedUpButton, stylesHook.speedUpButton]}
+                        accessibilityRole="button"
+                      >
+                        <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>{loc.transactions.status_bump}</BlueText>
+                      </Pressable>
+                    )}
+                    {isRBFCancelPossible === ButtonStatus.Possible && (
+                      <TouchableOpacity
+                        onPress={() => navigateToRBF('RBFCancel', tx, wallet)}
+                        style={[styles.cancelButton, stylesHook.cancelButton]}
+                        accessibilityRole="button"
+                      >
+                        <BlueText style={[styles.cancelButtonText, stylesHook.cancelButtonText]}>{loc.transactions.status_cancel}</BlueText>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                )}
             </>
           ) : txValue !== null && txValue < 0 ? (
             <TransactionStateHeader
@@ -1282,16 +1375,17 @@ const TransactionStatus: React.FC = () => {
           })()}
 
         {/* Transaction ID - display shortened so it stays on one line on Android; copy still gets full hash */}
-        {tx.hash && (
+        {transactionId && (
           <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
             <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_id}</BlueText>
             <View style={styles.detailValueContainer}>
               <View style={styles.detailValueCopyContainer}>
                 <CopyTextToClipboard
                   containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, detailValueWidthStyle])}
-                  text={tx.hash}
-                  displayText={shortenTxHash(tx.hash)}
-                  accessibilityLabel={tx.hash}
+                  ref={transactionIdCopyRef}
+                  text={transactionId}
+                  displayText={shortenTxHash(transactionId)}
+                  accessibilityLabel={transactionId}
                   buttonTestID="TransactionIdCopyButton"
                   textTestID="TransactionIdDisplayText"
                   style={StyleSheet.flatten([
@@ -1303,7 +1397,6 @@ const TransactionStatus: React.FC = () => {
                   numberOfLines={1}
                   ellipsizeMode="middle"
                   textAlign="right"
-                  interactive={false}
                   selectable
                 />
               </View>
@@ -1449,9 +1542,6 @@ const TransactionStatus: React.FC = () => {
           </View>
         )}
       </SettingsSection>
-
-      {/* Action Buttons - Only show CPFP here, Speed Up and Cancel are in state section for pending */}
-      {wallet && parsedConfirmations === 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
     </SafeAreaScrollView>
   );
 };
@@ -1717,9 +1807,13 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   addressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  addressLabelPill: {
+    maxWidth: '86%',
+    marginTop: 4,
   },
   detailValue: {
     fontSize: 15,
@@ -1754,13 +1848,6 @@ const styles = StyleSheet.create({
     paddingTop: 0,
     paddingBottom: 0,
     borderTopWidth: 1,
-  },
-  actions: {
-    alignSelf: 'center',
-    justifyContent: 'center',
-    marginVertical: 24,
-    width: '100%',
-    paddingHorizontal: 16,
   },
   weOwnAddress: {
     fontWeight: '700',

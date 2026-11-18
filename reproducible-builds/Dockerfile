@@ -1,5 +1,5 @@
 # Base image with Digest pinning
-FROM node:24-bullseye-slim@sha256:e27057f6adaf0b3f172345fb5cdca821e07203ca81bc35f7b0a9e9631b255340
+FROM node:24-bullseye-slim@sha256:f7818cba7c85740e6f9dd31553636131d01e9992fb7d112b9b0893afd884d1d6
 
 # Environment Setup
 ENV TZ=UTC \

@@ -29,6 +29,7 @@ import type {
   RealmNotificationSuppressionRepository,
   ArkSwapNotificationAction,
 } from './arkade-adapters/realm/notificationSuppressionRepository';
+import { errorMessage } from '../helpers/errorMessage';
 
 export const ARK_SWAP_NOTIFICATION_TYPE = 100;
 
@@ -135,15 +136,15 @@ export async function notifyArkSwapActionable(
         action,
       }),
     );
-  } catch (e: any) {
-    console.warn('[ArkNotifications] postLocalNotification failed:', e?.message ?? e);
+  } catch (e) {
+    console.warn('[ArkNotifications] postLocalNotification failed:', errorMessage(e));
     return;
   }
 
   try {
     suppression.record(swap.id, action);
-  } catch (e: any) {
-    console.warn('[ArkNotifications] suppression.record failed:', e?.message ?? e);
+  } catch (e) {
+    console.warn('[ArkNotifications] suppression.record failed:', errorMessage(e));
   }
 }
 

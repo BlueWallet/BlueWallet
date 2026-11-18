@@ -6,11 +6,17 @@ import { useTheme } from '../../components/themes';
 export const styles = StyleSheet.create({
   root: {
     flex: 1,
-    paddingTop: 20,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  loadingContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   container: {
     alignItems: 'center',
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
   },
   share: {
