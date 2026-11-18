@@ -101,6 +101,7 @@ const WalletExport: React.FC = () => {
 
   useEffect(() => {
     if (previousAppState === 'active' && currentAppState !== 'active') {
+      setIsPassphraseVisible(false);
       disableScreenProtect();
       const timer = setTimeout(() => {
         navigation.goBack();
@@ -205,6 +206,8 @@ const WalletExport: React.FC = () => {
     >
       {wallet.type !== WatchOnlyWallet.type && <DoNotDisclose />}
 
+      {hasPassphrase && <BlueText style={styles.writeText}>{loc.wallets.export_passphrase_qr_unavailable}</BlueText>}
+
       {!hasPassphrase && <BlueText style={styles.scanText}>{loc.wallets.scan_import}</BlueText>}
 
       <View style={styles.qrCodeContainer}>
@@ -214,7 +217,6 @@ const WalletExport: React.FC = () => {
       {/* Do not allow to copy mnemonic */}
       {secretIsMnemonic ? (
         <>
-          {hasPassphrase && <BlueText style={styles.writeText}>{loc.wallets.export_passphrase_qr_unavailable}</BlueText>}
           <View>
             <BlueText style={styles.manualText}>{loc.wallets.write_down_header}</BlueText>
             <BlueText style={styles.writeText}>{loc.wallets.write_down}</BlueText>

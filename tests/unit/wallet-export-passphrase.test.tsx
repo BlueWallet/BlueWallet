@@ -1,4 +1,5 @@
 import React from 'react';
+import { Modal } from 'react-native';
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import WalletExport from '../../screen/wallets/WalletExport';
@@ -7,6 +8,8 @@ import loc from '../../loc';
 const mockEnableScreenProtect = jest.fn();
 const mockDisableScreenProtect = jest.fn();
 const mockWallets: HDSegwitBech32Wallet[] = [];
+const mockSettings = { isPrivacyBlurEnabled: false };
+const mockAppState = { currentAppState: 'active', previousAppState: 'active' };
 
 jest.mock('@react-navigation/native', () => ({
   ...jest.requireActual('@react-navigation/native'),
@@ -14,11 +17,11 @@ jest.mock('@react-navigation/native', () => ({
   useRoute: () => ({ params: { walletID: mockWallets[0].getID() } }),
 }));
 jest.mock('../../hooks/context/useStorage', () => ({ useStorage: () => ({ wallets: mockWallets }) }));
-jest.mock('../../hooks/context/useSettings', () => ({ useSettings: () => ({ isPrivacyBlurEnabled: false }) }));
+jest.mock('../../hooks/context/useSettings', () => ({ useSettings: () => mockSettings }));
 jest.mock('../../hooks/useScreenProtect', () => ({
   useScreenProtect: () => ({ enableScreenProtect: mockEnableScreenProtect, disableScreenProtect: mockDisableScreenProtect }),
 }));
-jest.mock('../../hooks/useAppState', () => () => ({ currentAppState: 'active', previousAppState: 'active' }));
+jest.mock('../../hooks/useAppState', () => () => mockAppState);
 jest.mock('../../components/themes', () => ({
   useTheme: () => ({
     colors: {
@@ -43,9 +46,9 @@ jest.mock('../../components/SeedWords', () => {
 const MNEMONIC = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 const PASSPHRASE = 'my test passphrase';
 
-const makeWallet = (passphrase?: string) => {
+const makeWallet = (passphrase?: string, secret: string = MNEMONIC) => {
   const wallet = new HDSegwitBech32Wallet();
-  wallet.setSecret(MNEMONIC);
+  wallet.setSecret(secret);
   if (passphrase !== undefined) wallet.setPassphrase(passphrase);
   return wallet;
 };
@@ -53,6 +56,9 @@ const makeWallet = (passphrase?: string) => {
 describe('WalletExport with a BIP39 passphrase', () => {
   beforeEach(() => {
     mockWallets.length = 0;
+    mockSettings.isPrivacyBlurEnabled = false;
+    mockAppState.currentAppState = 'active';
+    mockAppState.previousAppState = 'active';
     mockEnableScreenProtect.mockClear();
     mockDisableScreenProtect.mockClear();
   });
@@ -83,6 +89,46 @@ describe('WalletExport with a BIP39 passphrase', () => {
     expect(screen.queryByTestId('ExportBackupPassphrase')).toBeNull();
   });
 
+  it('keeps screen protection on after close when privacy blur is enabled', () => {
+    mockSettings.isPrivacyBlurEnabled = true;
+    mockWallets.push(makeWallet(PASSPHRASE));
+    const screen = render(<WalletExport />);
+    mockDisableScreenProtect.mockClear();
+
+    act(() => fireEvent.press(screen.getByTestId('ExportViewPassphraseButton')));
+    act(() => fireEvent.press(screen.getByTestId('ExportClosePassphraseButton')));
+
+    expect(screen.queryByTestId('ExportBackupPassphrase')).toBeNull();
+    expect(mockDisableScreenProtect).not.toHaveBeenCalled();
+  });
+
+  it('closes the passphrase when the Android back button requests close', () => {
+    mockWallets.push(makeWallet(PASSPHRASE));
+    const screen = render(<WalletExport />);
+
+    act(() => fireEvent.press(screen.getByTestId('ExportViewPassphraseButton')));
+    expect(screen.getByTestId('ExportBackupPassphrase')).toBeTruthy();
+
+    act(() => screen.UNSAFE_getByType(Modal).props.onRequestClose());
+    expect(screen.queryByTestId('ExportBackupPassphrase')).toBeNull();
+  });
+
+  it('closes the passphrase when the app goes to the background', () => {
+    mockWallets.push(makeWallet(PASSPHRASE));
+    const screen = render(<WalletExport />);
+
+    act(() => fireEvent.press(screen.getByTestId('ExportViewPassphraseButton')));
+    expect(screen.getByTestId('ExportBackupPassphrase')).toBeTruthy();
+
+    mockAppState.previousAppState = 'active';
+    mockAppState.currentAppState = 'background';
+    act(() => {
+      screen.rerender(<WalletExport />);
+    });
+
+    expect(screen.queryByTestId('ExportBackupPassphrase')).toBeNull();
+  });
+
   it('skips the passphrase UI for wallets without a passphrase', () => {
     mockWallets.push(makeWallet());
     const screen = render(<WalletExport />);
@@ -90,5 +136,22 @@ describe('WalletExport with a BIP39 passphrase', () => {
     expect(screen.getByText(loc.wallets.scan_import)).toBeTruthy();
     expect(screen.queryByTestId('ExportPassphraseWarning')).toBeNull();
     expect(screen.queryByTestId('ExportViewPassphraseButton')).toBeNull();
+  });
+
+  it('skips the passphrase UI for an empty passphrase', () => {
+    mockWallets.push(makeWallet(''));
+    const screen = render(<WalletExport />);
+
+    expect(screen.getByText(loc.wallets.scan_import)).toBeTruthy();
+    expect(screen.queryByTestId('ExportViewPassphraseButton')).toBeNull();
+  });
+
+  it('skips the passphrase UI when the secret is not a BIP39 mnemonic', () => {
+    mockWallets.push(makeWallet(PASSPHRASE, 'not a valid mnemonic phrase at all'));
+    const screen = render(<WalletExport />);
+
+    expect(screen.getByText(loc.wallets.scan_import)).toBeTruthy();
+    expect(screen.queryByTestId('ExportViewPassphraseButton')).toBeNull();
+    expect(screen.queryByText(PASSPHRASE)).toBeNull();
   });
 });
