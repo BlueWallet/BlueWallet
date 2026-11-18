@@ -3,6 +3,7 @@ import type { NativeStackNavigationOptions } from '@react-navigation/native-stac
 import React, { lazy } from 'react';
 import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
+import { renderImportSeedSheetAccessory } from '../components/ImportSeedAccessory';
 import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
 import { Action } from '../components/types';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
@@ -399,9 +400,12 @@ const AddWalletStack = () => {
         component={WalletsAddMultisigProvideMnemonicsSheetComponent}
         options={navigationStyle({
           presentation: 'formSheet',
-          // Content must not use flex:1 or Android fitToContents expands to full height.
-          sheetAllowedDetents: 'fitToContents',
+          // Taller than the form. One detent so Android does not grow again when the keyboard opens.
+          // Content must not use flex:1 — the iOS sheet wrapper has no bottom edge, so flex children collapse.
+          sheetAllowedDetents: [0.85],
           sheetGrabberVisible: true,
+          // The footer is positioned by react-native-screens above the keyboard. iOS uses the input accessory.
+          ...(Platform.OS === 'android' ? { unstable_sheetFooter: renderImportSeedSheetAccessory } : {}),
           // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Title and close stay in the content.
           headerShown: Platform.OS === 'ios',
           headerTitle: loc.wallets.import_title,

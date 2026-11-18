@@ -14,6 +14,8 @@ interface InputClearPasteOverlayProps {
   onPaste: (text: string) => void;
   onScan: (text: string) => void;
   scanTestID?: string;
+  /** Distance from the field's right edge. Import screens keep the margin-aware default. */
+  actionsRight?: number;
   children: React.ReactElement<InputClearPasteOverlayChildProps>;
 }
 
@@ -47,18 +49,31 @@ const InputOverlayActionButton: React.FC<InputOverlayActionButtonProps> = ({ tit
   );
 };
 
-const InputClearPasteOverlay: React.FC<InputClearPasteOverlayProps> = ({ onClear, onPaste, onScan, scanTestID, children }) => {
+const InputClearPasteOverlay: React.FC<InputClearPasteOverlayProps> = ({
+  onClear,
+  onPaste,
+  onScan,
+  scanTestID,
+  actionsRight = 28,
+  children,
+}) => {
   const onPasteTapped = useCallback(async () => {
     const clipboard = await Clipboard.getString();
     onPaste(clipboard);
   }, [onPaste]);
+
+  const stylesHook = StyleSheet.create({
+    overlay: {
+      right: actionsRight,
+    },
+  });
 
   return (
     <View style={styles.container}>
       {React.cloneElement(children, {
         style: [children.props.style, styles.inputPadding],
       })}
-      <View style={styles.overlay} pointerEvents="box-none">
+      <View style={[styles.overlay, stylesHook.overlay]} pointerEvents="box-none">
         <InputOverlayActionButton title={loc.send.input_paste} onPress={onPasteTapped} testID="InputPaste" />
         <AddressInputScanButton type="compact" onChangeText={onScan} onPasteFromClipboard={onPaste} testID={scanTestID} />
         <InputOverlayActionButton title={loc.send.input_clear} onPress={onClear} testID="InputClear" />
@@ -78,7 +93,6 @@ const styles = StyleSheet.create({
   overlay: {
     position: 'absolute',
     bottom: 8,
-    right: 28,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,

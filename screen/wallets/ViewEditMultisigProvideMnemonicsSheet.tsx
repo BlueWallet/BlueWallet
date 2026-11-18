@@ -4,13 +4,9 @@ import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigat
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import BlueFormLabel from '../../components/BlueFormLabel';
-import BlueFormMultiInput from '../../components/BlueFormMultiInput';
-import BlueTextCentered from '../../components/BlueTextCentered';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
-import { AddressInputScanButton } from '../../components/AddressInputScanButton';
-import SheetKeyboardForm from '../../components/SheetKeyboardForm';
-import { useKeyboard } from '../../hooks/useKeyboard';
+import ImportSeedField from '../../components/ImportSeedField';
 import SheetHeader, { useSheetBottomPadding } from '../../components/SheetHeader';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -21,8 +17,6 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
   const route = useRoute<RouteProp<DetailViewStackParamList, 'ViewEditMultisigProvideMnemonicsSheet'>>();
   const { colors } = useTheme();
   const bottomPadding = useSheetBottomPadding();
-  // On a short phone the 220pt field plus the keyboard leave no room for Import, so the field shrinks while typing
-  const { isVisible: isKeyboardVisible } = useKeyboard();
   const {
     importText: initialImportText = '',
     askPassphrase: initialAskPassphrase = false,
@@ -65,56 +59,30 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
   return (
     <View style={stylesHook.root}>
       <SheetHeader title={loc.wallets.import_title} onClose={() => navigation.goBack()} />
-      <SheetKeyboardForm style={styles.contentContainer}>
-        <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
-        <BlueSpacing20 />
-        <BlueFormMultiInput
-          value={importText}
-          onChangeText={setImportText}
-          testID="MnemonicInputSheet"
-          style={[styles.mnemonicInput, isKeyboardVisible && styles.mnemonicInputCompact]}
-        />
-        <BlueSpacing20 />
+      <ImportSeedField
+        value={importText}
+        onChangeText={setImportText}
+        onScan={handleImport}
+        prompt={loc.multisig.type_your_mnemonics}
+        testID="MnemonicInputSheet"
+        scanTestID="ScanOrOpenFile"
+      >
         <View style={styles.toggleRow}>
           <BlueFormLabel>{loc.wallets.import_passphrase_title}</BlueFormLabel>
           <Switch value={askPassphrase} onValueChange={setAskPassphrase} />
         </View>
         <BlueSpacing20 />
         <Button testID="DoImportKeyButton" title={loc.wallets.import_do_import} onPress={() => handleImport()} />
-        <BlueSpacing20 />
-        <AddressInputScanButton
-          type="link"
-          testID="ScanOrOpenFile"
-          onChangeText={text => {
-            setImportText(text);
-            handleImport(text);
-          }}
-        />
-      </SheetKeyboardForm>
+      </ImportSeedField>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  contentContainer: {
-    paddingHorizontal: 24,
-    paddingTop: 8,
-    paddingBottom: 8,
-  },
   toggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  mnemonicInput: {
-    minHeight: 220,
-    maxHeight: 220,
-    flex: 0,
-    marginHorizontal: 0,
-  },
-  mnemonicInputCompact: {
-    minHeight: 96,
-    maxHeight: 96,
   },
 });
 
