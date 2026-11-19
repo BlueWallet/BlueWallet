@@ -109,18 +109,30 @@ describe('wallet history exports', () => {
     expect(column(row, 'Fee (sats)')).toBe('');
   });
 
-  it('writes a consolidation as a self transfer with zero amount and the calculated miner fee', () => {
+  it('writes a consolidation as a self transfer with its signed balance change and calculated miner fee', () => {
     const tx = {
       ...transaction({ value: -123 }),
       inputs: [{ value: 0.002 }],
       outputs: [{ value: 0.00199877 }],
     } as Transaction;
 
-    expect(createAccountingHistoryCsv([tx], Chain.ONCHAIN, {})).toContain(`,${tx.txid},Self transfer,0.00000000,0,0.00000123,123,`);
+    expect(createAccountingHistoryCsv([tx], Chain.ONCHAIN, {})).toContain(`,${tx.txid},Self transfer,-0.00000123,-123,0.00000123,123,`);
+  });
+
+  it('reconciles the CSV amount column with wallet balance changes across receives, sends, and consolidations', () => {
+    const transactions = [
+      transaction({ value: 100_000 }),
+      transaction({ value: -50_500, fee: 500 }),
+      transaction({ value: -300, fee: 300 }),
+    ];
+    const [, ...rows] = createAccountingHistoryRows(transactions, Chain.ONCHAIN, {});
+    expect(rows.map(row => column(row, 'Type'))).toEqual(['Receive', 'Send', 'Self transfer']);
+    expect(rows.map(row => column(row, 'Fee (sats)'))).toEqual(['', 500, 300]);
+    expect(rows.reduce((balance, row) => balance + Number(column(row, 'Amount (sats)')), 0)).toBe(49_200);
   });
 
   it.each([
-    [Chain.ONCHAIN, 123, 'Self transfer', 0],
+    [Chain.ONCHAIN, 123, 'Self transfer', -123],
     [Chain.ONCHAIN, undefined, 'Send', -123],
     [Chain.ONCHAIN, 122, 'Send', -123],
     [Chain.OFFCHAIN, 123, 'Send', -123],
