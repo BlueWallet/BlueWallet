@@ -19,8 +19,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
   static readonly typeReadable = 'HD Legacy (BIP44 P2PKH)';
   // @ts-ignore: override
   public readonly type = HDLegacyP2PKHWallet.type;
-  // @ts-ignore: override
-  public readonly typeReadable = HDLegacyP2PKHWallet.typeReadable;
+  public readonly typeReadable: string = HDLegacyP2PKHWallet.typeReadable;
   static readonly derivationPath = "m/44'/0'/0'";
 
   allowSend() {

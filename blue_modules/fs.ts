@@ -337,7 +337,11 @@ const _mimeTypeFromFileName = (fileName: string): string => {
   }
 };
 
-const _transactionFilePickerTypes = ['application/octet-stream', 'text/plain'];
+// iOS UIDocumentPicker only accepts UTI identifiers. MIME types are dropped, which leaves the picker with no selectable files.
+const _transactionFilePickerTypes =
+  Platform.OS === 'ios'
+    ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', 'public.plain-text', 'public.data']
+    : ['application/octet-stream', 'text/plain'];
 
 export const isAppleNumbersFile = (path: string, fileName: string): boolean =>
   path.toLowerCase().endsWith('.numbers') || fileName.toLowerCase().endsWith('.numbers');

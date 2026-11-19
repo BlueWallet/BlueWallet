@@ -613,7 +613,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // vault settings:
     await element(by.id('VaultAdvancedCustomize')).tap();
     await element(by.id('DecreaseN')).tap();
-    await element(by.id('ModalDoneButton')).tap();
+    await goBack();
 
     //
     await element(by.id('LetsStart')).tap();
@@ -852,7 +852,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('Create')).tap();
     await element(by.id('VaultAdvancedCustomize')).tap();
     await element(by.id('DecreaseN')).tap();
-    await element(by.id('ModalDoneButton')).tap();
+    await goBack();
     await element(by.id('LetsStart')).tap();
 
     // Key 1: Cobo seed, so this device can co-sign. Key 2: Keystone xpub only.
@@ -1341,9 +1341,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // Extra scroll moves the full-width row up so its hitbox no longer overlaps the Android system nav bar.
     await element(by.id('WalletDetailsScroll')).scroll(200, 'down');
     await element(by.id('ViewEditCosigners')).tap();
-    await waitForText('Vault Key 1');
-    await expect(element(by.text('Vault Key 2'))).toBeVisible();
-    await waitFor(element(by.text('Vault Key 3')))
+    // The key number is a separate pill, so the title is matched by its accessibility label, not by one text node
+    await waitFor(element(by.label('Vault Key 1')))
+      .toBeVisible()
+      .withTimeout(33000);
+    await expect(element(by.label('Vault Key 2'))).toBeVisible();
+    await waitFor(element(by.label('Vault Key 3')))
       .toBeVisible()
       .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
       .scroll(100, 'down');
@@ -1442,8 +1445,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // open advanced settings: change to wrapped segwit, 2-of-2
     await element(by.id('VaultAdvancedCustomize')).tap();
     await element(by.id('DecreaseN')).tap(); // 3 → 2
+    await element(by.text('Wallet Type')).tap();
     await element(by.text('Best compatibility (p2sh-p2wsh)')).tap();
-    await element(by.id('ModalDoneButton')).tap();
+    await goBack();
 
     await element(by.id('LetsStart')).tap();
 

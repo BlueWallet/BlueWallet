@@ -34,7 +34,7 @@ type VaultKeyData = {
   path: string;
   cosignerXpubURv2: string;
   exportFilename: string;
-  exportString?: string;
+  exportString: string;
 };
 
 export type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']>;

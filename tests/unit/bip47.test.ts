@@ -383,4 +383,72 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     assert.ok(w.getAllExternalAddresses().includes(addr)); // joint address to _receive_ is included
     assert.ok(w.getAllExternalAddresses().length > 20);
   });
+
+  it('trusts only a genuine notification transaction when looking up notification state', () => {
+    const sender = new HDSegwitBech32Wallet();
+    sender.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+    sender.switchBIP47(true);
+    const receiverPaymentCode =
+      'PM8TJS2JxQ5ztXUpBBRnpTbcUXbUHy2T1abfrb3KkAAtMEGNbey4oumH7Hc578WgQJhPjBxteQ5GHHToTYHE3A1w6p7tU6KSoFmWBVbFGjKPisZDbP97';
+    const notificationAddress = BIP47Factory(ecc).fromPaymentCode(receiverPaymentCode).getNotificationAddress();
+    const address = sender._getExternalAddressByIndex(0);
+    const changeAddress = sender._getInternalAddressByIndex(0);
+    const utxos: CreateTransactionUtxo[] = [
+      {
+        txid: 'aa'.repeat(32),
+        vout: 1,
+        value: 100000,
+        address,
+        wif: sender._getWIFbyAddress(address),
+      },
+    ];
+
+    // minimal version of what fetchTransactions() caches for a tx
+    const toCachedTx = (tx: bitcoin.Transaction, inputAddress?: string): any => ({
+      txid: tx.getId(),
+      confirmations: 6,
+      inputs: tx.ins.map(input => ({
+        txid: uint8ArrayToHex(Uint8Array.from(input.hash).reverse()),
+        vout: input.index,
+        addresses: inputAddress ? [inputAddress] : undefined,
+      })),
+      outputs: tx.outs.map((output, n) => {
+        let addresses: string[] = [];
+        try {
+          addresses = [bitcoin.address.fromOutputScript(output.script, bitcoin.networks.bitcoin)];
+        } catch (_) {} // OP_RETURN
+        return {
+          n,
+          value: Number(output.value) / 100000000,
+          scriptPubKey: { hex: uint8ArrayToHex(output.script), addresses },
+        };
+      }),
+    });
+
+    // plain payment to receiver's notification address, no OP_RETURN payload: not a notification
+    const { tx: addressOnlyTx } = sender.createTransaction(utxos, [{ address: notificationAddress, value: 546 }], 1, changeAddress);
+    assert(addressOnlyTx);
+    sender._txs_by_external_index[0] = [toCachedTx(addressOnlyTx, address)];
+    assert.strictEqual(sender.getBIP47NotificationTransaction(receiverPaymentCode), undefined);
+
+    // genuine notification, but first input is not ours (someone else's tx paying us): not our notification
+    const { tx: notificationTx } = sender.createBip47NotificationTransaction(utxos, receiverPaymentCode, 1, changeAddress);
+    assert(notificationTx);
+    sender._txs_by_external_index[0] = [toCachedTx(notificationTx, '1ChvUUvht2hUQufHBXF8NgLhW8SwE2ecGV')];
+    assert.strictEqual(sender.getBIP47NotificationTransaction(receiverPaymentCode), undefined);
+
+    // genuine notification made by us
+    sender._txs_by_external_index[0] = [toCachedTx(notificationTx, address)];
+    assert.strictEqual(sender.getBIP47NotificationTransaction(receiverPaymentCode)?.txid, notificationTx.getId());
+
+    // genuine notification made by us, input address missing from cache: resolved from the parent tx in our history
+    const parentTx = {
+      txid: 'aa'.repeat(32),
+      confirmations: 7,
+      inputs: [],
+      outputs: [{ n: 1, value: 0.001, scriptPubKey: { addresses: [address] } }],
+    };
+    sender._txs_by_external_index[0] = [toCachedTx(notificationTx), parentTx as any];
+    assert.strictEqual(sender.getBIP47NotificationTransaction(receiverPaymentCode)?.txid, notificationTx.getId());
+  });
 });

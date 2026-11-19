@@ -593,15 +593,15 @@ const SendDetails = () => {
         }
 
         if (transaction.address.startsWith('PM')) {
-          if (!wallet.allowBIP47()) {
+          if (!(wallet instanceof AbstractHDElectrumWallet) || !wallet.allowBIP47()) {
             console.log('validation error');
             error = loc.send.cant_send_to_bip47;
-          } else if (!(wallet as unknown as AbstractHDElectrumWallet).getBIP47NotificationTransaction(transaction.address)) {
+          } else if (!wallet.getBIP47NotificationTransaction(transaction.address)) {
             console.log('validation error');
             error = loc.send.cant_find_bip47_notification;
           } else {
             // BIP47 is allowed, notif tx is in place, lets sync joint addresses with the receiver
-            await (wallet as unknown as AbstractHDElectrumWallet).syncBip47ReceiversAddresses(transaction.address);
+            await wallet.syncBip47ReceiversAddresses(transaction.address);
           }
         }
       }
@@ -863,14 +863,21 @@ const SendDetails = () => {
       try {
         const base64 = base64arg || (await fs.openSignedTransaction());
         if (!base64) return;
-        const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
+        let psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
-        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0) {
-          setIsLoading(true);
-          await sleep(100);
-          (wallet as MultisigHDWallet).cosignPsbt(psbt);
-          setIsLoading(false);
-          await sleep(100);
+        if (wallet?.type === MultisigHDWallet.type) {
+          const multisig = wallet as MultisigHDWallet;
+          // Finalize at quorum, otherwise add our signatures. Signing derives seeds, so show the spinner for it.
+          const willSign = multisig.willCosignImportedPsbt(psbt);
+          if (willSign) {
+            setIsLoading(true);
+            await sleep(100);
+          }
+          psbt = multisig.prepareImportedPsbt(psbt);
+          if (willSign) {
+            setIsLoading(false);
+            await sleep(100);
+          }
         }
 
         if (wallet) {
