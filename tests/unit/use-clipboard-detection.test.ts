@@ -1,8 +1,7 @@
 import { act, renderHook } from '@testing-library/react-native';
 import { AppState, AppStateStatus } from 'react-native';
 
-import { CLIPBOARD_IDLE_DELAY_MS } from '../../blue_modules/clipboardPayment';
-import { readClipboardForDetection } from '../../blue_modules/clipboard';
+import { getClipboardContent } from '../../blue_modules/clipboard';
 import useClipboardDetection from '../../hooks/useClipboardDetection';
 import { navigationRef } from '../../NavigationService';
 
@@ -10,7 +9,7 @@ jest.mock('@react-navigation/native', () => ({
   CommonActions: { navigate: (name: string, params: unknown) => ({ type: 'NAVIGATE', name, params }) },
 }));
 jest.mock('../../blue_modules/clipboard', () => ({
-  readClipboardForDetection: jest.fn(),
+  getClipboardContent: jest.fn(),
   getLastSeenClipboardHash: jest.fn(async () => undefined),
   setLastSeenClipboardHash: jest.fn(async () => {}),
   isClipboardSheetFocused: jest.fn(() => false),
@@ -20,90 +19,170 @@ jest.mock('../../blue_modules/hapticFeedback', () => ({
   default: jest.fn(),
   HapticFeedbackTypes: { ImpactLight: 'impactLight' },
 }));
-jest.mock('../../blue_modules/environment', () => ({ isDesktop: false }));
+const environmentState = { isDesktop: false };
+jest.mock('../../blue_modules/environment', () => ({
+  get isDesktop() {
+    return environmentState.isDesktop;
+  },
+}));
+const storageState: { wallets: unknown[] } = { wallets: [] };
 jest.mock('../../hooks/context/useStorage', () => ({
-  useStorage: () => ({ wallets: [{ chain: 'ONCHAIN', isAddressValid: () => true, weOwnAddress: () => false }] }),
+  useStorage: () => storageState,
 }));
 jest.mock('../../NavigationService', () => ({
   navigationRef: { isReady: jest.fn(() => true), getCurrentRoute: jest.fn(() => ({ name: 'WalletsList' })), dispatch: jest.fn() },
 }));
 
 const P2WPKH = 'bc1qykcp2x3djgdtdwelxn9z4j2y956npte0a4sref';
+const WALLET = { chain: 'ONCHAIN', isAddressValid: () => true, weOwnAddress: () => false };
 
-const appStateListeners: Array<(state: AppStateStatus) => void> = [];
-const emitAppState = (state: AppStateStatus) => {
-  (AppState as { currentState: AppStateStatus }).currentState = state;
-  act(() => {
-    appStateListeners.forEach(listener => listener(state));
-  });
+type Hook = ReturnType<typeof renderHook<ReturnType<typeof useClipboardDetection>, boolean>>;
+
+let appState: AppStateStatus = 'active';
+const settle = () => act(async () => {});
+
+/** Mirrors useCompanionListeners.handleAppStateChange. */
+const goTo = async (hook: Hook, next: AppStateStatus, skipRead = false) => {
+  const previous = appState;
+  appState = next;
+  (AppState as { currentState: AppStateStatus }).currentState = next;
+  if (next !== 'active') {
+    act(() => hook.result.current.onLeaveForeground(next));
+  } else if (/inactive|background/.test(previous)) {
+    act(() => hook.result.current.onEnterForeground(previous, { skipRead }));
+  }
+  await settle();
 };
-const flush = async (ms: number) => {
-  await act(async () => {
-    await jest.advanceTimersByTimeAsync(ms);
-  });
+
+const resume = async (hook: Hook, skipRead = false) => {
+  await goTo(hook, 'inactive');
+  await goTo(hook, 'background');
+  await goTo(hook, 'inactive');
+  await goTo(hook, 'active', skipRead);
 };
+
+/** The iOS paste prompt (or Control Center) flips the app inactive and back without a background. */
+const pastePromptFlip = async (hook: Hook) => {
+  await goTo(hook, 'inactive');
+  await goTo(hook, 'active');
+};
+
+const launch = async (enabled = true) => {
+  const hook = renderHook(useClipboardDetection, { initialProps: enabled });
+  await settle();
+  return hook;
+};
+
+const sheetPushed = () => expect(navigationRef.dispatch).toHaveBeenCalledWith(expect.objectContaining({ name: 'ClipboardDetected' }));
 
 beforeEach(() => {
-  jest.useFakeTimers();
   jest.clearAllMocks();
-  appStateListeners.length = 0;
-  jest.spyOn(AppState, 'addEventListener').mockImplementation((_type, listener) => {
-    appStateListeners.push(listener as (state: AppStateStatus) => void);
-    return { remove: () => appStateListeners.splice(appStateListeners.indexOf(listener as never), 1) } as never;
-  });
+  environmentState.isDesktop = false;
+  storageState.wallets = [WALLET];
+  appState = 'active';
   (AppState as { currentState: AppStateStatus }).currentState = 'active';
-  jest.mocked(readClipboardForDetection).mockResolvedValue({ content: P2WPKH, pasteBlocked: false });
+  jest.mocked(getClipboardContent).mockResolvedValue(P2WPKH);
   jest.mocked(navigationRef.isReady).mockReturnValue(true);
   jest.mocked(navigationRef.getCurrentRoute).mockReturnValue({ name: 'WalletsList', key: 'WalletsList' });
 });
 
-afterEach(() => {
-  jest.useRealTimers();
+it('reads once at launch and presents the Detected sheet when the paste is allowed', async () => {
+  await launch();
+  expect(getClipboardContent).toHaveBeenCalledTimes(1);
+  sheetPushed();
 });
 
-/** Mirrors what useCompanionListeners does around a background → active cycle. */
-const resume = async (hook: ReturnType<typeof renderHook<ReturnType<typeof useClipboardDetection>, boolean>>, skipRead: boolean) => {
-  emitAppState('background');
-  act(() => hook.result.current.onLeaveForeground('background'));
-  emitAppState('active');
-  act(() => hook.result.current.onEnterForeground('background', { skipRead }));
-  await flush(CLIPBOARD_IDLE_DELAY_MS + 1);
-};
-
-it('presents the Detected sheet after a plain resume', async () => {
-  const hook = renderHook(useClipboardDetection, { initialProps: true });
-  await flush(CLIPBOARD_IDLE_DELAY_MS + 1); // launch read
-  jest.mocked(readClipboardForDetection).mockClear();
-  jest.mocked(navigationRef.dispatch).mockClear();
-
-  await resume(hook, false);
-
-  expect(readClipboardForDetection).toHaveBeenCalledTimes(1);
-  expect(navigationRef.dispatch).toHaveBeenCalledWith(expect.objectContaining({ name: 'ClipboardDetected' }));
+it('does not re-read after the user denies the iOS paste prompt', async () => {
+  jest.mocked(getClipboardContent).mockResolvedValue(undefined);
+  const hook = await launch();
+  await pastePromptFlip(hook);
+  await pastePromptFlip(hook);
+  expect(getClipboardContent).toHaveBeenCalledTimes(1);
+  expect(navigationRef.dispatch).not.toHaveBeenCalled();
 });
 
-it('defers the launch read until the app is active and the companion reports it', async () => {
+it('reads again on a real background resume after a denied paste', async () => {
+  jest.mocked(getClipboardContent).mockResolvedValueOnce(undefined);
+  const hook = await launch();
+  await pastePromptFlip(hook);
+  await resume(hook);
+  expect(getClipboardContent).toHaveBeenCalledTimes(2);
+  sheetPushed();
+});
+
+it('defers the launch read until the app becomes active', async () => {
+  appState = 'inactive';
   (AppState as { currentState: AppStateStatus }).currentState = 'inactive';
-  const hook = renderHook(useClipboardDetection, { initialProps: true });
-  await flush(CLIPBOARD_IDLE_DELAY_MS + 1);
-  expect(readClipboardForDetection).not.toHaveBeenCalled();
+  const hook = await launch();
+  expect(getClipboardContent).not.toHaveBeenCalled();
 
-  emitAppState('active');
-  act(() => hook.result.current.onEnterForeground('inactive'));
-  await flush(CLIPBOARD_IDLE_DELAY_MS + 1);
+  await goTo(hook, 'active');
+  expect(getClipboardContent).toHaveBeenCalledTimes(1);
+  sheetPushed();
 
-  expect(readClipboardForDetection).toHaveBeenCalledTimes(1);
-  expect(navigationRef.dispatch).toHaveBeenCalledWith(expect.objectContaining({ name: 'ClipboardDetected' }));
+  await pastePromptFlip(hook);
+  expect(getClipboardContent).toHaveBeenCalledTimes(1);
 });
 
-it('does not read the clipboard on resume when a push notification was handled', async () => {
-  const hook = renderHook(useClipboardDetection, { initialProps: true });
-  await flush(CLIPBOARD_IDLE_DELAY_MS + 1);
-  jest.mocked(readClipboardForDetection).mockClear();
+it('treats a Catalyst window refocus as a resume, even after an empty clipboard', async () => {
+  environmentState.isDesktop = true;
+  jest.mocked(getClipboardContent).mockResolvedValueOnce(undefined);
+  const hook = await launch();
+  await pastePromptFlip(hook);
+  await pastePromptFlip(hook);
+  expect(getClipboardContent).toHaveBeenCalledTimes(3);
+  sheetPushed();
+});
+
+it('skips the read on a resume that opened a push notification, until the next real resume', async () => {
+  const hook = await launch();
   jest.mocked(navigationRef.dispatch).mockClear();
 
   await resume(hook, true);
-
-  expect(readClipboardForDetection).not.toHaveBeenCalled();
+  await pastePromptFlip(hook);
+  expect(getClipboardContent).toHaveBeenCalledTimes(1);
   expect(navigationRef.dispatch).not.toHaveBeenCalled();
+
+  await resume(hook);
+  expect(getClipboardContent).toHaveBeenCalledTimes(2);
+  sheetPushed();
+});
+
+it('keeps a resume read that arrives while a read is still waiting on the paste prompt', async () => {
+  let answerPrompt: (value: string | undefined) => void = () => {};
+  jest.mocked(getClipboardContent).mockImplementationOnce(() => new Promise(resolve => (answerPrompt = resolve)));
+  const hook = await launch();
+
+  await resume(hook);
+  expect(getClipboardContent).toHaveBeenCalledTimes(1);
+
+  await act(async () => answerPrompt(undefined));
+  await pastePromptFlip(hook);
+  expect(getClipboardContent).toHaveBeenCalledTimes(2);
+  sheetPushed();
+
+  await pastePromptFlip(hook);
+  expect(getClipboardContent).toHaveBeenCalledTimes(2);
+});
+
+it('does not read when detection is disabled, and reads once it is enabled', async () => {
+  const hook = await launch(false);
+  await resume(hook);
+  expect(getClipboardContent).not.toHaveBeenCalled();
+
+  hook.rerender(true);
+  await settle();
+  expect(getClipboardContent).toHaveBeenCalledTimes(1);
+
+  hook.rerender(false);
+  await settle();
+  await resume(hook);
+  expect(getClipboardContent).toHaveBeenCalledTimes(1);
+});
+
+it('does not read without wallets', async () => {
+  storageState.wallets = [];
+  const hook = await launch();
+  await resume(hook);
+  expect(getClipboardContent).not.toHaveBeenCalled();
 });
