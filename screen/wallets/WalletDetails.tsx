@@ -50,6 +50,7 @@ import {
   createAccountingHistoryCsv,
   createHistoryExportFileNames,
   createHistoryExportMenuActions,
+  getAccountingTransactionIdentifiers,
   IMPORT_NOTES_ACTION_ID,
   removeTrailingEllipsis,
   SAVE_ACCOUNTING_ACTION_ID,
@@ -279,26 +280,32 @@ const WalletDetails: React.FC = () => {
 
   const exportFileNames = useMemo(() => createHistoryExportFileNames(walletName), [walletName]);
 
-  const applyNoteUpdates = useCallback(
+  const persistNoteUpdates = useCallback(
     async (updates: ReadonlyMap<string, string>) => {
       try {
         await applyWalletHistoryNoteUpdates(txMetadata, updates, saveToDisk);
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        setPendingNoteUpdates(new Map());
-        setSelectedNoteOverwrites(new Set());
-        setImportedNoteResults(new Map(updates));
+        return true;
       } catch (error: unknown) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({
-          message: error instanceof Error ? error.message : String(error),
-        });
+        presentAlert({ title: removeTrailingEllipsis(loc.wallets.details_import_notes), message: errorMessage(error) });
+        return false;
       }
     },
     [saveToDisk, txMetadata],
   );
 
+  const applyNoteUpdates = useCallback(
+    async (updates: ReadonlyMap<string, string>) => {
+      if (!(await persistNoteUpdates(updates))) return;
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      setPendingNoteUpdates(new Map());
+      setSelectedNoteOverwrites(new Set());
+      setImportedNoteResults(previous => new Map([...previous, ...updates]));
+    },
+    [persistNoteUpdates],
+  );
+
   const importNotes = useCallback(async () => {
-    if (wallet.chain !== Chain.ONCHAIN) return;
     const importTitle = removeTrailingEllipsis(loc.wallets.details_import_notes);
 
     const { data, unsupportedFileType, fileName } = await showFilePickerAndReadFile();
@@ -312,7 +319,12 @@ const WalletDetails: React.FC = () => {
     let importedNotes;
     const diagnostics = { originMismatchCount: 0, invalidLineCount: 0 };
     try {
-      importedNotes = parseWalletHistoryNotes(data, getBip329Origin(wallet), diagnostics, fileName);
+      importedNotes = parseWalletHistoryNotes(
+        data,
+        wallet.chain === Chain.ONCHAIN ? () => getBip329Origin(wallet) : undefined,
+        diagnostics,
+        fileName,
+      );
     } catch {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ title: importTitle, message: loc.wallets.import_error });
@@ -321,7 +333,7 @@ const WalletDetails: React.FC = () => {
 
     const transactionMetadataKeys = new Map<string, string>();
     for (const transaction of wallet.getTransactions()) {
-      const transactionId = transaction.hash || transaction.txid;
+      const { transactionId } = getAccountingTransactionIdentifiers(transaction, wallet.chain);
       if (transactionId) transactionMetadataKeys.set(transactionId.toLowerCase(), transactionId);
     }
 
@@ -364,19 +376,18 @@ const WalletDetails: React.FC = () => {
       return;
     }
 
+    const automatic = selectWalletHistoryNoteUpdates(updates, txMetadata, new Set());
+    const overwrites = new Map([...updates].filter(([key]) => !automatic.has(key)));
+    if (automatic.size > 0 && !(await persistNoteUpdates(automatic))) return;
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
-    setPendingNoteUpdates(new Map(updates));
-    setSelectedNoteOverwrites(new Set([...updates.keys()].filter(metadataKey => Boolean(txMetadata[metadataKey]?.memo?.trim()))));
-  }, [applyNoteUpdates, txMetadata, wallet]);
-
-  const overwriteNoteUpdates = useMemo(
-    () => [...pendingNoteUpdates].filter(([metadataKey]) => Boolean(txMetadata[metadataKey]?.memo?.trim())),
-    [pendingNoteUpdates, txMetadata],
-  );
+    setImportedNoteResults(automatic);
+    setPendingNoteUpdates(overwrites);
+    setSelectedNoteOverwrites(new Set(overwrites.keys()));
+  }, [applyNoteUpdates, persistNoteUpdates, txMetadata, wallet]);
 
   const selectedNoteUpdates = useMemo(
-    () => selectWalletHistoryNoteUpdates(pendingNoteUpdates, txMetadata, selectedNoteOverwrites),
-    [pendingNoteUpdates, selectedNoteOverwrites, txMetadata],
+    () => new Map([...pendingNoteUpdates].filter(([key]) => selectedNoteOverwrites.has(key))),
+    [pendingNoteUpdates, selectedNoteOverwrites],
   );
 
   const closeImportNotesModal = useCallback(() => {
@@ -687,7 +698,7 @@ const WalletDetails: React.FC = () => {
               params: { walletID },
             })
         : undefined,
-    importWalletNotes: wallet.chain === Chain.ONCHAIN && walletTransactionsLength > 0 ? importNotes : undefined,
+    importWalletNotes: walletTransactionsLength > 0 ? importNotes : undefined,
     exportWalletBackup: navigateToWalletExport,
     exportAccountingCsv: walletTransactionsLength > 0 ? () => toolTipOnPressMenuItem(SAVE_ACCOUNTING_ACTION_ID) : undefined,
     exportBip329Backup: canExportLabels ? () => toolTipOnPressMenuItem(SAVE_BACKUP_ACTION_ID) : undefined,
@@ -1080,7 +1091,7 @@ const WalletDetails: React.FC = () => {
                 : loc.formatString(loc.wallets.details_import_notes_success, { count: importedNoteResults.size })}
             </Text>
             <FlatList
-              data={pendingNoteUpdates.size > 0 ? overwriteNoteUpdates : [...importedNoteResults]}
+              data={[...(pendingNoteUpdates.size > 0 ? pendingNoteUpdates : importedNoteResults)]}
               keyExtractor={item => item[0]}
               testID="ImportedNotesList"
               style={styles.importResultsList}

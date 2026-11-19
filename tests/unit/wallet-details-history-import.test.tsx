@@ -5,12 +5,14 @@ import WalletDetails from '../../screen/wallets/WalletDetails';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
 import { TTXMetadata } from '../../class/blue-app';
 import { showFilePickerAndReadFile, writeFileAndExport } from '../../blue_modules/fs';
-import { IMPORT_NOTES_ACTION_ID, SHARE_ACCOUNTING_ACTION_ID } from '../../blue_modules/wallet-history-export';
+import { createAccountingHistoryCsv, IMPORT_NOTES_ACTION_ID, SHARE_ACCOUNTING_ACTION_ID } from '../../blue_modules/wallet-history-export';
+import { Chain } from '../../models/bitcoinUnits';
 import prompt from '../../helpers/prompt';
 import loc from '../../loc';
 
 const wallet = new LegacyWallet();
 const txid = 'a'.repeat(64);
+const otherTxid = 'b'.repeat(64);
 const metadata: TTXMetadata = {};
 const saveToDisk = jest.fn().mockResolvedValue(undefined);
 const storage = { wallets: [wallet], txMetadata: metadata, addressMetadata: {}, saveToDisk };
@@ -43,6 +45,15 @@ jest.mock('../../components/themes', () => ({ useTheme: () => ({ colors: {} }) }
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) }));
 jest.mock('../../components/TooltipMenu', () => 'TooltipMenu');
 
+async function startNoteImport(screen: ReturnType<typeof render>) {
+  let importing!: Promise<void>;
+  act(() => {
+    importing = screen.getByTestId('TransactionHistoryMenuButton').props.onPressMenuItem(IMPORT_NOTES_ACTION_ID);
+  });
+  await act(async () => {});
+  return { importing };
+}
+
 describe('Wallet Details note import', () => {
   beforeEach(() => {
     jest.useFakeTimers();
@@ -64,6 +75,9 @@ describe('Wallet Details note import', () => {
     ]);
     saveToDisk.mockClear();
     delete metadata[txid];
+    delete metadata[otherTxid];
+    delete metadata['boarding-utxo-123'];
+    delete metadata['0102'];
   });
 
   afterEach(() => {
@@ -182,5 +196,52 @@ describe('Wallet Details note import', () => {
     await act(async () => fireEvent.press(screen.getByTestId('WalletNameEditButton')));
     await act(async () => fireEvent(screen.getByTestId('TransactionHistoryMenuButton'), 'pressMenuItem', SHARE_ACCOUNTING_ACTION_ID));
     expect(writeFileAndExport).toHaveBeenCalledWith('Renamed-Wallet-accounting.csv', expect.stringContaining('Transaction ID'), true);
+  });
+
+  it('imports off-chain accounting notes for a synthetic row ID and a payment hash, filtering out other wallets', async () => {
+    jest.replaceProperty(wallet, 'chain', Chain.OFFCHAIN);
+    const [base] = wallet.getTransactions();
+    const refill = { ...base, hash: '', txid: 'boarding-utxo-123', memo: 'Ark note' };
+    const payment = { ...base, hash: '', txid: '', payment_hash: { data: [1, 2] }, memo: 'Lightning note' };
+    jest.mocked(wallet.getTransactions).mockReturnValue([refill, payment]);
+    const csv = createAccountingHistoryCsv([refill, payment, { ...base, memo: 'Other wallet note' }], Chain.OFFCHAIN, {});
+    jest.mocked(showFilePickerAndReadFile).mockResolvedValue({ data: csv, uri: 'history.csv', fileName: 'history.csv' });
+    const screen = render(<WalletDetails />);
+    const { importing } = await startNoteImport(screen);
+    await act(async () => {
+      jest
+        .mocked(Alert.alert)
+        .mock.calls[0][2]?.find(button => button.text === loc._.ok)
+        ?.onPress?.();
+      await importing;
+    });
+    expect(metadata).toEqual({ 'boarding-utxo-123': { memo: 'Ark note' }, '0102': { memo: 'Lightning note' } });
+    expect(saveToDisk).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([false, true])('saves new notes before overwrite review and only overwrites on confirmation: %s', async replace => {
+    const [base] = wallet.getTransactions();
+    jest.mocked(wallet.getTransactions).mockReturnValue([base, { ...base, hash: otherTxid, txid: otherTxid }]);
+    metadata[txid] = { memo: 'Existing note' };
+    const data = `Date,Transaction ID,Amount,Memo\ntoday,${txid},1,Replacement\ntoday,${otherTxid},2,New note`;
+    jest.mocked(showFilePickerAndReadFile).mockResolvedValue({ data, uri: 'history.csv' });
+    const screen = render(<WalletDetails />);
+    const { importing } = await startNoteImport(screen);
+    expect(saveToDisk).not.toHaveBeenCalled();
+    await act(async () => {
+      jest
+        .mocked(Alert.alert)
+        .mock.calls[0][2]?.find(button => button.text === loc._.ok)
+        ?.onPress?.();
+      await importing;
+    });
+    expect(metadata).toEqual({ [txid]: { memo: 'Existing note' }, [otherTxid]: { memo: 'New note' } });
+    expect(saveToDisk).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId(`ImportedNote-${txid}`)).toBeTruthy();
+    expect(screen.queryByTestId(`ImportedNote-${otherTxid}`)).toBeNull();
+    await act(async () => fireEvent.press(screen.getByTestId(replace ? 'ConfirmImportNotes' : 'CancelImportNotes')));
+    expect(metadata).toEqual({ [txid]: { memo: replace ? 'Replacement' : 'Existing note' }, [otherTxid]: { memo: 'New note' } });
+    expect(saveToDisk).toHaveBeenCalledTimes(replace ? 2 : 1);
+    if (replace) expect(screen.getByTestId(`ImportedNote-${otherTxid}`)).toBeTruthy();
   });
 });

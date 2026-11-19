@@ -285,7 +285,7 @@ describe('wallet history exports', () => {
     const [, row] = createAccountingHistoryRows([tx], Chain.OFFCHAIN, { [expectedId]: { memo: 'Wallet note' } });
     expect(row[ACCOUNTING_HISTORY_HEADERS.indexOf('Transaction ID')]).toBe(expectedId);
     expect(row[ACCOUNTING_HISTORY_HEADERS.indexOf('Payment Hash')]).toBe('payment-hash');
-    expect(row[ACCOUNTING_HISTORY_HEADERS.indexOf('Memo')]).toBe(txid || hash ? 'Wallet note' : '');
+    expect(row[ACCOUNTING_HISTORY_HEADERS.indexOf('Memo')]).toBe('Wallet note');
   });
 
   it.each([undefined, 0, 3])('preserves available off-chain refill confirmations, including zero: %s', confirmations => {
@@ -388,12 +388,12 @@ describe('wallet history exports', () => {
     expect(getTransactionFee(transaction({ fee }))).toBe(expected);
   });
 
-  it('omits BIP-329 Backup and Import Notes for Lightning, and hides all actions without history', () => {
+  it('offers Accounting and Import Notes for Lightning, and hides all actions without history', () => {
     const lightning = buildMenu(createHistoryExportMenuActions(Chain.OFFCHAIN, 1, 'Export History', 'Import Notes', true), 'ios');
     expect(lookupId(lightning.ids, [0, 0, 0, 0])).toBe(SHARE_ACCOUNTING_ACTION_ID);
     expect(lookupId(lightning.ids, [0, 0, 1])).toBeUndefined();
     expect(lookupId(lightning.ids, [0, 1, 0, 0])).toBe(SAVE_ACCOUNTING_ACTION_ID);
-    expect(lightning.items).toHaveLength(1);
+    expect(lookupId(lightning.ids, [1])).toBe(IMPORT_NOTES_ACTION_ID);
 
     const empty = buildMenu(createHistoryExportMenuActions(Chain.ONCHAIN, 0, 'Export History', 'Import Notes'), 'ios');
     expect(empty.items).toEqual([]);

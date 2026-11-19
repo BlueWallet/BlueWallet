@@ -182,7 +182,7 @@ const parseBip329TransactionNotes = (
  */
 export const parseWalletHistoryNotes = (
   contents: string,
-  expectedOrigin?: string,
+  expectedOrigin?: string | (() => string | undefined),
   diagnostics?: WalletHistoryImportDiagnostics,
   fileName?: string,
 ): Array<{ transactionId: string; memo: string }> => {
@@ -194,7 +194,8 @@ export const parseWalletHistoryNotes = (
   const lines = normalizedContents.split(/\r\n|\n|\r/);
   // JSON embedded in a quoted CSV field has doubled quotes, so it won't parse as a JSONL record.
   if (fileName?.toLowerCase().endsWith('.jsonl') || normalizedContents.startsWith('{') || lines.some(readBip329Record)) {
-    return parseBip329TransactionNotes(lines, expectedOrigin, diagnostics);
+    const origin = typeof expectedOrigin === 'function' ? expectedOrigin() : expectedOrigin;
+    return parseBip329TransactionNotes(lines, origin, diagnostics);
   }
 
   const rows = parseCsv(normalizedContents);

@@ -571,9 +571,15 @@ private enum PSBTPreview {
 
         var inputMaps: [[Entry]] = []
         for _ in 0..<inputs { inputMaps.append(try reader.readMap()) }
-        for _ in 0..<outputs { _ = try reader.readMap() }
+        var transactionOutputs: [TransactionOutput?] = transaction?.outputs.map(Optional.some) ?? []
+        for _ in 0..<outputs {
+            let map = try reader.readMap()
+            if transaction == nil && version == 2 {
+                transactionOutputs.append(outputFromMap(map))
+            }
+        }
 
-        let outputValue = transaction?.outputValue
+        let outputValue = transactionOutputs.count == outputs ? totalValue(transactionOutputs) : nil
         let totalOutput = outputValue.map(formatSats)
         let outputDetail = outputValue.map { value in
             let count = "\(outputs) output\(outputs == 1 ? "" : "s")"
@@ -596,12 +602,13 @@ private enum PSBTPreview {
             let detail = reference.map { "\($0)\n\(metadata)" } ?? metadata
             return ("Input \(index + 1) (unverified)", detail, "arrow.down.circle.fill", reference)
         }
-        if let transaction {
-            records += transaction.outputs.enumerated().map { index, output in
-                let scriptPreview = ScriptDescription.from(script: output.script)
-                let fiat = FiatEstimate.format(sats: output.value).map { " · \($0)" } ?? ""
-                return ("Output \(index + 1)", "\(scriptPreview.detail) · \(formatSats(output.value))\(fiat)", "arrow.up.circle.fill", scriptPreview.hex)
+        records += transactionOutputs.enumerated().map { index, output in
+            guard let output else {
+                return ("Output \(index + 1)", "Output metadata unavailable", "arrow.up.circle.fill", nil)
             }
+            let scriptPreview = ScriptDescription.from(script: output.script)
+            let fiat = FiatEstimate.format(sats: output.value).map { " · \($0)" } ?? ""
+            return ("Output \(index + 1)", "\(scriptPreview.detail) · \(formatSats(output.value))\(fiat)", "arrow.up.circle.fill", scriptPreview.hex)
         }
         let summary = totalOutput.map { "\(inputs) inputs · \(outputs) outputs · \($0)" } ?? "\(inputs) inputs · \(outputs) outputs"
         return ("PSBT (unverified)", summary, records)
@@ -622,6 +629,26 @@ private enum PSBTPreview {
         guard let txid = map.first(where: { $0.key == [0x0e] })?.value, txid.count == 32,
               let vout = map.first(where: { $0.key == [0x0f] })?.value, vout.count == 4 else { return nil }
         return outpointReference(txid: txid, vout: vout)
+    }
+
+    private static func outputFromMap(_ map: [Entry]) -> TransactionOutput? {
+        // PSBTv2 output maps contain a signed little-endian amount and a script (BIP-370).
+        guard let amount = map.first(where: { $0.key == [0x03] })?.value, amount.count == 8,
+              let script = map.first(where: { $0.key == [0x04] })?.value else { return nil }
+        let value = amount.enumerated().reduce(UInt64(0)) { $0 | UInt64($1.element) << (8 * $1.offset) }
+        guard value <= UInt64(Int64.max) else { return nil }
+        return TransactionOutput(value: value, script: script)
+    }
+
+    private static func totalValue(_ outputs: [TransactionOutput?]) -> UInt64? {
+        var total: UInt64 = 0
+        for output in outputs {
+            guard let output else { return nil }
+            let (sum, overflow) = total.addingReportingOverflow(output.value)
+            guard !overflow else { return nil }
+            total = sum
+        }
+        return total
     }
 
     private static func witnessUTXO(_ map: [Entry]) -> TransactionOutput? {
@@ -676,7 +703,6 @@ private enum PSBTPreview {
         let inputOutpoints: [String]
         let outputs: [TransactionOutput]
         var outputCount: Int { outputs.count }
-        var outputValue: UInt64 { outputs.reduce(0) { $0 + $1.value } }
         static func parse(_ data: [UInt8]) throws -> TransactionSummary {
             var reader = Reader(data: Data(data)); _ = try reader.read(count: 4)
             let inputs = Int(try reader.readCompact())

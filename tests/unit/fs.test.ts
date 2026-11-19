@@ -266,6 +266,16 @@ describe('fs wallet history notes', () => {
     expect(parseWalletHistoryNotes(csv)).toEqual([{ transactionId: bip329Txid, memo }]);
   });
 
+  it('resolves the wallet origin only when the selected file is detected as JSONL', () => {
+    const origin = jest.fn(() => "wpkh([12345678/84'/0'/0'])");
+    const csv = 'Date,Transaction ID,Amount,Memo\ntoday,abc123,1,Note';
+    expect(parseWalletHistoryNotes(csv, origin)).toEqual([{ transactionId: 'abc123', memo: 'Note' }]);
+    expect(origin).not.toHaveBeenCalled();
+    const record = JSON.stringify({ type: 'tx', ref: bip329Txid, label: 'Note', origin: "wpkh([12345678/84'/0'/1'])" });
+    expect(parseWalletHistoryNotes(`bad,line,with,commas\n${record}`, origin)).toEqual([]);
+    expect(origin).toHaveBeenCalledTimes(1);
+  });
+
   it('imports and persists a matching BIP-329 transaction label', async () => {
     const notes = parseWalletHistoryNotes(
       JSON.stringify({

@@ -93,6 +93,13 @@ export const ACCOUNTING_HISTORY_HEADERS = [
   'Expires At',
 ] as const;
 
+export function getAccountingTransactionIdentifiers(transaction: Transaction & LightningTransaction, chain: Chain) {
+  const rawPaymentHash = chain === Chain.OFFCHAIN ? transaction.payment_hash : undefined;
+  const paymentHash =
+    typeof rawPaymentHash === 'string' ? rawPaymentHash : rawPaymentHash ? uint8ArrayToHex(new Uint8Array(rawPaymentHash.data)) : '';
+  return { transactionId: transaction.hash || transaction.txid || paymentHash, paymentHash };
+}
+
 export function createAccountingHistoryRows(
   transactions: Array<Transaction & LightningTransaction>,
   chain: Chain,
@@ -105,9 +112,8 @@ export function createAccountingHistoryRows(
     if (!transaction || typeof transaction !== 'object') continue;
     const rawValue = finiteExportNumber(transaction.value ?? transaction.amt);
     const value = rawValue !== undefined && Number.isSafeInteger(Math.round(rawValue)) ? Math.round(rawValue) : undefined;
-    const metadataKey = transaction.hash || transaction.txid;
-    let transactionId = metadataKey || '';
-    const memo = (metadataKey && txMetadata[metadataKey]?.memo?.trim()) || transaction.memo || '';
+    const { transactionId, paymentHash } = getAccountingTransactionIdentifiers(transaction, chain);
+    const memo = (transactionId && txMetadata[transactionId]?.memo?.trim()) || transaction.memo || '';
     let status: string;
     const rawConfirmations = finiteExportNumber(transaction.confirmations);
     const confirmationCount =
@@ -115,7 +121,6 @@ export function createAccountingHistoryRows(
     let confirmations = confirmationCount === undefined ? '' : String(confirmationCount);
     let fee = '';
     let feeSats: number | '' = '';
-    let paymentHash = '';
     const createdAt = finiteExportNumber(transaction.timestamp);
     const expiry = finiteExportNumber(transaction.expire_time);
     const invoiceExpiration =
@@ -123,10 +128,6 @@ export function createAccountingHistoryRows(
     const expiresAt = formatExportTimestamp(invoiceExpiration);
 
     if (chain === Chain.OFFCHAIN) {
-      const rawPaymentHash = transaction.payment_hash;
-      paymentHash =
-        typeof rawPaymentHash === 'string' ? rawPaymentHash : rawPaymentHash ? uint8ArrayToHex(new Uint8Array(rawPaymentHash.data)) : '';
-      transactionId = transactionId || paymentHash;
       const expired = expiresAt !== undefined && invoiceExpiration !== undefined && invoiceExpiration <= now / 1000;
       const complete =
         transaction.ispaid ||
@@ -349,7 +350,7 @@ export function createHistoryExportMenuActions(
       id: IMPORT_NOTES_ACTION_ID,
       text: removeTrailingEllipsis(importText),
       icon: CommonToolTipActions.ImportFile.icon,
-      hidden: walletTransactionsLength === 0 || !isOnchain,
+      hidden: !hasTransactions,
     },
   ];
 }
