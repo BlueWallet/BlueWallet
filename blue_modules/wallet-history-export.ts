@@ -156,7 +156,9 @@ export function createAccountingHistoryRows(
       formatExportTimestamp(transaction.time) ??
       formatExportTimestamp(transaction.timestamp) ??
       '';
-    const type = value === undefined ? '' : value < 0 ? 'Send' : value > 0 ? 'Receive' : 'Self transfer';
+    // Wallet value includes the fee, so a consolidation can have a nonzero debit without a payment amount.
+    const amount = chain === Chain.ONCHAIN && feeSats !== '' && value === -feeSats ? 0 : value;
+    const type = amount === undefined ? '' : amount < 0 ? 'Send' : amount > 0 ? 'Receive' : 'Self transfer';
     const inputs = Array.isArray(transaction.inputs) ? transaction.inputs : [];
     const outputs = Array.isArray(transaction.outputs) ? transaction.outputs : [];
     const inputAddresses = inputs
@@ -170,8 +172,8 @@ export function createAccountingHistoryRows(
       date,
       transactionId,
       type,
-      value === undefined ? '' : satoshisToBitcoin(value),
-      value ?? '',
+      amount === undefined ? '' : satoshisToBitcoin(amount),
+      amount ?? '',
       fee,
       feeSats,
       memo,

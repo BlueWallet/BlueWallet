@@ -109,6 +109,28 @@ describe('wallet history exports', () => {
     expect(column(row, 'Fee (sats)')).toBe('');
   });
 
+  it('writes a consolidation as a self transfer with zero amount and the calculated miner fee', () => {
+    const tx = {
+      ...transaction({ value: -123 }),
+      inputs: [{ value: 0.002 }],
+      outputs: [{ value: 0.00199877 }],
+    } as Transaction;
+
+    expect(createAccountingHistoryCsv([tx], Chain.ONCHAIN, {})).toContain(`,${tx.txid},Self transfer,0.00000000,0,0.00000123,123,`);
+  });
+
+  it.each([
+    [Chain.ONCHAIN, 123, 'Self transfer', 0],
+    [Chain.ONCHAIN, undefined, 'Send', -123],
+    [Chain.ONCHAIN, 122, 'Send', -123],
+    [Chain.OFFCHAIN, 123, 'Send', -123],
+  ] as const)('classifies a net debit of 123 sats with a %s fee of %s', (chain, fee, type, amount) => {
+    const [, row] = createAccountingHistoryRows([transaction({ value: -123, fee })], chain, {});
+    expect(column(row, 'Type')).toBe(type);
+    expect(column(row, 'Amount (sats)')).toBe(amount);
+    expect(column(row, 'Fee (sats)')).toBe(fee ?? '');
+  });
+
   it('tolerates malformed I/O elements and keeps real address values', () => {
     const tx = {
       ...transaction({ fee: 123, value: -1_000 }),
