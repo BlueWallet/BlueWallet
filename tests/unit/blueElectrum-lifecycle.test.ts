@@ -10,6 +10,8 @@
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { Alert } from 'react-native';
 import { runAfterAlertDismissed } from '../../components/Alert';
+import { ServerIdentityError, validationModes, verifyServerIdentity } from '../../blue_modules/electrumServerIdentity';
+import { navigationRef } from '../../NavigationService';
 
 // Jest hoists these above the import above. The factories close over `globalThis`
 // so the test body can swap implementations per-test without re-mocking.
@@ -28,6 +30,13 @@ jest.mock('../../components/Alert', () => {
     },
   };
 });
+
+// Fake clients have no TLS peer, so everyone passes unless a test says otherwise.
+jest.mock('../../blue_modules/electrumServerIdentity', () => ({
+  ...jest.requireActual('../../blue_modules/electrumServerIdentity'),
+  validationModes: jest.fn(),
+  verifyServerIdentity: jest.fn(async () => {}),
+}));
 
 type FakeClient = {
   initElectrumDeferred: Deferred<[string, string]>;
@@ -117,6 +126,7 @@ describe('BlueElectrum lifecycle', () => {
     await BlueElectrum.setDisabled(false);
     created.length = 0;
     rejectConnections = false;
+    jest.mocked(validationModes).mockImplementation(jest.requireActual('../../blue_modules/electrumServerIdentity').validationModes);
     (globalThis as any).__alertPresentationGate = undefined;
   });
 
@@ -171,6 +181,85 @@ describe('BlueElectrum lifecycle', () => {
       await alertSpy.mock.calls[0][2]?.[2].onPress?.();
       await jest.advanceTimersByTimeAsync(500);
       expect(afterDismiss).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('server identity check', () => {
+    it('drops the impostor, tells the user and moves on to the next server', async () => {
+      jest.mocked(verifyServerIdentity).mockRejectedValueOnce(new ServerIdentityError('this is not the server'));
+      const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+
+      const connection = BlueElectrum.ensureConnected();
+      await flush();
+      resolveLastConnect(); // impostor completes the handshake just fine
+      await new Promise(resolve => setTimeout(resolve, 600)); // backoff before the next attempt
+
+      expect(created.length).toBe(2);
+      expect(created[0].close).toHaveBeenCalled();
+      expect(BlueElectrum.getConnectionState()).toBe('connecting');
+      expect(alertSpy).toHaveBeenCalledTimes(1);
+      expect(alertSpy.mock.calls[0][1]).toBe('this is not the server');
+
+      resolveLastConnect();
+      await expect(connection).resolves.toBe(true);
+    });
+
+    it('nothing can be requested from a server until it is verified', async () => {
+      const verification = deferred<void>();
+      jest.mocked(verifyServerIdentity).mockReturnValueOnce(verification.promise);
+
+      const connection = BlueElectrum.ensureConnected();
+      await flush();
+      resolveLastConnect(); // handshake is over, server is who knows who
+      await flush();
+
+      await expect(BlueElectrum.getTransactionsByAddress('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq')).rejects.toThrow();
+      expect(created[0].blockchainScripthash_getHistory).not.toHaveBeenCalled();
+
+      verification.resolve();
+      await expect(connection).resolves.toBe(true);
+      await BlueElectrum.getTransactionsByAddress('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq');
+      expect(created[0].blockchainScripthash_getHistory).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not fall back to the unvalidated mode after the certificate was accepted', async () => {
+      jest.mocked(validationModes).mockResolvedValueOnce([true, false]);
+      jest.mocked(verifyServerIdentity).mockClear();
+
+      const connection = BlueElectrum.ensureConnected();
+      await flush();
+      created[0].initElectrumDeferred.resolve(['Fulcrum 1.10.0', '1.4']);
+      created[0].headersDeferred.reject(new Error('socket died')); // after the server was verified
+      await flush();
+
+      expect(created.length).toBe(1);
+      expect(jest.mocked(verifyServerIdentity).mock.calls.map(call => call[3])).toEqual([true]);
+
+      await new Promise(resolve => setTimeout(resolve, 600)); // backoff before the next attempt
+      resolveLastConnect();
+      await expect(connection).resolves.toBe(true);
+    });
+
+    it('asks the user when a server trusted on first use shows another key', async () => {
+      const change = { host: 'my.server', port: 50002, savedPubkey: 'aa', newPubkey: 'bb' };
+      jest.mocked(verifyServerIdentity).mockRejectedValue(new ServerIdentityError('key changed', change));
+      const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+      jest.spyOn(navigationRef, 'isReady').mockReturnValue(true);
+      const dispatchSpy = jest.spyOn(navigationRef, 'dispatch').mockImplementation(() => {});
+
+      const connection = BlueElectrum.ensureConnected({ showAlertOnFailure: true });
+      await flush();
+      resolveLastConnect();
+
+      // no more attempts: nothing changes until user decides, and then reconnect must not find this one in flight
+      await expect(connection).resolves.toBe(false);
+      jest.mocked(verifyServerIdentity).mockResolvedValue(undefined);
+      expect(created.length).toBe(1);
+      expect(created[0].close).toHaveBeenCalled();
+      expect(dispatchSpy).toHaveBeenCalledTimes(1);
+      expect(dispatchSpy.mock.calls[0][0]).toMatchObject({ payload: { name: 'ElectrumCertificateSheet', params: change } });
+      // the sheet says it all, no "network error" on top of it
+      expect(alertSpy).not.toHaveBeenCalled();
     });
   });
 
