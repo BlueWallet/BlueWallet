@@ -241,23 +241,27 @@ describe('fs wallet history notes', () => {
     },
   );
 
-  it('recognizes named JSONL files when their first or every line is malformed', () => {
+  it.each([undefined, 'unnamed', 'labels.csv', 'labels.JSONL'])('finds valid JSONL after a corrupted first line: %s', fileName => {
     const diagnostics = { originMismatchCount: 0, invalidLineCount: 0 };
     expect(
       parseWalletHistoryNotes(
         'bad,line,with,commas\n' + encodeBip329TransactionLabel(bip329Txid, 'Valid'),
         undefined,
         diagnostics,
-        'labels.JSONL',
+        fileName,
       ),
     ).toEqual([{ transactionId: bip329Txid, memo: 'Valid' }]);
     expect(diagnostics.invalidLineCount).toBe(1);
+  });
+
+  it('counts every malformed line in a file named .jsonl', () => {
+    const diagnostics = { originMismatchCount: 0, invalidLineCount: 0 };
     expect(parseWalletHistoryNotes('broken\ninvalid', undefined, diagnostics, 'labels.jsonl')).toEqual([]);
     expect(diagnostics.invalidLineCount).toBe(2);
   });
 
   it('keeps quoted multiline CSV memos containing JSON-looking lines intact', () => {
-    const memo = 'First line\n{"type":"tx","ref":"example","label":"part of the CSV memo"}\nLast line';
+    const memo = `First line\n${encodeBip329TransactionLabel(bip329Txid, 'part of the CSV memo')}\nLast line`;
     const csv = [encodeCsvRow(['Date', 'Transaction ID', 'Amount', 'Memo']), encodeCsvRow(['today', bip329Txid, 1, memo])].join('\r\n');
     expect(parseWalletHistoryNotes(csv)).toEqual([{ transactionId: bip329Txid, memo }]);
   });

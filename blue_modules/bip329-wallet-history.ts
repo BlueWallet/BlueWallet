@@ -61,13 +61,19 @@ export function getBip329Keypath(wallet: TWallet, address: string): string | und
 
 type AddressDetails = { owned: boolean; keypath?: string };
 
-const createAddressLookup = (wallet: TWallet): ((address: string) => AddressDetails) => {
+const normalizeAddress = (address: string): string => {
+  const lowercase = address.toLowerCase();
+  return lowercase !== address && isValidBech32Address(address) ? lowercase : address;
+};
+
+const createAddressLookup = (wallet: TWallet, includeKeypaths: boolean): ((address: string) => AddressDetails) => {
   const hd = wallet instanceof WatchOnlyWallet && wallet.isHd() ? wallet._hdWalletInstance : wallet;
   const details = new Map<string, AddressDetails>();
   const indexed = hd instanceof AbstractHDWallet;
 
   if (indexed) {
-    const accountPath = hd instanceof MultisigHDWallet ? hd.getCustomDerivationPathForCosigner(1) : hd.getDerivationPath();
+    const accountPath =
+      includeKeypaths && (hd instanceof MultisigHDWallet ? hd.getCustomDerivationPathForCosigner(1) : hd.getDerivationPath());
     for (const branch of [0, 1] as const) {
       const count = (branch === 0 ? hd.next_free_address_index : hd.next_free_change_address_index) + hd.gap_limit;
       for (let index = 0; index < count; index++) {
@@ -89,14 +95,13 @@ const createAddressLookup = (wallet: TWallet): ((address: string) => AddressDeta
   }
 
   return address => {
-    const normalized = isValidBech32Address(address) ? address.toLowerCase() : address;
-    const cached = details.get(normalized);
+    const cached = details.get(address);
     if (cached) return cached;
     // An indexed HD map is complete for the wallet's ownership search range.
     // Other wallet implementations cache both positive and negative answers.
     const owned = !indexed && wallet.weOwnAddress(address);
-    const result = { owned, ...(owned ? { keypath: getBip329Keypath(wallet, address) } : {}) };
-    details.set(normalized, result);
+    const result = { owned, ...(owned && includeKeypaths ? { keypath: getBip329Keypath(wallet, address) } : {}) };
+    details.set(address, result);
     return result;
   };
 };
@@ -104,22 +109,29 @@ const createAddressLookup = (wallet: TWallet): ((address: string) => AddressDeta
 export function createBip329WalletHistoryBackup(wallet: TWallet, txMetadata: TTXMetadata, addressMetadata: TAddressMetadata): string {
   const transactions = wallet.getTransactions();
   const origin = getBip329Origin(wallet);
+  const labels = new Map<string, string | undefined>();
+  for (const [address, metadata] of Object.entries(addressMetadata)) {
+    const ref = normalizeAddress(address);
+    // Prefer the canonical entry when both spellings have a label.
+    labels.set(ref, addressMetadata[ref]?.label ?? metadata?.label ?? labels.get(ref));
+  }
   let lookupAddress: ReturnType<typeof createAddressLookup> | undefined;
   const exportedAddresses = new Set<string>();
   const records: string[] = [];
 
   const exportAddress = (address: string): AddressDetails => {
-    lookupAddress ??= createAddressLookup(wallet);
-    const info = lookupAddress(address);
-    if (!info.owned || exportedAddresses.has(address)) return info;
-    exportedAddresses.add(address);
+    const ref = normalizeAddress(address);
+    lookupAddress ??= createAddressLookup(wallet, Boolean(origin));
+    const info = lookupAddress(ref);
+    if (!info.owned || exportedAddresses.has(ref)) return info;
+    exportedAddresses.add(ref);
 
-    const label = addressMetadata[address]?.label;
+    const label = labels.get(ref);
     const { keypath } = info;
     records.push(
       encodeBip329Record({
         type: 'addr',
-        ref: address,
+        ref,
         ...(label === undefined ? {} : { label }),
         ...(origin ? { origin } : {}),
         ...(keypath ? { keypath } : {}),
@@ -194,7 +206,7 @@ export function createBip329WalletHistoryBackup(wallet: TWallet, txMetadata: TTX
     });
   }
 
-  for (const address of Object.keys(addressMetadata)) exportAddress(address);
+  for (const address of labels.keys()) exportAddress(address);
 
   return records.join('\n');
 }

@@ -88,7 +88,7 @@ describe('wallet history exports', () => {
   });
 
   it.each([undefined, null, {}, 'not an array'])('exports partial on-chain rows and a reported fee with missing I/O arrays: %s', arrays => {
-    const partial = { ...transaction({ value: 1_000, fee: 123 }), inputs: arrays, outputs: arrays } as unknown as Transaction;
+    const partial = { ...transaction({ value: -1_000, fee: 123 }), inputs: arrays, outputs: arrays } as unknown as Transaction;
     expect(getTransactionFee(partial)).toBe(123);
     const [, row] = createAccountingHistoryRows([partial], Chain.ONCHAIN, {});
     expect(column(row, 'Transaction ID')).toBe(partial.txid);
@@ -100,9 +100,18 @@ describe('wallet history exports', () => {
     expect(createAccountingHistoryCsv([partial], Chain.ONCHAIN, {})).toContain(partial.txid);
   });
 
+  it('leaves the fee columns empty for incoming on-chain payments', () => {
+    const tx = transaction({ value: 1_000, fee: 123 });
+    const [, row] = createAccountingHistoryRows([tx], Chain.ONCHAIN, {});
+    expect(getTransactionFee(tx)).toBe(123);
+    expect(column(row, 'Type')).toBe('Receive');
+    expect(column(row, 'Fee (BTC)')).toBe('');
+    expect(column(row, 'Fee (sats)')).toBe('');
+  });
+
   it('tolerates malformed I/O elements and keeps real address values', () => {
     const tx = {
-      ...transaction({ fee: 123 }),
+      ...transaction({ fee: 123, value: -1_000 }),
       inputs: [null, { addresses: [null, 'bc1qinput', 42] }],
       outputs: [null, { scriptPubKey: { addresses: ['bc1qoutput', null] } }],
     } as unknown as Transaction;

@@ -1,3 +1,5 @@
+import { readFileSync } from 'fs';
+import path from 'path';
 import { availableMenuActions, nativeSendDetailsAction } from '../../blue_modules/menuActions';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
@@ -82,5 +84,28 @@ describe('native menu availability', () => {
       'sign_psbt',
       'coin_control',
     ]);
+  });
+
+  it('routes each Wallet Details command to the same Android action ID', () => {
+    const commands = [
+      'editWalletName',
+      'showAddresses',
+      'showXpub',
+      'signVerify',
+      'coin_control',
+      'importWalletNotes',
+      'exportWalletBackup',
+      'exportAccountingCsv',
+      'exportBip329Backup',
+      'deleteWallet',
+    ] as const;
+    const androidMenu = readFileSync(
+      path.join(__dirname, '../../android/app/src/main/java/io/bluewallet/bluewallet/WalletMenuAction.kt'),
+      'utf8',
+    );
+    const androidIds = Array.from(androidMenu.matchAll(/^\s*[A-Z][A-Z0-9_]*\("([^"]+)"/gm), match => match[1]);
+
+    expect(availableMenuActions('WalletDetails', commands, true)).toEqual([...globalActions, 'backToWallets', ...commands]);
+    expect(commands.filter(command => !androidIds.includes(command))).toEqual([]);
   });
 });

@@ -6,7 +6,10 @@ private struct PreviewRecord {
     let label: String
     let detail: String
     let symbol: String
+    let reference: String?
 }
+
+private typealias PreviewRow = (label: String, detail: String, symbol: String, reference: String?)
 
 final class PreviewViewController: UIViewController, QLPreviewingController, UITableViewDataSource, UITableViewDelegate {
     private let titleLabel = UILabel()
@@ -215,7 +218,8 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
                             section: bip329SectionTitle(type),
                             label: label,
                             detail: details.joined(separator: "\n"),
-                            symbol: symbol
+                            symbol: symbol,
+                            reference: reference
                         )
                     )
                 }
@@ -314,10 +318,8 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let record = sections[indexPath.section].records[indexPath.row]
-        let firstLine = record.detail.components(separatedBy: .newlines).first ?? record.detail
-        let reference = firstLine.components(separatedBy: " · ").dropFirst().joined(separator: " · ")
         let sheet = UIAlertController(title: record.label, message: record.detail, preferredStyle: .actionSheet)
-        if !reference.isEmpty {
+        if let reference = record.reference, !reference.isEmpty {
             sheet.addAction(UIAlertAction(title: "Copy Reference", style: .default) { _ in
                 UIPasteboard.general.string = reference
             })
@@ -402,10 +404,10 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
 }
 
 private func previewRecords(
-    _ records: [(label: String, detail: String, symbol: String)],
+    _ records: [PreviewRow],
     section: String
 ) -> [PreviewRecord] {
-    records.map { PreviewRecord(section: section, label: $0.label, detail: $0.detail, symbol: $0.symbol) }
+    records.map { PreviewRecord(section: section, label: $0.label, detail: $0.detail, symbol: $0.symbol, reference: $0.reference) }
 }
 
 private func bip329SectionTitle(_ type: String) -> String {
@@ -468,10 +470,9 @@ private func bip329Date(from source: String) -> Date? {
 }
 
 private enum TransactionPreview {
-    typealias Record = (label: String, detail: String, symbol: String)
     private enum ParseError: Error { case invalid }
 
-    static func parse(file: URL) throws -> (title: String, summary: String, records: [Record]) {
+    static func parse(file: URL) throws -> (title: String, summary: String, records: [PreviewRow]) {
         let source = try Data(contentsOf: file)
         let data: Data
         if let text = String(data: source, encoding: .utf8), let decoded = Data(hex: text.trimmingCharacters(in: .whitespacesAndNewlines)) {
@@ -483,20 +484,21 @@ private enum TransactionPreview {
         let hasWitness = reader.peek(2) == [0, 1]
         if hasWitness { _ = try reader.read(2) }
         let inputs = Int(try reader.compact())
-        var inputRecords: [Record] = []
+        var inputRecords: [PreviewRow] = []
         for index in 0..<inputs {
             let txid = try reader.read(32).reversed().map { String(format: "%02x", $0) }.joined()
             let outputIndex = try reader.uint32()
             let scriptLength = Int(try reader.compact()); _ = try reader.read(scriptLength); _ = try reader.read(4)
-            inputRecords.append(("Input \(index + 1)", "\(txid):\(outputIndex)", "arrow.down.circle.fill"))
+            let outpoint = "\(txid):\(outputIndex)"
+            inputRecords.append(("Input \(index + 1)", outpoint, "arrow.down.circle.fill", outpoint))
         }
-        let outputs = Int(try reader.compact()); var total: UInt64 = 0; var outputRecords: [Record] = []
+        let outputs = Int(try reader.compact()); var total: UInt64 = 0; var outputRecords: [PreviewRow] = []
         for index in 0..<outputs {
             let value = try reader.uint64(); total += value
             let script = try reader.read(Int(try reader.compact()))
-            let scriptDescription = ScriptDescription.from(script: script)
+            let scriptPreview = ScriptDescription.from(script: script)
             let fiat = FiatEstimate.format(sats: value).map { " · \($0)" } ?? ""
-            outputRecords.append(("Output \(index + 1)", "\(scriptDescription) · \(formatSats(value))\(fiat)", "arrow.up.circle.fill"))
+            outputRecords.append(("Output \(index + 1)", "\(scriptPreview.detail) · \(formatSats(value))\(fiat)", "arrow.up.circle.fill", scriptPreview.hex))
         }
         if hasWitness {
             for _ in 0..<inputs { for _ in 0..<Int(try reader.compact()) { _ = try reader.read(Int(try reader.compact())) } }
@@ -505,7 +507,12 @@ private enum TransactionPreview {
         guard reader.isAtEnd else { throw ParseError.invalid }
         let fiat = FiatEstimate.format(sats: total).map { " · \($0)" } ?? ""
         let summary = "\(inputs) inputs · \(outputs) outputs · \(formatSats(total))\(fiat)"
-        return ("Bitcoin Transaction", summary, [("Format", hasWitness ? "SegWit transaction" : "Bitcoin transaction", "doc.text"), ("Inputs", "\(inputs) input\(inputs == 1 ? "" : "s")", "arrow.down.to.line"), ("Outputs", "\(outputs) output\(outputs == 1 ? "" : "s") · \(formatSats(total))\(fiat)", "arrow.up.circle.fill")] + inputRecords + outputRecords)
+        let records: [PreviewRow] = [
+            ("Format", hasWitness ? "SegWit transaction" : "Bitcoin transaction", "doc.text", nil),
+            ("Inputs", "\(inputs) input\(inputs == 1 ? "" : "s")", "arrow.down.to.line", nil),
+            ("Outputs", "\(outputs) output\(outputs == 1 ? "" : "s") · \(formatSats(total))\(fiat)", "arrow.up.circle.fill", nil),
+        ]
+        return ("Bitcoin Transaction", summary, records + inputRecords + outputRecords)
     }
 
     private static func formatSats(_ value: UInt64) -> String { "\(NumberFormatter.localizedString(from: NSNumber(value: value), number: .decimal)) sats" }
@@ -532,9 +539,7 @@ private extension Data {
 }
 
 private enum PSBTPreview {
-    typealias Record = (label: String, detail: String, symbol: String)
-
-    static func parse(file: URL) throws -> (title: String, summary: String, records: [Record]) {
+    static func parse(file: URL) throws -> (title: String, summary: String, records: [PreviewRow]) {
         let source = try Data(contentsOf: file)
         let data: Data
         if source.starts(with: [0x70, 0x73, 0x62, 0x74, 0xff]) {
@@ -573,23 +578,23 @@ private enum PSBTPreview {
             return "\(count) · \(formatSats(value))\(fiat)"
         } ?? "\(outputs) output\(outputs == 1 ? "" : "s")"
 
-        var records: [Record] = [
-            ("Format", "PSBT v\(version)", "doc.text"),
-            ("Inputs", "\(inputs) input\(inputs == 1 ? "" : "s")", "arrow.down.to.line"),
-            ("Outputs", outputDetail, "arrow.up.circle.fill"),
-            ("Safety", "PSBT input metadata and signatures are unverified. Review this transaction in a signing wallet.", "exclamationmark.shield")
+        var records: [PreviewRow] = [
+            ("Format", "PSBT v\(version)", "doc.text", nil),
+            ("Inputs", "\(inputs) input\(inputs == 1 ? "" : "s")", "arrow.down.to.line", nil),
+            ("Outputs", outputDetail, "arrow.up.circle.fill", nil),
+            ("Safety", "PSBT input metadata and signatures are unverified. Review this transaction in a signing wallet.", "exclamationmark.shield", nil)
         ]
         records += inputMaps.enumerated().map { index, map in
             let utxo = witnessUTXO(map)
-            let scriptDescription = utxo.map { ScriptDescription.from(script: $0.script) } ?? "Input metadata unavailable"
+            let scriptDescription = utxo.map { ScriptDescription.from(script: $0.script).detail } ?? "Input metadata unavailable"
             let amount = utxo.map { " · \(formatSats($0.value))" } ?? ""
-            return ("Input \(index + 1) (unverified)", "\(scriptDescription)\(amount)", "arrow.down.circle.fill")
+            return ("Input \(index + 1) (unverified)", "\(scriptDescription)\(amount)", "arrow.down.circle.fill", nil)
         }
         if let transaction {
             records += transaction.outputs.enumerated().map { index, output in
-                let scriptDescription = ScriptDescription.from(script: output.script)
+                let scriptPreview = ScriptDescription.from(script: output.script)
                 let fiat = FiatEstimate.format(sats: output.value).map { " · \($0)" } ?? ""
-                return ("Output \(index + 1)", "\(scriptDescription) · \(formatSats(output.value))\(fiat)", "arrow.up.circle.fill")
+                return ("Output \(index + 1)", "\(scriptPreview.detail) · \(formatSats(output.value))\(fiat)", "arrow.up.circle.fill", scriptPreview.hex)
             }
         }
         let summary = totalOutput.map { "\(inputs) inputs · \(outputs) outputs · \($0)" } ?? "\(inputs) inputs · \(outputs) outputs"

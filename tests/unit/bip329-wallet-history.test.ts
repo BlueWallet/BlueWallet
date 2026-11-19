@@ -89,13 +89,15 @@ describe('BIP-329 wallet history backup', () => {
   });
 
   it('caches negative ownership and derives owned paths once for other wallet implementations', () => {
-    const own = jest.fn((address: string) => address === 'owned');
+    jest.spyOn(WalletDescriptor, 'fromWallet').mockReturnValueOnce("wpkh([d34db33f/84'/0'/0'])");
+    const owned = '1BoatSLRHtKNngkdXEeobR76b53LETtpyT';
+    const own = jest.fn((address: string) => address === owned);
     const derive = jest.fn(() => "m/84'/0'/0'/0/2");
     const wallet = {
       getTransactions: () => [
         partialTransaction({
-          inputs: [{ address: 'foreign' }, { address: 'owned' }, { address: 'foreign' }],
-          outputs: [{ scriptPubKey: { addresses: ['owned'] } }, { scriptPubKey: { addresses: ['foreign'] } }],
+          inputs: [{ address: 'foreign' }, { address: owned }, { address: 'foreign' }],
+          outputs: [{ scriptPubKey: { addresses: [owned] } }, { scriptPubKey: { addresses: ['foreign'] } }],
         }),
       ],
       weOwnAddress: own,
@@ -103,12 +105,12 @@ describe('BIP-329 wallet history backup', () => {
       getDerivationPath: () => "m/84'/0'/0'",
       getUTXOMetadata: () => ({}),
     } as unknown as TWallet;
-    const records = createBip329WalletHistoryBackup(wallet, {}, { foreign: { label: 'Other wallet' }, owned: { label: 'Mine' } })
+    const records = createBip329WalletHistoryBackup(wallet, {}, { foreign: { label: 'Other wallet' }, [owned]: { label: 'Mine' } })
       .split('\n')
       .map(line => JSON.parse(line));
-    expect(own.mock.calls).toEqual([['foreign'], ['owned']]);
+    expect(own.mock.calls).toEqual([['foreign'], [owned]]);
     expect(derive).toHaveBeenCalledTimes(1);
-    expect(records.find(record => record.type === 'addr')).toMatchObject({ ref: 'owned', label: 'Mine', keypath: '/0/2' });
+    expect(records.find(record => record.type === 'addr')).toMatchObject({ ref: owned, label: 'Mine', keypath: '/0/2' });
   });
 
   it('indexes the underlying watch-only receive and change branches', () => {
@@ -116,22 +118,28 @@ describe('BIP-329 wallet history backup', () => {
     const wallet = new WatchOnlyWallet();
     wallet.setSecret(source.getXpub());
     wallet.init();
+    wallet.setDerivationPath("m/84'/0'/0'");
+    wallet.setMasterFingerprintFromHex(source.getMasterFingerprintHex());
     const hd = wallet._hdWalletInstance!;
     hd.gap_limit = 3;
     const receive = hd._getExternalAddressByIndex(2);
     const change = hd._getInternalAddressByIndex(2);
+    jest
+      .spyOn(wallet, 'getTransactions')
+      .mockReturnValue([partialTransaction({ inputs: [{ address: receive }, { address: receive.toUpperCase() }] })]);
     const own = jest.spyOn(hd, 'weOwnAddress');
     const records = createBip329WalletHistoryBackup(
       wallet,
       {},
-      { [receive.toUpperCase()]: { label: 'Receive' }, [change]: { label: 'Change' } },
+      { [receive.toUpperCase()]: { label: 'Receive' }, [change.toUpperCase()]: { label: 'Alias' }, [change]: { label: 'Change' } },
     )
       .split('\n')
       .map(line => JSON.parse(line));
-    expect(records).toEqual([
-      expect.objectContaining({ ref: receive.toUpperCase(), keypath: '/0/2', label: 'Receive' }),
+    expect(records.filter(record => record.type === 'addr')).toEqual([
+      expect.objectContaining({ ref: receive, keypath: '/0/2', label: 'Receive' }),
       expect.objectContaining({ ref: change, keypath: '/1/2', label: 'Change' }),
     ]);
+    expect(records.filter(record => record.type === 'input').map(record => record.keypath)).toEqual(['/0/2', '/0/2']);
     expect(own).not.toHaveBeenCalled();
   });
 
@@ -329,7 +337,7 @@ describe('BIP-329 wallet history backup', () => {
     expect(getBip329Keypath(wallet, 'address')).toBe(expected);
   });
 
-  it('exports unused owned address labels and tolerates outputs without script details', () => {
+  it('omits relative keypaths when no origin exists and tolerates outputs without script details', () => {
     jest.spyOn(WalletDescriptor, 'fromWallet').mockReturnValue(undefined);
     const transaction = {
       txid: 'a'.repeat(64),
@@ -339,8 +347,11 @@ describe('BIP-329 wallet history backup', () => {
       vsize: 80,
       weight: 320,
       locktime: 0,
-      inputs: [],
-      outputs: [{ value: 0.001, n: 0 }],
+      inputs: [{ address: 'bc1qunused' }],
+      outputs: [
+        { value: 0.001, n: 0 },
+        { value: 0.001, n: 1, scriptPubKey: { addresses: ['bc1qunused'] } },
+      ],
       timestamp: 0,
       confirmations: 0,
       value: 100_000,
@@ -365,12 +376,14 @@ describe('BIP-329 wallet history backup', () => {
       .split('\n')
       .map(line => JSON.parse(line));
 
-    expect(records).toContainEqual(
-      expect.objectContaining({ type: 'addr', ref: 'bc1qunused', label: 'Unused receive address', keypath: '/0/9' }),
-    );
+    expect(records).toContainEqual(expect.objectContaining({ type: 'addr', ref: 'bc1qunused', label: 'Unused receive address' }));
     expect(records).not.toContainEqual(expect.objectContaining({ ref: 'bc1qforeign' }));
     expect(records).toContainEqual(expect.objectContaining({ type: 'tx', ref: transaction.txid, label: 'Transaction note' }));
     expect(records.find(record => record.type === 'tx').fee).toBe(10_000);
     expect(records).toContainEqual(expect.objectContaining({ type: 'output', ref: `${transaction.txid}:0` }));
+    for (const record of records) {
+      expect(record).not.toHaveProperty('origin');
+      expect(record).not.toHaveProperty('keypath');
+    }
   });
 });

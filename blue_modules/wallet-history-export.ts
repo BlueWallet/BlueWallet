@@ -143,7 +143,8 @@ export function createAccountingHistoryRows(
     } else {
       confirmations = String(confirmationCount ?? 0);
       status = (confirmationCount ?? 0) > 0 ? 'Confirmed' : 'Pending';
-      const transactionFee = getTransactionFee(transaction);
+      // Incoming transactions show the sender's network fee, not a wallet expense.
+      const transactionFee = value !== undefined && value <= 0 ? getTransactionFee(transaction) : undefined;
       if (transactionFee !== undefined) {
         feeSats = transactionFee;
         fee = satoshisToBitcoin(transactionFee);

@@ -106,15 +106,23 @@ describe('Wallet Details note import', () => {
     expect(saveToDisk).not.toHaveBeenCalled();
   });
 
+  it('shows a short Import Notes title and the parse error in the alert body', async () => {
+    jest.mocked(showFilePickerAndReadFile).mockResolvedValue({ data: 'invalid file', uri: 'unnamed', fileName: 'unnamed' });
+    const screen = render(<WalletDetails />);
+    await act(async () => fireEvent(screen.getByTestId('TransactionHistoryMenuButton'), 'pressMenuItem', IMPORT_NOTES_ACTION_ID));
+    expect(Alert.alert).toHaveBeenCalledWith('Import Notes', loc.wallets.import_error, expect.any(Array), expect.any(Object));
+    expect(saveToDisk).not.toHaveBeenCalled();
+  });
+
   it.each([false, true])(
     'reports invalid JSONL lines and keeps selected-wallet filtering when valid notes exist: %s',
     async hasValidNote => {
       const data = [
-        'broken first line',
+        'bad,line,with,commas',
         hasValidNote ? JSON.stringify({ type: 'tx', ref: txid, label: 'Surviving note' }) : 'another broken line',
         JSON.stringify({ type: 'tx', ref: 'b'.repeat(64), label: 'Foreign note' }),
       ].join('\n');
-      jest.mocked(showFilePickerAndReadFile).mockResolvedValue({ data, uri: 'labels.jsonl', fileName: 'labels.jsonl' });
+      jest.mocked(showFilePickerAndReadFile).mockResolvedValue({ data, uri: 'unnamed', fileName: 'unnamed' });
       const screen = render(<WalletDetails />);
       let importing!: Promise<void>;
       act(() => {

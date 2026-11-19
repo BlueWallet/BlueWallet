@@ -64,10 +64,7 @@ import useWalletHistorySummary from '../../hooks/useWalletHistorySummary';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 
-function getCoinControlStats(w: TWallet): {
-  hasCoinControl: boolean;
-  utxoCount: number | null;
-} {
+function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: number | null } {
   if (typeof w.getUtxo !== 'function') return { hasCoinControl: false, utxoCount: null };
   try {
     return { hasCoinControl: true, utxoCount: w.getUtxo().length };
@@ -218,11 +215,7 @@ const WalletDetails: React.FC = () => {
       const walletBalanceConfirmation = await prompt(
         loc.wallets.details_delete_wallet,
         loc.formatString(loc.wallets.details_del_wb_q, { balance }),
-        {
-          type: 'numeric',
-          destructive: true,
-          continueButtonText: loc.wallets.details_delete,
-        },
+        { type: 'numeric', destructive: true, continueButtonText: loc.wallets.details_delete },
       );
       // Remove any non-numeric characters before comparison
       const cleanedConfirmation = (walletBalanceConfirmation || '').replace(/[^0-9]/g, '');
@@ -322,7 +315,7 @@ const WalletDetails: React.FC = () => {
       importedNotes = parseWalletHistoryNotes(data, getBip329Origin(wallet), diagnostics, fileName);
     } catch {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: loc.wallets.import_error });
+      presentAlert({ title: importTitle, message: loc.wallets.import_error });
       return;
     }
 
@@ -604,10 +597,7 @@ const WalletDetails: React.FC = () => {
   const handleEditWalletName = useCallback(async () => {
     let newName: string;
     try {
-      newName = await prompt(loc.wallets.add_wallet_name, '', {
-        type: 'plain-text',
-        defaultValue: wallet.getLabel(),
-      });
+      newName = await prompt(loc.wallets.add_wallet_name, '', { type: 'plain-text', defaultValue: wallet.getLabel() });
     } catch (_) {
       // User cancelled
       return;
@@ -624,9 +614,7 @@ const WalletDetails: React.FC = () => {
       wallet.setLabel(previousLabel);
       setWalletName(previousLabel);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({
-        message: error instanceof Error ? error.message : String(error),
-      });
+      presentAlert({ message: error instanceof Error ? error.message : String(error) });
     }
   }, [wallet, saveToDisk]);
 
@@ -801,12 +789,7 @@ const WalletDetails: React.FC = () => {
                 {hasCoinControl && utxoCount !== null && utxoCount > 0 ? (
                   <Pressable
                     style={({ pressed }) => [styles.statsBox, stylesHook.statsBox, pressed && styles.pressablePressed]}
-                    onPress={() =>
-                      navigate('SendDetailsRoot', {
-                        screen: 'CoinControl',
-                        params: { walletID },
-                      })
-                    }
+                    onPress={() => navigate('SendDetailsRoot', { screen: 'CoinControl', params: { walletID } })}
                     testID="CoinsStatsBox"
                   >
                     <View style={styles.statsBoxTitleRow}>
@@ -1094,9 +1077,7 @@ const WalletDetails: React.FC = () => {
             <Text style={[styles.importResultsSummary, { color: colors.alternativeTextColor }]}>
               {pendingNoteUpdates.size > 0
                 ? loc.wallets.details_import_notes_review
-                : loc.formatString(loc.wallets.details_import_notes_success, {
-                    count: importedNoteResults.size,
-                  })}
+                : loc.formatString(loc.wallets.details_import_notes_success, { count: importedNoteResults.size })}
             </Text>
             <FlatList
               data={pendingNoteUpdates.size > 0 ? overwriteNoteUpdates : [...importedNoteResults]}

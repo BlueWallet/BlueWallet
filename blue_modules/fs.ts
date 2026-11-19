@@ -136,21 +136,30 @@ const restoreNeutralizedCsvValue = (value: string): string => {
 
 export type WalletHistoryImportDiagnostics = { originMismatchCount: number; invalidLineCount: number };
 
+const readBip329Record = (line: string) => {
+  if (!line.trimStart().startsWith('{')) return undefined;
+  try {
+    const { type, ref, label, origin }: Record<string, unknown> = JSON.parse(line);
+    if (typeof type === 'string' && typeof ref === 'string' && ref.length > 0) return { type, ref, label, origin };
+  } catch {
+    // Malformed lines are counted by the import parser.
+  }
+  return undefined;
+};
+
 const parseBip329TransactionNotes = (
-  contents: string,
+  lines: string[],
   expectedOrigin?: string,
   diagnostics?: WalletHistoryImportDiagnostics,
 ): Array<{ transactionId: string; memo: string }> =>
-  contents
-    .split(/\r\n|\n|\r/)
+  lines
     .filter(line => line.trim().length > 0)
     .flatMap(line => {
       try {
-        const record: unknown = JSON.parse(line);
-        if (!record || typeof record !== 'object' || Array.isArray(record)) throw new Error('Invalid BIP-329 record');
+        const record = readBip329Record(line);
+        if (!record) throw new Error('Invalid BIP-329 record');
 
-        const { type, ref, label, origin } = record as Record<string, unknown>;
-        if (typeof type !== 'string' || typeof ref !== 'string') throw new Error('Invalid BIP-329 record');
+        const { type, ref, label, origin } = record;
         if (type !== 'tx' || label === undefined) return [];
         if (!/^[0-9a-f]{64}$/i.test(ref) || typeof label !== 'string') throw new Error('Invalid BIP-329 transaction label');
         if (origin !== undefined && (typeof origin !== 'string' || origin.trim().length === 0)) throw new Error('Invalid BIP-329 origin');
@@ -182,14 +191,10 @@ export const parseWalletHistoryNotes = (
     diagnostics.invalidLineCount = 0;
   }
   const normalizedContents = contents.replace(/^\uFEFF/, '').trimStart();
-  const firstLine = normalizedContents.split(/\r\n|\n|\r/, 1)[0];
-  const csvHeader = !firstLine.startsWith('{') && firstLine.split(',').length >= 4;
-  if (
-    fileName?.toLowerCase().endsWith('.jsonl') ||
-    normalizedContents.startsWith('{') ||
-    (!csvHeader && /(?:^|[\r\n])\s*\{/.test(normalizedContents))
-  ) {
-    return parseBip329TransactionNotes(normalizedContents, expectedOrigin, diagnostics);
+  const lines = normalizedContents.split(/\r\n|\n|\r/);
+  // JSON embedded in a quoted CSV field has doubled quotes, so it won't parse as a JSONL record.
+  if (fileName?.toLowerCase().endsWith('.jsonl') || normalizedContents.startsWith('{') || lines.some(readBip329Record)) {
+    return parseBip329TransactionNotes(lines, expectedOrigin, diagnostics);
   }
 
   const rows = parseCsv(normalizedContents);
