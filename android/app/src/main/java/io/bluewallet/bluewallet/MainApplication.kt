@@ -73,6 +73,7 @@ class MainApplication : Application(), ReactApplication {
                     add(SegmentedControlPackage())
                     add(SettingsPackage())
                     add(MenuActionsPackage())
+                    add(LegacySecureStoragePackage())
                 }
 
             override fun getUseDeveloperSupport() = BuildConfig.DEBUG

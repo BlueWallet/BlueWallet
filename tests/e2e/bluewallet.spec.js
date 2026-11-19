@@ -24,6 +24,7 @@ import {
   waitForKeyboardToClose,
   waitForText,
   waitForLabel,
+  waitForSwitchValue,
 } from './helperz';
 
 // if loglevel is set to `error`, this kind of logging will still get through
@@ -261,6 +262,46 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('AboutButton')).tap();
     await goBack();
     await goBack();
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('retains or clears wallets across reinstall based on the iOS Keychain setting', async () => {
+    if (device.getPlatform() !== 'ios') return;
+
+    const lockFile = '/tmp/travislock.' + hashIt('keychain-retention-uninstall');
+    if (process.env.CI) {
+      if (require('fs').existsSync(lockFile)) {
+        return console.warn('skipping', JSON.stringify('keychain-retention-uninstall'), 'as it previously passed on Travis');
+      }
+    }
+
+    const walletName = 'keychain-retention-wallet';
+    await device.clearKeychain();
+    await device.launchApp({ delete: true });
+    await waitForId('WalletsList');
+    await helperCreateWallet(walletName);
+
+    // Retention is enabled by default, so the wallet must survive reinstall.
+    await device.launchApp({ delete: true });
+    await waitForId('WalletsList');
+    await expect(element(by.id(walletName))).toBeVisible();
+
+    // Opt out, reinstall again, and verify retained Keychain data is cleared
+    // before BlueWallet can load it into the new installation.
+    await element(by.id('SettingsButton')).tap();
+    await element(by.id('SecurityButton')).tap();
+    await waitForId('KeychainRetentionSwitch');
+    await waitForSwitchValue('KeychainRetentionSwitch', true);
+    await element(by.id('KeychainRetentionSwitch')).tap();
+    await waitForSwitchValue('KeychainRetentionSwitch', false);
+
+    await device.launchApp({ delete: true });
+    await waitForId('WalletsList');
+    await waitFor(element(by.id(walletName)))
+      .not.toExist()
+      .withTimeout(10_000);
+
+    await device.clearKeychain();
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 

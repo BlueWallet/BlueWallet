@@ -44,8 +44,8 @@ async function loadOrCreateEncryptionKey(namespace: string): Promise<Uint8Array>
   const buf = await randomBytes(64);
   const password = uint8ArrayToHex(buf);
 
-  // Accessibility: match the rest of the app's secret accessibility. RNSecureKeyStore
-  // in class/blue-app.ts and hooks/useBiometrics.ts both use WHEN_UNLOCKED_THIS_DEVICE_ONLY;
+  // Accessibility: match the rest of the app's Keychain accessibility. BlueApp
+  // uses WHEN_UNLOCKED_THIS_DEVICE_ONLY for application secure storage;
   // the default of AFTER_FIRST_UNLOCK would expose the Realm key while the device is locked.
   //
   // Security level: preflight via getSecurityLevel() rather than try/catch around
