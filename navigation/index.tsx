@@ -83,7 +83,7 @@ const MainRoot = () => {
             name="KeyboardShortcuts"
             component={KeyboardShortcuts}
             options={navigationStyle({
-              title: 'Keyboard Shortcuts',
+              title: loc.menu.keyboard_shortcuts_title,
               presentation: 'modal',
               headerShown: true,
               headerBackVisible: false,

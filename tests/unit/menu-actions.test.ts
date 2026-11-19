@@ -47,11 +47,38 @@ describe('native menu availability', () => {
       'backToWallets',
       'copyAddress',
     ]);
-    expect(availableMenuActions('TransactionStatus', ['copyTransactionId', 'accelerateTransaction'], true)).toEqual([
+    expect(
+      availableMenuActions(
+        'TransactionStatus',
+        [
+          'copyTransactionId',
+          'copyTransactionHex',
+          'bumpFeeRbf',
+          'bumpFeeCpfp',
+          'accelerateTransaction',
+          'cancelTransaction',
+          'openTransactionInExplorer',
+          'shareTransaction',
+          'editTransactionNote',
+          'toggleBlockDetails',
+          'toggleAdvancedDetails',
+        ],
+        true,
+      ),
+    ).toEqual([
       ...globalActions,
       'backToWallets',
       'copyTransactionId',
+      'copyTransactionHex',
+      'bumpFeeRbf',
+      'bumpFeeCpfp',
       'accelerateTransaction',
+      'cancelTransaction',
+      'openTransactionInExplorer',
+      'shareTransaction',
+      'editTransactionNote',
+      'toggleBlockDetails',
+      'toggleAdvancedDetails',
     ]);
     expect(availableMenuActions('WalletsList', [], true)).not.toContain('backToWallets');
   });

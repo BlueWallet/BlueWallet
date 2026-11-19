@@ -4,6 +4,27 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { _setSkipUpdateExchangeRate } from '../../blue_modules/currency';
 import TransactionStatus from '../../screen/transactions/TransactionStatus';
 
+const mockUseScreenMenuActions = jest.fn();
+const mockPresentShare = jest.fn();
+jest.mock('../../hooks/useScreenMenuActions', () => ({
+  __esModule: true,
+  default: (...args: unknown[]) => mockUseScreenMenuActions(...args),
+}));
+jest.mock('../../blue_modules/NativeMenuActionsEmitter', () => ({
+  __esModule: true,
+  default: { presentShare: (...args: unknown[]) => mockPresentShare(...args) },
+}));
+jest.mock('../../class/hd-segwit-bech32-transaction', () => ({
+  HDSegwitBech32Transaction: jest.fn().mockImplementation(() => ({
+    isToUsTransaction: jest.fn().mockResolvedValue(true),
+    isOurTransaction: jest.fn().mockResolvedValue(true),
+    getRemoteConfirmationsNum: jest.fn().mockResolvedValue(0),
+    isSequenceReplaceable: jest.fn().mockResolvedValue(true),
+    canBumpTx: jest.fn().mockResolvedValue(true),
+    canCancelTx: jest.fn().mockResolvedValue(true),
+  })),
+}));
+
 // TransactionStatus renders fiat amounts via satoshiToLocalCurrency(), which
 // kicks off a real exchange-rate fetch when no rate is cached — leaving a TLS
 // socket open after the run ("Jest did not exit one second after...").
@@ -49,6 +70,7 @@ jest.mock('@react-navigation/native', () => {
     useNavigation: () => ({
       navigate: jest.fn(),
       setOptions: jest.fn(),
+      setParams: jest.fn(),
       goBack: jest.fn(),
       addListener: jest.fn(),
     }),
@@ -176,6 +198,7 @@ jest.mock('../../loc', () => ({
       details_outputs: 'outputs',
       details_inputs_count: 'Inputs ({count})',
       details_outputs_count: 'Outputs ({count})',
+      details_share: 'Share Transaction',
       details_view_in_browser: 'view in browser',
       details_note: 'Note',
       details_add_note: 'Add note',
@@ -219,15 +242,15 @@ const mockTxBase = {
   counterparty: undefined,
 };
 
-const setup = (confirmations: number, lastFetch: number) => {
+const setup = (confirmations: number, lastFetch: number, allowRBF = false, value = mockTxBase.value) => {
   let currentConfirmations = confirmations;
   let currentLastFetch = lastFetch;
 
   const walletMock = {
     getID: () => 'mock-wallet',
-    getTransactions: jest.fn(() => [{ ...mockTxBase, confirmations: currentConfirmations }]),
+    getTransactions: jest.fn(() => [{ ...mockTxBase, value, confirmations: currentConfirmations }]),
     getLastTxFetch: jest.fn(() => currentLastFetch),
-    allowRBF: jest.fn(() => false),
+    allowRBF: jest.fn(() => allowRBF),
     preferredBalanceUnit: 'BTC',
   } as any;
 
@@ -455,6 +478,57 @@ describe('TransactionStatus regression', () => {
 
     await waitFor(() => {
       expect(BlueElectrum.getConfirmedBlockHeight).not.toHaveBeenCalled();
+    });
+  });
+
+  it('registers available screen buttons as native menu commands and publishes toggle state', async () => {
+    setup(3, 1000);
+
+    await waitFor(() => {
+      const handlers = mockUseScreenMenuActions.mock.lastCall?.[0];
+      expect(handlers).toEqual(
+        expect.objectContaining({
+          copyTransactionId: expect.any(Function),
+          openTransactionInExplorer: expect.any(Function),
+          shareTransaction: expect.any(Function),
+          editTransactionNote: expect.any(Function),
+          toggleBlockDetails: expect.any(Function),
+          toggleAdvancedDetails: expect.any(Function),
+        }),
+      );
+    });
+    expect(mockUseScreenMenuActions.mock.lastCall?.[2]).toEqual({
+      toggleBlockDetails: { checked: false },
+      toggleAdvancedDetails: { checked: false },
+    });
+
+    mockUseScreenMenuActions.mock.lastCall?.[0].shareTransaction();
+    expect(mockPresentShare).toHaveBeenCalledWith('https://block.explorer/tx/mock-tx', 'txid: mock-tx', 'Share Transaction');
+  });
+
+  it('removes fee-bump and cancel commands when a pending transaction becomes confirmed', async () => {
+    const { update } = setup(0, 1000, true, -1200);
+
+    await waitFor(() => {
+      expect(mockUseScreenMenuActions.mock.lastCall?.[0]).toEqual(
+        expect.objectContaining({
+          bumpFeeRbf: expect.any(Function),
+          bumpFeeCpfp: expect.any(Function),
+          cancelTransaction: expect.any(Function),
+        }),
+      );
+    });
+
+    await update(1, 2000);
+
+    await waitFor(() => {
+      expect(mockUseScreenMenuActions.mock.lastCall?.[0]).toEqual(
+        expect.objectContaining({
+          bumpFeeRbf: undefined,
+          bumpFeeCpfp: undefined,
+          cancelTransaction: undefined,
+        }),
+      );
     });
   });
 

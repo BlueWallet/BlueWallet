@@ -10,17 +10,14 @@ import {
   TouchableOpacity,
   useWindowDimensions,
   View,
-  StyleProp,
-  TextStyle,
 } from 'react-native';
 import { sha256 } from '@noble/hashes/sha256';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
-import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
-import dayjs from 'dayjs';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import MenuActionsEmitter from '../../blue_modules/NativeMenuActionsEmitter';
 import type { ElectrumTransaction } from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -51,8 +48,6 @@ import { isOnChainTransaction, resolveTxDisplayState } from '../../blue_modules/
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 
-dayjs.extend(relativeTime);
-
 /** Mutates Electrum `vin` entries with `value` and `addresses` from previous outputs so fee = sum(inputs) − sum(outputs) works. */
 async function populateVinValuesFromPrevTxs(fetchedTx: ElectrumTransaction): Promise<void> {
   if (!fetchedTx?.vin?.length) return;
@@ -81,10 +76,6 @@ enum ButtonStatus {
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'TransactionStatus'>;
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'TransactionStatus'>;
-
-type TransactionStatusHeaderOptions = NativeStackNavigationOptions & {
-  headerTitleContainerStyle?: { flex: number; maxWidth: number };
-};
 
 enum ActionType {
   SetCPFPPossible,
@@ -164,24 +155,6 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-type TransactionDetailHeaderTitleProps = {
-  direction: string;
-  date: string;
-  directionStyle: StyleProp<TextStyle>;
-  dateStyle: StyleProp<TextStyle>;
-};
-
-const TransactionDetailHeaderTitle: React.FC<TransactionDetailHeaderTitleProps> = ({ direction, date, directionStyle, dateStyle }) => (
-  <View style={styles.headerTitleContainer}>
-    <BlueText style={directionStyle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
-      {direction}
-    </BlueText>
-    <BlueText style={dateStyle} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.8}>
-      {date}
-    </BlueText>
-  </View>
-);
-
 const TransactionStatus: React.FC = () => {
   const { hash, walletID, tx: initialTx } = useRoute<RouteProps>().params;
   const [state, dispatch] = useReducer(reducer, {
@@ -194,6 +167,7 @@ const TransactionStatus: React.FC = () => {
   const showLoadingError = loadingError && !tx;
   const transactionId = tx?.hash || tx?.txid;
   const transactionIdCopyRef = useRef<CopyTextToClipboardHandle>(null);
+  const transactionHexCopyRef = useRef<CopyTextToClipboardHandle>(null);
   const { wallets, txMetadata, counterpartyMetadata, addressMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const subscribedWallet = useWalletSubscribe(walletID);
   const recentOwningWallet = wallet ?? subscribedWallet ?? wallets.find(candidate => candidate.getID() === walletID);
@@ -216,7 +190,10 @@ const TransactionStatus: React.FC = () => {
     };
   }, [hash, hideBalanceInRecentMenu, recentBalanceUnit, recentWalletLabel, transactionId, tx?.value, txMetadata, walletID]);
   const showMempoolSpeedUp =
-    Boolean(tx?.hash) && isRBFBumpFeePossible === ButtonStatus.NotPossible && isCPFPPossible === ButtonStatus.NotPossible;
+    Boolean(tx?.hash) &&
+    resolveTxDisplayState(tx) === 'pending' &&
+    isRBFBumpFeePossible === ButtonStatus.NotPossible &&
+    isCPFPPossible === ButtonStatus.NotPossible;
   const handleOpenMempoolAccelerator = useCallback(() => {
     if (!tx?.hash) return;
     Linking.openURL(`https://mempool.space/tx/${tx.hash}#accelerate&partnerCode=bluewallet`).catch(e => {
@@ -224,14 +201,7 @@ const TransactionStatus: React.FC = () => {
       presentAlert({ message: e.message });
     });
   }, [tx?.hash]);
-  useScreenMenuActions(
-    {
-      copyTransactionId: transactionId && !showLoadingError ? () => transactionIdCopyRef.current?.copy() : undefined,
-      accelerateTransaction: showMempoolSpeedUp ? handleOpenMempoolAccelerator : undefined,
-    },
-    hideFromRecentMenu ? undefined : recentTransaction,
-  );
-  const { navigate, goBack, setOptions } = useNavigation<NavigationProps>();
+  const { navigate, goBack, setParams } = useNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { width: windowWidth, fontScale } = useWindowDimensions();
   const { selectedBlockExplorer } = useSettings();
@@ -250,12 +220,6 @@ const TransactionStatus: React.FC = () => {
       localCurrency: {
         lineHeight: Math.round(20 * fontScale),
         marginTop: Math.round(6 * fontScale),
-      },
-      headerTitleDirection: {
-        lineHeight: Math.round(22 * fontScale),
-      },
-      headerTitleDate: {
-        lineHeight: Math.round(18 * fontScale),
       },
       stateLabel: {
         lineHeight: Math.round(22 * fontScale),
@@ -299,6 +263,10 @@ const TransactionStatus: React.FC = () => {
 
   // Advanced section state
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false);
+  const toggleAdvancedDetails = useCallback(() => {
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+    setIsAdvancedExpanded(expanded => !expanded);
+  }, []);
   const [txHex, setTxHex] = useState<string | null>(null);
   const [isLoadingHex, setIsLoadingHex] = useState(false);
   const [from, setFrom] = useState<string[]>([]);
@@ -310,13 +278,11 @@ const TransactionStatus: React.FC = () => {
   const stylesHook = StyleSheet.create({
     value: { color: colors.foregroundColor },
     valueUnit: { color: colors.foregroundColor },
-    titleDate: { color: colors.alternativeTextColor },
     localCurrency: { color: colors.alternativeTextColor },
     counterpartyContainer: { backgroundColor: colors.cardSectionHeaderBackground },
     counterpartyAvatar: { backgroundColor: colors.lightButton },
     counterpartyAvatarText: { color: colors.foregroundColor },
     counterpartyName: { color: colors.foregroundColor },
-    headerTitleDirection: { color: colors.foregroundColor },
     stateLabelPending: { color: colors.transactionPendingColor },
     stateLabelSent: { color: colors.transactionSentColor },
     stateLabelReceived: { color: colors.transactionReceivedColor },
@@ -356,6 +322,12 @@ const TransactionStatus: React.FC = () => {
     txRef.current = value;
     dispatch({ type: ActionType.SetTransaction, payload: value });
   };
+
+  // The stack owns the transaction-aware title, so keep its route params in sync
+  // when this screen enriches or refreshes the transaction.
+  useEffect(() => {
+    setParams({ tx });
+  }, [setParams, tx]);
 
   const setIntervalMs = (ms: number) => {
     dispatch({ type: ActionType.SetIntervalMs, payload: ms });
@@ -909,6 +881,15 @@ const TransactionStatus: React.FC = () => {
       });
   }, [tx?.hash, selectedBlockExplorer]);
 
+  const handleShareTransaction = useCallback(() => {
+    if (!tx?.hash || !selectedBlockExplorer) return;
+    MenuActionsEmitter?.presentShare(
+      `${selectedBlockExplorer.url}/tx/${tx.hash}`,
+      `${loc.transactions.txid}: ${tx.hash}`,
+      loc.transactions.details_share,
+    );
+  }, [tx?.hash, selectedBlockExplorer]);
+
   const shortenCounterpartyName = (addr: string): string => {
     if (addr.length < 20) return addr;
     return addr.substr(0, 10) + '...' + addr.substr(addr.length - 10, 10);
@@ -1024,9 +1005,32 @@ const TransactionStatus: React.FC = () => {
     toggleBlocksExpanded();
   }, [showBlocksAccordion, toggleBlocksExpanded]);
 
-  // Get transaction direction and date
-  const transactionDirection = txValue !== null && txValue < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
-  const transactionDate = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
+  useScreenMenuActions(
+    {
+      copyTransactionId: transactionId && !showLoadingError ? () => transactionIdCopyRef.current?.copy() : undefined,
+      copyTransactionHex: txHex && isAdvancedExpanded ? () => transactionHexCopyRef.current?.copy() : undefined,
+      bumpFeeRbf:
+        isPending && tx && wallet && isRBFBumpFeePossible === ButtonStatus.Possible
+          ? () => navigateToRBF('RBFBumpFee', tx, wallet)
+          : undefined,
+      bumpFeeCpfp: isPending && tx && wallet && isCPFPPossible === ButtonStatus.Possible ? () => navigateToCPFP(tx, wallet) : undefined,
+      accelerateTransaction: showMempoolSpeedUp ? handleOpenMempoolAccelerator : undefined,
+      cancelTransaction:
+        isPending && tx && wallet && isRBFCancelPossible === ButtonStatus.Possible
+          ? () => navigateToRBF('RBFCancel', tx, wallet)
+          : undefined,
+      openTransactionInExplorer: tx?.hash && selectedBlockExplorer ? handleOpenBlockExplorer : undefined,
+      shareTransaction: tx?.hash && selectedBlockExplorer ? handleShareTransaction : undefined,
+      editTransactionNote: tx ? handleNotePress : undefined,
+      toggleBlockDetails: showBlocksAccordion ? onBlocksHeaderPress : undefined,
+      toggleAdvancedDetails: tx ? toggleAdvancedDetails : undefined,
+    },
+    hideFromRecentMenu ? undefined : recentTransaction,
+    {
+      toggleBlockDetails: { checked: isBlocksExpanded },
+      toggleAdvancedDetails: { checked: isAdvancedExpanded },
+    },
+  );
 
   // Get memo
   const memo = tx?.hash ? txMetadata?.[tx.hash]?.memo || '' : '';
@@ -1092,30 +1096,6 @@ const TransactionStatus: React.FC = () => {
       return null;
     }
   }, [paymentCode]);
-
-  // Set header title with direction and date (inline component required by React Navigation API)
-  useEffect(() => {
-    if (tx) {
-      setOptions({
-        // eslint-disable-next-line react/no-unstable-nested-components -- React Navigation setOptions expects a render function
-        headerTitle: () => (
-          <TransactionDetailHeaderTitle
-            direction={transactionDirection}
-            date={transactionDate}
-            directionStyle={[styles.headerTitleDirection, stylesHook.headerTitleDirection, scaledStyles.headerTitleDirection]}
-            dateStyle={[styles.headerTitleDate, stylesHook.titleDate, scaledStyles.headerTitleDate]}
-          />
-        ),
-        headerTitleAlign: 'left',
-        headerTitleContainerStyle: {
-          flex: 1,
-          maxWidth: Math.max(0, windowWidth - 96),
-        },
-      } as TransactionStatusHeaderOptions);
-    }
-    // stylesHook is derived from colors; omitting to avoid unnecessary effect runs
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tx, transactionDirection, transactionDate, setOptions, colors, windowWidth, scaledStyles]);
 
   if (showLoadingError) {
     return (
@@ -1438,10 +1418,7 @@ const TransactionStatus: React.FC = () => {
       <SettingsSection
         title={loc.transactions.details_advanced}
         containerStyle={styles.sectionMargins}
-        onHeaderPress={() => {
-          triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
-          setIsAdvancedExpanded(!isAdvancedExpanded);
-        }}
+        onHeaderPress={toggleAdvancedDetails}
         headerRight={
           <Icon
             name={isAdvancedExpanded ? 'chevron-up' : 'chevron-down'}
@@ -1501,6 +1478,7 @@ const TransactionStatus: React.FC = () => {
               <View style={styles.detailValueContainer}>
                 {txHex ? (
                   <CopyTextToClipboard
+                    ref={transactionHexCopyRef}
                     text={txHex}
                     displayText={loc.transactions.details_copy}
                     style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
@@ -1553,22 +1531,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     paddingTop: 42,
     paddingBottom: 42,
-  },
-  headerTitleContainer: {
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    flex: 1,
-    minWidth: 0,
-  },
-  headerTitleDirection: {
-    fontSize: 17,
-    fontWeight: '600',
-    marginBottom: 2,
-    letterSpacing: 0.15,
-  },
-  headerTitleDate: {
-    fontSize: 13,
-    lineHeight: 18,
   },
   valueCard: {
     marginTop: 0,

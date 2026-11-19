@@ -50,6 +50,13 @@ RCT_EXPORT_MODULE(MenuActionsEmitter)
   });
 }
 
+- (void)presentShare:(NSString *)url message:(NSString *)message title:(NSString *)title
+{
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [MenuActionsController.shared presentShareWithUrlString:url message:message title:title];
+  });
+}
+
 - (void)menuAction:(NSNotification *)notification
 {
   [self emitOnMenuAction:notification.userInfo[@"action"]];
