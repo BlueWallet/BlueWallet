@@ -33,17 +33,16 @@ type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 type NavigationProps = NativeStackNavigationProp<RootParamList, 'ScanLNDInvoice'>;
 
 const ScanLNDInvoice = () => {
-  const { wallets, fetchAndSaveWalletTransactions } = useStorage();
+  const { wallets, fetchAndSaveWalletTransactions, addWallet, saveToDisk, setSharedCosigner } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { colors } = useTheme();
   const { direction } = useLocale();
   const route = useRoute<RouteProps>();
   const { walletID, uri, openScanner } = route.params || {};
   const [wallet, setWallet] = useState<LightningCustodianWallet | undefined>(
-    (wallets.find(item => item.getID() === walletID) as LightningCustodianWallet) ||
-      (wallets.find(item => item.chain === Chain.OFFCHAIN) as LightningCustodianWallet),
+    wallets.find(item => item.getID() === walletID) as LightningCustodianWallet,
   );
-  const { navigate, setParams, pop } = useNavigation<NavigationProps>();
+  const { navigate, setParams, pop, goBack } = useNavigation<NavigationProps>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState<boolean>(false);
   const [destination, setDestination] = useState<string>('');
@@ -81,6 +80,8 @@ const ScanLNDInvoice = () => {
       const newWallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet;
       if (newWallet) {
         setWallet(newWallet);
+      } else {
+        goBack();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -194,7 +195,7 @@ const ScanLNDInvoice = () => {
   const processLnurlPay = (data: string): void => {
     navigate('LnurlPay', {
       lnurl: data,
-      walletID: walletID || wallet?.getID() || '',
+      walletID,
     });
   };
 
@@ -346,12 +347,16 @@ const ScanLNDInvoice = () => {
   const onBarScanned = useCallback(
     (value: string): void => {
       if (!value) return;
-      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        navigate(...completionValue);
-      });
+      DeeplinkSchemaMatch.navigationRouteFor(
+        { url: value },
+        completionValue => {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          navigate(...completionValue);
+        },
+        { wallets, addWallet, saveToDisk, setSharedCosigner, preferredWalletID: wallet?.getID() },
+      );
     },
-    [navigate],
+    [navigate, wallets, addWallet, saveToDisk, setSharedCosigner, wallet],
   );
 
   useEffect(() => {

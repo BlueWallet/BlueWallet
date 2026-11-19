@@ -120,7 +120,7 @@ const WalletsList: React.FC = () => {
   const walletsCarousel = useRef<CarouselListRefType>(null);
   const connectionPoll = useContext(ConnectionPollContext);
   const currentWalletIndex = useRef<number>(0);
-  const { wallets, getTransactions, refreshAllWalletTransactions } = useStorage();
+  const { wallets, getTransactions, refreshAllWalletTransactions, addWallet, saveToDisk, setSharedCosigner } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { height, width, fontScale } = useWindowDimensions();
   const isWideLayout = shouldUseWideLayout(width, height);
@@ -227,15 +227,19 @@ const WalletsList: React.FC = () => {
     (value: string | undefined) => {
       if (!value) return;
       try {
-        DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
-          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          navigation.navigate(...completionValue);
-        });
+        DeeplinkSchemaMatch.navigationRouteFor(
+          { url: value },
+          completionValue => {
+            triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+            navigation.navigate(...completionValue);
+          },
+          { wallets, addWallet, saveToDisk, setSharedCosigner },
+        );
       } catch (e) {
         Alert.alert(loc.send.details_scan_error, errorMessage(e));
       }
     },
-    [navigation],
+    [navigation, wallets, addWallet, saveToDisk, setSharedCosigner],
   );
 
   const handleClick = useCallback(

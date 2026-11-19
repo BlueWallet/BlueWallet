@@ -2,11 +2,15 @@ import bip21, { TOptions } from 'bip21';
 import * as bitcoin from 'bitcoinjs-lib';
 import URL from 'url';
 import { readFileOutsideSandbox } from '../blue_modules/fs';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { Chain } from '../models/bitcoinUnits';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import Azteco from './azteco';
 import { ContactList } from './contact-list';
 import Lnurl from './lnurl';
+import presentAlert from '../components/Alert';
+import loc from '../loc';
+import { getCompatibleShortcutWallets } from '../navigation/linking';
 import type { TWallet } from './wallets/types';
 import type { RootParamList } from '../navigation/RootParamList';
 import type { TNavigationWrapper } from '../navigation/SendDetailsStackParamList';
@@ -17,6 +21,7 @@ type TContext = {
   saveToDisk: () => void;
   addWallet: (wallet: TWallet) => void;
   setSharedCosigner: (cosigner: string) => void;
+  preferredWalletID?: string;
 };
 
 type TBothBitcoinAndLightning = { bitcoin: string; lndInvoice: string } | undefined;
@@ -42,11 +47,7 @@ class DeeplinkSchemaMatch {
    * @param event {{url: string}} URL deeplink as passed to app, e.g. `bitcoin:bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`
    * @param completionHandler {function} Callback that returns [string, params: object]
    */
-  static navigationRouteFor(
-    event: { url: string },
-    completionHandler: (args: TCompletionHandlerParams) => void,
-    context: TContext = { wallets: [], saveToDisk: () => {}, addWallet: () => {}, setSharedCosigner: () => {} },
-  ) {
+  static navigationRouteFor(event: { url: string }, completionHandler: (args: TCompletionHandlerParams) => void, context: TContext) {
     if (event.url === null) {
       return;
     }
@@ -61,15 +62,18 @@ class DeeplinkSchemaMatch {
     }
 
     if (DeeplinkSchemaMatch.isWidgetAction(event.url)) {
-      if (context.wallets.length >= 0) {
-        const wallet = context.wallets[0];
-        const action = event.url.split('widget?action=')[1];
+      const action = event.url.split('widget?action=')[1];
+      const capable = getCompatibleShortcutWallets(action === 'openReceive' ? 'receive' : 'scan', context.wallets);
+      const wallet = capable.find(w => w.getID() === context.preferredWalletID) ?? capable[0];
+      if (wallet) {
         if (wallet.chain === Chain.ONCHAIN) {
           if (action === 'openSend') {
             completionHandler([
               'SendDetailsRoot',
               {
                 screen: 'SendDetails',
+                merge: true,
+                pop: true,
                 params: {
                   walletID: wallet.getID(),
                 },
@@ -77,11 +81,14 @@ class DeeplinkSchemaMatch {
             ]);
           } else if (action === 'openReceive') {
             completionHandler([
-              'DetailViewStackScreensStack',
+              'DrawerRoot',
               {
-                screen: 'ReceiveDetails',
+                screen: 'DetailViewStackScreensStack',
                 params: {
-                  walletID: wallet.getID(),
+                  screen: 'ReceiveDetails',
+                  params: {
+                    walletID: wallet.getID(),
+                  },
                 },
               },
             ]);
@@ -101,6 +108,12 @@ class DeeplinkSchemaMatch {
             completionHandler(['LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID: wallet.getID() } }]);
           }
         }
+      } else {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({
+          title: loc.errors.error,
+          message: action === 'openReceive' ? loc.wallets.select_no_bitcoin : loc.send.details_wallet_before_tx,
+        });
       }
     } else if (DeeplinkSchemaMatch.isPossiblyPSBTFile(event.url)) {
       readFileOutsideSandbox(decodeURI(event.url))
@@ -148,36 +161,51 @@ class DeeplinkSchemaMatch {
         },
       ]);
     } else if (DeeplinkSchemaMatch.isBitcoinAddress(event.url)) {
+      const walletID = DeeplinkSchemaMatch.pickWalletID(context, Chain.ONCHAIN);
+      if (!walletID) return;
       completionHandler([
         'SendDetailsRoot',
         {
           screen: 'SendDetails',
+          merge: true,
+          pop: true,
           params: {
             uri: event.url.replace('://', ':'),
+            walletID,
           },
         },
       ]);
     } else if (new ContactList().isPaymentCodeValid(event.url)) {
+      const walletID = DeeplinkSchemaMatch.pickWalletID(context, Chain.ONCHAIN);
+      if (!walletID) return;
       completionHandler([
         'SendDetailsRoot',
         {
           screen: 'SendDetails',
+          merge: true,
+          pop: true,
           params: {
             uri: event.url,
+            walletID,
           },
         },
       ]);
     } else if (DeeplinkSchemaMatch.isLightningInvoice(event.url)) {
+      const walletID = DeeplinkSchemaMatch.pickWalletID(context, Chain.OFFCHAIN);
+      if (!walletID) return;
       completionHandler([
         'ScanLNDInvoiceRoot',
         {
           screen: 'ScanLNDInvoice',
           params: {
             uri: event.url.replace('://', ':'),
+            walletID,
           },
         },
       ]);
     } else if (DeeplinkSchemaMatch.isLnUrl(event.url)) {
+      const walletID = DeeplinkSchemaMatch.pickWalletID(context, Chain.OFFCHAIN);
+      if (!walletID) return;
       // at this point we can not tell if it is lnurl-pay or lnurl-withdraw since it needs additional async call
       // to the server, which is undesirable here, so LNDCreateInvoice screen will handle it for us and will
       // redirect user to LnurlPay screen if necessary
@@ -187,18 +215,22 @@ class DeeplinkSchemaMatch {
           screen: 'LNDCreateInvoice',
           params: {
             uri: event.url.replace('lightning:', '').replace('LIGHTNING:', ''),
+            walletID,
           },
         },
       ]);
     } else if (Lnurl.isLightningAddress(event.url)) {
       // this might be not just an email but a lightning address
       // @see https://lightningaddress.com
+      const walletID = DeeplinkSchemaMatch.pickWalletID(context, Chain.OFFCHAIN);
+      if (!walletID) return;
       completionHandler([
         'ScanLNDInvoiceRoot',
         {
           screen: 'ScanLNDInvoice',
           params: {
             uri: event.url,
+            walletID,
           },
         },
       ]);
@@ -249,6 +281,26 @@ class DeeplinkSchemaMatch {
   }
 
   /**
+   * ID of the wallet a payment on `chain` goes from: the preferred one if it can send, else the first that can.
+   * Alerts and returns undefined when there is none.
+   */
+  static pickWalletID(context: TContext, chain: Chain): string | undefined {
+    const suitable =
+      chain === Chain.ONCHAIN
+        ? getCompatibleShortcutWallets('send', context.wallets)
+        : context.wallets.filter(w => w.chain === Chain.OFFCHAIN && w.allowSend());
+    const wallet = suitable.find(w => w.getID() === context.preferredWalletID) ?? suitable[0];
+    if (!wallet) {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({
+        title: loc.errors.error,
+        message: chain === Chain.ONCHAIN ? loc.send.details_wallet_before_tx : loc.wallets.no_ln_wallet_error,
+      });
+    }
+    return wallet?.getID();
+  }
+
+  /**
    * Extracts server from a deeplink like `bluewallet:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As`
    * returns FALSE if none found
    *
@@ -294,6 +346,8 @@ class DeeplinkSchemaMatch {
         'SendDetailsRoot',
         {
           screen: 'SendDetails',
+          merge: true,
+          pop: true,
           params: {
             uri: uri.bitcoin,
             walletID: wallet.getID(),
