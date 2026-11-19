@@ -469,6 +469,12 @@ private func bip329Date(from source: String) -> Date? {
     return formatter.date(from: source)
 }
 
+private func outpointReference(txid: [UInt8], vout: [UInt8]) -> String {
+    let hash = txid.reversed().map { String(format: "%02x", $0) }.joined()
+    let index = vout.enumerated().reduce(UInt32(0)) { $0 | UInt32($1.element) << (8 * $1.offset) }
+    return "\(hash):\(index)"
+}
+
 private enum TransactionPreview {
     private enum ParseError: Error { case invalid }
 
@@ -486,10 +492,8 @@ private enum TransactionPreview {
         let inputs = Int(try reader.compact())
         var inputRecords: [PreviewRow] = []
         for index in 0..<inputs {
-            let txid = try reader.read(32).reversed().map { String(format: "%02x", $0) }.joined()
-            let outputIndex = try reader.uint32()
+            let outpoint = try outpointReference(txid: reader.read(32), vout: reader.read(4))
             let scriptLength = Int(try reader.compact()); _ = try reader.read(scriptLength); _ = try reader.read(4)
-            let outpoint = "\(txid):\(outputIndex)"
             inputRecords.append(("Input \(index + 1)", outpoint, "arrow.down.circle.fill", outpoint))
         }
         let outputs = Int(try reader.compact()); var total: UInt64 = 0; var outputRecords: [PreviewRow] = []
@@ -523,7 +527,6 @@ private enum TransactionPreview {
         func peek(_ count: Int) -> [UInt8]? { offset + count <= bytes.count ? Array(bytes[offset..<(offset + count)]) : nil }
         mutating func read(_ count: Int) throws -> [UInt8] { guard count >= 0, offset + count <= bytes.count else { throw ParseError.invalid }; defer { offset += count }; return Array(bytes[offset..<(offset + count)]) }
         mutating func compact() throws -> UInt64 { let first = try read(1)[0]; let count: Int; switch first { case 0xfd: count = 2; case 0xfe: count = 4; case 0xff: count = 8; default: return UInt64(first) }; return try read(count).enumerated().reduce(0) { $0 | UInt64($1.element) << UInt64(8 * $1.offset) } }
-        mutating func uint32() throws -> UInt32 { try read(4).enumerated().reduce(0) { $0 | UInt32($1.element) << UInt32(8 * $1.offset) } }
         mutating func uint64() throws -> UInt64 { try read(8).enumerated().reduce(0) { $0 | UInt64($1.element) << UInt64(8 * $1.offset) } }
     }
 }
@@ -562,7 +565,7 @@ private enum PSBTPreview {
 
         let unsignedTransaction = global.first(where: { $0.key == [0x00] })?.value
         let transaction = unsignedTransaction.flatMap { try? TransactionSummary.parse($0) }
-        let inputCount = transaction?.inputCount ?? count(global, type: 0x04)
+        let inputCount = transaction?.inputOutpoints.count ?? count(global, type: 0x04)
         let outputCount = transaction?.outputCount ?? count(global, type: 0x05)
         guard let inputs = inputCount, let outputs = outputCount else { throw ParseError.missingCounts }
 
@@ -588,7 +591,10 @@ private enum PSBTPreview {
             let utxo = witnessUTXO(map)
             let scriptDescription = utxo.map { ScriptDescription.from(script: $0.script).detail } ?? "Input metadata unavailable"
             let amount = utxo.map { " · \(formatSats($0.value))" } ?? ""
-            return ("Input \(index + 1) (unverified)", "\(scriptDescription)\(amount)", "arrow.down.circle.fill", nil)
+            let reference = transaction?.inputOutpoints[index] ?? (version == 2 ? inputOutpoint(map) : nil)
+            let metadata = "\(scriptDescription)\(amount)"
+            let detail = reference.map { "\($0)\n\(metadata)" } ?? metadata
+            return ("Input \(index + 1) (unverified)", detail, "arrow.down.circle.fill", reference)
         }
         if let transaction {
             records += transaction.outputs.enumerated().map { index, output in
@@ -609,6 +615,13 @@ private enum PSBTPreview {
 
     private static func inputValue(_ map: [Entry]) -> UInt64? {
         witnessUTXO(map)?.value
+    }
+
+    private static func inputOutpoint(_ map: [Entry]) -> String? {
+        // PSBTv2 stores the previous transaction ID and output index in the input map (BIP-370).
+        guard let txid = map.first(where: { $0.key == [0x0e] })?.value, txid.count == 32,
+              let vout = map.first(where: { $0.key == [0x0f] })?.value, vout.count == 4 else { return nil }
+        return outpointReference(txid: txid, vout: vout)
     }
 
     private static func witnessUTXO(_ map: [Entry]) -> TransactionOutput? {
@@ -660,20 +673,27 @@ private enum PSBTPreview {
     private struct TransactionOutput { let value: UInt64; let script: [UInt8] }
 
     private struct TransactionSummary {
-        let inputCount: Int; let outputs: [TransactionOutput]
+        let inputOutpoints: [String]
+        let outputs: [TransactionOutput]
         var outputCount: Int { outputs.count }
         var outputValue: UInt64 { outputs.reduce(0) { $0 + $1.value } }
         static func parse(_ data: [UInt8]) throws -> TransactionSummary {
             var reader = Reader(data: Data(data)); _ = try reader.read(count: 4)
             let inputs = Int(try reader.readCompact())
-            for _ in 0..<inputs { _ = try reader.read(count: 36); _ = try reader.read(count: Int(try reader.readCompact())); _ = try reader.read(count: 4) }
+            var inputOutpoints: [String] = []
+            for _ in 0..<inputs {
+                inputOutpoints.append(try outpointReference(txid: reader.read(count: 32), vout: reader.read(count: 4)))
+                let scriptLength = Int(try reader.readCompact())
+                _ = try reader.read(count: scriptLength)
+                _ = try reader.read(count: 4)
+            }
             let outputCount = Int(try reader.readCompact()); var outputs: [TransactionOutput] = []
             for _ in 0..<outputCount {
                 let amount = try reader.read(count: 8).enumerated().reduce(0) { $0 | UInt64($1.element) << UInt64(8 * $1.offset) }
                 let script = try reader.read(count: Int(try reader.readCompact()))
                 outputs.append(TransactionOutput(value: amount, script: script))
             }
-            return TransactionSummary(inputCount: inputs, outputs: outputs)
+            return TransactionSummary(inputOutpoints: inputOutpoints, outputs: outputs)
         }
     }
 }
