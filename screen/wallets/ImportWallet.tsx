@@ -1,15 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Keyboard, Platform, StyleSheet, TextInput, TextInputSelectionChangeEvent, TouchableWithoutFeedback, View } from 'react-native';
-import AndroidKeyboardAccessoryDock from '../../components/AndroidKeyboardAccessoryDock';
+import { Keyboard, ScrollView, StyleSheet, TextInput, TextInputSelectionChangeEvent, TouchableWithoutFeedback, View } from 'react-native';
+import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
 import BlueFormLabel from '../../components/BlueFormLabel';
 import BlueFormMultiInput from '../../components/BlueFormMultiInput';
 import Button from '../../components/Button';
-import {
-  DoneAndDismissKeyboardInputAccessory,
-  DoneAndDismissKeyboardInputAccessoryViewID,
-} from '../../components/DoneAndDismissKeyboardInputAccessory';
+import KeyboardAccessorySuggestions from '../../components/KeyboardAccessorySuggestions';
 import InputClearPasteOverlay from '../../components/InputClearPasteOverlay';
 import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -18,6 +15,7 @@ import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { useScrollAboveKeyboardDock } from '../../hooks/useScrollAboveKeyboardDock';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { getImportWalletSuggestions, getWordFragmentAtCursor, replaceWordFragment } from '../../blue_modules/bip39WordSuggestions';
 
@@ -42,6 +40,9 @@ const ImportWallet = () => {
   const selectionRef = useRef({ start: label.length, end: label.length });
   const speedBackdoorTapCountRef = useRef(0);
   const inputRef = useRef<TextInput>(null);
+  const importScrollRef = useRef<ScrollView>(null);
+  const [isInputFocused, setIsInputFocused] = useState(false);
+  const { onScroll, scrollEventThrottle } = useScrollAboveKeyboardDock(importScrollRef, isInputFocused);
   const askPassphraseMenuState = route.params?.askPassphraseMenuState ?? false;
   const searchAccountsMenuState = route.params?.searchAccountsMenuState ?? false;
   const clearClipboardMenuState = route.params?.clearClipboardMenuState ?? true;
@@ -56,7 +57,7 @@ const ImportWallet = () => {
       paddingTop: 10,
       backgroundColor: colors.elevated,
     },
-    androidScrollContent: {
+    scrollContent: {
       flexGrow: 1,
     },
     center: {
@@ -82,10 +83,15 @@ const ImportWallet = () => {
   }, []);
 
   const onBlur = useCallback(() => {
+    setIsInputFocused(false);
     const valueWithSingleWhitespace = importTextRef.current.replace(/^\s+|\s+$|\s+(?=\s)/g, '');
     commitImportText(valueWithSingleWhitespace);
     return valueWithSingleWhitespace;
   }, [commitImportText]);
+
+  const onFocus = useCallback(() => {
+    setIsInputFocused(true);
+  }, []);
 
   const suggestions = useMemo(() => getImportWalletSuggestions(importText, selection.start), [importText, selection.start]);
 
@@ -212,21 +218,18 @@ const ImportWallet = () => {
     if (triggerImport) handleImport();
   }, [triggerImport, handleImport]);
 
-  const keyboardAccessory = (
-    <DoneAndDismissKeyboardInputAccessory
-      onClearTapped={handleClearTapped}
-      onPasteTapped={handlePasteTapped}
-      suggestions={suggestions}
-      onSuggestionTapped={handleSuggestionTapped}
-    />
-  );
+  const keyboardAccessory = <KeyboardAccessorySuggestions suggestions={suggestions} onSuggestionTapped={handleSuggestionTapped} />;
 
   const scrollView = (
     <SafeAreaScrollView
-      contentContainerStyle={[styles.root, Platform.OS === 'android' && styles.androidScrollContent]}
+      ref={importScrollRef}
+      style={styles.screen}
+      contentContainerStyle={[styles.root, styles.scrollContent]}
       keyboardShouldPersistTaps="always"
-      // Android IME lift comes from AndroidKeyboardAccessoryDock (same height as the bar).
-      automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+      // IME lift comes from KeyboardAccessoryDock on both platforms.
+      automaticallyAdjustKeyboardInsets={false}
+      onScroll={onScroll}
+      scrollEventThrottle={scrollEventThrottle}
       scrollToOverflowEnabled={false}
     >
       <BlueSpacing20 />
@@ -238,30 +241,27 @@ const ImportWallet = () => {
         <BlueFormMultiInput
           ref={inputRef}
           value={importText}
+          onFocus={onFocus}
           onBlur={onBlur}
           onChangeText={handleChangeText}
           onSelectionChange={handleSelectionChange}
           testID="MnemonicInput"
           numberOfLines={12}
           style={styles.importInput}
-          inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
         />
       </InputClearPasteOverlay>
       <BlueSpacing20 />
       <View style={styles.center}>
         <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} testID="DoImport" onPress={handleImport} />
       </View>
-      {Platform.OS === 'ios' && keyboardAccessory}
     </SafeAreaScrollView>
   );
 
   return (
     <View style={styles.screen}>
-      {Platform.OS === 'android' ? (
-        <AndroidKeyboardAccessoryDock accessory={keyboardAccessory}>{scrollView}</AndroidKeyboardAccessoryDock>
-      ) : (
-        scrollView
-      )}
+      <KeyboardAccessoryDock active={isInputFocused} accessory={keyboardAccessory}>
+        {scrollView}
+      </KeyboardAccessoryDock>
     </View>
   );
 };

@@ -1,6 +1,6 @@
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Dimensions, Keyboard, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Keyboard, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -11,11 +11,9 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
-import {
-  DoneAndDismissKeyboardInputAccessory,
-  DoneAndDismissKeyboardInputAccessoryViewID,
-} from '../../components/DoneAndDismissKeyboardInputAccessory';
+import KeyboardAccessoryClearPasteDone from '../../components/KeyboardAccessoryClearPasteDone';
+import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
+import KeyboardAccessoryDone from '../../components/KeyboardAccessoryDone';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import {
   SettingsSection,
@@ -27,7 +25,7 @@ import {
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useKeyboard } from '../../hooks/useKeyboard';
+import { useScrollAboveKeyboardDock } from '../../hooks/useScrollAboveKeyboardDock';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
@@ -54,62 +52,10 @@ const ElectrumSettings: React.FC = () => {
   const [port, setPort] = useState<number | undefined>();
   const [sslPort, setSslPort] = useState<number | undefined>(undefined);
   const [serverBanner, setServerBanner] = useState<string>('');
-  const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
-  const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
+  const [focusedAccessory, setFocusedAccessory] = useState<'host' | 'port' | null>(null);
   const { setIsElectrumDisabled, isElectrumDisabled } = useSettings();
   const scrollViewRef = useRef<ScrollView>(null);
-  const hostInputRef = useRef<View>(null);
-  const portInputRef = useRef<View>(null);
-  const focusedFieldRef = useRef<'host' | 'port' | null>(null);
-  const scrollYRef = useRef<number>(0);
-
-  const { height: keyboardHeight, isVisible: isKeyboardVisible } = useKeyboard();
-  const androidKeyboardInset = Platform.OS === 'android' && isKeyboardVisible ? keyboardHeight + 24 : 0;
-
-  const scrollFocusedFieldIntoView = useCallback(
-    (field?: 'host' | 'port') => {
-      if (Platform.OS !== 'android') return;
-      if (field) {
-        focusedFieldRef.current = field;
-      }
-      const targetField = focusedFieldRef.current;
-      if (!targetField || keyboardHeight <= 0) return;
-
-      const targetRef = targetField === 'host' ? hostInputRef : portInputRef;
-      if (!targetRef.current) return;
-
-      const onMeasure = (pageY: number, height: number) => {
-        const windowHeight = Dimensions.get('window').height;
-        const keyboardTop = windowHeight - keyboardHeight;
-        const inputBottom = pageY + height;
-        if (inputBottom > keyboardTop) {
-          const overlap = inputBottom - keyboardTop;
-          const targetScrollY = scrollYRef.current + overlap;
-          scrollViewRef.current?.scrollTo({ y: targetScrollY, animated: true });
-        } else if (pageY < 0) {
-          const targetScrollY = Math.max(0, scrollYRef.current + pageY);
-          scrollViewRef.current?.scrollTo({ y: targetScrollY, animated: true });
-        }
-      };
-
-      if (targetRef.current.measureInWindow) {
-        targetRef.current.measureInWindow((_x, y, _width, height) => {
-          onMeasure(y, height);
-        });
-      } else if (targetRef.current.measure) {
-        targetRef.current.measure((_x, _y, _width, height, _pageX, pageY) => {
-          onMeasure(pageY, height);
-        });
-      }
-    },
-    [keyboardHeight],
-  );
-
-  useEffect(() => {
-    if (Platform.OS === 'android' && isKeyboardVisible && keyboardHeight > 0) {
-      scrollFocusedFieldIntoView();
-    }
-  }, [isKeyboardVisible, keyboardHeight, scrollFocusedFieldIntoView]);
+  const { onScroll, scrollEventThrottle } = useScrollAboveKeyboardDock(scrollViewRef, focusedAccessory);
   const [savedServer, setSavedServer] = useState<{ host: string; tcp: string; ssl: string }>({
     host: '',
     tcp: '',
@@ -560,7 +506,7 @@ const ElectrumSettings: React.FC = () => {
           <View style={settingsCardContent}>
             <SettingsFootnote>{loc.settings.electrum_preferred_server_description}</SettingsFootnote>
 
-            <View ref={hostInputRef} style={styles.inputGroupSpacing}>
+            <View style={styles.inputGroupSpacing}>
               <AddressInput
                 testID="HostInput"
                 placeholder={loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' })}
@@ -568,26 +514,14 @@ const ElectrumSettings: React.FC = () => {
                 onChangeText={text => setHost(text.trim())}
                 editable={!isLoading}
                 keyboardType="default"
-                onBlur={() => {
-                  if (focusedFieldRef.current === 'host') {
-                    focusedFieldRef.current = null;
-                  }
-                  setIsAndroidAddressKeyboardVisible(false);
-                }}
-                onFocus={() => {
-                  focusedFieldRef.current = 'host';
-                  setIsAndroidAddressKeyboardVisible(true);
-                  if (Platform.OS === 'android' && isKeyboardVisible && keyboardHeight > 0) {
-                    scrollFocusedFieldIntoView('host');
-                  }
-                }}
-                inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
+                onBlur={() => setFocusedAccessory(null)}
+                onFocus={() => setFocusedAccessory('host')}
                 isLoading={isLoading}
               />
             </View>
 
             <View style={styles.portWrap}>
-              <View ref={portInputRef} style={[styles.inputWrap, stylesHook.inputWrap]}>
+              <View style={[styles.inputWrap, stylesHook.inputWrap]}>
                 <TextInput
                   placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
                   value={sslPort?.toString() === '' || sslPort === undefined ? port?.toString() || '' : sslPort?.toString() || ''}
@@ -607,21 +541,9 @@ const ElectrumSettings: React.FC = () => {
                   autoCorrect={false}
                   autoCapitalize="none"
                   keyboardType="number-pad"
-                  inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
                   testID="PortInput"
-                  onFocus={() => {
-                    focusedFieldRef.current = 'port';
-                    setIsAndroidNumericKeyboardFocused(true);
-                    if (Platform.OS === 'android' && isKeyboardVisible && keyboardHeight > 0) {
-                      scrollFocusedFieldIntoView('port');
-                    }
-                  }}
-                  onBlur={() => {
-                    if (focusedFieldRef.current === 'port') {
-                      focusedFieldRef.current = null;
-                    }
-                    setIsAndroidNumericKeyboardFocused(false);
-                  }}
+                  onFocus={() => setFocusedAccessory('port')}
+                  onBlur={() => setFocusedAccessory(null)}
                 />
               </View>
               <Text style={[styles.usePort, stylesHook.usePort]}>{loc.settings.use_ssl}</Text>
@@ -638,67 +560,50 @@ const ElectrumSettings: React.FC = () => {
             </View>
           </View>
         </SettingsSection>
-
-        {Platform.select({
-          ios: <DismissKeyboardInputAccessory />,
-          android: isAndroidNumericKeyboardFocused && <DismissKeyboardInputAccessory />,
-        })}
-
-        {Platform.select({
-          ios: (
-            <DoneAndDismissKeyboardInputAccessory
-              onClearTapped={() => setHost('')}
-              onPasteTapped={text => {
-                setHost(text);
-                Keyboard.dismiss();
-              }}
-            />
-          ),
-          android: isAndroidAddressKeyboardVisible && (
-            <DoneAndDismissKeyboardInputAccessory
-              onClearTapped={() => {
-                setHost('');
-                Keyboard.dismiss();
-              }}
-              onPasteTapped={text => {
-                setHost(text);
-                Keyboard.dismiss();
-              }}
-            />
-          ),
-        })}
       </>
     );
   };
 
+  const keyboardAccessory =
+    focusedAccessory === 'host' ? (
+      <KeyboardAccessoryClearPasteDone
+        onClearTapped={() => setHost('')}
+        onPasteTapped={text => {
+          setHost(text);
+          Keyboard.dismiss();
+        }}
+      />
+    ) : focusedAccessory === 'port' ? (
+      <KeyboardAccessoryDone />
+    ) : null;
+
   return (
-    <SettingsScrollView
-      ref={scrollViewRef}
-      keyboardShouldPersistTaps="always"
-      automaticallyAdjustContentInsets
-      contentInsetAdjustmentBehavior="automatic"
-      automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
-      floatingButtonHeight={androidKeyboardInset}
-      onScroll={event => {
-        scrollYRef.current = event.nativeEvent.contentOffset.y;
-      }}
-      scrollEventThrottle={16}
-      testID="ElectrumSettingsScrollView"
-    >
-      <SettingsSection>
-        <SettingsListItem
-          title={loc.settings.electrum_offline_mode}
-          subtitle={loc.settings.electrum_offline_description}
-          switch={{
-            onValueChange: onElectrumConnectionEnabledSwitchChange,
-            value: isElectrumDisabled,
-            testID: 'ElectrumConnectionEnabledSwitch',
-          }}
-          bottomDivider={false}
-        />
-      </SettingsSection>
-      {!isElectrumDisabled && renderElectrumSettings()}
-    </SettingsScrollView>
+    <KeyboardAccessoryDock active={focusedAccessory != null} accessory={keyboardAccessory}>
+      <SettingsScrollView
+        ref={scrollViewRef}
+        keyboardShouldPersistTaps="always"
+        automaticallyAdjustContentInsets
+        contentInsetAdjustmentBehavior="automatic"
+        automaticallyAdjustKeyboardInsets={false}
+        onScroll={onScroll}
+        scrollEventThrottle={scrollEventThrottle}
+        testID="ElectrumSettingsScrollView"
+      >
+        <SettingsSection>
+          <SettingsListItem
+            title={loc.settings.electrum_offline_mode}
+            subtitle={loc.settings.electrum_offline_description}
+            switch={{
+              onValueChange: onElectrumConnectionEnabledSwitchChange,
+              value: isElectrumDisabled,
+              testID: 'ElectrumConnectionEnabledSwitch',
+            }}
+            bottomDivider={false}
+          />
+        </SettingsSection>
+        {!isElectrumDisabled && renderElectrumSettings()}
+      </SettingsScrollView>
+    </KeyboardAccessoryDock>
   );
 };
 

@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Keyboard, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BlueText from './BlueText';
 import loc, { formatStringAddTwoWhiteSpaces } from '../loc';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from '../models/networkTransactionFees';
 import { useTheme } from './themes';
-import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from './DismissKeyboardInputAccessory';
+import { SetKeyboardAccessoryActiveContext } from './keyboardAccessory';
 
 interface ReplaceFeeSuggestionsProps {
   onFeeSelected: (fee: number) => void;
@@ -16,6 +16,7 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
   const [networkFees, setNetworkFees] = useState<NetworkTransactionFee | null>(null);
   const [selectedFeeType, setSelectedFeeType] = useState<NetworkTransactionFeeType>(NetworkTransactionFeeType.FAST);
   const [customFeeValue, setCustomFeeValue] = useState<string>('1');
+  const setKeyboardAccessoryActive = useContext(SetKeyboardAccessoryActiveContext);
   const customTextInput = useRef<TextInput>(null);
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
@@ -163,14 +164,14 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
             maxLength={9}
             style={[styles.customFeeInput, stylesHook.customFeeInput]}
             onFocus={() => {
+              setKeyboardAccessoryActive(true);
               setSelectedFeeType(NetworkTransactionFeeType.CUSTOM);
               onFeeSelected(Number(customFeeValue));
             }}
+            onBlur={() => setKeyboardAccessoryActive(false)}
             placeholder={loc.send.fee_satvbyte}
             placeholderTextColor="#81868e"
-            inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
           />
-          <DismissKeyboardInputAccessory />
           <Text style={stylesHook.rateText}>sat/byte</Text>
         </View>
       </TouchableOpacity>

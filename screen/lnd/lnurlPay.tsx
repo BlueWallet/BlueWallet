@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, RouteProp, useLocale, useRoute } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../components/Icon';
 import { btcToSatoshi, fiatToBTC, satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
@@ -19,7 +19,9 @@ import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
+import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
+import KeyboardAccessoryDone from '../../components/KeyboardAccessoryDone';
+import { useScrollAboveKeyboardDock } from '../../hooks/useScrollAboveKeyboardDock';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { TWallet } from '../../class/wallets/types';
 import { pop } from '../../NavigationService';
@@ -42,6 +44,9 @@ const LnurlPay: React.FC = () => {
   const [payload, setPayload] = useState<LnurlPayServicePayload | undefined>();
   const { setParams, navigate } = useNavigation();
   const [amount, setAmount] = useState<string | undefined>();
+  const [keyboardAccessoryActive, setKeyboardAccessoryActive] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+  const { onScroll, scrollEventThrottle } = useScrollAboveKeyboardDock(scrollRef, keyboardAccessoryActive);
   const { colors } = useTheme();
   const { direction } = useLocale();
   const stylesHook = StyleSheet.create({
@@ -136,7 +141,10 @@ const LnurlPay: React.FC = () => {
     try {
       let comment: string | undefined;
       if (_LN.getCommentAllowed()) {
-        comment = await prompt('Comment', '', { cancelable: false, type: 'plain-text' });
+        comment = await prompt('Comment', '', {
+          cancelable: false,
+          type: 'plain-text',
+        });
       }
 
       const bolt11payload = await _LN.requestBolt11FromLnurlPayService(amountSats, comment);
@@ -173,7 +181,12 @@ const LnurlPay: React.FC = () => {
         <TouchableOpacity
           accessibilityRole="button"
           style={styles.walletSelectTouch}
-          onPress={() => navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN })}
+          onPress={() =>
+            navigate('SelectWallet', {
+              onWalletSelect,
+              chainType: Chain.OFFCHAIN,
+            })
+          }
         >
           <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
           <Icon name={direction === 'rtl' ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
@@ -183,7 +196,12 @@ const LnurlPay: React.FC = () => {
         <TouchableOpacity
           accessibilityRole="button"
           style={styles.walletWrapTouch}
-          onPress={() => navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN })}
+          onPress={() =>
+            navigate('SelectWallet', {
+              onWalletSelect,
+              chainType: Chain.OFFCHAIN,
+            })
+          }
         >
           <Text style={[styles.walletWrapLabel, stylesHook.walletWrapLabel]}>{wallet.getLabel()}</Text>
           <Text style={[styles.walletWrapBalance, stylesHook.walletWrapBalance]}>
@@ -197,41 +215,49 @@ const LnurlPay: React.FC = () => {
 
   const renderGotPayload = () => {
     return (
-      <SafeArea>
-        <ScrollView contentContainerStyle={styles.scrollviewContainer}>
-          <BlueCard>
-            <AmountInput.AmountInput
-              isLoading={isLoading}
-              amount={amount}
-              onAmountUnitChange={setUnit}
-              onChangeText={setAmount}
-              disabled={payload?.fixed}
-              unit={unit}
-              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
-            />
-            <DismissKeyboardInputAccessory />
-            <BlueText style={styles.alignSelfCenter}>
-              {loc.formatString(loc.lndViewInvoice.please_pay_between_and, {
-                min: formatBalance(payload?.min ?? 0, unit),
-                max: formatBalance(payload?.max ?? 0, unit),
-              })}
-            </BlueText>
-            <BlueSpacing20 />
-            {payload?.image && (
-              <>
-                <Image style={styles.img} source={{ uri: payload?.image }} />
-                <BlueSpacing20 />
-              </>
-            )}
-            <BlueText style={styles.alignSelfCenter}>{payload?.description}</BlueText>
-            <BlueText style={styles.alignSelfCenter}>{payload?.domain}</BlueText>
-            <BlueSpacing20 />
-            {payButtonDisabled ? <BlueLoading /> : <Button title={loc.lnd.payButton} onPress={pay} />}
-            <BlueSpacing20 />
-          </BlueCard>
-        </ScrollView>
-        {renderWalletSelectionButton}
-      </SafeArea>
+      <KeyboardAccessoryDock active={keyboardAccessoryActive} accessory={<KeyboardAccessoryDone />}>
+        <SafeArea>
+          <ScrollView
+            ref={scrollRef}
+            contentContainerStyle={styles.scrollviewContainer}
+            automaticallyAdjustKeyboardInsets={false}
+            onScroll={onScroll}
+            scrollEventThrottle={scrollEventThrottle}
+          >
+            <BlueCard>
+              <AmountInput.AmountInput
+                isLoading={isLoading}
+                amount={amount}
+                onAmountUnitChange={setUnit}
+                onChangeText={setAmount}
+                disabled={payload?.fixed}
+                unit={unit}
+                onFocus={() => setKeyboardAccessoryActive(true)}
+                onBlur={() => setKeyboardAccessoryActive(false)}
+              />
+              <BlueText style={styles.alignSelfCenter}>
+                {loc.formatString(loc.lndViewInvoice.please_pay_between_and, {
+                  min: formatBalance(payload?.min ?? 0, unit),
+                  max: formatBalance(payload?.max ?? 0, unit),
+                })}
+              </BlueText>
+              <BlueSpacing20 />
+              {payload?.image && (
+                <>
+                  <Image style={styles.img} source={{ uri: payload?.image }} />
+                  <BlueSpacing20 />
+                </>
+              )}
+              <BlueText style={styles.alignSelfCenter}>{payload?.description}</BlueText>
+              <BlueText style={styles.alignSelfCenter}>{payload?.domain}</BlueText>
+              <BlueSpacing20 />
+              {payButtonDisabled ? <BlueLoading /> : <Button title={loc.lnd.payButton} onPress={pay} />}
+              <BlueSpacing20 />
+            </BlueCard>
+          </ScrollView>
+          {renderWalletSelectionButton}
+        </SafeArea>
+      </KeyboardAccessoryDock>
     );
   };
 

@@ -1,5 +1,5 @@
-import React, { Component, useRef } from 'react';
-import { ActivityIndicator, Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { Component, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Linking, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import PropTypes from 'prop-types';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -16,6 +16,9 @@ import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
 import { StorageContext } from '../../components/Context/StorageProvider';
 import ReplaceFeeSuggestions from '../../components/ReplaceFeeSuggestions';
+import KeyboardAccessoryDock from '../../components/KeyboardAccessoryDock';
+import KeyboardAccessoryDone from '../../components/KeyboardAccessoryDone';
+import { SetKeyboardAccessoryActiveContext } from '../../components/keyboardAccessory';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { BlueSpacing, BlueSpacing20 } from '../../components/BlueSpacing';
 import { useKeyboard } from '../../hooks/useKeyboard';
@@ -64,27 +67,29 @@ const styles = StyleSheet.create({
 
 const FeeSelectionLayout = ({ children }) => {
   const scrollRef = useRef(null);
-  const { height: keyboardHeight, isVisible } = useKeyboard();
-  const androidKeyboardInset = Platform.OS === 'android' && isVisible ? keyboardHeight + 24 : 0;
+  const [accessoryActive, setAccessoryActive] = useState(false);
+  const { isVisible } = useKeyboard();
 
-  const scrollFocusedFieldIntoView = () => {
-    if (androidKeyboardInset > 0) {
-      scrollRef.current?.scrollToEnd({ animated: true });
-    }
-  };
+  useEffect(() => {
+    if (!isVisible || !accessoryActive) return undefined;
+    const id = setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
+    return () => clearTimeout(id);
+  }, [accessoryActive, isVisible]);
 
   return (
-    <SafeAreaScrollView
-      ref={scrollRef}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
-      automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
-      floatingButtonHeight={androidKeyboardInset}
-      contentContainerStyle={styles.scrollContent}
-      onContentSizeChange={scrollFocusedFieldIntoView}
-    >
-      {children}
-    </SafeAreaScrollView>
+    <SetKeyboardAccessoryActiveContext.Provider value={setAccessoryActive}>
+      <KeyboardAccessoryDock active={accessoryActive} accessory={<KeyboardAccessoryDone />}>
+        <SafeAreaScrollView
+          ref={scrollRef}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          automaticallyAdjustKeyboardInsets={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {children}
+        </SafeAreaScrollView>
+      </KeyboardAccessoryDock>
+    </SetKeyboardAccessoryActiveContext.Provider>
   );
 };
 

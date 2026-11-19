@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '../hooks/useKeyboard';
 
 /** Grabber, header, and bottom padding that sit outside this scroller. */
-const SHEET_CHROME = 140;
+export const SHEET_KEYBOARD_FORM_CHROME = 140;
 
 interface SheetKeyboardFormProps {
   style?: StyleProp<ViewStyle>;
@@ -22,7 +22,7 @@ interface SheetKeyboardFormProps {
  * the bottom. `flexGrow: 0` so Android `fitToContents` stays content-sized. The first child keeps this ScrollView out
  * of the chain react-native-screens switches to automatic content insets.
  */
-const SheetKeyboardForm: React.FC<SheetKeyboardFormProps> = ({ style, reservedHeight = SHEET_CHROME, children }) => {
+const SheetKeyboardForm: React.FC<SheetKeyboardFormProps> = ({ style, reservedHeight = SHEET_KEYBOARD_FORM_CHROME, children }) => {
   const { height: windowHeight } = useWindowDimensions();
   const { height: keyboardHeight, isVisible: isKeyboardVisible } = useKeyboard();
   const insets = useSafeAreaInsets();
