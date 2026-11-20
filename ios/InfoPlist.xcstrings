@@ -3,31 +3,196 @@
   "strings" : {
     "APP_SHORTCUT_MANAGE_WALLETS" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Manage Wallets" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Administrar carteras" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Gérer les portefeuilles" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage Wallets"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Administrar carteras"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gérer les portefeuilles"
+          }
+        }
       }
     },
     "APP_SHORTCUT_RECEIVE" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Receive" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Recibir" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Recevoir" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Receive"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recibir"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recevoir"
+          }
+        }
       }
     },
     "APP_SHORTCUT_SCAN" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Escanear" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Scanner" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanear"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scanner"
+          }
+        }
       }
     },
     "APP_SHORTCUT_SEND" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Send" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Enviar" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Envoyer" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoyer"
+          }
+        }
       }
+    },
+    "BIP-329 Wallet Labels" : {
+
+    },
+    "Bitcoin Transaction" : {
+
+    },
+    "BW COSIGNER" : {
+
+    },
+    "CFBundleDisplayName" : {
+      "comment" : "Bundle display name",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "BlueWallet"
+          }
+        }
+      }
+    },
+    "CFBundleName" : {
+      "comment" : "Bundle name",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "BlueWallet"
+          }
+        }
+      }
+    },
+    "Electrum Backup" : {
+
+    },
+    "Electrum Server History" : {
+
+    },
+    "JSON File" : {
+
+    },
+    "NSCameraUsageDescription" : {
+      "comment" : "Privacy - Camera Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "In order to quickly scan the recipient's address, we need your permission to use the camera to scan their QR Code."
+          }
+        }
+      }
+    },
+    "NSFaceIDUsageDescription" : {
+      "comment" : "Privacy - Face ID Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "In order to use FaceID for authentication when performing sensitive actions, we need your permission."
+          }
+        }
+      }
+    },
+    "NSLocalNetworkUsageDescription" : {
+      "comment" : "Privacy - Local Network Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "BlueWallet uses your local network when you connect to an Electrum server hosted on it."
+          }
+        }
+      }
+    },
+    "NSPhotoLibraryAddUsageDescription" : {
+      "comment" : "Privacy - Photo Library Additions Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your authorization is required to save this image."
+          }
+        }
+      }
+    },
+    "NSPhotoLibraryUsageDescription" : {
+      "comment" : "Privacy - Photo Library Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "In order to import an image for scanning, we need your permission to access your photo library."
+          }
+        }
+      }
+    },
+    "Partially Signed Bitcoin Transaction" : {
+
     }
   },
   "version" : "1.0"

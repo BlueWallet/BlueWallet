@@ -20,6 +20,9 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
     return (
       <Pressable
         testID="HeaderMenuButton"
+        accessibilityRole="button"
+        accessibilityLabel={title}
+        accessibilityState={{ disabled }}
         disabled={disabled}
         android_ripple={{ color: colors.lightButton }}
         hitSlop={8}
@@ -41,6 +44,9 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
       onPressMenuItem={onPressMenuItem}
       actions={menuActions}
       title={title}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityState={{ disabled }}
       buttonStyle={styles.buttonCenter}
     >
       <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} {...styleProps} />

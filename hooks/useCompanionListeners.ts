@@ -1,4 +1,4 @@
-import { useNavigation, CommonActions } from '@react-navigation/native';
+import { useNavigation, useLinkTo, CommonActions } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking } from 'react-native';
 import { reconcileArkBackgroundTaskResults } from '../blue_modules/arkade-background';
@@ -29,11 +29,13 @@ import useHandoffListener from './useHandoffListener';
 import useMenuActions, { setNativeMenuWalletsInitialized, setNativeOpenFileHandler } from './useMenuActions';
 import useClipboardDetection from './useClipboardDetection';
 import { errorMessage } from '../helpers/errorMessage';
+import { getElectrumSettingsLink } from '../navigation/linking';
 
 /**
  * Hook that initializes all companion listeners and functionality without rendering a component
  */
 const useCompanionListeners = (skipIfNotInitialized = true) => {
+  const linkTo = useLinkTo();
   const {
     wallets,
     addWallet,
@@ -275,6 +277,8 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
       try {
         if (!event.url) return;
+        // The NavigationContainer linking prop owns native Electrum URLs.
+        if (getElectrumSettingsLink(event.url)) return;
         let decodedUrl: string;
         try {
           decodedUrl = decodeURIComponent(event.url);
@@ -295,6 +299,11 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             throw new Error(loc.send.qr_error_no_qrcode);
           }
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          const electrumLink = getElectrumSettingsLink(qrValue);
+          if (electrumLink) {
+            linkTo(electrumLink);
+            return;
+          }
           DeeplinkSchemaMatch.navigationRouteFor({ url: qrValue }, value => navigationRef.navigate(...value), {
             wallets,
             addWallet,
@@ -315,7 +324,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         presentAlert({ message: errorMessage(err) || loc.send.qr_error_no_qrcode });
       }
     },
-    [wallets, addWallet, saveToDisk, setSharedCosigner, shouldActivateListeners],
+    [wallets, addWallet, saveToDisk, setSharedCosigner, shouldActivateListeners, linkTo],
   );
 
   useEffect(() => {

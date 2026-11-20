@@ -1,4 +1,4 @@
-import { buildMenu, lookupId, normalizeMenuState } from '../../components/TooltipMenu.helpers';
+import { buildMenu, lookupId, lookupUniqueIdByTitle, normalizeMenuState } from '../../components/TooltipMenu.helpers';
 import type { Action } from '../../components/types';
 
 describe('TooltipMenu.helpers', () => {
@@ -128,6 +128,26 @@ describe('TooltipMenu.helpers', () => {
       expect(lookupId(ids, [])).toBeUndefined();
       expect(lookupId(ids, [5])).toBeUndefined();
       expect(lookupId(ids, [-1])).toBeUndefined();
+    });
+  });
+
+  describe('lookupUniqueIdByTitle', () => {
+    it('resolves the Android title-only press fallback', () => {
+      const { items, ids } = buildMenu([[{ id: 'add', text: 'Add Server' }], [{ id: 'reset', text: 'Reset to default' }]], 'android');
+
+      expect(lookupUniqueIdByTitle(items, ids, 'Add Server')).toBe('add');
+    });
+
+    it('does not resolve an ambiguous localized title', () => {
+      const { items, ids } = buildMenu(
+        [
+          { id: 'copy-address', text: 'Copy' },
+          { id: 'copy-server', text: 'Copy' },
+        ],
+        'android',
+      );
+
+      expect(lookupUniqueIdByTitle(items, ids, 'Copy')).toBeUndefined();
     });
   });
 });

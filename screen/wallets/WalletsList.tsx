@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo } from 'react';
-import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { getElectrumSettingsLink } from '../../navigation/linking';
+import { useNavigation, useFocusEffect, useIsFocused, useLinkTo } from '@react-navigation/native';
 import {
   Alert,
   findNodeHandle,
@@ -115,6 +116,7 @@ function reducer(state: WalletListState, action: WalletListAction) {
 type NavigationProps = NativeStackNavigationProp<RootParamList, 'WalletsList'>;
 
 const WalletsList: React.FC = () => {
+  const linkTo = useLinkTo();
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isLoading } = state;
   const walletsCarousel = useRef<CarouselListRefType>(null);
@@ -227,6 +229,12 @@ const WalletsList: React.FC = () => {
     (value: string | undefined) => {
       if (!value) return;
       try {
+        const electrumLink = getElectrumSettingsLink(value);
+        if (electrumLink) {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          linkTo(electrumLink);
+          return;
+        }
         DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           navigation.navigate(...completionValue);
@@ -235,7 +243,7 @@ const WalletsList: React.FC = () => {
         Alert.alert(loc.send.details_scan_error, errorMessage(e));
       }
     },
-    [navigation],
+    [navigation, linkTo],
   );
 
   const handleClick = useCallback(

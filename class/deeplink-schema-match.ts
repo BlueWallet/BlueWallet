@@ -226,14 +226,6 @@ class DeeplinkSchemaMatch {
       (async () => {
         if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
           switch (urlObject.host) {
-            case 'setelectrumserver':
-              completionHandler([
-                'ElectrumSettings',
-                {
-                  server: DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(event.url) || undefined,
-                },
-              ]);
-              break;
             case 'setlndhuburl':
               completionHandler([
                 'LightningSettings',
@@ -246,20 +238,6 @@ class DeeplinkSchemaMatch {
         }
       })();
     }
-  }
-
-  /**
-   * Extracts server from a deeplink like `bluewallet:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As`
-   * returns FALSE if none found
-   *
-   * @param url {string}
-   * @return {string|boolean}
-   */
-  static getServerFromSetElectrumServerAction(url: string): string | false {
-    if (!url.startsWith('bluewallet:setelectrumserver') && !url.startsWith('setelectrumserver')) return false;
-    const splt = url.split('server=');
-    if (splt[1]) return decodeURIComponent(splt[1]);
-    return false;
   }
 
   /**

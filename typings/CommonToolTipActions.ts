@@ -88,7 +88,7 @@ const icons = {
   Share: { iconValue: Platform.OS === 'ios' ? 'square.and.arrow.up' : 'ic_menu_share' },
   Signature: { iconValue: Platform.OS === 'ios' ? 'signature' : 'ic_menu_edit' },
   PasteFromClipboard: { iconValue: Platform.OS === 'ios' ? 'document.on.clipboard' : 'ic_menu_paste' },
-  ImportFile: { iconValue: Platform.OS === 'ios' ? 'document.viewfinder' : 'ic_menu_upload' },
+  ImportFile: { iconValue: Platform.OS === 'ios' ? 'square.and.arrow.down' : 'ic_menu_download' },
   Hide: { iconValue: Platform.OS === 'ios' ? 'eye.slash' : 'ic_menu_close_clear_cancel' },
   ClearClipboard: { iconValue: Platform.OS === 'ios' ? 'clipboard' : 'ic_menu_delete' },
   SortASC: { iconValue: Platform.OS === 'ios' ? 'arrow.down.to.line' : 'ic_menu_sort_alphabetically' },

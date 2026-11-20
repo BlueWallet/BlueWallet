@@ -19,12 +19,13 @@ jest.mock('../../components/themes', () => ({
 
 describe('SettingsSection', () => {
   it('renders title and children', () => {
-    const { getByText } = render(
+    const { getByRole, getByText } = render(
       <SettingsSection title="Advanced">
         <Text>child row</Text>
       </SettingsSection>,
     );
     expect(getByText('Advanced')).toBeTruthy();
+    expect(getByRole('header', { name: 'Advanced' })).toBeTruthy();
     expect(getByText('child row')).toBeTruthy();
   });
 
@@ -69,11 +70,53 @@ describe('SettingsSection', () => {
 });
 
 describe('SettingsListItem', () => {
+  it('exposes a non-navigating favorite row as one accessible element with custom actions', () => {
+    const screen = render(
+      <SettingsListItem
+        accessible
+        accessibilityRole="text"
+        title="favorite.example"
+        accessibilityLabel="favorite.example, SSL 50002, Favorite Server"
+        accessibilityActions={[{ name: 'removeFavorite', label: 'Remove Favorite Server' }]}
+      />,
+    );
+    expect(screen.getByRole('text', { name: 'favorite.example, SSL 50002, Favorite Server' }).props.accessibilityActions).toEqual([
+      { name: 'removeFavorite', label: 'Remove Favorite Server' },
+    ]);
+  });
+
+  it('exposes checked and disabled switch state without hiding its explanation', () => {
+    const screen = render(
+      <SettingsListItem
+        title="Set as Favorite"
+        subtitle="Connects only to this server"
+        switch={{ value: true, disabled: true, accessibilityHint: 'No other servers will be tried' }}
+      />,
+    );
+    const toggle = screen.getByRole('switch', { name: 'Set as Favorite' });
+    expect(toggle.props.accessibilityState).toEqual({ checked: true, disabled: true });
+    expect(toggle.props.accessibilityHint).toBe('No other servers will be tried');
+  });
+
   it('renders title and forwards presses', () => {
     const onPress = jest.fn();
     const { getByText } = render(<SettingsListItem title="Currency" iconName="currency" onPress={onPress} testID="CurrencyItem" />);
     fireEvent.press(getByText('Currency'));
     expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('forwards accessibility actions to the row', () => {
+    const onAccessibilityAction = jest.fn();
+    const { getByTestId } = render(
+      <SettingsListItem
+        title="Server"
+        testID="ServerItem"
+        accessibilityActions={[{ name: 'test', label: 'Test Connection' }]}
+        onAccessibilityAction={onAccessibilityAction}
+      />,
+    );
+    fireEvent(getByTestId('ServerItem'), 'accessibilityAction', { nativeEvent: { actionName: 'test' } });
+    expect(onAccessibilityAction).toHaveBeenCalledWith(expect.objectContaining({ nativeEvent: { actionName: 'test' } }));
   });
 });
 

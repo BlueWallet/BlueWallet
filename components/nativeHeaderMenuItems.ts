@@ -54,6 +54,7 @@ const mapActionToNativeItem = (action: Action, onPressMenuItem: (id: string) => 
     label: action.text,
     ...(Platform.OS === 'ios' ? { identifier: id } : {}),
     description: action.subtitle,
+    discoverabilityLabel: action.subtitle || action.text,
     icon: toNativeIcon(action.icon?.iconValue ?? action.image) as NativeStackHeaderItemMenuAction['icon'],
     onPress: () => onPressMenuItem(id),
     state: toNativeState(action.menuState),

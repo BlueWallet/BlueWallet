@@ -1,4 +1,6 @@
-import { LinkingOptions } from '@react-navigation/native';
+import { getStateFromPath, LinkingOptions } from '@react-navigation/native';
+import { Platform } from 'react-native';
+import { formatElectrumServer, parseElectrumServer, parseElectrumServerHistoryDeepLink } from '../blue_modules/electrumServer';
 import { Chain } from '../models/bitcoinUnits';
 import { RootParamList } from './RootParamList';
 
@@ -64,8 +66,41 @@ export const getShortcutWalletDestination = (selectionMode: ShortcutWalletSelect
       };
 };
 
+// Shared by native URL events and in-app QR/clipboard entry points. Only
+// validated, supported parameters reach the navigation state.
+export const getElectrumSettingsLink = (value: string): string | undefined => {
+  const path = value
+    .trim()
+    .replace(/^(?:(?:bluewallet|blue|lapp):|https:\/\/bluewallet\.io\/)/i, '')
+    .replace(/^\/+/, '');
+  const match = path.match(/^(setelectrumserver|importelectrumserverhistory|electrum-settings)(?=\?|$)/i);
+  if (!match) return undefined;
+  const action = match[1].toLowerCase();
+  if (action === 'setelectrumserver' || (action === 'electrum-settings' && /[?&]server=/.test(path))) {
+    const server = parseElectrumServer(path.replace(/^[^?]+/, 'setelectrumserver'));
+    return server ? `/electrum-settings?server=${encodeURIComponent(formatElectrumServer(server))}` : undefined;
+  }
+  if (action === 'importelectrumserverhistory' || /[?&]serverHistoryImport=/.test(path)) {
+    if (Platform.OS !== 'ios') return undefined;
+    const historyPath =
+      action === 'importelectrumserverhistory'
+        ? path
+        : `importelectrumserverhistory?data=${path.match(/[?&]serverHistoryImport=([^&#]*)/)?.[1] ?? ''}`;
+    const document = parseElectrumServerHistoryDeepLink(historyPath);
+    return document ? `/electrum-settings?serverHistoryImport=${encodeURIComponent(document)}` : undefined;
+  }
+  return '/electrum-settings';
+};
+
 export const linking: LinkingOptions<RootParamList> = {
-  prefixes: ['bluewallet://', 'https://bluewallet.io'],
+  prefixes: ['bluewallet://', 'bluewallet:', 'blue://', 'blue:', 'lapp://', 'lapp:', 'https://bluewallet.io'],
+  getStateFromPath(path, options) {
+    if (/^\/?(?:setelectrumserver|importelectrumserverhistory|electrum-settings)(?=\?|$)/i.test(path)) {
+      const electrumLink = getElectrumSettingsLink(path);
+      return electrumLink ? getStateFromPath(electrumLink, options) : undefined;
+    }
+    return getStateFromPath(path, options);
+  },
   config: {
     initialRouteName: 'DrawerRoot',
     screens: {
@@ -78,6 +113,10 @@ export const linking: LinkingOptions<RootParamList> = {
             initialRouteName: 'WalletsList' as never,
             screens: {
               ManageWallets: 'manage-wallets',
+              ElectrumSettings: {
+                path: 'electrum-settings',
+                parse: { server: parseElectrumServer },
+              },
             },
           },
         },

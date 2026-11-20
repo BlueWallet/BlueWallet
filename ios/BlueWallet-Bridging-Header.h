@@ -8,4 +8,3 @@
 
 #import "RNNotifications.h"
 #import "NativeEventEmitterSpec.h"
-#import "NativeWidgetHelperSpec.h"

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, StyleSheet, NativeSyntheticEvent } from 'react-native';
+import { View, StyleSheet, NativeSyntheticEvent, useWindowDimensions } from 'react-native';
 import NativeSegmentedControl from '../codegen/SegmentedControlNativeComponent';
 
 interface SegmentedControlProps {
@@ -7,15 +7,29 @@ interface SegmentedControlProps {
   selectedIndex: number;
   onChange: (index: number) => void;
   testID?: string;
+  enabled?: boolean;
   /** Use the platform control instead of the accent color override. */
   usePlatformStyle?: boolean;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 interface SegmentedControlEvent {
   selectedIndex: number;
 }
 
-const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedIndex, onChange, testID, usePlatformStyle = false }) => {
+const SegmentedControl: React.FC<SegmentedControlProps> = ({
+  values,
+  selectedIndex,
+  onChange,
+  testID,
+  enabled = true,
+  usePlatformStyle = false,
+  accessibilityLabel,
+  accessibilityHint,
+}) => {
+  const { fontScale } = useWindowDimensions();
+  const scaledStyle = { height: Math.max(40, Math.ceil(40 * fontScale)) };
   const handleChange = useCallback(
     (event: NativeSyntheticEvent<SegmentedControlEvent>) => {
       if (event?.nativeEvent?.selectedIndex !== undefined) {
@@ -34,14 +48,17 @@ const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedInd
       <NativeSegmentedControl
         values={values}
         selectedIndex={selectedIndex}
-        enabled
+        enabled={enabled}
         backgroundColor={usePlatformStyle ? undefined : 'transparent'}
         tintColor={usePlatformStyle ? undefined : '#007AFF'}
         textColor={usePlatformStyle ? undefined : '#007AFF'}
         momentary={false}
-        style={styles.segmentedControl}
+        style={[styles.segmentedControl, scaledStyle]}
         onChange={handleChange}
         testID={testID}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
+        accessibilityState={{ disabled: !enabled }}
       />
     </View>
   );

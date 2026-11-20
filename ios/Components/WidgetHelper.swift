@@ -1,6 +1,6 @@
 import Foundation
 import WidgetKit
-#if canImport(React_Codegen)
+#if canImport(React)
 import React
 #endif
 
@@ -13,12 +13,9 @@ class WidgetHelper {
     }
 }
 
-#if canImport(React_Codegen)
-@objc(WidgetHelperModule)
-class WidgetHelperModule: NSObject, NativeWidgetHelperSpec {
-    static func moduleName() -> String! { "WidgetHelper" }
-    static func requiresMainQueueSetup() -> Bool { false }
-
+#if canImport(React)
+@objc(WidgetHelperImplementation)
+class WidgetHelperImplementation: NSObject {
     @objc
     func reloadAllWidgets() {
         if #available(iOS 14.0, *) {
@@ -27,11 +24,10 @@ class WidgetHelperModule: NSObject, NativeWidgetHelperSpec {
     }
 }
 #else
-// Fallback for targets (e.g., widget extension) that do not pull in React codegen modules.
+// Fallback for targets (e.g., widget extension) that do not pull in React modules.
 @objc(WidgetHelperModule)
 class WidgetHelperModule: NSObject {
     func reloadAllWidgets() {
-        // WidgetsExtension does not link the app's WidgetHelper; invoke WidgetKit directly.
         if #available(iOS 14.0, *) {
             WidgetCenter.shared.reloadAllTimelines()
         }

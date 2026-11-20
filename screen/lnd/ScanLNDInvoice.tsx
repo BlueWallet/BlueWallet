@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigation, RouteProp, useRoute, useLocale } from '@react-navigation/native';
+import { getElectrumSettingsLink } from '../../navigation/linking';
+import { useNavigation, RouteProp, useRoute, useLocale, useLinkTo } from '@react-navigation/native';
 import { ActivityIndicator, Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../components/Icon';
 
@@ -33,6 +34,7 @@ type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 type NavigationProps = NativeStackNavigationProp<RootParamList, 'ScanLNDInvoice'>;
 
 const ScanLNDInvoice = () => {
+  const linkTo = useLinkTo();
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { colors } = useTheme();
@@ -346,12 +348,18 @@ const ScanLNDInvoice = () => {
   const onBarScanned = useCallback(
     (value: string): void => {
       if (!value) return;
+      const electrumLink = getElectrumSettingsLink(value);
+      if (electrumLink) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        linkTo(electrumLink);
+        return;
+      }
       DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         navigate(...completionValue);
       });
     },
-    [navigate],
+    [navigate, linkTo],
   );
 
   useEffect(() => {

@@ -19,6 +19,9 @@ final class SegmentedControlView: UIView {
   }
 
   private func setup() {
+    isAccessibilityElement = false
+    shouldGroupAccessibilityChildren = true
+    applyTextAttributes()
     segmentedControl.addTarget(self, action: #selector(handleValueChanged(_:)), for: .valueChanged)
     addSubview(segmentedControl)
     segmentedControl.translatesAutoresizingMaskIntoConstraints = false
@@ -31,6 +34,21 @@ final class SegmentedControlView: UIView {
   }
 
   // MARK: - Prop setters
+
+  override var accessibilityLabel: String? {
+    didSet { segmentedControl.accessibilityLabel = accessibilityLabel }
+  }
+
+  override var accessibilityHint: String? {
+    didSet { segmentedControl.accessibilityHint = accessibilityHint }
+  }
+
+  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    super.traitCollectionDidChange(previousTraitCollection)
+    if previousTraitCollection?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory {
+      applyTextAttributes()
+    }
+  }
 
   @objc var values: NSArray = [] {
     didSet { rebuildSegments() }
@@ -82,12 +100,13 @@ final class SegmentedControlView: UIView {
   }
 
   private func applyTextAttributes() {
+    let font = UIFont.preferredFont(forTextStyle: .subheadline)
     if let color = textColor {
-      segmentedControl.setTitleTextAttributes([.foregroundColor: color], for: .normal)
-      segmentedControl.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
+      segmentedControl.setTitleTextAttributes([.font: font, .foregroundColor: color], for: .normal)
+      segmentedControl.setTitleTextAttributes([.font: font, .foregroundColor: UIColor.white], for: .selected)
     } else {
-      segmentedControl.setTitleTextAttributes(nil, for: .normal)
-      segmentedControl.setTitleTextAttributes(nil, for: .selected)
+      segmentedControl.setTitleTextAttributes([.font: font], for: .normal)
+      segmentedControl.setTitleTextAttributes([.font: font], for: .selected)
     }
   }
 
