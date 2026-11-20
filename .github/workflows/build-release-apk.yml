@@ -84,31 +84,11 @@ jobs:
           ruby-version: 3.4.11
           bundler-cache: true
 
-      - name: Validate shared build number
-        id: build_number
-        env:
-          SHARED_BUILD_NUMBER: ${{ inputs.build_number }}
-        run: |
-          if ! [[ "$SHARED_BUILD_NUMBER" =~ ^[0-9]+$ ]]; then
-            echo "Shared build number must contain digits only" >&2
-            exit 1
-          fi
-          if [ "$SHARED_BUILD_NUMBER" -eq 0 ]; then
-            echo "Shared build number must be positive" >&2
-            exit 1
-          fi
-          if [ "$SHARED_BUILD_NUMBER" -gt 2100000000 ]; then
-            echo "Shared build number $SHARED_BUILD_NUMBER exceeds the Play Store limit" >&2
-            exit 1
-          fi
-          echo "NEW_BUILD_NUMBER=$SHARED_BUILD_NUMBER" >> "$GITHUB_ENV"
-          echo "build_number=$SHARED_BUILD_NUMBER" >> "$GITHUB_OUTPUT"
-
       - name: Build and sign APK
         id: build_and_sign_apk
         run: bundle exec fastlane android build_release_apk
         env:
-          BUILD_NUMBER: ${{ steps.build_number.outputs.build_number }}
+          BUILD_NUMBER: ${{ inputs.build_number }}
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 

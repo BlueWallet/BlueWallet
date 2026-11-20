@@ -96,11 +96,6 @@ jobs:
           SKIP_APP_STORE_CONNECT_AUTH: '1'
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
-      - name: Create App Store Connect API key
-        env:
-          API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
-        run: printf '%s' "$API_KEY_CONTENT" > appstore_api_key.json
-
       - name: Set shared Apple build number
         id: build_number
         env:
@@ -142,9 +137,7 @@ jobs:
         run: bundle exec fastlane ios upload_catalyst_to_testflight
         env:
           SKIP_APP_STORE_CONNECT_AUTH: '1'
-          APP_STORE_CONNECT_API_KEY_PATH: ${{ github.workspace }}/appstore_api_key.json
-          APPLE_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-          APPLE_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
           CATALYST_TEAM_ID: ${{ secrets.CATALYST_TEAM_ID || secrets.TEAM_ID || secrets.ITC_TEAM_ID }}
           CATALYST_ARCHIVE_PATH: ${{ steps.build_catalyst.outputs.catalyst_archive_path }}
           TEAM_ID: ${{ secrets.TEAM_ID || secrets.ITC_TEAM_ID }}
@@ -183,10 +176,8 @@ jobs:
           path: ios/build_logs/
           retention-days: 7
 
-      - name: Cleanup credentials
+      - name: Delete temporary signing keychain
         if: always()
-        run: |
-          rm -f appstore_api_key.json
-          bundle exec fastlane ios delete_temp_keychain name:build || true
+        run: bundle exec fastlane ios delete_temp_keychain name:build || true
         env:
           SKIP_APP_STORE_CONNECT_AUTH: '1'
