@@ -118,36 +118,17 @@ jobs:
         with:
           name: android-build-logs
           path: |
-            fastlane/logs/**/*.log
             android/**/*.log
             android/**/build/**/*.log
             android/**/outputs/logs/**/*.log
             android/**/reports/**/*.log
           if-no-files-found: warn
 
-      - name: Determine APK Filename and Path
-        id: determine_apk_path
-        run: |
-          BUILD_NUMBER=${{ steps.build_number.outputs.build_number }}
-          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
-          BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}
-          BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/_/g')
-
-          if [ -n "$BRANCH_NAME" ] && [ "$BRANCH_NAME" != "master" ]; then
-            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${BUILD_NUMBER}-${BRANCH_NAME}.apk"
-          else
-            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${BUILD_NUMBER}.apk"
-          fi
-      
-          APK_PATH="android/app/build/outputs/apk/release/${EXPECTED_FILENAME}"
-          echo "EXPECTED_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_ENV
-          echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
-
       - name: Upload APK as artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: signed-apk
-          path: ${{ env.APK_PATH }}
+          path: ${{ steps.build_and_sign_apk.outputs.apk_output_path }}
           if-no-files-found: error
 
   browserstack:

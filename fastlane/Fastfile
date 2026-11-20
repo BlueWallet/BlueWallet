@@ -82,16 +82,13 @@ module AndroidHelpers
     Dir.glob(File.join(sdk_root.to_s, 'build-tools', '*', 'apksigner')).sort.last
   end
 
-  def gradle_log_path
-    path = File.join(project_root, 'fastlane', 'logs', 'gradle-build.log')
-    FileUtils.mkdir_p(File.dirname(path))
-    path
-  end
-
-  def assemble_release!(log_path:)
-    Actions.sh("cd android && ./gradlew assembleRelease --no-daemon --stacktrace --console=plain | tee #{log_path}") do |status|
-      UI.user_error!("Gradle assembleRelease failed") unless status.success?
-    end
+  def assemble_release!
+    Actions.gradle(
+      task: 'assemble',
+      build_type: 'Release',
+      project_dir: File.join(project_root, 'android'),
+      flags: '--no-daemon --stacktrace --console=plain'
+    )
   end
 
   def resolve_apk_paths(version_name:, build_number:, branch_name:)
@@ -252,7 +249,7 @@ platform :android do
       apk_paths = AndroidHelpers.resolve_apk_paths(version_name: version_name, build_number: ENV['BUILD_NUMBER'], branch_name: branch)
 
       UI.message("Building APK...")
-      AndroidHelpers.assemble_release!(log_path: AndroidHelpers.gradle_log_path)
+      AndroidHelpers.assemble_release!
       UI.message("APK build completed.")
 
       signed_apk_path = AndroidHelpers.finalize_apk!(apk_paths)
@@ -289,7 +286,7 @@ platform :android do
       branch = AndroidHelpers.branch_name
 
       UI.message("Building release APK...")
-      AndroidHelpers.assemble_release!(log_path: AndroidHelpers.gradle_log_path)
+      AndroidHelpers.assemble_release!
 
       apk_paths = AndroidHelpers.resolve_apk_paths(version_name: version_name, build_number: build_number, branch_name: branch)
       signed_apk_path = AndroidHelpers.finalize_apk!(apk_paths)
