@@ -1,4 +1,5 @@
 import { StackActions, useNavigation } from '@react-navigation/native';
+import { DrawerToggleButton } from '@react-navigation/drawer';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
 import Share from 'react-native-share';
@@ -165,8 +166,8 @@ const DetailViewStackScreensStack = () => {
   const navigation = useNavigation();
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
-  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-  const isWideLayout = shouldUseWideLayout(windowWidth, windowHeight);
+  const { width: windowWidth } = useWindowDimensions();
+  const isWideLayout = shouldUseWideLayout(windowWidth);
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
   // Probe connection health from the UI (e.g. WalletsList focus / 30s timer).
@@ -237,16 +238,17 @@ const DetailViewStackScreensStack = () => {
   }, [navigation]);
 
   const RightBarButtons = useMemo(
-    () =>
-      isWideLayout ? (
+    () => (
+      <>
         <AddWalletButton onPress={navigateToAddWallet} />
-      ) : (
-        <>
-          <AddWalletButton onPress={navigateToAddWallet} />
-          <View style={styles.width24} />
-          <SettingsButton onPress={navigateToSettings} onManageWalletPress={navigateToManageWallets} />
-        </>
-      ),
+        {!isWideLayout && !isDesktop && (
+          <>
+            <View style={styles.width24} />
+            <SettingsButton onPress={navigateToSettings} onManageWalletPress={navigateToManageWallets} />
+          </>
+        )}
+      </>
+    ),
     [isWideLayout, navigateToAddWallet, navigateToManageWallets, navigateToSettings],
   );
 
@@ -278,7 +280,7 @@ const DetailViewStackScreensStack = () => {
     const showNotConnected = !isElectrumDisabled && electrumConnected === false && !isUpdating;
     const showUpdating = !isElectrumDisabled && isUpdating;
 
-    const renderHeaderLeft = () => {
+    const renderStatusPill = () => {
       if (showOffline) {
         const offlineBg = theme.dark ? theme.colors.darkGray : '#000000';
         return React.createElement(OfflineModePill, { onPress: navigateToElectrumSettings, backgroundColor: offlineBg });
@@ -303,6 +305,18 @@ const DetailViewStackScreensStack = () => {
       return null;
     };
 
+    const renderHeaderLeft = () => {
+      const statusPill = renderStatusPill();
+      if (!isWideLayout) return statusPill;
+
+      return (
+        <View style={styles.headerLeftRow}>
+          <DrawerToggleButton tintColor={theme.colors.foregroundColor} testID="DrawerToggleButton" />
+          {statusPill}
+        </View>
+      );
+    };
+
     if (isIOS26OrHigher) {
       // Status pills: `unstable_headerLeftItems` + `hidesSharedBackground` avoids the
       // navigation bar's shared liquid-glass chrome on the pill (solid colors only).
@@ -318,9 +332,6 @@ const DetailViewStackScreensStack = () => {
           return [{ type: 'custom', element, hidesSharedBackground: true }];
         },
         unstable_headerRightItems: () => {
-          if (isDesktop) {
-            return [];
-          }
           const items: HeaderRightItem[] = [
             {
               type: 'button',
@@ -333,7 +344,7 @@ const DetailViewStackScreensStack = () => {
               onPress: navigateToAddWallet,
             },
           ];
-          if (!isWideLayout) {
+          if (!isWideLayout && !isDesktop) {
             items.push({
               type: 'button',
               label: loc.settings.default_title,
@@ -356,7 +367,7 @@ const DetailViewStackScreensStack = () => {
         backgroundColor: theme.colors.customHeader,
       },
       headerLeft: renderHeaderLeft,
-      headerRight: () => (isDesktop ? undefined : RightBarButtons),
+      headerRight: () => RightBarButtons,
     };
   }, [
     RightBarButtons,
@@ -618,6 +629,10 @@ const styles = StyleSheet.create({
   },
   headerIconButtonPressed: {
     opacity: 0.6,
+  },
+  headerLeftRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   width24: {
     width: 24,

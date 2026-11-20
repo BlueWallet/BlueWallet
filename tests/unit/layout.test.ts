@@ -1,22 +1,29 @@
-import { shouldUseWideLayout, WIDE_LAYOUT_MIN_LENGTH } from '../../blue_modules/layout';
+import { shouldUseWideLayout, WIDE_LAYOUT_MIN_WIDTH } from '../../blue_modules/layout';
 
 describe('responsive layout', () => {
-  it('uses the short edge so a landscape phone keeps the phone layout', () => {
-    expect(shouldUseWideLayout(852, 393, false)).toBe(false);
+  it('uses the split layout for Plus, Pro Max, and similar Android phones in landscape', () => {
+    expect(shouldUseWideLayout(736)).toBe(true);
+    expect(shouldUseWideLayout(932)).toBe(true);
+    expect(shouldUseWideLayout(1080)).toBe(true);
+  });
+
+  it('keeps phones compact in portrait', () => {
+    expect(shouldUseWideLayout(430)).toBe(false);
+    expect(shouldUseWideLayout(480)).toBe(false);
   });
 
   it('keeps iPad mini in the wide layout in both orientations', () => {
-    expect(WIDE_LAYOUT_MIN_LENGTH).toBe(744);
-    expect(shouldUseWideLayout(744, 1133, false)).toBe(true);
-    expect(shouldUseWideLayout(1133, 744, false)).toBe(true);
+    expect(WIDE_LAYOUT_MIN_WIDTH).toBe(700);
+    expect(shouldUseWideLayout(744)).toBe(true);
+    expect(shouldUseWideLayout(1133)).toBe(true);
   });
 
-  it('switches at the short-edge boundary', () => {
-    expect(shouldUseWideLayout(743, 1200, false)).toBe(false);
-    expect(shouldUseWideLayout(744, 1200, false)).toBe(true);
+  it('switches at the width boundary', () => {
+    expect(shouldUseWideLayout(699)).toBe(false);
+    expect(shouldUseWideLayout(700)).toBe(true);
   });
 
-  it('always uses the wide layout on desktop', () => {
-    expect(shouldUseWideLayout(600, 500, true)).toBe(true);
+  it('uses compact layout for narrow desktop and Catalyst windows', () => {
+    expect(shouldUseWideLayout(600)).toBe(false);
   });
 });

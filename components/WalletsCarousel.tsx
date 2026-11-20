@@ -107,9 +107,9 @@ const nStyles = StyleSheet.create({
 
 const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
   const { colors } = useTheme();
-  const { height, width } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   const itemWidth = getWalletCarouselItemWidth(width);
-  const isWideLayout = shouldUseWideLayout(width, height);
+  const isWideLayout = shouldUseWideLayout(width);
   const nStylesHooks = StyleSheet.create({
     container: isWideLayout
       ? {
@@ -317,9 +317,9 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
   const balanceOpacity = useSharedValue(1);
   const balanceTranslateY = useSharedValue(0);
   const { colors } = useTheme();
-  const { height, width, fontScale } = useWindowDimensions();
+  const { width, fontScale } = useWindowDimensions();
   const itemWidth = getWalletCarouselItemWidth(width);
-  const isWideLayout = shouldUseWideLayout(width, height);
+  const isWideLayout = shouldUseWideLayout(width);
   const isCompact = sizeVariant === 'compact';
   const { direction } = useLocale();
   const scaledCardStyles = useMemo(
@@ -585,7 +585,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
     animateChanges = false,
   } = props;
 
-  const { height, width, fontScale } = useWindowDimensions();
+  const { width, fontScale } = useWindowDimensions();
   const itemWidth = React.useMemo(() => getWalletCarouselItemWidth(width), [width]);
   const snapInterval = React.useMemo(() => itemWidth, [itemWidth]);
   const snapOffsets = React.useMemo(() => {
@@ -608,7 +608,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
   const flatListRef = useRef<FlatList<TWallet>>(null);
   const walletRefs = useRef<Record<string, React.MutableRefObject<View | null>>>({});
 
-  const isWideLayout = shouldUseWideLayout(width, height);
+  const isWideLayout = shouldUseWideLayout(width);
 
   useImperativeHandle(ref, (): CarouselListRefType => {
     if (isFlatList) {
