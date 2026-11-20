@@ -59,7 +59,10 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         self.moduleName = "BlueWallet"
         self.dependencyProvider = RCTAppDependencyProvider()
-        self.initialProps = [:]
+        let processArguments = ProcessInfo.processInfo.arguments
+        self.initialProps = [
+            "isDetox": processArguments.contains("-detoxServer") && processArguments.contains("-detoxSessionId")
+        ]
 
         RNNotifications.startMonitorNotifications()
         RNNotifications.addNativeDelegate(self)
