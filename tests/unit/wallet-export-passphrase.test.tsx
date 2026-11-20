@@ -1,11 +1,9 @@
 import React from 'react';
-import { Modal } from 'react-native';
-import { act, fireEvent, render } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import WalletExport from '../../screen/wallets/WalletExport';
 import loc from '../../loc';
 
-const mockEnableScreenProtect = jest.fn();
 const mockDisableScreenProtect = jest.fn();
 const mockWallets: HDSegwitBech32Wallet[] = [];
 const mockSettings = { isPrivacyBlurEnabled: false };
@@ -19,7 +17,7 @@ jest.mock('@react-navigation/native', () => ({
 jest.mock('../../hooks/context/useStorage', () => ({ useStorage: () => ({ wallets: mockWallets }) }));
 jest.mock('../../hooks/context/useSettings', () => ({ useSettings: () => mockSettings }));
 jest.mock('../../hooks/useScreenProtect', () => ({
-  useScreenProtect: () => ({ enableScreenProtect: mockEnableScreenProtect, disableScreenProtect: mockDisableScreenProtect }),
+  useScreenProtect: () => ({ enableScreenProtect: jest.fn(), disableScreenProtect: mockDisableScreenProtect }),
 }));
 jest.mock('../../hooks/useAppState', () => () => mockAppState);
 jest.mock('../../components/themes', () => ({
@@ -34,7 +32,6 @@ jest.mock('../../components/themes', () => ({
     },
   }),
 }));
-jest.mock('../../components/Button', () => 'Button');
 jest.mock('../../components/Icon', () => () => null);
 jest.mock('../../components/QRCode', () => 'QRCode');
 jest.mock('../../components/HandOffComponent', () => () => null);
@@ -59,11 +56,10 @@ describe('WalletExport with a BIP39 passphrase', () => {
     mockSettings.isPrivacyBlurEnabled = false;
     mockAppState.currentAppState = 'active';
     mockAppState.previousAppState = 'active';
-    mockEnableScreenProtect.mockClear();
     mockDisableScreenProtect.mockClear();
   });
 
-  it('shows the QR code, the words, a passphrase warning and the reveal button', () => {
+  it('shows the QR code, the words and a passphrase warning', () => {
     mockWallets.push(makeWallet(PASSPHRASE));
     const screen = render(<WalletExport />);
 
@@ -71,62 +67,14 @@ describe('WalletExport with a BIP39 passphrase', () => {
     expect(screen.getByText(loc.wallets.export_passphrase_qr_unavailable)).toBeTruthy();
     expect(screen.getByTestId('ExportPassphraseWarning')).toBeTruthy();
     expect(screen.getByTestId('ExportSeedWords').props.children).toBe(MNEMONIC);
-    expect(screen.getByTestId('ExportViewPassphraseButton')).toBeTruthy();
-    // passphrase is not rendered until the user asks for it
+  });
+
+  it('never renders the passphrase', () => {
+    mockWallets.push(makeWallet(PASSPHRASE));
+    const screen = render(<WalletExport />);
+
     expect(screen.queryByText(PASSPHRASE)).toBeNull();
-  });
-
-  it('reveals the passphrase only after the view button is pressed and hides it again on close', () => {
-    mockWallets.push(makeWallet(PASSPHRASE));
-    const screen = render(<WalletExport />);
-
-    act(() => fireEvent.press(screen.getByTestId('ExportViewPassphraseButton')));
-    expect(mockEnableScreenProtect).toHaveBeenCalledTimes(1);
-    expect(screen.getByTestId('ExportBackupPassphrase').props.children).toBe(PASSPHRASE);
-
-    act(() => fireEvent.press(screen.getByTestId('ExportClosePassphraseButton')));
-    expect(mockDisableScreenProtect).toHaveBeenCalled();
-    expect(screen.queryByTestId('ExportBackupPassphrase')).toBeNull();
-  });
-
-  it('keeps screen protection on after close when privacy blur is enabled', () => {
-    mockSettings.isPrivacyBlurEnabled = true;
-    mockWallets.push(makeWallet(PASSPHRASE));
-    const screen = render(<WalletExport />);
-    mockDisableScreenProtect.mockClear();
-
-    act(() => fireEvent.press(screen.getByTestId('ExportViewPassphraseButton')));
-    act(() => fireEvent.press(screen.getByTestId('ExportClosePassphraseButton')));
-
-    expect(screen.queryByTestId('ExportBackupPassphrase')).toBeNull();
-    expect(mockDisableScreenProtect).not.toHaveBeenCalled();
-  });
-
-  it('closes the passphrase when the Android back button requests close', () => {
-    mockWallets.push(makeWallet(PASSPHRASE));
-    const screen = render(<WalletExport />);
-
-    act(() => fireEvent.press(screen.getByTestId('ExportViewPassphraseButton')));
-    expect(screen.getByTestId('ExportBackupPassphrase')).toBeTruthy();
-
-    act(() => screen.UNSAFE_getByType(Modal).props.onRequestClose());
-    expect(screen.queryByTestId('ExportBackupPassphrase')).toBeNull();
-  });
-
-  it('closes the passphrase when the app goes to the background', () => {
-    mockWallets.push(makeWallet(PASSPHRASE));
-    const screen = render(<WalletExport />);
-
-    act(() => fireEvent.press(screen.getByTestId('ExportViewPassphraseButton')));
-    expect(screen.getByTestId('ExportBackupPassphrase')).toBeTruthy();
-
-    mockAppState.previousAppState = 'active';
-    mockAppState.currentAppState = 'background';
-    act(() => {
-      screen.rerender(<WalletExport />);
-    });
-
-    expect(screen.queryByTestId('ExportBackupPassphrase')).toBeNull();
+    expect(JSON.stringify(screen.toJSON())).not.toContain(PASSPHRASE);
   });
 
   it('skips the passphrase UI for wallets without a passphrase', () => {
@@ -135,7 +83,6 @@ describe('WalletExport with a BIP39 passphrase', () => {
 
     expect(screen.getByText(loc.wallets.scan_import)).toBeTruthy();
     expect(screen.queryByTestId('ExportPassphraseWarning')).toBeNull();
-    expect(screen.queryByTestId('ExportViewPassphraseButton')).toBeNull();
   });
 
   it('skips the passphrase UI for an empty passphrase', () => {
@@ -143,7 +90,7 @@ describe('WalletExport with a BIP39 passphrase', () => {
     const screen = render(<WalletExport />);
 
     expect(screen.getByText(loc.wallets.scan_import)).toBeTruthy();
-    expect(screen.queryByTestId('ExportViewPassphraseButton')).toBeNull();
+    expect(screen.queryByTestId('ExportPassphraseWarning')).toBeNull();
   });
 
   it('skips the passphrase UI when the secret is not a BIP39 mnemonic', () => {
@@ -151,7 +98,6 @@ describe('WalletExport with a BIP39 passphrase', () => {
     const screen = render(<WalletExport />);
 
     expect(screen.getByText(loc.wallets.scan_import)).toBeTruthy();
-    expect(screen.queryByTestId('ExportViewPassphraseButton')).toBeNull();
-    expect(screen.queryByText(PASSPHRASE)).toBeNull();
+    expect(screen.queryByTestId('ExportPassphraseWarning')).toBeNull();
   });
 });

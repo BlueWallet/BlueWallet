@@ -3,12 +3,11 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
-import { LayoutChangeEvent, Modal, ScrollView, StyleSheet, Pressable, View } from 'react-native';
+import { LayoutChangeEvent, ScrollView, StyleSheet, Pressable, View } from 'react-native';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { validateMnemonic } from '../../blue_modules/bip39';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueText from '../../components/BlueText';
-import Button from '../../components/Button';
 import { AbstractHDWallet } from '../../class/wallets/abstract-hd-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
@@ -66,18 +65,11 @@ const WalletExport: React.FC = () => {
   const { colors } = useTheme();
   const wallet = wallets.find(w => w.getID() === walletID)!;
   const [qrCodeSize, setQRCodeSize] = useState(90);
-  const [isPassphraseVisible, setIsPassphraseVisible] = useState(false);
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const { currentAppState, previousAppState } = useAppState();
   const stylesHook = StyleSheet.create({
     root: { backgroundColor: colors.elevated },
     warningBox: { backgroundColor: colors.changeText },
-    modalBackdrop: { backgroundColor: 'rgba(0, 0, 0, 0.5)' },
-    modalCard: { backgroundColor: colors.elevated },
-    modalTitle: { color: colors.foregroundColor },
-    modalMessage: { color: colors.labelText },
-    modalChip: { backgroundColor: colors.inputBackgroundColor },
-    modalChipText: { color: colors.labelText },
   });
 
   const secrets: string[] = useMemo(() => {
@@ -95,13 +87,11 @@ const WalletExport: React.FC = () => {
   }, [wallet]);
 
   // A BIP39 passphrase is not part of the mnemonic, so the words alone do not restore this wallet. The QR code still encodes
-  // only the words and is shown with a note saying so. The passphrase itself is hidden behind an explicit reveal.
-  const passphrase = wallet instanceof AbstractHDWallet ? wallet.getPassphrase() : undefined;
-  const hasPassphrase = secretIsMnemonic && !!passphrase;
+  // only the words and is shown with a note saying so. The passphrase itself is intentionally not displayed on this screen.
+  const hasPassphrase = secretIsMnemonic && wallet instanceof AbstractHDWallet && !!wallet.getPassphrase();
 
   useEffect(() => {
     if (previousAppState === 'active' && currentAppState !== 'active') {
-      setIsPassphraseVisible(false);
       disableScreenProtect();
       const timer = setTimeout(() => {
         navigation.goBack();
@@ -137,16 +127,6 @@ const WalletExport: React.FC = () => {
       setQRCodeSize(Math.min(heightBasedSize, widthBasedSize));
     }
   }, []);
-
-  const openPassphrase = useCallback(() => {
-    setIsPassphraseVisible(true);
-    enableScreenProtect();
-  }, [enableScreenProtect]);
-
-  const closePassphrase = useCallback(() => {
-    setIsPassphraseVisible(false);
-    if (!isPrivacyBlurEnabled) disableScreenProtect();
-  }, [disableScreenProtect, isPrivacyBlurEnabled]);
 
   const handleCopy = useCallback(() => {
     Clipboard.setString(secrets[0]);
@@ -229,37 +209,6 @@ const WalletExport: React.FC = () => {
                 <Icon type="font-awesome-6" name="circle-exclamation" size={24} color="white" />
                 <BlueText style={styles.passphraseWarningText}>{loc.wallets.export_passphrase_warning}</BlueText>
               </View>
-              <View style={styles.passphraseButtonContainer}>
-                <Button
-                  testID="ExportViewPassphraseButton"
-                  onPress={openPassphrase}
-                  title={loc.wallets.export_view_passphrase}
-                  backgroundColor={colors.inputBackgroundColor}
-                  buttonTextColor={colors.labelText}
-                />
-              </View>
-              <Modal visible={isPassphraseVisible} transparent animationType="fade" onRequestClose={closePassphrase}>
-                <View style={[styles.modalBackdrop, stylesHook.modalBackdrop]}>
-                  <View style={[styles.modalCard, stylesHook.modalCard]}>
-                    <BlueText style={[styles.modalTitle, stylesHook.modalTitle]}>{loc.wallets.import_passphrase_title}</BlueText>
-                    <BlueText style={[styles.modalMessage, stylesHook.modalMessage]}>
-                      {loc.wallets.export_passphrase_modal_message}
-                    </BlueText>
-                    <View style={[styles.modalChip, stylesHook.modalChip]}>
-                      <BlueText testID="ExportBackupPassphrase" selectable style={[styles.modalChipText, stylesHook.modalChipText]}>
-                        {passphrase}
-                      </BlueText>
-                    </View>
-                    <Button
-                      testID="ExportClosePassphraseButton"
-                      onPress={closePassphrase}
-                      title={loc.wallets.export_passphrase_close}
-                      backgroundColor={colors.lightButton}
-                      buttonTextColor={colors.foregroundColor}
-                    />
-                  </View>
-                </View>
-              </Modal>
             </>
           )}
         </>
@@ -349,42 +298,6 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.6,
-  },
-  passphraseButtonContainer: {
-    alignItems: 'center',
-  },
-  modalBackdrop: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  modalCard: {
-    width: '80%',
-    alignSelf: 'center',
-    padding: 24,
-    borderRadius: 28,
-    overflow: 'hidden',
-  },
-  modalTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    marginBottom: 6,
-  },
-  modalMessage: {
-    fontSize: 17,
-    lineHeight: 22,
-    marginBottom: 14,
-  },
-  modalChip: {
-    alignSelf: 'flex-start',
-    marginBottom: 12,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-    borderRadius: 4,
-  },
-  modalChipText: {
-    fontWeight: 'bold',
-    textAlign: 'left',
-    fontSize: 17,
   },
 });
 
