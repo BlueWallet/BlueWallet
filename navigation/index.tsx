@@ -65,7 +65,6 @@ const LazyExportMultisigCoordinationSetupStack = withLazySuspense(ExportMultisig
 const LazyViewEditMultisigCosigners = withLazySuspense(ViewEditMultisigCosigners);
 const LazySignVerifyStackRoot = withLazySuspense(SignVerifyStackRoot);
 const LazyScanQRCodeComponent = withLazySuspense(ScanQRCode);
-const multisigSheetAllowedDetents = Platform.OS === 'ios' ? 'fitToContents' : [0.9];
 
 const MainRoot = () => {
   const { wallets, walletsInitialized } = useStorage();
@@ -155,7 +154,10 @@ const MainRoot = () => {
                 presentation: 'modal',
                 headerShown: true,
                 gestureEnabled: false,
-                closeButtonPosition: CloseButtonPosition.Right,
+                // Android already shows the system back button for this modal.
+                closeButtonPosition: Platform.OS === 'android' ? CloseButtonPosition.None : CloseButtonPosition.Right,
+                headerStyle: { backgroundColor: theme.colors.elevated },
+                contentStyle: { backgroundColor: theme.colors.elevated },
               },
               withRouteParamHeaderOptions({ headerRight: true }),
             )(theme)}
@@ -163,25 +165,42 @@ const MainRoot = () => {
           <DetailViewStack.Screen
             name="ViewEditMultisigCosignerViewSheet"
             component={ViewEditMultisigCosignerViewSheet}
-            options={navigationStyle({
-              presentation: 'formSheet',
-              sheetAllowedDetents: multisigSheetAllowedDetents,
-              sheetGrabberVisible: true,
-              closeButtonPosition: CloseButtonPosition.Right,
-              headerShown: true,
-              headerTitle: '',
-            })(theme)}
+            options={navigationStyle<DetailViewStackParamList, 'ViewEditMultisigCosignerViewSheet'>(
+              {
+                presentation: 'formSheet',
+                // Content must not use flex:1 or Android fitToContents expands to full height.
+                sheetAllowedDetents: 'fitToContents',
+                sheetGrabberVisible: true,
+                // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Title and close stay in the content.
+                headerShown: Platform.OS === 'ios',
+                headerBackVisible: false,
+                closeButtonPosition: CloseButtonPosition.Right,
+                headerStyle: { backgroundColor: theme.colors.elevated },
+                contentStyle: { backgroundColor: theme.colors.elevated },
+              },
+              (options, { route }) => ({
+                ...options,
+                headerTitle: loc.formatString(loc.multisig.vault_key, {
+                  number: route.params?.vaultKeyData.keyIndex ?? '',
+                }),
+              }),
+            )(theme)}
           />
           <DetailViewStack.Screen
             name="ViewEditMultisigProvideMnemonicsSheet"
             component={ViewEditMultisigProvideMnemonicsSheet}
             options={navigationStyle({
               presentation: 'formSheet',
-              sheetAllowedDetents: multisigSheetAllowedDetents,
+              // Content must not use flex:1 or Android fitToContents expands to full height.
+              sheetAllowedDetents: 'fitToContents',
               sheetGrabberVisible: true,
+              // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Title and close stay in the content.
+              headerShown: Platform.OS === 'ios',
+              headerTitle: loc.wallets.import_title,
+              headerBackVisible: false,
               closeButtonPosition: CloseButtonPosition.Right,
-              headerShown: true,
-              headerTitle: '',
+              headerStyle: { backgroundColor: theme.colors.elevated },
+              contentStyle: { backgroundColor: theme.colors.elevated },
             })(theme)}
           />
           <DetailViewStack.Screen
@@ -189,11 +208,16 @@ const MainRoot = () => {
             component={ViewEditMultisigShareCosignerSheet}
             options={navigationStyle({
               presentation: 'formSheet',
-              sheetAllowedDetents: multisigSheetAllowedDetents,
+              // Content must not use flex:1 or Android fitToContents expands to full height.
+              sheetAllowedDetents: 'fitToContents',
               sheetGrabberVisible: true,
-              closeButtonPosition: CloseButtonPosition.Right,
-              headerShown: true,
+              // react-native-screens 4.30 still skips the toolbar on Android form sheets, same as ClipboardDetected. Close stays in the content.
+              headerShown: Platform.OS === 'ios',
               headerTitle: '',
+              headerBackVisible: false,
+              closeButtonPosition: CloseButtonPosition.Right,
+              headerStyle: { backgroundColor: theme.colors.elevated },
+              contentStyle: { backgroundColor: theme.colors.elevated },
             })(theme)}
           />
           <DetailViewStack.Screen
