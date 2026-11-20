@@ -24,11 +24,14 @@ def app_store_state_readable(state)
   states[state] || state
 end
 
-require 'securerandom'
+require 'json'
+require 'shellwords'
+require 'uri'
 
 default_platform(:ios)
 PROJECT_ROOT = File.expand_path("..", __dir__)
 SHARED_BUILD_NUMBER_MAX = 2_100_000_000
+ANDROID_SIGNING_SHA256 = '92A7FFEF3234A7DC867130643AF0336D08E1972DFD324BD8E0AA47A9F5E6C759'.freeze
 project_root = PROJECT_ROOT
 
 module AndroidHelpers
@@ -41,22 +44,6 @@ module AndroidHelpers
 
   def project_root
     PROJECT_ROOT
-  end
-
-  def keystore_paths
-    {
-      hex: File.join(project_root, 'bluewallet-release-key.keystore.hex'),
-      file: File.join(project_root, 'android', 'bluewallet-release-key.keystore'),
-    }
-  end
-
-  def write_keystore_from_hex!(hex_value, paths)
-    UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if hex_value.nil? || hex_value.empty?
-    File.write(paths[:hex], hex_value)
-    Actions.sh("xxd -plain -revert #{paths[:hex]} > #{paths[:file]}") do |status|
-      UI.user_error!("Error reverting hex to keystore") unless status.success?
-    end
-    File.delete(paths[:hex])
   end
 
   def version_name_and_update_code!(build_gradle_path, build_number)
@@ -82,37 +69,114 @@ module AndroidHelpers
     Dir.glob(File.join(sdk_root.to_s, 'build-tools', '*', 'apksigner')).sort.last
   end
 
-  def gradle_log_path
-    path = File.join(project_root, 'fastlane', 'logs', 'gradle-build.log')
-    FileUtils.mkdir_p(File.dirname(path))
-    path
-  end
 
-  def assemble_release!(log_path:)
-    Actions.sh("cd android && ./gradlew assembleRelease --no-daemon --stacktrace --console=plain | tee #{log_path}") do |status|
-      UI.user_error!("Gradle assembleRelease failed") unless status.success?
+  # Match repository. Its Android keystore is encrypted with
+  # OpenSSL AES-256-CBC/PBKDF2 and decrypted only into a temporary directory.
+  def with_play_signing_materials
+    require_env!(%w[
+      GIT_URL
+      GIT_ACCESS_TOKEN
+      ANDROID_SIGNING_DECRYPTION_PASSWORD
+      KEYSTORE_PASSWORD
+    ])
+
+    temp_dir = Dir.mktmpdir('bluewallet-play-signing-')
+    signing_repo = File.join(temp_dir, 'signing-assets')
+    encrypted_keystore = File.join(signing_repo, 'android', 'bluewallet-upload.jks.enc')
+    manifest_path = File.join(signing_repo, 'android', 'signing-manifest.json')
+    keystore_path = File.join(temp_dir, 'bluewallet-upload.jks')
+    askpass_path = File.join(temp_dir, 'git-askpass')
+    previous_keystore_path = ENV['ANDROID_KEYSTORE_PATH']
+    previous_keystore_password = ENV['ANDROID_KEYSTORE_PASSWORD']
+    previous_key_alias = ENV['ANDROID_KEY_ALIAS']
+    previous_key_password = ENV['ANDROID_KEY_PASSWORD']
+    previous_match_token = ENV['GIT_ACCESS_TOKEN']
+    previous_decryption_password = ENV['ANDROID_SIGNING_DECRYPTION_PASSWORD']
+
+    begin
+      match_repository_url = URI.parse(ENV['GIT_URL'])
+      unless match_repository_url.scheme == 'https' && match_repository_url.userinfo.nil?
+        UI.user_error!('GIT_URL must be an HTTPS Match repository URL without embedded credentials')
+      end
+
+      # Keep GIT_ACCESS_TOKEN out of the command line and Fastlane output. Git
+      # calls this short-lived helper when it prompts for HTTPS credentials.
+      File.write(askpass_path, <<~SH)
+        #!/bin/sh
+        case "$1" in
+          *Username*) printf '%s\\n' 'x-access-token' ;;
+          *Password*) printf '%s\\n' "$GIT_ACCESS_TOKEN" ;;
+          *) exit 1 ;;
+        esac
+      SH
+      File.chmod(0o700, askpass_path)
+      Actions.sh(
+        "GIT_ASKPASS=#{Shellwords.escape(askpass_path)} GIT_TERMINAL_PROMPT=0 " \
+        "git clone --depth 1 #{Shellwords.escape(ENV['GIT_URL'])} #{Shellwords.escape(signing_repo)}"
+      )
+      UI.user_error!("Encrypted Android app-signing keystore is missing from the Match repository") unless File.file?(encrypted_keystore)
+      UI.user_error!("Android signing manifest is missing from the Match repository") unless File.file?(manifest_path)
+
+      Actions.sh(
+        "openssl enc -d -aes-256-cbc -salt -pbkdf2 -iter 600000 " \
+        "-in #{Shellwords.escape(encrypted_keystore)} -out #{Shellwords.escape(keystore_path)} " \
+        "-pass env:ANDROID_SIGNING_DECRYPTION_PASSWORD"
+      )
+
+      manifest = JSON.parse(File.read(manifest_path))
+      expected_package = manifest['applicationId']
+      key_alias = manifest['keyAlias'].to_s
+      expected_fingerprint = manifest['sha256'].to_s.delete(':').upcase
+      UI.user_error!("Signing manifest applicationId must be io.bluewallet.bluewallet") unless expected_package == 'io.bluewallet.bluewallet'
+      UI.user_error!("Signing manifest must include a key alias") if key_alias.empty?
+      UI.user_error!("Signing manifest must include a SHA-256 certificate fingerprint") unless expected_fingerprint.match?(/\A[0-9A-F]{64}\z/)
+      UI.user_error!("Signing manifest does not match the pinned Android signing certificate") unless expected_fingerprint == ANDROID_SIGNING_SHA256
+
+      certificate = Actions.sh(
+        "keytool -list -v -keystore #{Shellwords.escape(keystore_path)} -storepass:env KEYSTORE_PASSWORD " \
+        "-alias #{Shellwords.escape(key_alias)}"
+      )
+      actual_fingerprint = certificate[/SHA256:\s*([0-9A-F:]+)/i, 1].to_s.delete(':').upcase
+      UI.user_error!("Android app-signing keystore certificate does not match signing-manifest.json") unless actual_fingerprint == expected_fingerprint
+
+      ENV['ANDROID_KEYSTORE_PATH'] = keystore_path
+      ENV['ANDROID_KEYSTORE_PASSWORD'] = ENV['KEYSTORE_PASSWORD']
+      ENV['ANDROID_KEY_ALIAS'] = key_alias
+      ENV['ANDROID_KEY_PASSWORD'] = ENV['KEYSTORE_PASSWORD']
+      ENV.delete('GIT_ACCESS_TOKEN')
+      ENV.delete('ANDROID_SIGNING_DECRYPTION_PASSWORD')
+      yield expected_fingerprint
+    ensure
+      ENV['ANDROID_KEYSTORE_PATH'] = previous_keystore_path
+      ENV['ANDROID_KEYSTORE_PASSWORD'] = previous_keystore_password
+      ENV['ANDROID_KEY_ALIAS'] = previous_key_alias
+      ENV['ANDROID_KEY_PASSWORD'] = previous_key_password
+      ENV['GIT_ACCESS_TOKEN'] = previous_match_token
+      ENV['ANDROID_SIGNING_DECRYPTION_PASSWORD'] = previous_decryption_password
+      FileUtils.remove_entry_secure(temp_dir) if temp_dir && Dir.exist?(temp_dir)
     end
   end
 
   def resolve_apk_paths(version_name:, build_number:, branch_name:)
     apk_dir = File.join(project_root, 'android', 'app', 'build', 'outputs', 'apk', 'release')
-    unsigned = File.join(apk_dir, 'app-release-unsigned.apk')
-    fallback = File.join(apk_dir, 'app-release.apk')
+    gradle_signed = File.join(apk_dir, 'app-release.apk')
     signed = File.join(apk_dir, apk_name(version_name, build_number, branch_name))
-    { unsigned: unsigned, fallback: fallback, signed: signed }
+    { gradle_signed: gradle_signed, signed: signed }
   end
 
   def finalize_apk!(paths)
-    candidate = File.exist?(paths[:unsigned]) ? paths[:unsigned] : paths[:fallback]
-    UI.user_error!("Unsigned APK not found at path: #{paths[:unsigned]} or #{paths[:fallback]}") unless File.exist?(candidate)
-    FileUtils.mv(candidate, paths[:signed])
+    UI.user_error!("Gradle-signed APK not found at path: #{paths[:gradle_signed]}") unless File.exist?(paths[:gradle_signed])
+    FileUtils.mv(paths[:gradle_signed], paths[:signed])
     paths[:signed]
   end
 
-  def sign_apk!(apk_path, keystore_path, keystore_password)
+  def verify_apk!(apk_path, expected_fingerprint)
     signer = apksigner_path
     UI.user_error!("apksigner not found in Android build-tools") if signer.nil? || signer.empty?
-    Actions.sh("#{signer} sign --ks #{keystore_path} --ks-pass=pass:#{keystore_password} #{apk_path}")
+    verification = Actions.sh("#{signer} verify --verbose --print-certs #{Shellwords.escape(apk_path)}")
+    actual_fingerprint = verification[/certificate SHA-256 digest:\s*([0-9A-F:]+)/i, 1].to_s.delete(':').upcase
+    UI.user_error!("APK signer SHA-256 fingerprint could not be determined") if actual_fingerprint.empty?
+    UI.user_error!("APK signer does not match signing-manifest.json") unless actual_fingerprint == expected_fingerprint
   end
 
   def write_github_output(hash)
@@ -123,26 +187,6 @@ module AndroidHelpers
     end
   end
 
-  def ensure_temp_credentials!(auto: false)
-    return unless auto
-
-    temp_dir = Dir.mktmpdir('bw-temp-keystore')
-    keystore_path = File.join(temp_dir, 'temp.keystore')
-    password = "temp#{SecureRandom.hex(6)}"
-    alias_name = "bluewallet-temp"
-
-    Actions.sh(
-      "keytool -genkeypair -v -keystore #{keystore_path} -storepass #{password} -keypass #{password} " \
-      "-alias #{alias_name} -keyalg RSA -keysize 2048 -validity 10000 " \
-      "-dname \"CN=Temp,O=BlueWallet,OU=CI,L=NY,ST=NY,C=US\""
-    ) do |status|
-      UI.user_error!("Failed to create temporary keystore with keytool") unless status.success?
-    end
-
-    keystore_hex = File.binread(keystore_path).unpack1('H*')
-    ENV['KEYSTORE_FILE_HEX'] = keystore_hex
-    ENV['KEYSTORE_PASSWORD'] = password
-  end
 end
 
 # Add session caching for App Store Connect
@@ -205,7 +249,7 @@ before_all do |lane, options|
     next
   end
 
-  skip_auth_lanes = ['register_devices_from_txt', 'setup_provisioning_profiles', 'update_apple_signing_assets', 'build_app_lane', 'build_catalyst_app_lane', 'install_pods', 'clear_derived_data_lane']
+  skip_auth_lanes = ['register_devices_from_txt', 'setup_provisioning_profiles', 'update_apple_signing_assets', 'build_app_lane', 'build_catalyst_app_lane', 'install_pods', 'clear_derived_data_lane', 'build_release_apk']
   lane_name = lane.to_s
   should_skip_auth = skip_auth_lanes.any? { |skip_lane| lane_name == skip_lane || lane_name.end_with?(" #{skip_lane}") }
   
@@ -228,44 +272,6 @@ end
 
 platform :android do
 
-  desc "Prepare the keystore file"
-  lane :prepare_keystore do
-    Dir.chdir(PROJECT_ROOT) do
-      paths = AndroidHelpers.keystore_paths
-      AndroidHelpers.write_keystore_from_hex!(ENV['KEYSTORE_FILE_HEX'], paths)
-      UI.message("Keystore created successfully.")
-    end
-  end
-
-  desc "Update version, build number, and sign APK"
-  lane :update_version_build_and_sign_apk do |options|
-    Dir.chdir(PROJECT_ROOT) do
-      AndroidHelpers.ensure_temp_credentials!(auto: options[:auto_credentials])
-      AndroidHelpers.require_env!(%w[BUILD_NUMBER KEYSTORE_PASSWORD KEYSTORE_FILE_HEX])
-
-      keystore_paths = AndroidHelpers.keystore_paths
-      AndroidHelpers.write_keystore_from_hex!(ENV['KEYSTORE_FILE_HEX'], keystore_paths)
-
-      build_gradle_path = File.join('android', 'app', 'build.gradle')
-      version_name = AndroidHelpers.version_name_and_update_code!(build_gradle_path, ENV['BUILD_NUMBER'])
-      branch = AndroidHelpers.branch_name
-      apk_paths = AndroidHelpers.resolve_apk_paths(version_name: version_name, build_number: ENV['BUILD_NUMBER'], branch_name: branch)
-
-      UI.message("Building APK...")
-      AndroidHelpers.assemble_release!(log_path: AndroidHelpers.gradle_log_path)
-      UI.message("APK build completed.")
-
-      signed_apk_path = AndroidHelpers.finalize_apk!(apk_paths)
-      ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
-
-      UI.message("Signing APK with apksigner...")
-      AndroidHelpers.sign_apk!(signed_apk_path, keystore_paths[:file], ENV['KEYSTORE_PASSWORD'])
-      UI.message("APK signed successfully: #{signed_apk_path}")
-
-      FileUtils.rm_f(keystore_paths[:file])
-    end
-  end
-
   desc "Build and sign release APK"
   lane :build_release_apk do |options|
     Dir.chdir(PROJECT_ROOT) do
@@ -278,128 +284,44 @@ platform :android do
       UI.user_error!("Shared build number exceeds Android's #{SHARED_BUILD_NUMBER_MAX} limit") if build_number.to_i > SHARED_BUILD_NUMBER_MAX
       ENV['BUILD_NUMBER'] = build_number
 
-      AndroidHelpers.ensure_temp_credentials!(auto: options[:auto_credentials])
-      AndroidHelpers.require_env!(%w[KEYSTORE_FILE_HEX KEYSTORE_PASSWORD])
-
-      keystore_paths = AndroidHelpers.keystore_paths
-      AndroidHelpers.write_keystore_from_hex!(ENV['KEYSTORE_FILE_HEX'], keystore_paths)
-
       build_gradle_path = File.join('android', 'app', 'build.gradle')
       version_name = AndroidHelpers.version_name_and_update_code!(build_gradle_path, build_number)
       branch = AndroidHelpers.branch_name
 
       UI.message("Building release APK...")
-      AndroidHelpers.assemble_release!(log_path: AndroidHelpers.gradle_log_path)
+      signing_fingerprint = nil
+      AndroidHelpers.with_play_signing_materials do |expected_fingerprint|
+        signing_fingerprint = expected_fingerprint
+        gradle(
+          task: 'assemble',
+          build_type: 'Release',
+          # Fastlane resolves relative Gradle paths from the Fastlane folder,
+          # not from the lane's current directory. Use absolute paths so local
+          # runs and GitHub Actions invoke this repository's Android wrapper.
+          project_dir: File.join(PROJECT_ROOT, 'android'),
+          gradle_path: File.join(PROJECT_ROOT, 'android', 'gradlew'),
+          flags: '--no-daemon --stacktrace --console=plain',
+        )
+      end
 
       apk_paths = AndroidHelpers.resolve_apk_paths(version_name: version_name, build_number: build_number, branch_name: branch)
       signed_apk_path = AndroidHelpers.finalize_apk!(apk_paths)
 
-      UI.message("Signing APK with apksigner...")
-      AndroidHelpers.sign_apk!(signed_apk_path, keystore_paths[:file], ENV['KEYSTORE_PASSWORD'])
+      UI.message("Verifying APK signed by Gradle...")
+      AndroidHelpers.verify_apk!(signed_apk_path, signing_fingerprint)
       UI.success("APK signed successfully: #{signed_apk_path}")
 
-      FileUtils.rm_f(keystore_paths[:file])
-
       apk_absolute_path = File.expand_path(signed_apk_path)
-      ENV['APK_OUTPUT_PATH'] = apk_absolute_path
-      ENV['APK_VERSION_NAME'] = version_name
-      ENV['APK_VERSION_CODE'] = build_number
 
       AndroidHelpers.write_github_output(
         apk_output_path: apk_absolute_path,
-        apk_version_name: version_name,
-        apk_version_code: build_number,
+        apk_filename: File.basename(apk_absolute_path),
+        signing_certificate_sha256: signing_fingerprint,
       )
     end
   end
 
   desc "Upload APK to BrowserStack and post result as PR comment"
-  lane :upload_to_browserstack_and_comment do
-    Dir.chdir(PROJECT_ROOT) do
-      apk_path = ENV['APK_PATH']
-      if apk_path.nil? || apk_path.empty?
-        UI.message("No APK path provided, searching for APK...")
-        apk_path = `find ./ -name "*.apk"`.strip
-        UI.user_error!("No APK file found") if apk_path.nil? || apk_path.empty?
-      end
-
-      UI.message("Uploading APK to BrowserStack: #{apk_path}...")
-      upload_to_browserstack_app_live(
-        file_path: apk_path,
-        browserstack_username: ENV['BROWSERSTACK_USERNAME'],
-        browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
-      )
-
-      app_url = ENV['BROWSERSTACK_LIVE_APP_ID']
-      UI.user_error!("BrowserStack upload failed, no app URL returned") if app_url.nil? || app_url.empty?
-
-      apk_filename = File.basename(apk_path)
-      apk_download_url = ENV['APK_OUTPUT_PATH']
-      browserstack_hashed_id = app_url.gsub('bs://', '')
-      pr_number = ENV['GITHUB_PR_NUMBER']
-
-      comment_identifier = '### APK Successfully Uploaded to BrowserStack'
-
-      comment = <<~COMMENT
-        #{comment_identifier}
-
-        You can test it on the following devices:
-        
-        - [Google Pixel 9 (Android 15)](https://app-live.browserstack.com/dashboard#os=android&os_version=15.0&device=Google+Pixel+8&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
-        - [Google Pixel 8 (Android 14)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Google+Pixel+8&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
-        - [Google Pixel 7 (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Google+Pixel+7&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
-        - [Google Pixel 5 (Android 12)](https://app-live.browserstack.com/dashboard#os=android&os_version=12.0&device=Google+Pixel+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
-        - [Google Pixel 3a (Android 9)](https://app-live.browserstack.com/dashboard#os=android&os_version=9.0&device=Google+Pixel+3a&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
-        
-        - [Samsung Galaxy Z Fold 6 (Android 14)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Samsung+Galaxy+Z+Fold+6&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
-        - [Samsung Galaxy Z Fold 5 (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Z+Fold+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
-        - [Samsung Galaxy Tab S9 (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Tab+S9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
-        - [Samsung Galaxy Note 9 (Android 8.1)](https://app-live.browserstack.com/dashboard#os=android&os_version=8.1&device=Samsung+Galaxy+Note+9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
-
-        - [OnePlus 11R (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=OnePlus+11R&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
-        **Filename**: [#{apk_filename}](#{apk_download_url})
-        **BrowserStack App URL**: #{app_url}
-      COMMENT
-
-      if pr_number
-        begin
-          repo = ENV['GITHUB_REPOSITORY']
-          repo_owner, repo_name = repo.split('/')
-
-          UI.message("Fetching existing comments for PR ##{pr_number}...")
-
-          comments_json = `gh api -X GET /repos/#{repo_owner}/#{repo_name}/issues/#{pr_number}/comments`
-          comments = JSON.parse(comments_json)
-
-          comments.each do |comment|
-            if comment['body'].start_with?(comment_identifier)
-              comment_id = comment['id']
-              UI.message("Deleting previous comment ID: #{comment_id}...")
-              `gh api -X DELETE /repos/#{repo_owner}/#{repo_name}/issues/comments/#{comment_id}`
-              UI.success("Deleted comment ID: #{comment_id}")
-            end
-          end
-
-        rescue => e
-          UI.error("Failed to delete previous comments: #{e.message}")
-        end
-      else
-        UI.important("No PR number found. Skipping deletion of previous comments.")
-      end
-
-      if pr_number
-        begin
-          escaped_comment = comment.gsub("'", "'\\''")
-          sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{escaped_comment}'")
-          UI.success("Posted new comment to PR ##{pr_number}")
-        rescue => e
-          UI.error("Failed to post comment to PR: #{e.message}")
-        end
-      else
-        UI.important("No PR number found. Skipping PR comment.")
-      end
-    end
-  end
 end
 
 

@@ -20,12 +20,12 @@ rm -f detox.keystore
 keytool -genkeypair -v -keystore detox.keystore -alias detox -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname 'cn=Unknown, ou=Unknown, o=Unknown, c=Unknown'
 
 if [[ "$USE_FASTLANE" == "1" ]]; then
-	# Build signed release APK via Fastlane; assume env provides keystore inputs when needed
-	BUILD_NUMBER=${BUILD_NUMBER:-1} bundle exec fastlane android build_release_apk
+	# Test builds must never fetch the production Match signing key.
+	bundle exec fastlane run gradle task:assembleRelease project_dir:"$PWD/android" flags:'-PBLUEWALLET_UNSIGNED_RELEASE=true --no-daemon'
 	# Build androidTest APK for Detox
-	(cd android && ./gradlew assembleAndroidTest -DtestBuildType=release)
-	# Pick the newest release APK produced by Fastlane
-	RELEASE_APK=$(find android/app/build/outputs/apk/release -name "*.apk" -print0 | xargs -0 ls -t | head -n 1)
+	(cd android && ./gradlew assembleAndroidTest -DtestBuildType=release -PBLUEWALLET_UNSIGNED_RELEASE=true)
+	RELEASE_APK=android/app/build/outputs/apk/release/app-release.apk
+	mv android/app/build/outputs/apk/release/app-release-unsigned.apk "$RELEASE_APK"
 	TEST_APK=android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
 else
 	# Build release and androidTest APKs using Gradle (x86_64 by default for emulator speed).
@@ -33,7 +33,7 @@ else
 	GRADLE_ARCH_ARGS=()
 	ARCHITECTURES=${E2E_ANDROID_ARCHS:-x86_64}
 	GRADLE_ARCH_ARGS+=("-PreactNativeArchitectures=${ARCHITECTURES}")
-	(cd android && ./gradlew assembleRelease assembleReleaseAndroidTest -DtestBuildType=release "${GRADLE_ARCH_ARGS[@]}")
+	(cd android && ./gradlew assembleRelease assembleReleaseAndroidTest -DtestBuildType=release -PBLUEWALLET_UNSIGNED_RELEASE=true "${GRADLE_ARCH_ARGS[@]}")
 	RELEASE_APK=./android/app/build/outputs/apk/release/app-release.apk
 	UNSIGNED_RELEASE_APK=./android/app/build/outputs/apk/release/app-release-unsigned.apk
 	mv "$UNSIGNED_RELEASE_APK" "$RELEASE_APK"

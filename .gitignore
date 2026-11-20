@@ -25,7 +25,9 @@ DerivedData
 *.hprof
 .cxx/
 *.keystore
+*.jks
 !debug.keystore
+/android/.bluewallet-signing-local/
 # Android/IntelliJ
 #
 build/
