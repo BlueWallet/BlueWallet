@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # You may use http://rbenv.org/ or https://rvm.io/ to install and use this version
-ruby "3.4.11"
+ruby "3.4.12"
 # Keep within Fastlane 2.x while allowing authentication fixes between minor releases.
 gem "fastlane", "~> 2.240"
 # Exclude problematic versions of cocoapods and activesupport that causes build failures.
