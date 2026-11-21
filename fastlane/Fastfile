@@ -13,6 +13,1517 @@ def write_github_output(hash)
   end
 end
 
-%w[android apple_signing ios_release catalyst release_notes].each do |name|
-  import "lanes/#{name}.rb"
+# Android APKs and BrowserStack
+
+SHARED_BUILD_NUMBER_MAX = 2_100_000_000
+
+module AndroidHelpers
+  module_function
+
+  def require_env!(keys)
+    missing = Array(keys).select { |key| ENV[key].nil? || ENV[key].empty? }
+    UI.user_error!("Missing required env vars: #{missing.join(', ')}") unless missing.empty?
+  end
+
+  def project_root
+    PROJECT_ROOT
+  end
+
+  def write_keystore_from_hex!(hex_value, path)
+    hex = hex_value.to_s.gsub(/\s/, '')
+    UI.user_error!("KEYSTORE_FILE_HEX is not valid hexadecimal") unless hex.match?(/\A(?:[0-9a-fA-F]{2})+\z/)
+    File.binwrite(path, [hex].pack('H*'))
+  end
+
+  def version_name
+    build_gradle_path = File.join(project_root, 'android', 'app', 'build.gradle')
+    version = File.read(build_gradle_path)[/versionName\s+"([^"]+)"/, 1]
+    UI.user_error!("Failed to extract versionName from #{build_gradle_path}") if version.nil?
+    version
+  end
+
+  def branch_name
+    raw = ENV['GITHUB_HEAD_REF'] || ENV['GITHUB_REF_NAME'] || Actions.sh('git', '-C', project_root, 'rev-parse', '--abbrev-ref', 'HEAD', log: false).strip
+    sanitized = raw.to_s.gsub(/[^a-zA-Z0-9_-]/, '_')
+    sanitized.empty? ? 'master' : sanitized
+  end
+
+  def apk_name(version_name, build_number, branch)
+    branch != 'master' ? "BlueWallet-#{version_name}-#{build_number}-#{branch}.apk" : "BlueWallet-#{version_name}-#{build_number}.apk"
+  end
+
+  def apksigner_path
+    sdk_root = ENV['ANDROID_HOME'] || ENV['ANDROID_SDK_ROOT']
+    Dir.glob(File.join(sdk_root.to_s, 'build-tools', '*', 'apksigner')).sort.last
+  end
+
+  def resolve_apk_paths(version_name:, build_number:, branch_name:)
+    apk_dir = File.join(project_root, 'android', 'app', 'build', 'outputs', 'apk', 'release')
+    unsigned = File.join(apk_dir, 'app-release-unsigned.apk')
+    fallback = File.join(apk_dir, 'app-release.apk')
+    signed = File.join(apk_dir, apk_name(version_name, build_number, branch_name))
+    { unsigned: unsigned, fallback: fallback, signed: signed }
+  end
+
+  def unsigned_apk!(paths)
+    candidate = File.exist?(paths[:unsigned]) ? paths[:unsigned] : paths[:fallback]
+    UI.user_error!("Unsigned APK not found at path: #{paths[:unsigned]} or #{paths[:fallback]}") unless File.exist?(candidate)
+    candidate
+  end
+
+  def sign_apk!(apk_path, keystore_path)
+    signer = apksigner_path
+    UI.user_error!("apksigner not found in Android build-tools") if signer.nil? || signer.empty?
+    Actions.sh(signer, 'sign', '--ks', keystore_path, '--ks-pass', 'env:KEYSTORE_PASSWORD', apk_path)
+  end
+
+  def generate_temp_keystore!(path, password)
+    Actions.sh(
+      'keytool', '-genkeypair', '-keystore', path, '-storepass:env', password,
+      '-keypass:env', password, '-alias', 'bluewallet-temp', '-keyalg', 'RSA',
+      '-keysize', '2048', '-validity', '10000', '-dname', 'CN=Temp,O=BlueWallet,OU=CI,L=NY,ST=NY,C=US'
+    )
+  end
+end
+
+platform :android do
+  private_lane :assemble_release do |options|
+    gradle(
+      task: 'assemble',
+      build_type: 'Release',
+      project_dir: File.join(PROJECT_ROOT, 'android'),
+      properties: { 'bluewalletVersionCode' => options[:build_number] },
+      flags: '--no-daemon --stacktrace --console=plain'
+    )
+  end
+
+  desc "Prepare the keystore file"
+  lane :prepare_keystore do
+    path = File.join(PROJECT_ROOT, 'android', 'bluewallet-release-key.keystore')
+    AndroidHelpers.write_keystore_from_hex!(ENV['KEYSTORE_FILE_HEX'], path)
+    UI.message("Keystore created successfully.")
+  end
+
+  desc "Update version, build number, and sign APK"
+  lane :update_version_build_and_sign_apk do |options|
+    build_release_apk(options)
+  end
+
+  desc "Build and sign release APK"
+  lane :build_release_apk do |options|
+    build_number = (options[:build_number] || ENV['BUILD_NUMBER']).to_s
+    UI.user_error!("A build_number option or BUILD_NUMBER environment variable is required") if build_number.empty?
+    UI.user_error!("Shared build number must contain digits only") unless build_number.match?(/\A\d+\z/)
+    UI.user_error!("Shared build number must be positive") if build_number.to_i.zero?
+    UI.user_error!("Shared build number exceeds Android's #{SHARED_BUILD_NUMBER_MAX} limit") if build_number.to_i > SHARED_BUILD_NUMBER_MAX
+
+    version_name = AndroidHelpers.version_name
+    apk_paths = AndroidHelpers.resolve_apk_paths(
+      version_name: version_name, build_number: build_number, branch_name: AndroidHelpers.branch_name
+    )
+
+    original_password = ENV['KEYSTORE_PASSWORD']
+    begin
+      Dir.mktmpdir('bw-release-keystore') do |dir|
+        keystore_path = File.join(dir, 'release.keystore')
+        if options[:auto_credentials]
+          ENV['KEYSTORE_PASSWORD'] = SecureRandom.hex(16)
+          AndroidHelpers.generate_temp_keystore!(keystore_path, 'KEYSTORE_PASSWORD')
+        else
+          AndroidHelpers.require_env!(%w[KEYSTORE_FILE_HEX KEYSTORE_PASSWORD])
+          AndroidHelpers.write_keystore_from_hex!(ENV['KEYSTORE_FILE_HEX'], keystore_path)
+        end
+
+        assemble_release(build_number: build_number)
+        unsigned_apk = AndroidHelpers.unsigned_apk!(apk_paths)
+        AndroidHelpers.sign_apk!(unsigned_apk, keystore_path)
+        FileUtils.mv(unsigned_apk, apk_paths.fetch(:signed))
+      end
+    ensure
+      ENV['KEYSTORE_PASSWORD'] = original_password
+    end
+
+    apk_path = apk_paths.fetch(:signed)
+    ENV['APK_OUTPUT_PATH'] = apk_path
+    ENV['APK_VERSION_NAME'] = version_name
+    ENV['APK_VERSION_CODE'] = build_number
+    write_github_output(
+      apk_output_path: apk_path, apk_filename: File.basename(apk_path),
+      apk_version_name: version_name, apk_version_code: build_number
+    )
+    UI.success("APK signed successfully: #{apk_path}")
+  end
+
+  desc "Upload an APK to BrowserStack App Live"
+  lane :upload_to_browserstack do
+    apk_path = ENV['APK_PATH'].to_s
+    apk_path = File.expand_path(apk_path, PROJECT_ROOT)
+    UI.user_error!("Set APK_PATH to an existing APK") unless File.extname(apk_path) == '.apk' && File.file?(apk_path)
+
+    upload_to_browserstack_app_live(
+      file_path: apk_path,
+      browserstack_username: ENV['BROWSERSTACK_USERNAME'],
+      browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
+    )
+
+    app_url = ENV['BROWSERSTACK_LIVE_APP_ID'].to_s
+    UI.user_error!("BrowserStack upload failed, no app URL returned") unless app_url.start_with?('bs://')
+    write_github_output(browserstack_app_url: app_url)
+    app_url
+  end
+
+  desc "Compatibility entry point for uploading an APK to BrowserStack"
+  lane :upload_to_browserstack_and_comment do
+    UI.important("Use upload_to_browserstack. The release workflow now posts PR comments.")
+    upload_to_browserstack
+  end
+end
+
+# Apple signing and provisioning
+
+# Define app identifiers once for reuse across lanes
+def app_identifiers
+  [
+    "io.bluewallet.bluewallet",
+    "io.bluewallet.bluewallet.Stickers",
+    "io.bluewallet.bluewallet.MarketWidget",
+    "io.bluewallet.bluewallet.QuickLookPreview",
+    "io.bluewallet.bluewallet.QuickLookThumbnail"
+  ]
+end
+
+platform :ios do
+  # Add helper methods for error handling and retries
+  def ensure_env_vars(vars)
+    vars.each do |var|
+      UI.user_error!("#{var} environment variable is missing") if ENV[var].nil? || ENV[var].empty?
+    end
+  end
+
+  def resolve_signing_value(options:, option_name:, env_name:, prompt:, sensitive: false)
+    value = options[option_name] || ENV[env_name]
+    value = sensitive ? UI.password(prompt) : UI.input(prompt) if value.nil? || value.empty?
+    UI.user_error!("#{env_name} is required") if value.nil? || value.empty?
+
+    ENV[env_name] = value
+  end
+
+  # Accept a URL copied from Markdown (for example, [certificates](https://...)).
+  # This prevents git from receiving a literal `]https://` protocol.
+  def normalize_signing_git_url(value)
+    return value if value.start_with?("https://", "http://", "git@", "ssh://")
+
+    extracted_url = value.match(%r{https?://[^\s\]\)]+})&.to_s
+    return value if extracted_url.nil?
+
+    UI.important("Extracted the certificates repository URL from pasted Markdown")
+    extracted_url
+  end
+
+  # Match can use an App Store Connect API key directly, avoiding an expired
+  # FASTLANE_SESSION and an interactive Apple ID login in CI.
+  def match_api_authentication(options)
+    key_id = options[:apple_api_key_id] || ENV["APPLE_API_KEY_ID"]
+    issuer_id = options[:apple_api_issuer_id] || ENV["APPLE_API_ISSUER_ID"]
+    configured_path = options[:apple_api_key_path] || ENV["APPLE_API_KEY_PATH"]
+    key_path = File.expand_path(configured_path || "appstore_api_key.json", PROJECT_ROOT)
+    configured_values = [key_id, issuer_id, configured_path, File.file?(key_path) ? key_path : nil]
+
+    return nil if configured_values.all? { |value| value.nil? || value.empty? }
+
+    if File.extname(key_path) == ".json" && File.file?(key_path)
+      UI.message("Using App Store Connect API-key JSON authentication for Match")
+      return { api_key_path: key_path }
+    end
+
+    missing_values = []
+    missing_values << "APPLE_API_KEY_ID" if key_id.nil? || key_id.empty?
+    missing_values << "APPLE_API_ISSUER_ID" if issuer_id.nil? || issuer_id.empty?
+    missing_values << "APPLE_API_KEY_PATH" unless File.file?(key_path)
+    unless missing_values.empty?
+      UI.user_error!(
+        "Incomplete App Store Connect API-key configuration: #{missing_values.join(', ')}. " \
+        "Set APPLE_API_KEY_ID, APPLE_API_ISSUER_ID, and APPLE_API_KEY_PATH to a readable .p8 key, " \
+        "or provide a Fastlane API-key JSON file."
+      )
+    end
+
+    UI.message("Using App Store Connect API-key authentication for Match")
+    {
+      api_key: app_store_connect_api_key(
+        key_id: key_id,
+        issuer_id: issuer_id,
+        key_filepath: key_path,
+        duration: 1200,
+        in_house: false
+      )
+    }
+  end
+
+  def ensure_match_apple_auth!(options)
+    api_authentication = match_api_authentication(options)
+    return api_authentication unless api_authentication.nil?
+
+    options = options.merge(apple_id: ENV["FASTLANE_USER"]) if (options[:apple_id].nil? || options[:apple_id].empty?) && !ENV["FASTLANE_USER"].to_s.empty?
+    resolve_signing_value(
+      options: options,
+      option_name: :apple_id,
+      env_name: "APPLE_ID",
+      prompt: "Apple ID email:"
+    )
+    ENV["FASTLANE_USER"] ||= ENV["APPLE_ID"]
+
+    return nil unless ENV["FASTLANE_SESSION"].to_s.empty? && ENV["FASTLANE_PASSWORD"].to_s.empty?
+
+    unless UI.interactive?
+      UI.user_error!(
+        "Apple authentication is required in non-interactive environments. Prefer APPLE_API_KEY_ID, " \
+        "APPLE_API_ISSUER_ID, and APPLE_API_KEY_PATH; alternatively provide FASTLANE_SESSION or FASTLANE_PASSWORD."
+      )
+    end
+
+    require "shellwords"
+    UI.message("No reusable Apple session was provided; refreshing it with spaceauth before Match")
+    begin
+      sh("bundle exec fastlane spaceauth -u #{Shellwords.shellescape(ENV["APPLE_ID"])}")
+    rescue => error
+      UI.user_error!(
+        "Could not refresh the Apple session with spaceauth: #{error.message}. " \
+        "Complete the Apple MFA prompt, or configure an App Store Connect API key."
+      )
+    end
+
+    nil
+  end
+
+  # The Preview extension reads the app's cached fiat rate from this group. App
+  # Groups are a Developer Portal capability, so they must be enabled before
+  # Match creates a profile for a newly-added extension identifier.
+  def ensure_quick_look_app_group!(developer_team_id)
+    group_identifier = "group.io.bluewallet.bluewallet"
+    extension_identifiers = ["io.bluewallet.bluewallet.QuickLookPreview"]
+
+    if !UI.interactive? && ENV["FASTLANE_SESSION"].to_s.empty? && ENV["FASTLANE_PASSWORD"].to_s.empty?
+      UI.important(
+        "Skipping Quick Look App Group synchronization: legacy Developer Portal authentication is unavailable. " \
+        "Provide FASTLANE_SESSION or FASTLANE_PASSWORD when creating the extension profile for the first time."
+      )
+      return
+    end
+
+    require "spaceship"
+    UI.message("Synchronizing Quick Look App Group capability in the Developer Portal")
+    Spaceship::Portal.login(ENV["FASTLANE_USER"], ENV["FASTLANE_PASSWORD"])
+    Spaceship::Portal.client.team_id = developer_team_id
+
+    group = Spaceship::Portal.app_group.find(group_identifier)
+    group ||= Spaceship::Portal.app_group.create!(
+      group_id: group_identifier,
+      name: "BlueWallet Shared Data"
+    )
+
+    extension_identifiers.each do |bundle_identifier|
+      app = Spaceship::Portal.app.find(bundle_identifier)
+      UI.user_error!("Could not find App ID #{bundle_identifier} in the Developer Portal") if app.nil?
+
+      app.update_service(Spaceship::Portal.app_service.app_group.on)
+      app.associate_groups([group])
+    end
+  rescue => error
+    UI.user_error!(
+      "Could not synchronize the Quick Look App Group capability: #{error.message}. " \
+      "Enable #{group_identifier} for QuickLookPreview in the Apple Developer portal and retry."
+    )
+  end
+
+  def normalize_git_basic_authorization(value)
+    github_token = value.match?(/\A(?:github_pat_|gh[pousr]_)/)
+    return value unless github_token
+
+    require "base64"
+    Base64.strict_encode64("x-access-token:#{value}")
+  end
+
+  def resolve_git_access_token(options)
+    value = options[:git_access_token] || ENV["GIT_ACCESS_TOKEN"]
+    return value unless value.nil? || value.empty?
+
+    unless UI.interactive?
+      UI.user_error!(
+        "GIT_ACCESS_TOKEN is required in non-interactive environments. " \
+        "Set it to a GitHub token or Base64 Git basic authorization."
+      )
+    end
+
+    gh_available = system("gh", "--version", out: File::NULL, err: File::NULL)
+    if gh_available && UI.confirm("GIT_ACCESS_TOKEN is not set. Log in to GitHub through your browser?")
+      authenticated = system(
+        "gh", "auth", "login",
+        "--hostname", "github.com",
+        "--git-protocol", "https",
+        "--web"
+      )
+      UI.user_error!("GitHub browser login did not complete successfully") unless authenticated
+
+      require "open3"
+      token, error, status = Open3.capture3("gh", "auth", "token", "--hostname", "github.com")
+      UI.user_error!("Could not retrieve the GitHub token: #{error.strip}") unless status.success?
+      value = token.strip
+    else
+      UI.important("GitHub CLI is unavailable or browser login was declined; enter a token manually.")
+      value = UI.password("GitHub access token (or Base64 Git basic authorization):")
+    end
+
+    UI.user_error!("GIT_ACCESS_TOKEN is required") if value.nil? || value.empty?
+    ENV["GIT_ACCESS_TOKEN"] = value
+  end
+
+  def resolve_developer_team_id(options)
+    value = options[:team_id] || ENV["ITC_TEAM_ID"]
+    unless value.nil? || value.empty?
+      ENV["ITC_TEAM_ID"] = value
+      return value
+    end
+
+    require "xcodeproj"
+    project_path = File.join(PROJECT_ROOT, "ios", "BlueWallet.xcodeproj")
+    project = Xcodeproj::Project.open(project_path)
+    project_team_ids = project.targets.flat_map do |target|
+      target.build_configurations.flat_map do |configuration|
+        configuration.build_settings.filter_map do |setting, setting_value|
+          setting_value if setting == "DEVELOPMENT_TEAM" || setting.start_with?("DEVELOPMENT_TEAM[")
+        end
+      end
+    end.compact.reject(&:empty?).uniq
+
+    if project_team_ids.one?
+      value = project_team_ids.first
+      UI.message("Using Developer Team ID #{value} from ios/BlueWallet.xcodeproj")
+    elsif project_team_ids.length > 1
+      if UI.interactive?
+        value = UI.select("Multiple DEVELOPMENT_TEAM values were found. Select one:", project_team_ids)
+      else
+        UI.user_error!(
+          "Multiple DEVELOPMENT_TEAM values found in #{project_path}: #{project_team_ids.join(', ')}. " \
+          "Set ITC_TEAM_ID explicitly."
+        )
+      end
+    elsif UI.interactive?
+      value = UI.input("Apple Developer Team ID:")
+    else
+      UI.user_error!("No DEVELOPMENT_TEAM found in #{project_path}; set ITC_TEAM_ID explicitly")
+    end
+
+    UI.user_error!("Apple Developer Team ID is required") if value.nil? || value.empty?
+    ENV["ITC_TEAM_ID"] = value
+  end
+
+  def provisioning_profile_build_error_message(log_contents)
+    capability_patterns = [
+      /provisioning profile .* doesn't include/i,
+      /profile doesn't match the entitlements/i
+    ]
+    if capability_patterns.any? { |pattern| log_contents.match?(pattern) }
+      return "A selected provisioning profile does not contain the target's required capabilities or entitlements. " \
+             "Run `bundle exec fastlane ios setup_provisioning_profiles` to remap profiles, then renew the affected " \
+             "profile in Match if its App ID capabilities changed."
+    end
+
+    missing_patterns = [
+      /no profile for team/i,
+      /no (?:matching )?provisioning profiles? found/i,
+      /provisioning profile .* not found/i,
+      /requires a provisioning profile/i,
+      /couldn't find any provisioning profiles?/i
+    ]
+    return nil unless missing_patterns.any? { |pattern| log_contents.match?(pattern) }
+
+    "The App Store provisioning profiles selected by the Xcode project are not installed. " \
+      "Run `bundle exec fastlane ios setup_provisioning_profiles` before building and ensure " \
+      "the Match repository contains profiles for every app identifier."
+  end
+
+  def log_success(message)
+    UI.success("✅ #{message}")
+  end
+
+  def log_error(message)
+    UI.error("❌ #{message}")
+  end
+
+  # Method to safely call actions with retry logic
+  def with_retry(max_attempts = 3, action_name = "")
+    attempts = 0
+    begin
+      attempts += 1
+      yield
+    rescue => e
+      if attempts < max_attempts
+        wait_time = 10 * attempts
+        log_error("Attempt #{attempts}/#{max_attempts} for #{action_name} failed: #{e.message}")
+        UI.message("Retrying in #{wait_time} seconds...")
+        sleep(wait_time)
+        retry
+      else
+        log_error("#{action_name} failed after #{max_attempts} attempts: #{e.message}")
+        raise e
+      end
+    end
+  end
+
+  desc "Register new devices from a file"
+  lane :register_devices_from_txt do
+    ensure_env_vars(["GIT_URL", "GIT_ACCESS_TOKEN"])
+    UI.message("Registering new devices from file...")
+
+    csv_path = "../../devices.txt" # Update this with the actual path to your file
+
+    # Register devices using the devices_file parameter
+    register_devices(
+      devices_file: csv_path
+    )
+
+    UI.message("Devices registered successfully.")
+
+    # Update provisioning profiles for all app identifiers
+    app_identifiers.each do |app_identifier|
+      match(
+        git_url: normalize_signing_git_url(ENV["GIT_URL"]),
+        git_basic_authorization: normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"]),
+        type: "development",
+        app_identifier: app_identifier,
+        readonly: false, # Regenerate provisioning profile if needed
+        force_for_new_devices: true,
+        clone_branch_directly: true
+      )
+    end
+
+    UI.message("Development provisioning profiles updated.")
+  end
+
+  desc "Create a temporary keychain"
+  lane :create_temp_keychain do |options|
+    keychain_name = options[:name] || "temp_keychain"
+    timeout = Integer(options[:timeout] || 3600)
+    UI.message("Creating temporary keychain #{keychain_name}...")
+
+    create_keychain(
+      name: keychain_name,
+      password: ENV["KEYCHAIN_PASSWORD"],
+      default_keychain: true,
+      unlock: true,
+      timeout: timeout,
+      lock_when_sleeps: true
+    )
+
+    UI.message("Temporary keychain #{keychain_name} created successfully.")
+  end
+
+  desc "Synchronize certificates and provisioning profiles"
+  lane :setup_provisioning_profiles do |options|
+    required_vars = ["GIT_ACCESS_TOKEN", "GIT_URL", "ITC_TEAM_ID", "ITC_TEAM_NAME", "KEYCHAIN_PASSWORD"]
+    ensure_env_vars(required_vars)
+
+    UI.message("Setting up provisioning profiles...")
+    profile_mapping = {}
+
+    with_retry(3, "Fetching iOS provisioning profiles") do
+      match(
+        git_basic_authorization: normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"]),
+        git_url: normalize_signing_git_url(ENV["GIT_URL"]),
+        type: "appstore",
+        clone_branch_directly: true,
+        platform: "ios",
+        app_identifier: app_identifiers,
+        team_id: ENV["ITC_TEAM_ID"],
+        team_name: ENV["ITC_TEAM_NAME"],
+        readonly: true,
+        keychain_name: options[:keychain_name] || "temp_keychain",
+        keychain_password: ENV["KEYCHAIN_PASSWORD"]
+      )
+
+      match_mapping = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING] || {}
+      profile_mapping = app_identifiers.to_h do |identifier|
+        profile = match_mapping[identifier]
+        UI.user_error!("Match did not install an App Store profile for #{identifier}") if profile.to_s.empty?
+        [identifier, profile]
+      end
+    end
+
+    require "xcodeproj"
+    project_path = File.join(PROJECT_ROOT, "ios", "BlueWallet.xcodeproj")
+    project = Xcodeproj::Project.open(project_path)
+    targets_by_identifier = project.targets
+      .select { |target| target.build_configurations.any? { |config| config.name == "Release" } }
+      .group_by do |target|
+        target.build_configurations.find { |config| config.name == "Release" }
+          .build_settings["PRODUCT_BUNDLE_IDENTIFIER"]
+      end
+
+    missing_identifiers = profile_mapping.keys - targets_by_identifier.keys
+    unless missing_identifiers.empty?
+      UI.user_error!("No Release target found for bundle identifiers: #{missing_identifiers.join(', ')}")
+    end
+
+    profile_mapping.each do |identifier, profile_name|
+      update_code_signing_settings(
+        path: project_path,
+        targets: targets_by_identifier.fetch(identifier).map(&:name),
+        build_configurations: ["Release"],
+        use_automatic_signing: false,
+        sdk: "iphoneos*",
+        team_id: ENV.fetch("ITC_TEAM_ID"),
+        code_sign_identity: "Apple Distribution",
+        profile_name: profile_name
+      )
+    end
+
+    set_info_plist_value(
+      path: File.join(PROJECT_ROOT, "ios", "export_options.plist"),
+      key: "provisioningProfiles",
+      value: profile_mapping
+    )
+
+    UI.message("Using App Store provisioning profiles:")
+    profile_mapping.each { |app_identifier, profile_name| UI.message("  #{app_identifier}: #{profile_name}") }
+
+    log_success("All provisioning profiles set up")
+  end
+
+  # Run from the repository root: bundle exec fastlane update_apple_signing_assets
+  desc "Update all Apple certificates and provisioning profiles"
+  lane :update_apple_signing_assets do |options|
+    minimum_fastlane_version = Gem::Version.new("2.240.0")
+    current_fastlane_version = Gem::Version.new(Fastlane::VERSION)
+    if current_fastlane_version < minimum_fastlane_version
+      UI.user_error!(
+        "Fastlane 2.240.0 or newer is required to renew expired certificates and authenticate with App Store Connect. " \
+        "Run `bundle update fastlane` and retry this lane."
+      )
+    end
+
+    certificates_git_url = resolve_signing_value(
+      options: options,
+      option_name: :git_url,
+      env_name: "GIT_URL",
+      prompt: "Certificates repository URL:"
+    )
+    ENV["GIT_URL"] = normalize_signing_git_url(certificates_git_url)
+    developer_team_id = resolve_developer_team_id(options)
+    api_authentication = ensure_match_apple_auth!(options)
+    ensure_quick_look_app_group!(developer_team_id)
+    resolve_signing_value(
+      options: options,
+      option_name: :match_password,
+      env_name: "MATCH_PASSWORD",
+      prompt: "Match repository encryption password:",
+      sensitive: true
+    )
+    git_access_token = resolve_git_access_token(options)
+    ENV["GIT_ACCESS_TOKEN"] = normalize_git_basic_authorization(git_access_token)
+    keychain_password = options[:keychain_password] || ENV["KEYCHAIN_PASSWORD"]
+    if keychain_password.nil? || keychain_password.empty?
+      keychain_password = SecureRandom.hex(32)
+      UI.message("Generated a temporary keychain password for this run")
+    end
+
+    keychain_name = "bluewallet_match_#{Process.pid}"
+    create_keychain(
+      name: keychain_name,
+      password: keychain_password,
+      default_keychain: false,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: true
+    )
+
+    signing_configurations = [
+      {
+        platform: "ios",
+        app_identifiers: app_identifiers,
+        profile_types: %w[development adhoc appstore]
+      },
+      {
+        platform: "catalyst",
+        app_identifiers: catalyst_app_identifiers,
+        profile_types: %w[development appstore]
+      }
+    ]
+
+    begin
+      signing_configurations.each do |configuration|
+        configuration[:profile_types].each do |profile_type|
+          UI.message("Checking #{profile_type} signing assets for #{configuration[:platform]}...")
+          match_options = {
+            type: profile_type,
+            platform: configuration[:platform],
+            app_identifier: configuration[:app_identifiers],
+            readonly: false,
+            renew_expired_certs: true,
+            force: true,
+            git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+            keychain_name: keychain_name,
+            keychain_password: keychain_password,
+            team_id: developer_team_id
+          }
+          if configuration[:platform] == "catalyst" && profile_type == "appstore"
+            match_options[:additional_cert_types] = ["mac_installer_distribution"]
+          end
+          match_options.merge!(api_authentication) unless api_authentication.nil?
+          match_options[:username] = ENV["APPLE_ID"] if api_authentication.nil?
+          # Do not force --single-branch: Match may need to create or fetch a
+          # branch on a first run, where clone_branch_directly would fail.
+          match(**match_options)
+        end
+      end
+    ensure
+      signing_error = $!
+      begin
+        delete_keychain(name: keychain_name)
+      rescue => cleanup_error
+        UI.error("Could not delete temporary keychain #{keychain_name}: #{cleanup_error.message}")
+        raise cleanup_error if signing_error.nil?
+      end
+    end
+
+    log_success("All Apple certificates and provisioning profiles are valid")
+  end
+
+  # Only these targets support Mac Catalyst (watch/stickers do not)
+  def catalyst_app_identifiers
+    [
+      "io.bluewallet.bluewallet",
+      "io.bluewallet.bluewallet.MarketWidget"
+    ]
+  end
+
+  desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
+  lane :fetch_dev_profiles_catalyst do
+    ensure_env_vars(["GIT_URL", "GIT_ACCESS_TOKEN"])
+    match(
+      git_url: normalize_signing_git_url(ENV["GIT_URL"]),
+      git_basic_authorization: normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"]),
+      type: "development",
+      platform: "catalyst",
+      app_identifier: catalyst_app_identifiers,
+      readonly: true,
+      clone_branch_directly: true
+    )
+  end
+
+  desc "Fetch App Store certificates and provisioning profiles for Mac Catalyst"
+  lane :fetch_appstore_profiles_catalyst do
+    ensure_env_vars(["GIT_URL", "GIT_ACCESS_TOKEN"])
+    match(
+      git_url: normalize_signing_git_url(ENV["GIT_URL"]),
+      git_basic_authorization: normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"]),
+      type: "appstore",
+      platform: "catalyst",
+      app_identifier: catalyst_app_identifiers,
+      readonly: true,
+      clone_branch_directly: true
+    )
+  end
+
+  desc "Create provisioning profiles for Mac Catalyst (first-time setup)"
+  lane :setup_catalyst_provisioning_profiles do
+    ensure_env_vars(["GIT_URL", "GIT_ACCESS_TOKEN"])
+    catalyst_app_identifiers.each do |app_identifier|
+      match(
+        git_url: normalize_signing_git_url(ENV["GIT_URL"]),
+        git_basic_authorization: normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"]),
+        type: "development",
+        platform: "catalyst",
+        app_identifier: app_identifier,
+        readonly: false,
+        force_for_new_devices: true,
+        clone_branch_directly: true
+      )
+
+      match(
+        git_url: normalize_signing_git_url(ENV["GIT_URL"]),
+        git_basic_authorization: normalize_git_basic_authorization(ENV["GIT_ACCESS_TOKEN"]),
+        type: "appstore",
+        platform: "catalyst",
+        app_identifier: app_identifier,
+        readonly: false,
+        clone_branch_directly: true
+      )
+    end
+  end
+
+  desc "Delete temporary keychain"
+  lane :delete_temp_keychain do |options|
+    keychain_name = options[:name] || "temp_keychain"
+    UI.message("Deleting temporary keychain #{keychain_name}...")
+
+    keychain_paths = [
+      File.expand_path("~/Library/Keychains/#{keychain_name}-db"),
+      File.expand_path("~/Library/Keychains/#{keychain_name}.keychain-db")
+    ]
+    delete_keychain(name: keychain_name) if keychain_paths.any? { |path| File.exist?(path) }
+
+    UI.message("Temporary keychain #{keychain_name} deleted successfully.")
+  end
+end
+
+# iOS builds and TestFlight
+
+platform :ios do
+  desc "Clear derived data"
+  lane :clear_derived_data_lane do
+    UI.message("Clearing derived data...")
+    clear_derived_data
+  end
+
+  desc "Increment build number"
+  lane :increment_build_number_lane do
+    build_number = ENV["NEW_BUILD_NUMBER"].to_s
+    UI.user_error!("NEW_BUILD_NUMBER is required") if build_number.empty?
+    UI.user_error!("NEW_BUILD_NUMBER must contain digits only") unless build_number.match?(/\A\d+\z/)
+    UI.user_error!("NEW_BUILD_NUMBER must be positive") if build_number.to_i.zero?
+    UI.message("Setting build number to #{build_number}...")
+
+    # Set the new build number
+    increment_build_number(
+      xcodeproj: "ios/BlueWallet.xcodeproj",
+      build_number: build_number
+    )
+
+    UI.message("Build number set to: #{build_number}")
+  end
+
+  desc "Install CocoaPods dependencies"
+  lane :install_pods do
+    UI.message("Installing CocoaPods dependencies...")
+    cocoapods(
+      podfile: "ios/Podfile",
+      try_repo_update_on_error: true,
+      repo_update: true,
+      clean_install: true
+    )
+  end
+
+  desc "Upload an Apple artifact and wait until it is ready in TestFlight"
+  private_lane :upload_apple_testflight do |options|
+    platform = options[:platform].to_s
+    artifact_path = File.expand_path(options[:artifact_path].to_s, PROJECT_ROOT)
+    artifact_option = platform == "ios" ? :ipa : :pkg
+    expected_extension = platform == "ios" ? ".ipa" : ".pkg"
+    UI.user_error!("platform must be ios or catalyst") unless %w[ios catalyst].include?(platform)
+    UI.user_error!("#{platform} artifact must be a #{expected_extension} file") unless File.extname(artifact_path) == expected_extension
+    UI.user_error!("#{platform} artifact not found at #{artifact_path}") unless File.file?(artifact_path)
+
+    key_content = ENV['APP_STORE_CONNECT_API_KEY_CONTENT']
+    if key_content.to_s.empty?
+      api_key_path = File.expand_path(ENV['APP_STORE_CONNECT_API_KEY_PATH'] || "appstore_api_key.json", PROJECT_ROOT)
+      UI.user_error!("App Store Connect API key JSON not found at #{api_key_path}") unless File.file?(api_key_path)
+      authentication = { api_key_path: api_key_path }
+    else
+      begin
+        credentials = JSON.parse(key_content, symbolize_names: true)
+      rescue JSON::ParserError
+        UI.user_error!("APP_STORE_CONNECT_API_KEY_CONTENT must contain a Fastlane API key JSON object")
+      end
+      unless credentials.is_a?(Hash) && %i[key_id key].all? { |field| credentials[field].is_a?(String) && !credentials[field].empty? }
+        UI.user_error!("App Store Connect API key JSON requires key_id and key")
+      end
+
+      api_key = app_store_connect_api_key(
+        key_id: credentials[:key_id],
+        issuer_id: credentials[:issuer_id],
+        key_content: credentials[:key],
+        is_key_content_base64: credentials.fetch(:is_key_content_base64, false),
+        duration: credentials[:duration],
+        in_house: credentials.fetch(:in_house, false),
+        set_spaceship_token: false
+      )
+      authentication = { api_key: api_key }
+    end
+
+    branch_name = ENV['BRANCH_NAME'] || "unknown-branch"
+    last_commit_message = ENV['LATEST_COMMIT_MESSAGE'] || "No commit message found"
+    changelog = "Build Information:\n"
+    changelog += "- Branch: #{branch_name}\n" unless branch_name == "master"
+    changelog += "- Commit: #{last_commit_message}\n"
+
+    upload_options = {
+      **authentication,
+      skip_waiting_for_build_processing: false,
+      wait_processing_timeout_duration: 5_400,
+      changelog: changelog,
+      artifact_option => artifact_path
+    }
+    UI.message("Uploading #{platform} artifact to TestFlight from #{artifact_path}")
+    upload_to_testflight(**upload_options)
+  end
+
+  desc "Upload IPA to TestFlight"
+  lane :upload_to_testflight_lane do
+    upload_apple_testflight(
+      platform: "ios",
+      artifact_path: ENV['IPA_OUTPUT_PATH']
+    )
+    UI.success("iOS build finished processing in TestFlight!")
+  end
+
+  desc "Install signing assets and build an iOS release archive"
+  lane :build_signed_ios_release do
+    keychain_name = "bluewallet_ios_#{SecureRandom.hex(8)}"
+    begin
+      create_temp_keychain(name: keychain_name)
+      setup_provisioning_profiles(keychain_name: keychain_name)
+      build_app_lane
+    ensure
+      build_error = $!
+      begin
+        delete_temp_keychain(name: keychain_name)
+      rescue => cleanup_error
+        UI.error("Could not delete temporary keychain: #{cleanup_error.message}")
+        raise cleanup_error unless build_error
+      end
+    end
+  end
+
+  desc "Build the iOS app"
+  lane :build_app_lane do
+    project_version = ENV['PROJECT_VERSION'] || get_version_number(
+      xcodeproj: "ios/BlueWallet.xcodeproj",
+      target: "BlueWallet",
+      configuration: "Release"
+    )
+    commit_subject = last_git_commit&.fetch(:message, nil).to_s.lines.first.to_s.chomp
+    ipa_name = "BlueWallet_#{project_version}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
+    build_logs_dir = File.join(PROJECT_ROOT, "ios", "build_logs")
+
+    clear_derived_data_lane
+
+    begin
+      ipa_path = build_ios_app(
+        scheme: "BlueWallet",
+        workspace: File.join(PROJECT_ROOT, "ios", "BlueWallet.xcworkspace"),
+        export_method: "app-store",
+        export_options: File.join(PROJECT_ROOT, "ios", "export_options.plist"),
+        output_directory: File.join(PROJECT_ROOT, "ios", "build"),
+        output_name: ipa_name,
+        buildlog_path: build_logs_dir
+      )
+    rescue
+      build_log = Dir.glob(File.join(build_logs_dir, "*.log")).max_by { |path| File.mtime(path) }
+      provisioning_error = provisioning_profile_build_error_message(build_log ? File.read(build_log) : "")
+      UI.user_error!(provisioning_error) unless provisioning_error.nil?
+      raise
+    end
+
+    UI.user_error!("Fastlane did not produce an IPA") unless ipa_path && File.file?(ipa_path)
+    ENV['IPA_OUTPUT_PATH'] = ipa_path
+
+    write_github_output(
+      ipa_output_path: ipa_path, ipa_filename: File.basename(ipa_path),
+      project_version: project_version, commit_message: commit_subject
+    )
+  end
+
+  desc "Upload an iOS source map and bundle to Bugsnag manually"
+  lane :upload_bugsnag_sourcemaps do
+    ensure_env_vars(%w[BUGSNAG_API_KEY BUGSNAG_SOURCE_MAP BUGSNAG_MINIFIED_FILE PROJECT_VERSION NEW_BUILD_NUMBER])
+    version = ENV.fetch('PROJECT_VERSION')
+    bugsnag_sourcemaps_upload(
+      api_key: ENV.fetch('BUGSNAG_API_KEY'),
+      source_map: File.expand_path(ENV.fetch('BUGSNAG_SOURCE_MAP'), PROJECT_ROOT),
+      minified_file: File.expand_path(ENV.fetch('BUGSNAG_MINIFIED_FILE'), PROJECT_ROOT),
+      code_bundle_id: "#{version}-#{ENV.fetch('NEW_BUILD_NUMBER')}",
+      release_stage: ENV.fetch('BUGSNAG_RELEASE_STAGE', 'production'),
+      app_version: version
+    )
+  end
+  desc "Build and deploy iOS to TestFlight"
+  lane :deploy do
+    increment_build_number_lane
+    install_pods unless File.directory?(File.join(PROJECT_ROOT, "ios", "Pods"))
+    build_signed_ios_release
+    upload_to_testflight_lane
+  end
+end
+
+# Mac Catalyst archives and packaging
+
+platform :ios do
+  desc "Build a Mac Catalyst app and create a local DMG"
+  lane :build_catalyst_app_lane do
+    archive_catalyst
+    create_catalyst_dmg
+  end
+
+  desc "Build a Mac Catalyst archive for TestFlight"
+  lane :archive_catalyst do
+    Dir.chdir(PROJECT_ROOT) do
+      UI.message("Building Mac Catalyst application from: #{Dir.pwd}")
+
+      ENV['GIT_URL'] = normalize_signing_git_url(ENV['GIT_URL']) unless ENV['GIT_URL'].to_s.empty?
+      ENV['GIT_ACCESS_TOKEN'] = normalize_git_basic_authorization(ENV['GIT_ACCESS_TOKEN']) unless ENV['GIT_ACCESS_TOKEN'].to_s.empty?
+
+      workspace_path = File.join(PROJECT_ROOT, "ios", "BlueWallet.xcworkspace")
+      derived_data_path = File.join(PROJECT_ROOT, "ios", "build", "catalyst-derived-data")
+      output_dir = File.join(PROJECT_ROOT, "ios", "build", "catalyst-output")
+
+      if ENV['SKIP_CLEAR_DERIVED_DATA'] == '1'
+        UI.message('Skipping clear_derived_data_lane (SKIP_CLEAR_DERIVED_DATA=1)')
+      else
+        clear_derived_data_lane
+      end
+      FileUtils.mkdir_p(derived_data_path)
+      FileUtils.mkdir_p(output_dir)
+
+      has_signing_creds = ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty? &&
+                          ENV['CATALYST_TEAM_ID'] && !ENV['CATALYST_TEAM_ID'].empty?
+      has_match_creds = ENV['GIT_URL'] && !ENV['GIT_URL'].empty? &&
+                        ENV['GIT_ACCESS_TOKEN'] && !ENV['GIT_ACCESS_TOKEN'].empty?
+      should_sign = has_signing_creds && has_match_creds && ENV['CATALYST_SKIP_CODESIGNING'] != '1'
+      signing_identity = ENV['CATALYST_SIGNING_IDENTITY'] || "Apple Distribution"
+
+      xcargs_str = "ARCHS=arm64 ONLY_ACTIVE_ARCH=YES"
+      if should_sign
+        UI.message("Setting up Mac Catalyst provisioning profiles via match...")
+        team_id = ENV['CATALYST_TEAM_ID']
+        match_readonly = ENV['MATCH_READONLY'] != 'false'
+
+        match(
+          type: "appstore",
+          platform: "catalyst",
+          additional_cert_types: ["mac_installer_distribution"],
+          app_identifier: catalyst_app_identifiers,
+          team_id: team_id,
+          git_url: ENV['GIT_URL'],
+          git_basic_authorization: ENV['GIT_ACCESS_TOKEN'],
+          readonly: match_readonly,
+          clone_branch_directly: true,
+          keychain_name: ENV['KEYCHAIN_NAME'] || "login",
+          keychain_password: ENV['KEYCHAIN_PASSWORD'] || ""
+        )
+
+        xcargs_str += " DEVELOPMENT_TEAM=#{team_id}"
+        xcargs_str += " CODE_SIGN_IDENTITY=\"#{signing_identity}\""
+        xcargs_str += " CODE_SIGN_STYLE=Manual"
+
+        # Set provisioning profile specifiers per catalyst target
+        catalyst_app_identifiers.each do |app_id|
+          profile_name = "match AppStore #{app_id} catalyst"
+          # Convert bundle ID to xcodebuild target setting key
+          # e.g., io.bluewallet.bluewallet -> PROVISIONING_PROFILE_SPECIFIER for that target
+          xcargs_str += " PROVISIONING_PROFILE_SPECIFIER_#{app_id.gsub('.', '_')}=\"#{profile_name}\""
+        end
+
+        UI.success("Provisioning profiles configured for Mac Catalyst")
+      else
+        # Disable code signing entirely so xcodebuild doesn't look for provisioning profiles
+        xcargs_str += " CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO"
+        UI.message("No signing credentials provided — building without code signing")
+      end
+
+      archive_path = File.join(output_dir, "BlueWallet-#{SecureRandom.hex(8)}.xcarchive")
+      build_app(
+        archive_path: archive_path,
+        scheme: "BlueWallet",
+        workspace: workspace_path,
+        configuration: "Release",
+        destination: "generic/platform=macOS,variant=Mac Catalyst",
+        xcargs: xcargs_str,
+        clean: true,
+        skip_codesigning: !should_sign,
+        skip_package_ipa: true,
+        derived_data_path: derived_data_path,
+        buildlog_path: File.join(PROJECT_ROOT, "ios", "build_logs")
+      )
+
+      UI.user_error!("Mac Catalyst archive was not found at #{archive_path}") unless File.directory?(archive_path)
+
+      archived_app = File.join(archive_path, "Products/Applications/BlueWallet.app")
+      sandboxed_executables = [
+        File.join(archived_app, "Contents/MacOS/BlueWallet"),
+        File.join(archived_app, "Contents/PlugIns/WidgetsExtension.appex/Contents/MacOS/WidgetsExtension")
+      ]
+      sandboxed_executables.each do |executable|
+        next unless should_sign
+        UI.user_error!("Signed Catalyst executable not found at #{executable}") unless File.file?(executable)
+        entitlements = sh("codesign", "-d", "--entitlements", ":-", executable, log: false)
+        unless entitlements.match?(%r{<key>com\.apple\.security\.app-sandbox</key>\s*<true\s*/>})
+          UI.user_error!("App Sandbox entitlement is missing from #{executable}")
+        end
+      end
+      UI.success("Verified App Sandbox entitlement on the Catalyst app and widget archive") if should_sign
+
+      UI.user_error!("Mac Catalyst app was not found at #{archived_app}") unless File.directory?(archived_app)
+      sh("codesign", "--verify", "--deep", "--strict", archived_app) if should_sign
+
+      ENV['CATALYST_ARCHIVE_PATH'] = archive_path
+      ENV['CATALYST_APP_PATH'] = archived_app
+      write_github_output(catalyst_archive_path: archive_path, catalyst_app_path: archived_app)
+      UI.success("macOS app archived at: #{archive_path}")
+    end
+  end
+
+  private_lane :create_catalyst_dmg do
+    output_dir = File.join(PROJECT_ROOT, "ios", "build", "catalyst-output")
+    dmg_path = File.join(output_dir, "BlueWallet-Mac-Catalyst.dmg")
+    Dir.mktmpdir("dmg-staging", output_dir) do |staging|
+      FileUtils.cp_r(ENV.fetch('CATALYST_APP_PATH'), staging)
+      FileUtils.ln_s("/Applications", File.join(staging, "Applications"))
+      FileUtils.cp(File.join(PROJECT_ROOT, "fastlane", "templates", "catalyst-dmg-readme.txt"),
+                   File.join(staging, "README - Read Before Opening.txt"))
+      sh("hdiutil", "create", "-volname", "BlueWallet", "-srcfolder", staging, "-ov", "-format", "UDZO", dmg_path)
+    end
+    UI.user_error!("DMG was not created at #{dmg_path}") unless File.file?(dmg_path)
+    ENV['CATALYST_DMG_PATH'] = dmg_path
+    write_github_output(catalyst_dmg_path: dmg_path)
+    UI.success("macOS DMG at: #{dmg_path}")
+  end
+
+  desc "Upload Mac Catalyst app to TestFlight"
+  lane :upload_catalyst_to_testflight do
+    Dir.chdir(PROJECT_ROOT) do
+      archive_path = ENV['CATALYST_ARCHIVE_PATH']
+      UI.user_error!("No xcarchive found for TestFlight upload") if archive_path.nil? || !File.exist?(archive_path)
+      UI.message("Using archive: #{archive_path}")
+
+      output_dir = File.join(PROJECT_ROOT, "ios", "build", "catalyst-output")
+      FileUtils.mkdir_p(output_dir)
+
+      # The archive already has the validated App Store signatures and
+      # entitlements. Package it without modifying either executable signature.
+      archived_app = File.join(archive_path, "Products/Applications/BlueWallet.app")
+      UI.user_error!("No signed Catalyst app found in #{archive_path}") unless File.directory?(archived_app)
+      [archived_app, File.join(archived_app, "Contents/PlugIns/WidgetsExtension.appex")].each do |bundle|
+        sh("codesign", "--verify", "--strict", bundle)
+        entitlements = sh("codesign", "-d", "--entitlements", ":-", bundle, log: false)
+        unless entitlements.match?(%r{<key>com\.apple\.security\.app-sandbox</key>\s*<true\s*/>})
+          UI.user_error!("App Sandbox entitlement is missing immediately before packaging #{bundle}")
+        end
+      end
+      pkg_path = File.join(output_dir, "BlueWallet.pkg")
+      FileUtils.rm_f(pkg_path)
+      installer_identity = ENV['CATALYST_INSTALLER_SIGNING_IDENTITY'] || "3rd Party Mac Developer Installer"
+      sh("productbuild",
+         "--component", archived_app, "/Applications",
+         "--sign", installer_identity,
+         pkg_path)
+      sh("pkgutil", "--check-signature", pkg_path)
+      UI.success("Packaged signed Catalyst app: #{pkg_path}")
+
+      upload_apple_testflight(
+        platform: "catalyst",
+        artifact_path: pkg_path
+      )
+
+      UI.success("Mac Catalyst build finished processing in TestFlight!")
+    end
+  end
+end
+
+# App Store release notes
+
+def app_store_state_readable(state)
+  states = {
+    "DEVELOPER_REJECTED" => "Developer Rejected",
+    "PREPARE_FOR_SUBMISSION" => "Prepare for Submission",
+    "WAITING_FOR_REVIEW" => "Waiting for Review",
+    "IN_REVIEW" => "In Review",
+    "PENDING_DEVELOPER_RELEASE" => "Pending Developer Release",
+    "READY_FOR_SALE" => "Ready for Sale",
+    "REJECTED" => "Rejected",
+    "METADATA_REJECTED" => "Metadata Rejected"
+  }
+
+  states[state] || state
+end
+
+desc "Update release notes for App Store versions (iOS or Mac Catalyst)"
+lane :release_notes do |options|
+  require 'spaceship'
+  unless Spaceship::ConnectAPI.token && !Spaceship::ConnectAPI.token.expired?
+    authentication = match_api_authentication(options)
+    if authentication
+      Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.from(
+        hash: authentication[:api_key], filepath: authentication[:api_key_path]
+      )
+    else
+      Spaceship::ConnectAPI.login(
+        use_portal: false, use_tunes: true, tunes_team_id: ENV['ITC_TEAM_ID']
+      )
+    end
+  end
+
+  app = Spaceship::ConnectAPI::App.find(app_identifiers.first)
+
+  UI.user_error!("Could not find the app with identifier: #{app_identifiers.first}") unless app
+
+  platform_option = options[:platform]
+
+  if platform_option
+    platform = case platform_option.to_s.downcase
+      when "ios"
+        UI.message("Using platform from options: iOS")
+        Spaceship::ConnectAPI::Platform::IOS
+      when "catalyst", "mac_catalyst", "mac-catalyst"
+        UI.message("Using platform from options: Mac Catalyst")
+        UI.message("Using Spaceship::ConnectAPI::Platform::MAC_OS for Mac Catalyst")
+        Spaceship::ConnectAPI::Platform::MAC_OS
+      else
+        UI.user_error!("Invalid platform option: #{platform_option}")
+      end
+  else
+    platform_selection = UI.select("Select platform for release notes:", ["iOS", "Mac Catalyst"])
+
+    platform = case platform_selection
+      when "iOS"
+        UI.message("Selected platform: iOS")
+        Spaceship::ConnectAPI::Platform::IOS
+      when "Mac Catalyst"
+        UI.message("Selected platform: Mac Catalyst")
+        UI.message("Using Spaceship::ConnectAPI::Platform::MAC_OS for Mac Catalyst")
+        Spaceship::ConnectAPI::Platform::MAC_OS
+      else
+        UI.user_error!("Invalid platform selection")
+      end
+  end
+
+  retries = 5
+  begin
+    rejected_version = nil
+    UI.message("Checking for Developer Rejected version for platform: #{platform}")
+
+    begin
+      filter = {
+        appStoreState: "DEVELOPER_REJECTED",
+        platform: platform.to_s
+      }
+
+      app.get_app_store_versions(filter: filter).each do |version|
+        rejected_version = version
+        UI.message("Found rejected version: #{version.version_string}")
+        break
+      end
+    rescue => e
+      UI.error("Error fetching Developer Rejected versions: #{e.message}")
+      UI.message("Debug info: Platform type: #{platform.class}, Value: #{platform}")
+    end
+
+    if rejected_version
+      UI.success("Found 'Developer Rejected' version: #{rejected_version.version_string}. This will be the target for updates.")
+      prepare_version = rejected_version
+    else
+      UI.message("No Developer Rejected version found. Checking for version in edit mode or waiting for review...")
+
+      begin
+        prepare_version = app.get_edit_app_store_version(platform: platform)
+        if prepare_version
+          UI.message("Found version in edit mode: #{prepare_version.version_string}")
+        else
+          UI.message("No version in edit mode found")
+        end
+      rescue => e
+        UI.error("Error fetching edit app store version: #{e.message}")
+        prepare_version = nil
+      end
+
+      if prepare_version.nil?
+        UI.message("Checking for version in Waiting for Review status...")
+        begin
+          waiting_filter = {
+            platform: platform.to_s,
+            appStoreState: "WAITING_FOR_REVIEW"
+          }
+
+          waiting_versions = app.get_app_store_versions(filter: waiting_filter)
+          if waiting_versions && !waiting_versions.empty?
+            prepare_version = waiting_versions.first
+            UI.success("Found version in Waiting for Review status: #{prepare_version.version_string}")
+          else
+            UI.message("No version in Waiting for Review status found")
+          end
+        rescue => e
+          UI.error("Error fetching Waiting for Review versions: #{e.message}")
+        end
+      end
+
+      if prepare_version.nil?
+        UI.message("Looking for any in-flight version...")
+        begin
+          all_versions = app.get_app_store_versions(filter: { platform: platform.to_s })
+          UI.message("Found #{all_versions.count} versions for platform #{platform}:")
+
+          all_versions.each do |version|
+            state = app_store_state_readable(version.app_store_state)
+            UI.message("  - Version: #{version.version_string}, State: #{state}")
+          end
+
+          editable_states = ["PREPARE_FOR_SUBMISSION", "WAITING_FOR_REVIEW", "REJECTED", "METADATA_REJECTED", "DEVELOPER_REJECTED"]
+          editable_version = all_versions.find { |v| editable_states.include?(v.app_store_state) }
+
+          if editable_version
+            prepare_version = editable_version
+            UI.success("Using editable version: #{prepare_version.version_string} (#{app_store_state_readable(prepare_version.app_store_state)})")
+          elsif all_versions.count > 0
+            latest_version = all_versions.sort_by { |v| Gem::Version.new(v.version_string) }.last
+            UI.message("Latest version: #{latest_version.version_string} (#{app_store_state_readable(latest_version.app_store_state)})")
+          end
+        rescue => e
+          UI.error("Error listing versions: #{e.message}")
+        end
+      end
+
+      if prepare_version.nil?
+        UI.message("No editable version found.")
+
+        create_new_version = UI.confirm("Would you like to create a new version?")
+
+        if create_new_version
+          begin
+            require 'json'
+            package_json_path = File.join(PROJECT_ROOT, "package.json")
+            package_json = JSON.parse(File.read(package_json_path))
+            new_version_number = package_json["version"]
+
+            if new_version_number.nil? || new_version_number.strip.empty?
+              UI.user_error!("package.json does not contain a valid version")
+            end
+
+            UI.message("Using package.json version: #{new_version_number}")
+            UI.message("Creating new version: #{new_version_number} for platform: #{platform_selection || platform_option}")
+            app.ensure_version!(new_version_number, platform: platform)
+
+            prepare_version = app.get_edit_app_store_version(platform: platform)
+            if prepare_version.nil? || prepare_version.version_string != new_version_number
+              versions_for_platform = app.get_app_store_versions(filter: { platform: platform.to_s })
+              prepare_version = versions_for_platform.find { |v| v.version_string == new_version_number }
+            end
+
+            UI.user_error!("Failed to fetch created version #{new_version_number}") if prepare_version.nil?
+            UI.message("Created new version: #{new_version_number}")
+          rescue => e
+            UI.error("Failed to create new version: #{e.message}")
+            UI.user_error!("Failed to create version. Make sure your app is configured for Mac Catalyst in App Store Connect.")
+          end
+        else
+          UI.user_error!("No editable version found and user chose not to create one. Aborting.")
+        end
+      else
+        UI.message("Using version #{prepare_version.version_string} in state: #{app_store_state_readable(prepare_version.app_store_state)}")
+      end
+    end
+  rescue => e
+    retries -= 1
+    if retries > 0
+      delay = 20
+      UI.message("Cannot find app version info... Retrying after #{delay} seconds (remaining: #{retries})")
+      UI.error("Error details: #{e.message}")
+      sleep(delay)
+      retry
+    else
+      UI.user_error!("Failed to fetch or create the app version: #{e.message}")
+    end
+  end
+
+  localized_metadata = prepare_version.get_app_store_version_localizations
+  enabled_locales = localized_metadata.map(&:locale)
+  release_notes_text = options[:release_notes]
+
+  if release_notes_text.nil? || release_notes_text.strip.empty?
+    existing_release_notes = nil
+
+    en_us_localization = localized_metadata.find { |loc| loc.locale == 'en-US' }
+    if en_us_localization && en_us_localization.whats_new && !en_us_localization.whats_new.strip.empty?
+      existing_release_notes = en_us_localization.whats_new
+      UI.success("Found existing release notes in App Store Connect!")
+    else
+      localized_metadata.each do |loc|
+        if loc.whats_new && !loc.whats_new.strip.empty?
+          existing_release_notes = loc.whats_new
+          UI.success("Found existing release notes in App Store Connect for locale: #{loc.locale}")
+          break
+        end
+      end
+    end
+
+    ios_release_notes_path = "metadata/ios/en-US/release_notes.txt"
+    project_release_notes_path = "../release-notes.txt"
+
+    ios_notes_exist = File.exist?(ios_release_notes_path)
+    project_notes_exist = File.exist?(project_release_notes_path)
+
+    options_list = []
+
+    if existing_release_notes
+      options_list << "View/Edit existing App Store notes"
+    end
+
+    options_list += [
+      "Enter manually",
+      "Use clipboard content"
+    ]
+
+    if project_notes_exist
+      options_list << "Use release-notes.txt file"
+    end
+
+    if ios_notes_exist
+      options_list << "Use iOS metadata release notes"
+    end
+
+    selection = UI.select("Select a source for release notes:", options_list)
+
+    case selection
+    when "View/Edit existing App Store notes"
+      UI.message("Existing release notes:")
+      UI.message("-" * 50)
+      UI.message(existing_release_notes)
+      UI.message("-" * 50)
+
+      edit_choice = UI.select("Do you want to edit these notes or use as-is?:", [
+        "Use as-is",
+        "Edit notes"
+      ])
+
+      if edit_choice == "Edit notes"
+        require 'tempfile'
+        temp_file = Tempfile.new('release_notes')
+        temp_file.write(existing_release_notes)
+        temp_file.close
+
+        editor = ENV['EDITOR'] || 'nano'
+        system("#{editor} #{temp_file.path}")
+
+        release_notes_text = File.read(temp_file.path)
+        temp_file.unlink
+
+        UI.message("Edited release notes:")
+        UI.message("-" * 50)
+        UI.message(release_notes_text.length > 500 ? "#{release_notes_text[0..500]}..." : release_notes_text)
+        UI.message("-" * 50)
+
+        unless UI.confirm("Use these edited notes?")
+          UI.user_error!("User canceled edited notes. Aborting.")
+        end
+      else
+        release_notes_text = existing_release_notes
+      end
+
+    when "Enter manually"
+      release_notes_text = UI.input("Enter the release notes:")
+      if release_notes_text.nil? || release_notes_text.strip.empty?
+        UI.user_error!("No release notes provided. Aborting.")
+      end
+
+    when "Use clipboard content"
+      require 'open3'
+      stdout, stderr, status = Open3.capture3("pbpaste")
+
+      if !status.success? || stdout.strip.empty?
+        UI.user_error!("Failed to get clipboard content or clipboard is empty")
+      end
+
+      UI.message("Clipboard content preview:")
+      UI.message("-" * 50)
+      UI.message(stdout.length > 500 ? "#{stdout[0..500]}..." : stdout)
+      UI.message("-" * 50)
+
+      unless UI.confirm("Use this clipboard content for release notes?")
+        UI.user_error!("User canceled clipboard content usage. Aborting.")
+      end
+
+      release_notes_text = stdout
+
+    when "Use iOS metadata release notes"
+      release_notes_text = File.read(ios_release_notes_path)
+
+      UI.message("iOS metadata release notes preview:")
+      UI.message("-" * 50)
+      UI.message(release_notes_text.length > 500 ? "#{release_notes_text[0..500]}..." : release_notes_text)
+      UI.message("-" * 50)
+
+      unless UI.confirm("Use this content from iOS metadata release notes?")
+        UI.user_error!("User canceled file content usage. Aborting.")
+      end
+
+    when "Use release-notes.txt file"
+      release_notes_path = "../release-notes.txt"
+
+      unless File.exist?(release_notes_path)
+        UI.error("Release notes file does not exist at path: #{release_notes_path}")
+        UI.user_error!("No release-notes.txt file found. Aborting.")
+      end
+
+      release_notes_text = File.read(release_notes_path)
+
+      UI.message("release-notes.txt content preview:")
+      UI.message("-" * 50)
+      UI.message(release_notes_text.length > 500 ? "#{release_notes_text[0..500]}..." : release_notes_text)
+      UI.message("-" * 50)
+
+      unless UI.confirm("Use this content from release-notes.txt?")
+        UI.user_error!("User canceled file content usage. Aborting.")
+      end
+    end
+  end
+
+  if release_notes_text.nil? || release_notes_text.strip.empty?
+    UI.user_error!("No release notes content available. Aborting.")
+  end
+
+  localized_release_notes = {
+    'en-US' => release_notes_text,
+    'ar-SA' => release_notes_text,
+    'zh-Hans' => release_notes_text,
+    'hr' => release_notes_text,
+    'da' => release_notes_text,
+    'nl-NL' => release_notes_text,
+    'fi' => release_notes_text,
+    'fr-FR' => release_notes_text,
+    'de-DE' => release_notes_text,
+    'el' => release_notes_text,
+    'he' => release_notes_text,
+    'hu' => release_notes_text,
+    'it' => release_notes_text,
+    'ja' => release_notes_text,
+    'ms' => release_notes_text,
+    'nb' => release_notes_text,
+    'no' => release_notes_text,
+    'pl' => release_notes_text,
+    'pt-BR' => release_notes_text,
+    'pt-PT' => release_notes_text,
+    'ro' => release_notes_text,
+    'ru' => release_notes_text,
+    'es-MX' => release_notes_text,
+    'es-ES' => release_notes_text,
+    'sv' => release_notes_text,
+    'th' => release_notes_text,
+  }
+
+  if platform == Spaceship::ConnectAPI::Platform::MAC_OS
+    UI.message("Mac Catalyst selected - using only en-US localization")
+    localized_release_notes = { 'en-US' => release_notes_text }
+  end
+
+  localized_release_notes = localized_release_notes.select { |locale, _| enabled_locales.include?(locale) }
+
+  UI.message("Review the following release notes updates:")
+  localized_release_notes.each do |locale, notes|
+    UI.message("Locale: #{locale} - Notes: #{notes}")
+  end
+
+  force_yes = options && options.is_a?(Hash) && options[:force_yes] == true
+
+  unless force_yes
+    confirm = UI.confirm("Do you want to proceed with these release notes updates?")
+    UI.user_error!("User aborted the lane.") unless confirm
+  end
+
+  localized_release_notes.each do |locale, notes|
+    app_store_version_localization = localized_metadata.find { |loc| loc.locale == locale }
+    if app_store_version_localization
+      app_store_version_localization.update(attributes: { "whats_new" => notes })
+    else
+      UI.error("No localization found for locale #{locale}")
+    end
+  end
 end
