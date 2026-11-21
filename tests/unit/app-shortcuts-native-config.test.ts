@@ -5,7 +5,6 @@ const repositoryRoot = path.join(__dirname, '../..');
 const readRepositoryFile = (relativePath: string) => readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
 
 describe('native app shortcut configuration', () => {
-
   it('limits Android browsable links to the static BlueWallet shortcut routes', () => {
     const manifest = readRepositoryFile('android/app/src/main/AndroidManifest.xml');
     const browsableFilters = manifest

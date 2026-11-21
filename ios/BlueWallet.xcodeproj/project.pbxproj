@@ -1994,6 +1994,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.ShareExtensionTests;
@@ -2028,6 +2029,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.ShareExtensionTests;
