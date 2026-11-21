@@ -11,13 +11,11 @@ xxd -plain -revert bluewallet-release-key.keystore.hex > ./android/bluewallet-re
 rm bluewallet-release-key.keystore.hex
 
 cd android
-# Use the BUILD_NUMBER environment variable set in the GitHub Actions workflow
-sed -i'.original' "s/versionCode 1/versionCode $BUILD_NUMBER/g" app/build.gradle
 
 # Extract versionName from build.gradle
 VERSION_NAME=$(grep versionName app/build.gradle | awk '{print $2}' | tr -d '"')
 
-./gradlew assembleRelease
+./gradlew assembleRelease "-PbluewalletVersionCode=${BUILD_NUMBER:-1}"
 
 # Rename the APK file to include the dynamic version and build number with parentheses
 mv ./app/build/outputs/apk/release/app-release-unsigned.apk "./app/build/outputs/apk/release/BlueWallet-${VERSION_NAME}($BUILD_NUMBER).apk"

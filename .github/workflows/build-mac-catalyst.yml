@@ -86,14 +86,12 @@ jobs:
       - name: Install CocoaPods dependencies
         run: bundle exec fastlane ios install_pods
         env:
-          SKIP_APP_STORE_CONNECT_AUTH: '1'
           RCT_USE_RN_DEP: '1'
           RCT_USE_PREBUILT_RNCORE: '1'
 
       - name: Create temporary signing keychain
         run: bundle exec fastlane ios create_temp_keychain name:build timeout:21600
         env:
-          SKIP_APP_STORE_CONNECT_AUTH: '1'
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
       - name: Set shared Apple build number
@@ -118,9 +116,8 @@ jobs:
       - name: Build Mac Catalyst archive
         id: build_catalyst
         timeout-minutes: 180
-        run: bundle exec fastlane ios build_catalyst_app_lane
+        run: bundle exec fastlane ios archive_catalyst
         env:
-          SKIP_APP_STORE_CONNECT_AUTH: '1'
           SKIP_CLEAR_DERIVED_DATA: '1'
           CATALYST_SIGNING_IDENTITY: ${{ secrets.CATALYST_SIGNING_IDENTITY || 'Apple Distribution' }}
           CATALYST_TEAM_ID: ${{ secrets.CATALYST_TEAM_ID || secrets.TEAM_ID || secrets.ITC_TEAM_ID }}
@@ -136,7 +133,6 @@ jobs:
         timeout-minutes: 110
         run: bundle exec fastlane ios upload_catalyst_to_testflight
         env:
-          SKIP_APP_STORE_CONNECT_AUTH: '1'
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
           CATALYST_TEAM_ID: ${{ secrets.CATALYST_TEAM_ID || secrets.TEAM_ID || secrets.ITC_TEAM_ID }}
           CATALYST_ARCHIVE_PATH: ${{ steps.build_catalyst.outputs.catalyst_archive_path }}
@@ -179,5 +175,3 @@ jobs:
       - name: Delete temporary signing keychain
         if: always()
         run: bundle exec fastlane ios delete_temp_keychain name:build || true
-        env:
-          SKIP_APP_STORE_CONNECT_AUTH: '1'

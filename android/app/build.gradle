@@ -92,7 +92,7 @@ android {
         applicationId "io.bluewallet.bluewallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
+        versionCode providers.gradleProperty("bluewalletVersionCode").getOrElse("1").toInteger()
         versionName "8.0.4"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'

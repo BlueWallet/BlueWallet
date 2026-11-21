@@ -13,6 +13,9 @@ on:
 jobs:
   buildReleaseApk:
     runs-on: ubuntu-24.04
+    outputs:
+      apk_filename: ${{ steps.build_and_sign_apk.outputs.apk_filename }}
+      apk_artifact_url: ${{ steps.upload_apk.outputs.artifact-url }}
 
     steps:
       - name: Checkout project
@@ -105,6 +108,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Upload APK as artifact
+        id: upload_apk
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: signed-apk
@@ -133,16 +137,58 @@ jobs:
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: signed-apk
+          path: browserstack-apk
 
-      - name: Set APK Path
-        run: |
-          APK_PATH=$(find ${{ github.workspace }} -name '*.apk')
-          echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
-
-      - name: Upload APK to BrowserStack and Post PR Comment
+      - name: Upload APK to BrowserStack
+        id: browserstack_upload
         env:
+          APK_PATH: ${{ github.workspace }}/browserstack-apk/${{ needs.buildReleaseApk.outputs.apk_filename }}
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bundle exec fastlane android upload_to_browserstack_and_comment
+        run: bundle exec fastlane android upload_to_browserstack
+
+      - name: Post BrowserStack PR comment
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          APP_URL: ${{ steps.browserstack_upload.outputs.browserstack_app_url }}
+          APK_FILENAME: ${{ needs.buildReleaseApk.outputs.apk_filename }}
+          APK_ARTIFACT_URL: ${{ needs.buildReleaseApk.outputs.apk_artifact_url }}
+        with:
+          script: |
+            const heading = '### APK Successfully Uploaded to BrowserStack';
+            const appId = process.env.APP_URL.slice('bs://'.length);
+            const devices = [
+              ["Google Pixel 9 (Android 15)","15.0","Google Pixel 9"],
+              ["Google Pixel 8 (Android 14)","14.0","Google Pixel 8"],
+              ["Google Pixel 7 (Android 13)","13.0","Google Pixel 7"],
+              ["Google Pixel 5 (Android 12)","12.0","Google Pixel 5"],
+              ["Google Pixel 3a (Android 9)","9.0","Google Pixel 3a"],
+              ["Samsung Galaxy Z Fold 6 (Android 14)","14.0","Samsung Galaxy Z Fold 6"],
+              ["Samsung Galaxy Z Fold 5 (Android 13)","13.0","Samsung Galaxy Z Fold 5"],
+              ["Samsung Galaxy Tab S9 (Android 13)","13.0","Samsung Galaxy Tab S9"],
+              ["Samsung Galaxy Note 9 (Android 8.1)","8.1","Samsung Galaxy Note 9"],
+              ["OnePlus 11R (Android 13)","13.0","OnePlus 11R"],
+            ];
+            const links = devices.map(([label, version, device]) => {
+              const params = new URLSearchParams({
+                os: 'android', os_version: version, device, app_hashed_id: appId,
+                scale_to_fit: 'true', speed: '1', start: 'true', browser: 'chrome',
+              });
+              return `- [${label}](https://app-live.browserstack.com/dashboard#${params})`;
+            });
+            const body = [
+              heading, '', 'You can test it on the following devices:', '', ...links, '',
+              `**Filename**: [${process.env.APK_FILENAME}](${process.env.APK_ARTIFACT_URL})`,
+              `**BrowserStack App URL**: ${process.env.APP_URL}`,
+            ].join('\n');
+            const issue = { ...context.repo, issue_number: context.payload.pull_request.number };
+            const comments = await github.paginate(github.rest.issues.listComments, issue);
+            const previous = comments.find(comment =>
+              comment.user?.type === 'Bot' && comment.body?.startsWith(heading)
+              && comment.user?.login === 'github-actions[bot]'
+            );
+            if (previous) {
+              await github.rest.issues.updateComment({ ...context.repo, comment_id: previous.id, body });
+            } else {
+              await github.rest.issues.createComment({ ...issue, body });
+            }

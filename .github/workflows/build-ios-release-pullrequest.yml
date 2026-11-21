@@ -186,22 +186,10 @@ jobs:
 
       - name: Set Shared Apple Build Number
         run: bundle exec fastlane ios increment_build_number_lane
-        env:
-          SKIP_APP_STORE_CONNECT_AUTH: '1'
 
-      - name: Set Up Git Authentication
-        env:
-          ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-        run: |
-          git config --global credential.helper 'cache --timeout=3600'
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
-
-      - name: Create Temporary Keychain
-        run: bundle exec fastlane ios create_temp_keychain
-        env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-
-      - name: Setup Provisioning Profiles
+      - name: Sign and build iOS
+        id: build_app
+        run: bundle exec fastlane ios build_signed_ios_release
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -209,12 +197,7 @@ jobs:
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          bundle exec fastlane ios setup_provisioning_profiles
-
-      - name: Build App
-        id: build_app
-        run: bundle exec fastlane ios build_app_lane
+          BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
 
       - name: Debug Build Failure
         if: failure()
@@ -271,15 +254,6 @@ jobs:
           
           echo -e "\033[1;31m========================================================\033[0m"
 
-      - name: Upload Bugsnag Sourcemaps
-        if: success()
-        run: bundle exec fastlane ios upload_bugsnag_sourcemaps
-        env:
-          BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
-          BUGSNAG_RELEASE_STAGE: production
-          PROJECT_VERSION: ${{ steps.build_app.outputs.project_version }}
-          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-
       - name: Upload Build Logs
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -295,10 +269,6 @@ jobs:
           name: BlueWallet_IPA
           path: ${{ steps.build_app.outputs.ipa_output_path }}
           retention-days: 7
-
-      - name: Delete Temporary Keychain
-        if: always()
-        run: bundle exec fastlane ios delete_temp_keychain
 
   catalyst:
     name: macOS Catalyst
@@ -354,7 +324,6 @@ jobs:
       - name: Upload to TestFlight
         run: bundle exec fastlane ios upload_to_testflight_lane
         env:
-          SKIP_APP_STORE_CONNECT_AUTH: '1'
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
           IPA_OUTPUT_PATH: ${{ github.workspace }}/${{ needs.build.outputs.ipa_filename }}
 
