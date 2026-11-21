@@ -103,7 +103,7 @@ function service(version: 1 | 2, amount: string, confirmExact = true, network = 
       } else if (request.method === 'depin.msg_info') {
         result = { body: 'signed-body', poolsig: 'signature' };
       } else if (request.method === 'depin.receive_seq') {
-        result = { encrypted: 'opaque', poolsig: 'signature', protocol: 5, request_hash: 'hash' };
+        result = { encrypted: 'opaque', poolsig: 'signature', protocol: 6, request_hash: 'hash' };
       } else if (request.method === 'rpc.call') {
         result = [{ satoshis: amount, script: '51' }];
       } else if (request.method === 'tx.broadcast') {
@@ -364,9 +364,9 @@ test('DePIN sequence transport keeps the signed request and every cursor digit i
   const server = service(2, '1'),
     backend = new WssBackend({ chain: 'xna-test', url: 'ws://local/push' });
   try {
-    const request = { protocol: 5, signature: 'signature', args: { cursor: { after_seq: 9007199254740993n } } };
+    const request = { protocol: 6, signature: 'signature', args: { cursor: { after_seq: 9007199254740993n } } };
     const result = await backend.rpc('depinreceiveseq', [request]);
-    expect(result).toEqual({ encrypted: 'opaque', poolsig: 'signature', protocol: 5, request_hash: 'hash' });
+    expect(result).toEqual({ encrypted: 'opaque', poolsig: 'signature', protocol: 6, request_hash: 'hash' });
     const raw = server.rawRequests.find((r) => r.includes('depin.receive_seq'))!;
     expect(raw).toContain('9007199254740993');
     expect(raw).not.toContain('9007199254740992');

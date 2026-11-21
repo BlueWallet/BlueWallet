@@ -17,7 +17,7 @@ export interface DepinChatIdentity {
   /**
    * Private key in WIF format (used to sign/decrypt DePIN messages locally).
    * **Empty for device-backed identities** (hardware wallets never expose it):
-   * RPC 5 signing/decryption requires the deferred hardware update. Gate local-crypto paths
+   * RPC 6 signing/decryption requires the deferred hardware update. Gate local-crypto paths
    * on a truthy `wif` (or on `!deviceBacked`).
    */
   wif: string;

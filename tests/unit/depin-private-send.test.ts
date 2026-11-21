@@ -1,4 +1,4 @@
-import { fakePool, sdk } from './helpers/depin-rpc5';
+import { fakePool, openStored, sdk } from './helpers/depin-rpc5';
 import { sendDepinPrivateMessage, verifiedRecipients } from '../../blue_modules/neurai/depinSend';
 test('private selection includes only the exact recipient and sender, even above the group limit', async () => {
   const node = await fakePool(),
@@ -17,10 +17,8 @@ test('private selection includes only the exact recipient and sender, even above
   });
   expect(result.recipientCount).toBe(2);
   const message = node.messages[0];
-  expect(await sdk.decryptDepinReceiveEncryptedPayload(message.encrypted_payload_hex, '88'.repeat(32))).toBe(
-    `@${node.strict.address} private`,
-  );
-  expect(await sdk.decryptDepinReceiveEncryptedPayload(message.encrypted_payload_hex, '99'.repeat(32))).toBeNull();
+  expect(await openStored(message, '88'.repeat(32))).toBe(`@${node.strict.address} private`);
+  expect(await openStored(message, '99'.repeat(32))).toBeNull();
 });
 test('the recipient must be in the verified directory; an arbitrary supplied address cannot be used', async () => {
   const node = await fakePool(),

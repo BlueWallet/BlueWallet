@@ -8,7 +8,7 @@ import { C7WorkerClient } from '@neuraiproject/neurai-privacy/client';
 import { decodeBridgeMessage, encodeBridgeMessage } from '../../blue_modules/neurai/privacy/codec';
 import { PrivacyHostBridge } from '../../blue_modules/neurai/privacy/bridge';
 import { shortStage } from '../../blue_modules/neurai/privacy/stages';
-import { autoPoolFee, requiredPoolFee } from '../../blue_modules/neurai/privacy/fees';
+import { autoPoolFee, minimumPoolFee, payablePoolLevels, requiredPoolFee } from '../../blue_modules/neurai/privacy/fees';
 import { C7_XNA_TESTNET, DEFAULT_PRIVACY_POOL, PRIVACY_AVAILABLE, PRIVACY_POOLS } from '../../blue_modules/neurai/privacy/deployment';
 import { NeuraiHDWallet } from '../../class/wallets/neurai-hd-wallet';
 import { NeuraiPQWallet } from '../../class/wallets/neurai-pq-wallet';
@@ -397,20 +397,36 @@ describe('privacy transaction tags', () => {
 describe('automatic pool fee', () => {
   const levels = ['10000000', '20000000', '50000000'];
 
-  it('picks the lowest pinned level that covers the form at the relay rate', () => {
-    // The largest TEST pool transaction (T3, about 6,100 vbytes) needs well under 0.1 XNA.
-    for (const form of ['D', 'T1', 'T2', 'T3', 'W', 'J2']) {
-      expect(requiredPoolFee(form) < 10000000n).toBe(true);
-      expect(autoPoolFee(form, levels)).toBe('10000000');
-    }
-    expect(requiredPoolFee('T3')).toBe(8400000n); // 7,000 vbytes at 0.012 XNA per 1,000
+  it('prices the NIP-028 Poseidon work, which dominates the size of pool transactions', () => {
+    // Network minimum (0.01 XNA per 1,000 policy vbytes), as the C7 worker enforces it.
+    expect(minimumPoolFee('D')).toBe(6780000n); // 339 permutations × 80 / 4
+    expect(minimumPoolFee('T1')).toBe(10060000n);
+    expect(minimumPoolFee('T2')).toBe(14020000n);
+    expect(minimumPoolFee('T3')).toBe(17980000n);
+    expect(minimumPoolFee('W')).toBe(10080000n); // costliest withdrawal form
+    expect(minimumPoolFee('J2')).toBe(12740000n);
+    // Wallet rate: 20% over the floor.
+    expect(requiredPoolFee('T3')).toBe(21576000n);
+  });
+
+  it('picks the lowest pinned level that covers the form at the wallet rate', () => {
+    expect(autoPoolFee('D', levels)).toBe('10000000');
+    for (const form of ['T1', 'T2', 'W', 'J2']) expect(autoPoolFee(form, levels)).toBe('20000000');
+    expect(autoPoolFee('T3', levels)).toBe('50000000');
+  });
+
+  it('offers only the levels the node relays', () => {
+    expect(payablePoolLevels('D', levels)).toEqual(levels);
+    for (const form of ['T1', 'T2', 'T3', 'W', 'J2']) expect(payablePoolLevels(form, levels)).toEqual(['20000000', '50000000']);
   });
 
   it('moves up when a lower level would not cover the size, and never invents a level', () => {
     expect(autoPoolFee('T3', ['1000000', '5000000', '9000000'])).toBe('9000000');
     expect(autoPoolFee('D', ['9000000', '1000000', '5000000'])).toBe('9000000');
+    expect(autoPoolFee('D', ['50000000', '9000000', '1000000'])).toBe('9000000');
     expect(autoPoolFee('T3', ['1000000', '2000000'])).toBe('2000000');
-    expect(autoPoolFee('unknown', levels)).toBe('10000000');
+    // An unknown form is priced as the costliest operation (T3).
+    expect(autoPoolFee('unknown', levels)).toBe('50000000');
     expect(autoPoolFee('D', [])).toBe('');
   });
 });

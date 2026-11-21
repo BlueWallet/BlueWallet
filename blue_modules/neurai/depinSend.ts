@@ -1,5 +1,5 @@
 /**
- * Sending a DePIN message under RPC 5.
+ * Sending a DePIN message under RPC 6.
  *
  * Replaces the hand-rolled assembly the app used to do — fetch each recipient's
  * key with `getpubkey`, build, wrap, submit — with the library calls that carry

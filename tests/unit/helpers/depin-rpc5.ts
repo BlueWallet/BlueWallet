@@ -1,10 +1,14 @@
-/** Deterministic, unfunded test identities. No network connections. */
+/** RPC 6 / ECIES format 3 fake pool with deterministic, unfunded test identities. No network connections. */
 import { stringifyRpcJson } from '@neuraiproject/neurai-rpc';
 import { getVerifiedPool } from '../../../blue_modules/neurai/depinPool';
 import type { VerifiedPool } from '../../../blue_modules/neurai/depinPool';
 import type { SenderIdentity, DepinRpcContext, DepinRpcRequest, ReceivedDepinMessage } from '@neuraiproject/neurai-depin-msg';
 export const sdk: typeof import('@neuraiproject/neurai-depin-msg') = require('@neuraiproject/neurai-depin-msg');
 const POOL_KEY = '66'.repeat(32);
+/** Format 3 opens message content only under its header context; null when the key is not a recipient. */
+export async function openStored(message: ReceivedDepinMessage, privateKeyHex: string): Promise<string | null> {
+  return (await sdk.decryptDepinReceivedMessage(message, privateKeyHex, { network: 'test' })).plaintext;
+}
 let count = 0;
 export async function fakePool(
   options: { maxRecipients: number; complete?: boolean; pageSize?: number } = { maxRecipients: 2, complete: true },
@@ -37,11 +41,17 @@ export async function fakePool(
   };
   let tamper = false;
   async function respond(method: string, r: DepinRpcRequest, body: unknown, actor?: SenderIdentity) {
-    const response: any = { ...context, protocol: 5, request_hash: sdk.depinRequestHash(method, r), body_kind: actor ? 1 : 0 };
+    const response: any = { ...context, protocol: 6, request_hash: sdk.depinRequestHash(method, r), body_kind: actor ? 1 : 0 };
     const bytes = new TextEncoder().encode(stringifyRpcJson(body));
     if (actor)
       response.encrypted = sdk.bytesToHex(
-        sdk.serializeEciesMessage(await sdk.eciesEncrypt(bytes, [{ address: actor.address, publicKey: actor.publicKey }])),
+        sdk.serializeEciesMessage(
+          await sdk.eciesEncrypt(
+            bytes,
+            [{ address: actor.address, publicKey: actor.publicKey }],
+            sdk.transportContext('reply', context.network),
+          ),
+        ),
       );
     else response.body = sdk.bytesToHex(bytes);
     response.poolsig = sdk.signRecoverableMessage(
@@ -57,14 +67,14 @@ export async function fakePool(
   const call = jest.fn(async (method: string, params: unknown[]) => {
     expect(params).toHaveLength(1);
     const r = params[0] as DepinRpcRequest;
-    expect(r.protocol).toBe(5);
+    expect(r.protocol).toBe(6);
     if (method === 'depingetmsginfo')
       return respond(method, r, {
         enabled: true,
-        protocol: 5,
-        accepted_protocols: [5],
+        protocol: 6,
+        accepted_protocols: [6],
         address_types: ['legacy', 'ecdsa'],
-        ecies_formats: [1, 2],
+        ecies_formats: [3],
         token: context.pool_root,
         depinpoolpkey: pool.publicKey,
         depinpoolkeyaddress: pool.address,
@@ -113,8 +123,8 @@ export async function fakePool(
     if (method === 'depinchallenge') return respond(method, r, { challenge: issue(r), expires_in: 30, type: r.args.type }, actor);
     if (method === 'depinsubmitmsg') {
       const outer = sdk.deserializeEciesMessage(sdk.hexToBytes(r.args.encrypted as string));
-      const bytes = await sdk.eciesDecrypt(outer, sdk.hexToBytes(POOL_KEY), pool.address);
-      const parsed = await sdk.parseDepinMessage(new TextDecoder().decode(bytes!));
+      const bytes = await sdk.eciesDecrypt(outer, sdk.hexToBytes(POOL_KEY), sdk.transportContext('submit', context.network), pool.address);
+      const parsed = await sdk.parseDepinMessage(new TextDecoder().decode(bytes!), { network: 'test' });
       expect((await sdk.verifyDepinReceivedMessage(parsed, { network: 'test' })).signatureValid).toBe(true);
       messages.push({
         hash: parsed.hash,
@@ -124,6 +134,8 @@ export async function fakePool(
         message_type: parsed.messageType,
         encrypted_payload_hex: parsed.encryptedPayloadHex,
         signature_hex: parsed.signatureHex,
+        // RPC 6 delivers the sender key the node resolved; the SDK binds it to the address.
+        sender_pubkey_hex: actor.publicKey,
         sequence: ++seq,
       });
       return respond(method, r, { result: 'success', hash: parsed.hash }, actor);

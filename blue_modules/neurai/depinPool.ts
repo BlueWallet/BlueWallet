@@ -1,4 +1,4 @@
-/** RPC 5 pool bootstrap and persistent endpoint/genesis/key/root pinning.
+/** RPC 6 pool bootstrap and persistent endpoint/genesis/key/root pinning.
  * TOFU records an observed first contact; later key changes require explicit
  * user action. A verified directory still needs independent ownership checks.
  */

@@ -1,5 +1,5 @@
 /**
- * Authenticated receive under RPC 5.
+ * Authenticated receive under RPC 6.
  *
  * The old call was `depinreceivemsg(token, address, timestamp)` and the node
  * refuses it outright: reading a holder's messages now requires proving control
@@ -106,7 +106,7 @@ export async function receiveDepinPage(params: {
         cursor,
         limit: params.limit ?? 100,
       });
-      if (!result.cursor) throw new Error('RPC 5 sequence cursor is missing');
+      if (!result.cursor) throw new Error('RPC 6 sequence cursor is missing');
       pool.context = result.context;
       return {
         messages: result.messages as unknown as Array<Record<string, unknown>>,
@@ -187,7 +187,7 @@ export function readableMessages(entries: Array<Record<string, unknown>>): Depin
 }
 
 /**
- * Turns the node's RPC-5 receive rejections into something actionable.
+ * Turns the node's RPC-6 receive rejections into something actionable.
  *
  * These are not transient RPC noise: they describe a state the wallet is in and
  * cannot poll its way out of, so showing the raw message just leaves the user

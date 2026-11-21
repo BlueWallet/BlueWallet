@@ -125,7 +125,7 @@ test('a response completing after a channel change cannot populate the new chann
   await act(async () => renderer.unmount());
 });
 
-test('deferred hardware messaging opens no obsolete signing session and reports RPC 5 support', async () => {
+test('deferred hardware messaging opens no obsolete signing session and reports RPC 6 support', async () => {
   const node = await fakePool();
   endpoint = node.url;
   const rpc = chainAware(node);
@@ -146,7 +146,7 @@ test('deferred hardware messaging opens no obsolete signing session and reports 
   await act(async () => {
     renderer = TestRenderer.create(React.createElement(Probe));
   });
-  expect(chat.error).toMatch(/RPC 5/);
+  expect(chat.error).toMatch(/RPC 6/);
   expect(chat.isPolling).toBe(false);
   expect((device as any).depinSessionBegin).not.toHaveBeenCalled();
   expect(node.call).not.toHaveBeenCalled();

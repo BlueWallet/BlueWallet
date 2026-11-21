@@ -2,7 +2,7 @@
  * Tracks how much of a DePIN channel the user has already seen, so the wallet
  * can show a "new activity" marker without decrypting anything.
  *
- * A verified RPC 5 bootstrap exposes the stream and admission high water in
+ * A verified RPC 6 bootstrap exposes the stream and admission high water in
  * its signed public body. The background check requires no user key or device.
  * The marker advances after the chat finishes scanning its receive pages.
  *

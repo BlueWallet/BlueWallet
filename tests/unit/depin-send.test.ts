@@ -1,4 +1,4 @@
-import { fakePool, sdk } from './helpers/depin-rpc5';
+import { fakePool, openStored } from './helpers/depin-rpc5';
 import { sendDepinGroupMessage, softwareIdentity } from '../../blue_modules/neurai/depinSend';
 test('group send resolves, encrypts for every exact identity and returns the authenticated receipt', async () => {
   const node = await fakePool({ maxRecipients: 20, complete: true }),
@@ -19,7 +19,7 @@ test('group send resolves, encrypts for every exact identity and returns the aut
     [node.strict, '88'],
     [node.other, '99'],
   ] as const)
-    expect(await sdk.decryptDepinReceiveEncryptedPayload(node.messages[0].encrypted_payload_hex, key.repeat(32))).toBe('hola');
+    expect(await openStored(node.messages[0], key.repeat(32))).toBe('hola');
 });
 test('incomplete skip accounting prevents submission even if the directory entries were complete', async () => {
   const node = await fakePool({ maxRecipients: 20, complete: false }),
@@ -82,7 +82,7 @@ test('one authenticated membership rejection refreshes recipients, encrypts agai
   expect(submits).toBe(2);
   expect(node.messages).toHaveLength(1);
   expect(sent.recipientCount).toBe(2);
-  expect(await sdk.decryptDepinReceiveEncryptedPayload(node.messages[0].encrypted_payload_hex, '99'.repeat(32))).toBeNull();
+  expect(await openStored(node.messages[0], '99'.repeat(32))).toBeNull();
   const attempts = call.mock.calls.filter(([m]) => m === 'depinsubmitmsg').map(([, p]) => (p as any[])[0]);
   expect(attempts[0].request_id).not.toBe(attempts[1].request_id);
   expect(attempts[0].membership_revision).not.toBe(attempts[1].membership_revision);

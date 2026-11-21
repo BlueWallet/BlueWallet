@@ -1,7 +1,7 @@
 /**
  * Background "new messages" indicator for the DePIN chat.
  *
- * Polls a verified RPC 5 bootstrap and reads its signed admission high water:
+ * Polls a verified RPC 6 bootstrap and reads its signed admission high water:
  * it needs no identity, no session and no device, so the check never asks the
  * owner to approve anything and never touches the hardware wallet. One small
  * request every 15 seconds is enough to notice that the channel moved; the actual

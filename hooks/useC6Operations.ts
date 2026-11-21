@@ -18,7 +18,7 @@ import {
 } from '@neuraiproject/neurai-privacy/client';
 
 import type { C6Runtime } from '../blue_modules/neurai/privacy/deployment';
-import { AUTO_FEE, autoPoolFee } from '../blue_modules/neurai/privacy/fees';
+import { AUTO_FEE, autoPoolFee, payablePoolLevels } from '../blue_modules/neurai/privacy/fees';
 import { tagPrivacyTxs } from '../blue_modules/neurai/privacy/txTags';
 import { c6FundingAddresses, signPoolInputs, type PrivacyWallet } from '../blue_modules/neurai/privacy/wallet';
 import { useSettings } from './context/useSettings';
@@ -72,11 +72,13 @@ export function useC6Operations(wallet: PrivacyWallet, runtime: C6Runtime, pool:
     () => ((runtime.config.manifest.fees as Record<string, string[]>)[form] ?? []).map(String),
     [runtime, form],
   );
-  // Auto: the lowest level that covers the transaction's size.
+  // Auto: the lowest level that covers the transaction's policy size (NIP-028 work included).
   const autoFee = useMemo(() => autoPoolFee(form, levels), [form, levels]);
-  const manual = feeChoice !== AUTO_FEE && levels.includes(feeChoice);
+  // A level under the node's relay floor would be refused before proving, so it is not offered.
+  const payable = useMemo(() => payablePoolLevels(form, levels), [form, levels]);
+  const manual = feeChoice !== AUTO_FEE && payable.includes(feeChoice);
   const fee = manual ? feeChoice : autoFee;
-  const feeOptions = useMemo(() => [AUTO_FEE, ...levels], [levels]);
+  const feeOptions = useMemo(() => [AUTO_FEE, ...payable], [payable]);
   const feeSelection = manual ? fee : AUTO_FEE;
 
   // Locking or switching discards everything captured for review.

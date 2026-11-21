@@ -1,10 +1,10 @@
 /**
- * RPC adapter for `@neuraiproject/neurai-depin-msg` RPC 5.
+ * RPC adapter for `@neuraiproject/neurai-depin-msg` RPC 6.
  *
  * The library takes an object with `call(method, params)` and never touches
  * transport details, so this is the seam where the app's backend meets it.
  *
- * Kept deliberately thin: every RPC-5 rule — verifying `poolsig` before
+ * Kept deliberately thin: every RPC-6 rule — verifying `poolsig` before
  * decoding, challenge chaining, recipient binding — lives in the library, which
  * is validated against the node's own test vectors. Re-implementing any of it
  * here would create a second source of truth for the same rules.
@@ -22,7 +22,7 @@ export type RawRpcCall = (method: string, params: unknown[]) => Promise<unknown>
  * Wraps a plain RPC function into the shape the library expects.
  *
  * @param call - Function issuing a JSON-RPC call against the node
- * @returns An adapter usable as `{ rpc }` in every depin-msg RPC-5 call
+ * @returns An adapter usable as `{ rpc }` in every depin-msg RPC-6 call
  */
 export function createDepinRpc(call: RawRpcCall): DepinRpc {
   if (typeof call !== 'function') {

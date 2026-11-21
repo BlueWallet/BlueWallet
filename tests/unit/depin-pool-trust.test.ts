@@ -37,7 +37,7 @@ const KEY_B = '02' + 'b'.repeat(64);
 const URL = 'https://rpc-testnet-depin.neurai.org/rpc';
 
 const replyWith = (poolPublicKey: string) => ({
-  info: { enabled: true, token: '&DEPINTESTING', protocol: 5, depinpoolpkey: poolPublicKey },
+  info: { enabled: true, token: '&DEPINTESTING', protocol: 6, depinpoolpkey: poolPublicKey },
   pin: { serviceId: `xna-test|${URL}`, poolRoot: '&DEPINTESTING', poolPublicKey },
   trust: 'tofu',
   fingerprint: poolPublicKey,

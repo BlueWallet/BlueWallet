@@ -162,7 +162,7 @@ export function useDePINChat(params: {
     activeTabRef.current = activeTab;
   }, [activeTab]);
 
-  // Hardware RPC 5 support is deferred. Software identities keep local keys.
+  // Hardware RPC 6 support is deferred. Software identities keep local keys.
   const deviceBacked = !!identity?.deviceBacked;
   const canCrypt = !!identity?.wif || (deviceBacked && !!device);
 
@@ -305,7 +305,9 @@ export function useDePINChat(params: {
   useEffect(() => {
     if (deviceBacked && selectedAsset) {
       setIsPolling(false);
-      setError('This device needs firmware and library support for DePIN RPC 5. Hardware messaging will be updated separately.');
+      setError(
+        'This device needs a firmware update for DePIN RPC 6 (ECIES format 3). Hardware messaging will be enabled once the device supports it.',
+      );
     }
   }, [deviceBacked, selectedAsset]);
 
@@ -350,7 +352,7 @@ export function useDePINChat(params: {
 
   const pollOnce = useCallback(async () => {
     if (!selectedAsset || !effectiveAddress || !canCrypt || !rpc) return;
-    if (deviceBacked) throw new Error('Hardware messaging requires DePIN RPC 5 firmware support');
+    if (deviceBacked) throw new Error('Hardware messaging requires DePIN RPC 6 firmware support');
     const channelEpoch = channelEpochRef.current;
 
     // Bootstrap fixes the current pool instance/revision before private reads.
@@ -386,7 +388,7 @@ export function useDePINChat(params: {
       };
     };
 
-    // Publishes a page that arrived already verified and decrypted (RPC 5).
+    // Publishes a page that arrived already verified and decrypted (RPC 6).
     const ingestVerified = (resolved: DepinPlainMessage[]) => {
       const seen = seenMessageKeysRef.current;
       let maxTimestamp = lastTimestampRef.current;
@@ -471,7 +473,7 @@ export function useDePINChat(params: {
         // connection; polling keeps retrying every 5s, so only surface an error
         // after it fails repeatedly (the UI shows a "checking…" state meanwhile).
         consecutiveFailuresRef.current += 1;
-        // Some RPC-5 rejections describe a state polling cannot escape —
+        // Some RPC-6 rejections describe a state polling cannot escape —
         // say what it is instead of repeating the node's wording.
         const explained = explainDepinReceiveRejection(describeRpcError(err) ?? err);
         if (active && (explained || consecutiveFailuresRef.current >= 2)) {
@@ -539,9 +541,9 @@ export function useDePINChat(params: {
       const senderPubKey = String(identity.publicKey).trim().toLowerCase();
       const timestamp = Math.floor(Date.now() / 1000);
 
-      if (deviceBacked) throw new Error('Hardware messaging requires DePIN RPC 5 firmware support');
+      if (deviceBacked) throw new Error('Hardware messaging requires DePIN RPC 6 firmware support');
 
-      // Verify the current pool identity before building a signed RPC 5 request.
+      // Verify the current pool identity before building a signed RPC 6 request.
       const pool = await getVerifiedPool({
         call: rpc as unknown as RawRpcCall,
         network,

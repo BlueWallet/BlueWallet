@@ -1,11 +1,11 @@
-/** Typed RPC 5 SDK access. The IIFE remains portable on Hermes without Node globals. */
+/** Typed RPC 6 / ECIES format 3 SDK access. The IIFE remains portable on Hermes without Node globals. */
 import '@neuraiproject/neurai-depin-msg/dist/neurai-depin-msg.js';
 import type * as Contract from '@neuraiproject/neurai-depin-msg';
 
 type Library = typeof Contract;
 function api(): Library {
   const sdk = (globalThis as { neuraiDepinMsg?: Library }).neuraiDepinMsg;
-  if (!sdk || sdk.DEPIN_RPC_PROTOCOL !== 5) throw new Error('DePIN RPC 5 SDK is not loaded');
+  if (!sdk || sdk.DEPIN_RPC_PROTOCOL !== 6) throw new Error('DePIN RPC 6 SDK is not loaded');
   return sdk;
 }
 export function normalizeDepinToken(token: string): string {
@@ -36,7 +36,8 @@ export type DepinPoolBuildResult = Contract.BuildDepinMessageResult & {
   resolution: Contract.DepinRecipientsResolution;
   context: Contract.DepinRpcContext;
 };
-export type DepinBuildInput = Omit<Contract.BuildDepinMessageParams, 'network'> & { network?: string };
+/** Format 3 binds every envelope to its chain, so the network is mandatory. */
+export type DepinBuildInput = Omit<Contract.BuildDepinMessageParams, 'network'> & { network: string };
 export type DepinPoolInfoParams = Omit<Contract.DepinPoolInfoParams, 'network'> & { network?: string };
 export type DepinChallengeParams = Parameters<Library['requestDepinChallenge']>[0];
 export interface DepinServerWrapResult {
@@ -48,20 +49,24 @@ export const buildDepinMessage = (input: DepinBuildInput) =>
   api().buildDepinMessage({
     ...input,
     token: normalizeDepinToken(input.token),
-    network: input.network ? depinNetwork(input.network) : undefined,
+    network: depinNetwork(input.network),
   });
 export const buildDepinPreimage = (input: Omit<DepinBuildInput, 'privateKey'>) =>
   api().buildDepinPreimage({
     ...input,
     token: normalizeDepinToken(input.token),
-    network: input.network ? depinNetwork(input.network) : undefined,
+    network: depinNetwork(input.network),
   });
 export const assembleDepinMessage: Library['assembleDepinMessage'] = (params, signature) => api().assembleDepinMessage(params, signature);
-export const decryptDepinReceiveEncryptedPayload: Library['decryptDepinReceiveEncryptedPayload'] = (hex, key) =>
-  api().decryptDepinReceiveEncryptedPayload(hex, key);
-export const wrapMessageForServer: Library['wrapMessageForServer'] = (hex, key, address) => api().wrapMessageForServer(hex, key, address);
-export const unwrapMessageFromServer = (hex: string, key: string): Promise<string | null> =>
-  api().unwrapMessageFromServer(hex, key) as Promise<string | null>;
+/** Format 3 opens only under the context the envelope was sealed for: `messageContext` for content, `transportContext` for pool traffic. */
+export const decryptDepinReceiveEncryptedPayload: Library['decryptDepinReceiveEncryptedPayload'] = (hex, key, context) =>
+  api().decryptDepinReceiveEncryptedPayload(hex, key, context);
+export const messageContext: Library['messageContext'] = (fields, genesis) => api().messageContext(fields, genesis);
+export const transportContext: Library['transportContext'] = (use, genesis) => api().transportContext(use, genesis);
+export const wrapMessageForServer: Library['wrapMessageForServer'] = (hex, key, address, genesis) =>
+  api().wrapMessageForServer(hex, key, address, genesis);
+export const unwrapMessageFromServer = (hex: string, key: string, options: Contract.EnvelopeNetwork): Promise<string | null> =>
+  api().unwrapMessageFromServer(hex, key, options) as Promise<string | null>;
 export const wifToHex: Library['wifToHex'] = (key) => api().wifToHex(key);
 export const isWIF: Library['isWIF'] = (value) => api().isWIF(value);
 export const getDepinPoolInfo = (params: DepinPoolInfoParams) =>
