@@ -91,11 +91,12 @@ jobs:
           RCT_USE_PREBUILT_RNCORE: '1'
 
       - name: Create temporary signing keychain
-        run: |
-          security create-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain
-          security set-keychain-settings -lut 21600 build.keychain
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: >-
+          bundle exec fastlane run create_keychain name:build.keychain
+          default_keychain:true unlock:true timeout:21600 lock_when_sleeps:true
+          lock_after_timeout:true add_to_search_list:false require_create:true
 
       - name: Create App Store Connect API key
         env:
@@ -188,4 +189,4 @@ jobs:
         if: always()
         run: |
           rm -f appstore_api_key.json
-          security delete-keychain build.keychain || true
+          bundle exec fastlane run delete_keychain name:build.keychain || true
