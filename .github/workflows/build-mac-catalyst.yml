@@ -86,13 +86,22 @@ jobs:
       - name: Install CocoaPods dependencies
         run: bundle exec fastlane ios install_pods
         env:
+          SKIP_APP_STORE_CONNECT_AUTH: '1'
           RCT_USE_RN_DEP: '1'
           RCT_USE_PREBUILT_RNCORE: '1'
 
       - name: Create temporary signing keychain
-        run: bundle exec fastlane ios create_temp_keychain name:build timeout:21600
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: >-
+          bundle exec fastlane run create_keychain name:build.keychain
+          default_keychain:true unlock:true timeout:21600 lock_when_sleeps:true
+          lock_after_timeout:true add_to_search_list:false require_create:true
+
+      - name: Create App Store Connect API key
+        env:
+          API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+        run: printf '%s' "$API_KEY_CONTENT" > appstore_api_key.json
 
       - name: Set shared Apple build number
         id: build_number
@@ -116,8 +125,9 @@ jobs:
       - name: Build Mac Catalyst archive
         id: build_catalyst
         timeout-minutes: 180
-        run: bundle exec fastlane ios archive_catalyst
+        run: bundle exec fastlane ios build_catalyst_app_lane
         env:
+          SKIP_APP_STORE_CONNECT_AUTH: '1'
           SKIP_CLEAR_DERIVED_DATA: '1'
           CATALYST_SIGNING_IDENTITY: ${{ secrets.CATALYST_SIGNING_IDENTITY || 'Apple Distribution' }}
           CATALYST_TEAM_ID: ${{ secrets.CATALYST_TEAM_ID || secrets.TEAM_ID || secrets.ITC_TEAM_ID }}
@@ -133,7 +143,10 @@ jobs:
         timeout-minutes: 110
         run: bundle exec fastlane ios upload_catalyst_to_testflight
         env:
-          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+          SKIP_APP_STORE_CONNECT_AUTH: '1'
+          APP_STORE_CONNECT_API_KEY_PATH: ${{ github.workspace }}/appstore_api_key.json
+          APPLE_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           CATALYST_TEAM_ID: ${{ secrets.CATALYST_TEAM_ID || secrets.TEAM_ID || secrets.ITC_TEAM_ID }}
           CATALYST_ARCHIVE_PATH: ${{ steps.build_catalyst.outputs.catalyst_archive_path }}
           TEAM_ID: ${{ secrets.TEAM_ID || secrets.ITC_TEAM_ID }}
@@ -172,6 +185,8 @@ jobs:
           path: ios/build_logs/
           retention-days: 7
 
-      - name: Delete temporary signing keychain
+      - name: Cleanup credentials
         if: always()
-        run: bundle exec fastlane ios delete_temp_keychain name:build || true
+        run: |
+          rm -f appstore_api_key.json
+          bundle exec fastlane run delete_keychain name:build.keychain || true

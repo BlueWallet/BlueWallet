@@ -13,9 +13,6 @@ on:
 jobs:
   buildReleaseApk:
     runs-on: ubuntu-24.04
-    outputs:
-      apk_filename: ${{ steps.build_and_sign_apk.outputs.apk_filename }}
-      apk_artifact_url: ${{ steps.upload_apk.outputs.artifact-url }}
 
     steps:
       - name: Checkout project
@@ -87,11 +84,31 @@ jobs:
           ruby-version: 3.4.11
           bundler-cache: true
 
+      - name: Validate shared build number
+        id: build_number
+        env:
+          SHARED_BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          if ! [[ "$SHARED_BUILD_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "Shared build number must contain digits only" >&2
+            exit 1
+          fi
+          if [ "$SHARED_BUILD_NUMBER" -eq 0 ]; then
+            echo "Shared build number must be positive" >&2
+            exit 1
+          fi
+          if [ "$SHARED_BUILD_NUMBER" -gt 2100000000 ]; then
+            echo "Shared build number $SHARED_BUILD_NUMBER exceeds the Play Store limit" >&2
+            exit 1
+          fi
+          echo "NEW_BUILD_NUMBER=$SHARED_BUILD_NUMBER" >> "$GITHUB_ENV"
+          echo "build_number=$SHARED_BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+
       - name: Build and sign APK
         id: build_and_sign_apk
         run: bundle exec fastlane android build_release_apk
         env:
-          BUILD_NUMBER: ${{ inputs.build_number }}
+          BUILD_NUMBER: ${{ steps.build_number.outputs.build_number }}
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
@@ -101,18 +118,36 @@ jobs:
         with:
           name: android-build-logs
           path: |
+            fastlane/logs/**/*.log
             android/**/*.log
             android/**/build/**/*.log
             android/**/outputs/logs/**/*.log
             android/**/reports/**/*.log
           if-no-files-found: warn
 
+      - name: Determine APK Filename and Path
+        id: determine_apk_path
+        run: |
+          BUILD_NUMBER=${{ steps.build_number.outputs.build_number }}
+          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
+          BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}
+          BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/_/g')
+
+          if [ -n "$BRANCH_NAME" ] && [ "$BRANCH_NAME" != "master" ]; then
+            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${BUILD_NUMBER}-${BRANCH_NAME}.apk"
+          else
+            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${BUILD_NUMBER}.apk"
+          fi
+      
+          APK_PATH="android/app/build/outputs/apk/release/${EXPECTED_FILENAME}"
+          echo "EXPECTED_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_ENV
+          echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
+
       - name: Upload APK as artifact
-        id: upload_apk
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: signed-apk
-          path: ${{ steps.build_and_sign_apk.outputs.apk_output_path }}
+          path: ${{ env.APK_PATH }}
           if-no-files-found: error
 
   browserstack:
@@ -137,58 +172,16 @@ jobs:
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: signed-apk
-          path: browserstack-apk
 
-      - name: Upload APK to BrowserStack
-        id: browserstack_upload
+      - name: Set APK Path
+        run: |
+          APK_PATH=$(find ${{ github.workspace }} -name '*.apk')
+          echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
+
+      - name: Upload APK to BrowserStack and Post PR Comment
         env:
-          APK_PATH: ${{ github.workspace }}/browserstack-apk/${{ needs.buildReleaseApk.outputs.apk_filename }}
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-        run: bundle exec fastlane android upload_to_browserstack
-
-      - name: Post BrowserStack PR comment
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        env:
-          APP_URL: ${{ steps.browserstack_upload.outputs.browserstack_app_url }}
-          APK_FILENAME: ${{ needs.buildReleaseApk.outputs.apk_filename }}
-          APK_ARTIFACT_URL: ${{ needs.buildReleaseApk.outputs.apk_artifact_url }}
-        with:
-          script: |
-            const heading = '### APK Successfully Uploaded to BrowserStack';
-            const appId = process.env.APP_URL.slice('bs://'.length);
-            const devices = [
-              ["Google Pixel 9 (Android 15)","15.0","Google Pixel 9"],
-              ["Google Pixel 8 (Android 14)","14.0","Google Pixel 8"],
-              ["Google Pixel 7 (Android 13)","13.0","Google Pixel 7"],
-              ["Google Pixel 5 (Android 12)","12.0","Google Pixel 5"],
-              ["Google Pixel 3a (Android 9)","9.0","Google Pixel 3a"],
-              ["Samsung Galaxy Z Fold 6 (Android 14)","14.0","Samsung Galaxy Z Fold 6"],
-              ["Samsung Galaxy Z Fold 5 (Android 13)","13.0","Samsung Galaxy Z Fold 5"],
-              ["Samsung Galaxy Tab S9 (Android 13)","13.0","Samsung Galaxy Tab S9"],
-              ["Samsung Galaxy Note 9 (Android 8.1)","8.1","Samsung Galaxy Note 9"],
-              ["OnePlus 11R (Android 13)","13.0","OnePlus 11R"],
-            ];
-            const links = devices.map(([label, version, device]) => {
-              const params = new URLSearchParams({
-                os: 'android', os_version: version, device, app_hashed_id: appId,
-                scale_to_fit: 'true', speed: '1', start: 'true', browser: 'chrome',
-              });
-              return `- [${label}](https://app-live.browserstack.com/dashboard#${params})`;
-            });
-            const body = [
-              heading, '', 'You can test it on the following devices:', '', ...links, '',
-              `**Filename**: [${process.env.APK_FILENAME}](${process.env.APK_ARTIFACT_URL})`,
-              `**BrowserStack App URL**: ${process.env.APP_URL}`,
-            ].join('\n');
-            const issue = { ...context.repo, issue_number: context.payload.pull_request.number };
-            const comments = await github.paginate(github.rest.issues.listComments, issue);
-            const previous = comments.find(comment =>
-              comment.user?.type === 'Bot' && comment.body?.startsWith(heading)
-              && comment.user?.login === 'github-actions[bot]'
-            );
-            if (previous) {
-              await github.rest.issues.updateComment({ ...context.repo, comment_id: previous.id, body });
-            } else {
-              await github.rest.issues.createComment({ ...issue, body });
-            }
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bundle exec fastlane android upload_to_browserstack_and_comment
