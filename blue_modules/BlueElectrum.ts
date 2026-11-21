@@ -9,7 +9,7 @@ import type { LegacyWallet as LegacyWalletT } from '../class/wallets/legacy-wall
 import type { SegwitBech32Wallet as SegwitBech32WalletT } from '../class/wallets/segwit-bech32-wallet';
 import type { SegwitP2SHWallet as SegwitP2SHWalletT } from '../class/wallets/segwit-p2sh-wallet';
 import type { TaprootWallet as TaprootWalletT } from '../class/wallets/taproot-wallet';
-import type { Utxo } from '../class/wallets/types';
+import type { TransactionInput, TransactionOutput, Utxo } from '../class/wallets/types';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
 import { GROUP_IO_BLUEWALLET } from './currency';
@@ -32,26 +32,8 @@ export type ElectrumTransaction = {
   weight: number;
   locktime: number;
   fee?: number;
-  vin: {
-    txid: string;
-    vout: number;
-    scriptSig: { asm: string; hex: string };
-    txinwitness: string[];
-    sequence: number;
-    addresses?: string[];
-    value?: number;
-  }[];
-  vout: {
-    value: number;
-    n: number;
-    scriptPubKey: {
-      asm: string;
-      hex: string;
-      reqSigs: number;
-      type: string;
-      addresses: string[];
-    };
-  }[];
+  vin: TransactionInput[];
+  vout: TransactionOutput[];
   // Confirmation-only fields: absent on mempool (unconfirmed) responses.
   blockhash?: string;
   confirmations?: number;
@@ -919,71 +901,6 @@ export function txhexToElectrumTransaction(txhex: string): ElectrumTransactionWi
   return ret;
 }
 
-export const getTransactionsFullByAddress = async (address: string): Promise<ElectrumTransaction[]> => {
-  const txs = await getTransactionsByAddress(address);
-  const ret: ElectrumTransaction[] = [];
-  for (const tx of txs) {
-    let full;
-    try {
-      full = await mainClient.blockchainTransaction_get(tx.tx_hash, true);
-    } catch (error) {
-      if (errorMessage(error).startsWith('verbose transactions are currently unsupported')) {
-        // apparently, stupid esplora instead of returning txhex when it cant return verbose tx started
-        // throwing a proper exception. lets fetch txhex manually and decode on our end
-        const txhex = await mainClient.blockchainTransaction_get(tx.tx_hash, false);
-        full = txhexToElectrumTransaction(txhex);
-      } else {
-        // nope, its something else
-        throw new Error(errorMessage(error));
-      }
-    }
-    full.address = address;
-    for (const input of full.vin) {
-      // now we need to fetch previous TX where this VIN became an output, so we can see its amount
-      let prevTxForVin;
-      try {
-        prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
-      } catch (error) {
-        if (errorMessage(error).startsWith('verbose transactions are currently unsupported')) {
-          // apparently, stupid esplora instead of returning txhex when it cant return verbose tx started
-          // throwing a proper exception. lets fetch txhex manually and decode on our end
-          const txhex = await mainClient.blockchainTransaction_get(input.txid, false);
-          prevTxForVin = txhexToElectrumTransaction(txhex);
-        } else {
-          // nope, its something else
-          throw new Error(errorMessage(error));
-        }
-      }
-      if (prevTxForVin && prevTxForVin.vout && prevTxForVin.vout[input.vout]) {
-        input.value = prevTxForVin.vout[input.vout].value;
-        // also, we extract destination address from prev output:
-        if (prevTxForVin.vout[input.vout].scriptPubKey && prevTxForVin.vout[input.vout].scriptPubKey.addresses) {
-          input.addresses = prevTxForVin.vout[input.vout].scriptPubKey.addresses;
-        }
-        // in bitcoin core 22.0.0+ they removed `.addresses` and replaced it with plain `.address`:
-        if (prevTxForVin.vout[input.vout]?.scriptPubKey?.address) {
-          input.addresses = [prevTxForVin.vout[input.vout].scriptPubKey.address];
-        }
-      }
-    }
-
-    for (const output of full.vout) {
-      if (output?.scriptPubKey && output.scriptPubKey.addresses) output.addresses = output.scriptPubKey.addresses;
-      // in bitcoin core 22.0.0+ they removed `.addresses` and replaced it with plain `.address`:
-      if (output?.scriptPubKey?.address) output.addresses = [output.scriptPubKey.address];
-    }
-    full.inputs = full.vin;
-    full.outputs = full.vout;
-    delete full.vin;
-    delete full.vout;
-    delete full.hex; // compact
-    delete full.hash; // compact
-    ret.push(full);
-  }
-
-  return ret;
-};
-
 type MultiGetBalanceResponse = {
   balance: number;
   unconfirmed_balance: number;
@@ -1255,8 +1172,8 @@ export async function multiGetTransactionByTxid<T extends boolean>(
         if (verbose) txdata.result = txhexToElectrumTransaction(txdata.result);
       }
       ret[txdata.param] = txdata.result;
-      // @ts-ignore: hex property
-      if (ret[txdata.param]) delete ret[txdata.param].hex; // compact
+      const tx: Partial<ElectrumTransactionWithHex> | string | undefined = ret[txdata.param];
+      if (tx && typeof tx !== 'string') delete tx.hex; // compact
     }
   }
 
@@ -1265,7 +1182,6 @@ export async function multiGetTransactionByTxid<T extends boolean>(
     const tx = ret[txid];
     if (typeof tx === 'string') continue;
     for (const vout of tx?.vout ?? []) {
-      // @ts-ignore: address is not in type definition
       if (vout?.scriptPubKey?.address) vout.scriptPubKey.addresses = [vout.scriptPubKey.address];
     }
   }
