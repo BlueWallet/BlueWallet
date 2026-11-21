@@ -36,7 +36,8 @@ struct SharedImageStore {
         try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
         let previousName = defaults.string(forKey: Self.pendingImageKey)
         let validPreviousName = previousName.flatMap { name in
-            name == (name as NSString).lastPathComponent ? name : nil
+            let previousURL = directory.appendingPathComponent(name)
+            return Self.isSafeFilename(name) && isRegularFile(at: previousURL) ? name : nil
         }
         cleanupOrphanedImages(in: directory, excluding: Set([validPreviousName].compactMap { $0 }))
 
@@ -69,8 +70,7 @@ struct SharedImageStore {
             return nil
         }
 
-        guard !requestedName.isEmpty,
-              requestedName == (requestedName as NSString).lastPathComponent else {
+        guard Self.isSafeFilename(requestedName) else {
             clearPendingImage()
             return nil
         }
@@ -78,7 +78,7 @@ struct SharedImageStore {
         let imageURL = containerURL
             .appendingPathComponent(Self.sharedImagesDirectory, isDirectory: true)
             .appendingPathComponent(requestedName)
-        guard fileManager.fileExists(atPath: imageURL.path) else {
+        guard isRegularFile(at: imageURL) else {
             clearPendingImage()
             return nil
         }
@@ -93,7 +93,7 @@ struct SharedImageStore {
             guard let imageURL else { return nil }
             // A queued image can be old. Give its consumer the full grace period
             // before a later import is allowed to sweep it as an orphan.
-            try fileManager.setAttributes([.modificationDate: now()], ofItemAtPath: imageURL.path)
+            try? fileManager.setAttributes([.modificationDate: now()], ofItemAtPath: imageURL.path)
             clearPendingImage()
             return imageURL
         }
@@ -140,5 +140,13 @@ struct SharedImageStore {
     private func clearPendingImage() {
         defaults.removeObject(forKey: Self.pendingImageKey)
         defaults.synchronize()
+    }
+
+    private static func isSafeFilename(_ name: String) -> Bool {
+        !name.isEmpty && !name.hasPrefix(".") && name == (name as NSString).lastPathComponent
+    }
+
+    private func isRegularFile(at url: URL) -> Bool {
+        (try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) == true
     }
 }

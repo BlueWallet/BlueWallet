@@ -69,6 +69,15 @@ final class SharedImageStoreTests: XCTestCase {
         XCTAssertEqual(defaults.string(forKey: SharedImageStore.pendingImageKey), "incoming.png")
     }
 
+    func testConsumeClearsDotDotMarkerWithoutReturningTheContainer() throws {
+        defaults.set("..", forKey: SharedImageStore.pendingImageKey)
+        let store = makeStore(identifier: "unused")
+
+        XCTAssertNil(try store.consumePendingImageURL())
+        XCTAssertNil(defaults.string(forKey: SharedImageStore.pendingImageKey))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: temporaryDirectory.path))
+    }
+
     func testPendingImagePeekKeepsMarkerUntilConsumerAcknowledges() throws {
         let sourceURL = temporaryDirectory.appendingPathComponent("pending.png")
         try Data([0x03]).write(to: sourceURL)
@@ -83,10 +92,28 @@ final class SharedImageStoreTests: XCTestCase {
         XCTAssertNil(try store.consumePendingImageURL())
     }
 
+    func testConsumeClearsMarkerWhenRefreshingModificationDateFails() throws {
+        let sourceURL = temporaryDirectory.appendingPathComponent("pending.png")
+        try Data([0x03]).write(to: sourceURL)
+        let queuedURL = try makeStore(identifier: "pending").importImage(at: sourceURL)
+        let store = SharedImageStore(
+            containerURL: temporaryDirectory,
+            defaults: defaults,
+            fileManager: FailingAttributesFileManager()
+        )
+
+        XCTAssertEqual(try store.consumePendingImageURL(), queuedURL)
+        XCTAssertNil(defaults.string(forKey: SharedImageStore.pendingImageKey))
+    }
+
     func testConsumeClearsInvalidOrMissingMarker() throws {
         let store = makeStore(identifier: "unused")
 
         defaults.set("../unsafe.png", forKey: SharedImageStore.pendingImageKey)
+        XCTAssertNil(try store.consumePendingImageURL())
+        XCTAssertNil(defaults.string(forKey: SharedImageStore.pendingImageKey))
+
+        defaults.set(".hidden.png", forKey: SharedImageStore.pendingImageKey)
         XCTAssertNil(try store.consumePendingImageURL())
         XCTAssertNil(defaults.string(forKey: SharedImageStore.pendingImageKey))
 
@@ -219,5 +246,11 @@ final class SharedImageStoreTests: XCTestCase {
             defaults: defaults,
             makeIdentifier: { identifier }
         )
+    }
+}
+
+private final class FailingAttributesFileManager: FileManager {
+    override func setAttributes(_ attributes: [FileAttributeKey: Any], ofItemAtPath path: String) throws {
+        throw NSError(domain: "SharedImageStoreTests", code: 1)
     }
 }
