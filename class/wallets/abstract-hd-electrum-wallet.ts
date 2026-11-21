@@ -13,6 +13,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import Lnurl from '../lnurl';
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
@@ -361,7 +362,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         const inpTxid = txdatas[txid].vin[inpNum].txid;
         const inpVout = txdatas[txid].vin[inpNum].vout;
         // got txid and output number of _previous_ transaction we shoud look into
-        if (vintxdatas[inpTxid]?.vout[inpVout]) {
+        if (inpTxid !== undefined && inpVout !== undefined && vintxdatas[inpTxid]?.vout[inpVout]) {
           // extracting amount & addresses from previous output and adding it to _our_ input:
           txdatas[txid].vin[inpNum].addresses = vintxdatas[inpTxid].vout[inpVout].scriptPubKey.addresses;
           txdatas[txid].vin[inpNum].value = vintxdatas[inpTxid].vout[inpVout].value;
@@ -1406,6 +1407,21 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   /**
+   * @returns BIP32 master node. Subclasses with non-BIP39 seed formats override this
+   */
+  _getBip32Root(): BIP32Interface {
+    return bip32.fromSeed(this._getSeed());
+  }
+
+  allowLnurlAuth(): boolean {
+    return !!this.secret;
+  }
+
+  getLnurlAuthLinkingKey(domain: string): Uint8Array {
+    return Lnurl.lud05LinkingKey(this._getBip32Root(), domain);
+  }
+
+  /**
    * @param seed {Uint8Array} Uint8Array with seed
    * @returns {string} Hex string of fingerprint derived from mnemonics. Always has length of 8 chars and correct leading zeroes. All caps
    */
@@ -1480,7 +1496,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         this.getTransactions()
           .find(parent => parent.txid === firstInput.txid)
           ?.outputs.find(output => output.n === firstInput.vout)?.scriptPubKey?.addresses?.[0];
-      if (!inputAddress) continue;
+      if (!inputAddress || firstInput.txid === undefined || firstInput.vout === undefined) continue;
 
       try {
         const wif = this._getWifForAddress(inputAddress); // cached; throws if address is not ours
