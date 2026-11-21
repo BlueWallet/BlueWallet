@@ -162,7 +162,7 @@ const WalletExport: React.FC = () => {
           </React.Fragment>
         ))}
 
-        <BlueText style={styles.typeText}>{loc.formatString(loc.wallets.wallet_type_this, { type: wallet.typeReadable })}</BlueText>
+        <BlueText style={styles.typeText}>{loc.formatString(loc.wallets.wallet_type_this, { type: wallet.getTypeReadable() })}</BlueText>
       </Scroll>
     );
   }
@@ -208,7 +208,7 @@ const WalletExport: React.FC = () => {
         <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: secret }} />
       )}
 
-      <BlueText style={styles.typeText}>{loc.formatString(loc.wallets.wallet_type_this, { type: wallet.typeReadable })}</BlueText>
+      <BlueText style={styles.typeText}>{loc.formatString(loc.wallets.wallet_type_this, { type: wallet.getTypeReadable() })}</BlueText>
     </ScrollView>
   );
 };
