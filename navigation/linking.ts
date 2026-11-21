@@ -65,7 +65,9 @@ export const getShortcutWalletDestination = (selectionMode: ShortcutWalletSelect
 };
 
 export const linking: LinkingOptions<RootParamList> = {
-  prefixes: ['bluewallet://', 'https://bluewallet.io'],
+  // Keep the legacy `bluewallet:action?...` form alongside hierarchical URLs.
+  // The former is used by LNDHub setup links.
+  prefixes: ['bluewallet://', 'bluewallet:', 'https://bluewallet.io'],
   config: {
     initialRouteName: 'DrawerRoot',
     screens: {
@@ -78,6 +80,7 @@ export const linking: LinkingOptions<RootParamList> = {
             initialRouteName: 'WalletsList' as never,
             screens: {
               ManageWallets: 'manage-wallets',
+              LightningSettings: 'setlndhuburl',
             },
           },
         },

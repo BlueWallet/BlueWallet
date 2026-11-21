@@ -242,14 +242,6 @@ class DeeplinkSchemaMatch {
                 },
               ]);
               break;
-            case 'setlndhuburl':
-              completionHandler([
-                'LightningSettings',
-                {
-                  url: DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(event.url) || undefined,
-                },
-              ]);
-              break;
           }
         }
       })();
@@ -266,20 +258,6 @@ class DeeplinkSchemaMatch {
   static getServerFromSetElectrumServerAction(url: string): string | false {
     if (!url.startsWith('bluewallet:setelectrumserver') && !url.startsWith('setelectrumserver')) return false;
     const splt = url.split('server=');
-    if (splt[1]) return decodeURIComponent(splt[1]);
-    return false;
-  }
-
-  /**
-   * Extracts url from a deeplink like `bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com`
-   * returns FALSE if none found
-   *
-   * @param url {string}
-   * @return {string|boolean}
-   */
-  static getUrlFromSetLndhubUrlAction(url: string): string | false {
-    if (!url.startsWith('bluewallet:setlndhuburl') && !url.startsWith('setlndhuburl')) return false;
-    const splt = url.split('url=');
     if (splt[1]) return decodeURIComponent(splt[1]);
     return false;
   }

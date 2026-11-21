@@ -108,3 +108,35 @@ describe('app shortcut linking', () => {
     expect(getCompatibleShortcutWallets('send', wallets).map(wallet => wallet.id)).toEqual(['second']);
   });
 });
+
+describe('LNDHub setup linking', () => {
+  it('routes a legacy LNDHub setup URL to Lightning Settings with its URL parameter', () => {
+    const state = getStateFromPath('setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com', linking.config);
+
+    expect(state).toEqual({
+      routes: [
+        {
+          name: 'DrawerRoot',
+          state: {
+            routes: [
+              {
+                name: 'DetailViewStackScreensStack',
+                state: {
+                  index: 1,
+                  routes: [
+                    { name: 'WalletsList' },
+                    {
+                      name: 'LightningSettings',
+                      path: 'setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com',
+                      params: { url: 'https://lndhub.herokuapp.com' },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+  });
+});
