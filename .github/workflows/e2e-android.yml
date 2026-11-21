@@ -40,6 +40,10 @@ jobs:
         node-version: 24
         cache: 'npm'
 
+    - name: Set npm version
+      working-directory: ${{ runner.temp }}
+      run: npm install --global npm@12.2.2
+
     - name: Use gradle caches
       uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
       with:
@@ -110,6 +114,10 @@ jobs:
       with:
         node-version: 24
         cache: 'npm'
+
+    - name: Set npm version
+      working-directory: ${{ runner.temp }}
+      run: npm install --global npm@12.2.2
 
     - name: Install node_modules
       run: npm ci || npm ci

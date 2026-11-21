@@ -25,7 +25,6 @@ export class LegacyWallet extends AbstractWallet {
   static readonly defaultTypeReadable = 'Legacy (P2PKH)';
   // @ts-ignore: override
   public readonly type = LegacyWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable: string;
 
   _txs_by_external_index: Record<number, Transaction[]> = {};
@@ -299,7 +298,7 @@ export class LegacyWallet extends AbstractWallet {
           const inpVout = vin.vout;
           // got txid and output number of _previous_ transaction we shoud look into
 
-          if (vintxdatas[inpTxid] && vintxdatas[inpTxid].vout[inpVout]) {
+          if (inpTxid !== undefined && inpVout !== undefined && vintxdatas[inpTxid] && vintxdatas[inpTxid].vout[inpVout]) {
             return {
               ...vin,
               addresses: vintxdatas[inpTxid].vout[inpVout].scriptPubKey.addresses,

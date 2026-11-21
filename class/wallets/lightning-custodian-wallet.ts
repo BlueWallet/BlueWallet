@@ -1,9 +1,9 @@
 import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { fetch } from '../../util/fetch';
+import Lnurl from '../lnurl';
 import { LegacyWallet } from './legacy-wallet';
 import { DecodedInvoice, LightningTransaction, Transaction } from './types';
-import type Lnurl from '../lnurl';
 
 const _staticDecodedInvoiceCache: Record<string, DecodedInvoice> = {};
 
@@ -16,8 +16,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   static readonly subtitleReadable = 'LNDhub';
   // @ts-ignore: override
   public readonly type = LightningCustodianWallet.type;
-  // @ts-ignore: override
-  public readonly typeReadable = LightningCustodianWallet.typeReadable;
+  public readonly typeReadable: string = LightningCustodianWallet.typeReadable;
 
   baseURI?: string;
   refresh_token: string = '';
@@ -618,8 +617,12 @@ export class LightningCustodianWallet extends LegacyWallet {
     return false;
   }
 
-  authenticate(lnurl: Lnurl) {
-    return lnurl.authenticate(this.secret);
+  allowLnurlAuth() {
+    return true;
+  }
+
+  getLnurlAuthLinkingKey(domain: string): Uint8Array {
+    return Lnurl.legacyLinkingKey(this.secret, domain);
   }
 
   getLatestTransactionTime(): string | 0 {

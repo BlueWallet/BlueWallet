@@ -24,7 +24,6 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
   static readonly typeReadable = 'HD Electrum (BIP32 P2WPKH)';
   // @ts-ignore: override
   public readonly type = HDSegwitElectrumSeedP2WPKHWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = HDSegwitElectrumSeedP2WPKHWallet.typeReadable;
   static readonly derivationPath = "m/0'";
 
@@ -85,6 +84,12 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     }
 
     return (this.external_addresses_cache[index] = address);
+  }
+
+  _getBip32Root() {
+    const args: SeedOpts = { prefix: PREFIX };
+    if (this.passphrase) args.passphrase = this.passphrase;
+    return bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, args));
   }
 
   _getWIFByIndex(internal: boolean, index: number): string | false {

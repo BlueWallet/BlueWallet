@@ -26,7 +26,6 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
   static readonly derivationPath = "m/84'/0'/0'";
   // @ts-ignore: override
   public readonly type = HDAezeedWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = HDAezeedWallet.typeReadable;
 
   private _entropyHex?: string;
@@ -132,6 +131,10 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     }
 
     return (this.external_addresses_cache[index] = address);
+  }
+
+  _getBip32Root() {
+    return bip32.fromSeed(this._getEntropyCached());
   }
 
   _getWIFByIndex(internal: boolean, index: number): string | false {

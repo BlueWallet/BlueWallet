@@ -34,7 +34,7 @@ type VaultKeyData = {
   path: string;
   cosignerXpubURv2: string;
   exportFilename: string;
-  exportString?: string;
+  exportString: string;
 };
 
 export type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']>;
@@ -75,7 +75,10 @@ export type DetailViewStackParamList = {
     justPaid: boolean;
     fromWalletID: string;
   };
-  LnurlAuth: { lnurl: string; walletID: string };
+  LnurlAuth: {
+    lnurl: string;
+    walletID?: string;
+  };
   Success: SuccessParams;
   WalletAddresses: { walletID: string };
   AddWalletRoot: NavigatorScreenParams<AddWalletStackParamList> | undefined;

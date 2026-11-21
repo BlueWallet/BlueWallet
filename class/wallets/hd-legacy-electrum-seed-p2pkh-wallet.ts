@@ -24,7 +24,6 @@ export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
   static readonly typeReadable = 'HD Legacy Electrum (BIP32 P2PKH)';
   // @ts-ignore: override
   public readonly type = HDLegacyElectrumSeedP2PKHWallet.type;
-  // @ts-ignore: override
   public readonly typeReadable = HDLegacyElectrumSeedP2PKHWallet.typeReadable;
   static readonly derivationPath = 'm';
 
@@ -79,6 +78,12 @@ export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
     }
 
     return (this.external_addresses_cache[index] = address);
+  }
+
+  _getBip32Root() {
+    const args: SeedOpts = { prefix: PREFIX };
+    if (this.passphrase) args.passphrase = this.passphrase;
+    return bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, args));
   }
 
   _getWIFByIndex(internal: boolean, index: number): string | false {

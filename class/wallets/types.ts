@@ -62,11 +62,13 @@ export type CreateTransactionResult = {
   psbt: bitcoin.Psbt;
 };
 
-type TransactionInput = {
-  txid: string;
-  vout: number;
-  scriptSig: { asm: string; hex: string };
-  txinwitness: string[];
+export type TransactionInput = {
+  // a coinbase input has `coinbase` instead of txid, vout and scriptSig
+  txid?: string;
+  vout?: number;
+  scriptSig?: { asm: string; hex: string };
+  coinbase?: string;
+  txinwitness?: string[];
   sequence: number;
   addresses?: string[];
   address?: string;
@@ -79,9 +81,11 @@ export type TransactionOutput = {
   scriptPubKey: {
     asm: string;
     hex: string;
-    reqSigs: number;
+    reqSigs?: number;
     type: string;
-    addresses: string[];
+    // bitcoin core 22.0.0+ sends `address` instead of `reqSigs` and `addresses`. OP_RETURN and such have none of them
+    addresses?: string[];
+    address?: string;
   };
 };
 
