@@ -26,6 +26,7 @@ export type AddWalletStackParamList = {
     words?: number;
     selectedIndex?: number;
     selectedWalletType?: Chain | 'VAULT' | 'ARK';
+    askPassphraseMenuState?: boolean;
     headerRight?: HeaderRightRenderer;
     statusBarStyle?: NativeStackNavigationOptions['statusBarStyle'];
   };
@@ -160,7 +161,7 @@ const addWalletTypes = [
   },
 ];
 
-const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
+export const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
   navigationStyle<AddWalletStackParamList, 'AddWallet'>(
     {
       closeButtonPosition: CloseButtonPosition.Left,
@@ -173,6 +174,7 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
       const entropyHex = route.params?.entropy;
       const hasEntropy = !!entropyHex;
       const providedEntropyBytes = route.params?.providedEntropyBytes || (entropyHex ? Math.floor(entropyHex.length / 2) : 0);
+      const askPassphraseMenuState = route.params?.askPassphraseMenuState ?? false;
 
       const entropyButtonText = hasEntropy
         ? loc.formatString(loc.wallets.add_entropy_bytes, {
@@ -181,7 +183,9 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
         : loc.wallets.add_entropy_provide;
 
       const onPressMenuItem = (id: string) => {
-        if (id === LightningCustodianWallet.type) {
+        if (id === CommonToolTipActions.Passphrase.id) {
+          navigation.setParams({ askPassphraseMenuState: !askPassphraseMenuState });
+        } else if (id === LightningCustodianWallet.type) {
           navigation.setParams({ selectedWalletType: Chain.OFFCHAIN });
         } else if (id === '12_words') {
           navigation.navigate('ProvideEntropy', { words: 12, entropy: entropyHex });
@@ -235,6 +239,12 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
             },
             { ...CommonToolTipActions.ResetToDefault, hidden: !hasEntropy },
           ],
+        });
+        actions.push({
+          id: CommonToolTipActions.Passphrase.id,
+          text: CommonToolTipActions.Passphrase.text,
+          subtitle: loc.wallets.add_passphrase_subtitle,
+          menuState: askPassphraseMenuState,
         });
       }
 
