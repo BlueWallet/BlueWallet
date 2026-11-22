@@ -59,11 +59,13 @@ const useDepinChatReveal = ({ getBackend, identity, network, rpc, wallet, device
       presentAlert({ message: loc.depin.reveal_waiting });
     } catch (error: any) {
       const message = String(error?.message ?? error);
+      console.warn('useDepinChatReveal: reveal failed:', message);
       const isFundsError = /insufficient|funds|cover/i.test(message);
       presentAlert({
+        // Keep the node's or device's reason: "try again" alone hides a failure that retrying cannot fix.
         message: isFundsError
           ? loc.formatString(loc.depin.reveal_need_funds, { amount: REVEAL_AMOUNT_XNA, ticker: 'XNA' })
-          : loc.depin.reveal_failed,
+          : `${loc.depin.reveal_failed}\n\n${message}`,
       });
     } finally {
       setRevealing(false);

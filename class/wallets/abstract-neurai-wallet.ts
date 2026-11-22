@@ -1974,7 +1974,13 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     device?: NeuraiESP32 | null;
   }): Promise<{ signedHex: string; feeSats: bigint; changeSats: bigint }> {
     const { depinAddress, depinWif, burnAddress, amountSats, device } = opts;
-    const utxos = opts.utxos.filter(u => (u.assetName === 'XNA' || !u.assetName) && u.satoshis > 0 && u.address === depinAddress);
+    // The wallet service sends no scripts, and both signers need the prevout's:
+    // the software signer refuses an empty one, and a device would sign a
+    // sighash over an empty scriptCode that the node then rejects.
+    const depinScript = Buffer.from(encodeDestinationScript(depinAddress)).toString('hex');
+    const utxos = opts.utxos
+      .filter(u => (u.assetName === 'XNA' || !u.assetName) && u.satoshis > 0 && u.address === depinAddress)
+      .map(u => ({ ...u, script: u.script || depinScript }));
     if (utxos.length === 0) throw new Error('No spendable XNA at the DePIN address');
     const totalIn = utxos.reduce((sum, u) => sum + u.satoshis, 0n);
 
@@ -2041,8 +2047,15 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
       if (!u) throw new Error('DePIN reveal: could not map an input to a DePIN UTXO');
 
       const prevScript = Buffer.from(u.script, 'hex');
+      // Only a legacy P2PKH prevout can be signed this way; never ask the owner
+      // to approve a signature the node would reject.
+      const p2pkh = bitcoin.payments.p2pkh({ output: prevScript });
+      if (!p2pkh.hash) throw new Error('DePIN reveal: the DePIN UTXO is not a legacy P2PKH output');
       const sighash = tx.hashForSignature(i, prevScript, SIGHASH_ALL);
       const { signature, pubkey } = await device.depinSignDigest(Buffer.from(sighash).toString('hex'));
+      if (!Buffer.from(bitcoin.crypto.hash160(Buffer.from(pubkey, 'hex'))).equals(Buffer.from(p2pkh.hash))) {
+        throw new Error('DePIN reveal: the device key does not control the DePIN address');
+      }
 
       const sigWithType = Buffer.concat([Buffer.from(signature, 'hex'), Buffer.from([SIGHASH_ALL])]);
       const scriptSig = bitcoin.script.compile([sigWithType, Buffer.from(pubkey, 'hex')]);
