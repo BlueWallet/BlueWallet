@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo } from 'react';
 import { Image, LayoutChangeEvent, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import { CLIPBOARD_SHEET_VISIBLE_MIN_HEIGHT, setClipboardSheetFocused, setLastSeenClipboardHash } from '../blue_modules/clipboard';
+import { CLIPBOARD_SHEET_VISIBLE_MIN_HEIGHT, setLastSeenClipboardHash } from '../blue_modules/clipboard';
 import { ClipboardPaymentKind } from '../blue_modules/clipboardPayment';
 import Button from '../components/Button';
 import ClipboardDetectedItem from '../components/ClipboardDetectedItem';
@@ -77,17 +77,9 @@ const ClipboardDetected = () => {
   const { kindMessage, actionTitle } = copyForKind(kind);
   const accessibilityHint = `${actionTitle}. ${kindMessage}`;
 
-  useFocusEffect(
-    useCallback(() => {
-      setClipboardSheetFocused(true);
-      return () => setClipboardSheetFocused(false);
-    }, []),
-  );
-
   const persistIfVisible = useCallback(
     (event: LayoutChangeEvent) => {
       if (event.nativeEvent.layout.height < CLIPBOARD_SHEET_VISIBLE_MIN_HEIGHT) return;
-      setClipboardSheetFocused(true);
       if (contentHash) setLastSeenClipboardHash(contentHash).catch(() => {});
     },
     [contentHash],
