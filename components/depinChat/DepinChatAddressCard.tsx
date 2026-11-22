@@ -25,7 +25,10 @@ const DepinChatAddressCard = ({ gearButton, identity, isReady, onCopy, onToggleQ
       <Text style={[styles.experimental, stylesHook.subtext]}>{` — ${loc.depin.experimental}`}</Text>
     </View>
     <Text style={[styles.addressLabel, stylesHook.subtext]}>{loc.depin.address_label}</Text>
-    <Text style={[styles.addressText, stylesHook.text]} numberOfLines={1} ellipsizeMode="middle" selectable>
+    {/* Whole, wrapping as needed: on Android a selectable Text ignores the
+        one-line ellipsis and draws a clipped second line under the buttons.
+        An address is also something people check character by character. */}
+    <Text style={[styles.addressText, stylesHook.text]} selectable>
       {identity.address}
     </Text>
     <View style={styles.addressActions}>
@@ -70,7 +73,7 @@ const styles = StyleSheet.create({
   readyBadgeNo: { backgroundColor: '#dc2626' },
   readyBadgeText: { color: '#fff', fontSize: 12, fontWeight: '700', letterSpacing: 0.5 },
   addressLabel: { fontSize: 12, fontWeight: '600', marginBottom: 4 },
-  addressText: { fontSize: 14, fontWeight: '600' },
+  addressText: { fontSize: 14, fontWeight: '600', lineHeight: 20 },
   addressActions: { flexDirection: 'row', gap: 8, marginTop: 10 },
   smallBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, borderWidth: 1 },
   smallBtnText: { fontSize: 13, fontWeight: '600' },
