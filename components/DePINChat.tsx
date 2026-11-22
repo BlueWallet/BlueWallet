@@ -149,6 +149,7 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(({ walletID, pause
     checkAssetValidity,
     setIsPolling,
     createPrivateConversation,
+    deviceApprovalPending,
   } = useDePINChat({
     rpc,
     selectedAsset,
@@ -498,6 +499,7 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(({ walletID, pause
       placeholderColor={colors.alternativeTextColor}
       revealBanner={revealBanner}
       selectedAsset={selectedAsset}
+      status={deviceApprovalPending ? loc.depin.device_confirm_session : null}
       stylesHook={stylesHook}
     />
   );

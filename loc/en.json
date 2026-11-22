@@ -165,6 +165,7 @@
     "device_connect_button": "Connect device",
     "device_connecting": "Connecting to the device…",
     "device_confirm_reveal": "Confirm \"Reveal identity\" on the device…",
+    "device_confirm_session": "Approve the DePIN session on the device (token, pool and pool key)…",
     "no_token": "You don't hold any DePIN token at your DePIN address. Acquire a DePIN asset (name starting with \"&\") at the address below to join its chat.",
     "tokens_label": "DePIN Tokens",
     "address_label": "Your DePIN address",

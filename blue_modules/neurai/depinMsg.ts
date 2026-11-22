@@ -8,6 +8,10 @@ function api(): Library {
   if (!sdk || sdk.DEPIN_RPC_PROTOCOL !== 6) throw new Error('DePIN RPC 6 SDK is not loaded');
   return sdk;
 }
+/** The SDK namespace, for libraries that take it whole (the NeuraiHW DePIN client). */
+export function depinSdk(): Library {
+  return api();
+}
 export function normalizeDepinToken(token: string): string {
   const value = String(token ?? '').trim();
   if (!value) throw new Error('DePIN token is required');

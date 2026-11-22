@@ -109,7 +109,7 @@
     "@neuraiproject/neurai-privacy": "0.4.2",
     "@neuraiproject/neurai-rpc": "0.10.0",
     "@neuraiproject/neurai-scripts": "0.13.0",
-    "@neuraiproject/neurai-sign-esp32": "0.8.3",
+    "@neuraiproject/neurai-sign-esp32": "0.9.2",
     "@neuraiproject/neurai-sign-transaction": "3.6.1",
     "@neuraiproject/neurai-silent-payments": "0.1.1",
     "@ngraveio/bc-ur": "1.1.13",

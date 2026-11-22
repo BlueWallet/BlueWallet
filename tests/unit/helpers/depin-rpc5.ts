@@ -11,7 +11,7 @@ export async function openStored(message: ReceivedDepinMessage, privateKeyHex: s
 }
 let count = 0;
 export async function fakePool(
-  options: { maxRecipients: number; complete?: boolean; pageSize?: number } = { maxRecipients: 2, complete: true },
+  options: { maxRecipients: number; complete?: boolean; pageSize?: number; sequenceBase?: bigint } = { maxRecipients: 2, complete: true },
 ) {
   const pool = await sdk.createSoftwareIdentity({ privateKey: POOL_KEY, network: 'test' });
   const legacy = await sdk.createSoftwareIdentity({ privateKey: '77'.repeat(32), network: 'test' });
@@ -28,7 +28,8 @@ export async function fakePool(
     membership_height: 123,
     membership_blockhash: '33'.repeat(32),
   };
-  let seq = 9007199254740992n,
+  // Past 2^53 by default, so software cursors are exercised as exact BigInts.
+  let seq = options.sequenceBase ?? 9007199254740992n,
     nonce = 0;
   const stream = '44'.repeat(32),
     nonces = new Map<string, string>(),

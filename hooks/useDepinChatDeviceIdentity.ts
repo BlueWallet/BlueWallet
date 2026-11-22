@@ -3,6 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { NeuraiESP32 } from '@neuraiproject/neurai-sign-esp32/react-native';
 
 import { deviceDepinChatIdentity, type DepinChatIdentity, type DepinChatNetwork } from '../blue_modules/neurai/depinChatIdentity';
+import { forgetDeviceSession } from '../blue_modules/neurai/depinDevice';
+import { CHAIN_PARAMS } from '../blue_modules/neurai/networkConfig';
 import { useNeuraiHwDevice } from '../blue_modules/neurai-hw/useNeuraiHwDevice';
 import { withDevice } from '../blue_modules/neurai-hw/deviceQueue';
 
@@ -23,7 +25,7 @@ export interface UseDepinChatDeviceIdentityResult {
   identity: DepinChatIdentity | null;
   phase: DepinDeviceIdentityPhase;
   error: string | null;
-  /** The live device, kept connected for later sign/decrypt routing (phase B). */
+  /** The live device, kept connected: the chat signs and opens through it. */
   device: NeuraiESP32 | null;
   /** Connect to the device and reveal its DePIN identity (one on-device approval). */
   reveal: () => Promise<void>;
@@ -37,9 +39,9 @@ export interface UseDepinChatDeviceIdentityResult {
  * exposes — the cause of the infinite chat spinner), it asks the connected
  * NeuraiHW device for it via `getDepinIdentity()`.
  *
- * Requires firmware advertising the `depin_identity` capability and the device
- * unlocked (PIN entered on-device). The connection is held open so a later
- * phase can route `depinSign`/`depinDecrypt` to the same device.
+ * Requires firmware with DePIN RPC 6 / format 3 (`getDepinSupport`) and the
+ * device unlocked (PIN entered on-device). The connection is held open: the
+ * chat signs requests and opens messages on this same device.
  */
 export function useDepinChatDeviceIdentity(params: { enabled: boolean; network: DepinChatNetwork }): UseDepinChatDeviceIdentityResult {
   const { enabled, network } = params;
@@ -51,6 +53,7 @@ export function useDepinChatDeviceIdentity(params: { enabled: boolean; network: 
   const deviceRef = useRef<NeuraiESP32 | null>(liveDevice.current?.device ?? null);
 
   const reset = useCallback(async () => {
+    forgetDeviceSession(deviceRef.current);
     deviceRef.current = null;
     liveDevice.current = null;
     setIdentity(null);
@@ -73,9 +76,24 @@ export function useDepinChatDeviceIdentity(params: { enabled: boolean; network: 
       if (!capabilities.includes('depin_identity')) {
         throw new Error('This firmware does not support DePIN chat — please update it');
       }
+      // The chat needs DePIN RPC 6 with format-3 envelopes on the device.
+      try {
+        await withDevice(() => device.getDepinSupport());
+      } catch {
+        throw new Error('This firmware does not support DePIN messaging RPC 6 (format 3) — please update it');
+      }
 
       setPhase('revealing');
       const res = await withDevice(() => device.getDepinIdentity()); // device prompts "REVEAL IDENTITY?"
+      // The device signs for its own chain: refuse a mainnet device on a testnet wallet and vice versa.
+      const chain = CHAIN_PARAMS[network];
+      const deviceNetwork = res.network === 'xna' ? 'mainnet' : res.network === 'xna-test' ? 'testnet' : null;
+      if (deviceNetwork && deviceNetwork !== chain.network) {
+        throw new Error(`The device is set up for ${deviceNetwork}, but this wallet is on ${chain.network}`);
+      }
+      if (chain.expectedGenesisHash && res.genesis && res.genesis !== chain.expectedGenesisHash) {
+        throw new Error('The device firmware is built for another chain (genesis mismatch) — please update it');
+      }
       const built = deviceDepinChatIdentity({
         network,
         address: res.address,
@@ -86,6 +104,7 @@ export function useDepinChatDeviceIdentity(params: { enabled: boolean; network: 
       setIdentity(built);
       setPhase('ready');
     } catch (e: any) {
+      forgetDeviceSession(deviceRef.current);
       deviceRef.current = null;
       liveDevice.current = null;
       await hw.disconnect().catch(() => {});

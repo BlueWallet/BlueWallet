@@ -37,8 +37,21 @@ import type { DepinRpc } from './useDepinChatSetup';
 import type { RawRpcCall } from '../blue_modules/neurai/depinRpcAdapter';
 import type { DepinChatIdentity } from '../blue_modules/neurai/depinChatIdentity';
 import { isMeaningfulSignature, markPoolSeen, poolSignature } from '../blue_modules/neurai/depinPoolSeen';
+import {
+  forgetDeviceSession,
+  isDeviceLinkLost,
+  isDeviceRateLimited,
+  isDeviceStopError,
+  receiveDevicePage,
+  sendDeviceMessage,
+  type DeviceChannel,
+} from '../blue_modules/neurai/depinDevice';
 
 const DEPIN_POLL_INTERVAL_MS = 5_000;
+/** A device poll spans many serial round trips and counts against the session's per-minute budget. */
+const DEVICE_POLL_INTERVAL_MS = 10_000;
+/** Device pages are small (two rows), so a poll reads a few more of them. */
+const DEVICE_PAGES_PER_POLL = 5;
 const PRIVATE_MSG_PREFIX = 'depin_private_msg_';
 
 /** Bound each poll; its admission cursor continues on the next tick. */
@@ -151,8 +164,11 @@ export function useDePINChat(params: {
     walletID,
     network,
     device = null,
+    onDeviceLost,
     paused = false,
   } = params;
+  const onDeviceLostRef = useRef(onDeviceLost);
+  onDeviceLostRef.current = onDeviceLost;
   // The visible conversation is read by definition; keep it in a ref so message
   // ingestion can consult it without re-creating the polling callbacks.
   const onMembershipChangedRef = useRef(onMembershipChanged);
@@ -162,9 +178,11 @@ export function useDePINChat(params: {
     activeTabRef.current = activeTab;
   }, [activeTab]);
 
-  // Hardware RPC 6 support is deferred. Software identities keep local keys.
+  // Software identities keep local keys; a device-backed one signs and opens on the NeuraiHW.
   const deviceBacked = !!identity?.deviceBacked;
   const canCrypt = !!identity?.wif || (deviceBacked && !!device);
+  /** The device is showing the session approval (token, pool root, pool key) and waits for the owner. */
+  const [deviceApprovalPending, setDeviceApprovalPending] = useState(false);
 
   const [groupMessages, setGroupMessages] = useState<DePINMessage[]>([]);
   const [privateConversations, setPrivateConversations] = useState<Map<string, PrivateConversation>>(new Map());
@@ -301,15 +319,31 @@ export function useDePINChat(params: {
     };
   }, [selectedAsset, effectiveAddress, network, rpc]);
 
-  // ESP32 protocol migration is a separate phase. Do not open an obsolete signing session.
-  useEffect(() => {
-    if (deviceBacked && selectedAsset) {
-      setIsPolling(false);
-      setError(
-        'This device needs a firmware update for DePIN RPC 6 (ECIES format 3). Hardware messaging will be enabled once the device supports it.',
-      );
-    }
-  }, [deviceBacked, selectedAsset]);
+  /** The channel as the device path needs it: the session is bound to token, pool and endpoint. */
+  const deviceChannel = useCallback(
+    (pool: DeviceChannel['pool'], token: string): DeviceChannel | null =>
+      device && rpc
+        ? {
+            device,
+            call: rpc as unknown as RawRpcCall,
+            serviceUrl: getDepinRpcConfig(network).url,
+            token: normalizeDepinToken(token),
+            pool,
+            onApproval: setDeviceApprovalPending,
+          }
+        : null,
+    [device, rpc, network],
+  );
+
+  /** The USB link died: drop the session and let the screen offer to reconnect. */
+  const handleDeviceError = useCallback(
+    (err: unknown) => {
+      if (!deviceBacked || !isDeviceLinkLost(err)) return;
+      forgetDeviceSession(device);
+      onDeviceLostRef.current?.();
+    },
+    [deviceBacked, device],
+  );
 
   const ingestItems = useCallback((myAddr: string, decrypted: DePINMessage[]) => {
     const newGroup: DePINMessage[] = [];
@@ -352,7 +386,6 @@ export function useDePINChat(params: {
 
   const pollOnce = useCallback(async () => {
     if (!selectedAsset || !effectiveAddress || !canCrypt || !rpc) return;
-    if (deviceBacked) throw new Error('Hardware messaging requires DePIN RPC 6 firmware support');
     const channelEpoch = channelEpochRef.current;
 
     // Bootstrap fixes the current pool instance/revision before private reads.
@@ -410,9 +443,30 @@ export function useDePINChat(params: {
       membershipRef.current = membership;
     }
     if (channelEpoch !== channelEpochRef.current) return;
+    let caughtUp = false;
+
+    if (deviceBacked) {
+      // The device signs each request, verifies the pool's reply and opens the rows.
+      const channel = deviceChannel(pool, selectedAsset);
+      if (!channel) throw new Error('Connect the NeuraiHW device to read this channel');
+      for (let page = 0; page < DEVICE_PAGES_PER_POLL; page++) {
+        const previousCursor = cursorRef.current;
+        const result = await receiveDevicePage({ ...channel, cursor: previousCursor });
+        if (channelEpoch !== channelEpochRef.current) return;
+        ingestVerified(result.messages);
+        cursorRef.current = result.cursor;
+        caughtUp = !result.hasMore;
+        if (pollAbortRef.current || caughtUp) break;
+        if (previousCursor && result.cursor.stream_id === previousCursor.stream_id && result.cursor.after_seq === previousCursor.after_seq)
+          throw new Error('DePIN cursor made no progress');
+      }
+      if (caughtUp && isMeaningfulSignature(signature)) markPoolSeen(walletID, signature);
+      setLastPoll(new Date());
+      return;
+    }
+
     if (!identity?.wif) throw new Error('No local DePIN signing identity');
     const receiveIdentity = await softwareIdentity(String(identity.wif), network, identity.address);
-    let caughtUp = false;
     for (let page = 0; page < MAX_PAGES_PER_POLL; page++) {
       const previousCursor = cursorRef.current;
       try {
@@ -449,12 +503,11 @@ export function useDePINChat(params: {
 
     if (caughtUp && isMeaningfulSignature(signature)) markPoolSeen(walletID, signature);
     setLastPoll(new Date());
-  }, [rpc, network, selectedAsset, effectiveAddress, identity, getContactAddress, ingestItems, deviceBacked, device, canCrypt, walletID]);
+  }, [rpc, network, selectedAsset, effectiveAddress, identity, getContactAddress, ingestItems, deviceBacked, deviceChannel, canCrypt, walletID]);
 
   // Automatic polling every 5s while connected.
   useEffect(() => {
     if (paused || !selectedAsset || !effectiveAddress || !isPolling || !rpc) return;
-    if (deviceBacked) return;
     let active = true;
     pollAbortRef.current = false;
 
@@ -469,6 +522,18 @@ export function useDePINChat(params: {
         }
       } catch (err: any) {
         console.warn('useDePINChat: poll failed:', describeRpcError(err) ?? err);
+        // The device spent its per-minute budget; the next tick goes through.
+        if (deviceBacked && isDeviceRateLimited(err)) return;
+        // Declined session, old firmware or a lost link: only the owner can fix
+        // these, and retrying on a timer would keep prompting the device.
+        if (deviceBacked && (isDeviceStopError(err) || isDeviceLinkLost(err))) {
+          handleDeviceError(err);
+          if (active) {
+            setError(describeRpcError(err) ?? 'The device could not read this channel');
+            setIsPolling(false);
+          }
+          return;
+        }
         // The first poll right after selecting a token often races a cold RPC
         // connection; polling keeps retrying every 5s, so only surface an error
         // after it fails repeatedly (the UI shows a "checking…" state meanwhile).
@@ -490,13 +555,13 @@ export function useDePINChat(params: {
     };
 
     run();
-    const interval = setInterval(run, DEPIN_POLL_INTERVAL_MS);
+    const interval = setInterval(run, deviceBacked ? DEVICE_POLL_INTERVAL_MS : DEPIN_POLL_INTERVAL_MS);
     return () => {
       active = false;
       pollAbortRef.current = true; // stop an in-flight page from publishing
       clearInterval(interval);
     };
-  }, [paused, rpc, selectedAsset, effectiveAddress, isPolling, pollOnce, deviceBacked]);
+  }, [paused, rpc, selectedAsset, effectiveAddress, isPolling, pollOnce, deviceBacked, handleDeviceError]);
 
   const refreshMessages = useCallback(async () => {
     if (pollLock.current) return;
@@ -507,11 +572,12 @@ export function useDePINChat(params: {
       if (epoch === channelEpochRef.current) setError(null);
     } catch (err: any) {
       console.debug('useDePINChat: manual refresh failed', err?.message ?? err);
+      handleDeviceError(err);
       if (epoch === channelEpochRef.current) setError(describeRpcError(err) ?? 'Failed to fetch messages');
     } finally {
       pollLock.current = false;
     }
-  }, [pollOnce]);
+  }, [pollOnce, handleDeviceError]);
 
   const fetchStats = useCallback(async (): Promise<PoolStats | null> => {
     if (!rpc) return null;
@@ -541,16 +607,12 @@ export function useDePINChat(params: {
       const senderPubKey = String(identity.publicKey).trim().toLowerCase();
       const timestamp = Math.floor(Date.now() / 1000);
 
-      if (deviceBacked) throw new Error('Hardware messaging requires DePIN RPC 6 firmware support');
-
       // Verify the current pool identity before building a signed RPC 6 request.
       const pool = await getVerifiedPool({
         call: rpc as unknown as RawRpcCall,
         network,
         url: getDepinRpcConfig(network).url,
       });
-
-      const chatIdentity = await softwareIdentity(String(identity.wif), network, identity.address);
 
       // C1 remains separate: the current audit hook has no independent source
       // and reports independent:false. Pool signatures and address/key binding
@@ -572,6 +634,21 @@ export function useDePINChat(params: {
 
       // A private message goes to one holder and to us, and to nobody else. A
       // group message is resolved and encrypted to every holder by the library.
+      if (deviceBacked) {
+        const channel = deviceChannel(pool, selectedAsset);
+        if (!channel) throw new Error('Connect the NeuraiHW device to send');
+        let deviceSent: { messageHash: string };
+        try {
+          deviceSent = await sendDeviceMessage({ ...channel, message: cleaned, toAddress: isPrivate ? targetAddress : null });
+        } catch (err) {
+          handleDeviceError(err);
+          throw err;
+        }
+        if (isPrivate && targetAddress) rememberPrivateRecipient(deviceSent.messageHash, targetAddress);
+        return deviceSent.messageHash;
+      }
+
+      const chatIdentity = await softwareIdentity(String(identity.wif), network, identity.address);
       const sent =
         isPrivate && targetAddress
           ? await sendDepinPrivateMessage({
@@ -608,7 +685,7 @@ export function useDePINChat(params: {
       // cannot prove that concurrent messages from others have been read.
       return result;
     },
-    [rpc, network, selectedAsset, effectiveAddress, identity, recipientList, rememberPrivateRecipient, deviceBacked, canCrypt, walletID],
+    [rpc, network, selectedAsset, effectiveAddress, identity, recipientList, rememberPrivateRecipient, deviceBacked, canCrypt, deviceChannel, handleDeviceError],
   );
 
   const checkAssetValidity = useCallback(async (): Promise<AssetValidity | null> => {
@@ -647,6 +724,8 @@ export function useDePINChat(params: {
     totalUnread: groupUnread + Array.from(privateConversations.values()).reduce((sum, c) => sum + c.unreadCount, 0),
     isPolling,
     setIsPolling,
+    /** The device waits for the owner to approve the DePIN session. */
+    deviceApprovalPending,
     error,
     /** Advisory: the independent node did not confirm every listed recipient. */
     recipientWarning,

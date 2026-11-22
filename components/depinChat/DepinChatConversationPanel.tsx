@@ -35,6 +35,8 @@ interface DepinChatConversationPanelProps {
   placeholderColor: string;
   revealBanner: ReactNode;
   selectedAsset: string;
+  /** Progress note shown in place of "checking the server", e.g. a pending device approval. */
+  status?: string | null;
   stylesHook: any;
 }
 
@@ -58,6 +60,7 @@ const DepinChatConversationPanel = ({
   placeholderColor,
   revealBanner,
   selectedAsset,
+  status,
   stylesHook,
 }: DepinChatConversationPanelProps) => (
   <View style={[styles.flex, stylesHook.root, stylesHook.chatRoot]}>
@@ -95,10 +98,10 @@ const DepinChatConversationPanel = ({
         <ActivityIndicator size="small" />
         <Text style={[styles.errorText, stylesHook.subtext]}>{`${error} — ${loc.depin.connection_retrying}`}</Text>
       </View>
-    ) : !lastPoll ? (
+    ) : status || !lastPoll ? (
       <View style={styles.statusRow}>
         <ActivityIndicator size="small" />
-        <Text style={[styles.errorText, stylesHook.subtext]}>{loc.depin.checking_server}</Text>
+        <Text style={[styles.errorText, stylesHook.subtext]}>{status || loc.depin.checking_server}</Text>
       </View>
     ) : null}
 

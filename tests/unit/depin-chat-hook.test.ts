@@ -1,6 +1,8 @@
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
-import { fakePool } from './helpers/depin-rpc5';
+import { fakePool, openStored } from './helpers/depin-rpc5';
+import { deviceDouble } from './helpers/depin-device-double';
+import { endDeviceSession } from '../../blue_modules/neurai/depinDevice';
 import { sendDepinGroupMessage } from '../../blue_modules/neurai/depinSend';
 import { getSeenSignature } from '../../blue_modules/neurai/depinPoolSeen';
 import { useDePINChat } from '../../hooks/useDePINChat';
@@ -125,32 +127,63 @@ test('a response completing after a channel change cannot populate the new chann
   await act(async () => renderer.unmount());
 });
 
-test('deferred hardware messaging opens no obsolete signing session and reports RPC 6 support', async () => {
-  const node = await fakePool();
+test('a hardware identity reads and sends through the device session', async () => {
+  const node = await fakePool({ maxRecipients: 20, complete: true, sequenceBase: 0n });
   endpoint = node.url;
-  const rpc = chainAware(node);
-  const device = { depinSessionBegin: jest.fn(), depinDecryptPayload: jest.fn() } as never;
+  const pool = await node.verified(),
+    rpc = chainAware(node);
+  await sendDepinGroupMessage({
+    call: node.call,
+    pool,
+    identity: node.strict,
+    token: 'TEST/NEWS',
+    message: 'hola placa',
+    timestamp: Math.floor(Date.now() / 1000),
+    network: 'testnet',
+  });
+  const hw = await deviceDouble({ privateKey: '77'.repeat(32) });
   let chat!: ReturnType<typeof useDePINChat>, renderer!: TestRenderer.ReactTestRenderer;
   function Probe() {
     chat = useDePINChat({
       rpc,
-      selectedAsset: '&TEST',
+      selectedAsset: '&TEST/NEWS',
       identity: { ...mnemonicIdentity(node), wif: '', deviceBacked: true },
       recipientList: [],
       walletID: 'hardware',
       network: 'testnet',
-      device,
+      device: hw.device,
+      paused: true,
     });
     return null;
   }
   await act(async () => {
     renderer = TestRenderer.create(React.createElement(Probe));
   });
-  expect(chat.error).toMatch(/RPC 6/);
-  expect(chat.isPolling).toBe(false);
-  expect((device as any).depinSessionBegin).not.toHaveBeenCalled();
-  expect(node.call).not.toHaveBeenCalled();
+  await act(async () => {
+    await chat.refreshMessages();
+  });
+  expect(chat.error).toBeNull();
+  expect(chat.groupMessages.map((m) => m.message)).toEqual(['hola placa']);
+  expect(chat.deviceApprovalPending).toBe(false);
+
+  await act(async () => {
+    await chat.sendMessage('respuesta del grupo');
+    await chat.sendMessage(`@${node.strict.address} en privado`);
+  });
+  expect(node.messages.map((m) => m.sender)).toEqual([node.strict.address, node.legacy.address, node.legacy.address]);
+  expect(await openStored(node.messages[1], '99'.repeat(32))).toBe('respuesta del grupo');
+  expect(await openStored(node.messages[2], '88'.repeat(32))).toBe(`@${node.strict.address} en privado`);
+  expect(await openStored(node.messages[2], '99'.repeat(32))).toBeNull();
+
+  await act(async () => {
+    await chat.refreshMessages();
+  });
+  expect(chat.groupMessages.map((m) => m.message)).toEqual(['hola placa', 'respuesta del grupo']);
+  expect(chat.privateConversations.get(node.strict.address)?.messages.map((m) => m.message)).toEqual(['en privado']);
+  // One physical approval covered the whole conversation, and no local key was used.
+  expect(hw.commands.filter((c) => c.action === 'depin_session_begin')).toHaveLength(1);
   await act(async () => renderer.unmount());
+  await endDeviceSession();
 });
 
 test('a bounded poll with more pages does not mark the unread backlog as seen', async () => {
