@@ -1,10 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, PlatformColor, Text, StyleSheet, Image } from 'react-native';
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { AppState, Platform, PlatformColor } from 'react-native';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
-import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
 import IsItMyAddress from '../screen/settings/IsItMyAddress';
 import Broadcast from '../screen/settings/Broadcast';
@@ -14,16 +12,10 @@ import TransactionStatus from '../screen/transactions/TransactionStatus';
 import WalletAddresses from '../screen/wallets/WalletAddresses';
 import WalletDetails from '../screen/wallets/WalletDetails';
 import SelectWallet from '../screen/wallets/SelectWallet';
-import WalletsList from '../screen/wallets/WalletsList';
-import NetworkSwitcher from '../components/NetworkSwitcher';
-import { useNetworkSelection } from '../hooks/useNetworkSelection';
+import WalletHome from '../screen/wallets/WalletHome';
+import WalletTransactionsRedirect from '../screen/wallets/WalletTransactionsRedirect';
 import { DetailViewStack } from './index';
-import SettingsButton from '../components/icons/SettingsButton';
 import { useSettings } from '../hooks/context/useSettings';
-import { useStorage } from '../hooks/context/useStorage';
-import { WalletTransactionsStatus } from '../components/Context/StorageProvider';
-import WalletTransactions from '../screen/wallets/WalletTransactions';
-import AddWalletButton from '../components/AddWalletButton';
 import Settings from '../screen/settings/Settings';
 import Currency from '../screen/settings/Currency';
 import GeneralSettings from '../screen/settings/GeneralSettings';
@@ -43,9 +35,6 @@ import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import SettingsTools from '../screen/settings/SettingsTools';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
-import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
-import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
-import { isDesktop } from '../blue_modules/environment';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
@@ -59,43 +48,9 @@ import ConnectRequest from '../screen/connect/ConnectRequest';
 import ConnectSessions from '../screen/connect/ConnectSessions';
 import ImportNeurai from '../screen/wallets/ImportNeurai';
 
-const NEURAI_LOGO = require('../img/addWallet/neurai.png');
-
-const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
-  const opacity = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    const pulse = Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacity, {
-          toValue: 0.55,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-      ]),
-    );
-    pulse.start();
-    return () => pulse.stop();
-  }, [opacity]);
-
-  return (
-    <View style={containerStyle}>
-      <Animated.Text style={[textStyle, { opacity }]}>{loc.transactions.updating}</Animated.Text>
-    </View>
-  );
-};
-
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
-  const navigation = useExtendedNavigation();
-  const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
-  const { sizeClass } = useSizeClass();
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
   const pollConnection = useCallback(async () => {
@@ -135,69 +90,6 @@ const DetailViewStackScreensStack = () => {
 
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
-  const { canSwitch: canSwitchNetwork } = useNetworkSelection();
-
-  const navigateToAddWallet = useCallback(() => {
-    navigation.navigate('AddWalletRoot');
-  }, [navigation]);
-
-  // The switcher sits left of "+" and only exists while both networks have
-  // wallets; its spacer goes with it so a mainnet-only header keeps its layout.
-  const RightBarButtons = useMemo(
-    () => (
-      <>
-        {canSwitchNetwork && (
-          <>
-            <NetworkSwitcher />
-            <View style={styles.width24} />
-          </>
-        )}
-        <AddWalletButton onPress={navigateToAddWallet} />
-        {sizeClass !== SizeClass.Large && (
-          <>
-            <View style={styles.width24} />
-            <SettingsButton />
-          </>
-        )}
-      </>
-    ),
-    [sizeClass, navigateToAddWallet, canSwitchNetwork],
-  );
-
-  const walletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
-    // The "Offline" and "Not connected" pills referred to BlueElectrum
-    // health; Neurai goes through RPC and has its own status panel in
-    // NetworkSettings, so the only header pill we still surface is the
-    // transient "Updating…" indicator while a refresh is in flight.
-    const isUpdating = walletTransactionUpdateStatus !== WalletTransactionsStatus.NONE;
-
-    const renderHeaderLeft = () => (
-      <View style={styles.walletListHeaderLeft}>
-        <Image source={NEURAI_LOGO} style={styles.walletListHeaderLogo} resizeMode="contain" />
-        <Text style={[styles.walletListHeaderTitle, { color: theme.colors.foregroundColor }]} numberOfLines={1}>
-          Neurai Wallet
-        </Text>
-        {isUpdating && (
-          <UpdatingLabel
-            containerStyle={[styles.updatingLabelContainer, styles.walletListUpdatingLabel, { backgroundColor: theme.colors.lightButton }]}
-            textStyle={[styles.updatingLabelText, { color: theme.colors.foregroundColor }]}
-          />
-        )}
-      </View>
-    );
-
-    return {
-      title: '',
-      headerLargeTitle: false,
-      headerShadowVisible: false,
-      headerStyle: {
-        backgroundColor: theme.colors.customHeader,
-      },
-      headerLeft: renderHeaderLeft,
-      headerRight: () => (isDesktop ? undefined : RightBarButtons),
-    };
-  }, [RightBarButtons, theme.colors.customHeader, theme.colors.foregroundColor, theme.colors.lightButton, walletTransactionUpdateStatus]);
-
   const isIOSLightMode = Platform.OS === 'ios' && !theme.dark;
   const settingsCardColor = theme.colors.lightButton ?? theme.colors.modal ?? theme.colors.elevated ?? theme.colors.background;
   const settingsHeaderBackgroundColor = isIOSLightMode ? settingsCardColor : theme.colors.customHeader;
@@ -232,8 +124,18 @@ const DetailViewStackScreensStack = () => {
         initialRouteName="WalletsList"
         screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
       >
-        <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
-        <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
+        {/* The home draws its own top bar (wallet switcher and settings). */}
+        <DetailViewStack.Screen
+          name="WalletsList"
+          component={WalletHome}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.home.wallets }}
+        />
+        {/* Old per-wallet links: put that wallet on the home and go back to it. */}
+        <DetailViewStack.Screen
+          name="WalletTransactions"
+          component={WalletTransactionsRedirect}
+          options={{ headerShown: false, animation: 'none' }}
+        />
         <DetailViewStack.Screen
           name="WalletDetails"
           component={WalletDetails}
@@ -493,37 +395,3 @@ const DetailViewStackScreensStack = () => {
 };
 
 export default DetailViewStackScreensStack;
-
-const styles = StyleSheet.create({
-  width24: {
-    width: 24,
-  },
-  walletListHeaderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    minWidth: 0,
-  },
-  walletListHeaderLogo: {
-    width: 29,
-    height: 29,
-    marginRight: 8,
-  },
-  walletListHeaderTitle: {
-    fontSize: 19,
-    fontWeight: '700',
-  },
-  walletListUpdatingLabel: {
-    marginLeft: 10,
-  },
-  updatingLabelContainer: {
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  updatingLabelText: {
-    fontSize: 13,
-    fontWeight: '700',
-  },
-});

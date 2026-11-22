@@ -51,7 +51,7 @@ import { shortAddr } from './depinChat/utils';
 
 export type { DePINChatHandle } from './depinChat/types';
 
-const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(({ walletID, paused = false }, ref) => {
+const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(({ walletID, paused = false, onConversationOpenChange }, ref) => {
   const { colors } = useTheme();
   const { navigate } = useExtendedNavigation();
   const insets = useSafeAreaInsets();
@@ -135,6 +135,11 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(({ walletID, pause
     }),
     [selectedAsset, setSelectedAsset],
   );
+
+  // The host hides its own bottom controls while a conversation's input bar owns the bottom.
+  useEffect(() => {
+    onConversationOpenChange?.(selectedAsset != null);
+  }, [selectedAsset, onConversationOpenChange]);
 
   const {
     groupMessages,

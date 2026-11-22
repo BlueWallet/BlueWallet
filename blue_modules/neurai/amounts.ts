@@ -83,3 +83,21 @@ export function splitFormattedAmount(text: string, separator = decimalSeparator(
   if (!match) return [text, '', ''];
   return [text.slice(0, index), separator + match[1], match[2]];
 }
+
+/**
+ * `splitFormattedAmount`, keeping at most `maxDecimals` decimal digits. The rest
+ * are cut, never rounded, so a shortened amount never shows more than is held;
+ * zeros left at the end by the cut go as well. For summaries (home, wallet
+ * list); the send flow keeps the full amount.
+ */
+export function splitShortenedAmount(text: string, maxDecimals: number, separator = decimalSeparator()): [string, string, string] {
+  const [integer, decimals, suffix] = splitFormattedAmount(text, separator);
+  if (!decimals) return [integer, '', suffix];
+  const digits = decimals.slice(separator.length, separator.length + Math.max(0, maxDecimals)).replace(/0+$/, '');
+  return [integer, digits ? separator + digits : '', suffix];
+}
+
+/** `splitShortenedAmount` joined back into one string. */
+export function shortenFormattedAmount(text: string, maxDecimals: number, separator = decimalSeparator()): string {
+  return splitShortenedAmount(text, maxDecimals, separator).join('');
+}

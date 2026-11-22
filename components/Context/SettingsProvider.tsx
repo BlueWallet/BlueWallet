@@ -139,29 +139,6 @@ export const setThemeModeStorageFunc = async (value: ThemeMode): Promise<void> =
   }
 };
 
-// Home-screen recent transactions: by default they follow the wallet card in
-// view; this opts into the merged list of every wallet on the shown network.
-const UNIFIED_HOME_TRANSACTIONS_KEY = 'UNIFIED_HOME_TRANSACTIONS';
-
-export const getIsUnifiedTransactionsEnabled = async (): Promise<boolean> => {
-  try {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    return (await DefaultPreference.get(UNIFIED_HOME_TRANSACTIONS_KEY)) === 'true';
-  } catch (e) {
-    console.error('Error getting UnifiedTransactions:', e);
-    return false;
-  }
-};
-
-export const setIsUnifiedTransactionsEnabledStorageFunc = async (value: boolean): Promise<void> => {
-  try {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    await DefaultPreference.set(UNIFIED_HOME_TRANSACTIONS_KEY, value ? 'true' : 'false');
-  } catch (e) {
-    console.error('Error setting UnifiedTransactions:', e);
-  }
-};
-
 // Home-screen network switcher. The pick persists so the app reopens where it
 // was left; the unseen flags persist because the receipt that lights them can
 // land while the app is closed.
@@ -248,8 +225,6 @@ interface SettingsContextType {
   themeMode: ThemeMode;
   setThemeModeStorage: (value: ThemeMode) => Promise<void>;
   /** Home screen lists every visible wallet's transactions together instead of the focused card's. */
-  isUnifiedTransactionsEnabled: boolean;
-  setIsUnifiedTransactionsEnabledStorage: (value: boolean) => Promise<void>;
   /** Network the home screen shows. Persisted; see useNetworkSelection for the effective value. */
   selectedNetwork: NeuraiNetwork;
   /** Switches the home screen and clears that network's unseen flag: looking at it is seeing it. */
@@ -293,8 +268,6 @@ const defaultSettingsContext: SettingsContextType = {
   setIsSingleAddressEnabledStorage: async () => {},
   themeMode: 'system',
   setThemeModeStorage: async () => {},
-  isUnifiedTransactionsEnabled: false,
-  setIsUnifiedTransactionsEnabledStorage: async () => {},
   selectedNetwork: DEFAULT_SELECTED_NETWORK,
   setSelectedNetworkStorage: async () => {},
   unseenNetworks: NO_UNSEEN,
@@ -320,7 +293,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const [isPQAddressReuseEnabled, setIsPQAddressReuseEnabled] = useState<boolean>(true);
   const [isSingleAddressEnabled, setIsSingleAddressEnabled] = useState<boolean>(false);
   const [themeMode, setThemeMode] = useState<ThemeMode>('system');
-  const [isUnifiedTransactionsEnabled, setIsUnifiedTransactionsEnabled] = useState<boolean>(false);
   const [selectedNetwork, setSelectedNetwork] = useState<NeuraiNetwork>(DEFAULT_SELECTED_NETWORK);
   const [unseenNetworks, setUnseenNetworks] = useState<UnseenNetworks>(NO_UNSEEN);
 
@@ -383,9 +355,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         }),
         getThemeMode().then(mode => {
           setThemeMode(mode);
-        }),
-        getIsUnifiedTransactionsEnabled().then(unified => {
-          setIsUnifiedTransactionsEnabled(unified);
         }),
         getSelectedNetwork().then(network => {
           setSelectedNetwork(network);
@@ -537,15 +506,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
     }
   }, []);
 
-  const setIsUnifiedTransactionsEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
-    try {
-      await setIsUnifiedTransactionsEnabledStorageFunc(value);
-      setIsUnifiedTransactionsEnabled(value);
-    } catch (e) {
-      console.error('Error setting isUnifiedTransactionsEnabled:', e);
-    }
-  }, []);
-
   const setSelectedNetworkStorage = useCallback(async (network: NeuraiNetwork): Promise<void> => {
     try {
       setSelectedNetwork(network);
@@ -642,8 +602,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsSingleAddressEnabledStorage,
       themeMode,
       setThemeModeStorage,
-      isUnifiedTransactionsEnabled,
-      setIsUnifiedTransactionsEnabledStorage,
       selectedNetwork,
       setSelectedNetworkStorage,
       unseenNetworks,
@@ -681,8 +639,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsSingleAddressEnabledStorage,
       themeMode,
       setThemeModeStorage,
-      isUnifiedTransactionsEnabled,
-      setIsUnifiedTransactionsEnabledStorage,
       selectedNetwork,
       setSelectedNetworkStorage,
       unseenNetworks,

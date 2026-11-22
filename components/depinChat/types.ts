@@ -7,6 +7,8 @@ export interface DePINChatProps {
    * hardware wallet, takes the device a user action on top may be waiting for.
    */
   paused?: boolean;
+  /** Called with true while a token conversation (with its input bar) is open, false on the token picker. */
+  onConversationOpenChange?: (open: boolean) => void;
 }
 
 export interface DePINChatHandle {

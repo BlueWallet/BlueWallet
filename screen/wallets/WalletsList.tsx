@@ -113,7 +113,7 @@ const WalletsList: React.FC = () => {
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { wallets, refreshAllWalletTransactions } = useStorage();
-  const { isTotalBalanceEnabled, isUnifiedTransactionsEnabled } = useSettings();
+  const { isTotalBalanceEnabled } = useSettings();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const navigation = useExtendedNavigation<NavigationProps>();
@@ -124,10 +124,10 @@ const WalletsList: React.FC = () => {
   // refreshed: hidden wallets keep syncing, or the switcher's dot would never
   // light and their balances would be stale on the way back.
   const { network, visibleWallets } = useNetworkSelection();
-  // The recent list follows the card in view unless the user opted into the
-  // merged list. Large screens have no carousel (wallets live in the drawer),
-  // so there is no card to follow and they always get the merged list.
-  const showUnifiedTransactions = isUnifiedTransactionsEnabled || sizeClass === SizeClass.Large;
+  // The recent list follows the card in view. Large screens have no carousel
+  // (wallets live in the drawer), so there is no card to follow and they get
+  // the merged list.
+  const showUnifiedTransactions = sizeClass === SizeClass.Large;
   // The "add wallet" card past the end has no transactions of its own: under
   // it goes the guide to the ways of adding one. Also the whole content when
   // there is no wallet yet, merged list or not.

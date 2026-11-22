@@ -9,6 +9,8 @@ import {
   formatXnaGrouped,
   formatSatsGrouped,
   splitFormattedAmount,
+  splitShortenedAmount,
+  shortenFormattedAmount,
 } from '../../blue_modules/neurai/amounts';
 import { estimateNeuraiFeeSats } from '../../blue_modules/neurai/feeEstimate';
 import { formatAssetAmount } from '../../blue_modules/neurai/assetUtils';
@@ -74,4 +76,24 @@ it('keeps the fallback grouping exact when Intl cannot format bigint', () => {
   } finally {
     replacement.mockRestore();
   }
+});
+
+describe('shortened amounts (at most N decimals, cut not rounded)', () => {
+  it('cuts the extra decimals without rounding up', () => {
+    expect(splitShortenedAmount('100.000.000,12345678', 4, ',')).toEqual(['100.000.000', ',1234', '']);
+    expect(splitShortenedAmount('0,99999999', 4, ',')).toEqual(['0', ',9999', '']);
+    expect(shortenFormattedAmount('9,993.994552', 4, '.')).toBe('9,993.9945');
+  });
+  it('leaves shorter amounts as they are', () => {
+    expect(splitShortenedAmount('1,5', 4, ',')).toEqual(['1', ',5', '']);
+    expect(splitShortenedAmount('10.000', 4, ',')).toEqual(['10.000', '', '']);
+  });
+  it('drops the zeros the cut leaves at the end, and the separator with them', () => {
+    expect(splitShortenedAmount('1,10001234', 4, ',')).toEqual(['1', ',1', '']);
+    expect(splitShortenedAmount('100.000.000,00001234', 4, ',')).toEqual(['100.000.000', '', '']);
+  });
+  it('keeps a suffix such as the unit', () => {
+    expect(shortenFormattedAmount('1.284,56789 XNA', 4, ',')).toBe('1.284,5678 XNA');
+    expect(shortenFormattedAmount('2.12345678 XNA', 2, '.')).toBe('2.12 XNA');
+  });
 });

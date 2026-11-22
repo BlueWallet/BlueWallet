@@ -48,8 +48,6 @@ const GeneralSettings: React.FC = () => {
     setIsHandOffUseEnabledAsyncStorage,
     themeMode,
     setThemeModeStorage,
-    isUnifiedTransactionsEnabled,
-    setIsUnifiedTransactionsEnabledStorage,
     isSingleAddressEnabled,
     setIsSingleAddressEnabledStorage,
   } = useSettings();
@@ -158,19 +156,6 @@ const GeneralSettings: React.FC = () => {
         onPress: onThemePress,
         chevron: true,
         testID: 'ThemeModeSetting',
-        showItem: true,
-      },
-      {
-        id: 'unifiedTransactions',
-        title: loc.settings.unified_transactions,
-        subtitle: <SettingsSubtitle>{loc.settings.unified_transactions_explanation}</SettingsSubtitle>,
-        switch: {
-          value: isUnifiedTransactionsEnabled,
-          onValueChange: setIsUnifiedTransactionsEnabledStorage,
-          disabled: isLoading === SettingsPrivacySection.All,
-        },
-        testID: 'UnifiedTransactionsSwitch',
-        Component: View,
         showItem: true,
       },
       {
@@ -351,8 +336,6 @@ const GeneralSettings: React.FC = () => {
     onHandOffUseEnabledChange,
     themeLabel,
     onThemePress,
-    isUnifiedTransactionsEnabled,
-    setIsUnifiedTransactionsEnabledStorage,
     isSingleAddressEnabled,
     setIsSingleAddressEnabledStorage,
   ]);
