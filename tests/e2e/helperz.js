@@ -1,3 +1,5 @@
+import { execFileSync } from 'child_process';
+
 import { sha256 } from '@noble/hashes/sha256';
 import { element } from 'detox';
 
@@ -133,27 +135,40 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'ImportWallet');
   await element(by.id('ImportWallet')).tap();
   await waitForId('SpeedBackdoor');
-  // tapping 5 times invisible button is a backdoor:
-  for (let c = 0; c < 5; c++) {
-    await element(by.id('SpeedBackdoor')).tap();
+  // On a device, startup native work can stay busy long enough that Espresso
+  // times out on the backdoor taps even though the button is already on screen.
+  // CI keeps synchronization on; the tap retry still covers an index miss.
+  const pauseSync = isPhysicalAndroid();
+  if (pauseSync) {
+    await device.disableSynchronization();
   }
-  await waitForId('SpeedMnemonicInput');
-  await element(by.id('SpeedMnemonicInput')).replaceText(importText);
-  await element(by.id('SpeedWalletTypeInput')).replaceText(walletType);
-  if (device.getPlatform() === 'ios') {
-    await element(by.id('SpeedWalletTypeInput')).tapReturnKey();
-  }
-  if (passphrase) {
-    await element(by.id('SpeedPassphraseInput')).replaceText(passphrase);
-    await element(by.id('SpeedPassphraseInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-  }
-  await element(by.id('SpeedDoImport')).tap();
-
   try {
-    await sleep(1_000);
-    await element(by.id('SpeedDoImport')).tap(); // sometimes doesnt work the 1st time
-  } catch (_) {}
+    for (let c = 0; c < 5; c++) {
+      await retryAndroidIndexMiss(() => element(by.id('SpeedBackdoor')).tap());
+    }
+    await waitFor(element(by.id('SpeedMnemonicInput')))
+      .toExist()
+      .withTimeout(15_000);
+    await element(by.id('SpeedMnemonicInput')).replaceText(importText);
+    await element(by.id('SpeedWalletTypeInput')).replaceText(walletType);
+    if (device.getPlatform() === 'ios') {
+      await element(by.id('SpeedWalletTypeInput')).tapReturnKey();
+    }
+    if (passphrase) {
+      await element(by.id('SpeedPassphraseInput')).replaceText(passphrase);
+      await element(by.id('SpeedPassphraseInput')).tapReturnKey();
+      await waitForKeyboardToClose();
+    }
+    await element(by.id('SpeedDoImport')).tap();
+    try {
+      await sleep(1_000);
+      await element(by.id('SpeedDoImport')).tap(); // sometimes doesnt work the 1st time
+    } catch (_) {}
+  } finally {
+    if (pauseSync) {
+      await device.enableSynchronization();
+    }
+  }
 
   // waiting for import result
   await waitForText('OK', 3 * 61000);
@@ -167,6 +182,132 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
 
 export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/** Real Android device. CI uses an emulator with a hardware keyboard and should keep Detox sync on. */
+function isPhysicalAndroid() {
+  return device.getPlatform() === 'android' && !process.env.CI;
+}
+
+function isAndroidIndexMiss(err) {
+  const message = err?.message || String(err ?? '');
+  return message.includes('Index -1 out of bounds');
+}
+
+/**
+ * Android Espresso throws "Index -1 out of bounds: 0" when a view is matched and then
+ * replaced before the action runs (FlatList row re-render, secure-field IME, camera overlay).
+ * The same action usually succeeds on the next try.
+ */
+export async function retryAndroidIndexMiss(action, attempts = 3) {
+  const callsite = captureCallsite(retryAndroidIndexMiss);
+  let lastErr;
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    try {
+      await action();
+      return;
+    } catch (err) {
+      lastErr = err;
+      if (!isAndroidIndexMiss(err) || attempt === attempts - 1) {
+        rethrowWithCallsite(err, callsite);
+      }
+      await sleep(400);
+    }
+  }
+  rethrowWithCallsite(lastErr, callsite);
+}
+
+/** A control that is swapped out while its press is in flight (confirm sheets, list rows). */
+export async function tapId(id) {
+  await retryAndroidIndexMiss(() => element(by.id(id)).tap());
+}
+
+/** Invisible backdoor buttons disappear under Espresso between match and tap. */
+export async function tapIdRepeatedly(id, times) {
+  const pauseSync = isPhysicalAndroid();
+  if (pauseSync) {
+    await device.disableSynchronization();
+  }
+  try {
+    for (let c = 0; c < times; c++) {
+      await retryAndroidIndexMiss(() => element(by.id(id)).tap());
+    }
+  } finally {
+    if (pauseSync) {
+      await device.enableSynchronization();
+    }
+  }
+}
+
+/** Tap a text row that may re-render during the press (currency list). */
+export async function tapTextWithoutSync(text) {
+  const pauseSync = isPhysicalAndroid();
+  if (pauseSync) {
+    await device.disableSynchronization();
+  }
+  try {
+    await retryAndroidIndexMiss(() => element(by.text(text)).tap());
+  } finally {
+    if (pauseSync) {
+      await device.enableSynchronization();
+    }
+  }
+}
+
+function isDetoxIdleTimeout(err) {
+  const message = err?.message || String(err ?? '');
+  return message.includes('to become idle timed out');
+}
+
+// Held across the password sheet. Re-enabling between keystrokes lets Espresso
+// interrogate mqt_v_native and crash it on Android 16 (MessageHeap NPE in TestLooperManager).
+let androidSyncHeld = false;
+
+async function holdAndroidSyncOff() {
+  if (!isPhysicalAndroid() || androidSyncHeld) return;
+  await device.disableSynchronization();
+  androidSyncHeld = true;
+}
+
+async function releaseAndroidSync() {
+  if (!androidSyncHeld) return;
+  androidSyncHeld = false;
+  await device.enableSynchronization();
+}
+
+/** Unlock screen. A trailing newline in typeText races the field unmounting. */
+export async function submitUnlockPassword(password) {
+  await waitForId('PasswordInput');
+  await element(by.id('PasswordInput')).typeText(password);
+  await waitForKeyboardToClose();
+  const pauseSync = isPhysicalAndroid();
+  if (pauseSync) {
+    await device.disableSynchronization();
+  }
+  try {
+    await retryAndroidIndexMiss(() => element(by.text('Unlock')).tap());
+  } finally {
+    if (pauseSync) {
+      await device.enableSynchronization();
+    }
+  }
+}
+
+/** replaceText already set the value. A missed return key must not fail the test. */
+export async function tapReturnKeyById(id) {
+  await holdAndroidSyncOff();
+  try {
+    try {
+      await element(by.id(id)).tapReturnKey();
+    } catch (err) {
+      const ignorable = isAndroidIndexMiss(err) || (isPhysicalAndroid() && isDetoxIdleTimeout(err));
+      if (!ignorable) throw err;
+    }
+    await waitForKeyboardToClose();
+  } catch (err) {
+    await releaseAndroidSync();
+    throw err;
+  }
 }
 
 export function hashIt(s) {
@@ -224,32 +365,30 @@ export async function helperCreateWallet(walletName) {
   await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'WalletNameInput');
   await element(by.id('WalletNameInput')).replaceText(walletName || 'cr34t3d');
   await waitForId('ActivateBitcoinButton');
-  await element(by.id('ActivateBitcoinButton')).tap();
-  await element(by.id('ActivateBitcoinButton')).tap();
-  // why tf we need 2 taps for it to work..? mystery
 
-  // iOS 26 liquid glass: the navigation transition after tapping "Create" triggers
-  // glass animations that never fully settle, keeping the app in a "busy" state.
-  // Detox synchronization waits for idle before proceeding, causing an infinite hang.
-  // Disable sync for the remainder of wallet creation and re-enable once we're back
-  // on the home screen where the glass animations have settled.
-  const isIOS = device.getPlatform() === 'ios';
-  if (isIOS) {
+  // Wallet generation blocks the JS/native queue, and iOS 26 glass animations never
+  // settle. Disable sync before the taps that start that work. disableSynchronization
+  // itself waits for idle, so it has to run while the form is still idle.
+  const pauseSync = device.getPlatform() === 'ios' || isPhysicalAndroid();
+  if (pauseSync) {
     await device.disableSynchronization();
   }
   try {
+    await element(by.id('ActivateBitcoinButton')).tap();
+    await element(by.id('ActivateBitcoinButton')).tap();
+    // why tf we need 2 taps for it to work..? mystery
     await element(by.id('Create')).tap();
     await sleep(500);
     try {
       await waitFor(element(by.id('PleaseBackupScrollView')))
         .toBeVisible()
-        .withTimeout(15000);
+        .withTimeout(90_000);
     } catch (_) {
       await element(by.id('Create')).tap();
       await sleep(500);
       await waitFor(element(by.id('PleaseBackupScrollView')))
         .toBeVisible()
-        .withTimeout(15000);
+        .withTimeout(90_000);
     }
 
     await waitFor(element(by.id('PleasebackupOk')))
@@ -260,7 +399,7 @@ export async function helperCreateWallet(walletName) {
     await element(by.id('PleasebackupOk')).tap();
     await sleep(1000);
   } finally {
-    if (isIOS) {
+    if (pauseSync) {
       await device.enableSynchronization();
     }
   }
@@ -408,11 +547,51 @@ export async function dismissAlertByText(text, timeoutMs = 10000) {
  * iOS can fall back between id-based and text-based buttons.
  */
 export async function confirmPasswordDialog() {
+  if (device.getPlatform() === 'android' && process.env.CI) {
+    await retryAndroidIndexMiss(async () => {
+      await waitFor(element(by.text('OK')))
+        .toBeVisible()
+        .withTimeout(5000);
+      await element(by.text('OK')).tap();
+    });
+    return;
+  }
+
   if (device.getPlatform() === 'android') {
-    await waitFor(element(by.text('OK')))
-      .toBeVisible()
-      .withTimeout(5000);
-    await element(by.text('OK')).tap();
+    await holdAndroidSyncOff();
+    try {
+      await waitForKeyboardToClose();
+      // OK sets isLoading and re-renders the button; Espresso then throws
+      // "Index -1 out of bounds" even though the press already landed.
+      await waitFor(element(by.id('OKButton')))
+        .toBeVisible()
+        .withTimeout(8000);
+      try {
+        await element(by.id('OKButton')).tap();
+      } catch (err) {
+        if (!isAndroidIndexMiss(err) && !isDetoxIdleTimeout(err)) throw err;
+      }
+      // Stay unsynchronized while encrypt/decrypt or the "password in use" check
+      // blocks mqt_v_native. A synchronized waitFor would hit the idle timeout
+      // before the alert or the next screen exists.
+      const deadline = Date.now() + 12_000;
+      while (Date.now() < deadline) {
+        for (const text of ['Password is currently in use. Please try a different password.', 'Incorrect password. Please, try again.']) {
+          try {
+            await expect(element(by.text(text))).toExist();
+            return;
+          } catch (_) {}
+        }
+        try {
+          await expect(element(by.id('PasswordInput'))).toExist();
+        } catch (_) {
+          return;
+        }
+        await sleep(300);
+      }
+    } finally {
+      await releaseAndroidSync();
+    }
     return;
   }
 
@@ -447,25 +626,42 @@ export async function countElements(testId) {
  * On iOS, disables synchronization for the interaction. Pass
  * `restoreSynchronization: false` for multipart UR scans that must keep sync
  * disabled until the animated scanner/QR UI is gone.
+ * On a physical Android device the live camera surface makes Espresso drop the
+ * backdoor view (`Index -1 out of bounds`). Sync stays off for that tap
+ * sequence. Turning it back on while the scanner is still mounted deadlocks
+ * the main thread in AsyncStorage's idling resource, so a device waits until
+ * the scanner is gone and the import write has finished. CI keeps
+ * synchronization on and relies on the tap retry.
+ * Callers that pass `restoreSynchronization: false` (multipart UR) re-enable
+ * after `scanUrParts` once the scanner has closed.
  */
 export async function scanText(text, { restoreSynchronization = true } = {}) {
-  if (device.getPlatform() === 'ios') {
+  const isIOS = device.getPlatform() === 'ios';
+  const pauseAndroid = isPhysicalAndroid();
+  if (isIOS || pauseAndroid) {
     await device.disableSynchronization();
   }
   try {
     await waitForId('ScanQrBackdoorButton');
     for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
+      await retryAndroidIndexMiss(() => element(by.id('ScanQrBackdoorButton')).tap());
     }
     // Sync is off here: wait for the backdoor modal to mount (#9045).
     await waitFor(element(by.id('scanQrBackdoorInput')))
       .toExist()
       .withTimeout(10_000);
     await element(by.id('scanQrBackdoorInput')).replaceText(text);
-    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await retryAndroidIndexMiss(() => element(by.id('scanQrBackdoorOkButton')).tap());
     await sleep(300);
   } finally {
-    if (device.getPlatform() === 'ios' && restoreSynchronization) {
+    if (restoreSynchronization && pauseAndroid) {
+      await waitForQrScannerClosed();
+      // The import can still hold the AsyncStorage executor after the scanner
+      // pops. Re-registering Detox's storage idling resource on the main thread
+      // then deadlocks.
+      await sleep(2000);
+      await device.enableSynchronization();
+    } else if (restoreSynchronization && isIOS) {
       await device.enableSynchronization();
     }
   }
@@ -478,7 +674,7 @@ export async function waitForQrScannerClosed(timeoutMs = 60_000) {
     .withTimeout(timeoutMs);
 }
 
-/** Multipart UR via backdoor; keeps iOS sync off until the scanner dismisses. */
+/** Multipart UR via backdoor. Device runs re-enable sync once the scanner is gone. */
 export async function scanUrParts(urs) {
   for (const ur of urs.slice(0, -1)) {
     await scanText(ur, { restoreSynchronization: false });
@@ -488,6 +684,12 @@ export async function scanUrParts(urs) {
   }
   await scanText(urs[urs.length - 1], { restoreSynchronization: false });
   await waitForQrScannerClosed();
+  if (isPhysicalAndroid()) {
+    // The wallet save can still hold the AsyncStorage executor. Re-registering
+    // Detox's storage idling resource on the main thread then deadlocks.
+    await sleep(2000);
+    await device.enableSynchronization();
+  }
 }
 
 /** iOS: enable sync only after animated PSBT QR and scanner are hidden. */
@@ -510,14 +712,25 @@ export async function restoreSynchronizationIfAnimatedQrClosed(timeoutMs = 2_000
 }
 
 export async function setCustomFeeRate(feeRate) {
-  await waitForId('chooseFee');
-  await element(by.id('chooseFee')).tap();
-  await waitForId('feeCustomContainerButton');
-  await element(by.id('feeCustomContainerButton')).tap();
-  await waitForId('feeCustom');
-  await element(by.id('feeCustom')).typeText(String(feeRate) + '\n');
-  await waitForKeyboardToClose();
-  await waitForId('chooseFee');
+  // On a device, fee estimation keeps mqt_v_native busy after the send screen is up.
+  const pauseSync = isPhysicalAndroid();
+  if (pauseSync) {
+    await device.disableSynchronization();
+  }
+  try {
+    await waitForId('chooseFee');
+    await element(by.id('chooseFee')).tap();
+    await waitForId('feeCustomContainerButton');
+    await element(by.id('feeCustomContainerButton')).tap();
+    await waitForId('feeCustom');
+    await element(by.id('feeCustom')).typeText(String(feeRate) + '\n');
+    await waitForKeyboardToClose();
+    await waitForId('chooseFee');
+  } finally {
+    if (pauseSync) {
+      await device.enableSynchronization();
+    }
+  }
 }
 
 export async function goBack() {
@@ -666,12 +879,29 @@ export async function tapHeaderMenuItem(menuItemText, { actionId, restoreSynchro
   }
 }
 
-// We really only need this function when running tests locally.
-// In GitHub Actions, we run Android tests with a hardware keyboard, so the onscreen keyboard doesn’t appear.
-// On iOS, it doesn’t cause any known issues.
+function isAndroidSoftKeyboardShown() {
+  try {
+    const stdout = execFileSync('adb', ['shell', 'dumpsys', 'input_method'], {
+      encoding: 'utf8',
+      timeout: 8000,
+      maxBuffer: 16 * 1024 * 1024,
+    });
+    return /mInputShown=true/.test(stdout);
+  } catch {
+    return false;
+  }
+}
+
+// CI Android runs with a hardware keyboard, so the onscreen IME never opens.
+// On a real device the IME covers the password sheet's OK button. One Back
+// dismisses the IME. A second Back pops the sheet, so never press more than once.
 export async function waitForKeyboardToClose() {
   if (device.getPlatform() === 'ios' || process.env.CI) {
     return;
   }
-  await sleep(500);
+  if (!isAndroidSoftKeyboardShown()) return;
+  await sleep(200);
+  if (!isAndroidSoftKeyboardShown()) return;
+  await device.pressBack();
+  await sleep(400);
 }
