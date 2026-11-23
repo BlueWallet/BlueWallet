@@ -1,12 +1,15 @@
-import React, { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { Animated, Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
 import loc from '../loc';
+import { usePressScale } from './ScalePressable';
 import { useTheme } from './themes';
 
 export type ClipboardDetectedItemProps = {
   value: string;
   label?: string;
+  /** Larger label, used by the send address helper. */
+  largeLabel?: boolean;
   onPress: () => void;
   testID?: string;
   accessibilityHint?: string;
@@ -15,11 +18,17 @@ export type ClipboardDetectedItemProps = {
 const ClipboardDetectedItem: React.FC<ClipboardDetectedItemProps> = ({
   value,
   label = loc.wallets.from_clipboard,
+  largeLabel = false,
   onPress,
   testID = 'ClipboardDetectedItem',
   accessibilityHint,
 }) => {
   const { colors } = useTheme();
+  const { scaleStyle, onPressIn, onPressOut, pressHaptic } = usePressScale();
+  const handlePress = useCallback(() => {
+    pressHaptic();
+    onPress();
+  }, [onPress, pressHaptic]);
 
   const stylesHook = useMemo(
     () => ({
@@ -32,39 +41,39 @@ const ClipboardDetectedItem: React.FC<ClipboardDetectedItemProps> = ({
       value: {
         color: colors.alternativeTextColor,
       },
-      pressed: {
-        opacity: 0.7,
-      },
     }),
     [colors],
   );
 
   return (
-    <View style={[styles.card, stylesHook.card]} testID={testID}>
+    <Animated.View style={[styles.card, stylesHook.card, scaleStyle]} testID={testID}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={label}
         accessibilityHint={accessibilityHint}
         android_ripple={{ color: colors.androidRippleColor }}
-        onPress={onPress}
-        style={({ pressed }) => [styles.labelPressable, pressed && stylesHook.pressed]}
+        onPress={handlePress}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        style={styles.labelPressable}
       >
-        <Text style={[styles.label, stylesHook.label]}>{label}</Text>
+        <Text style={[styles.label, largeLabel && styles.labelLarge, stylesHook.label]}>{label}</Text>
       </Pressable>
       <ScrollView style={styles.valueScroll} nestedScrollEnabled bounces={false} showsVerticalScrollIndicator>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={label}
           accessibilityHint={accessibilityHint}
-          onPress={onPress}
-          style={({ pressed }) => (pressed ? stylesHook.pressed : undefined)}
+          onPress={handlePress}
+          onPressIn={onPressIn}
+          onPressOut={onPressOut}
         >
           <Text style={[styles.value, stylesHook.value]} selectable>
             {value}
           </Text>
         </Pressable>
       </ScrollView>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -83,6 +92,9 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 15,
     fontWeight: '600',
+  },
+  labelLarge: {
+    fontSize: 18,
   },
   valueScroll: {
     maxHeight: 132,

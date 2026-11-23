@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Image, Keyboard, Platform, StyleSheet, Text, View } from 'react-native';
+import { Animated, Image, Keyboard, Platform, StyleSheet, Text, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import ToolTipMenu from './TooltipMenu';
 import loc from '../loc';
@@ -10,6 +10,7 @@ import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
 import { scanQrHelper } from '../helpers/scan-qr.ts';
+import { usePressScale } from './ScalePressable';
 
 interface AddressInputScanButtonProps {
   isLoading?: boolean;
@@ -28,12 +29,23 @@ export const AddressInputScanButton = ({
   testID = 'BlueAddressInputScanQrButton',
   beforePress,
 }: AddressInputScanButtonProps) => {
-  const { colors } = useTheme();
+  const { colors, scanImage } = useTheme();
   const { isClipboardGetContentEnabled } = useSettings();
+  const { scaleStyle, onPressIn, onPressOut, pressHaptic } = usePressScale();
+  const scalesOnPress = type === 'default';
 
   const stylesHook = StyleSheet.create({
     scan: {
       backgroundColor: colors.scanLabel,
+    },
+    scanIconButton: {
+      backgroundColor: colors.lightButton,
+    },
+    scanIcon: {
+      tintColor: colors.alternativeTextColor,
+    },
+    scanCopy: {
+      color: colors.alternativeTextColor,
     },
     scanText: {
       color: colors.inverseForegroundColor,
@@ -41,12 +53,13 @@ export const AddressInputScanButton = ({
   });
 
   const toolTipOnPress = useCallback(async () => {
+    if (scalesOnPress) pressHaptic();
     if (beforePress) {
       await beforePress();
     }
     Keyboard.dismiss();
     scanQrHelper().then(onChangeText);
-  }, [beforePress, onChangeText]);
+  }, [beforePress, onChangeText, pressHaptic, scalesOnPress]);
 
   const actions = useMemo(() => {
     const availableActions = [
@@ -132,49 +145,53 @@ export const AddressInputScanButton = ({
 
   const menuButtonStyle = useMemo(() => {
     if (type === 'default') {
-      return [styles.scan, stylesHook.scan];
+      return [styles.scan, stylesHook.scanIconButton];
     }
     if (type === 'compact') {
       return [styles.compact, stylesHook.scan];
     }
     return undefined;
-  }, [stylesHook.scan, type]);
+  }, [stylesHook.scan, stylesHook.scanIconButton, type]);
 
   return (
-    <ToolTipMenu
-      actions={actions}
-      isButton
-      onPressMenuItem={onMenuItemPressed}
-      shouldOpenOnLongPress
-      disabled={isLoading}
-      onPress={toolTipOnPress}
-      testID={type === 'default' || type === 'compact' ? testID : undefined}
-      buttonStyle={menuButtonStyle}
-      style={type === 'compact' ? styles.compactWrapper : type === 'link' ? styles.linkWrapper : undefined}
-      accessibilityLabel={loc.send.details_scan}
-      accessibilityHint={loc.send.details_scan_hint}
-    >
-      {type === 'default' ? (
-        <View style={styles.scanContent}>
-          <Image source={require('../img/scan-white.png')} accessible={false} />
-          <Text numberOfLines={1} style={[styles.scanText, stylesHook.scanText]} accessible={false}>
-            {loc.send.details_scan}
-          </Text>
-        </View>
-      ) : type === 'compact' ? (
-        <View style={styles.compactContent}>
-          <Text numberOfLines={1} style={[styles.compactText, stylesHook.scanText]} accessible={false}>
-            {loc.send.details_scan}
-          </Text>
-        </View>
-      ) : (
-        <View testID={testID} style={styles.contentRow}>
-          <Text style={[styles.linkText, { color: colors.foregroundColor }]} numberOfLines={1} ellipsizeMode="tail">
-            {loc.wallets.import_scan_qr}
-          </Text>
-        </View>
-      )}
-    </ToolTipMenu>
+    <Animated.View style={scalesOnPress ? scaleStyle : undefined}>
+      <ToolTipMenu
+        actions={actions}
+        isButton
+        onPressMenuItem={onMenuItemPressed}
+        shouldOpenOnLongPress
+        disabled={isLoading}
+        onPress={toolTipOnPress}
+        onPressIn={scalesOnPress ? onPressIn : undefined}
+        onPressOut={scalesOnPress ? onPressOut : undefined}
+        testID={type === 'default' || type === 'compact' ? testID : undefined}
+        buttonStyle={menuButtonStyle}
+        style={type === 'compact' ? styles.compactWrapper : type === 'link' ? styles.linkWrapper : undefined}
+        accessibilityLabel={loc.send.details_scan}
+        accessibilityHint={loc.send.details_scan_hint}
+      >
+        {type === 'default' ? (
+          <View style={styles.scanContent}>
+            <Image source={scanImage} style={stylesHook.scanIcon} accessible={false} />
+            <Text numberOfLines={1} style={[styles.scanCopy, stylesHook.scanCopy]} accessible={false}>
+              {loc.send.details_scan}
+            </Text>
+          </View>
+        ) : type === 'compact' ? (
+          <View style={styles.compactContent}>
+            <Text numberOfLines={1} style={[styles.compactText, stylesHook.scanText]} accessible={false}>
+              {loc.send.details_scan}
+            </Text>
+          </View>
+        ) : (
+          <View testID={testID} style={styles.contentRow}>
+            <Text style={[styles.linkText, { color: colors.foregroundColor }]} numberOfLines={1} ellipsizeMode="tail">
+              {loc.wallets.import_scan_qr}
+            </Text>
+          </View>
+        )}
+      </ToolTipMenu>
+    </Animated.View>
   );
 };
 
@@ -186,13 +203,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    minWidth: 82,
     flexShrink: 0,
-    borderRadius: 4,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    marginHorizontal: 4,
+    borderRadius: 18,
+    paddingHorizontal: 12,
+    marginLeft: 8,
     alignSelf: 'center',
   },
   compact: {
@@ -224,15 +238,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textAlignVertical: 'center',
   },
-  scanText: {
-    marginLeft: 4,
-    flexShrink: 0,
-    textAlignVertical: 'center',
-  },
   scanContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
+  },
+  scanCopy: {
+    marginLeft: 6,
+    fontSize: 15,
+    fontWeight: '600',
     flexShrink: 0,
   },
   linkWrapper: {

@@ -27,7 +27,7 @@ const getHdElectrumWallet = (wallet: TWallet): AbstractHDElectrumWallet | undefi
   return undefined;
 };
 
-const getWalletIconImage = (walletType: string, direction: string) => {
+export const getWalletIconImage = (walletType: string, direction: string) => {
   switch (walletType) {
     case LightningCustodianWallet.type:
     case LightningArkWallet.type:

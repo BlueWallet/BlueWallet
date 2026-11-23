@@ -42,6 +42,8 @@ export type SendDetailsParams = {
   utxos?: CreateTransactionUtxo[] | null;
   isEditable?: boolean;
   uri?: string;
+  /** Set by the address helper keyboard button. SendDetails focuses the address field, then clears it. */
+  focusAddressInput?: boolean;
   paymentCode?: string;
   selectedFeeRate?: string | undefined;
   selectedFeeType?: NetworkTransactionFeeType;
@@ -49,6 +51,8 @@ export type SendDetailsParams = {
     address: string;
     amount?: number;
     memo?: string;
+    payjoinUrl?: string;
+    payjoinDisableOutputSubstitution?: boolean;
   };
 };
 
@@ -164,4 +168,7 @@ export type SendDetailsStackParamList = {
   };
   PaymentCodeList: DetailViewStackParamList['PaymentCodeList'];
   ScanQRCode: ScanQRCodeParamList;
+  SendAddressHelper: {
+    walletID: string;
+  };
 };

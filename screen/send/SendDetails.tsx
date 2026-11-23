@@ -19,7 +19,6 @@ import {
   Platform,
   StyleSheet,
   Text,
-  TextInput,
   Pressable,
   ScrollView,
   View,
@@ -127,6 +126,11 @@ const SendDetails = () => {
   const [wallet, setWallet] = useState<TWallet | null>(null);
   const { isVisible } = useKeyboard();
   const [addresses, setAddresses] = useState<IPaymentDestinations[]>([{ address: '', key: String(Math.random()), unit: amountUnit }]);
+  const [keyboardEditingIndex, setKeyboardEditingIndex] = useState<number | null>(null);
+  const [addressHelperIndex, setAddressHelperIndex] = useState<number | null>(null);
+  const [keyboardDismissArmed, setKeyboardDismissArmed] = useState(false);
+  const endingKeyboardEdit = useRef(false);
+  const keyboardWasShown = useRef(false);
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
   const [networkTransactionFeesIsLoading, setNetworkTransactionFeesIsLoading] = useState(false);
   const [customFee, setCustomFee] = useState<string | null>(null);
@@ -246,28 +250,109 @@ const SendDetails = () => {
         return updatedAddresses;
       });
     } else if (routeParams.addRecipientParams) {
-      // used to add a recipient, mainly from contacts aka paymentcodes screen
+      // used to add a recipient, mainly from contacts aka paymentcodes screen and the address helper
+      setKeyboardEditingIndex(null);
       const index = addresses.length === 0 ? 0 : scrollIndex.current;
-      const { address, amount } = routeParams.addRecipientParams;
+      const {
+        address,
+        amount,
+        memo,
+        payjoinUrl: pjUrl,
+        payjoinDisableOutputSubstitution: disableOutputSubstitution,
+      } = routeParams.addRecipientParams;
+      const hasPositiveAmount = Number(amount) > 0;
 
       setAddresses(prevAddresses => {
         const updatedAddresses = [...prevAddresses];
-        if (address) {
+        const current = updatedAddresses[index];
+        if (address && current) {
           updatedAddresses[index] = {
-            ...updatedAddresses[index],
+            ...current,
             address,
-            amount: amount ?? updatedAddresses[index].amount,
-            amountSats: amount ? btcToSatoshi(amount) : updatedAddresses[index].amountSats,
+            amount: amount ?? current.amount,
+            amountSats: hasPositiveAmount ? btcToSatoshi(amount!) : current.amountSats,
+            ...(hasPositiveAmount ? { unit: BitcoinUnit.BTC } : {}),
           };
         }
         return updatedAddresses;
       });
+      if (memo) {
+        setParams({ transactionMemo: memo });
+      }
+      if (pjUrl || hasPositiveAmount) {
+        setParams({
+          ...(pjUrl
+            ? {
+                payjoinUrl: pjUrl,
+                payjoinAddress: address,
+                payjoinDisableOutputSubstitution: disableOutputSubstitution,
+              }
+            : {}),
+          ...(hasPositiveAmount ? { amountUnit: BitcoinUnit.BTC } : {}),
+        });
+      }
     } else {
       setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]); // key is for the FlatList
     }
     // this effect only to run once when screen is mounted or params change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
+
+  useEffect(() => {
+    if (!routeParams.focusAddressInput) return;
+    setKeyboardEditingIndex(scrollIndex.current);
+    setParams({ focusAddressInput: undefined });
+  }, [routeParams.focusAddressInput, setParams]);
+
+  useEffect(() => {
+    return navigation.addListener('state', () => {
+      const open = navigation.getState()?.routes.some(stackRoute => stackRoute.name === 'SendAddressHelper') ?? false;
+      if (!open) setAddressHelperIndex(null);
+    });
+  }, [navigation]);
+
+  const openAddressHelper = useCallback(
+    (index: number) => {
+      if (!wallet) return;
+      scrollIndex.current = index;
+      setAddressHelperIndex(index);
+      navigation.navigate('SendAddressHelper', { walletID: wallet.getID() });
+    },
+    [navigation, wallet],
+  );
+
+  const endKeyboardEditing = useCallback(
+    (index: number, currentAddress: string) => {
+      if (endingKeyboardEdit.current) return;
+      endingKeyboardEdit.current = true;
+      setKeyboardEditingIndex(current => (current === index ? null : current));
+      if (!currentAddress.trim()) openAddressHelper(index);
+      setTimeout(() => {
+        endingKeyboardEdit.current = false;
+      }, 400);
+    },
+    [openAddressHelper],
+  );
+
+  useEffect(() => {
+    if (keyboardEditingIndex === null) {
+      keyboardWasShown.current = false;
+      setKeyboardDismissArmed(false);
+      return;
+    }
+    setKeyboardDismissArmed(false);
+    const armTimer = setTimeout(() => setKeyboardDismissArmed(true), 600);
+    return () => clearTimeout(armTimer);
+  }, [keyboardEditingIndex]);
+
+  useEffect(() => {
+    if (keyboardEditingIndex !== null && isVisible) keyboardWasShown.current = true;
+  }, [isVisible, keyboardEditingIndex]);
+
+  useEffect(() => {
+    if (keyboardEditingIndex === null || isVisible || !keyboardDismissArmed || !keyboardWasShown.current) return;
+    endKeyboardEditing(keyboardEditingIndex, addresses[keyboardEditingIndex]?.address ?? '');
+  }, [addresses, endKeyboardEditing, isVisible, keyboardDismissArmed, keyboardEditingIndex]);
 
   useEffect(() => {
     const suitable = wallets.filter(w => w.chain === Chain.ONCHAIN && w.allowSend());
@@ -749,10 +834,6 @@ const SendDetails = () => {
       setWallet(newWallet);
     }
   }, [routeParams.walletID, wallets]);
-
-  const setTransactionMemo = (memo: string) => {
-    setParams({ transactionMemo: memo });
-  };
 
   /**
    * same as `importTransaction`, but opens camera instead.
@@ -1364,11 +1445,6 @@ const SendDetails = () => {
     of: {
       color: colors.feeText,
     },
-    memo: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
     feeLabel: {
       color: colors.feeText,
     },
@@ -1561,6 +1637,11 @@ const SendDetails = () => {
             isLoading={isLoading}
             inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
             editable={isEditable}
+            helperMode={isEditable !== false}
+            keyboardEditing={keyboardEditingIndex === index}
+            selected={addressHelperIndex === index}
+            onOpenHelper={() => openAddressHelper(index)}
+            onEditingEnd={currentAddress => endKeyboardEditing(index, currentAddress)}
             style={styles.fullWidthInput}
           />
         </View>
@@ -1607,19 +1688,6 @@ const SendDetails = () => {
             contentContainerStyle={styles.scrollViewContent}
             getItemLayout={getItemLayout}
           />
-          <View style={[styles.memo, stylesHook.memo]}>
-            <TextInput
-              onChangeText={setTransactionMemo}
-              placeholder={loc.send.details_note_placeholder}
-              placeholderTextColor="#81868e"
-              value={transactionMemo}
-              numberOfLines={1}
-              style={styles.memoText}
-              editable={!isLoading}
-              onSubmitEditing={Keyboard.dismiss}
-              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
-            />
-          </View>
           <Pressable
             testID="chooseFee"
             accessibilityRole="button"
@@ -1720,28 +1788,10 @@ const styles = StyleSheet.create({
   ofMargin: {
     marginTop: 4,
   },
-  memo: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    marginHorizontal: 16,
-    alignItems: 'center',
-    marginVertical: 8,
-    borderRadius: 4,
-  },
-  memoText: {
-    flex: 1,
-    marginHorizontal: 8,
-    minHeight: 33,
-    color: '#81868e',
-    fontSize: 15,
-    lineHeight: 19,
-  },
   fee: {
     flexDirection: 'row',
     marginHorizontal: 16,
+    marginTop: 8,
     justifyContent: 'space-between',
     alignItems: 'center',
   },
