@@ -1,0 +1,263 @@
+/**
+ * Building blocks of the settings screens in the home's style: white cards on
+ * the home ground, orange icons in soft circles, an uppercase label above each
+ * group and a round back button in place of the native header.
+ */
+import React, { useMemo } from 'react';
+import { ActivityIndicator, Pressable, StyleProp, StyleSheet, Switch, Text, View, ViewStyle } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import loc from '../../loc';
+import Icon, { MaterialIconName } from '../Icon';
+import { HomePalette, useHomePalette } from '../home/homeTheme';
+
+interface Tone {
+  bg: string;
+  fg: string;
+  dot: string;
+}
+
+export interface SettingsPalette extends HomePalette {
+  divider: string;
+  switchOff: string;
+  /** Network status pills. */
+  ok: Tone;
+  fail: Tone;
+  idle: Tone;
+  /** Security warning card. */
+  warnBg: string;
+  warnBorder: string;
+  warnIconBg: string;
+  /** Small orange pill ("Review", "Recommended"). */
+  badgeBg: string;
+  badgeText: string;
+  /** Filled button: white text needs the deeper orange in both themes. */
+  button: string;
+  /** State text on a selected quick tile. */
+  onText: string;
+}
+
+export function useSettingsPalette(): SettingsPalette {
+  const p = useHomePalette();
+  return useMemo(
+    () => ({
+      ...p,
+      divider: p.dark ? 'rgba(255, 255, 255, 0.08)' : '#ececef',
+      switchOff: p.dark ? '#4b5563' : '#d1d5db',
+      ok: p.dark ? { bg: 'rgba(34, 197, 94, 0.14)', fg: '#86efac', dot: '#22c55e' } : { bg: '#f0fdf4', fg: '#166534', dot: '#16a34a' },
+      fail: p.dark ? { bg: 'rgba(239, 68, 68, 0.16)', fg: '#fca5a5', dot: '#ef4444' } : { bg: '#fef2f2', fg: '#991b1b', dot: '#dc2626' },
+      idle: p.dark ? { bg: 'rgba(255, 255, 255, 0.06)', fg: '#9ca3af', dot: '#6b7280' } : { bg: '#f4f4f6', fg: '#5b616b', dot: '#9ca3af' },
+      warnBg: p.dark ? 'rgba(249, 115, 22, 0.10)' : '#fff7ed',
+      warnBorder: p.dark ? 'rgba(249, 115, 22, 0.35)' : '#fed7aa',
+      warnIconBg: p.dark ? 'rgba(249, 115, 22, 0.18)' : '#ffedd5',
+      badgeBg: p.dark ? 'rgba(249, 115, 22, 0.18)' : '#ffedd5',
+      badgeText: p.dark ? '#fdba74' : '#9a3412',
+      button: '#c2410c',
+      onText: p.dark ? '#fdba74' : '#9a3412',
+    }),
+    [p],
+  );
+}
+
+/** Name of the device's biometrics, as the user knows it. */
+export const biometricLabel = (type?: string): string =>
+  type === 'FaceID' ? 'Face ID' : type === 'TouchID' ? 'Touch ID' : loc.settings.biometrics;
+
+/** Round back button and a large title, under the status bar. */
+export const SettingsScreenHeader: React.FC<{ title: string; onBack: () => void }> = ({ title, onBack }) => {
+  const p = useSettingsPalette();
+  const insets = useSafeAreaInsets();
+  return (
+    <View style={[styles.header, { paddingTop: insets.top + 8, backgroundColor: p.ground }]}>
+      <Pressable
+        onPress={onBack}
+        accessibilityRole="button"
+        accessibilityLabel={loc._.back}
+        testID="SettingsBackButton"
+        style={({ pressed }) => [styles.back, { backgroundColor: p.card }, pressed && styles.pressed]}
+      >
+        <Icon name="arrow-back" type="material" size={22} color={p.ink} />
+      </Pressable>
+      <Text style={[styles.title, { color: p.ink }]} accessibilityRole="header" numberOfLines={1}>
+        {title}
+      </Text>
+    </View>
+  );
+};
+
+export const SettingsSectionLabel: React.FC<{ children: string }> = ({ children }) => {
+  const p = useSettingsPalette();
+  return (
+    <Text style={[styles.sectionLabel, { color: p.muted }]} accessibilityRole="header">
+      {children}
+    </Text>
+  );
+};
+
+/** White card holding a group of rows. */
+export const SettingsCard: React.FC<{ children: React.ReactNode; style?: StyleProp<ViewStyle> }> = ({ children, style }) => {
+  const p = useSettingsPalette();
+  return <View style={[styles.card, { backgroundColor: p.card }, style]}>{children}</View>;
+};
+
+export const SettingsIconCircle: React.FC<{ icon: MaterialIconName; muted?: boolean }> = ({ icon, muted }) => {
+  const p = useSettingsPalette();
+  return (
+    <View style={[styles.iconCircle, { backgroundColor: muted ? p.ground : p.accentSoft }]}>
+      <Icon name={icon} type="material" size={20} color={muted ? p.mutedOnCard : p.accentText} />
+    </View>
+  );
+};
+
+export const SettingsBadge: React.FC<{ label: string }> = ({ label }) => {
+  const p = useSettingsPalette();
+  return (
+    <View style={[styles.badge, { backgroundColor: p.badgeBg }]}>
+      <Text style={[styles.badgeText, { color: p.badgeText }]}>{label}</Text>
+    </View>
+  );
+};
+
+interface RowBase {
+  icon: MaterialIconName;
+  title: string;
+  subtitle?: string;
+  /** Not the first row of its card: draws the divider above it. */
+  divider?: boolean;
+  testID?: string;
+}
+
+interface SettingsRowProps extends RowBase {
+  value?: string;
+  badge?: string;
+  /** Coloured dot before the subtitle (a status). */
+  dotColor?: string;
+  onPress?: () => void;
+  disabled?: boolean;
+}
+
+/** A row that opens another screen. */
+export const SettingsRow: React.FC<SettingsRowProps> = ({
+  icon,
+  title,
+  subtitle,
+  value,
+  badge,
+  dotColor,
+  divider,
+  onPress,
+  disabled,
+  testID,
+}) => {
+  const p = useSettingsPalette();
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !!disabled }}
+      accessibilityLabel={[title, subtitle, value, badge].filter(Boolean).join(', ')}
+      testID={testID}
+      style={({ pressed }) => [
+        styles.row,
+        divider && { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: p.divider },
+        pressed && styles.pressed,
+      ]}
+    >
+      <SettingsIconCircle icon={icon} muted={disabled} />
+      <View style={styles.texts}>
+        <Text style={[styles.rowTitle, { color: disabled ? p.mutedOnCard : p.ink }]}>{title}</Text>
+        {subtitle ? (
+          <View style={styles.subtitleRow}>
+            {dotColor ? <View style={[styles.dot, { backgroundColor: dotColor }]} /> : null}
+            <Text style={[styles.subtitle, { color: p.mutedOnCard }]}>{subtitle}</Text>
+          </View>
+        ) : null}
+      </View>
+      {value ? (
+        <Text style={[styles.value, { color: p.mutedOnCard }]} numberOfLines={1}>
+          {value}
+        </Text>
+      ) : null}
+      {badge ? <SettingsBadge label={badge} /> : null}
+      {disabled ? null : <Icon name="chevron-right" type="material" size={22} color={p.mutedOnCard} />}
+    </Pressable>
+  );
+};
+
+interface SettingsSwitchRowProps extends RowBase {
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+  badge?: string;
+  disabled?: boolean;
+  loading?: boolean;
+  switchTestID?: string;
+}
+
+/** A row with a switch. */
+export const SettingsSwitchRow: React.FC<SettingsSwitchRowProps> = ({
+  icon,
+  title,
+  subtitle,
+  badge,
+  divider,
+  value,
+  onValueChange,
+  disabled,
+  loading,
+  testID,
+  switchTestID,
+}) => {
+  const p = useSettingsPalette();
+  return (
+    <View
+      style={[styles.row, styles.switchRow, divider && { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: p.divider }]}
+      testID={testID}
+    >
+      <SettingsIconCircle icon={icon} />
+      <View style={styles.texts}>
+        <View style={styles.titleRow}>
+          <Text style={[styles.rowTitle, { color: p.ink }]}>{title}</Text>
+          {badge ? <SettingsBadge label={badge} /> : null}
+        </View>
+        {subtitle ? <Text style={[styles.subtitle, { color: p.mutedOnCard }]}>{subtitle}</Text> : null}
+      </View>
+      {loading ? (
+        <ActivityIndicator color={p.accent} style={styles.spinner} />
+      ) : (
+        <Switch
+          value={value}
+          onValueChange={onValueChange}
+          disabled={disabled}
+          accessibilityLabel={title}
+          testID={switchTestID}
+          trackColor={{ false: p.switchOff, true: p.accent }}
+          thumbColor="#ffffff"
+          ios_backgroundColor={p.switchOff}
+        />
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  header: { flexDirection: 'row', alignItems: 'center', columnGap: 12, paddingHorizontal: 16, paddingBottom: 8 },
+  back: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  title: { fontSize: 24, fontWeight: '700', letterSpacing: -0.4, flexShrink: 1 },
+  pressed: { opacity: 0.6 },
+  sectionLabel: { fontSize: 12, fontWeight: '600', letterSpacing: 0.6, textTransform: 'uppercase', marginLeft: 4, marginBottom: 8 },
+  card: { borderRadius: 24, paddingHorizontal: 16, paddingVertical: 2 },
+  iconCircle: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  badge: { height: 24, paddingHorizontal: 9, borderRadius: 12, justifyContent: 'center' },
+  badgeText: { fontSize: 12, fontWeight: '700' },
+  row: { flexDirection: 'row', alignItems: 'center', columnGap: 12, minHeight: 64, paddingVertical: 10 },
+  switchRow: { paddingVertical: 14 },
+  texts: { flex: 1, rowGap: 2 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: 8, rowGap: 4 },
+  rowTitle: { fontSize: 15, fontWeight: '600' },
+  subtitleRow: { flexDirection: 'row', alignItems: 'center', columnGap: 6 },
+  subtitle: { fontSize: 13, lineHeight: 18, flexShrink: 1 },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  value: { fontSize: 14, maxWidth: 140 },
+  spinner: { width: 52 },
+});

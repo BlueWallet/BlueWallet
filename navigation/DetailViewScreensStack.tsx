@@ -202,35 +202,11 @@ const DetailViewStackScreensStack = () => {
           options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
         />
 
+        {/* Settings and Security draw their own header, like the home. */}
         <DetailViewStack.Screen
           name="Settings"
           component={Settings}
-          options={navigationStyle({
-            title: loc.settings.header,
-            headerBackButtonDisplayMode: 'minimal',
-            headerBackTitle: '',
-            headerShadowVisible: false,
-            // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
-            headerLargeTitle: Platform.OS === 'ios',
-            headerLargeTitleStyle:
-              Platform.OS === 'ios'
-                ? {
-                    color:
-                      typeof theme.colors.foregroundColor === 'string'
-                        ? theme.colors.foregroundColor
-                        : String(theme.colors.foregroundColor),
-                  }
-                : undefined,
-            headerTitleStyle: {
-              color: typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
-            },
-            headerTransparent: false,
-            headerBlurEffect: undefined,
-            headerStyle: {
-              backgroundColor: settingsHeaderBackgroundColor,
-            },
-            animationTypeForReplace: 'push',
-          })(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.settings.header }}
         />
         <DetailViewStack.Screen
           name="Currency"
@@ -320,7 +296,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="EncryptStorage"
           component={EncryptStorage}
-          options={navigationStyle(getSettingsHeaderOptions(loc.settings.encrypt_title))(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.settings.encrypt_title }}
         />
         <DetailViewStack.Screen
           name="Language"

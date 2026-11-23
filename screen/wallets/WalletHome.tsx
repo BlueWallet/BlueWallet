@@ -167,6 +167,12 @@ const WalletHomeBody: React.FC<BodyProps> = ({
     return () => clearInterval(interval);
   }, [wallet]);
   const [hidden, setHidden] = useState<boolean>(!!wallet.hideBalance);
+  // Settings can hide or show every balance at once: pick that up on return.
+  useFocusEffect(
+    useCallback(() => {
+      setHidden(!!wallet.hideBalance);
+    }, [wallet]),
+  );
   const [unit, setUnit] = useState<XnaUnit>(wallet.getPreferredBalanceUnit());
   const [unitSwitching, setUnitSwitching] = useState(false);
   // Testnet coins have no fiat value: a fiat preference shows as XNA there.
