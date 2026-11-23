@@ -50,8 +50,9 @@ const mapLeaf = (action: Action, platform: Platform): { item: ContextMenuAction;
  * id-tree of the exact same shape. Returning both in a single pass guarantees
  * they cannot drift apart.
  *
- * iOS preserves grouping (with synthetic inline parents); Android flattens
- * because its native menu doesn't render inline groups.
+ * iOS preserves grouping (with synthetic inline parents). Android flattens
+ * action groups and lifts nested submenus out of inline parents to fit its
+ * single submenu level, preserving ordinary titled sections.
  */
 export const buildMenu = (actions: Action[] | Action[][], platform: Platform): { items: ContextMenuAction[]; ids: IdNode[] } => {
   const items: ContextMenuAction[] = [];
@@ -82,7 +83,11 @@ export const buildMenu = (actions: Action[] | Action[][], platform: Platform): {
 
   for (const action of actions.flat()) {
     const r = mapLeaf(action, platform);
-    if (r) {
+    if (!r) continue;
+    if (action.displayInline && !action.disabled && r.item.actions?.some(child => child.actions?.length)) {
+      items.push(...r.item.actions);
+      ids.push(...(r.idNode.children ?? []));
+    } else {
       items.push(r.item);
       ids.push(r.idNode);
     }

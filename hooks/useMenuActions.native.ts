@@ -69,6 +69,16 @@ export function getMenuActionTitles(): MenuActionTitles {
     sign_psbt: loc.send.psbt_sign,
     insert_contact: loc.send.details_insert_contact,
     coin_control: loc.cc.header,
+    editWalletName: loc.wallets.details_edit_wallet_name,
+    showAddresses: loc.wallets.details_show_addresses,
+    showXpub: loc.wallets.details_show_xpub,
+    signVerify: loc.addresses.sign_title,
+    importWalletNotes: loc.wallets.details_import_notes,
+    exportWalletBackup: loc.wallets.details_export_backup,
+    exportAccountingCsv: loc.wallets.details_export_accounting_csv,
+    exportBip329Backup: loc.wallets.details_export_bip329,
+    exportHistory: loc.wallets.details_export_history,
+    deleteWallet: loc.wallets.details_delete_wallet,
   };
 }
 

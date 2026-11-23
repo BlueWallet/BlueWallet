@@ -217,6 +217,9 @@ export const findNavigatorKeyForRoute = (
   return undefined;
 };
 
+// A nested navigator applies `params.params` of its parent route with an action of its own, which carries no flag.
+const validatedNestedParams = new WeakMap<object, unknown>();
+
 export const navigationGuardRouter = <State extends NavigationState, Action extends NavigationAction>(
   original: Router<State, Action>,
 ): Router<State, Action> => ({
@@ -224,8 +227,17 @@ export const navigationGuardRouter = <State extends NavigationState, Action exte
   getStateForAction(state, action, options) {
     const nextState = original.getStateForAction(state, action, options);
 
-    if (nextState !== null && getGuardedRoute(action) && !(action as GuardedNavigationAction).navigationGuardValidated) {
-      return null;
+    if (nextState !== null && getGuardedRoute(action)) {
+      const params = action.payload && 'params' in action.payload ? asParams(action.payload.params) : undefined;
+      if ((action as GuardedNavigationAction).navigationGuardValidated) {
+        for (let parent = params; typeof parent?.screen === 'string'; ) {
+          const nested = asParams(parent.params);
+          if (nested) validatedNestedParams.set(nested, parent.screen);
+          parent = nested;
+        }
+      } else if (!params || !('name' in action.payload!) || validatedNestedParams.get(params) !== action.payload.name) {
+        return null;
+      }
     }
 
     return nextState;

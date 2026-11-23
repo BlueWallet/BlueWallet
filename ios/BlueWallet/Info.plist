@@ -166,9 +166,9 @@
 			<key>CFBundleTypeName</key>
 			<string>BIP-329 Wallet Labels</string>
 			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
+			<string>None</string>
 			<key>LSHandlerRank</key>
-			<string>Owner</string>
+			<string>None</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>io.bluewallet.bip329</string>
