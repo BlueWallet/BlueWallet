@@ -11,7 +11,6 @@ import { SelectWalletParams } from '../navigation/SendDetailsStackParamList';
  * @param currentScreenName {string} Current screen name, so we know to what screen to get back to
  * @param chainType {string} One of `Chain.` constant to be used to filter wallet panels to show
  * @param availableWallets {array} Wallets to be present in selector. If set, overrides `chainType`
- * @param noWalletExplanationText {string} Text that is displayed when there are no wallets to select from
  *
  * @returns {Promise<TWallet>}
  */
@@ -21,7 +20,6 @@ export default function (
   currentScreenName: string,
   chainType: Chain | null,
   availableWallets?: TWallet[],
-  noWalletExplanationText = '',
 ): Promise<TWallet> {
   return new Promise((resolve, reject) => {
     if (!currentScreenName) return reject(new Error('currentScreenName is not provided'));
@@ -29,7 +27,6 @@ export default function (
     const params: SelectWalletParams = {};
     if (chainType) params.chainType = chainType;
     if (availableWallets) params.availableWallets = availableWallets;
-    if (noWalletExplanationText) params.noWalletExplanationText = noWalletExplanationText;
 
     params.onWalletSelect = function (selectedWallet: TWallet) {
       if (!selectedWallet) return;

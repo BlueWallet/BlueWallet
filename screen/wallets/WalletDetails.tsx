@@ -251,7 +251,7 @@ const WalletDetails: React.FC = () => {
           const transactionId = transaction.hash || transaction.txid;
           if (!transactionId) return [];
 
-          const memo = txMetadata?.[transactionId]?.memo?.trim();
+          const memo = txMetadata[transactionId]?.memo?.trim();
           return [encodeBip329TransactionLabel(transactionId, memo || undefined)];
         })
         .join('\n');
@@ -266,7 +266,7 @@ const WalletDetails: React.FC = () => {
       const value = formatBalanceWithoutSuffix(transaction.value || 0, BitcoinUnit.BTC, true);
       let hash: string = transaction.hash || transaction.txid || '';
       const metadataKey = transaction.hash || transaction.txid;
-      let memo = (metadataKey && txMetadata?.[metadataKey]?.memo?.trim()) || '';
+      let memo = (metadataKey && txMetadata[metadataKey]?.memo?.trim()) || '';
       let status = '';
 
       if (wallet.chain === Chain.OFFCHAIN) {

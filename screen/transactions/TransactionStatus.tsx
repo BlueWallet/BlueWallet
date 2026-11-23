@@ -129,14 +129,14 @@ type Action =
       type: ActionType.SetCPFPPossible | ActionType.SetRBFBumpFeePossible | ActionType.SetRBFCancelPossible | ActionType.SetAllButtonStatus;
       payload: ButtonStatus;
     }
-  | { type: ActionType.SetTransaction; payload: Transaction | undefined }
+  | { type: ActionType.SetTransaction; payload: Transaction }
   | {
       type: ActionType.SetLoading | ActionType.SetLoadingError;
       payload: boolean;
     }
   | { type: ActionType.SetEta; payload: string }
   | { type: ActionType.SetIntervalMs; payload: number }
-  | { type: ActionType.SetWallet; payload: TWallet | null };
+  | { type: ActionType.SetWallet; payload: TWallet };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -353,7 +353,7 @@ const TransactionStatus: React.FC = () => {
 
   // mirrors tx state synchronously: the watchdog timeout and the fetch catch may run before the dispatch commits
   const txRef = useRef<Transaction | undefined>(undefined);
-  const setTX = (value: Transaction | undefined) => {
+  const setTX = (value: Transaction) => {
     txRef.current = value;
     dispatch({ type: ActionType.SetTransaction, payload: value });
   };
@@ -756,7 +756,7 @@ const TransactionStatus: React.FC = () => {
     if (!wallet || !tx?.hash) {
       return setIsCPFPPossible(ButtonStatus.Unknown);
     }
-    if (!wallet?.allowRBF() || isWatchOnlySegwitBech32(wallet)) {
+    if (!wallet.allowRBF() || isWatchOnlySegwitBech32(wallet)) {
       return setIsCPFPPossible(ButtonStatus.NotPossible);
     }
 
@@ -773,7 +773,7 @@ const TransactionStatus: React.FC = () => {
     if (!wallet || !tx?.hash) {
       return setIsRBFBumpFeePossible(ButtonStatus.Unknown);
     }
-    if (!wallet?.allowRBF()) {
+    if (!wallet.allowRBF()) {
       return setIsRBFBumpFeePossible(ButtonStatus.NotPossible);
     }
 
@@ -799,7 +799,7 @@ const TransactionStatus: React.FC = () => {
     if (!wallet || !tx?.hash) {
       return setIsRBFCancelPossible(ButtonStatus.Unknown);
     }
-    if (!wallet?.allowRBF()) {
+    if (!wallet.allowRBF()) {
       return setIsRBFCancelPossible(ButtonStatus.NotPossible);
     }
 

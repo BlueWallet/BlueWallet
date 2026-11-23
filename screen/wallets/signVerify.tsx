@@ -83,7 +83,7 @@ const SignVerify = () => {
   };
 
   const presentAlert = useCallback(
-    ({ title, alertMessage, buttons = [{ text: loc._.ok }] }: { title?: string; alertMessage: string; buttons?: AlertButton[] }) => {
+    ({ title, alertMessage, buttons = [{ text: loc._.ok }] }: { title: string; alertMessage: string; buttons?: AlertButton[] }) => {
       const anchor = findNodeHandle(scrollViewRef.current);
       if (anchor === null) return;
       const cancelButtonIndex = buttons.findIndex(button => button.style === 'cancel');

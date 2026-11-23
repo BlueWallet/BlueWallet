@@ -7,13 +7,12 @@ import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import type { TWallet } from '../../class/wallets/types';
 import type { NavigationRoute, ParamListBase, PartialRoute, Route } from '@react-navigation/native';
 import presentAlert from '../../components/Alert';
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import loc from '../../loc';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { registerArkBackgroundTask, stopArkBackgroundTask } from '../../blue_modules/arkade-background';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 import { majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { navigationRef } from '../../NavigationService';
 import { getScanWasBBQR } from '../../helpers/scan-qr.ts';
 import { setWalletIdMustUseBBQR } from '../../blue_modules/ur';
@@ -32,7 +31,6 @@ interface StorageContextType {
   saveToDisk: (force?: boolean) => Promise<void>;
   selectedWalletID: () => string | undefined; // Change from string|undefined to a function
   addWallet: (wallet: TWallet) => void;
-  deleteWallet: (wallet: TWallet) => void;
   currentSharedCosigner: string;
   setSharedCosigner: (cosigner: string) => void;
   addAndSaveWallet: (wallet: TWallet) => Promise<void>;
@@ -42,10 +40,7 @@ interface StorageContextType {
   refreshAllWalletTransactions: (lastSnappedTo?: number, showUpdateStatusIndicator?: boolean) => Promise<void>;
   resetWallets: () => void;
   walletTransactionUpdateStatus: WalletTransactionsStatus | string;
-  setWalletTransactionUpdateStatus: (status: WalletTransactionsStatus | string) => void;
   getTransactions: typeof BlueApp.getTransactions;
-  fetchWalletBalances: typeof BlueApp.fetchWalletBalances;
-  fetchWalletTransactions: typeof BlueApp.fetchWalletTransactions;
   getBalance: typeof BlueApp.getBalance;
   isStorageEncrypted: typeof BlueApp.storageIsEncrypted;
   startAndDecrypt: typeof startAndDecrypt;
@@ -58,7 +53,6 @@ interface StorageContextType {
   getItem: typeof BlueApp.getItem;
   setItem: typeof BlueApp.setItem;
   handleWalletDeletion: (walletID: string) => Promise<boolean>;
-  confirmWalletDeletion: (wallet: TWallet, onConfirmed: () => void) => void;
 }
 
 export enum WalletTransactionsStatus {
@@ -434,35 +428,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     [wallets, addWallet, saveToDisk],
   );
 
-  function confirmWalletDeletion(wallet: TWallet, onConfirmed: () => void) {
-    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
-    try {
-      const balance = formatBalanceWithoutSuffix(wallet.getBalance(), BitcoinUnit.SATS, true);
-      presentAlert({
-        title: loc.wallets.details_delete_wallet,
-        message: loc.formatString(loc.wallets.details_del_wb_q, { balance }),
-        buttons: [
-          {
-            text: loc.wallets.details_delete,
-            onPress: () => {
-              triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-              onConfirmed();
-            },
-            style: 'destructive',
-          },
-          {
-            text: loc._.cancel,
-            onPress: () => {},
-            style: 'cancel',
-          },
-        ],
-        options: { cancelable: false },
-      });
-    } catch (error) {
-      // Handle error silently if needed
-    }
-  }
-
   const value: StorageContextType = useMemo(
     () => ({
       wallets,
@@ -474,14 +439,11 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       getTransactions: BlueApp.getTransactions,
       selectedWalletID,
       addWallet,
-      deleteWallet,
       currentSharedCosigner,
       setSharedCosigner: setCurrentSharedCosigner,
       addAndSaveWallet,
       setItem: BlueApp.setItem,
       getItem: BlueApp.getItem,
-      fetchWalletBalances: BlueApp.fetchWalletBalances,
-      fetchWalletTransactions: BlueApp.fetchWalletTransactions,
       fetchAndSaveWalletTransactions,
       isStorageEncrypted: BlueApp.storageIsEncrypted,
       encryptStorage: BlueApp.encryptStorage,
@@ -497,9 +459,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       decryptStorage: BlueApp.decryptStorage,
       isPasswordInUse: BlueApp.isPasswordInUse,
       walletTransactionUpdateStatus,
-      setWalletTransactionUpdateStatus,
       handleWalletDeletion,
-      confirmWalletDeletion,
     }),
     // metadataVersion is deliberate: it is what rebuilds this value after an in-place metadata edit.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -509,7 +469,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       saveToDisk,
       selectedWalletID,
       addWallet,
-      deleteWallet,
       currentSharedCosigner,
       addAndSaveWallet,
       fetchAndSaveWalletTransactions,

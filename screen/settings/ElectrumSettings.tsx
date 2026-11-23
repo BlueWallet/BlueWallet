@@ -49,7 +49,7 @@ const ElectrumSettings: React.FC = () => {
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
   const [serverHistory, setServerHistory] = useState<Set<ElectrumServerItem>>(new Set());
-  const [config, setConfig] = useState<{ connected?: number; host?: string; port?: string }>({});
+  const [config, setConfig] = useState<{ connected?: number; host?: string; port?: number }>({});
   const [host, setHost] = useState<string>('');
   const [port, setPort] = useState<number | undefined>();
   const [sslPort, setSslPort] = useState<number | undefined>(undefined);
@@ -366,10 +366,9 @@ const ElectrumSettings: React.FC = () => {
     value: ElectrumServerItem;
     seenHosts: Set<string>;
     isConnectedTo?: boolean;
-    isSuggested?: boolean;
   };
   const createServerAction = useCallback(
-    ({ value, seenHosts, isConnectedTo = false, isSuggested = false }: TCreateServerActionParameters) => {
+    ({ value, seenHosts, isConnectedTo = false }: TCreateServerActionParameters) => {
       const hostKey = `${value.host}:${value.tcp ?? ''}:${value.ssl ?? ''}`;
 
       seenHosts.add(hostKey);
@@ -389,23 +388,23 @@ const ElectrumSettings: React.FC = () => {
     const determineConnectedServer = (): string | null => {
       const allServers = [...suggestedServers, ...Array.from(serverHistory)];
       for (const value of allServers) {
-        const isThisConnected = config?.host === value.host && (config.port === value.tcp || config.port === value.ssl);
+        const isThisConnected = config.host === value.host && (config.port === value.tcp || config.port === value.ssl);
         if (isThisConnected && isPreferred(value)) return JSON.stringify(value);
       }
       for (const value of allServers) {
-        const isThisConnected = config?.host === value.host && (config.port === value.tcp || config.port === value.ssl);
+        const isThisConnected = config.host === value.host && (config.port === value.tcp || config.port === value.ssl);
         if (isThisConnected) return JSON.stringify(value);
       }
       return null;
     };
 
-    const connectedServer = config?.connected ? determineConnectedServer() : null;
+    const connectedServer = config.connected ? determineConnectedServer() : null;
 
     const seenHosts = new Set<string>();
     let preferredServerFound = false;
     let connectedServerFound = false;
 
-    const mapServers = (servers: ElectrumServerItem[], isSuggested: boolean) => {
+    const mapServers = (servers: ElectrumServerItem[]) => {
       return servers
         .map(value => {
           const isConnectedTo = !connectedServerFound && connectedServer === JSON.stringify(value);
@@ -418,7 +417,6 @@ const ElectrumSettings: React.FC = () => {
             value,
             seenHosts,
             isConnectedTo,
-            isSuggested,
           });
         })
         .filter((action): action is Action => action !== null);
@@ -429,14 +427,14 @@ const ElectrumSettings: React.FC = () => {
       text: loc._.suggested,
       displayInline: true,
       subtitle: loc.settings.electrum_suggested_description,
-      subactions: mapServers(suggestedServers, true),
+      subactions: mapServers(suggestedServers),
     };
 
     const actions: Action[] = [];
     actions.push(suggestedServersAction);
 
     if (serverHistory.size > 0) {
-      const serverSubactions: Action[] = mapServers(Array.from(serverHistory), false);
+      const serverSubactions: Action[] = mapServers(Array.from(serverHistory));
 
       actions.push({
         id: 'server_history',
@@ -452,7 +450,7 @@ const ElectrumSettings: React.FC = () => {
     actions.push(resetToDefaults);
 
     return actions;
-  }, [config?.connected, config?.host, config.port, createServerAction, host, isPreferred, serverHistory]);
+  }, [config.connected, config.host, config.port, createServerAction, host, isPreferred, serverHistory]);
 
   const HeaderRight = useMemo(
     () => <HeaderMenuButton actions={generateToolTipActions()} onPressMenuItem={onPressMenuItem} />,
@@ -486,7 +484,7 @@ const ElectrumSettings: React.FC = () => {
     if (value && DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value)) {
       v = DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value) as string;
     }
-    const [scannedHost, scannedPort, type] = v?.split(':') ?? [];
+    const [scannedHost, scannedPort, type] = v.split(':');
     setHost(scannedHost);
     if (type === 's') {
       setSslPort(Number(scannedPort));
@@ -629,7 +627,7 @@ const ElectrumSettings: React.FC = () => {
                 testID="SSLPortInput"
                 value={sslPort !== undefined}
                 onValueChange={onSSLPortChange}
-                disabled={host?.endsWith('.onion') || isLoading || host === '' || (port === undefined && sslPort === undefined)}
+                disabled={host.endsWith('.onion') || isLoading || host === '' || (port === undefined && sslPort === undefined)}
               />
             </View>
 
