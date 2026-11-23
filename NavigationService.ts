@@ -1,6 +1,25 @@
-import { CommonActions, createNavigationContainerRef, NavigationAction, StackActions } from '@react-navigation/native';
+import {
+  CommonActions,
+  createNavigationContainerRef,
+  NavigationAction,
+  NavigationState,
+  PartialState,
+  StackActions,
+} from '@react-navigation/native';
 
 export const navigationRef = createNavigationContainerRef();
+
+export function getCurrentWalletID(): string | undefined {
+  if (!navigationRef.isReady()) return undefined;
+  let state: NavigationState | PartialState<NavigationState> | undefined = navigationRef.getRootState();
+  while (state?.routes[state.index ?? 0]?.state) state = state.routes[state.index ?? 0].state;
+  // the focused screen can be a scanner or a picker on top of the screen that holds the wallet
+  for (let i = state?.index ?? 0; i >= 0; i--) {
+    const walletID = (state?.routes[i]?.params as { walletID?: unknown } | undefined)?.walletID;
+    if (typeof walletID === 'string') return walletID;
+  }
+  return undefined;
+}
 
 export function dispatch(action: NavigationAction) {
   if (navigationRef.isReady()) {

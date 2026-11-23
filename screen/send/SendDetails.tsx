@@ -201,7 +201,7 @@ const SendDetails = () => {
         } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
 
         setAddresses(addrs => {
-          addrs[scrollIndex.current].unit = BitcoinUnit.BTC;
+          if (Number(amount) > 0) addrs[scrollIndex.current].unit = BitcoinUnit.BTC;
           return [...addrs];
         });
 
@@ -270,8 +270,11 @@ const SendDetails = () => {
   }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
 
   useEffect(() => {
-    const suitable = wallets.filter(w => w.chain === Chain.ONCHAIN && w.allowSend());
-    const newWallet = (routeParams.walletID && wallets.find(w => w.getID() === routeParams.walletID)) || suitable[0]!;
+    const newWallet = wallets.find(w => w.getID() === routeParams.walletID);
+    if (!newWallet) {
+      navigation.goBack();
+      return;
+    }
     setWallet(newWallet);
     setParams({ feeUnit: newWallet.getPreferredBalanceUnit(), amountUnit: newWallet.getPreferredBalanceUnit() });
 

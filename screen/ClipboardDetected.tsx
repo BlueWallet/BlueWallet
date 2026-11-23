@@ -13,7 +13,7 @@ import { useTheme } from '../components/themes';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import { useStorage } from '../hooks/context/useStorage';
 import loc from '../loc';
-import { navigationRef } from '../NavigationService';
+import { getCurrentWalletID, navigationRef } from '../NavigationService';
 import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'ClipboardDetected'>;
@@ -106,6 +106,7 @@ const ClipboardDetected = () => {
           addWallet,
           saveToDisk,
           setSharedCosigner,
+          preferredWalletID: getCurrentWalletID(),
         });
       });
     });
