@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Alert, Platform } from 'react-native';
 import ReactNativeBiometrics, { BiometryTypes as RNBiometryTypes } from 'react-native-biometrics';
-import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
+import { BlueApp as BlueAppClass } from '../class/blue-app';
 import loc from '../loc';
 import * as NavigationService from '../NavigationService';
 import presentAlert from '../components/Alert';
@@ -10,6 +10,7 @@ import { errorMessage } from '../helpers/errorMessage';
 
 const STORAGEKEY = 'Biometrics';
 const rnBiometrics = new ReactNativeBiometrics({ allowDeviceCredentials: true });
+const BlueApp = BlueAppClass.getInstance();
 
 const FaceID = 'Face ID';
 const TouchID = 'Touch ID';
@@ -19,15 +20,13 @@ const clearKeychain = async () => {
   try {
     console.debug('Wiping keychain');
     console.debug('Wiping key: data');
-    await RNSecureKeyStore.set('data', JSON.stringify({ data: { wallets: [] } }), {
-      accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-    });
+    await BlueApp.setItem('data', JSON.stringify({ data: { wallets: [] } }));
     console.debug('Wiped key: data');
     console.debug('Wiping key: data_encrypted');
-    await RNSecureKeyStore.set('data_encrypted', '', { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
+    await BlueApp.setItem('data_encrypted', '');
     console.debug('Wiped key: data_encrypted');
     console.debug('Wiping key: STORAGEKEY');
-    await RNSecureKeyStore.set(STORAGEKEY, '', { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
+    await BlueApp.setItem(STORAGEKEY, '');
     console.debug('Wiped key: STORAGEKEY');
     NavigationService.reset();
   } catch (error) {
