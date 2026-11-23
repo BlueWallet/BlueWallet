@@ -88,6 +88,9 @@ class MenuActionsModule(context: ReactApplicationContext) :
         }
     }
 
+    // Transaction sharing is provided by UIActivityItemsConfiguration on Mac Catalyst.
+    override fun presentShare(url: String, message: String, title: String) = Unit
+
     fun titleFor(action: String): String? {
         UiThreadUtil.assertOnUiThread()
         return if (invalidated) null else menuTitles[action]

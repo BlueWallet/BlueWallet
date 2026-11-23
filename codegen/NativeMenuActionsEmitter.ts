@@ -6,6 +6,7 @@ export interface Spec extends TurboModule {
   setActionStates(statesJson: string): void;
   setMenuTitles(titlesJson: string): void;
   setRecentItems(itemsJson: string): void;
+  presentShare(url: string, message: string, title: string): void;
   readonly onMenuAction: CodegenTypes.EventEmitter<string>;
 }
 

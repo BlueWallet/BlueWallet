@@ -54,6 +54,7 @@ import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import SettingsTools from '../screen/settings/SettingsTools';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
+import getTransactionStatusOptions from './helpers/getTransactionStatusOptions';
 import { createSettingsScreenOptions, getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
 import { isDesktop, isIOS26OrHigher } from '../blue_modules/environment';
 import { shouldUseWideLayout } from '../blue_modules/layout';
@@ -165,7 +166,7 @@ const DetailViewStackScreensStack = () => {
   const navigation = useNavigation();
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
-  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+  const { height: windowHeight, width: windowWidth, fontScale } = useWindowDimensions();
   const isWideLayout = shouldUseWideLayout(windowWidth, windowHeight);
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
@@ -417,13 +418,20 @@ const DetailViewStackScreensStack = () => {
             hash: undefined,
             walletID: undefined,
           }}
-          options={navigationStyle({
-            headerStyle: {
-              backgroundColor: theme.colors.customHeader,
-            },
-            headerTitle: '',
-            headerBackButtonDisplayMode: 'default',
-          })(theme)}
+          options={({ route, navigation: transactionNavigation }) =>
+            navigationStyle({
+              ...getTransactionStatusOptions({
+                route,
+                screenWidth: windowWidth,
+                fontScale,
+                foregroundColor: theme.colors.foregroundColor,
+                secondaryTextColor: theme.colors.alternativeTextColor,
+              }),
+              headerStyle: {
+                backgroundColor: theme.colors.customHeader,
+              },
+            })(theme)({ route, navigation: transactionNavigation })
+          }
         />
         <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
         <DetailViewStack.Screen
