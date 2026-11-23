@@ -48,7 +48,7 @@ class MainActivity : ReactActivity() {
             }
         }
 
-        availableActions.filter { it.group == WalletMenuAction.Group.GENERAL }.forEachIndexed { index, action ->
+        availableActions.filter { it.groupFor(availableActions) == WalletMenuAction.Group.GENERAL }.forEachIndexed { index, action ->
             addAction(menu, action, index)
         }
         val groupDetails = listOf(
@@ -56,16 +56,21 @@ class MainActivity : ReactActivity() {
             Triple(WalletMenuAction.Group.EDIT, R.id.wallet_menu_edit, R.string.wallet_menu_edit),
             Triple(WalletMenuAction.Group.VIEW, R.id.wallet_menu_view, R.string.wallet_menu_view),
             Triple(WalletMenuAction.Group.SEND, R.id.wallet_menu_send_actions, R.string.wallet_menu_send_actions),
+            Triple(WalletMenuAction.Group.EXPORT_HISTORY, R.id.wallet_menu_export_history, R.string.wallet_menu_export_history),
             Triple(WalletMenuAction.Group.TOOLS, R.id.wallet_menu_tools, R.string.wallet_menu_tools)
         )
         groupDetails.forEachIndexed { groupIndex, (group, itemId, titleId) ->
-            val groupActions = availableActions.filter { it.group == group }
+            val groupActions = availableActions.filter { it.groupFor(availableActions) == group }
             if (groupActions.isEmpty()) return@forEachIndexed
             val subMenu = menu.addSubMenu(
                 R.id.wallet_menu_group,
                 itemId,
                 WalletMenuAction.entries.size + groupIndex,
-                if (group == WalletMenuAction.Group.TOOLS) menuModule()?.titleFor("tools") ?: getString(titleId) else getString(titleId)
+                when (group) {
+                    WalletMenuAction.Group.TOOLS -> menuModule()?.titleFor("tools") ?: getString(titleId)
+                    WalletMenuAction.Group.EXPORT_HISTORY -> menuModule()?.titleFor("exportHistory") ?: getString(titleId)
+                    else -> getString(titleId)
+                }
             )
             groupActions.forEachIndexed { index, action -> addAction(subMenu, action, index) }
         }
@@ -135,7 +140,7 @@ class MainActivity : ReactActivity() {
         val actions = menuModule()?.availableActions().orEmpty()
         if (actions.isEmpty()) return
         WalletMenuAction.Group.entries.forEach { group ->
-            val shortcuts = actions.filter { it.group == group }.mapNotNull {
+            val shortcuts = actions.filter { it.groupFor(actions) == group }.mapNotNull {
                 it.keyCode?.let { keyCode -> KeyboardShortcutInfo(menuModule()?.titleFor(it.action) ?: getString(it.titleId), keyCode, it.modifiers) }
             }
             if (shortcuts.isNotEmpty()) {
@@ -145,6 +150,7 @@ class MainActivity : ReactActivity() {
                     WalletMenuAction.Group.VIEW -> getString(R.string.wallet_menu_view)
                     WalletMenuAction.Group.SEND -> getString(R.string.wallet_menu_send_actions)
                     WalletMenuAction.Group.TOOLS -> getString(R.string.wallet_menu_tools)
+                    WalletMenuAction.Group.EXPORT_HISTORY -> menuModule()?.titleFor("exportHistory") ?: getString(R.string.wallet_menu_export_history)
                     WalletMenuAction.Group.GENERAL -> getString(R.string.app_name)
                 }
                 data.add(KeyboardShortcutGroup(title, shortcuts))

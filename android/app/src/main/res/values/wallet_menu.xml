@@ -23,6 +23,26 @@
     <item name="wallet_menu_sign_psbt" type="id" />
     <item name="wallet_menu_insert_contact" type="id" />
     <item name="wallet_menu_coin_control" type="id" />
+    <item name="wallet_menu_export_history" type="id" />
+    <item name="wallet_menu_edit_wallet_name" type="id" />
+    <item name="wallet_menu_show_addresses" type="id" />
+    <item name="wallet_menu_show_xpub" type="id" />
+    <item name="wallet_menu_sign_verify" type="id" />
+    <item name="wallet_menu_import_notes" type="id" />
+    <item name="wallet_menu_export_wallet" type="id" />
+    <item name="wallet_menu_export_csv" type="id" />
+    <item name="wallet_menu_export_labels" type="id" />
+    <item name="wallet_menu_delete_wallet" type="id" />
+    <string name="wallet_menu_export_history">Export History</string>
+    <string name="wallet_menu_edit_wallet_name">Edit Wallet Name</string>
+    <string name="wallet_menu_show_addresses">Show Addresses</string>
+    <string name="wallet_menu_show_xpub">Show Wallet XPUB</string>
+    <string name="wallet_menu_sign_verify">Sign/Verify Message</string>
+    <string name="wallet_menu_import_notes">Import Notes</string>
+    <string name="wallet_menu_export_wallet">Export/Backup</string>
+    <string name="wallet_menu_export_csv">Accounting CSV</string>
+    <string name="wallet_menu_export_labels">BIP-329 JSONL</string>
+    <string name="wallet_menu_delete_wallet">Delete Wallet</string>
     <item name="wallet_menu_add" type="id" />
     <item name="wallet_menu_import" type="id" />
     <item name="wallet_menu_reload" type="id" />
