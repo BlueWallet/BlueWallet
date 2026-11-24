@@ -238,7 +238,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="NetworkSettings"
           component={NetworkSettings}
-          options={navigationStyle(getSettingsHeaderOptions(loc.settings.network))(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.settings.network }}
         />
         <DetailViewStack.Screen
           name="NeuraiBackendEdit"

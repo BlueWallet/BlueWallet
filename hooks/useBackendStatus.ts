@@ -55,8 +55,17 @@ async function check(network: NeuraiNetwork): Promise<BackendStatus> {
 
 const CHECKING: BackendStatuses = { mainnet: { state: 'checking' }, testnet: { state: 'checking' } };
 
-export function useBackendStatus(): BackendStatuses {
+export interface BackendStatusDetails {
+  statuses: BackendStatuses;
+  /** When the shown result was measured (ms since epoch); null while the first check runs. */
+  checkedAt: number | null;
+  /** Checks again now, even if the last result is still fresh. */
+  recheck: () => void;
+}
+
+export function useBackendStatusDetails(): BackendStatusDetails {
   const [statuses, setStatuses] = useState<BackendStatuses>(() => cache?.statuses ?? CHECKING);
+  const [checkedAt, setCheckedAt] = useState<number | null>(() => cache?.at ?? null);
   const running = useRef(false);
   const mounted = useRef(true);
 
@@ -67,10 +76,11 @@ export function useBackendStatus(): BackendStatuses {
     };
   }, []);
 
-  const run = useCallback(async () => {
+  const run = useCallback(async (force: boolean) => {
     if (running.current) return;
-    if (cache && Date.now() - cache.at < FRESH_MS) {
+    if (!force && cache && Date.now() - cache.at < FRESH_MS) {
       setStatuses(cache.statuses);
+      setCheckedAt(cache.at);
       return;
     }
     running.current = true;
@@ -80,7 +90,10 @@ export function useBackendStatus(): BackendStatuses {
       const results = await Promise.all(NETWORKS.map(check));
       const next: BackendStatuses = { mainnet: results[0], testnet: results[1] };
       cache = { at: Date.now(), statuses: next };
-      if (mounted.current) setStatuses(next);
+      if (mounted.current) {
+        setStatuses(next);
+        setCheckedAt(cache.at);
+      }
     } finally {
       running.current = false;
     }
@@ -88,11 +101,19 @@ export function useBackendStatus(): BackendStatuses {
 
   useFocusEffect(
     useCallback(() => {
-      run();
+      run(false);
     }, [run]),
   );
 
-  return statuses;
+  const recheck = useCallback(() => {
+    run(true);
+  }, [run]);
+
+  return { statuses, checkedAt, recheck };
+}
+
+export function useBackendStatus(): BackendStatuses {
+  return useBackendStatusDetails().statuses;
 }
 
 export default useBackendStatus;
