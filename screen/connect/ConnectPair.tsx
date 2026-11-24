@@ -20,9 +20,9 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import Button from '../../components/Button';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { useTheme } from '../../components/themes';
+import { ConnectFooter } from '../../components/ConnectUI';
+import Icon from '../../components/Icon';
+import { SettingsCard, SettingsScreenHeader, useSettingsPalette } from '../../components/settings/SettingsUI';
 import { onConnectIncoming, pairWithUri } from '../../blue_modules/neurai/connect/client';
 import { getRelayUrl } from '../../blue_modules/neurai/connect/config';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -37,19 +37,12 @@ type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'Conn
 const WAIT_FOR_REQUEST_MS = 30_000;
 
 const ConnectPair: React.FC = () => {
-  const { colors } = useTheme();
+  const p = useSettingsPalette();
   const route = useRoute<RouteProps>();
   const navigation = useExtendedNavigation<NavigationProps>();
   const uri = route.params?.uri ?? '';
   const [failure, setFailure] = useState<string | undefined>();
   const host = relayHost(getRelayUrl());
-
-  const stylesHook = {
-    text: { color: colors.foregroundColor },
-    dim: { color: colors.alternativeTextColor },
-    failureBox: { backgroundColor: colors.redBG },
-    failureText: { color: colors.redText },
-  };
 
   useEffect(() => {
     if (!uri) {
@@ -90,32 +83,37 @@ const ConnectPair: React.FC = () => {
   const onClose = useCallback(() => navigation.goBack(), [navigation]);
 
   return (
-    <SafeAreaScrollView contentContainerStyle={styles.content}>
-      {failure ? (
-        <>
-          <View style={[styles.failureBox, stylesHook.failureBox]}>
-            <Text style={[styles.failureText, stylesHook.failureText]}>{failure}</Text>
+    <View style={[styles.root, { backgroundColor: p.ground }]} testID="ConnectPairScreen">
+      <SettingsScreenHeader title={loc.connect.pair_title} onBack={onClose} icon="close" iconLabel={loc.connect.close} />
+      <View style={styles.body}>
+        <SettingsCard style={styles.card}>
+          <View style={[styles.circle, { backgroundColor: failure ? p.fail.bg : p.accentSoft }]}>
+            {failure ? (
+              <Icon name="link-off" type="material" size={30} color={p.fail.dot} />
+            ) : (
+              <ActivityIndicator size="large" color={p.accent} />
+            )}
           </View>
-          <Text style={[styles.hint, stylesHook.dim]}>{loc.connect.pair_retry_hint}</Text>
-          <Button title={loc.connect.close} onPress={onClose} />
-        </>
-      ) : (
-        <>
-          <ActivityIndicator size="large" />
-          <Text style={[styles.waiting, stylesHook.text]}>{loc.connect.pair_waiting}</Text>
-          <Text style={[styles.hint, stylesHook.dim]}>{loc.formatString(loc.connect.pair_relay, { relay: host })}</Text>
-        </>
-      )}
-    </SafeAreaScrollView>
+          <Text style={[styles.title, { color: p.ink }]} accessibilityLiveRegion="polite">
+            {failure ?? loc.connect.pair_waiting}
+          </Text>
+          <Text style={[styles.hint, { color: p.mutedOnCard }]}>
+            {failure ? loc.connect.pair_retry_hint : loc.formatString(loc.connect.pair_relay, { relay: host })}
+          </Text>
+        </SettingsCard>
+      </View>
+      {failure && <ConnectFooter primary={{ title: loc.connect.close, onPress: onClose, testID: 'ConnectPairClose' }} />}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: 24, paddingVertical: 24, alignItems: 'center', justifyContent: 'center', flexGrow: 1 },
-  waiting: { fontSize: 17, fontWeight: '600', marginTop: 24, textAlign: 'center' },
-  hint: { fontSize: 13, marginTop: 12, marginBottom: 24, textAlign: 'center' },
-  failureBox: { borderRadius: 8, padding: 16, marginBottom: 8, alignSelf: 'stretch' },
-  failureText: { fontSize: 15, fontWeight: '600' },
+  root: { flex: 1 },
+  body: { flex: 1, justifyContent: 'center', padding: 16 },
+  card: { alignItems: 'center', paddingVertical: 32, paddingHorizontal: 24, rowGap: 12 },
+  circle: { width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  title: { fontSize: 17, fontWeight: '600', textAlign: 'center' },
+  hint: { fontSize: 13, lineHeight: 18, textAlign: 'center' },
 });
 
 export default ConnectPair;

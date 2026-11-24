@@ -256,12 +256,22 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ConnectPair"
           component={ConnectPair}
-          options={navigationStyle({ title: loc.connect.pair_title, presentation: 'modal' })(theme)}
+          options={{
+            headerShown: false,
+            presentation: 'modal',
+            statusBarStyle: theme.dark ? 'light' : 'dark',
+            title: loc.connect.pair_title,
+          }}
         />
         <DetailViewStack.Screen
           name="ConnectLogin"
           component={ConnectLogin}
-          options={navigationStyle({ title: loc.connect.login_title, presentation: 'modal' })(theme)}
+          options={{
+            headerShown: false,
+            presentation: 'modal',
+            statusBarStyle: theme.dark ? 'light' : 'dark',
+            title: loc.connect.login_title,
+          }}
         />
         <DetailViewStack.Screen
           name="ConnectProposal"

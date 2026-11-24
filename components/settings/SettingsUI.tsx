@@ -63,8 +63,16 @@ export function useSettingsPalette(): SettingsPalette {
 export const biometricLabel = (type?: string): string =>
   type === 'FaceID' ? 'Face ID' : type === 'TouchID' ? 'Touch ID' : loc.settings.biometrics;
 
-/** Round back button and a large title, under the status bar. */
-export const SettingsScreenHeader: React.FC<{ title: string; onBack: () => void }> = ({ title, onBack }) => {
+/**
+ * Round back button and a large title, under the status bar. Screens shown as
+ * a modal (an approval) pass `icon="close"` and the matching label.
+ */
+export const SettingsScreenHeader: React.FC<{ title: string; onBack: () => void; icon?: MaterialIconName; iconLabel?: string }> = ({
+  title,
+  onBack,
+  icon = 'arrow-back',
+  iconLabel = loc._.back,
+}) => {
   const p = useSettingsPalette();
   const insets = useSafeAreaInsets();
   return (
@@ -72,11 +80,11 @@ export const SettingsScreenHeader: React.FC<{ title: string; onBack: () => void 
       <Pressable
         onPress={onBack}
         accessibilityRole="button"
-        accessibilityLabel={loc._.back}
+        accessibilityLabel={iconLabel}
         testID="SettingsBackButton"
         style={({ pressed }) => [styles.back, { backgroundColor: p.card }, pressed && styles.pressed]}
       >
-        <Icon name="arrow-back" type="material" size={22} color={p.ink} />
+        <Icon name={icon} type="material" size={22} color={p.ink} />
       </Pressable>
       <Text style={[styles.title, { color: p.ink }]} accessibilityRole="header" numberOfLines={1}>
         {title}

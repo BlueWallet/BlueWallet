@@ -15,7 +15,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import dayjs from 'dayjs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -37,6 +37,7 @@ import { clearConnectHistory, connectHistory, ConnectHistoryEntry } from '../../
 import { usedIdentities } from '../../blue_modules/neurai/connect/identity';
 import NeuraiUriMatch from '../../class/neurai-uri-match';
 import presentAlert from '../../components/Alert';
+import { ConnectSiteIcon } from '../../components/ConnectUI';
 import Icon, { MaterialIconName } from '../../components/Icon';
 import {
   SettingsBadge,
@@ -54,19 +55,6 @@ import { CONNECT_EMPTY_FIELD, ConnectedSite, connectedSites, describeError, host
 const ago = (ms: number | undefined): string => (ms ? dayjs(ms).fromNow() : CONNECT_EMPTY_FIELD);
 /** History shows this many at first; "Show more" adds as many again. */
 const HISTORY_PAGE = 10;
-
-/** The site's own icon when it sends one over https, else a globe. */
-const SiteIcon: React.FC<{ icons?: string[] }> = ({ icons }) => {
-  const p = useSettingsPalette();
-  const uri = icons?.find(icon => icon.startsWith('https://'));
-  const [failed, setFailed] = useState(false);
-  if (!uri || failed) return <SettingsIconCircle icon="language" />;
-  return (
-    <View style={[styles.siteIcon, { backgroundColor: p.ground }]}>
-      <Image source={{ uri }} style={styles.siteImage} onError={() => setFailed(true)} accessibilityIgnoresInvertColors />
-    </View>
-  );
-};
 
 /** Round icon button at the end of a row. */
 const RoundButton: React.FC<{ icon: MaterialIconName; label: string; onPress: () => void; disabled?: boolean; testID?: string }> = ({
@@ -277,7 +265,7 @@ const ConnectSessions: React.FC = () => {
                 const question = String(loc.formatString(loc.connect.sessions_disconnect_q, { name }));
                 return (
                   <View key={site.key} style={[styles.row, i > 0 && divider]} testID="ConnectSessionRow">
-                    <SiteIcon icons={site.icons} />
+                    <ConnectSiteIcon icons={site.icons} />
                     <View style={styles.texts} accessible accessibilityLabel={`${name}, ${line}`}>
                       <Text style={[styles.title, { color: p.ink }]} numberOfLines={1}>
                         {name}
@@ -340,7 +328,7 @@ const ConnectSessions: React.FC = () => {
                     accessibilityLabel={[name, host, kind, when, entry.address].filter(Boolean).join(', ')}
                     testID="ConnectHistoryRow"
                   >
-                    <SiteIcon icons={entry.icons} />
+                    <ConnectSiteIcon icons={entry.icons} />
                     <View style={styles.texts}>
                       <Text style={[styles.title, { color: p.ink }]} numberOfLines={1}>
                         {name}
@@ -496,8 +484,6 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 13, lineHeight: 18 },
   mono: { fontFamily: 'monospace', fontSize: 12 },
   when: { fontSize: 12 },
-  siteIcon: { width: 40, height: 40, borderRadius: 20, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-  siteImage: { width: 40, height: 40 },
   round: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   editor: { paddingVertical: 12, rowGap: 10 },
   input: { borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 },
