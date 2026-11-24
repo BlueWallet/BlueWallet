@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -169,12 +169,6 @@ const EncryptStorage = () => {
     : !encrypted
       ? loc.settings.security_hint_password
       : loc.settings.security_hint_rest;
-  const bioSubtitle = [
-    String(loc.formatString(loc.settings.encrypt_use_expl, { type: bioName })),
-    Platform.OS === 'android' && Platform.Version >= 30 ? String(loc.formatString(loc.settings.biometrics_fail, { type: bioName })) : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
 
   return (
     <View style={[styles.root, { backgroundColor: p.ground }]}>
@@ -206,7 +200,7 @@ const EncryptStorage = () => {
               <SettingsSwitchRow
                 icon="fingerprint"
                 title={String(loc.formatString(loc.settings.encrypt_use, { type: bioName }))}
-                subtitle={bioSubtitle}
+                subtitle={loc.settings.security_bio_expl}
                 value={biometricEnabled}
                 onValueChange={onUseBiometricSwitch}
                 disabled={state.currentLoadingSwitch !== null}

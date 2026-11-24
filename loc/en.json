@@ -359,8 +359,6 @@
     "set_as_preferred": "Set as preferred",
     "set_as_preferred_electrum": "Setting {host}:{port} as preferred server will disable connecting to a suggested server at random.",
     "encrypted_feature_disabled": "Not available with encrypted storage.",
-    "encrypt_use_expl": "{type} will be used to confirm your identity before making a transaction, unlocking, exporting, or deleting a wallet.",
-    "biometrics_fail": "If {type} is not enabled, or fails to unlock, you can use your device passcode as an alternative.",
     "general": "General",
     "general_continuity": "Continuity",
     "general_continuity_e": "View selected wallets and transactions on your other iCloud devices.",
@@ -462,7 +460,8 @@
     "plausible_deniability_expl": "A second password opens decoy wallets.",
     "plausible_deniability_needs_password": "Needs the password turned on.",
     "block_screenshots": "Block screenshots",
-    "block_screenshots_expl": "If you turn it off, screenshots are allowed until the app restarts. The recovery phrase is always protected."
+    "block_screenshots_expl": "Turning it off only lasts until the app restarts. The recovery phrase can never be captured.",
+    "security_bio_expl": "Asked before sending, unlocking, exporting or deleting a wallet."
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",
