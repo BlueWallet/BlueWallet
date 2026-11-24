@@ -13,6 +13,7 @@ import WalletAddresses from '../screen/wallets/WalletAddresses';
 import WalletDetails from '../screen/wallets/WalletDetails';
 import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletHome from '../screen/wallets/WalletHome';
+import WalletTransactionHistory from '../screen/wallets/WalletTransactionHistory';
 import WalletTransactionsRedirect from '../screen/wallets/WalletTransactionsRedirect';
 import { DetailViewStack } from './index';
 import { useSettings } from '../hooks/context/useSettings';
@@ -200,6 +201,12 @@ const DetailViewStackScreensStack = () => {
           name="WalletAddresses"
           component={WalletAddresses}
           options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
+        />
+        {/* Opened from "See all" on the home; draws its own header, like the home. */}
+        <DetailViewStack.Screen
+          name="WalletTransactionHistory"
+          component={WalletTransactionHistory}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.home.transactions }}
         />
 
         {/* Settings and Security draw their own header, like the home. */}

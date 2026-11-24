@@ -680,6 +680,8 @@
     "wallet_hint": "Copia de seguridad, exportar y ajustes",
     "manage": "Gestionar",
     "transactions": "Transacciones",
+    "see_all": "Ver todas",
+    "see_all_transactions": "Ver todas las transacciones",
     "sections": "Secciones de la cartera",
     "tab_home": "Inicio",
     "tab_assets": "Activos",

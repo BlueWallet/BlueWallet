@@ -858,6 +858,8 @@
     "wallet_hint": "Backup, export and settings",
     "manage": "Manage",
     "transactions": "Transactions",
+    "see_all": "See all",
+    "see_all_transactions": "See all transactions",
     "sections": "Wallet sections",
     "tab_home": "Home",
     "tab_assets": "Assets",

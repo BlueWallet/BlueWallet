@@ -49,6 +49,7 @@ export type DetailViewStackParamList = {
   Broadcast: undefined;
   GenerateWord: undefined;
   WalletAddresses: { walletID: string };
+  WalletTransactionHistory: { walletID: string };
   AddWalletRoot: NavigatorScreenParams<AddWalletStackParamList> | undefined;
   SendNeurai: {
     walletID: string;

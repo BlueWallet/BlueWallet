@@ -19,6 +19,7 @@ import {
   BackHandler,
   FlatList,
   InteractionManager,
+  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -51,26 +52,32 @@ import HomeTabBar, { HomeTab, homeTabBarSpace, useKeyboardVisible } from '../../
 import HomeTiles, { HomeTile } from '../../components/home/HomeTiles';
 import HomeTopBar from '../../components/home/HomeTopBar';
 import { useHomePalette } from '../../components/home/homeTheme';
+import {
+  TransactionDayRow,
+  transactionEntryKey,
+  useSortedTransactions,
+  useTransactionEntries,
+} from '../../components/home/TransactionDayList';
 import Icon, { MaterialIconName } from '../../components/Icon';
 import PrivacySection from '../../components/privacy/PrivacySection';
-import { useTheme } from '../../components/themes';
-import { TransactionListItem } from '../../components/TransactionListItem';
 import { openNeuraiPaymentUri } from '../../helpers/open-neurai-payment';
 import { scanQrHelper } from '../../helpers/scan-qr';
-import { groupTransactionsByDay, TransactionListEntry } from '../../helpers/group-transactions-by-day';
+import { TransactionListEntry } from '../../helpers/group-transactions-by-day';
 import { useStorage } from '../../hooks/context/useStorage';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import useDepinPoolWatch from '../../hooks/useDepinPoolWatch';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useHomeWallet } from '../../hooks/useHomeWallet';
 import useMenuElements from '../../hooks/useMenuElements';
+import { useWalletRefresh } from '../../hooks/useWalletRefresh';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe';
 import loc from '../../loc';
 import { XnaUnit } from '../../models/xnaUnits';
 import { ConnectionPollContext } from '../../navigation/ConnectionPollContext';
 import ActionSheet from '../ActionSheet';
 
-const PAGE_SIZE = 20;
+/** The home shows the latest ones; "See all" opens the full history. */
+const HOME_TRANSACTIONS = 6;
 
 /** How long to wait for the engine to hand out a receive address before giving up. */
 const ADDRESS_TIMEOUT_MS = 3000;
@@ -99,7 +106,6 @@ const WalletHomeBody: React.FC<BodyProps> = ({
   const wallet = useWalletSubscribe(walletID);
   const neurai = isNeuraiWallet(wallet) ? wallet : null;
   const p = useHomePalette();
-  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const route = useRoute();
   const { navigate } = useExtendedNavigation();
@@ -203,25 +209,7 @@ const WalletHomeBody: React.FC<BodyProps> = ({
   }, [wallet, isBiometricUseCapableAndEnabled, saveToDisk]);
 
   // ---- Refresh --------------------------------------------------------------
-  const [refreshing, setRefreshing] = useState(false);
-  const refreshingRef = useRef(false);
-  const refresh = useCallback(async () => {
-    if (refreshingRef.current) return;
-    refreshingRef.current = true;
-    setRefreshing(true);
-    try {
-      const oldBalance = wallet.getBalance();
-      const oldCount = wallet.getTransactions().length;
-      await wallet.fetchBalance();
-      await wallet.fetchTransactions();
-      if (oldBalance !== wallet.getBalance() || oldCount !== wallet.getTransactions().length) await saveToDisk();
-    } catch (err: any) {
-      if (err?.message) presentAlert({ message: err.message, type: AlertType.Toast });
-    } finally {
-      refreshingRef.current = false;
-      setRefreshing(false);
-    }
-  }, [wallet, saveToDisk]);
+  const { refreshing, refresh } = useWalletRefresh(wallet);
 
   // The desktop menu's "Refresh" reaches the home through this handler.
   useEffect(() => {
@@ -231,48 +219,17 @@ const WalletHomeBody: React.FC<BodyProps> = ({
   }, [route.name, refresh, registerTransactionsHandler, unregisterTransactionsHandler]);
 
   // ---- Transactions ---------------------------------------------------------
-  const [limit, setLimit] = useState(15);
-  const sortedTransactions = useMemo(() => {
-    const txs = wallet.getTransactions().slice();
-    txs.sort((a, b) => b.timestamp - a.timestamp);
-    return txs;
-  }, [wallet]);
-  const entries = useMemo(
-    () =>
-      groupTransactionsByDay(sortedTransactions.slice(0, limit), {
-        pending: loc.transactions.pending,
-        today: loc.transactions.date_today,
-        yesterday: loc.transactions.date_yesterday,
-      }),
-    [sortedTransactions, limit],
-  );
-  const loadMore = useCallback(() => {
-    if (sortedTransactions.length > limit) setLimit(prev => prev + PAGE_SIZE);
-  }, [sortedTransactions.length, limit]);
-
+  const sortedTransactions = useSortedTransactions(wallet);
+  const entries = useTransactionEntries(sortedTransactions, HOME_TRANSACTIONS);
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
-    ({ item }: { item: TransactionListEntry }) => {
-      if (item.kind === 'header') {
-        return (
-          <Text style={[styles.dayHeader, { color: p.muted }]} numberOfLines={1} accessibilityRole="header">
-            {item.title}
-          </Text>
-        );
-      }
-      return (
-        <View style={[styles.txCard, { backgroundColor: p.card }, item.isFirst && styles.txCardTop, item.isLast && styles.txCardBottom]}>
-          <TransactionListItem item={item.tx} itemPriceUnit={displayUnit} walletID={walletID} style={styles.txRow} timeOnly />
-          {!item.isLast && <View style={[styles.txDivider, { backgroundColor: colors.lightBorder }]} />}
-        </View>
-      );
-    },
-    [displayUnit, walletID, p.card, p.muted, colors.lightBorder],
+    ({ item }: { item: TransactionListEntry }) => <TransactionDayRow item={item} unit={displayUnit} walletID={walletID} />,
+    [displayUnit, walletID],
   );
-  const keyExtractor = useCallback((item: TransactionListEntry) => item.key, []);
 
   // ---- Actions --------------------------------------------------------------
   const openDetails = useCallback(() => navigate('WalletDetails', { walletID }), [navigate, walletID]);
+  const openHistory = useCallback(() => navigate('WalletTransactionHistory', { walletID }), [navigate, walletID]);
 
   const copyAddress = useCallback(async () => {
     let address: string | false | undefined;
@@ -383,9 +340,24 @@ const WalletHomeBody: React.FC<BodyProps> = ({
       />
       <HomeActions actions={actions} />
       <HomeTiles tiles={tiles} />
-      <Text style={[styles.sectionTitle, { color: p.ink }]} accessibilityRole="header">
-        {loc.home.transactions}
-      </Text>
+      <View style={styles.sectionRow}>
+        <Text style={[styles.sectionTitle, { color: p.ink }]} accessibilityRole="header">
+          {loc.home.transactions}
+        </Text>
+        {sortedTransactions.length > 0 && (
+          <Pressable
+            onPress={openHistory}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel={loc.home.see_all_transactions}
+            testID="HomeSeeAllTransactions"
+            style={({ pressed }) => [styles.seeAll, pressed && styles.pressed]}
+          >
+            <Text style={[styles.seeAllText, { color: p.accentText }]}>{loc.home.see_all}</Text>
+            <Icon name="chevron-right" type="material" size={20} color={p.accentText} />
+          </Pressable>
+        )}
+      </View>
     </View>
   );
 
@@ -433,7 +405,7 @@ const WalletHomeBody: React.FC<BodyProps> = ({
         <FlatList<TransactionListEntry>
           data={entries}
           extraData={[displayUnit, hidden]}
-          keyExtractor={keyExtractor}
+          keyExtractor={transactionEntryKey}
           renderItem={renderItem}
           ListHeaderComponent={listHeader}
           ListEmptyComponent={
@@ -441,12 +413,6 @@ const WalletHomeBody: React.FC<BodyProps> = ({
               {loc.wallets.list_empty_txs1}
             </Text>
           }
-          ListFooterComponent={sortedTransactions.length > limit ? <ActivityIndicator style={styles.more} /> : null}
-          onEndReached={loadMore}
-          onEndReachedThreshold={0.3}
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
-          windowSize={15}
           contentContainerStyle={{ paddingBottom: barSpace }}
           refreshControl={!isDesktop ? <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={p.muted} /> : undefined}
         />
@@ -635,25 +601,19 @@ const styles = StyleSheet.create({
     columnGap: 8,
   },
   syncText: { fontSize: 13, flexShrink: 1 },
-  sectionTitle: { fontSize: 17, fontWeight: '600', marginHorizontal: 20, marginTop: 26 },
-  dayHeader: {
-    fontSize: 13,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
+  sectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    columnGap: 12,
     marginHorizontal: 20,
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: 26,
   },
-  txCard: { marginHorizontal: 16, overflow: 'hidden' },
-  txCardTop: { borderTopLeftRadius: 20, borderTopRightRadius: 20 },
-  txCardBottom: { borderBottomLeftRadius: 20, borderBottomRightRadius: 20 },
-  // Stable object: TransactionListItem's memo compares `style` by identity.
-  txRow: { backgroundColor: 'transparent', borderBottomWidth: 0 },
-  // Starts where the row's text does: 16 padding + 30 icon + 16 gap.
-  txDivider: { position: 'absolute', bottom: 0, left: 62, right: 16, height: 1 },
+  sectionTitle: { fontSize: 17, fontWeight: '600', flexShrink: 1 },
+  seeAll: { flexDirection: 'row', alignItems: 'center', columnGap: 2 },
+  seeAllText: { fontSize: 15, fontWeight: '600' },
+  pressed: { opacity: 0.6 },
   empty: { fontSize: 16, textAlign: 'center', marginTop: 32, marginHorizontal: 24 },
-  more: { marginVertical: 20 },
   unavailable: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32, rowGap: 16 },
   unavailableIcon: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' },
   unavailableText: { fontSize: 15, lineHeight: 22, textAlign: 'center' },
