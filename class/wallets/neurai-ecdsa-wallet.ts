@@ -21,6 +21,7 @@ import {
   type SilentPaymentKeys,
 } from '@neuraiproject/neurai-silent-payments';
 import { chainFor, isKindAvailable, NeuraiChainType, NeuraiNetwork, WalletKind } from '../../blue_modules/neurai';
+import { parseMoneySats } from '../../blue_modules/neurai/amounts';
 import { silentPaymentNetworkFor } from '../../blue_modules/neurai/silentPayments';
 import { AbstractNeuraiWallet, spendableCoins, type NeuraiBuildTransactionResult, type WalletCoin } from './abstract-neurai-wallet';
 
@@ -55,6 +56,8 @@ export class NeuraiECDSAWallet extends AbstractNeuraiWallet {
   private _silentPaymentSync: Promise<boolean> | null;
   /** Bumped when the identity changes, so a scan started before stops. */
   private _silentPaymentEpoch: number;
+  /** The part of the balance on the silent payment addresses, which sends spend apart. Persisted. */
+  _silentBalance: bigint;
 
   constructor() {
     super();
@@ -65,6 +68,7 @@ export class NeuraiECDSAWallet extends AbstractNeuraiWallet {
     this._silentPaymentKeys = null;
     this._silentPaymentSync = null;
     this._silentPaymentEpoch = 0;
+    this._silentBalance = 0n;
     Object.defineProperty(this, '_silentPaymentKeys', { writable: true, enumerable: false, value: null });
     Object.defineProperty(this, '_silentPaymentSync', { writable: true, enumerable: false, value: null });
     Object.defineProperty(this, '_silentPaymentEpoch', { writable: true, enumerable: false, value: 0 });
@@ -108,6 +112,7 @@ export class NeuraiECDSAWallet extends AbstractNeuraiWallet {
     this._silentPaymentScanFromTip = false;
     this._silentPaymentSync = null;
     this._silentPaymentEpoch++;
+    this._silentBalance = 0n;
   }
 
   /**
@@ -258,6 +263,20 @@ export class NeuraiECDSAWallet extends AbstractNeuraiWallet {
    */
   private _syncSilentPaymentsInBackground(): void {
     this.syncSilentPayments().then(changed => changed && this._refetchInBackground());
+  }
+
+  /** The part of {@link getBalance} on silent payment addresses, never more than the balance. */
+  getSilentBalance(): bigint {
+    const total = this.getBalance();
+    if (total <= 0n) return 0n;
+    return this._silentBalance > total ? total : this._silentBalance;
+  }
+
+  /** The balance, and the part of it on silent payment addresses. */
+  async fetchBalance(): Promise<void> {
+    await super.fetchBalance();
+    const addresses = this._silentPayments.map(p => p.address);
+    this._silentBalance = addresses.length > 0 ? parseMoneySats(await this.getBackend().getBalance(addresses)) : 0n;
   }
 
   /** Balance and history include the payments to the code. The engine does

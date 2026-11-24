@@ -171,7 +171,12 @@ const DetailViewStackScreensStack = () => {
           component={SelectWallet}
           options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
         />
-        <DetailViewStack.Screen name="SendNeurai" component={SendNeurai} options={navigationStyle({ title: loc.send.header })(theme)} />
+        {/* Draws its own header, like the settings screens. */}
+        <DetailViewStack.Screen
+          name="SendNeurai"
+          component={SendNeurai}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.send.header }}
+        />
         <DetailViewStack.Screen
           name="ImportNeurai"
           component={ImportNeurai}

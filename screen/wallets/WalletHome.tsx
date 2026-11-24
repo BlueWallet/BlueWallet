@@ -37,10 +37,11 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { isDepinChatSupportedNetwork } from '../../blue_modules/neurai/depinChatIdentity';
 import type { NeuraiNetwork } from '../../blue_modules/neurai/networkConfig';
 import { isTestnetChain } from '../../blue_modules/neurai/networkConfig';
-import { PRIVACY_AVAILABLE } from '../../blue_modules/neurai/privacy/deployment';
+import { DEFAULT_PRIVACY_POOL, PRIVACY_AVAILABLE, PRIVACY_POOLS } from '../../blue_modules/neurai/privacy/deployment';
 import { c6Family } from '../../blue_modules/neurai/privacy/wallet';
 import NeuraiUriMatch from '../../class/neurai-uri-match';
 import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
+import { NeuraiECDSAWallet } from '../../class/wallets/neurai-ecdsa-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
 import AddWalletGuide from '../../components/AddWalletGuide';
 import AssetsList from '../../components/AssetsList';
@@ -76,6 +77,11 @@ const HOME_TRANSACTIONS = 6;
 
 /** How long to wait for the engine to hand out a receive address before giving up. */
 const ADDRESS_TIMEOUT_MS = 3000;
+
+const silentBalanceOf = (wallet: object): bigint => (wallet instanceof NeuraiECDSAWallet ? wallet.getSilentBalance() : 0n);
+
+/** The pool the privacy tab opens with: its last private balance read counts on the home. */
+const PRIVACY_POOL_ID = PRIVACY_POOLS.find(pool => pool.id === DEFAULT_PRIVACY_POOL)?.runtime?.id;
 
 interface BodyProps {
   walletID: string;
@@ -163,10 +169,27 @@ const WalletHomeBody: React.FC<BodyProps> = ({
 
   // ---- Balance --------------------------------------------------------------
   const [balance, setBalance] = useState<bigint>(wallet.getBalance());
+  // The part of it on silent payment addresses (ECDSA wallets), which sends spend apart.
+  const [silentBalance, setSilentBalance] = useState<bigint>(silentBalanceOf(wallet));
+  // The private balance last read in the privacy pool (testnet wallets that can use it), and when.
+  const poolOf = useCallback(
+    () => (privacyAvailable && neurai && PRIVACY_POOL_ID ? neurai.getPrivacyPoolBalance(PRIVACY_POOL_ID) : null),
+    [privacyAvailable, neurai],
+  );
+  const [poolBalance, setPoolBalance] = useState<bigint>(() => poolOf()?.sats ?? 0n);
+  const [poolSeenAt, setPoolSeenAt] = useState<number>(() => poolOf()?.at ?? 0);
   useEffect(() => {
-    const interval = setInterval(() => setBalance(wallet.getBalance()), 1000);
+    const read = () => {
+      setBalance(wallet.getBalance());
+      setSilentBalance(silentBalanceOf(wallet));
+      const pool = poolOf();
+      setPoolBalance(pool?.sats ?? 0n);
+      setPoolSeenAt(pool?.at ?? 0);
+    };
+    read();
+    const interval = setInterval(read, 1000);
     return () => clearInterval(interval);
-  }, [wallet]);
+  }, [wallet, poolOf]);
   const [hidden, setHidden] = useState<boolean>(!!wallet.hideBalance);
   // Settings can hide or show every balance at once: pick that up on return.
   useFocusEffect(
@@ -325,6 +348,10 @@ const WalletHomeBody: React.FC<BodyProps> = ({
       <HomeBalance
         wallet={wallet}
         balance={balance}
+        silentBalance={silentBalance}
+        poolBalance={poolBalance}
+        poolSeenAt={poolSeenAt}
+        onOpenPool={privacyAvailable ? () => selectTab('privacy') : undefined}
         unit={displayUnit}
         hidden={hidden}
         testnet={testnet}

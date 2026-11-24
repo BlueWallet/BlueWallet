@@ -452,6 +452,23 @@ describe('Neurai wallets', () => {
           assert.strictEqual(w._silentPaymentScan, null);
         });
 
+        it('knows how much of its balance is on its silent payment addresses, kept after a restart', async () => {
+          const { w, paid } = await paidReceiver();
+          const backend = w.getBackend() as unknown as { getBalance: (addresses: string[]) => Promise<bigint> };
+          // 1.2 XNA on the payment's address, 0.3 on the wallet's other addresses.
+          backend.getBalance = async addresses =>
+            (addresses.includes(paid.address) ? 120000000n : 0n) + (addresses.some(a => a !== paid.address) ? 30000000n : 0n);
+          await w.fetchBalance();
+          assert.strictEqual(w.getBalance(), 150000000n);
+          assert.strictEqual(w.getSilentBalance(), 120000000n);
+
+          const restored = NeuraiECDSAWallet.fromJson(JSON.stringify(w)) as unknown as NeuraiECDSAWallet;
+          assert.strictEqual(restored.getSilentBalance(), 120000000n);
+
+          w.setPassphrase('other identity');
+          assert.strictEqual(w.getSilentBalance(), 0n);
+        });
+
         it('spends its payments apart from the other coins, with the change back to its own code', async () => {
           const { w, paid, coin } = await paidReceiver();
           const elsewhere = ecdsaPair('xna-test', 0).external.address;
@@ -962,6 +979,25 @@ describe('Neurai wallets', () => {
       const addrB = await b.getReceiveAddressAsync();
       assert.notStrictEqual(addrA, addrB);
     }, 30_000);
+  });
+
+  describe('privacy pool balance', () => {
+    it('keeps the last private balance read in the pool, after a restart, until the identity changes', () => {
+      const w = NeuraiPQWallet.forNetwork('testnet', KNOWN_MNEMONIC);
+      assert.strictEqual(w.getPrivacyPoolBalance('pool-a'), null, 'never read here');
+
+      assert.strictEqual(w.notePrivacyPoolBalance('pool-a', '12000000000', 100), true, 'a first reading is worth saving');
+      assert.strictEqual(w.notePrivacyPoolBalance('pool-a', '12000000000', 101), false, 'the same balance again is not');
+      assert.strictEqual(w.getPrivacyPoolBalance('pool-a')?.sats, 12000000000n);
+      assert.strictEqual(w.getPrivacyPoolBalance('pool-b'), null, 'another pool has other notes');
+
+      const restored = NeuraiPQWallet.fromJson(JSON.stringify(w)) as unknown as NeuraiPQWallet;
+      assert.strictEqual(restored.getPrivacyPoolBalance('pool-a')?.sats, 12000000000n);
+      assert.strictEqual(restored.notePrivacyPoolBalance('pool-a', '5000000000'), true, 'another balance is worth saving');
+
+      w.setPassphrase('other identity');
+      assert.strictEqual(w.getPrivacyPoolBalance('pool-a'), null);
+    });
   });
 
   describe('pending (optimistic) transactions', () => {

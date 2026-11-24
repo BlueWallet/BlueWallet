@@ -20,6 +20,7 @@ import { FileCasStore } from '../blue_modules/neurai/privacy/store';
 import { privacyTxKind, tagPrivacyTxs } from '../blue_modules/neurai/privacy/txTags';
 import { c6BlockedReason, c6Family, createPrivacyRpc, type PrivacyWallet } from '../blue_modules/neurai/privacy/wallet';
 import { useC6BackgroundSync } from './useC6BackgroundSync';
+import { useStorage } from './context/useStorage';
 import loc from '../loc';
 
 export type C6Note = { cm: string; amountAtomic: string; spendable: boolean; reserved: boolean };
@@ -97,6 +98,15 @@ export function useC6PrivateWallet(wallet: PrivacyWallet | undefined, runtime: C
     if (messages?.addresses) setReceiving(messages.addresses.addresses);
     if (messages?.journal) setOperations(messages.journal.operations);
   }, []);
+
+  // The home shows the last private balance read here, until the pool is read again.
+  const { saveToDisk } = useStorage();
+  useEffect(() => {
+    if (!wallet || !summary) return;
+    if (wallet.notePrivacyPoolBalance(runtime.id, summary.balanceAtomic, summary.tip?.height ?? 0)) {
+      saveToDisk().catch(e => console.debug('[privacy] saving the pool balance failed', e));
+    }
+  }, [wallet, runtime, summary, saveToDisk]);
 
   // The transaction list marks the journal's pool transactions.
   const walletId = wallet?.getID() ?? '';

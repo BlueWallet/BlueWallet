@@ -6,7 +6,7 @@ type RecordValue = Record<string, unknown>;
 const record = (value: unknown): value is RecordValue => !!value && typeof value === 'object' && !Array.isArray(value);
 
 function visitAmounts(dto: RecordValue, raw: (value: unknown) => unknown, decimal: (value: unknown) => unknown): void {
-  for (const key of ['balance', 'unconfirmed_balance']) if (dto[key] !== undefined) dto[key] = raw(dto[key]);
+  for (const key of ['balance', 'unconfirmed_balance', '_silentBalance']) if (dto[key] !== undefined) dto[key] = raw(dto[key]);
   for (const collection of rawCollections) {
     const rows = dto[collection];
     if (!Array.isArray(rows)) continue;
@@ -87,6 +87,7 @@ export function decodeWalletAmounts(value: unknown): RecordValue {
     // Keep identity, keys, labels and metadata. Only derived caches are discarded.
     dto.balance = 0n;
     dto.unconfirmed_balance = 0n;
+    if (dto._silentBalance !== undefined) dto._silentBalance = 0n;
     dto._utxo = [];
     dto._txCache = [];
     dto._historyItems = [];

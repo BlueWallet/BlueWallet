@@ -1,51 +1,55 @@
-import { amountFromInput, xnaToSats, satsToXna } from '../../blue_modules/neurai/amounts';
 /**
- * Simplified Send screen for Neurai wallets.
+ * Send screen for Neurai wallets, in the settings style: who gets it, what
+ * (XNA or an asset), how much, which coins (optional), then a review of the
+ * built transaction before it is sent.
  *
- * The Bitcoin-era `SendDetails` + `Confirm` pair is built around bitcoinjs-lib
- * coin selection, PSBTs, payjoin, multisig and fee-rate controls expressed in
- * sat/vByte. None of that maps cleanly onto Neurai: the engine in
- * `@neuraiproject/neurai-jswallet` selects coins, builds and signs the
- * transaction. The wallet supplies a local rate of 0.012 XNA per 1,000 vbytes
- * (the default min-relay rate plus 20%); libraries calculate the fee from the
- * selected inputs and serialized outputs, without asking for a node estimate.
+ * The engine in `@neuraiproject/neurai-jswallet` selects coins, builds and
+ * signs the transaction. The wallet supplies a local rate of 0.012 XNA per
+ * 1,000 vbytes (the default min-relay rate plus 20%); libraries calculate the
+ * fee from the selected inputs and serialized outputs, without asking a node.
  *
- * The user types an address and an amount in XNA, we build the transaction,
- * show the engine-computed fee and the amount to be sent, and broadcast on
- * confirm. Tapping the available-balance hint enters "send max" mode, which
- * spends the whole balance with the fee deducted (see `buildSendMaxTransaction`
- * and the hardware wallet's `sendMax` path). Custom fee tiers (slow/medium/fast)
- * can be added later.
+ * "Max" spends the whole balance (or the ticked coins) with the fee deducted
+ * (see `buildSendMaxTransaction` and the hardware wallet's `sendMax` path).
+ * Silent payment coins (ECDSA wallets) are only spent when picked, apart from
+ * the rest. A hardware wallet builds the transaction here and signs it on the
+ * device.
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Keyboard, Modal, Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import MaterialIcons from '@react-native-vector-icons/material-icons';
+import { FlatList, Keyboard, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { BlueFormLabel, BlueText } from '../../BlueComponents';
-import presentAlert from '../../components/Alert';
-import Button from '../../components/Button';
-import NeuraiLoader, { untilLoaderPainted } from '../../components/NeuraiLoader';
-import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
-import CoinControl, { coinKey, sumSats } from '../../components/CoinControl';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { useTheme } from '../../components/themes';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
-import { parseNeuraiPaymentUri, type NeuraiPaymentUri } from '../../class/neurai-uri-match';
-import { NeuraiHardwareWallet, type NeuraiHwUnsignedSend } from '../../class/wallets/neurai-hardware-wallet';
+import { amountFromInput, satsToXna, xnaToSats } from '../../blue_modules/neurai/amounts';
+import { formatAssetAmount, type NeuraiAssetType, type NeuraiHeldAsset } from '../../blue_modules/neurai/assetUtils';
+import { looksLikeSilentPaymentCode, SILENT_PAYMENT_ACCENT } from '../../blue_modules/neurai/silentPayments';
 import { useNeuraiHwDevice } from '../../blue_modules/neurai-hw/useNeuraiHwDevice';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { parseNeuraiPaymentUri, type NeuraiPaymentUri } from '../../class/neurai-uri-match';
+import type { NeuraiBuildTransactionResult, NeuraiTransactionTarget, WalletCoin } from '../../class/wallets/abstract-neurai-wallet';
+import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
+import { NeuraiECDSAWallet } from '../../class/wallets/neurai-ecdsa-wallet';
+import { NeuraiHardwareWallet, type NeuraiHwUnsignedSend } from '../../class/wallets/neurai-hardware-wallet';
+import presentAlert from '../../components/Alert';
+import CoinControl, { coinKey, sumSats } from '../../components/CoinControl';
+import { ConnectFooter } from '../../components/ConnectUI';
+import Icon, { MaterialIconName } from '../../components/Icon';
+import NeuraiLoader, { untilLoaderPainted } from '../../components/NeuraiLoader';
+import {
+  SettingsCard,
+  SettingsRow,
+  SettingsScreenHeader,
+  SettingsSectionLabel,
+  SettingsSegment,
+  SettingsSegmented,
+  useSettingsPalette,
+} from '../../components/settings/SettingsUI';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import type { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import type { NeuraiBuildTransactionResult, NeuraiTransactionTarget, WalletCoin } from '../../class/wallets/abstract-neurai-wallet';
-import { formatAssetAmount, type NeuraiAssetType, type NeuraiHeldAsset } from '../../blue_modules/neurai/assetUtils';
-import { looksLikeSilentPaymentCode, SILENT_PAYMENT_ACCENT } from '../../blue_modules/neurai/silentPayments';
-import { NeuraiECDSAWallet } from '../../class/wallets/neurai-ecdsa-wallet';
 
 /** Human label for an asset type, for the picker rows. */
 function assetTypeLabel(type: NeuraiAssetType): string {
@@ -69,22 +73,83 @@ function assetTypeLabel(type: NeuraiAssetType): string {
 
 /**
  * Resolves once the next frame is drawn. Creating the engine or signing blocks
- * the JS thread; waiting first lets the spinner set just before show (it keeps
- * spinning on the UI thread).
+ * the JS thread; waiting first lets the loader show (it keeps moving on the
+ * UI thread).
  */
 const afterNextFrame = () => new Promise<void>(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 
 /** Coins a send picks by hand: the wallet's own, or its silent payments. */
 type CoinSource = 'wallet' | 'silent';
 
+type Kind = 'xna' | 'asset';
+const KINDS: SettingsSegment<Kind>[] = [
+  { value: 'xna', label: 'XNA', icon: 'toll', testID: 'SendNeuraiKindXna' },
+  { value: 'asset', label: loc.send.asset, icon: 'layers', testID: 'SendNeuraiAssetSwitch' },
+];
+
+/** Silent payment colour behind an icon or on a tag. */
+const SILENT_SOFT = { light: '#f3e8ff', dark: 'rgba(124, 58, 237, 0.22)' };
+const SILENT_TEXT = { light: '#6b21a8', dark: '#d8b4fe' };
+
+/** A small rounded button with an icon and a word, for the recipient field. */
+const FieldButton: React.FC<{ icon: MaterialIconName; label: string; onPress: () => void; disabled?: boolean; testID: string }> = ({
+  icon,
+  label,
+  onPress,
+  disabled,
+  testID,
+}) => {
+  const p = useSettingsPalette();
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      testID={testID}
+      style={({ pressed }) => [styles.fieldButton, { backgroundColor: p.ground }, (pressed || disabled) && styles.pressed]}
+    >
+      <Icon name={icon} type="material" size={18} color={p.ink} />
+      <Text style={[styles.fieldButtonText, { color: p.ink }]}>{label}</Text>
+    </Pressable>
+  );
+};
+
+/** One line of the review: what, and how much (or to whom). */
+const ReviewRow: React.FC<{ label: string; value: string; strong?: boolean; mono?: boolean; divider?: boolean; testID?: string }> = ({
+  label,
+  value,
+  strong,
+  mono,
+  divider,
+  testID,
+}) => {
+  const p = useSettingsPalette();
+  return (
+    <View
+      style={[styles.reviewRow, divider && { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: p.divider }]}
+      testID={testID}
+    >
+      <Text style={[styles.reviewLabel, { color: p.mutedOnCard }]}>{label}</Text>
+      <Text
+        style={[styles.reviewValue, strong && styles.reviewStrong, mono && styles.mono, { color: p.ink }]}
+        numberOfLines={1}
+        ellipsizeMode={mono ? 'middle' : 'tail'}
+      >
+        {value}
+      </Text>
+    </View>
+  );
+};
+
 type RouteProps = RouteProp<DetailViewStackParamList, 'SendNeurai'>;
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'SendNeurai'>;
 
 const SendNeurai: React.FC = () => {
-  const { colors } = useTheme();
+  const p = useSettingsPalette();
   const { wallets } = useStorage();
   const { isPQAddressReuseEnabled } = useSettings();
-  const { navigate } = useExtendedNavigation<NavigationProps>();
+  const { navigate, goBack } = useExtendedNavigation<NavigationProps>();
   const { params } = useRoute<RouteProps>();
   const found = wallets.find(w => w.getID() === params.walletID);
   const wallet = isNeuraiWallet(found) ? found : null;
@@ -130,7 +195,8 @@ const SendNeurai: React.FC = () => {
 
   const onChangeAddress = useCallback(
     (v: string) => {
-      setAddress(v);
+      // The field wraps long addresses and codes, but they are one line.
+      setAddress(v.replace(/[\r\n]+/g, ''));
       resetDrafts();
     },
     [resetDrafts],
@@ -270,23 +336,27 @@ const SendNeurai: React.FC = () => {
     navigate('ScanQRCode', { onBarScanned: handleScanned, showFileImportButton: false });
   }, [navigate, handleScanned]);
 
-  const stylesHook = {
-    label: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
-    root: { backgroundColor: colors.elevated },
-    feeBox: { borderColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
-    textInput: { color: colors.foregroundColor },
-    unit: { color: colors.alternativeTextColor },
-    feeLabel: { color: colors.feeText },
-    feeValue: { color: colors.feeValue },
-    assetToggleLabel: { color: colors.foregroundColor },
-    balanceHint: { color: colors.alternativeTextColor },
-    modalCard: { backgroundColor: colors.elevated },
-    assetRow: { borderBottomColor: colors.formBorder },
-  };
+  // A pasted payment request fills the amount too, like a scanned one.
+  const pasteAddress = useCallback(async () => {
+    const text = (await Clipboard.getString()).trim();
+    if (text) handleScanned(text);
+  }, [handleScanned]);
+
+  const fillMax = useCallback(() => {
+    if (isAssetMode) {
+      if (selectedAsset) setAmount(formatAssetAmount(selectedAsset.amount));
+    } else {
+      setIsSendMax(true);
+      setAmount(availableXna);
+    }
+    resetDrafts();
+  }, [isAssetMode, selectedAsset, availableXna, resetDrafts]);
+
+  // The review shows up under everything: bring it into view.
+  const scroll = useRef<ScrollView>(null);
+  useEffect(() => {
+    if (draft || hwDraft) requestAnimationFrame(() => scroll.current?.scrollToEnd({ animated: true }));
+  }, [draft, hwDraft]);
 
   const buildDraft = useCallback(async () => {
     if (!wallet) return;
@@ -461,269 +531,331 @@ const SendNeurai: React.FC = () => {
     }
   }, [hwWallet, hwDraft, hw, navigate]);
 
+  const busy = isBuilding || isBroadcasting;
+
   if (!wallet) {
     return (
-      <View style={[styles.flex1, stylesHook.root, styles.center]}>
-        <BlueText>{loc.errors.error}</BlueText>
+      <View style={[styles.root, { backgroundColor: p.ground }]}>
+        <SettingsScreenHeader title={loc.send.header} onBack={goBack} />
+        <Text style={[styles.error, { color: p.muted }]}>{loc.errors.error}</Text>
       </View>
     );
   }
 
+  const silentDestination = looksLikeSilentPaymentCode(address);
+  const silentSoft = p.dark ? SILENT_SOFT.dark : SILENT_SOFT.light;
+  const busyLabel = isBuilding
+    ? loc.send.building
+    : hwWallet
+      ? hw.status === 'connecting'
+        ? loc.send.hw_connect
+        : loc.send.hw_signing
+      : loc.send.broadcasting;
+
+  const availableText = isAssetMode
+    ? selectedAsset
+      ? String(loc.formatString(loc.send.available, { amount: `${formatAssetAmount(assetAvailable)} ${selectedAsset.name}` }))
+      : ''
+    : String(loc.formatString(loc.send.available, { amount: `${availableXna} XNA` }));
+  const canMax = isAssetMode ? !!selectedAsset && assetAvailable !== '0' : availableSats > 0n;
+
+  // The review: what leaves, the fee and, for XNA, both together.
+  let review: { sent: string; fee: string; total?: string } | null = null;
+  if (draft) {
+    review = {
+      sent: draft.asset ? `${formatAssetAmount(draft.asset.amount)} ${draft.asset.name}` : `${satsToXna(draft.sentAmountSats)} XNA`,
+      fee: `${satsToXna(draft.feeSats)} XNA`,
+      total: draft.asset ? undefined : `${satsToXna(draft.sentAmountSats + draft.feeSats)} XNA`,
+    };
+  } else if (hwDraft) {
+    review = {
+      sent: hwDraft.asset ? `${formatAssetAmount(hwDraft.asset.amount)} ${hwDraft.asset.name}` : `${satsToXna(hwDraft.amountSats)} XNA`,
+      fee: `${satsToXna(hwDraft.feeSats)} XNA`,
+      total: hwDraft.asset ? undefined : `${satsToXna(hwDraft.amountSats + hwDraft.feeSats)} XNA`,
+    };
+  }
+
+  const primary =
+    hwWallet && hwDraft
+      ? { title: loc.send.hw_sign, onPress: hwSignAndBroadcast, testID: 'SendNeuraiHwSign' }
+      : draft
+        ? { title: loc.send.header, onPress: broadcast, testID: 'SendNeuraiBroadcast' }
+        : { title: loc.send.details_next, onPress: buildDraft, testID: 'SendNeuraiPreview' };
+
   return (
-    <SafeAreaScrollView style={[styles.flex1, stylesHook.root]} testID="SendNeuraiScroll">
-      <BlueSpacing20 />
-      <BlueFormLabel>{loc.send.details_address}</BlueFormLabel>
-      <View style={[styles.input, stylesHook.label]}>
-        <TextInput
-          testID="SendNeuraiAddress"
-          value={address}
-          placeholderTextColor={colors.placeholderTextColor}
-          placeholder={loc.send.details_address}
-          onChangeText={onChangeAddress}
-          autoCapitalize="none"
-          autoCorrect={false}
-          editable={!isBuilding && !isBroadcasting}
-          style={[styles.textInput, stylesHook.textInput]}
-          underlineColorAndroid="transparent"
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={loc.send.details_scan}
-          testID="SendNeuraiScan"
-          onPress={openScanner}
-          disabled={isBuilding || isBroadcasting}
-          style={({ pressed }) => [styles.scanButton, pressed && styles.scanButtonPressed]}
-        >
-          <MaterialIcons name="qr-code-scanner" size={22} color={colors.foregroundColor} />
-        </Pressable>
-      </View>
-
-      {canSendAssets && (
-        <>
-          <View style={styles.assetToggleRow}>
-            <Text style={[styles.assetToggleLabel, stylesHook.assetToggleLabel]}>{loc.assets.send_toggle}</Text>
-            <Switch
-              testID="SendNeuraiAssetSwitch"
-              value={isAssetMode}
-              onValueChange={onToggleAssetMode}
-              disabled={isBuilding || isBroadcasting}
+    <View style={[styles.root, { backgroundColor: p.ground }]} testID="SendNeurai">
+      <SettingsScreenHeader title={loc.send.header} onBack={goBack} />
+      <ScrollView
+        ref={scroll}
+        style={styles.flex}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        testID="SendNeuraiScroll"
+      >
+        <View>
+          <SettingsSectionLabel>{loc.send.recipient}</SettingsSectionLabel>
+          <SettingsCard style={styles.recipientCard}>
+            <TextInput
+              testID="SendNeuraiAddress"
+              value={address}
+              onChangeText={onChangeAddress}
+              placeholder={loc.send.details_address}
+              placeholderTextColor={p.mutedOnCard}
+              autoCapitalize="none"
+              autoCorrect={false}
+              multiline
+              submitBehavior="blurAndSubmit"
+              returnKeyType="done"
+              editable={!busy}
+              selectionColor={p.accent}
+              style={[styles.addressInput, { color: p.ink }]}
+              underlineColorAndroid="transparent"
             />
+            <View style={styles.fieldActions}>
+              {silentDestination ? (
+                <View style={[styles.silentTag, { backgroundColor: silentSoft }]} testID="SendNeuraiSilentCode">
+                  <View style={[styles.silentDot, { backgroundColor: SILENT_PAYMENT_ACCENT }]} />
+                  <Text style={[styles.silentTagText, { color: p.dark ? SILENT_TEXT.dark : SILENT_TEXT.light }]} numberOfLines={1}>
+                    {loc.send.silent_code}
+                  </Text>
+                </View>
+              ) : null}
+              <View style={styles.flex} />
+              <FieldButton
+                icon="content-paste"
+                label={loc.send.input_paste}
+                onPress={pasteAddress}
+                disabled={busy}
+                testID="SendNeuraiPaste"
+              />
+              <FieldButton
+                icon="qr-code-scanner"
+                label={loc.send.details_scan}
+                onPress={openScanner}
+                disabled={busy}
+                testID="SendNeuraiScan"
+              />
+            </View>
+          </SettingsCard>
+        </View>
+
+        {canSendAssets && (
+          <View>
+            <SettingsSectionLabel>{loc.send.send_what}</SettingsSectionLabel>
+            <SettingsCard style={styles.whatCard}>
+              <SettingsSegmented
+                segments={KINDS}
+                value={isAssetMode ? 'asset' : 'xna'}
+                onChange={kind => {
+                  if (!busy && (kind === 'asset') !== isAssetMode) onToggleAssetMode(kind === 'asset');
+                }}
+                testID="SendNeuraiKind"
+              />
+              {isAssetMode &&
+                (isLoadingAssets ? (
+                  <View style={styles.assetLoading}>
+                    <NeuraiLoader size={28} />
+                    <Text style={[styles.note, { color: p.mutedOnCard }]}>{loc._.loading}</Text>
+                  </View>
+                ) : (
+                  <SettingsRow
+                    icon="layers"
+                    title={selectedAsset ? selectedAsset.name : heldAssets.length === 0 ? loc.assets.list_empty : loc.assets.send_select}
+                    subtitle={
+                      selectedAsset ? `${formatAssetAmount(selectedAsset.amount)} · ${assetTypeLabel(selectedAsset.type)}` : undefined
+                    }
+                    onPress={() => setIsAssetPickerOpen(true)}
+                    disabled={busy || heldAssets.length === 0}
+                    testID="SendNeuraiAssetPicker"
+                  />
+                ))}
+            </SettingsCard>
           </View>
-          {isAssetMode && (
-            <Pressable
-              accessibilityRole="button"
-              testID="SendNeuraiAssetPicker"
-              onPress={() => setIsAssetPickerOpen(true)}
-              disabled={isBuilding || isBroadcasting || isLoadingAssets || heldAssets.length === 0}
-              style={[styles.input, stylesHook.label]}
-            >
-              {isLoadingAssets ? (
-                <ActivityIndicator style={styles.assetPickerSpinner} />
-              ) : (
-                <Text style={[styles.textInput, stylesHook.textInput]} numberOfLines={1}>
-                  {selectedAsset
-                    ? `${selectedAsset.name} · ${formatAssetAmount(selectedAsset.amount)}`
-                    : heldAssets.length === 0
-                      ? loc.assets.list_empty
-                      : loc.assets.send_select}
-                </Text>
+        )}
+
+        <View>
+          <SettingsSectionLabel>{loc.send.create_amount}</SettingsSectionLabel>
+          <SettingsCard>
+            <View style={styles.amountRow}>
+              <TextInput
+                testID="SendNeuraiAmount"
+                value={amount}
+                onChangeText={onChangeAmount}
+                placeholder="0"
+                placeholderTextColor={p.mutedOnCard}
+                keyboardType="decimal-pad"
+                editable={!busy}
+                selectionColor={p.accent}
+                style={[styles.amountInput, { color: p.ink }]}
+                underlineColorAndroid="transparent"
+              />
+              <Text style={[styles.amountUnit, { color: p.mutedOnCard }]} numberOfLines={1}>
+                {amountUnit}
+              </Text>
+            </View>
+            <View style={[styles.availableRow, { borderTopColor: p.divider }]}>
+              <Text style={[styles.available, { color: p.mutedOnCard }]} numberOfLines={1} testID="SendNeuraiAvailable">
+                {availableText}
+              </Text>
+              <Pressable
+                onPress={fillMax}
+                disabled={busy || !canMax}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSendMax, disabled: busy || !canMax }}
+                testID="SendNeuraiMax"
+                style={({ pressed }) => [
+                  styles.maxPill,
+                  { backgroundColor: isSendMax ? p.accent : p.accentSoft },
+                  (pressed || !canMax) && styles.pressed,
+                ]}
+              >
+                <Text style={[styles.maxText, { color: isSendMax ? p.onAccent : p.accentText }]}>{loc.send.max}</Text>
+              </Pressable>
+            </View>
+          </SettingsCard>
+        </View>
+
+        {canControlCoins && (
+          <View>
+            <SettingsSectionLabel>{loc.send.coins}</SettingsSectionLabel>
+            <SettingsCard>
+              <CoinControl
+                icon="tune"
+                label={loc.cc.header}
+                subtitle={loc.send.coins_subtitle}
+                accent={p.accent}
+                accentSoft={p.accentSoft}
+                testID="SendNeuraiCoinControl"
+                coins={walletCoins}
+                isOn={coinSource === 'wallet'}
+                onSwitch={on => onSwitchCoinSource('wallet', on)}
+                selected={selectedCoinKeys}
+                onToggleCoin={onToggleCoin}
+                isLoading={isLoadingCoins}
+                loadingText={loc.send.coins_loading}
+                disabled={busy || isLoadingCoins}
+                emptyText={loc.send.coins_empty}
+              />
+              {silentWallet && (silentCoins.length > 0 || coinSource === 'silent') && (
+                <CoinControl
+                  divider
+                  icon="visibility-off"
+                  label={loc.receive.silent_payments}
+                  subtitle={String(loc.formatString(loc.send.silent_coins_subtitle, { amount: satsToXna(sumSats(silentCoins)) }))}
+                  accent={SILENT_PAYMENT_ACCENT}
+                  accentSoft={silentSoft}
+                  testID="SendNeuraiSilent"
+                  coins={silentCoins}
+                  isOn={coinSource === 'silent'}
+                  onSwitch={on => onSwitchCoinSource('silent', on)}
+                  selected={selectedCoinKeys}
+                  onToggleCoin={onToggleCoin}
+                  isLoading={isLoadingCoins}
+                  loadingText={loc.send.coins_loading}
+                  disabled={busy || isLoadingCoins}
+                  emptyText={loc.send.coins_empty}
+                />
               )}
-              <MaterialIcons name="arrow-drop-down" size={22} color={colors.foregroundColor} />
-            </Pressable>
-          )}
-        </>
-      )}
+            </SettingsCard>
+          </View>
+        )}
 
-      {canControlCoins && (
-        <CoinControl
-          label={loc.cc.header}
-          accent={colors.buttonBackgroundColor}
-          testID="SendNeuraiCoinControl"
-          coins={walletCoins}
-          isOn={coinSource === 'wallet'}
-          onSwitch={on => onSwitchCoinSource('wallet', on)}
-          selected={selectedCoinKeys}
-          onToggleCoin={onToggleCoin}
-          isLoading={isLoadingCoins}
-          loadingText={loc.send.coins_loading}
-          disabled={isBuilding || isBroadcasting || isLoadingCoins}
-          emptyText={loc.send.coins_empty}
-        />
-      )}
-
-      {silentWallet && (silentCoins.length > 0 || coinSource === 'silent') && (
-        <CoinControl
-          label={loc.receive.silent_payments}
-          accent={SILENT_PAYMENT_ACCENT}
-          testID="SendNeuraiSilent"
-          coins={silentCoins}
-          isOn={coinSource === 'silent'}
-          onSwitch={on => onSwitchCoinSource('silent', on)}
-          selected={selectedCoinKeys}
-          onToggleCoin={onToggleCoin}
-          isLoading={isLoadingCoins}
-          loadingText={loc.send.coins_loading}
-          disabled={isBuilding || isBroadcasting || isLoadingCoins}
-          emptyText={loc.send.coins_empty}
-        />
-      )}
+        {busy ? (
+          <SettingsCard style={styles.busyCard} testID="SendNeuraiBusy">
+            <NeuraiLoader size={64} label={busyLabel} />
+          </SettingsCard>
+        ) : review ? (
+          <View>
+            <SettingsSectionLabel>{loc.send.review}</SettingsSectionLabel>
+            <SettingsCard testID="SendNeuraiReview">
+              <ReviewRow label={loc.send.you_send} value={review.sent} strong testID="SendNeuraiReviewAmount" />
+              <ReviewRow label={loc.send.create_fee} value={review.fee} divider testID="SendNeuraiReviewFee" />
+              {review.total ? (
+                <ReviewRow label={loc.send.total} value={review.total} strong divider testID="SendNeuraiReviewTotal" />
+              ) : null}
+              <ReviewRow label={loc.send.to} value={address.trim()} mono divider />
+            </SettingsCard>
+          </View>
+        ) : null}
+      </ScrollView>
+      <ConnectFooter primary={{ ...primary, disabled: busy }} />
 
       <Modal visible={isAssetPickerOpen} transparent animationType="fade" onRequestClose={() => setIsAssetPickerOpen(false)}>
-        <Pressable style={styles.modalBackdrop} onPress={() => setIsAssetPickerOpen(false)}>
-          <Pressable style={[styles.modalCard, stylesHook.modalCard]} onPress={() => {}}>
-            <Text style={[styles.modalTitle, stylesHook.textInput]}>{loc.assets.send_select}</Text>
+        <Pressable style={styles.backdrop} onPress={() => setIsAssetPickerOpen(false)}>
+          <Pressable style={[styles.sheet, { backgroundColor: p.card }]} onPress={() => {}}>
+            <Text style={[styles.sheetTitle, { color: p.ink }]}>{loc.assets.send_select}</Text>
             <FlatList
               data={heldAssets}
               keyExtractor={a => a.name}
               keyboardShouldPersistTaps="handled"
-              renderItem={({ item }) => (
-                <Pressable
-                  style={[styles.assetRow, stylesHook.assetRow]}
+              renderItem={({ item, index }) => (
+                <SettingsRow
+                  icon="layers"
+                  title={item.name}
+                  subtitle={`${formatAssetAmount(item.amount)} · ${assetTypeLabel(item.type)}`}
                   onPress={() => onPickAsset(item)}
+                  divider={index > 0}
                   testID={`AssetOption-${item.name}`}
-                >
-                  <Text style={[styles.assetRowName, stylesHook.textInput]} numberOfLines={1}>
-                    {item.name}
-                  </Text>
-                  <Text style={[styles.assetRowMeta, stylesHook.balanceHint]} numberOfLines={1}>
-                    {`${formatAssetAmount(item.amount)} · ${assetTypeLabel(item.type)}`}
-                  </Text>
-                </Pressable>
+                />
               )}
             />
           </Pressable>
         </Pressable>
       </Modal>
-
-      <BlueFormLabel>{loc.send.create_amount}</BlueFormLabel>
-      <View style={[styles.input, stylesHook.label]}>
-        <TextInput
-          testID="SendNeuraiAmount"
-          value={amount}
-          placeholderTextColor={colors.placeholderTextColor}
-          placeholder="0.00000000"
-          keyboardType="decimal-pad"
-          onChangeText={onChangeAmount}
-          editable={!isBuilding && !isBroadcasting}
-          style={[styles.textInput, stylesHook.textInput]}
-          underlineColorAndroid="transparent"
-        />
-        <Text style={[styles.unit, stylesHook.unit]}>{amountUnit}</Text>
-      </View>
-      <Pressable
-        accessibilityRole="button"
-        onPress={() => {
-          if (isAssetMode) {
-            if (selectedAsset) setAmount(formatAssetAmount(selectedAsset.amount));
-          } else {
-            setIsSendMax(true);
-            setAmount(availableXna);
-          }
-          resetDrafts();
-        }}
-        disabled={isBuilding || isBroadcasting || (isAssetMode ? !selectedAsset || assetAvailable === '0' : availableSats === 0n)}
-        style={styles.balanceHintRow}
-      >
-        <Text style={[styles.balanceHint, stylesHook.balanceHint]}>
-          {isAssetMode
-            ? selectedAsset
-              ? loc.formatString(loc.assets.send_avail_max, { amount: formatAssetAmount(assetAvailable), asset: selectedAsset.name })
-              : ''
-            : loc.formatString(loc.send.create_avail_max, { amount: availableXna })}
-        </Text>
-      </Pressable>
-
-      {(draft || hwDraft) && (
-        <View style={[styles.feeBox, stylesHook.feeBox]}>
-          <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_amount}</Text>
-          <Text style={[styles.feeValue, stylesHook.feeValue]}>
-            {draft?.asset
-              ? `${formatAssetAmount(draft.asset.amount)} ${draft.asset.name}`
-              : hwDraft?.asset
-                ? `${formatAssetAmount(hwDraft.asset.amount)} ${hwDraft.asset.name}`
-                : `${satsToXna(draft ? draft.sentAmountSats : hwDraft!.amountSats)} XNA`}
-          </Text>
-          <Text style={[styles.feeLabel, stylesHook.feeLabel, styles.feeLabelSpacer]}>{loc.send.create_fee}</Text>
-          <Text style={[styles.feeValue, stylesHook.feeValue]}>{satsToXna(draft ? draft.feeSats : hwDraft!.feeSats)} XNA</Text>
-        </View>
-      )}
-
-      <View style={styles.actions}>
-        <BlueSpacing20 />
-        {isBuilding || isBroadcasting ? (
-          <>
-            <NeuraiLoader size={56} />
-            {hwWallet && isBroadcasting ? (
-              <Text style={[styles.feeLabel, styles.hwHint, stylesHook.feeLabel]}>
-                {hw.status === 'connecting' ? 'Connect the device and confirm on it…' : 'Signing on device…'}
-              </Text>
-            ) : null}
-          </>
-        ) : hwWallet && hwDraft ? (
-          <Button testID="SendNeuraiHwSign" title="Sign on device & broadcast" onPress={hwSignAndBroadcast} />
-        ) : draft ? (
-          <Button testID="SendNeuraiBroadcast" title={loc.send.broadcastButton} onPress={broadcast} />
-        ) : (
-          <Button testID="SendNeuraiPreview" title={loc.send.details_next} onPress={buildDraft} />
-        )}
-        <BlueSpacing40 />
-      </View>
-    </SafeAreaScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  flex1: { flex: 1 },
-  center: { alignItems: 'center', justifyContent: 'center' },
-  input: {
+  root: { flex: 1 },
+  flex: { flex: 1 },
+  content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, rowGap: 20 },
+  pressed: { opacity: 0.6 },
+  error: { fontSize: 15, textAlign: 'center', marginTop: 40 },
+  recipientCard: { paddingTop: 10, paddingBottom: 12, rowGap: 8 },
+  addressInput: {
+    fontFamily: 'monospace',
+    fontSize: 15,
+    lineHeight: 22,
+    minHeight: 48,
+    paddingVertical: 4,
+    paddingHorizontal: 0,
+    textAlignVertical: 'top',
+  },
+  fieldActions: { flexDirection: 'row', alignItems: 'center', columnGap: 8 },
+  fieldButton: { flexDirection: 'row', alignItems: 'center', columnGap: 6, height: 36, borderRadius: 18, paddingHorizontal: 12 },
+  fieldButtonText: { fontSize: 13, fontWeight: '600' },
+  silentTag: {
     flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    marginHorizontal: 20,
     alignItems: 'center',
-    marginVertical: 12,
-    borderRadius: 4,
+    columnGap: 6,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    flexShrink: 1,
   },
-  textInput: { flex: 1, marginHorizontal: 8 },
-  assetToggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginHorizontal: 20,
-    marginTop: 8,
-  },
-  assetToggleLabel: { fontSize: 16, fontWeight: '600' },
-  assetPickerSpinner: { flex: 1, alignItems: 'flex-start', marginHorizontal: 8 },
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', paddingHorizontal: 24 },
-  modalCard: { maxHeight: '70%', borderRadius: 10, paddingVertical: 6 },
-  modalTitle: { fontSize: 16, fontWeight: '600', paddingHorizontal: 16, paddingVertical: 12 },
-  assetRow: { paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth },
-  assetRowName: { fontSize: 16, fontWeight: '600' },
-  assetRowMeta: { fontSize: 13, marginTop: 2 },
-  balanceHintRow: { marginHorizontal: 20, marginTop: -4, marginBottom: 8 },
-  balanceHint: { fontSize: 12, textAlign: 'right' },
-  scanButton: {
-    paddingHorizontal: 12,
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scanButtonPressed: { opacity: 0.5 },
-  unit: { paddingHorizontal: 12, fontWeight: '600' },
-  feeBox: {
-    marginHorizontal: 20,
-    marginVertical: 12,
-    padding: 14,
-    borderWidth: 1,
-    borderRadius: 6,
-  },
-  feeLabel: { fontSize: 12, opacity: 0.6, marginBottom: 4 },
-  feeLabelSpacer: { marginTop: 12 },
-  hwHint: { textAlign: 'center', marginTop: 8 },
-  feeValue: { fontSize: 16, fontWeight: '600' },
-  actions: { marginHorizontal: 20 },
+  silentDot: { width: 7, height: 7, borderRadius: 3.5 },
+  silentTagText: { fontSize: 12.5, fontWeight: '600', flexShrink: 1 },
+  whatCard: { paddingVertical: 12, rowGap: 4 },
+  assetLoading: { flexDirection: 'row', alignItems: 'center', columnGap: 12, paddingTop: 12, paddingHorizontal: 6 },
+  note: { fontSize: 13 },
+  amountRow: { flexDirection: 'row', alignItems: 'center', columnGap: 10, minHeight: 68 },
+  amountInput: { flex: 1, fontSize: 30, fontWeight: '700', letterSpacing: -0.5, paddingVertical: 6, paddingHorizontal: 0 },
+  amountUnit: { fontSize: 17, fontWeight: '600', maxWidth: '40%' },
+  availableRow: { flexDirection: 'row', alignItems: 'center', columnGap: 12, minHeight: 52, borderTopWidth: StyleSheet.hairlineWidth * 2 },
+  available: { flex: 1, fontSize: 13 },
+  maxPill: { height: 32, borderRadius: 16, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
+  maxText: { fontSize: 13, fontWeight: '700' },
+  busyCard: { paddingVertical: 28, alignItems: 'center' },
+  reviewRow: { flexDirection: 'row', alignItems: 'center', columnGap: 16, minHeight: 52, paddingVertical: 8 },
+  reviewLabel: { fontSize: 14 },
+  reviewValue: { flex: 1, fontSize: 15, fontWeight: '500', textAlign: 'right' },
+  reviewStrong: { fontWeight: '700' },
+  mono: { fontFamily: 'monospace', fontSize: 13 },
+  backdrop: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', paddingHorizontal: 20 },
+  sheet: { maxHeight: '70%', borderRadius: 24, paddingHorizontal: 16, paddingTop: 18, paddingBottom: 6 },
+  sheetTitle: { fontSize: 17, fontWeight: '700', marginBottom: 4 },
 });
 
 export default SendNeurai;

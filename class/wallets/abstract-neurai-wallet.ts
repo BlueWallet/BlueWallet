@@ -96,6 +96,20 @@ const CURRENT_TESTNET_GENESIS = CHAIN_PARAMS['xna-test'].expectedGenesisHash ?? 
 /** Legacy P2PKH dust; other change types use {@link dustThresholdSats}. */
 const SEND_DUST_SATS = 546n;
 
+/** The private balance last read in a privacy pool, which the home shows until the pool is read again. */
+export interface PrivacyPoolSnapshot {
+  /** Pool instance (its commitment): another pool has other notes. */
+  pool: string;
+  /** Satoshis. */
+  balanceAtomic: string;
+  height: number;
+  /** When it was read (ms). */
+  at: number;
+}
+
+/** A reading this old is saved again even if the balance did not change, so "seen" stays close after a restart. */
+const PRIVACY_POOL_RESAVE_MS = 10 * 60 * 1000;
+
 /** One derived address as the addresses screen lists it. */
 export interface NeuraiAddressEntry {
   address: string;
@@ -382,6 +396,8 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
    * what the screen of one address lists. `null` until the first fetch that
    * records them. Persisted. */
   protected _addressTxids: Record<string, string[]> | null;
+  /** The private balance last read in the privacy pool. Persisted; forgotten with the identity. */
+  _privacyPool: PrivacyPoolSnapshot | null;
   /** Mempool transactions the server pushed per address since (the history
    * has only confirmed ones); dropped as they show up confirmed. Runtime only. */
   private _pushedAddressTxids: Record<string, string[]>;
@@ -426,6 +442,7 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     this._addressStatus = {};
     this._addressTxids = null;
     this._pushedAddressTxids = {};
+    this._privacyPool = null;
     this.singleAddress = false;
     this._receiveIndex = 0;
     this._changeIndex = 0;
@@ -483,6 +500,7 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     this._addressStatus = {};
     this._addressTxids = null;
     this._pushedAddressTxids = {};
+    this._privacyPool = null;
     this.testnetGenesis = CURRENT_TESTNET_GENESIS;
   }
 
@@ -518,6 +536,7 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     this._receiveAddress = '';
     this._addressTxids = null;
     this._pushedAddressTxids = {};
+    this._privacyPool = null;
   }
 
   getNetwork(): NeuraiChainType {
@@ -1102,6 +1121,30 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
         engine.addressObjects.push({ ...derived, path: `${account}/${change}/${position}`, keyType: first.keyType });
       }
       engine.addressPosition = position + 1;
+    }
+  }
+
+  /**
+   * Keeps the private balance the privacy tab just read in `pool`, for the
+   * home to show until the pool is read again. True when it is worth saving:
+   * another balance, or the saved reading is getting old.
+   */
+  notePrivacyPoolBalance(pool: string, balanceAtomic: string, height = 0): boolean {
+    const now = Date.now();
+    const last = this._privacyPool;
+    const worthSaving = !last || last.pool !== pool || last.balanceAtomic !== balanceAtomic || now - last.at > PRIVACY_POOL_RESAVE_MS;
+    this._privacyPool = { pool, balanceAtomic, height, at: now };
+    return worthSaving;
+  }
+
+  /** The private balance last read in `pool` and when, or null if it was never read on this device. */
+  getPrivacyPoolBalance(pool: string): { sats: bigint; at: number } | null {
+    const last = this._privacyPool;
+    if (!last || last.pool !== pool) return null;
+    try {
+      return { sats: parseRawSats(last.balanceAtomic), at: last.at };
+    } catch {
+      return null;
     }
   }
 

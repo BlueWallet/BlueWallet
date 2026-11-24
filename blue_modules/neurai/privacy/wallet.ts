@@ -34,6 +34,7 @@ export type PrivacyWallet = Pick<
   | 'listOwnUtxos'
   | 'getBaseCurrencyName'
   | 'buildSendTransaction'
+  | 'notePrivacyPoolBalance'
 >;
 
 /** C6 needs an RPC reply within this time; pending reservations survive a timeout. */
