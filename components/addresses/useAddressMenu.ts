@@ -1,8 +1,8 @@
 /**
  * What can be done with one of a wallet's addresses: copy it, share it, and —
  * for wallets that sign messages — copy its private key after a confirmation
- * and the biometric unlock. As a menu for the address rows of Manage Wallets,
- * and one by one for the screen of an address.
+ * and the biometric unlock. As a menu for the address rows of Manage Wallets;
+ * the screen of an address takes the private key from here.
  */
 import { useCallback, useMemo } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -82,5 +82,5 @@ export function useAddressMenu({
     [copy, share, exportPrivateKey],
   );
 
-  return { menuActions, onMenuItem, copy, share, exportPrivateKey, canExportPrivateKey: allowSignVerifyMessage };
+  return { menuActions, onMenuItem, exportPrivateKey, canExportPrivateKey: allowSignVerifyMessage };
 }

@@ -237,6 +237,7 @@ const WalletAddresses: React.FC = () => {
               data={data}
               extraData={wallets}
               style={styles.list}
+              showsVerticalScrollIndicator={false}
               keyExtractor={keyExtractor}
               renderItem={renderRow}
               initialNumToRender={20}
