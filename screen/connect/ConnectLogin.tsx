@@ -47,7 +47,7 @@ import {
 } from '../../components/ConnectParts';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
-import { connectClient, peekIncoming, takeIncoming } from '../../blue_modules/neurai/connect/client';
+import { concludeLogin, connectClient, peekIncoming, takeIncoming } from '../../blue_modules/neurai/connect/client';
 import { networkForCaip2 } from '../../blue_modules/neurai/connect/config';
 import { deriveDomainIdentity, recordDomainIdentity, type DomainIdentity } from '../../blue_modules/neurai/connect/identity';
 import { useConnectApprovalGate } from '../../hooks/useConnectApprovalGate';
@@ -193,6 +193,8 @@ const ConnectLogin: React.FC = () => {
       // Only now is the identity really "used": recording it earlier would leave
       // one behind for a login the user rejected.
       if (identity && chosenAddress === identity.address) await recordDomainIdentity(identity);
+      // A login is done once answered: note it in the history and drop its pairing.
+      if (event) await concludeLogin(event, chosenAddress);
       takeIncoming(id);
       presentAlert({ message: loc.formatString(loc.connect.login_approved, { domain: payload.domain }), type: AlertType.Toast });
       navigation.goBack();
@@ -202,7 +204,7 @@ const ConnectLogin: React.FC = () => {
       if (isHardware) await hw.disconnect().catch(() => {});
       setBusy(false);
     }
-  }, [payload, chainId, chosenAddress, wallet, id, navigation, requireUnlock, identity, isHardware, hw]);
+  }, [payload, chainId, chosenAddress, wallet, id, navigation, requireUnlock, identity, isHardware, hw, event]);
 
   const onReject = useCallback(async () => {
     setBusy(true);

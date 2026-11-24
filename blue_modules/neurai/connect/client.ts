@@ -12,10 +12,11 @@
 
 import { AppState, type AppStateStatus } from 'react-native';
 import { NeuraiConnectWallet, PAIRINGS_STORAGE_KEY, SESSIONS_STORAGE_KEY } from '@neuraiproject/neurai-connect-wallet';
-import { parsePairingUri, RecordStore } from '@neuraiproject/neurai-connect-core';
+import { PAIRING_TTL_SECONDS, parsePairingUri, RecordStore } from '@neuraiproject/neurai-connect-core';
 import type { AuthRequestEvent, Pairing, Session, SessionProposalEvent, SessionRequestEvent } from '@neuraiproject/neurai-connect-wallet';
 import type { JsonRpcId } from '@neuraiproject/neurai-connect-core';
 import { getRelayUrl, loadRelayOverride, setRelayUrlOverride } from './config';
+import { ConnectHistoryEntry, historySite, recordConnectHistory } from './history';
 import { relayHost, sameRelay } from './relay-url';
 import { SecureConnectStorage } from './storage';
 
@@ -99,6 +100,63 @@ function onAppStateChange(state: AppStateStatus): void {
     .catch(e => console.warn('[neurai-connect] resume failed', e));
 }
 
+/**
+ * Pairings that outlived their use: the SDK marks a pairing active when a login
+ * or a session is approved on it and then keeps it, with no expiry, for good,
+ * resubscribing to it at every start. A login needs nothing more from it
+ * (spec/auth.md: the approval is a login only) and neither does a session that
+ * has ended. Each one not behind a live session is written to the history, if
+ * it is not there yet, and forgotten — so the wallet stops listening on it and
+ * the relay is no longer held by it. The time of an older one is rebuilt from
+ * when it was scanned: its expiry is the scan plus the pairing TTL (or the
+ * site's own `exp`, a few minutes later), close enough to show the day and hour.
+ */
+async function retireUsedPairings(wallet: NeuraiConnectWallet): Promise<void> {
+  const live = new Set(wallet.sessions().map(session => session.pairingTopic));
+  const used = wallet.pairingList().filter(pairing => pairing.active && !live.has(pairing.topic));
+  if (used.length === 0) return;
+  await recordConnectHistory(
+    used.map(
+      (pairing): ConnectHistoryEntry => ({
+        kind: 'login',
+        at: (pairing.expiry - PAIRING_TTL_SECONDS) * 1000,
+        approximate: true,
+        ...historySite(pairing.peerMetadata),
+        pairingTopic: pairing.topic,
+      }),
+    ),
+  );
+  for (const pairing of used) {
+    await wallet.forgetPairing(pairing.topic);
+    emitSessionsChanged({ reason: 'deleted', topic: pairing.topic });
+  }
+}
+
+let retiring: Promise<void> | null = null;
+
+/**
+ * Runs `retireUsedPairings` in the background, never twice at once. It must not
+ * hold anything up: forgetting a pairing also unsubscribes it from the relay,
+ * one round trip each, so the first run after an update can take minutes, and
+ * a scan or an approval must work meanwhile. The history is written first, in
+ * one go, so it is complete long before the last pairing is gone.
+ */
+function retireInBackground(wallet: NeuraiConnectWallet): Promise<void> {
+  if (!retiring) {
+    retiring = retireUsedPairings(wallet)
+      .catch(e => console.warn('[neurai-connect] could not retire pairings', e))
+      .finally(() => {
+        retiring = null;
+      });
+  }
+  return retiring;
+}
+
+/** Resolves once a retirement in progress, if any, has finished. */
+export function pairingsRetired(): Promise<void> {
+  return retiring ?? Promise.resolve();
+}
+
 async function create(relayUrl?: string): Promise<NeuraiConnectWallet> {
   await loadRelayOverride();
   activeRelayUrl = relayUrl ?? getRelayUrl();
@@ -112,7 +170,10 @@ async function create(relayUrl?: string): Promise<NeuraiConnectWallet> {
   wallet.on('session_proposal', event => emitIncoming({ kind: 'proposal', id: event.id, receivedAt: Date.now(), event }));
   wallet.on('session_request', event => emitIncoming({ kind: 'request', id: event.id, receivedAt: Date.now(), event }));
   wallet.on('session_settled', ({ session }) => emitSessionsChanged({ reason: 'settled', topic: session.topic }));
-  wallet.on('session_delete', ({ topic }) => emitSessionsChanged({ reason: 'deleted', topic }));
+  wallet.on('session_delete', ({ topic }) => {
+    emitSessionsChanged({ reason: 'deleted', topic });
+    retireInBackground(wallet);
+  });
   wallet.on('auth_rejected', ({ reason }) => emitNotice({ kind: 'auth_rejected', message: reason }));
   wallet.on('request_blocked', ({ inspection }) =>
     emitNotice({ kind: 'request_blocked', message: inspection.reason ?? 'request blocked' }),
@@ -137,6 +198,7 @@ export function startConnect(relayUrl?: string): Promise<NeuraiConnectWallet> {
         // screen: without this a wallet card mounted during start-up would not
         // show its Connect badge until the next settle or revoke.
         emitSessionsChanged({ reason: 'resumed' });
+        retireInBackground(instance);
         return instance;
       })
       .finally(() => {
@@ -342,6 +404,53 @@ export function pendingIncoming(): ConnectIncoming[] {
 export async function revokeSession(topic: string): Promise<void> {
   await client?.disconnect(topic);
   emitSessionsChanged({ reason: 'deleted', topic });
+  if (client) retireInBackground(client);
+}
+
+/**
+ * Forgets the given pairings — for example every login of one site — so that
+ * site can no longer reach this wallet on them, and announces each one so its
+ * push registration is dropped. Sessions are untouched: `revokeSession` ends
+ * those. What the site itself remembers of a past login is up to the site.
+ */
+export async function forgetPairings(topics: string[]): Promise<void> {
+  for (const topic of topics) {
+    await client?.forgetPairing(topic);
+    emitSessionsChanged({ reason: 'deleted', topic });
+  }
+}
+
+/**
+ * After a login is approved (and settled no session): writes it to the history
+ * and forgets its pairing, which has done its job. Never throws — the login
+ * itself already went through.
+ */
+export async function concludeLogin(event: AuthRequestEvent, address: string): Promise<void> {
+  try {
+    await recordConnectHistory([
+      {
+        kind: 'login',
+        at: Date.now(),
+        ...historySite(event.requester.metadata, event.payload.domain),
+        address,
+        pairingTopic: event.pairingTopic,
+      },
+    ]);
+    await forgetPairings([event.pairingTopic]);
+  } catch (error: unknown) {
+    console.warn('[neurai-connect] could not conclude the login', error);
+  }
+}
+
+/** After a session is approved: writes it to the history. Never throws. */
+export async function noteSessionApproved(event: SessionProposalEvent, address: string): Promise<void> {
+  try {
+    await recordConnectHistory([
+      { kind: 'session', at: Date.now(), ...historySite(event.proposer.metadata), address, pairingTopic: event.pairingTopic },
+    ]);
+  } catch (error: unknown) {
+    console.warn('[neurai-connect] could not record the session', error);
+  }
 }
 
 /**

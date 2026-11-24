@@ -18,6 +18,7 @@
 // test that starts failing on CI for reasons that have nothing to do with it.
 import {
   CONNECT_EMPTY_FIELD,
+  connectedSites,
   addressFromCaip10,
   caip10Account,
   defaultAddressKind,
@@ -384,5 +385,31 @@ describe('formatting', () => {
     expect(describeError(new Error('boom'))).toBe('boom');
     expect(describeError('boom')).toBe('boom');
     expect(describeError(undefined)).toBe('undefined');
+  });
+});
+
+describe('the connected sites list', () => {
+  const meta = (url: string, name = 'Site') => ({ name, url, description: '', icons: [`${url}/icon.png`] });
+  const session = (topic: string, url: string, lastActivity: number, expiry: number) =>
+    ({ topic, pairingTopic: `p-${topic}`, peerMetadata: meta(url), lastActivity, expiry }) as any;
+
+  it('shows a site once however many sessions it opened, with its latest activity and expiry', () => {
+    const sites = connectedSites([session('a', 'https://dex.neurai.org', 5, 100), session('b', 'https://dex.neurai.org/x', 9, 80)]);
+    expect(sites).toHaveLength(1);
+    expect(sites[0].host).toBe('dex.neurai.org');
+    expect(sites[0].sessionTopics).toEqual(['a', 'b']);
+    expect(sites[0].lastActivity).toBe(9);
+    expect(sites[0].expiry).toBe(100);
+  });
+
+  it('keeps different sites apart', () => {
+    expect(connectedSites([session('a', 'https://one.example', 1, 1), session('b', 'https://two.example', 1, 1)])).toHaveLength(2);
+  });
+
+  it('keeps a site that sent no name, unnamed', () => {
+    const sites = connectedSites([{ ...session('a', '', 1, 1), peerMetadata: { name: '', url: '', description: '', icons: [] } }]);
+    expect(sites).toHaveLength(1);
+    expect(sites[0].name).toBe('');
+    expect(sites[0].host).toBe(CONNECT_EMPTY_FIELD);
   });
 });

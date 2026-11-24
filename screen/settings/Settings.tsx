@@ -22,6 +22,7 @@ import { BackendStatus, useBackendStatus } from '../../hooks/useBackendStatus';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
+import { connectedSites } from '../connect/logic';
 import { AvailableLanguages } from '../../loc/languages';
 
 const NEURAI_LOGO = require('../../img/addWallet/neurai.png');
@@ -137,7 +138,8 @@ const Settings: React.FC = () => {
   );
 
   useEffect(() => {
-    const refresh = (): void => setSessions(connectSessions().length);
+    // Sites with a live session, as the Connect screen lists them.
+    const refresh = (): void => setSessions(connectedSites(connectSessions()).length);
     refresh();
     return onConnectSessionsChanged(refresh);
   }, []);

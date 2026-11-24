@@ -276,7 +276,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ConnectSessions"
           component={ConnectSessions}
-          options={navigationStyle(getSettingsHeaderOptions(loc.connect.sessions_screen_title))(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.connect.sessions_screen_title }}
         />
         <DetailViewStack.Screen
           name="SettingsBlockExplorer"

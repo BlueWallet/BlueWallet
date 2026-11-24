@@ -21,7 +21,7 @@
  */
 
 import { decodeAddress } from '@neuraiproject/neurai-create-transaction';
-import type { SettledNamespaces } from '@neuraiproject/neurai-connect-wallet';
+import type { Session, SettledNamespaces } from '@neuraiproject/neurai-connect-wallet';
 import type { AbstractNeuraiWallet } from '../../class/wallets/abstract-neurai-wallet';
 import type { NeuraiHDWallet } from '../../class/wallets/neurai-hd-wallet';
 import type { NeuraiPQWallet } from '../../class/wallets/neurai-pq-wallet';
@@ -464,4 +464,47 @@ export function addressFromCaip10(account: string | undefined): string | undefin
   if (!account) return undefined;
   const address = account.slice(account.lastIndexOf(':') + 1);
   return address.length > 0 && address !== account ? address : undefined;
+}
+
+/** `https://dex.neurai.org/x` → `dex.neurai.org`. */
+export const hostOf = (url: string | undefined): string => {
+  if (!url) return CONNECT_EMPTY_FIELD;
+  return url.replace(/^[a-z]+:\/\//i, '').replace(/\/.*$/, '') || url;
+};
+
+/** A site with live sessions, as the session manager shows it. `name` is empty when the site sent none. */
+export interface ConnectedSite {
+  key: string;
+  name: string;
+  host: string;
+  icons?: string[];
+  /** Latest activity of its sessions, ms since epoch. */
+  lastActivity: number;
+  /** When the last of its sessions expires, seconds since epoch (as the SDK keeps it). */
+  expiry: number;
+  sessionTopics: string[];
+}
+
+/**
+ * Live sessions, one entry per site: a site that opened several is shown once
+ * and disconnected at once. Logins are not here — they leave no connection
+ * behind and go to the history instead.
+ */
+export function connectedSites(sessions: Session[]): ConnectedSite[] {
+  const sites = new Map<string, ConnectedSite>();
+  for (const session of sessions) {
+    const { url, name, icons } = session.peerMetadata;
+    const host = url ? hostOf(url) : '';
+    const key = host || name || '?';
+    let site = sites.get(key);
+    if (!site) {
+      site = { key, name: name || host, host: host || CONNECT_EMPTY_FIELD, icons, lastActivity: 0, expiry: 0, sessionTopics: [] };
+      sites.set(key, site);
+    }
+    if (!site.icons?.length && icons?.length) site.icons = icons;
+    site.sessionTopics.push(session.topic);
+    site.lastActivity = Math.max(site.lastActivity, session.lastActivity);
+    site.expiry = Math.max(site.expiry, session.expiry);
+  }
+  return [...sites.values()];
 }

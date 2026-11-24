@@ -35,7 +35,7 @@ import {
 } from '../../components/ConnectParts';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
-import { connectClient, peekIncoming, takeIncoming } from '../../blue_modules/neurai/connect/client';
+import { connectClient, noteSessionApproved, peekIncoming, takeIncoming } from '../../blue_modules/neurai/connect/client';
 import { useConnectApprovalGate } from '../../hooks/useConnectApprovalGate';
 import { networkForCaip2 } from '../../blue_modules/neurai/connect/config';
 import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
@@ -133,6 +133,7 @@ const ConnectProposal: React.FC = () => {
         namespaces: proposalNamespaces(ask, chainId, address, supported),
         sessionProperties: sessionProperties([{ address }]),
       });
+      if (event) await noteSessionApproved(event, address);
       takeIncoming(id);
       presentAlert({
         message: loc.formatString(loc.connect.proposal_approved, { name: event?.proposer.metadata.name ?? CONNECT_EMPTY_FIELD }),

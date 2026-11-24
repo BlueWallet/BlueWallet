@@ -11,24 +11,40 @@ import type { AuthRequestEvent, SessionRequestEvent } from '@neuraiproject/neura
 import { addressFromCaip10 } from '../../screen/connect/logic';
 
 import {
+  concludeLogin,
+  connectPairings,
   connectSessions,
   onConnectIncoming,
   onConnectNotice,
   onConnectSessionsChanged,
+  pairingsRetired,
   peekIncoming,
   pendingIncoming,
   startConnect,
   takeIncoming,
 } from '../../blue_modules/neurai/connect/client';
+import { connectHistory } from '../../blue_modules/neurai/connect/history';
 
 type Handler = (payload: unknown) => void;
 const handlers = new Map<string, Handler[]>();
+// What the SDK holds at start: a login it kept "active" for good, the pairing a
+// live session came through, and a code scanned a minute ago and not answered.
+let fakePairings: { topic: string; active: boolean; expiry: number; peerMetadata?: object }[] = [
+  { topic: 'login-old', active: true, expiry: 1_800_000_300, peerMetadata: { name: 'Dex', url: 'https://dex.example/app', icons: [] } },
+  { topic: 'session-pairing', active: true, expiry: 1_800_000_300, peerMetadata: { name: 'Shop', url: 'https://shop.example' } },
+  { topic: 'scan-pending', active: false, expiry: Math.floor(Date.now() / 1000) + 240 },
+];
 const fakeWallet = {
   on: (event: string, handler: Handler) => {
     handlers.set(event, [...(handlers.get(event) ?? []), handler]);
     return fakeWallet;
   },
-  sessions: () => [{ topic: 'a'.repeat(64) }],
+  sessions: () => [{ topic: 'a'.repeat(64), pairingTopic: 'session-pairing' }],
+  pairingList: () => fakePairings,
+  forgetPairing: jest.fn(async (topic: string) => {
+    fakePairings = fakePairings.filter(pairing => pairing.topic !== topic);
+    return true;
+  }),
   close: jest.fn(async () => {}),
   resume: jest.fn(async () => {}),
 };
@@ -164,5 +180,25 @@ describe('the wallet a session belongs to', () => {
     expect(addressFromCaip10(account)).toBe('t9Zo5RAwAucmz3tGuTFak6ZqpytiyxnLiJ');
     expect(addressFromCaip10(undefined)).toBeUndefined();
     expect(addressFromCaip10('not-an-account')).toBeUndefined();
+  });
+});
+
+describe('pairings a login left behind', () => {
+  it('are written to the history and forgotten after start, in the background, and nothing else is', async () => {
+    await pairingsRetired();
+    expect(fakeWallet.forgetPairing).toHaveBeenCalledWith('login-old');
+    expect(connectPairings().map(pairing => pairing.topic)).toEqual(['session-pairing', 'scan-pending']);
+    const entry = (await connectHistory()).find(e => e.pairingTopic === 'login-old');
+    expect(entry).toMatchObject({ kind: 'login', name: 'Dex', url: 'https://dex.example/app', approximate: true });
+    // Rebuilt from the scan: the expiry minus the pairing TTL of 300 s.
+    expect(entry?.at).toBe((1_800_000_300 - 300) * 1000);
+  });
+
+  it('an approved login is recorded with its address and its pairing dropped at once', async () => {
+    await concludeLogin(authEvent(9), 'NXaddress');
+    expect(fakeWallet.forgetPairing).toHaveBeenCalledWith('p'.repeat(64));
+    const entry = (await connectHistory()).find(e => e.pairingTopic === 'p'.repeat(64));
+    expect(entry).toMatchObject({ kind: 'login', name: 'Site', url: 'https://example.com', address: 'NXaddress' });
+    expect(entry?.approximate).toBeUndefined();
   });
 });
