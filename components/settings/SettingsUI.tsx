@@ -4,7 +4,7 @@
  * group and a round back button in place of the native header.
  */
 import React, { useMemo } from 'react';
-import { ActivityIndicator, Pressable, StyleProp, StyleSheet, Switch, Text, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, Pressable, StyleProp, StyleSheet, Switch, Text, TextInput, View, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import loc from '../../loc';
@@ -342,7 +342,41 @@ export const SettingsSwitchRow: React.FC<SettingsSwitchRowProps> = ({
   );
 };
 
+/** A search box under the header, for the long lists (currencies, languages). */
+export const SettingsSearchField: React.FC<{
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder: string;
+  testID?: string;
+}> = ({ value, onChangeText, placeholder, testID }) => {
+  const p = useSettingsPalette();
+  return (
+    <View style={[styles.search, { backgroundColor: p.card }]}>
+      <Icon name="search" type="material" size={20} color={p.mutedOnCard} />
+      <TextInput
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor={p.mutedOnCard}
+        autoCorrect={false}
+        autoCapitalize="none"
+        returnKeyType="search"
+        style={[styles.searchInput, { color: p.ink }]}
+        underlineColorAndroid="transparent"
+        testID={testID}
+      />
+      {value.length > 0 && (
+        <Pressable onPress={() => onChangeText('')} hitSlop={8} accessibilityRole="button" accessibilityLabel={loc._.cancel}>
+          <Icon name="close" type="material" size={18} color={p.mutedOnCard} />
+        </Pressable>
+      )}
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
+  search: { flexDirection: 'row', alignItems: 'center', columnGap: 8, height: 46, borderRadius: 23, paddingHorizontal: 14 },
+  searchInput: { flex: 1, fontSize: 15, paddingVertical: 0 },
   header: { flexDirection: 'row', alignItems: 'center', columnGap: 12, paddingHorizontal: 16, paddingBottom: 8 },
   back: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   title: { fontSize: 24, fontWeight: '700', letterSpacing: -0.4, flexShrink: 1 },

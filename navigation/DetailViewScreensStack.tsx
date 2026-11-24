@@ -204,7 +204,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="Currency"
           component={Currency}
-          options={navigationStyle(getSettingsHeaderOptions(loc.settings.currency))(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.settings.currency }}
         />
         <DetailViewStack.Screen
           name="GeneralSettings"
@@ -314,7 +314,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="Language"
           component={Language}
-          options={navigationStyle(getSettingsHeaderOptions(loc.settings.language))(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.settings.language }}
         />
         <DetailViewStack.Screen
           name="NotificationSettings"

@@ -94,9 +94,9 @@ describe('NeuraiWallet UI Tests - no wallets', () => {
     // currency
     // change currency to ARS ($) and switch it back to USD ($)
     await element(by.id('Currency')).tap();
-    await element(by.text('ARS ($)')).tap();
-    await expect(element(by.text('Rate is obtained from Yadio'))).toBeVisible();
-    await element(by.text('USD ($)')).tap();
+    await element(by.id('Currency-ARS')).tap();
+    await expect(element(by.id('CurrencyRate'))).toBeVisible();
+    await element(by.id('Currency-USD')).tap();
     await goBack();
 
     // language

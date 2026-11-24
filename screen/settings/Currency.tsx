@@ -1,7 +1,14 @@
+/**
+ * The fiat currency balances are shown in, in the settings style: the one in
+ * use on top with its rate, then every currency in one card, filtered by the
+ * search box. Picking one fetches its rate first, so a currency whose rate
+ * cannot be read is never left selected.
+ */
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { Keyboard, LayoutAnimation, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Keyboard, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   CurrencyRate,
@@ -11,14 +18,8 @@ import {
   setPreferredCurrency,
 } from '../../blue_modules/currency';
 import presentAlert from '../../components/Alert';
-import {
-  SettingsCard,
-  SettingsFlatList,
-  SettingsListItem,
-  SettingsSection,
-  SettingsSubtitle,
-  SettingsText,
-} from '../../components/platform';
+import Icon from '../../components/Icon';
+import { SettingsCard, SettingsScreenHeader, SettingsSearchField, useSettingsPalette } from '../../components/settings/SettingsUI';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -26,167 +27,178 @@ import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../model
 
 dayjs.extend(calendar);
 
-const MAX_DISPLAY_ITEMS = 50;
+const ALL_CURRENCIES = Object.values(FiatUnit);
+
+/** The currency's symbol in a round badge. */
+const SymbolBadge: React.FC<{ symbol: string; size?: number; selected?: boolean }> = ({ symbol, size = 40, selected }) => {
+  const p = useSettingsPalette();
+  const long = symbol.length > 2;
+  return (
+    <View
+      style={[styles.badge, { width: size, height: size, borderRadius: size / 2, backgroundColor: selected ? p.accentSoft : p.ground }]}
+    >
+      <Text
+        style={[styles.badgeText, { fontSize: long ? size * 0.3 : size * 0.42, color: selected ? p.accentText : p.ink }]}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+      >
+        {symbol}
+      </Text>
+    </View>
+  );
+};
 
 const Currency: React.FC = () => {
+  const navigation = useExtendedNavigation();
+  const p = useSettingsPalette();
+  const insets = useSafeAreaInsets();
   const { setPreferredFiatCurrencyStorage } = useSettings();
-  const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState<FiatUnitType | undefined>();
-  const [selectedCurrency, setSelectedCurrency] = useState<FiatUnitType>(FiatUnit.USD);
-  const [currencyRate, setCurrencyRate] = useState<CurrencyRate>({
-    LastUpdated: null,
-    Rate: null,
-  });
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const { setOptions } = useExtendedNavigation();
+  const [saving, setSaving] = useState<FiatUnitType | undefined>();
+  const [selected, setSelected] = useState<FiatUnitType>(FiatUnit.USD);
+  const [rate, setRate] = useState<CurrencyRate>({ LastUpdated: null, Rate: null });
   const [search, setSearch] = useState('');
 
-  const filteredCurrencies = useMemo(() => {
-    if (search.length > 0) {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }
-
-    const searchLower = search.toLowerCase();
-    return Object.values(FiatUnit)
-      .filter(item => item.endPointKey.toLowerCase().includes(searchLower) || item.country.toLowerCase().includes(searchLower))
-      .slice(0, MAX_DISPLAY_ITEMS);
+  const currencies = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return ALL_CURRENCIES;
+    return ALL_CURRENCIES.filter(item => item.endPointKey.toLowerCase().includes(query) || item.country.toLowerCase().includes(query));
   }, [search]);
 
   const fetchCurrency = useCallback(async () => {
-    let preferredCurrency;
     try {
-      preferredCurrency = await getPreferredCurrency();
-      if (preferredCurrency === null) {
-        throw Error();
-      }
-      setSelectedCurrency(preferredCurrency);
+      const preferred = await getPreferredCurrency();
+      if (preferred === null) throw Error();
+      setSelected(preferred);
     } catch (_error) {
-      setSelectedCurrency(FiatUnit.USD);
+      setSelected(FiatUnit.USD);
     }
-    const mostRecentFetchedRateValue = await mostRecentFetchedRate();
-    setCurrencyRate(mostRecentFetchedRateValue);
+    setRate(await mostRecentFetchedRate());
   }, []);
 
   useEffect(() => {
     fetchCurrency();
   }, [fetchCurrency]);
 
-  const handleSearchChange = useCallback((event: NativeSyntheticEvent<{ text: string }>) => {
-    setSearch(event.nativeEvent.text);
-  }, []);
-
-  useLayoutEffect(() => {
-    setOptions({
-      headerSearchBarOptions: {
-        onChangeText: handleSearchChange,
-        onFocus: () => setIsSearchFocused(true),
-        onBlur: () => setIsSearchFocused(false),
-      },
-    });
-  }, [setOptions, handleSearchChange]);
-
-  const selectedCurrencyVisible = useMemo(
-    () => filteredCurrencies.some(item => item.endPointKey === selectedCurrency.endPointKey),
-    [filteredCurrencies, selectedCurrency.endPointKey],
-  );
-
-  const renderItem = useCallback(
-    (props: { item: FiatUnitType; index: number }) => {
-      const { item, index } = props;
-      const isSelected = selectedCurrency.endPointKey === item.endPointKey;
-      const isDisabled = isSavingNewPreferredCurrency === item || isSelected;
-      const isLoading = isSavingNewPreferredCurrency === item;
-      const isFirst = index === 0;
-      const isLast = index === filteredCurrencies.length - 1;
-
-      return (
-        <SettingsListItem
-          disabled={isDisabled}
-          title={`${item.endPointKey} (${item.symbol})`}
-          subtitle={item.country}
-          checkmark={isSelected}
-          isLoading={isLoading}
-          onPress={async () => {
-            if (isDisabled) return;
-
-            Keyboard.dismiss();
-            setIsSavingNewPreferredCurrency(item);
-            try {
-              await getFiatRate(item.endPointKey);
-              await setPreferredCurrency(item);
-              await initCurrencyDaemon(true);
-              await fetchCurrency();
-              setSelectedCurrency(item);
-              setPreferredFiatCurrencyStorage(FiatUnit[item.endPointKey]);
-            } catch (error: any) {
-              console.log(error);
-              presentAlert({
-                message: error.message ? `${loc.settings.currency_fetch_error}: ${error.message}` : loc.settings.currency_fetch_error,
-              });
-            } finally {
-              setIsSavingNewPreferredCurrency(undefined);
-            }
-          }}
-          position={isFirst && isLast ? 'single' : isFirst ? 'first' : isLast ? 'last' : 'middle'}
-          accessibilityLabel={`${item.endPointKey} ${item.symbol} ${item.country}`}
-        />
-      );
+  const choose = useCallback(
+    async (item: FiatUnitType) => {
+      if (saving || item.endPointKey === selected.endPointKey) return;
+      Keyboard.dismiss();
+      setSaving(item);
+      try {
+        await getFiatRate(item.endPointKey);
+        await setPreferredCurrency(item);
+        await initCurrencyDaemon(true);
+        await fetchCurrency();
+        setSelected(item);
+        setPreferredFiatCurrencyStorage(FiatUnit[item.endPointKey]);
+      } catch (error: any) {
+        console.log(error);
+        presentAlert({
+          message: error.message ? `${loc.settings.currency_fetch_error}: ${error.message}` : loc.settings.currency_fetch_error,
+        });
+      } finally {
+        setSaving(undefined);
+      }
     },
-    [isSavingNewPreferredCurrency, selectedCurrency, filteredCurrencies.length, fetchCurrency, setPreferredFiatCurrencyStorage],
+    [saving, selected.endPointKey, fetchCurrency, setPreferredFiatCurrencyStorage],
   );
 
-  const keyExtractor = useCallback((item: FiatUnitType) => `${item.endPointKey}-${item.locale}`, []);
-
-  const ListHeaderComponent = useCallback(() => {
-    if (isSearchFocused || !selectedCurrencyVisible) return null;
-
-    return (
-      <SettingsSection compact>
-        <View style={styles.infoWrapper}>
-          <SettingsCard style={styles.infoCard}>
-            <SettingsText style={styles.infoTitle}>
-              {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
-            </SettingsText>
-            <SettingsSubtitle style={styles.infoSubtitle}>
-              {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}
-            </SettingsSubtitle>
-            <SettingsSubtitle style={styles.infoSubtitle}>
-              {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
-            </SettingsSubtitle>
-          </SettingsCard>
-        </View>
-      </SettingsSection>
-    );
-  }, [isSearchFocused, selectedCurrencyVisible, selectedCurrency?.source, currencyRate]);
+  const updated = rate.LastUpdated ? dayjs(rate.LastUpdated).calendar() : loc._.never;
 
   return (
-    <SettingsFlatList
-      data={filteredCurrencies}
-      renderItem={renderItem}
-      keyExtractor={keyExtractor}
-      ListHeaderComponent={ListHeaderComponent}
-      contentInsetAdjustmentBehavior="automatic"
-      automaticallyAdjustContentInsets
-      automaticallyAdjustKeyboardInsets
-      removeClippedSubviews={true}
-    />
+    <View style={[styles.root, { backgroundColor: p.ground }]} testID="CurrencyScreen">
+      <SettingsScreenHeader title={loc.settings.currency} onBack={() => navigation.goBack()} />
+      <View style={styles.searchBox}>
+        <SettingsSearchField value={search} onChangeText={setSearch} placeholder={loc.settings.currency_search} testID="CurrencySearch" />
+      </View>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+      >
+        {search.length === 0 && (
+          <SettingsCard style={styles.hero}>
+            <View style={styles.heroHead}>
+              <SymbolBadge symbol={selected.symbol} size={56} selected />
+              <View style={styles.texts}>
+                <Text style={[styles.heroTitle, { color: p.ink }]}>{selected.endPointKey}</Text>
+                <Text style={[styles.subtitle, { color: p.mutedOnCard }]}>{selected.country}</Text>
+              </View>
+            </View>
+            <View style={[styles.rateBox, { backgroundColor: p.ground }]}>
+              <Text style={[styles.rate, { color: p.ink }]} testID="CurrencyRate">
+                {String(loc.formatString(loc.settings.currency_rate_line, { rate: rate.Rate ?? '…' }))}
+              </Text>
+              <Text style={[styles.subtitle, { color: p.mutedOnCard }]}>
+                {String(
+                  loc.formatString(loc.settings.currency_source_line, {
+                    source: selected.source ?? FiatUnitSource.CoinDesk,
+                    when: updated,
+                  }),
+                )}
+              </Text>
+            </View>
+          </SettingsCard>
+        )}
+
+        <SettingsCard>
+          {currencies.map((item, i) => {
+            const isSelected = item.endPointKey === selected.endPointKey;
+            const isSaving = saving?.endPointKey === item.endPointKey;
+            return (
+              <Pressable
+                key={`${item.endPointKey}-${item.locale}`}
+                onPress={() => choose(item)}
+                disabled={isSelected || !!saving}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: isSelected }}
+                accessibilityLabel={`${item.endPointKey} ${item.symbol} ${item.country}`}
+                testID={`Currency-${item.endPointKey}`}
+                style={({ pressed }) => [
+                  styles.row,
+                  i > 0 && { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: p.divider },
+                  pressed && styles.pressed,
+                ]}
+              >
+                <SymbolBadge symbol={item.symbol} selected={isSelected} />
+                <View style={styles.texts}>
+                  <Text style={[styles.title, { color: isSelected ? p.accentText : p.ink }]}>{item.endPointKey}</Text>
+                  <Text style={[styles.subtitle, { color: p.mutedOnCard }]} numberOfLines={1}>
+                    {item.country}
+                  </Text>
+                </View>
+                {isSaving ? (
+                  <ActivityIndicator color={p.accent} />
+                ) : isSelected ? (
+                  <Icon name="check" type="material" size={22} color={p.accentText} />
+                ) : null}
+              </Pressable>
+            );
+          })}
+          {currencies.length === 0 && <Text style={[styles.empty, { color: p.mutedOnCard }]}>{loc.settings.search_empty}</Text>}
+        </SettingsCard>
+      </ScrollView>
+    </View>
   );
 };
 
 export default Currency;
 
 const styles = StyleSheet.create({
-  infoWrapper: {
-    marginBottom: 16,
-    paddingVertical: 12,
-  },
-  infoCard: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  infoTitle: {
-    marginBottom: 8,
-  },
-  infoSubtitle: {
-    marginTop: 6,
-  },
+  root: { flex: 1 },
+  searchBox: { paddingHorizontal: 16, paddingBottom: 8 },
+  content: { paddingHorizontal: 16, paddingTop: 8, rowGap: 16 },
+  pressed: { opacity: 0.6 },
+  hero: { paddingVertical: 16, rowGap: 14 },
+  heroHead: { flexDirection: 'row', alignItems: 'center', columnGap: 14 },
+  heroTitle: { fontSize: 22, fontWeight: '700', letterSpacing: -0.3 },
+  rateBox: { borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12, rowGap: 4 },
+  rate: { fontSize: 17, fontWeight: '600' },
+  badge: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
+  badgeText: { fontWeight: '700' },
+  row: { flexDirection: 'row', alignItems: 'center', columnGap: 12, minHeight: 60, paddingVertical: 8 },
+  texts: { flex: 1, rowGap: 2 },
+  title: { fontSize: 15, fontWeight: '600' },
+  subtitle: { fontSize: 13, lineHeight: 18 },
+  empty: { fontSize: 14, textAlign: 'center', paddingVertical: 20 },
 });
