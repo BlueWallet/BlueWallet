@@ -406,6 +406,7 @@
     "privacy_clipboard_explanation": "Offer shortcuts for addresses found in the clipboard.",
     "pq_address_reuse": "Reuse PQ address",
     "pq_address_reuse_explanation": "PQ wallets always receive on the same address.",
+    "always_on": "Always on",
     "single_address": "Use only the main address",
     "single_address_explanation": "Legacy and ECDSA wallets receive and get change on their first address.",
     "rate": "Rate",

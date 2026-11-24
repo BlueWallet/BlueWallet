@@ -350,6 +350,7 @@
     "privacy_clipboard_explanation": "Muestra atajos para direcciones del portapapeles.",
     "pq_address_reuse": "Reutilizar dirección PQ",
     "pq_address_reuse_explanation": "Las carteras PQ reciben siempre en la misma dirección.",
+    "always_on": "Siempre activa",
     "single_address": "Usar solo la dirección principal",
     "single_address_explanation": "Las carteras Legacy y ECDSA reciben y devuelven el cambio en su primera dirección.",
     "rate": "Tasa",

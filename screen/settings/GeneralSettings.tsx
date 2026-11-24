@@ -18,6 +18,7 @@ import {
   SettingsSectionLabel,
   SettingsSegment,
   SettingsSegmented,
+  SettingsStaticRow,
   SettingsSwitchRow,
   useSettingsPalette,
 } from '../../components/settings/SettingsUI';
@@ -160,15 +161,14 @@ const GeneralSettings: React.FC = () => {
         <View>
           <SettingsSectionLabel>{loc.addresses.addresses_title}</SettingsSectionLabel>
           <SettingsCard>
-            {/* Mandatory for now: always on, not editable. */}
-            <SettingsSwitchRow
+            {/* Mandatory for now: a label says so, instead of a switch that does nothing. */}
+            <SettingsStaticRow
               icon="repeat"
               title={loc.settings.pq_address_reuse}
               subtitle={loc.settings.pq_address_reuse_explanation}
-              value
-              onValueChange={() => {}}
-              disabled
-              switchTestID="PQAddressReuseSwitch"
+              badge={loc.settings.always_on}
+              badgeTone="ok"
+              testID="PQAddressReuse"
             />
             <SettingsSwitchRow
               divider

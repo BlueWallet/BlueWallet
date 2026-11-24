@@ -109,11 +109,16 @@ export const SettingsIconCircle: React.FC<{ icon: MaterialIconName; muted?: bool
   );
 };
 
-export const SettingsBadge: React.FC<{ label: string }> = ({ label }) => {
+/** `accent` asks for attention ("Review"); `ok` states that something holds ("Always on"). */
+export type SettingsBadgeTone = 'accent' | 'ok';
+
+export const SettingsBadge: React.FC<{ label: string; tone?: SettingsBadgeTone }> = ({ label, tone = 'accent' }) => {
   const p = useSettingsPalette();
+  const bg = tone === 'ok' ? p.ok.bg : p.badgeBg;
+  const fg = tone === 'ok' ? p.ok.fg : p.badgeText;
   return (
-    <View style={[styles.badge, { backgroundColor: p.badgeBg }]}>
-      <Text style={[styles.badgeText, { color: p.badgeText }]}>{label}</Text>
+    <View style={[styles.badge, { backgroundColor: bg }]}>
+      <Text style={[styles.badgeText, { color: fg }]}>{label}</Text>
     </View>
   );
 };
@@ -126,6 +131,34 @@ interface RowBase {
   divider?: boolean;
   testID?: string;
 }
+
+/** A row that only informs: nothing to press or switch, an optional label at the end. */
+export const SettingsStaticRow: React.FC<RowBase & { badge?: string; badgeTone?: SettingsBadgeTone }> = ({
+  icon,
+  title,
+  subtitle,
+  badge,
+  badgeTone,
+  divider,
+  testID,
+}) => {
+  const p = useSettingsPalette();
+  return (
+    <View
+      style={[styles.row, styles.switchRow, divider && { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: p.divider }]}
+      accessible
+      accessibilityLabel={[title, subtitle, badge].filter(Boolean).join(', ')}
+      testID={testID}
+    >
+      <SettingsIconCircle icon={icon} />
+      <View style={styles.texts}>
+        <Text style={[styles.rowTitle, { color: p.ink }]}>{title}</Text>
+        {subtitle ? <Text style={[styles.subtitle, { color: p.mutedOnCard }]}>{subtitle}</Text> : null}
+      </View>
+      {badge ? <SettingsBadge label={badge} tone={badgeTone} /> : null}
+    </View>
+  );
+};
 
 interface SettingsRowProps extends RowBase {
   value?: string;
