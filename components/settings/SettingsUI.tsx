@@ -134,6 +134,8 @@ interface SettingsRowProps extends RowBase {
   dotColor?: string;
   onPress?: () => void;
   disabled?: boolean;
+  /** Leaves the app (system settings, a web page): neutral icon, no chevron. */
+  external?: boolean;
 }
 
 /** A row that opens another screen. */
@@ -147,6 +149,7 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
   divider,
   onPress,
   disabled,
+  external,
   testID,
 }) => {
   const p = useSettingsPalette();
@@ -164,7 +167,7 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
         pressed && styles.pressed,
       ]}
     >
-      <SettingsIconCircle icon={icon} muted={disabled} />
+      <SettingsIconCircle icon={icon} muted={disabled || external} />
       <View style={styles.texts}>
         <Text style={[styles.rowTitle, { color: disabled ? p.mutedOnCard : p.ink }]}>{title}</Text>
         {subtitle ? (
@@ -180,10 +183,60 @@ export const SettingsRow: React.FC<SettingsRowProps> = ({
         </Text>
       ) : null}
       {badge ? <SettingsBadge label={badge} /> : null}
-      {disabled ? null : <Icon name="chevron-right" type="material" size={22} color={p.mutedOnCard} />}
+      {disabled || external ? null : <Icon name="chevron-right" type="material" size={22} color={p.mutedOnCard} />}
     </Pressable>
   );
 };
+
+export interface SettingsSegment<T extends string> {
+  value: T;
+  label: string;
+  icon: MaterialIconName;
+  testID?: string;
+}
+
+/** A few mutually exclusive options side by side, the chosen one raised. */
+export function SettingsSegmented<T extends string>({
+  segments,
+  value,
+  onChange,
+  testID,
+}: {
+  segments: SettingsSegment<T>[];
+  value: T;
+  onChange: (value: T) => void;
+  testID?: string;
+}) {
+  const p = useSettingsPalette();
+  return (
+    <View style={[styles.segmented, { backgroundColor: p.ground }]} accessibilityRole="radiogroup" testID={testID}>
+      {segments.map(segment => {
+        const on = segment.value === value;
+        const color = on ? p.ink : p.mutedOnCard;
+        return (
+          <Pressable
+            key={segment.value}
+            onPress={() => onChange(segment.value)}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: on }}
+            accessibilityLabel={segment.label}
+            testID={segment.testID}
+            style={({ pressed }) => [
+              styles.segment,
+              on && [styles.segmentOn, { backgroundColor: p.card }],
+              pressed && !on && styles.pressed,
+            ]}
+          >
+            <Icon name={segment.icon} type="material" size={18} color={color} />
+            <Text style={[styles.segmentText, { color }]} numberOfLines={1}>
+              {segment.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
 
 interface SettingsSwitchRowProps extends RowBase {
   value: boolean;
@@ -260,4 +313,14 @@ const styles = StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: 4 },
   value: { fontSize: 14, maxWidth: 140 },
   spinner: { width: 52 },
+  segmented: { flexDirection: 'row', columnGap: 4, padding: 4, borderRadius: 16 },
+  segment: { flex: 1, height: 56, borderRadius: 12, alignItems: 'center', justifyContent: 'center', rowGap: 4, paddingHorizontal: 4 },
+  segmentOn: {
+    shadowColor: '#111827',
+    shadowOpacity: 0.14,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+  segmentText: { fontSize: 13, fontWeight: '600' },
 });

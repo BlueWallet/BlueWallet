@@ -223,7 +223,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="GeneralSettings"
           component={GeneralSettings}
-          options={navigationStyle(getSettingsHeaderOptions(loc.settings.general))(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.settings.general }}
         />
         <DetailViewStack.Screen
           name="PlausibleDeniability"
