@@ -49,7 +49,7 @@ import { emitWalletChanged } from '../../blue_modules/neurai/eventBus';
 import { getAssetType } from '../../blue_modules/neurai/assetUtils';
 import { estimateNeuraiFeeSats } from '../../blue_modules/neurai/feeEstimate';
 import { dustThresholdSats } from '../../blue_modules/neurai/dust';
-import { AbstractNeuraiWallet } from './abstract-neurai-wallet';
+import { AbstractNeuraiWallet, type NeuraiAddressEntry } from './abstract-neurai-wallet';
 import { deriveLegacyAddress } from '../../blue_modules/neurai-hw/xpubDerivation';
 
 /** Minimal UTXO shape returned by `getaddressutxos`. */
@@ -264,6 +264,23 @@ export class NeuraiHardwareWallet extends AbstractNeuraiWallet {
 
   getAllExternalAddresses(): string[] {
     return this.getCachedAddresses();
+  }
+
+  /** The device's address, or the discovered window of a Legacy device: receive addresses, then change. */
+  getAddressEntries(): NeuraiAddressEntry[] {
+    return this.getCachedAddresses().map(address => {
+      const meta = this._addrMeta.get(address);
+      return { address, index: meta?.index ?? 0, change: meta?.change === 1 };
+    });
+  }
+
+  /** The window is the gap-limit scan's; there is no engine to derive more. */
+  canDeriveMoreAddresses(): boolean {
+    return false;
+  }
+
+  async loadAddresses(): Promise<void> {
+    if (this.keyType === 'legacy') await this._ensureDiscovered();
   }
 
   weOwnAddress(address: string): boolean {

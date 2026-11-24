@@ -8,6 +8,7 @@ import Broadcast from '../screen/settings/Broadcast';
 import TransactionDetails from '../screen/transactions/TransactionDetails';
 import TransactionStatus from '../screen/transactions/TransactionStatus';
 import WalletAddresses from '../screen/wallets/WalletAddresses';
+import AddressDetails from '../screen/wallets/AddressDetails';
 import WalletDetails from '../screen/wallets/WalletDetails';
 import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletHome from '../screen/wallets/WalletHome';
@@ -184,7 +185,12 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="WalletAddresses"
           component={WalletAddresses}
-          options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.addresses.addresses_title }}
+        />
+        <DetailViewStack.Screen
+          name="AddressDetails"
+          component={AddressDetails}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.addresses.address }}
         />
         {/* Opened from "See all" on the home; draws its own header, like the home. */}
         <DetailViewStack.Screen

@@ -1,22 +1,14 @@
-import React, { useMemo, useCallback, useEffect, useRef } from 'react';
-import Clipboard from '@react-native-clipboard/clipboard';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import Share from 'react-native-share';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { setSensitiveClipboardString } from '../../blue_modules/clipboard';
-import confirm from '../../helpers/confirm';
-import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalance } from '../../loc';
 import { XnaUnit } from '../../models/xnaUnits';
-import presentAlert from '../Alert';
 import { useTheme } from '../themes';
 import { AddressTypeBadge } from './AddressTypeBadge';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { useStorage } from '../../hooks/context/useStorage';
 import ToolTipMenu from '../TooltipMenu';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useAddressMenu } from './useAddressMenu';
 import HighlightedText from '../HighlightedText';
 import { useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 
@@ -41,9 +33,8 @@ const AddressItem = ({
   searchQuery = '',
   renderHighlightedText,
 }: AddressItemProps) => {
-  const { wallets } = useStorage();
   const { colors } = useTheme();
-  const { isBiometricUseCapableAndEnabled } = useBiometrics();
+  const { menuActions, onMenuItem } = useAddressMenu({ walletID, address: item.address, allowSignVerifyMessage });
   const balanceOpacity = useSharedValue(1);
   const balanceTranslateY = useSharedValue(0);
   const previousBalance = useRef<string | undefined>(undefined);
@@ -81,18 +72,6 @@ const AddressItem = ({
     }
   }, [navigate, walletID, item.address, onPress]);
 
-  const menuActions = useMemo(
-    () => [
-      CommonToolTipActions.CopyTXID,
-      CommonToolTipActions.Share,
-      {
-        ...CommonToolTipActions.ExportPrivateKey,
-        hidden: !allowSignVerifyMessage,
-      },
-    ],
-    [allowSignVerifyMessage],
-  );
-
   const balance = formatBalance(item.balance, balanceUnit, true);
 
   useEffect(() => {
@@ -105,54 +84,6 @@ const AddressItem = ({
 
     previousBalance.current = balance;
   }, [balance, balanceOpacity, balanceTranslateY]);
-
-  const handleCopyPress = useCallback(() => {
-    Clipboard.setString(item.address);
-  }, [item.address]);
-
-  const handleSharePress = useCallback(() => {
-    Share.open({ message: item.address }).catch(error => console.log(error));
-  }, [item.address]);
-
-  const handleCopyPrivkeyPress = useCallback(async () => {
-    const wallet = wallets.find(w => w.getID() === walletID);
-    if (!wallet) {
-      presentAlert({ message: 'Internal error: cant find wallet' });
-      return;
-    }
-
-    try {
-      const wif = wallet._getWIFbyAddress(item.address);
-      if (!wif) {
-        presentAlert({ message: 'Internal error: cant get WIF from the wallet' });
-        return;
-      }
-      triggerHapticFeedback(HapticFeedbackTypes.Selection);
-      await setSensitiveClipboardString(wif);
-    } catch (error: any) {
-      presentAlert({ message: error.message });
-    }
-  }, [wallets, walletID, item.address]);
-
-  const onToolTipPress = useCallback(
-    async (id: string) => {
-      if (id === CommonToolTipActions.CopyTXID.id) {
-        handleCopyPress();
-      } else if (id === CommonToolTipActions.Share.id) {
-        handleSharePress();
-      } else if (id === CommonToolTipActions.ExportPrivateKey.id) {
-        if (await confirm(loc.addresses.sensitive_private_key)) {
-          if (await isBiometricUseCapableAndEnabled()) {
-            if (!(await unlockWithBiometrics())) {
-              return;
-            }
-          }
-          await handleCopyPrivkeyPress();
-        }
-      }
-    },
-    [handleCopyPress, handleSharePress, handleCopyPrivkeyPress, isBiometricUseCapableAndEnabled],
-  );
 
   // Render address with highlighting if a search query is provided
   const renderAddressContent = () => {
@@ -182,7 +113,7 @@ const AddressItem = ({
     <ToolTipMenu
       title={item.address}
       actions={menuActions}
-      onPressMenuItem={onToolTipPress}
+      onPressMenuItem={onMenuItem}
       onPress={navigateToReceive}
       isButton
       buttonStyle={styles.tooltipButton}

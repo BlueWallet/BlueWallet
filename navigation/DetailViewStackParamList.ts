@@ -47,6 +47,8 @@ export type DetailViewStackParamList = {
   };
   Broadcast: undefined;
   WalletAddresses: { walletID: string };
+  /** One address of the wallet, opened from its addresses. */
+  AddressDetails: { walletID: string; address: string; index: number; change: boolean };
   WalletTransactionHistory: { walletID: string };
   AddWalletRoot: NavigatorScreenParams<AddWalletStackParamList> | undefined;
   SendNeurai: {

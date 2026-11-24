@@ -19,14 +19,14 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToXNA, satoshiToXNA } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
-import { BlueButtonLink, BlueCard, BlueText } from '../../BlueComponents';
+import { BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
 import { NeuraiECDSAWallet } from '../../class/wallets/neurai-ecdsa-wallet';
 import { SILENT_PAYMENT_ACCENT } from '../../blue_modules/neurai/silentPayments';
 import { isTestnetChain } from '../../blue_modules/neurai/networkConfig';
 import presentAlert from '../../components/Alert';
-import Button from '../../components/Button';
+import HomeActions, { HomeAction } from '../../components/home/HomeActions';
 import CopyTextToClipboard, { CopyTextToClipboardHandle } from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
@@ -879,6 +879,39 @@ const ReceiveDetails = () => {
     Share.open({ message }).catch(error => console.debug('Error sharing:', error));
   };
 
+  // Round actions like the home's: an amount (on the address), the silent
+  // payment code (ECDSA wallets; filled in its colour while it is shown) and share.
+  const receiveActions: HomeAction[] = [];
+  if (showAddress && currentTab === loc.wallets.details_address && !isSilentPaymentShown) {
+    receiveActions.push({
+      key: 'amount',
+      label: loc.receive.action_amount,
+      icon: 'request-quote',
+      testID: 'SetCustomAmountButton',
+      onPress: showCustomAmountModal,
+    });
+  }
+  if (showAddress && silentPaymentWallet) {
+    receiveActions.push({
+      key: 'silent',
+      label: isSilentPaymentShown ? loc.receive.show_address : loc.receive.silent_payments,
+      icon: isSilentPaymentShown ? 'qr-code-2' : 'visibility-off',
+      testID: 'SilentPaymentsButton',
+      onPress: toggleSilentPayment,
+      fill: isSilentPaymentShown ? SILENT_PAYMENT_ACCENT : undefined,
+      tint: isSilentPaymentShown ? '#FFFFFF' : SILENT_PAYMENT_ACCENT,
+      loading: isSilentPaymentLoading,
+    });
+  }
+  receiveActions.push({
+    key: 'share',
+    label: loc.receive.action_share,
+    icon: 'share',
+    testID: 'ReceiveShareButton',
+    onPress: handleShareButtonPressed,
+    disabled: !bip21encoded && !(currentTab === segmentControlValues[1] && isBIP47Enabled),
+  });
+
   return (
     <Animated.View layout={Layout.duration(200)} style={[styles.flex, stylesHook.root]}>
       <SafeAreaScrollView
@@ -907,34 +940,7 @@ const ReceiveDetails = () => {
         )}
 
         <View style={styles.share}>
-          <BlueCard>
-            {showAddress && currentTab === loc.wallets.details_address && !isSilentPaymentShown && (
-              <BlueButtonLink
-                style={styles.link}
-                testID="SetCustomAmountButton"
-                title={loc.receive.details_setAmount}
-                onPress={showCustomAmountModal}
-              />
-            )}
-            {showAddress && silentPaymentWallet && (
-              <>
-                <Button
-                  onPress={toggleSilentPayment}
-                  testID="SilentPaymentsButton"
-                  title={isSilentPaymentShown ? loc.receive.show_address : loc.receive.silent_payments}
-                  backgroundColor={SILENT_PAYMENT_ACCENT}
-                  showActivityIndicator={isSilentPaymentLoading}
-                  disabled={isSilentPaymentLoading}
-                />
-                <View style={styles.buttonSpacer} />
-              </>
-            )}
-            <Button
-              onPress={handleShareButtonPressed}
-              title={loc.receive.details_share}
-              disabled={!bip21encoded && !(currentTab === segmentControlValues[1] && isBIP47Enabled)}
-            />
-          </BlueCard>
+          <HomeActions actions={receiveActions} circleColor={cardBackgroundColor} />
         </View>
       </SafeAreaScrollView>
     </Animated.View>
@@ -956,12 +962,8 @@ const styles = StyleSheet.create({
   },
   share: {
     width: '100%',
-    paddingHorizontal: 32,
-    marginBottom: 16,
-  },
-  link: {
-    marginVertical: 16,
-    paddingHorizontal: 32,
+    paddingHorizontal: 16,
+    marginBottom: 24,
   },
   amount: {
     fontWeight: '600',
@@ -1033,9 +1035,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 13,
     fontWeight: '700',
-  },
-  buttonSpacer: {
-    height: 12,
   },
   qrPlaceholder: {
     borderRadius: 4,

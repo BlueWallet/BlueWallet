@@ -1,143 +1,83 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useReducer, useMemo, useState } from 'react';
-import { useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
-import { AddressItem } from '../../components/addresses/AddressItem';
-import { useTheme } from '../../components/themes';
-import { useStorage } from '../../hooks/context/useStorage';
+/**
+ * A wallet's addresses, in the settings style: a search box, the receive /
+ * change switch (not for PQ wallets, which have one chain) and the addresses
+ * in one card that scrolls on its own. 20 at first, then 10 more at a time up
+ * to 100, derived when the wallet has not yet. Used ones are marked; tapping
+ * one opens it, with its options and transactions.
+ */
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import SegmentedControl from '../../components/SegmentedControl';
-import loc from '../../loc';
-import { XnaUnit } from '../../models/xnaUnits';
-import { useSettings } from '../../hooks/context/useSettings';
-import { useScreenProtect } from '../../hooks/useScreenProtect';
+import {
+  ActivityIndicator,
+  FlatList,
+  InteractionManager,
+  Keyboard,
+  ListRenderItem,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { MAX_LISTED_ADDRESSES, NeuraiAddressEntry } from '../../class/wallets/abstract-neurai-wallet';
 import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
+import presentAlert from '../../components/Alert';
+import { AddressRow } from '../../components/addresses/AddressRow';
+import {
+  SettingsCard,
+  SettingsScreenHeader,
+  SettingsSearchField,
+  SettingsSegment,
+  SettingsSegmented,
+  useSettingsPalette,
+} from '../../components/settings/SettingsUI';
+import { useSettings } from '../../hooks/context/useSettings';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useScreenProtect } from '../../hooks/useScreenProtect';
+import loc from '../../loc';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
-export const TABS = {
-  EXTERNAL: 'receive',
-  INTERNAL: 'change',
-} as const;
+type Tab = 'receive' | 'change';
 
-type TabKey = keyof typeof TABS;
+const SEGMENTS: SettingsSegment<Tab>[] = [
+  { value: 'receive', label: loc.addresses.type_receive, icon: 'call-received', testID: 'AddressesReceiveTab' },
+  { value: 'change', label: loc.addresses.type_change, icon: 'autorenew', testID: 'AddressesChangeTab' },
+];
 
-interface Address {
-  key: string;
-  index: number;
-  address: string;
-  isInternal: boolean;
-  balance: number;
-  transactions: number;
-}
-
-interface WalletAddressesState {
-  showAddresses: boolean;
-  addresses: Address[];
-  currentTab: (typeof TABS)[keyof typeof TABS];
-  search: string;
-}
-
-const SET_SHOW_ADDRESSES = 'SET_SHOW_ADDRESSES' as const;
-const SET_ADDRESSES = 'SET_ADDRESSES' as const;
-const SET_CURRENT_TAB = 'SET_CURRENT_TAB' as const;
-const SET_SEARCH = 'SET_SEARCH' as const;
-
-type WalletAddressesAction =
-  | { type: typeof SET_SHOW_ADDRESSES; payload: boolean }
-  | { type: typeof SET_ADDRESSES; payload: Address[] }
-  | { type: typeof SET_CURRENT_TAB; payload: (typeof TABS)[keyof typeof TABS] }
-  | { type: typeof SET_SEARCH; payload: string };
-
-const initialState: WalletAddressesState = {
-  showAddresses: false,
-  addresses: [],
-  currentTab: TABS.EXTERNAL,
-  search: '',
-};
-
-const reducer = (state: WalletAddressesState, action: WalletAddressesAction): WalletAddressesState => {
-  switch (action.type) {
-    case SET_SHOW_ADDRESSES:
-      return { ...state, showAddresses: action.payload };
-    case SET_ADDRESSES:
-      return { ...state, addresses: action.payload };
-    case SET_CURRENT_TAB:
-      return { ...state, currentTab: action.payload };
-    case SET_SEARCH:
-      return { ...state, search: action.payload };
-    default:
-      return state;
-  }
-};
-
-export const totalBalance = ({ c, u } = { c: 0, u: 0 }) => c + u;
-
-export const getAddress = (wallet: any, index: number, isInternal: boolean): Address => {
-  let address: string;
-  let balance = 0;
-  let transactions = 0;
-
-  if (isInternal) {
-    address = wallet._getInternalAddressByIndex(index);
-    balance = totalBalance(wallet._balances_by_internal_index[index]);
-    transactions = wallet._txs_by_internal_index[index]?.length;
-  } else {
-    address = wallet._getExternalAddressByIndex(index);
-    balance = totalBalance(wallet._balances_by_external_index[index]);
-    transactions = wallet._txs_by_external_index[index]?.length;
-  }
-
-  return {
-    key: address,
-    index,
-    address,
-    isInternal,
-    balance,
-    transactions,
-  };
-};
-
-export const sortByAddressIndex = (a: Address, b: Address) => {
-  return a.index > b.index ? 1 : -1;
-};
-
-export const filterByAddressType = (
-  type: (typeof TABS)[keyof typeof TABS],
-  isInternal: boolean,
-  currentType: (typeof TABS)[keyof typeof TABS],
-) => {
-  return currentType === type ? isInternal === true : isInternal === false;
-};
+const FIRST_PAGE = 20;
+const PAGE = 10;
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'WalletAddresses'>;
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletAddresses'>;
 
+/** Lets a spinner paint before work that holds the JS thread (deriving keys). */
+const afterPaint = () => new Promise<void>(resolve => InteractionManager.runAfterInteractions(() => setTimeout(resolve, 30)));
+
 const WalletAddresses: React.FC = () => {
-  const [{ showAddresses, addresses, currentTab, search }, dispatch] = useReducer(reducer, initialState);
-
-  const { wallets } = useStorage();
+  const navigation = useExtendedNavigation<NavigationProps>();
+  const p = useSettingsPalette();
+  const insets = useSafeAreaInsets();
+  const { wallets, saveToDisk } = useStorage();
   const { walletID } = useRoute<RouteProps>().params;
+  const wallet = wallets.find(w => w.getID() === walletID);
+  const neurai = wallet && isNeuraiWallet(wallet) ? wallet : undefined;
+  const isPQ = neurai?.walletKind === 'pq';
 
-  const addressList = useRef<FlatList<Address>>(null);
-  const wallet = wallets.find((w: any) => w.getID() === walletID);
-
-  const balanceUnit = wallet?.getPreferredBalanceUnit() ?? XnaUnit.XNA;
-  const walletInstance = wallet;
-  const allowSignVerifyMessage = (wallet && 'allowSignVerifyMessage' in wallet && wallet.allowSignVerifyMessage()) ?? false;
-
-  const { colors } = useTheme();
   const { isPrivacyBlurEnabled, isPQAddressReuseEnabled } = useSettings();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-  const isPQ = !!walletInstance && isNeuraiWallet(walletInstance) && walletInstance.walletKind === 'pq';
-  const { setOptions } = useExtendedNavigation<NavigationProps>();
 
-  const stylesHook = StyleSheet.create({
-    root: {
-      backgroundColor: colors.elevated,
-      paddingHorizontal: 12,
-      paddingBottom: 16,
-    },
-  });
+  const [tab, setTab] = useState<Tab>('receive');
+  const [search, setSearch] = useState('');
+  const [shown, setShown] = useState(FIRST_PAGE);
+  const [entries, setEntries] = useState<NeuraiAddressEntry[]>(() => neurai?.getAddressEntries() ?? []);
+  const [loading, setLoading] = useState(entries.length === 0);
+  const [deriving, setDeriving] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const list = useRef<FlatList<NeuraiAddressEntry>>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -148,185 +88,188 @@ const WalletAddresses: React.FC = () => {
     }, [disableScreenProtect, enableScreenProtect, isPrivacyBlurEnabled]),
   );
 
-  // For Neurai wallets the engine is lazy-initialised. Prewarm it once on
-  // mount so the address list populates after a fresh app launch (where the
-  // wallet was rehydrated from disk without an engine).
-  const [engineReady, setEngineReady] = useState(0);
+  // The engine (or a Legacy device's scan) comes up lazily: bring it up once.
   useEffect(() => {
-    if (!walletInstance || !isNeuraiWallet(walletInstance)) return;
-    if (walletInstance.getCachedAddresses().length > 0) return;
+    if (!neurai) return;
     let cancelled = false;
-    walletInstance
-      .prewarmEngine()
+    neurai
+      .loadAddresses()
       .then(() => {
-        if (!cancelled) setEngineReady(n => n + 1);
+        if (!cancelled) setEntries(neurai.getAddressEntries());
       })
-      .catch(err => console.warn('prewarmEngine failed:', err));
+      .catch(err => console.warn('loadAddresses failed:', err))
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
-  }, [walletInstance]);
+  }, [neurai]);
 
-  const getAddresses = useMemo(() => {
-    if (!walletInstance) return [];
-    if (isNeuraiWallet(walletInstance)) {
-      const cached = walletInstance.getCachedAddresses();
-      if (walletInstance.walletKind === 'pq') {
-        // PQ wallets have a single derivation chain (no external/internal
-        // split). When address-reuse is on, the wallet only ever exposes the
-        // first address as the receive address — surface just that one.
-        const items = isPQAddressReuseEnabled ? cached.slice(0, 1) : cached;
-        return items.map((address, index) => ({
-          key: address,
-          index,
-          address,
-          isInternal: false,
-          balance: 0,
-          transactions: 0,
-        }));
-      }
-      // HD legacy wallets interleave external/internal at each derivation
-      // index (even = receive, odd = change). Mirror that here.
-      return cached.map((address, i) => ({
-        key: address,
-        index: Math.floor(i / 2),
-        address,
-        isInternal: i % 2 !== 0,
-        balance: 0,
-        transactions: 0,
-      }));
+  /** Fetches the history, which says which addresses are used, and keeps it. */
+  const refresh = useCallback(async () => {
+    if (!neurai) return;
+    setRefreshing(true);
+    try {
+      await neurai.fetchTransactions();
+      await saveToDisk();
+    } catch (err: any) {
+      console.warn('fetchTransactions failed:', err);
+    } finally {
+      setRefreshing(false);
     }
-    const newAddresses: Address[] = [];
-    const changeMaxIndex = (
-      'next_free_change_address_index' in walletInstance
-        ? (walletInstance as { next_free_change_address_index?: number }).next_free_change_address_index
-        : 0
-    ) as number;
-    for (let index = 0; index <= changeMaxIndex; index++) {
-      try {
-        newAddresses.push(getAddress(walletInstance, index, true));
-      } catch (error: any) {
-        console.error('error', error);
-      }
-    }
+  }, [neurai, saveToDisk]);
 
-    const gapLimit = ('gap_limit' in walletInstance ? (walletInstance as { gap_limit?: number }).gap_limit : 0) as number;
-    const addressMaxIndex = (
-      'next_free_address_index' in walletInstance ? (walletInstance as { next_free_address_index?: number }).next_free_address_index : 0
-    ) as number;
-    for (let index = 0; index < addressMaxIndex + gapLimit; index++) {
+  // A wallet saved before addresses kept their transactions learns them now, once.
+  const askedActivity = useRef(false);
+  useEffect(() => {
+    if (!neurai || loading || askedActivity.current || neurai.addressActivityKnown()) return;
+    askedActivity.current = true;
+    refresh();
+  }, [neurai, loading, refresh]);
+
+  // A new tab starts at its first page.
+  useEffect(() => {
+    setShown(FIRST_PAGE);
+    list.current?.scrollToOffset({ offset: 0, animated: false });
+  }, [tab]);
+
+  const branch = useMemo(() => {
+    const own = isPQ ? entries : entries.filter(e => e.change === (tab === 'change'));
+    // PQ wallets reusing their address only ever hand out the first one.
+    return isPQ && isPQAddressReuseEnabled ? own.slice(0, 1) : own;
+  }, [entries, tab, isPQ, isPQAddressReuseEnabled]);
+
+  const query = search.trim().toLowerCase();
+  const data = useMemo(
+    () => (query ? branch.filter(e => e.address.toLowerCase().includes(query)) : branch.slice(0, shown)),
+    [branch, query, shown],
+  );
+  const canShowMore =
+    !!neurai && !isPQ && !query && shown < MAX_LISTED_ADDRESSES && (branch.length > shown || neurai.canDeriveMoreAddresses());
+
+  const showMore = useCallback(async () => {
+    if (!neurai || deriving) return;
+    const next = Math.min(shown + PAGE, MAX_LISTED_ADDRESSES);
+    if (branch.length < next && neurai.canDeriveMoreAddresses()) {
+      setDeriving(true);
       try {
-        newAddresses.push(getAddress(walletInstance, index, false));
-      } catch (error: any) {
-        console.error('error', error);
+        await afterPaint();
+        await neurai.loadAddresses(next);
+        setEntries(neurai.getAddressEntries());
+        await saveToDisk();
+      } catch (err: any) {
+        presentAlert({ message: err?.message ?? String(err) });
+        return;
+      } finally {
+        setDeriving(false);
       }
     }
-    return newAddresses;
-    // `engineReady` is not read here on purpose: it is a counter bumped once
-    // `prewarmEngine()` resolves, and it is what makes this memo recompute the
-    // addresses the (non-reactive) engine can only derive once it is warm.
+    setShown(next);
+  }, [neurai, deriving, shown, branch.length, saveToDisk]);
+
+  const open = useCallback(
+    (entry: NeuraiAddressEntry) =>
+      navigation.navigate('AddressDetails', { walletID, address: entry.address, index: entry.index, change: entry.change }),
+    [navigation, walletID],
+  );
+
+  const keyExtractor = useCallback((entry: NeuraiAddressEntry) => entry.address, []);
+
+  // `wallets` changes identity after every fetch or push, so the marks follow them.
+  const renderRow = useCallback<ListRenderItem<NeuraiAddressEntry>>(
+    ({ item, index }) => (
+      <AddressRow
+        address={item.address}
+        index={item.index}
+        used={!!neurai?.isAddressUsed(item.address)}
+        onPress={() => open(item)}
+        search={query}
+        divider={index > 0}
+      />
+    ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletInstance, engineReady, isPQAddressReuseEnabled]);
-
-  useEffect(() => {
-    dispatch({ type: SET_ADDRESSES, payload: getAddresses });
-    dispatch({ type: SET_SHOW_ADDRESSES, payload: true });
-  }, [getAddresses]);
-
-  const filteredAddresses = useMemo(
-    () => addresses.filter(address => filterByAddressType(TABS.INTERNAL, address.isInternal, currentTab)).sort(sortByAddressIndex),
-    [addresses, currentTab],
+    [neurai, open, query, wallets],
   );
 
-  useEffect(() => {
-    if (showAddresses && addressList.current && filteredAddresses.length > 0) {
-      addressList.current.scrollToIndex({ animated: false, index: 0 });
-    }
-  }, [showAddresses, filteredAddresses.length]);
-
-  useLayoutEffect(() => {
-    setOptions({
-      headerSearchBarOptions: {
-        onChangeText: (event: { nativeEvent: { text: string } }) => dispatch({ type: SET_SEARCH, payload: event.nativeEvent.text }),
-      },
-    });
-  }, [setOptions]);
-
-  const data =
-    search.length > 0 ? filteredAddresses.filter(item => item.address.toLowerCase().includes(search.toLowerCase())) : filteredAddresses;
-
-  const keyExtractor = useCallback((item: Address) => item.key, []);
-
-  const renderRow = useCallback(
-    ({ item }: { item: Address }) => {
-      const { key, ...rest } = item;
-      return (
-        <AddressItem
-          key={key}
-          item={item}
-          {...rest}
-          balanceUnit={balanceUnit}
-          walletID={walletID}
-          allowSignVerifyMessage={allowSignVerifyMessage}
-        />
-      );
-    },
-    [balanceUnit, walletID, allowSignVerifyMessage],
-  );
-
-  if (!wallet) {
-    return (
-      <View>
-        <ActivityIndicator />
-      </View>
-    );
-  }
+  const footer = canShowMore ? (
+    <Pressable
+      onPress={showMore}
+      disabled={deriving}
+      accessibilityRole="button"
+      testID="AddressesShowMore"
+      style={({ pressed }) => [styles.more, { borderTopColor: p.divider }, pressed && styles.pressed]}
+    >
+      {deriving ? (
+        <ActivityIndicator color={p.accent} />
+      ) : (
+        <Text style={[styles.moreText, { color: p.accentText }]}>
+          {String(loc.formatString(loc.addresses.show_more, { count: Math.min(PAGE, MAX_LISTED_ADDRESSES - shown) }))}
+        </Text>
+      )}
+    </Pressable>
+  ) : null;
 
   return (
-    <FlatList
-      contentContainerStyle={stylesHook.root}
-      ref={addressList}
-      data={data}
-      extraData={data}
-      style={styles.root}
-      keyExtractor={keyExtractor}
-      initialNumToRender={20}
-      renderItem={renderRow}
-      ListEmptyComponent={showAddresses || search.length > 0 ? null : <ActivityIndicator />}
-      centerContent={!showAddresses}
-      contentInsetAdjustmentBehavior="automatic"
-      automaticallyAdjustContentInsets
-      automaticallyAdjustsScrollIndicatorInsets
-      automaticallyAdjustKeyboardInsets
-      ListHeaderComponent={
-        // PQ wallets have a single derivation chain — no change addresses,
-        // so hide the receive/change segmented control entirely.
-        isPQ ? null : (
-          <View style={styles.segmentedHeader}>
-            <SegmentedControl
-              values={Object.values(TABS).map(tab => loc.addresses[`type_${tab}`])}
-              selectedIndex={Object.values(TABS).findIndex(tab => tab === currentTab)}
-              onChange={index => {
-                const tabKey = Object.keys(TABS)[index] as TabKey;
-                dispatch({ type: SET_CURRENT_TAB, payload: TABS[tabKey] });
+    <View style={[styles.root, { backgroundColor: p.ground }]} testID="WalletAddresses">
+      <SettingsScreenHeader title={loc.addresses.addresses_title} onBack={() => navigation.goBack()} />
+      <View style={[styles.body, { paddingBottom: insets.bottom + 16 }]}>
+        <SettingsSearchField value={search} onChangeText={setSearch} placeholder={loc.addresses.search} testID="AddressesSearch" />
+        {!isPQ && (
+          <SettingsCard style={styles.padded}>
+            <SettingsSegmented
+              segments={SEGMENTS}
+              value={tab}
+              onChange={value => {
+                Keyboard.dismiss();
+                setTab(value);
               }}
+              testID="AddressesTabs"
             />
-          </View>
-        )
-      }
-    />
+          </SettingsCard>
+        )}
+        <SettingsCard style={styles.listCard}>
+          {loading || !wallet ? (
+            <ActivityIndicator style={styles.spinner} color={p.accent} />
+          ) : (
+            <FlatList
+              ref={list}
+              data={data}
+              extraData={wallets}
+              style={styles.list}
+              keyExtractor={keyExtractor}
+              renderItem={renderRow}
+              initialNumToRender={20}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
+              ListFooterComponent={footer}
+              ListEmptyComponent={<Text style={[styles.empty, { color: p.mutedOnCard }]}>{loc.settings.search_empty}</Text>}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[p.accent]} tintColor={p.accent} />}
+              testID="AddressesList"
+            />
+          )}
+        </SettingsCard>
+        {isPQ && isPQAddressReuseEnabled && (
+          <Text style={[styles.note, { color: p.muted }]}>{loc.settings.pq_address_reuse_explanation}</Text>
+        )}
+      </View>
+    </View>
   );
 };
 
 export default WalletAddresses;
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  segmentedHeader: {
-    paddingHorizontal: 12,
-    paddingTop: 8,
-    paddingBottom: 8,
-  },
+  root: { flex: 1 },
+  body: { flex: 1, paddingHorizontal: 16, rowGap: 12 },
+  padded: { paddingVertical: 12 },
+  // Sized to its rows, and no taller than the screen: past that the list scrolls inside the card.
+  listCard: { flexShrink: 1, overflow: 'hidden' },
+  list: { flexGrow: 0 },
+  spinner: { paddingVertical: 24 },
+  empty: { fontSize: 14, textAlign: 'center', paddingVertical: 20 },
+  note: { fontSize: 12, lineHeight: 17, marginHorizontal: 4 },
+  more: { minHeight: 48, alignItems: 'center', justifyContent: 'center', borderTopWidth: StyleSheet.hairlineWidth * 2 },
+  moreText: { fontSize: 14, fontWeight: '600' },
+  pressed: { opacity: 0.6 },
 });

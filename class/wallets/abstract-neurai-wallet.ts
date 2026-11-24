@@ -14,7 +14,7 @@
 
 import { InteractionManager } from 'react-native';
 import NeuraiJsWallet from '@neuraiproject/neurai-jswallet';
-import NeuraiKey from '@neuraiproject/neurai-key';
+import NeuraiKey, { type HDKey } from '@neuraiproject/neurai-key';
 import { getHistory } from '@neuraiproject/neurai-history-list';
 import { parseRawSats, parseMoneySats, satsToXna, absSats, minSats, amountFromInput } from '../../blue_modules/neurai/amounts';
 import type { AddressDelta } from '../../blue_modules/neurai/NeuraiBackend';
@@ -78,6 +78,9 @@ type IHistoryItem = {
 
 type NeuraiEngine = Awaited<ReturnType<typeof NeuraiJsWallet.createInstance>>;
 
+/** Receive and change branch nodes of an engine's HD tree, derived once its window first grows. Runtime only. */
+const branchNodes = new WeakMap<NeuraiEngine, [HDKey, HDKey]>();
+
 const decimalToSats = (value: DecimalAmount): bigint => decimalToSatoshis(value);
 const rawToSats = parseRawSats;
 const FEE_TARGET_BLOCKS = 6;
@@ -92,6 +95,33 @@ const TX_CACHE_BATCH_SIZE = 100;
 const CURRENT_TESTNET_GENESIS = CHAIN_PARAMS['xna-test'].expectedGenesisHash ?? '';
 /** Legacy P2PKH dust; other change types use {@link dustThresholdSats}. */
 const SEND_DUST_SATS = 546n;
+
+/** One derived address as the addresses screen lists it. */
+export interface NeuraiAddressEntry {
+  address: string;
+  /** Derivation index within its branch. */
+  index: number;
+  /** On the change branch (Legacy and ECDSA; PQ wallets have one chain). */
+  change: boolean;
+}
+
+/** Most receive (and change) addresses the addresses screen derives on request. */
+export const MAX_LISTED_ADDRESSES = 100;
+
+/** Transaction ids per address in `deltas`, each once, in history order. */
+const txidsByAddress = (deltas: IDelta[]): Record<string, string[]> => {
+  const sets = new Map<string, Set<string>>();
+  for (const d of deltas) {
+    let txids = sets.get(d.address);
+    if (!txids) sets.set(d.address, (txids = new Set()));
+    txids.add(d.txid);
+  }
+  const out: Record<string, string[]> = {};
+  sets.forEach((txids, address) => {
+    out[address] = [...txids];
+  });
+  return out;
+};
 
 /** Minimal UTXO shape we need for selection / signing (matches engine `IUTXO`). */
 export interface SpendableUtxo {
@@ -310,7 +340,9 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
   network: NeuraiChainType;
   /** Optional BIP39 passphrase ("25th word"). Persisted. */
   passphrase: string;
-  /** Highest derivation index ever seen. Persisted; used to skip RPC scan. */
+  /** Highest derivation index the engine must reach on startup: raised when
+   * the addresses screen asks for more addresses, so they stay derived and
+   * watched in later sessions. Persisted. */
   addressPosition: number;
   /** Use only the first address, to receive and for the change (Legacy and
    * ECDSA; PQ wallets always do). The general setting can turn it on for
@@ -345,6 +377,14 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
    * the server compares the cached value against its current state and only
    * pushes a synthetic address.changed for diffs. */
   protected _addressStatus: Record<string, string>;
+  /** Ids of the confirmed transactions that touched each own address, from
+   * the last history fetch: what tells a used address from a fresh one, and
+   * what the screen of one address lists. `null` until the first fetch that
+   * records them. Persisted. */
+  protected _addressTxids: Record<string, string[]> | null;
+  /** Mempool transactions the server pushed per address since (the history
+   * has only confirmed ones); dropped as they show up confirmed. Runtime only. */
+  private _pushedAddressTxids: Record<string, string[]>;
   /** Derivation indexes of the receive and the change address of a Legacy
    * or ECDSA wallet: the ones after the last that received. Persisted. */
   protected _receiveIndex: number;
@@ -384,6 +424,8 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     this._heldAssets = [];
     this._pendingTxs = [];
     this._addressStatus = {};
+    this._addressTxids = null;
+    this._pushedAddressTxids = {};
     this.singleAddress = false;
     this._receiveIndex = 0;
     this._changeIndex = 0;
@@ -407,6 +449,7 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     Object.defineProperty(this, '_unsubscribeBackendPush', { writable: true, enumerable: false, value: null });
     Object.defineProperty(this, '_pushFetchInFlight', { writable: true, enumerable: false, value: false });
     Object.defineProperty(this, '_pushFetchPending', { writable: true, enumerable: false, value: false });
+    Object.defineProperty(this, '_pushedAddressTxids', { writable: true, enumerable: false, value: {} });
   }
 
   /**
@@ -438,6 +481,8 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     this._heldAssets = [];
     this._pendingTxs = [];
     this._addressStatus = {};
+    this._addressTxids = null;
+    this._pushedAddressTxids = {};
     this.testnetGenesis = CURRENT_TESTNET_GENESIS;
   }
 
@@ -471,6 +516,8 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     this._changeIndex = 0;
     this._mainAddress = '';
     this._receiveAddress = '';
+    this._addressTxids = null;
+    this._pushedAddressTxids = {};
   }
 
   getNetwork(): NeuraiChainType {
@@ -568,8 +615,10 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
       passphrase: this.passphrase || undefined,
       network: this.getEngineNetwork(),
       offlineMode: true,
-      // Past the receive and the change address too.
-      minAmountOfAddresses: Math.max(1, this.addressPosition, this._receiveIndex + 1, this._changeIndex + 1),
+      // Past the receive and the change address too. The addresses screen's
+      // longer window is added below: the library derives each address from
+      // the root, three times slower.
+      minAmountOfAddresses: Math.max(1, this._receiveIndex + 1, this._changeIndex + 1),
       // NIP-040. Without an override jswallet asks the node per build
       // (`resolveAssetMarker`); the app already knows the answer, so it passes
       // it and saves the round trip. Same source as the local builds, so both
@@ -582,6 +631,8 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     // serialized outputs and calculates the exact fee. No node fee quote.
     engine.rpc = (method, params = []) =>
       method === 'estimatesmartfee' ? Promise.resolve({ feerate: LOCAL_FEE_RATE_RPC }) : this.getBackend().rpc(method, params);
+    if (this.canDeriveMoreAddresses() && engine.addressPosition <= this.addressPosition)
+      this._extendEngine(engine, this.addressPosition + 1);
     return engine;
   }
 
@@ -706,7 +757,10 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
       const noDeltaInfo = !delta;
       // The history only has confirmed transactions: a payment still in the
       // mempool moves the receive or change address on here.
-      if (hasNewTxids) this._advanceAddresses([event.address]);
+      if (hasNewTxids) {
+        this._advanceAddresses([event.address]);
+        this._notePushedTxids(event.address, delta?.added_txids ?? []);
+      }
       if (!hasNewTxids && !noDeltaInfo) {
         // Balance was already applied above and nothing else needs fetching.
         emitWalletChanged(this.getID());
@@ -991,6 +1045,100 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     return this._engine ? this._engine.getAddresses() : [];
   }
 
+  /**
+   * The derived addresses with their branch and index, in derivation order:
+   * PQ wallets have one chain; Legacy and ECDSA interleave receive and change.
+   * Empty until {@link loadAddresses} brings the engine up.
+   */
+  getAddressEntries(): NeuraiAddressEntry[] {
+    const addresses = this.getCachedAddresses();
+    if (this.walletKind === 'pq') return addresses.map((address, index) => ({ address, index, change: false }));
+    return addresses.map((address, i) => ({ address, index: Math.floor(i / 2), change: i % 2 === 1 }));
+  }
+
+  /** Whether {@link loadAddresses} can derive past the current window. */
+  canDeriveMoreAddresses(): boolean {
+    return this.walletKind !== 'pq';
+  }
+
+  /**
+   * Brings up the addresses the addresses screen lists. A Legacy or ECDSA
+   * wallet also derives at least `perBranch` receive and change addresses (at
+   * most {@link MAX_LISTED_ADDRESSES}): its engine is rebuilt with the larger
+   * window, which later sessions keep, and the wallet watches the new
+   * addresses too, so a payment to any address it showed is seen.
+   */
+  async loadAddresses(perBranch = 0): Promise<void> {
+    const engine = await this.ensureEngine();
+    if (!this.canDeriveMoreAddresses()) return;
+    const want = Math.min(perBranch, MAX_LISTED_ADDRESSES);
+    if (this._externalAddresses(engine).length >= want) return;
+    this._extendEngine(engine, want);
+    this.addressPosition = Math.max(this.addressPosition, want - 1);
+    this._refetchInBackground();
+  }
+
+  /**
+   * Derives the positions `engine` lacks up to `positions` as its startup
+   * does (the receive then the change address of each), but from the branch
+   * nodes of its tree rather than the root, and only the new ones: a rebuild
+   * re-derives every address from the root, seconds per 20 positions on Hermes.
+   */
+  private _extendEngine(engine: NeuraiEngine, positions: number): void {
+    const keyNetwork = legacyKeyNetworkFor(this.network) ?? ecdsaKeyNetworkFor(this.network);
+    const first = engine.getAddressObjects()[0];
+    // The account the engine derives under, from its own first address: m/44'/1'/0'/0/0 → m/44'/1'/0'.
+    const account = first?.path.split('/').slice(0, -2).join('/');
+    if (!keyNetwork || !account || !this.secret) throw new Error('This wallet cannot derive more addresses');
+    let branches = branchNodes.get(engine);
+    if (!branches) {
+      const accountNode = NeuraiKey.getHDKey(keyNetwork, this.secret, this.passphrase).derive(account);
+      branches = [accountNode.deriveChild(0), accountNode.deriveChild(1)];
+      branchNodes.set(engine, branches);
+    }
+    for (let position = engine.addressPosition; position < positions; position++) {
+      for (const change of [0, 1] as const) {
+        const derived = NeuraiKey.getAddressByPath(keyNetwork, branches[change], `m/${position}`);
+        engine.addressObjects.push({ ...derived, path: `${account}/${change}/${position}`, keyType: first.keyType });
+      }
+      engine.addressPosition = position + 1;
+    }
+  }
+
+  /** Whether the transactions of each address are known: fetched at least once. */
+  addressActivityKnown(): boolean {
+    return this._addressTxids !== null;
+  }
+
+  /** Ids of the transactions that touched `address`: the confirmed ones, then any pushed from the mempool. */
+  getAddressTxids(address: string): string[] {
+    const confirmed = this._addressTxids?.[address] ?? [];
+    const pushed = this._pushedAddressTxids[address];
+    if (!pushed || pushed.length === 0) return confirmed;
+    return [...confirmed, ...pushed.filter(txid => !confirmed.includes(txid))];
+  }
+
+  /** Whether `address` has received or spent anything. */
+  isAddressUsed(address: string): boolean {
+    return this.getAddressTxids(address).length > 0;
+  }
+
+  private _notePushedTxids(address: string, txids: string[]): void {
+    const known = this._pushedAddressTxids[address] ?? [];
+    this._pushedAddressTxids[address] = [...known, ...txids.filter(txid => !known.includes(txid))];
+  }
+
+  /** Records the transactions of each address from a history fetch, and drops the pushed ones it now confirms. */
+  private _recordAddressTxids(deltas: IDelta[]): void {
+    const confirmed = txidsByAddress(deltas);
+    this._addressTxids = confirmed;
+    for (const [address, txids] of Object.entries(this._pushedAddressTxids)) {
+      const left = txids.filter(txid => !confirmed[address]?.includes(txid));
+      if (left.length > 0) this._pushedAddressTxids[address] = left;
+      else delete this._pushedAddressTxids[address];
+    }
+  }
+
   getAllExternalAddresses(): string[] {
     // The engine bootstraps lazily (first Send/Receive), so until then answer
     // from the addresses the previous session subscribed to. Push
@@ -1255,6 +1403,7 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     }
     this._historyItems = items;
     this._txCache = txCache;
+    this._recordAddressTxids(rawDeltas);
     this._advanceAddresses(rawDeltas.map(d => d.address));
     // Reconcile optimistic pending sends against the fresh history: drop any
     // that have now confirmed (or aged out).
