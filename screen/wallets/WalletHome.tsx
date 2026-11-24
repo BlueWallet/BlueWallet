@@ -52,17 +52,12 @@ import HomeTabBar, { HomeTab, homeTabBarSpace, useKeyboardVisible } from '../../
 import HomeTiles, { HomeTile } from '../../components/home/HomeTiles';
 import HomeTopBar from '../../components/home/HomeTopBar';
 import { useHomePalette } from '../../components/home/homeTheme';
-import {
-  TransactionDayRow,
-  transactionEntryKey,
-  useSortedTransactions,
-  useTransactionEntries,
-} from '../../components/home/TransactionDayList';
+import { TransactionDayCard, transactionDayKey, useSortedTransactions, useTransactionDays } from '../../components/home/TransactionDayList';
 import Icon, { MaterialIconName } from '../../components/Icon';
 import PrivacySection from '../../components/privacy/PrivacySection';
 import { openNeuraiPaymentUri } from '../../helpers/open-neurai-payment';
 import { scanQrHelper } from '../../helpers/scan-qr';
-import { TransactionListEntry } from '../../helpers/group-transactions-by-day';
+import { TransactionDay } from '../../helpers/group-transactions-by-day';
 import { useStorage } from '../../hooks/context/useStorage';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import useDepinPoolWatch from '../../hooks/useDepinPoolWatch';
@@ -220,10 +215,10 @@ const WalletHomeBody: React.FC<BodyProps> = ({
 
   // ---- Transactions ---------------------------------------------------------
   const sortedTransactions = useSortedTransactions(wallet);
-  const entries = useTransactionEntries(sortedTransactions, HOME_TRANSACTIONS);
+  const days = useTransactionDays(sortedTransactions, HOME_TRANSACTIONS);
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
-    ({ item }: { item: TransactionListEntry }) => <TransactionDayRow item={item} unit={displayUnit} walletID={walletID} />,
+    ({ item }: { item: TransactionDay }) => <TransactionDayCard day={item} unit={displayUnit} walletID={walletID} />,
     [displayUnit, walletID],
   );
 
@@ -402,10 +397,10 @@ const WalletHomeBody: React.FC<BodyProps> = ({
       )}
 
       <View style={panel('home')}>
-        <FlatList<TransactionListEntry>
-          data={entries}
+        <FlatList<TransactionDay>
+          data={days}
           extraData={[displayUnit, hidden]}
-          keyExtractor={transactionEntryKey}
+          keyExtractor={transactionDayKey}
           renderItem={renderItem}
           ListHeaderComponent={listHeader}
           ListEmptyComponent={

@@ -11,14 +11,9 @@ import { isDesktop } from '../../blue_modules/environment';
 import { isTestnetChain } from '../../blue_modules/neurai/networkConfig';
 import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
 import { useHomePalette } from '../../components/home/homeTheme';
-import {
-  TransactionDayRow,
-  transactionEntryKey,
-  useSortedTransactions,
-  useTransactionEntries,
-} from '../../components/home/TransactionDayList';
+import { TransactionDayCard, transactionDayKey, useSortedTransactions, useTransactionDays } from '../../components/home/TransactionDayList';
 import { SettingsScreenHeader } from '../../components/settings/SettingsUI';
-import { TransactionListEntry } from '../../helpers/group-transactions-by-day';
+import { TransactionDay } from '../../helpers/group-transactions-by-day';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useWalletRefresh } from '../../hooks/useWalletRefresh';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe';
@@ -43,31 +38,31 @@ const WalletTransactionHistory: React.FC = () => {
 
   const sorted = useSortedTransactions(wallet);
   const [limit, setLimit] = useState(PAGE_SIZE);
-  const entries = useTransactionEntries(sorted, limit);
+  const days = useTransactionDays(sorted, limit);
   const loadMore = useCallback(() => {
     if (sorted.length > limit) setLimit(prev => prev + PAGE_SIZE);
   }, [sorted.length, limit]);
 
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
-    ({ item }: { item: TransactionListEntry }) => <TransactionDayRow item={item} unit={unit} walletID={walletID} />,
+    ({ item }: { item: TransactionDay }) => <TransactionDayCard day={item} unit={unit} walletID={walletID} />,
     [unit, walletID],
   );
 
   return (
     <View style={[styles.root, { backgroundColor: p.ground }]} testID="WalletTransactionHistory">
       <SettingsScreenHeader title={loc.home.transactions} onBack={() => navigation.goBack()} />
-      <FlatList<TransactionListEntry>
-        data={entries}
-        keyExtractor={transactionEntryKey}
+      <FlatList<TransactionDay>
+        data={days}
+        keyExtractor={transactionDayKey}
         renderItem={renderItem}
         ListEmptyComponent={<Text style={[styles.empty, { color: p.muted }]}>{loc.wallets.list_empty_txs1}</Text>}
         ListFooterComponent={sorted.length > limit ? <ActivityIndicator style={styles.more} /> : null}
         onEndReached={loadMore}
         onEndReachedThreshold={0.3}
-        initialNumToRender={15}
-        maxToRenderPerBatch={15}
-        windowSize={15}
+        initialNumToRender={6}
+        maxToRenderPerBatch={6}
+        windowSize={11}
         contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         refreshControl={!isDesktop ? <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={p.muted} /> : undefined}
       />

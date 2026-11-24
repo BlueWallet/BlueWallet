@@ -2,12 +2,16 @@
  * A wallet's transactions as the home draws them: newest first, one rounded
  * card per day under a day heading. The home shows the latest few and the
  * history screen all of them, a page at a time.
+ *
+ * Each day is a single card holding its rows. Rows with their own background,
+ * one per list item, left a hairline of the ground showing between them at
+ * some scroll offsets.
  */
 import React, { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Transaction, TWallet } from '../../class/wallets/types';
-import { groupTransactionsByDay, TransactionListEntry } from '../../helpers/group-transactions-by-day';
+import { groupTransactionsIntoDays, TransactionDay } from '../../helpers/group-transactions-by-day';
 import loc from '../../loc';
 import { XnaUnit } from '../../models/xnaUnits';
 import { useTheme } from '../themes';
@@ -24,10 +28,10 @@ export function useSortedTransactions(wallet: TWallet): Transaction[] {
 }
 
 /** The first `count` transactions of `sorted`, grouped by day. */
-export function useTransactionEntries(sorted: Transaction[], count: number): TransactionListEntry[] {
+export function useTransactionDays(sorted: Transaction[], count: number): TransactionDay[] {
   return useMemo(
     () =>
-      groupTransactionsByDay(sorted.slice(0, count), {
+      groupTransactionsIntoDays(sorted.slice(0, count), {
         pending: loc.transactions.pending,
         today: loc.transactions.date_today,
         yesterday: loc.transactions.date_yesterday,
@@ -36,29 +40,31 @@ export function useTransactionEntries(sorted: Transaction[], count: number): Tra
   );
 }
 
-export const transactionEntryKey = (item: TransactionListEntry): string => item.key;
+export const transactionDayKey = (day: TransactionDay): string => day.key;
 
-interface TransactionDayRowProps {
-  item: TransactionListEntry;
+interface TransactionDayCardProps {
+  day: TransactionDay;
   unit: XnaUnit;
   walletID: string;
 }
 
-/** One list row: a day heading, or a transaction inside its day's card. */
-export const TransactionDayRow: React.FC<TransactionDayRowProps> = ({ item, unit, walletID }) => {
+/** A day heading and the card with that day's transactions. */
+export const TransactionDayCard: React.FC<TransactionDayCardProps> = ({ day, unit, walletID }) => {
   const p = useHomePalette();
   const { colors } = useTheme();
-  if (item.kind === 'header') {
-    return (
-      <Text style={[styles.dayHeader, { color: p.muted }]} numberOfLines={1} accessibilityRole="header">
-        {item.title}
-      </Text>
-    );
-  }
   return (
-    <View style={[styles.card, { backgroundColor: p.card }, item.isFirst && styles.cardTop, item.isLast && styles.cardBottom]}>
-      <TransactionListItem item={item.tx} itemPriceUnit={unit} walletID={walletID} style={styles.row} timeOnly />
-      {!item.isLast && <View style={[styles.divider, { backgroundColor: colors.lightBorder }]} />}
+    <View>
+      <Text style={[styles.dayHeader, { color: p.muted }]} numberOfLines={1} accessibilityRole="header">
+        {day.title}
+      </Text>
+      <View style={[styles.card, { backgroundColor: p.card }]}>
+        {day.txs.map((tx, i) => (
+          <View key={tx.hash ?? `${day.key}:${i}`}>
+            <TransactionListItem item={tx} itemPriceUnit={unit} walletID={walletID} style={styles.row} timeOnly />
+            {i < day.txs.length - 1 && <View style={[styles.divider, { backgroundColor: colors.lightBorder }]} />}
+          </View>
+        ))}
+      </View>
     </View>
   );
 };
@@ -73,9 +79,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 8,
   },
-  card: { marginHorizontal: 16, overflow: 'hidden' },
-  cardTop: { borderTopLeftRadius: 20, borderTopRightRadius: 20 },
-  cardBottom: { borderBottomLeftRadius: 20, borderBottomRightRadius: 20 },
+  card: { marginHorizontal: 16, borderRadius: 20, overflow: 'hidden' },
   // Stable object: TransactionListItem's memo compares `style` by identity.
   row: { backgroundColor: 'transparent', borderBottomWidth: 0 },
   // Starts where the row's text does: 16 padding + 30 icon + 16 gap.

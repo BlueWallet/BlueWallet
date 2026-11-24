@@ -19,14 +19,20 @@ function dayTitle(day: dayjs.Dayjs, now: dayjs.Dayjs, labels: DayGroupLabels): s
   return day.format(day.year() === now.year() ? 'dddd, D MMMM' : 'D MMMM YYYY');
 }
 
+/** One day of the wallet's transaction list: its heading and its transactions, drawn as one card. */
+export interface TransactionDay {
+  key: string;
+  title: string;
+  txs: Transaction[];
+}
+
 /**
  * Splits newest-first transactions into day groups. Unconfirmed ones go to a
  * group of their own at the top whatever their timestamp, since "when" matters
- * less than "not settled yet". Each transaction knows whether it opens or
- * closes its group so the list can draw one rounded card per day.
+ * less than "not settled yet".
  */
-export function groupTransactionsByDay(txs: Transaction[], labels: DayGroupLabels, now: dayjs.Dayjs = dayjs()): TransactionListEntry[] {
-  const groups: { key: string; title: string; txs: Transaction[] }[] = [];
+export function groupTransactionsIntoDays(txs: Transaction[], labels: DayGroupLabels, now: dayjs.Dayjs = dayjs()): TransactionDay[] {
+  const groups: TransactionDay[] = [];
   const byKey = new Map<string, Transaction[]>();
 
   const push = (key: string, title: string, tx: Transaction) => {
@@ -47,9 +53,16 @@ export function groupTransactionsByDay(txs: Transaction[], labels: DayGroupLabel
     const day = dayjs(tx.timestamp * 1000);
     push(day.format('YYYY-MM-DD'), dayTitle(day, now, labels), tx);
   }
+  return groups;
+}
 
+/**
+ * The same groups flattened into rows: a heading, then each transaction,
+ * knowing whether it opens or closes its day's card.
+ */
+export function groupTransactionsByDay(txs: Transaction[], labels: DayGroupLabels, now: dayjs.Dayjs = dayjs()): TransactionListEntry[] {
   const entries: TransactionListEntry[] = [];
-  for (const group of groups) {
+  for (const group of groupTransactionsIntoDays(txs, labels, now)) {
     entries.push({ kind: 'header', key: `h:${group.key}`, title: group.title });
     group.txs.forEach((tx, i) => {
       entries.push({
