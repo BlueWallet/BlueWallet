@@ -1,18 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  BackHandler,
-  Image,
-  ImageSourcePropType,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { BackHandler, Image, ImageSourcePropType, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { Easing, Layout, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import Share from 'react-native-share';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -23,7 +12,7 @@ import { BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
 import { NeuraiECDSAWallet } from '../../class/wallets/neurai-ecdsa-wallet';
-import { SILENT_PAYMENT_ACCENT } from '../../blue_modules/neurai/silentPayments';
+import { SILENT_PAYMENT_ACCENT, silentPaymentTint } from '../../blue_modules/neurai/silentPayments';
 import { isTestnetChain } from '../../blue_modules/neurai/networkConfig';
 import presentAlert from '../../components/Alert';
 import HomeActions, { HomeAction } from '../../components/home/HomeActions';
@@ -102,8 +91,8 @@ const ReceiveDetails = () => {
   const { walletID, address } = route.params;
   const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
   const { isPQAddressReuseEnabled } = useSettings();
-  const { colors, closeImage } = useTheme();
-  const isDarkTheme = useColorScheme() === 'dark';
+  // The app's theme, which can differ from the system's: the action icons and the address follow it.
+  const { colors, closeImage, dark: isDarkTheme } = useTheme();
   const [customLabel, setCustomLabel] = useState('');
   const [customAmount, setCustomAmount] = useState('');
   const [customUnit, setCustomUnit] = useState<XnaUnit>(XnaUnit.XNA);
@@ -808,7 +797,7 @@ const ReceiveDetails = () => {
       testID: 'SilentPaymentsButton',
       onPress: toggleSilentPayment,
       fill: isSilentPaymentShown ? SILENT_PAYMENT_ACCENT : undefined,
-      tint: isSilentPaymentShown ? '#FFFFFF' : SILENT_PAYMENT_ACCENT,
+      tint: isSilentPaymentShown ? '#FFFFFF' : silentPaymentTint(isDarkTheme),
       loading: isSilentPaymentLoading,
     });
   }

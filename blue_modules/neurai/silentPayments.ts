@@ -9,6 +9,9 @@ import { isTestnetChain, type NeuraiChainType } from './networkConfig';
 /** Accent of everything silent payment in the UI, so it is told apart from the plain address flows. */
 export const SILENT_PAYMENT_ACCENT = '#7C3AED';
 
+/** The accent for icons and text on a dark ground, where the deep one hardly shows. */
+export const silentPaymentTint = (dark: boolean): string => (dark ? '#d8b4fe' : SILENT_PAYMENT_ACCENT);
+
 /** Network of the payment codes of a wallet chain (`nsp1…` main, `tnsp1…` test). */
 export function silentPaymentNetworkFor(chain: NeuraiChainType): NetworkName {
   return isTestnetChain(chain) ? 'test' : 'main';

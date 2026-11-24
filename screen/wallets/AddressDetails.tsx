@@ -18,7 +18,7 @@ import Share from 'react-native-share';
 import { XNAToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { isTestnetChain } from '../../blue_modules/neurai/networkConfig';
-import { SILENT_PAYMENT_ACCENT } from '../../blue_modules/neurai/silentPayments';
+import { SILENT_PAYMENT_ACCENT, silentPaymentTint } from '../../blue_modules/neurai/silentPayments';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
 import { NeuraiECDSAWallet } from '../../class/wallets/neurai-ecdsa-wallet';
@@ -211,7 +211,7 @@ const AddressDetails: React.FC = () => {
         testID: 'AddressSilentPayments',
         onPress: toggleSilent,
         fill: silentShown ? SILENT_PAYMENT_ACCENT : undefined,
-        tint: silentShown ? '#FFFFFF' : SILENT_PAYMENT_ACCENT,
+        tint: silentShown ? '#FFFFFF' : silentPaymentTint(p.dark),
         loading: silentLoading,
       });
     }

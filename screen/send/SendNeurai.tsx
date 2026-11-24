@@ -23,7 +23,7 @@ import { FlatList, Keyboard, Modal, Pressable, ScrollView, StyleSheet, Text, Tex
 
 import { amountFromInput, satsToXna, xnaToSats } from '../../blue_modules/neurai/amounts';
 import { formatAssetAmount, type NeuraiAssetType, type NeuraiHeldAsset } from '../../blue_modules/neurai/assetUtils';
-import { looksLikeSilentPaymentCode, SILENT_PAYMENT_ACCENT } from '../../blue_modules/neurai/silentPayments';
+import { looksLikeSilentPaymentCode, SILENT_PAYMENT_ACCENT, silentPaymentTint } from '../../blue_modules/neurai/silentPayments';
 import { useNeuraiHwDevice } from '../../blue_modules/neurai-hw/useNeuraiHwDevice';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { parseNeuraiPaymentUri, type NeuraiPaymentUri } from '../../class/neurai-uri-match';
@@ -743,7 +743,7 @@ const SendNeurai: React.FC = () => {
                   icon="visibility-off"
                   label={loc.receive.silent_payments}
                   subtitle={String(loc.formatString(loc.send.silent_coins_subtitle, { amount: satsToXna(sumSats(silentCoins)) }))}
-                  accent={SILENT_PAYMENT_ACCENT}
+                  accent={silentPaymentTint(p.dark)}
                   accentSoft={silentSoft}
                   testID="SendNeuraiSilent"
                   coins={silentCoins}

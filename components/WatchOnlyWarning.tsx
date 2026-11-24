@@ -1,6 +1,7 @@
 import React from 'react';
-import { Image, Text, TouchableOpacity, View, StyleSheet, useColorScheme } from 'react-native';
+import { Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import Icon from './Icon';
+import { useTheme } from './themes';
 import loc from '../loc';
 
 interface Props {
@@ -8,8 +9,8 @@ interface Props {
 }
 
 const WatchOnlyWarning: React.FC<Props> = ({ handleDismiss }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  // The app's theme, not the system's: they can differ.
+  const { dark: isDark } = useTheme();
 
   return (
     <View style={[styles.container, isDark ? styles.containerDark : styles.containerLight]}>
