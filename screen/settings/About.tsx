@@ -1,331 +1,243 @@
+/**
+ * About, in the settings style: who makes the wallet and which version this
+ * is, where to find the project, the app's own pages (release notes, license,
+ * tests) and, last, what support may ask for (build, package, unique ID).
+ */
 import Clipboard from '@react-native-clipboard/clipboard';
-import React, { useCallback } from 'react';
-import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion } from 'react-native-device-info';
-import Icon from '@react-native-vector-icons/fontawesome6';
+import React, { useCallback, useState } from 'react';
+import { Alert, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { getBuildNumber, getBundleId, getUniqueIdSync, getVersion } from 'react-native-device-info';
+import BrandIcon from '@react-native-vector-icons/fontawesome6';
+import dayjs from 'dayjs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import A from '../../blue_modules/analytics';
-import { BlueTextCentered } from '../../BlueComponents';
 import { NeuraiHDWallet } from '../../class/wallets/neurai-hd-wallet';
-import { BlueSpacing20 } from '../../components/BlueSpacing';
+import presentAlert, { AlertType } from '../../components/Alert';
+import Icon from '../../components/Icon';
 import {
   SettingsCard,
-  SettingsFlatList,
-  SettingsListItem,
-  SettingsListItemProps,
-  SettingsSection,
-  SettingsSectionHeader,
-} from '../../components/platform';
-import { useTheme } from '../../components/themes';
+  SettingsIconCircle,
+  SettingsRow,
+  SettingsScreenHeader,
+  SettingsSectionLabel,
+  useSettingsPalette,
+} from '../../components/settings/SettingsUI';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
+import loc from '../../loc';
 
 const branch = require('../../current-branch.json');
 
-interface AboutItem extends SettingsListItemProps {
-  id: string;
-  section?: number;
-  customContent?: React.ReactNode;
+type BrandName = 'globe' | 'x-twitter' | 'telegram' | 'github';
+
+interface Link {
+  key: string;
+  icon: BrandName;
+  title: string;
+  value: string;
+  url: string;
 }
 
-const About: React.FC = () => {
-  const { navigate } = useExtendedNavigation();
-  const { colors } = useTheme();
+const LINKS: Link[] = [
+  { key: 'website', icon: 'globe', title: loc.settings.about_sm_website, value: 'neurai.org', url: 'https://neurai.org' },
+  { key: 'x', icon: 'x-twitter', title: 'X', value: '@neuraiproject', url: 'https://x.com/neuraiproject' },
+  { key: 'telegram', icon: 'telegram', title: loc.settings.about_sm_telegram, value: '@neuraiproject', url: 'https://t.me/neuraiproject' },
+  {
+    key: 'github',
+    icon: 'github',
+    title: loc.settings.about_sm_github,
+    value: 'NeuraiWallet',
+    url: 'https://github.com/neuraiproject/NeuraiWallet',
+  },
+];
 
-  const handleOnReleaseNotesPress = useCallback(() => {
-    navigate('ReleaseNotes');
-  }, [navigate]);
-
-  const handleOnSelfTestPress = useCallback(() => {
-    navigate('SelfTest');
-  }, [navigate]);
-
-  const handleOnLicensingPress = useCallback(() => {
-    navigate('Licensing');
-  }, [navigate]);
-
-  const handleOnXPress = useCallback(() => {
-    Linking.openURL('https://x.com/neuraiproject');
-  }, []);
-
-  const handleOnTelegramPress = useCallback(() => {
-    Linking.openURL('https://t.me/neuraiproject');
-  }, []);
-
-  const handleOnWebsitePress = useCallback(() => {
-    Linking.openURL('https://neurai.org');
-  }, []);
-
-  const handleOnGithubPress = useCallback(() => {
-    Linking.openURL('https://github.com/neuraiproject/NeuraiWallet');
-  }, []);
-
-  const handlePerformanceTest = useCallback(async () => {
-    const secret = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
-    const w = NeuraiHDWallet.forNetwork('testnet', secret);
-    // Force engine init + first derivation, then time additional receive lookups
-    await w.getReceiveAddressAsync();
-    const start = Date.now();
-    let num = 0;
-    while (Date.now() - start < 10 * 1000) {
-      await w.getReceiveAddressAsync();
-      num++;
-    }
-    Alert.alert(loc.formatString(loc.settings.performance_score, { num }));
-  }, []);
-
-  const aboutItems = useCallback((): AboutItem[] => {
-    const items: AboutItem[] = [
-      {
-        id: 'header',
-        title: '',
-        customContent: (
-          <SettingsSection compact>
-            <SettingsCard style={[styles.card, styles.headerCard]}>
-              <View style={styles.center}>
-                <Image style={styles.logo} source={require('../../img/addWallet/neurai.png')} />
-                <Text style={[styles.textFree, { color: colors.foregroundColor }]}>{loc.settings.about_free}</Text>
-                <Text style={[styles.textBackup, { color: colors.alternativeTextColor }]}>
-                  {formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}
-                </Text>
-              </View>
-            </SettingsCard>
-          </SettingsSection>
-        ),
-        section: 1,
-      },
-      {
-        id: 'website',
-        title: loc.settings.about_sm_website,
-        leftIcon: <Icon name="globe" size={24} color={colors.foregroundColor} iconStyle="solid" />,
-        onPress: handleOnWebsitePress,
-        section: 2,
-      },
-      {
-        id: 'x',
-        title: '@neuraiproject',
-        leftIcon: <Text style={[styles.xIcon, { color: colors.foregroundColor }]}>𝕏</Text>,
-        onPress: handleOnXPress,
-        section: 2,
-      },
-      {
-        id: 'telegram',
-        title: loc.settings.about_sm_telegram,
-        leftIcon: <Icon name="telegram" size={24} color={colors.foregroundColor} iconStyle="brand" />,
-        onPress: handleOnTelegramPress,
-        section: 2,
-      },
-      {
-        id: 'github',
-        title: loc.settings.about_sm_github,
-        leftIcon: <Icon name="github" size={24} color={colors.foregroundColor} iconStyle="brand" />,
-        onPress: handleOnGithubPress,
-        section: 2,
-      },
-      {
-        id: 'builtWith',
-        title: '',
-        customContent: (
-          <SettingsSection compact>
-            <SettingsCard style={[styles.card, styles.builtWithCard]}>
-              <BlueTextCentered>{loc.settings.about_awesome} 👍</BlueTextCentered>
-              <BlueSpacing20 />
-              <BlueTextCentered>React Native</BlueTextCentered>
-              <BlueTextCentered>@neuraiproject/neurai-jswallet</BlueTextCentered>
-              <BlueTextCentered>@neuraiproject/neurai-key</BlueTextCentered>
-              <BlueTextCentered>@neuraiproject/neurai-rpc</BlueTextCentered>
-            </SettingsCard>
-          </SettingsSection>
-        ),
-        section: 2.5,
-      },
-      {
-        id: 'sectionSpacing1',
-        title: '',
-        customContent: <View style={styles.sectionSpacing} />,
-        section: 2.9,
-      },
-      {
-        id: 'releaseNotes',
-        title: loc.settings.about_release_notes,
-        iconName: 'releaseNotes',
-        chevron: true,
-        onPress: handleOnReleaseNotesPress,
-        section: 3,
-      },
-      {
-        id: 'licensing',
-        title: loc.settings.about_license,
-        iconName: 'licensing',
-        chevron: true,
-        onPress: handleOnLicensingPress,
-        section: 3,
-      },
-      {
-        id: 'selfTest',
-        title: loc.settings.about_selftest,
-        iconName: 'selfTest',
-        chevron: true,
-        onPress: handleOnSelfTestPress,
-        testID: 'RunSelfTestButton',
-        section: 3,
-      },
-      {
-        id: 'performanceTest',
-        title: loc.settings.run_performance_test,
-        iconName: 'performance',
-        chevron: true,
-        onPress: handlePerformanceTest,
-        section: 3,
-      },
-      {
-        id: 'footer',
-        title: '',
-        customContent: (
-          <View style={styles.footerContainer}>
-            <BlueSpacing20 />
-            <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>
-              {getApplicationName()} ver {getVersion()} (build {getBuildNumber() + ' ' + branch})
-            </Text>
-            <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>
-              {new Date(Number(getBuildNumber()) * 1000).toUTCString()}
-            </Text>
-            <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>{getBundleId()}</Text>
-            <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>Unique ID: {getUniqueIdSync()}</Text>
-            <View style={styles.copyToClipboard}>
-              <TouchableOpacity
-                accessibilityRole="button"
-                onPress={() => {
-                  const stringToCopy = 'userId:' + getUniqueIdSync();
-                  A.logError('copied unique id');
-                  Clipboard.setString(stringToCopy);
-                }}
-              >
-                <Text style={[styles.copyToClipboardText, { color: colors.foregroundColor }]}>{loc.transactions.details_copy}</Text>
-              </TouchableOpacity>
-            </View>
-            <BlueSpacing20 />
-          </View>
-        ),
-        section: 4,
-      },
-    ];
-    return items;
-  }, [
-    colors.foregroundColor,
-    colors.alternativeTextColor,
-    handleOnWebsitePress,
-    handleOnXPress,
-    handleOnTelegramPress,
-    handleOnGithubPress,
-    handleOnReleaseNotesPress,
-    handleOnLicensingPress,
-    handleOnSelfTestPress,
-    handlePerformanceTest,
-  ]);
-
-  const renderItem = useCallback(
-    (props: { item: AboutItem }) => {
-      const { id, section, customContent, ...listItemProps } = props.item;
-
-      if (customContent) {
-        return <>{customContent}</>;
-      }
-
-      if (listItemProps.title && !listItemProps.leftIcon && !listItemProps.onPress && section) {
-        return <SettingsSectionHeader title={listItemProps.title} />;
-      }
-
-      const currentSection = Math.floor(section || 0);
-      const sectionItems = aboutItems().filter(
-        i => Math.floor(i.section || 0) === currentSection && !i.customContent && (i.onPress || i.leftIcon || i.chevron || i.subtitle),
-      );
-      const indexInSection = sectionItems.findIndex(i => i.id === id);
-      const isFirstInSection = indexInSection === 0;
-      const isLastInSection = indexInSection === sectionItems.length - 1;
-      const position = isFirstInSection && isLastInSection ? 'single' : isFirstInSection ? 'first' : isLastInSection ? 'last' : 'middle';
-
-      return <SettingsListItem {...listItemProps} position={position} />;
-    },
-    [aboutItems],
+/** A row that opens the project somewhere else: its brand icon, a name, a handle. */
+const LinkRow: React.FC<{ link: Link; divider: boolean }> = ({ link, divider }) => {
+  const p = useSettingsPalette();
+  return (
+    <Pressable
+      onPress={() => Linking.openURL(link.url)}
+      accessibilityRole="link"
+      accessibilityLabel={`${link.title}, ${link.value}`}
+      testID={`AboutLink-${link.key}`}
+      style={({ pressed }) => [
+        styles.row,
+        divider && { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: p.divider },
+        pressed && styles.pressed,
+      ]}
+    >
+      <View style={[styles.circle, { backgroundColor: p.accentSoft }]}>
+        {link.icon === 'globe' ? (
+          <BrandIcon name="globe" size={18} color={p.accentText} iconStyle="solid" />
+        ) : (
+          <BrandIcon name={link.icon} size={18} color={p.accentText} iconStyle="brand" />
+        )}
+      </View>
+      <Text style={[styles.title, styles.texts, { color: p.ink }]}>{link.title}</Text>
+      <Text style={[styles.value, { color: p.mutedOnCard }]} numberOfLines={1}>
+        {link.value}
+      </Text>
+      <Icon name="open-in-new" type="material" size={18} color={p.mutedOnCard} />
+    </Pressable>
   );
+};
 
-  const keyExtractor = useCallback((item: AboutItem, index: number) => `${item.id}-${index}`, []);
+/** A label and a value of the device card. */
+const InfoLine: React.FC<{ label: string; value: string; divider?: boolean; children?: React.ReactNode }> = ({
+  label,
+  value,
+  divider,
+  children,
+}) => {
+  const p = useSettingsPalette();
+  return (
+    <View style={[styles.info, divider && { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: p.divider }]}>
+      <View style={styles.texts}>
+        <Text style={[styles.infoLabel, { color: p.mutedOnCard }]}>{label}</Text>
+        <Text style={[styles.infoValue, { color: p.ink }]} selectable>
+          {value}
+        </Text>
+      </View>
+      {children}
+    </View>
+  );
+};
 
-  const ListFooterComponent = useCallback(() => <View style={styles.sectionSpacing} />, []);
+const About: React.FC = () => {
+  const navigation = useExtendedNavigation();
+  const p = useSettingsPalette();
+  const insets = useSafeAreaInsets();
+  const [testing, setTesting] = useState(false);
+
+  const runPerformanceTest = useCallback(async () => {
+    setTesting(true);
+    try {
+      const secret = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+      const w = NeuraiHDWallet.forNetwork('testnet', secret);
+      // Force engine init + first derivation, then time additional receive lookups
+      await w.getReceiveAddressAsync();
+      const start = Date.now();
+      let num = 0;
+      while (Date.now() - start < 10 * 1000) {
+        await w.getReceiveAddressAsync();
+        num++;
+      }
+      Alert.alert(String(loc.formatString(loc.settings.performance_score, { num })));
+    } finally {
+      setTesting(false);
+    }
+  }, []);
+
+  const uniqueId = getUniqueIdSync();
+  const copyUniqueId = useCallback(() => {
+    A.logError('copied unique id');
+    Clipboard.setString('userId:' + uniqueId);
+    presentAlert({ message: loc._.clipboard, type: AlertType.Toast });
+  }, [uniqueId]);
+
+  const build = getBuildNumber();
+  // The build number is the build time on release builds; anything else is not a date.
+  const builtAt = Number(build) > 1e9 ? dayjs(Number(build) * 1000).format('D MMM YYYY, HH:mm') : undefined;
 
   return (
-    <SettingsFlatList
-      data={aboutItems()}
-      renderItem={renderItem}
-      keyExtractor={keyExtractor}
-      testID="AboutScrollView"
-      ListFooterComponent={ListFooterComponent}
-      contentInsetAdjustmentBehavior="automatic"
-      automaticallyAdjustContentInsets
-      removeClippedSubviews
-    />
+    <View style={[styles.root, { backgroundColor: p.ground }]} testID="AboutScrollView">
+      <SettingsScreenHeader title={loc.settings.about} onBack={() => navigation.goBack()} />
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}>
+        <SettingsCard style={styles.hero}>
+          <Image style={styles.logo} source={require('../../img/addWallet/neurai.png')} accessibilityIgnoresInvertColors />
+          <Text style={[styles.brand, { color: p.ink }]}>
+            <Text style={{ color: p.accentText }}>Neurai</Text> Wallet
+          </Text>
+          <Text style={[styles.version, { color: p.mutedOnCard }]}>
+            {String(loc.formatString(loc.settings.settings_version, { version: getVersion() }))}
+          </Text>
+          <Text style={[styles.tagline, { color: p.ink }]}>{loc.settings.about_free}</Text>
+        </SettingsCard>
+
+        <SettingsCard>
+          <View style={styles.row}>
+            <SettingsIconCircle icon="shield" />
+            <Text style={[styles.title, styles.texts, { color: p.ink }]}>{loc.settings.about_backup}</Text>
+          </View>
+        </SettingsCard>
+
+        <View>
+          <SettingsSectionLabel>{loc.settings.about_community}</SettingsSectionLabel>
+          <SettingsCard>
+            {LINKS.map((link, i) => (
+              <LinkRow key={link.key} link={link} divider={i > 0} />
+            ))}
+          </SettingsCard>
+        </View>
+
+        <View>
+          <SettingsSectionLabel>{loc.settings.about_app}</SettingsSectionLabel>
+          <SettingsCard>
+            <SettingsRow icon="new-releases" title={loc.settings.about_release_notes} onPress={() => navigation.navigate('ReleaseNotes')} />
+            <SettingsRow divider icon="gavel" title={loc.settings.about_license} onPress={() => navigation.navigate('Licensing')} />
+            <SettingsRow
+              divider
+              icon="fact-check"
+              title={loc.settings.about_selftest}
+              onPress={() => navigation.navigate('SelfTest')}
+              testID="RunSelfTestButton"
+            />
+            <SettingsRow
+              divider
+              icon="speed"
+              title={loc.settings.run_performance_test}
+              value={testing ? loc.settings.about_testing : undefined}
+              onPress={runPerformanceTest}
+              disabled={testing}
+              testID="RunPerformanceTest"
+            />
+          </SettingsCard>
+          <Text style={[styles.note, { color: p.muted }]}>{loc.settings.about_built_with}</Text>
+        </View>
+
+        <View>
+          <SettingsSectionLabel>{loc.settings.about_device}</SettingsSectionLabel>
+          <SettingsCard>
+            <InfoLine label={loc.settings.about_version_label} value={`${getVersion()} (build ${build} · ${branch})`} />
+            {builtAt && <InfoLine divider label={loc.settings.about_built} value={builtAt} />}
+            <InfoLine divider label={loc.settings.about_bundle} value={getBundleId()} />
+            <InfoLine divider label={loc.settings.about_unique_id} value={uniqueId}>
+              <Pressable
+                onPress={copyUniqueId}
+                accessibilityRole="button"
+                accessibilityLabel={loc.transactions.details_copy}
+                hitSlop={6}
+                style={({ pressed }) => [styles.copy, { backgroundColor: p.ground }, pressed && styles.pressed]}
+              >
+                <Icon name="content-copy" type="material" size={18} color={p.ink} />
+              </Pressable>
+            </InfoLine>
+          </SettingsCard>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 export default About;
 
 const styles = StyleSheet.create({
-  sectionSpacing: {
-    height: 16,
-  },
-  headerCard: {
-    backgroundColor: 'transparent',
-    ...(Platform.OS === 'android' && {
-      borderRadius: 0,
-      elevation: 0,
-      marginHorizontal: 0,
-      marginVertical: 0,
-    }),
-  },
-  xIcon: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  card: {
-    marginVertical: 8,
-  },
-  builtWithCard: {
-    paddingVertical: 16,
-  },
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 12,
-    resizeMode: 'contain',
-  },
-  textFree: {
-    marginTop: 16,
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  textBackup: {
-    marginTop: 12,
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  footerContainer: {
-    marginTop: 16,
-  },
-  footerText: {
-    fontSize: 12,
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  copyToClipboard: {
-    marginTop: 8,
-    alignItems: 'center',
-  },
-  copyToClipboardText: {
-    fontSize: 12,
-  },
+  root: { flex: 1 },
+  content: { paddingHorizontal: 16, paddingTop: 8, rowGap: 20 },
+  pressed: { opacity: 0.6 },
+  hero: { alignItems: 'center', paddingVertical: 24, rowGap: 6 },
+  logo: { width: 72, height: 72, resizeMode: 'contain', marginBottom: 6 },
+  brand: { fontSize: 22, fontWeight: '700', letterSpacing: -0.3 },
+  version: { fontSize: 13 },
+  tagline: { fontSize: 14, lineHeight: 20, textAlign: 'center', marginTop: 6, paddingHorizontal: 8 },
+  row: { flexDirection: 'row', alignItems: 'center', columnGap: 12, minHeight: 64, paddingVertical: 10 },
+  circle: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  texts: { flex: 1, rowGap: 2 },
+  title: { fontSize: 15, fontWeight: '600' },
+  value: { fontSize: 14, maxWidth: 150 },
+  note: { fontSize: 12, lineHeight: 17, marginHorizontal: 4, marginTop: 8 },
+  info: { flexDirection: 'row', alignItems: 'center', columnGap: 12, paddingVertical: 12 },
+  infoLabel: { fontSize: 12 },
+  infoValue: { fontSize: 14, fontFamily: 'monospace' },
+  copy: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
 });

@@ -293,7 +293,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="About"
           component={About}
-          options={navigationStyle(getSettingsHeaderOptions(loc.settings.about))(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.settings.about }}
         />
         {/* <DetailViewStack.Screen
         name="DefaultView"
