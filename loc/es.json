@@ -359,6 +359,7 @@
     "saved": "Guardado",
     "total_balance": "Balance total",
     "total_balance_explanation": "Muestra el total de tus carteras en los widgets.",
+    "widgets": "Widgets",
     "tools": "Herramientas",
     "settings_version": "Versión {version}",
     "settings_quick": "Accesos rápidos",
@@ -366,8 +367,6 @@
     "network_status_checking": "comprobando…",
     "network_status_offline": "sin conexión",
     "general_subtitle": "Tema, privacidad y widgets",
-    "general_home": "Inicio",
-    "general_home_widgets": "Inicio y widgets",
     "network_subtitle": "Servidor, explorador y avisos",
     "tools_subtitle": "Comprobar dirección, emitir, semilla",
     "about_subtitle": "Notas de la versión y licencia",
@@ -547,10 +546,6 @@
     "add_ln_wallet_first": "Primero tienes que agregar una cartera Lightning.",
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "XPUB de la cartera"
-  },
-  "total_balance_view": {
-    "title": "Balance total",
-    "explanation": "Muestra el total de todas las carteras en el inicio."
   },
   "multisig": {
     "default_label": "Vault multifirma",

@@ -1,6 +1,6 @@
 /**
  * General settings in the home's style: the theme as three buttons, then the
- * switches grouped by what they touch (privacy, home and widgets, addresses)
+ * switches grouped by what they touch (privacy, widgets on iOS, addresses)
  * and a separate card that leaves for the system settings.
  */
 import React, { useEffect, useState } from 'react';
@@ -31,7 +31,7 @@ const GeneralSettings: React.FC = () => {
   const navigation = useExtendedNavigation();
   const p = useSettingsPalette();
   const insets = useSafeAreaInsets();
-  const { wallets, isStorageEncrypted } = useStorage();
+  const { isStorageEncrypted } = useStorage();
   const {
     isPrivacyBlurEnabled,
     setIsPrivacyBlurEnabled,
@@ -41,8 +41,6 @@ const GeneralSettings: React.FC = () => {
     setIsClipboardGetContentEnabledStorage,
     isQuickActionsEnabled,
     setIsQuickActionsEnabledStorage,
-    isTotalBalanceEnabled,
-    setIsTotalBalanceEnabledStorage,
     isHandOffUseEnabled,
     setIsHandOffUseEnabledAsyncStorage,
     themeMode,
@@ -129,23 +127,11 @@ const GeneralSettings: React.FC = () => {
           </SettingsCard>
         </View>
 
-        <View>
-          <SettingsSectionLabel>
-            {Platform.OS === 'ios' ? loc.settings.general_home_widgets : loc.settings.general_home}
-          </SettingsSectionLabel>
-          <SettingsCard>
-            <SettingsSwitchRow
-              icon="functions"
-              title={loc.total_balance_view.title}
-              subtitle={loc.total_balance_view.explanation}
-              value={isTotalBalanceEnabled}
-              onValueChange={setIsTotalBalanceEnabledStorage}
-              disabled={!ready || wallets.length < 2}
-              switchTestID="TotalBalanceSwitch"
-            />
-            {Platform.OS === 'ios' && (
+        {Platform.OS === 'ios' && (
+          <View>
+            <SettingsSectionLabel>{loc.settings.widgets}</SettingsSectionLabel>
+            <SettingsCard>
               <SettingsSwitchRow
-                divider
                 icon="widgets"
                 title={loc.settings.total_balance}
                 subtitle={withEncryptedNote(loc.settings.total_balance_explanation)}
@@ -154,9 +140,9 @@ const GeneralSettings: React.FC = () => {
                 disabled={!ready || !!encrypted}
                 switchTestID="WidgetTotalBalanceSwitch"
               />
-            )}
-          </SettingsCard>
-        </View>
+            </SettingsCard>
+          </View>
+        )}
 
         <View>
           <SettingsSectionLabel>{loc.addresses.addresses_title}</SettingsSectionLabel>

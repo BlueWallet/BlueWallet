@@ -416,6 +416,7 @@
     "saved": "Saved",
     "total_balance": "Total Balance",
     "total_balance_explanation": "Show the total of all wallets in home screen widgets.",
+    "widgets": "Widgets",
     "tools": "Tools",
     "settings_version": "Version {version}",
     "settings_quick": "Quick settings",
@@ -423,8 +424,6 @@
     "network_status_checking": "checking…",
     "network_status_offline": "offline",
     "general_subtitle": "Theme, privacy and widgets",
-    "general_home": "Home",
-    "general_home_widgets": "Home and widgets",
     "network_subtitle": "Server, explorer and alerts",
     "tools_subtitle": "Address check, broadcast, seed word",
     "about_subtitle": "Release notes and license",
@@ -657,9 +656,7 @@
     "display_in_bitcoin": "Display in XNA",
     "hide": "Hide",
     "display_in_sats": "Display in sats",
-    "display_in_fiat": "Display in {currency}",
-    "title": "Total Balance",
-    "explanation": "Show the total of all wallets on the home screen."
+    "display_in_fiat": "Display in {currency}"
   },
   "multisig": {
     "view": "View",
