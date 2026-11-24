@@ -276,12 +276,22 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ConnectProposal"
           component={ConnectProposal}
-          options={navigationStyle({ title: loc.connect.proposal_title, presentation: 'modal' })(theme)}
+          options={{
+            headerShown: false,
+            presentation: 'modal',
+            statusBarStyle: theme.dark ? 'light' : 'dark',
+            title: loc.connect.proposal_title,
+          }}
         />
         <DetailViewStack.Screen
           name="ConnectRequest"
           component={ConnectRequest}
-          options={navigationStyle({ title: loc.connect.request_title, presentation: 'modal' })(theme)}
+          options={{
+            headerShown: false,
+            presentation: 'modal',
+            statusBarStyle: theme.dark ? 'light' : 'dark',
+            title: loc.connect.request_title,
+          }}
         />
         <DetailViewStack.Screen
           name="ConnectSessions"

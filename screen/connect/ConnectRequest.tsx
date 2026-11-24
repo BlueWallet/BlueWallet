@@ -25,29 +25,30 @@
  * - `neurai_getAccountXpub` shows what sharing the account key reveals before
  *   it is sent. Legacy and ECDSA software wallets only.
  *
+ * The screen is titled by what is asked ("Sign message", "Sign transaction"…)
+ * rather than by the method name, the site is one row at the top and the chain
+ * is its network badge. A transaction is shown as rows: what leaves the wallet,
+ * the fee, then every output with its amount and where it goes.
+ *
  * The refusals are sent as soon as the screen opens rather than on a button,
  * so the dApp gets its answer instead of waiting out the request TTL.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import presentAlert, { AlertType } from '../../components/Alert';
-import Button from '../../components/Button';
+import { ConnectFooter, ConnectInfoRow, ConnectNoticeCard, ConnectSiteIcon } from '../../components/ConnectUI';
 import {
-  ConnectActions,
-  ConnectCard,
-  ConnectHeader,
-  ConnectMonospaceBlock,
-  ConnectNotice,
-  ConnectRow,
-  ConnectSectionTitle,
-  connectStyles,
-} from '../../components/ConnectParts';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { useTheme } from '../../components/themes';
+  SettingsBadge,
+  SettingsCard,
+  SettingsScreenHeader,
+  SettingsSectionLabel,
+  useSettingsPalette,
+} from '../../components/settings/SettingsUI';
+import { networkForCaip2 } from '../../blue_modules/neurai/connect/config';
 import { connectClient, peekIncoming, takeIncoming } from '../../blue_modules/neurai/connect/client';
 import { signConnectMessage } from '../../blue_modules/neurai/connect/signer';
 import {
@@ -77,7 +78,7 @@ import {
   connectMethodsFor,
   describeError,
   describePsbtCancellation,
-  describePsbtOutput,
+  hostOf,
   methodHandling,
   shorten,
   signMessageText,
@@ -94,7 +95,7 @@ type RouteProps = RouteProp<DetailViewStackParamList, 'ConnectRequest'>;
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'ConnectRequest'>;
 
 const ConnectRequest: React.FC = () => {
-  const { colors } = useTheme();
+  const p = useSettingsPalette();
   const route = useRoute<RouteProps>();
   const navigation = useExtendedNavigation<NavigationProps>();
   const { wallets } = useStorage();
@@ -303,155 +304,260 @@ const ConnectRequest: React.FC = () => {
     }
   }, [event, psbt, id, finish]);
 
+  const title =
+    handling === 'answer'
+      ? loc.connect.request_title_addresses
+      : handling === 'sign'
+        ? loc.connect.request_title_message
+        : handling === 'sign-psbt'
+          ? loc.connect.request_sign_transaction
+          : handling === 'share-xpub'
+            ? loc.connect.request_title_xpub
+            : loc.connect.request_title;
+  const header = <SettingsScreenHeader title={title} onBack={navigation.goBack} icon="close" iconLabel={loc.connect.close} />;
+
   if (!event) {
     return (
-      <SafeAreaScrollView contentContainerStyle={connectStyles.centered}>
-        <Text style={[styles.gone, { color: colors.alternativeTextColor }]}>{loc.connect.request_gone}</Text>
-        <Button title={loc.connect.close} onPress={navigation.goBack} />
-      </SafeAreaScrollView>
+      <View style={[styles.root, { backgroundColor: p.ground }]}>
+        {header}
+        <View style={styles.goneBox}>
+          <ConnectNoticeCard tone="quiet" text={loc.connect.request_gone} />
+        </View>
+        <ConnectFooter primary={{ title: loc.connect.close, onPress: navigation.goBack }} />
+      </View>
     );
   }
 
   const blocked = event.guard?.blocked === true;
   const transfer = method === 'sendTransfer' ? summariseSendTransfer(event.params) : undefined;
+  const network = networkForCaip2(event.chainId);
+  const networkLabel =
+    network === 'testnet' ? loc.wallets.neurai_network_testnet : network === 'mainnet' ? loc.wallets.neurai_network_mainnet : undefined;
+  const peer = event.session.peerMetadata;
+  const resolving = (handling === 'sign' || handling === 'sign-psbt') && resolvingWallet;
+  const noWallet = (handling === 'sign' || handling === 'sign-psbt') && !resolvingWallet && !wallet && !blocked;
   const primaryAction =
     handling === 'answer'
-      ? { title: loc.connect.request_addresses_confirm, onPress: onAnswerAddresses, disabled: busy || !sessionAddress }
+      ? { title: loc.connect.request_addresses_confirm, onPress: onAnswerAddresses, disabled: !sessionAddress }
       : handling === 'sign' && !blocked
-        ? { title: loc.connect.request_sign, onPress: onSign, disabled: busy || !wallet, testID: 'ConnectRequestSign' }
+        ? { title: loc.connect.request_sign, onPress: onSign, disabled: !wallet, testID: 'ConnectRequestSign' }
         : handling === 'sign-psbt' && psbt?.inspection
-          ? { title: loc.connect.request_sign_transaction, onPress: onSignPsbt, disabled: busy, testID: 'ConnectRequestSignPsbt' }
+          ? { title: loc.connect.request_sign_transaction, onPress: onSignPsbt, testID: 'ConnectRequestSignPsbt' }
           : handling === 'share-xpub' && xpub
-            ? { title: loc.connect.request_xpub_share, onPress: onShareXpub, disabled: busy, testID: 'ConnectRequestShareXpub' }
+            ? { title: loc.connect.request_xpub_share, onPress: onShareXpub, testID: 'ConnectRequestShareXpub' }
             : undefined;
+  const reject = {
+    title: handling === 'unsupported' ? loc.connect.close : loc.connect.reject,
+    onPress: onReject,
+    disabled: busy,
+    testID: 'ConnectRequestReject',
+  };
 
   return (
-    <SafeAreaScrollView contentContainerStyle={connectStyles.content}>
-      <ConnectHeader title={method} subtitle={`${event.session.peerMetadata.name} — ${event.session.peerMetadata.url}`} />
+    <View style={[styles.root, { backgroundColor: p.ground }]} testID="ConnectRequestScreen">
+      {header}
+      <ScrollView contentContainerStyle={styles.content}>
+        {/* Who is asking: the site of the session, and the network it asks on. */}
+        <SettingsCard>
+          <View style={styles.site}>
+            <ConnectSiteIcon icons={peer.icons} />
+            <View style={styles.texts}>
+              <Text style={[styles.title, { color: p.ink }]} numberOfLines={1}>
+                {peer.name || hostOf(peer.url)}
+              </Text>
+              <Text style={[styles.subtitle, { color: p.mutedOnCard }]} numberOfLines={1}>
+                {hostOf(peer.url)}
+              </Text>
+            </View>
+            {networkLabel && <SettingsBadge label={networkLabel} />}
+          </View>
+        </SettingsCard>
 
-      {blocked && <ConnectNotice tone="danger" testID="ConnectSignMessageBlocked" text={loc.connect.request_signmessage_blocked} />}
-      {handling === 'answer' && <ConnectNotice tone="info" text={loc.connect.request_addresses_explanation} />}
-      {handling === 'sign' && !blocked && event.guard?.looksLikeLogin === true && (
-        <ConnectNotice tone="warn" text={loc.connect.request_signmessage_login} />
-      )}
-      {handling === 'unsupported' && <ConnectNotice tone="warn" text={loc.formatString(loc.connect.request_unsupported, { method })} />}
+        {blocked && <ConnectNoticeCard tone="danger" testID="ConnectSignMessageBlocked" text={loc.connect.request_signmessage_blocked} />}
+        {handling === 'sign' && !blocked && event.guard?.looksLikeLogin === true && (
+          <ConnectNoticeCard tone="danger" text={loc.connect.request_signmessage_login} />
+        )}
+        {handling === 'unsupported' && (
+          <ConnectNoticeCard tone="quiet" text={String(loc.formatString(loc.connect.request_unsupported, { method }))} />
+        )}
 
-      {handling === 'sign' && (
-        <>
-          <ConnectSectionTitle title={loc.connect.request_message} />
-          <ConnectMonospaceBlock text={signMessageText(event.params)} testID="ConnectRequestMessage" />
-          {!blocked && !resolvingWallet && !wallet && <ConnectNotice tone="danger" text={loc.connect.blocked_no_wallet} />}
-        </>
-      )}
-
-      {(handling === 'sign' || handling === 'sign-psbt') && resolvingWallet && (
-        <>
-          <ConnectNotice
-            tone="info"
-            testID="ConnectRequestResolving"
-            text={String(
-              loc.formatString(loc.connect.request_resolving_wallet, { address: shorten(sessionAddress ?? CONNECT_EMPTY_FIELD) }),
-            )}
-          />
-          <ActivityIndicator />
-        </>
-      )}
-      {handling === 'sign-psbt' && !resolvingWallet && !wallet && <ConnectNotice tone="danger" text={loc.connect.blocked_no_wallet} />}
-      {handling === 'sign-psbt' && psbt?.error && (
-        <ConnectNotice
-          tone="danger"
-          testID="ConnectPsbtInvalid"
-          text={loc.formatString(loc.connect.request_psbt_invalid, { reason: psbt.error.message })}
-        />
-      )}
-      {handling === 'sign-psbt' && psbt?.inspection && (
-        <>
-          <ConnectNotice tone="info" text={loc.connect.request_psbt_explanation} />
-          {psbt.inspection.cancellations.length > 0 && (
-            <>
-              <ConnectNotice tone="info" text={loc.connect.request_psbt_cancel_explanation} />
-              <ConnectSectionTitle title={loc.connect.request_psbt_cancel_title} />
-              <ConnectCard testID="ConnectRequestPsbtCancellations">
-                {psbt.inspection.cancellations.map(cancellation => (
-                  <React.Fragment key={cancellation.index}>
-                    <ConnectRow
-                      label={String(loc.formatString(loc.connect.request_psbt_cancel_locked, { index: cancellation.index }))}
-                      value={describePsbtCancellation(cancellation)}
-                    />
-                    <ConnectRow label={loc.connect.request_psbt_cancel_key} value={cancellation.address} mono />
-                  </React.Fragment>
-                ))}
-              </ConnectCard>
-            </>
-          )}
-          <ConnectSectionTitle title={loc.connect.request_psbt_outputs} />
-          <ConnectCard testID="ConnectRequestPsbtOutputs">
-            {psbt.inspection.outputs.map(output => (
-              <ConnectRow
-                key={output.index}
-                label={
-                  output.ownAddress
-                    ? loc.connect.request_psbt_change
-                    : String(loc.formatString(loc.connect.request_psbt_output, { index: output.index }))
-                }
-                value={describePsbtOutput(output, formatXna)}
-                mono
-              />
-            ))}
-          </ConnectCard>
-          <ConnectCard>
-            <ConnectRow label={loc.connect.request_psbt_spent} value={`${formatXna(psbt.inspection.spentSats)} XNA`} />
-            <ConnectRow label={loc.connect.request_psbt_fee} value={`${formatXna(psbt.inspection.feeSats)} XNA`} />
-            <ConnectRow
-              label={loc.connect.request_psbt_inputs}
-              value={`${psbt.inspection.toSign.length} / ${psbt.inspection.inputCount}`}
+        {handling === 'answer' && (
+          <SettingsCard>
+            <ConnectInfoRow
+              icon="visibility"
+              title={loc.connect.request_account}
+              subtitle={loc.connect.request_addresses_explanation}
+              detail={sessionAddress}
             />
-          </ConnectCard>
-        </>
-      )}
+          </SettingsCard>
+        )}
 
-      {handling === 'share-xpub' && (
-        <>
-          <ConnectNotice tone="warn" text={loc.connect.request_xpub_explanation} />
-          {xpub === false && <ConnectNotice tone="danger" text={loc.connect.request_xpub_unavailable} />}
-          {xpub && (
-            <ConnectCard testID="ConnectRequestXpub">
-              <ConnectRow label={loc.connect.request_xpub_path} value={xpub.path} mono />
-              <ConnectRow label={loc.connect.request_xpub_type} value={xpub.addressType === 'ecdsa' ? 'ECDSA witness v3' : 'Legacy'} />
-              <ConnectRow label={loc.connect.request_xpub_key} value={shorten(xpub.xpub, 14)} mono />
-            </ConnectCard>
-          )}
-        </>
-      )}
+        {handling === 'sign' && (
+          <View>
+            <SettingsSectionLabel>{loc.connect.request_message}</SettingsSectionLabel>
+            <SettingsCard>
+              <Text style={[styles.message, { color: p.ink }]} selectable testID="ConnectRequestMessage">
+                {signMessageText(event.params)}
+              </Text>
+            </SettingsCard>
+          </View>
+        )}
 
-      <ConnectCard>
-        {transfer && (
+        {resolving && (
+          <SettingsCard testID="ConnectRequestResolving">
+            <View style={styles.site}>
+              <ActivityIndicator color={p.accent} />
+              <Text style={[styles.subtitle, styles.texts, { color: p.mutedOnCard }]}>
+                {String(
+                  loc.formatString(loc.connect.request_resolving_wallet, { address: shorten(sessionAddress ?? CONNECT_EMPTY_FIELD) }),
+                )}
+              </Text>
+            </View>
+          </SettingsCard>
+        )}
+        {noWallet && <ConnectNoticeCard tone="danger" text={loc.connect.blocked_no_wallet} />}
+
+        {handling === 'sign-psbt' && psbt?.error && (
+          <ConnectNoticeCard
+            tone="danger"
+            testID="ConnectPsbtInvalid"
+            text={String(loc.formatString(loc.connect.request_psbt_invalid, { reason: psbt.error.message }))}
+          />
+        )}
+        {handling === 'sign-psbt' && psbt?.inspection && (
           <>
-            <ConnectRow label={loc.connect.transfer_destination} value={transfer.destination} mono />
-            <ConnectRow label={loc.connect.transfer_amount} value={transfer.amount} />
-            <ConnectRow label={loc.connect.transfer_memo} value={transfer.memo} />
+            <SettingsCard>
+              <ConnectInfoRow
+                icon="north-east"
+                title={`${formatXna(psbt.inspection.spentSats)} XNA`}
+                subtitle={loc.connect.request_psbt_spent}
+              />
+              <ConnectInfoRow
+                divider
+                tone="muted"
+                icon="local-gas-station"
+                title={`${formatXna(psbt.inspection.feeSats)} XNA`}
+                subtitle={loc.connect.request_psbt_fee}
+              />
+              <ConnectInfoRow
+                divider
+                tone="muted"
+                icon="draw"
+                title={`${psbt.inspection.toSign.length} / ${psbt.inspection.inputCount}`}
+                subtitle={loc.connect.request_psbt_inputs}
+              />
+            </SettingsCard>
+
+            {psbt.inspection.cancellations.length > 0 && (
+              <View>
+                <SettingsSectionLabel>{loc.connect.request_psbt_cancel_title}</SettingsSectionLabel>
+                <SettingsCard testID="ConnectRequestPsbtCancellations">
+                  {psbt.inspection.cancellations.map((cancellation, i) => (
+                    <ConnectInfoRow
+                      key={cancellation.index}
+                      divider={i > 0}
+                      tone="ok"
+                      icon="undo"
+                      title={describePsbtCancellation(cancellation)}
+                      subtitle={String(loc.formatString(loc.connect.request_psbt_cancel_locked, { index: cancellation.index }))}
+                      detail={cancellation.address}
+                    />
+                  ))}
+                </SettingsCard>
+                <Text style={[styles.note, { color: p.muted }]}>{loc.connect.request_psbt_cancel_explanation}</Text>
+              </View>
+            )}
+
+            <View>
+              <SettingsSectionLabel>{loc.connect.request_psbt_outputs}</SettingsSectionLabel>
+              <SettingsCard testID="ConnectRequestPsbtOutputs">
+                {psbt.inspection.outputs.map((output, i) => {
+                  const xna = `${formatXna(output.sats)} XNA`;
+                  const asset = output.asset ? `${output.asset.amount ?? '1'} ${output.asset.name}` : undefined;
+                  const amount = asset ? (output.sats > 0n ? `${asset} + ${xna}` : asset) : xna;
+                  const where = output.address ?? `script ${shorten(output.scriptHex, 12)}`;
+                  return (
+                    <ConnectInfoRow
+                      key={output.index}
+                      divider={i > 0}
+                      tone={output.ownAddress ? 'ok' : 'accent'}
+                      icon={output.ownAddress ? 'south-west' : 'north-east'}
+                      title={amount}
+                      subtitle={
+                        output.ownAddress
+                          ? loc.connect.request_psbt_change
+                          : String(loc.formatString(loc.connect.request_psbt_output, { index: output.index }))
+                      }
+                      detail={where}
+                    />
+                  );
+                })}
+              </SettingsCard>
+              <Text style={[styles.note, { color: p.muted }]}>{loc.connect.request_psbt_explanation}</Text>
+            </View>
           </>
         )}
-        <ConnectRow label={loc.connect.request_account} value={sessionAddress ?? CONNECT_EMPTY_FIELD} mono />
-        <ConnectRow label={loc.connect.field_chain} value={event.chainId} mono />
-        {refusal !== undefined && <ConnectRow label={loc.connect.request_answer_sent} value={refusal} />}
-      </ConnectCard>
 
-      <ConnectActions
-        primary={primaryAction}
-        secondary={{
-          title: handling === 'unsupported' ? loc.connect.close : loc.connect.reject,
-          onPress: onReject,
-          disabled: busy,
-          testID: 'ConnectRequestReject',
-        }}
+        {handling === 'share-xpub' && (
+          <>
+            <ConnectNoticeCard tone="danger" text={loc.connect.request_xpub_explanation} />
+            {xpub === false && <ConnectNoticeCard tone="danger" text={loc.connect.request_xpub_unavailable} />}
+            {xpub && (
+              <SettingsCard testID="ConnectRequestXpub">
+                <ConnectInfoRow icon="key" title={loc.connect.request_xpub_key} detail={xpub.xpub} />
+                <ConnectInfoRow
+                  divider
+                  tone="muted"
+                  icon="account-tree"
+                  title={loc.connect.request_xpub_path}
+                  subtitle={`${xpub.path} · ${xpub.addressType === 'ecdsa' ? 'ECDSA witness v3' : 'Legacy'}`}
+                />
+              </SettingsCard>
+            )}
+          </>
+        )}
+
+        {transfer && (
+          <SettingsCard>
+            <ConnectInfoRow
+              icon="north-east"
+              title={transfer.amount}
+              subtitle={loc.connect.transfer_destination}
+              detail={transfer.destination}
+            />
+            {transfer.memo !== CONNECT_EMPTY_FIELD && (
+              <ConnectInfoRow divider tone="muted" icon="notes" title={transfer.memo} subtitle={loc.connect.transfer_memo} />
+            )}
+          </SettingsCard>
+        )}
+
+        {(handling === 'sign' || handling === 'sign-psbt' || handling === 'share-xpub') && sessionAddress && (
+          <SettingsCard>
+            <ConnectInfoRow tone="muted" icon="account-balance-wallet" title={loc.connect.request_account} detail={sessionAddress} />
+          </SettingsCard>
+        )}
+        {refusal !== undefined && <Text style={[styles.note, { color: p.muted }]}>{`${loc.connect.request_answer_sent}: ${refusal}`}</Text>}
+        {isHardware && primaryAction && <ConnectNoticeCard tone="quiet" text={loc.connect.login_hardware_confirm} />}
+      </ScrollView>
+
+      <ConnectFooter
+        secondary={primaryAction ? reject : undefined}
+        primary={primaryAction ? { ...primaryAction, loading: busy } : { ...reject, disabled: busy }}
       />
-    </SafeAreaScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  gone: { fontSize: 15, textAlign: 'center', marginBottom: 20 },
+  root: { flex: 1 },
+  content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, rowGap: 16 },
+  goneBox: { flex: 1, padding: 16 },
+  site: { flexDirection: 'row', alignItems: 'center', columnGap: 12, minHeight: 64, paddingVertical: 10 },
+  texts: { flex: 1, rowGap: 2 },
+  title: { fontSize: 15, fontWeight: '600' },
+  subtitle: { fontSize: 13, lineHeight: 18 },
+  message: { fontFamily: 'monospace', fontSize: 13, lineHeight: 19, paddingVertical: 14 },
+  note: { fontSize: 12, lineHeight: 17, marginHorizontal: 4, marginTop: 8 },
 });
 
 export default ConnectRequest;

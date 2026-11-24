@@ -103,9 +103,17 @@ export const SettingsSectionLabel: React.FC<{ children: string }> = ({ children 
 };
 
 /** White card holding a group of rows. */
-export const SettingsCard: React.FC<{ children: React.ReactNode; style?: StyleProp<ViewStyle> }> = ({ children, style }) => {
+export const SettingsCard: React.FC<{ children: React.ReactNode; style?: StyleProp<ViewStyle>; testID?: string }> = ({
+  children,
+  style,
+  testID,
+}) => {
   const p = useSettingsPalette();
-  return <View style={[styles.card, { backgroundColor: p.card }, style]}>{children}</View>;
+  return (
+    <View style={[styles.card, { backgroundColor: p.card }, style]} testID={testID}>
+      {children}
+    </View>
+  );
 };
 
 export const SettingsIconCircle: React.FC<{ icon: MaterialIconName; muted?: boolean }> = ({ icon, muted }) => {

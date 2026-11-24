@@ -127,6 +127,13 @@ describe('changeRelay', () => {
     expect(getRelayUrlOverride()).toBe(OTHER_RELAY);
   });
 
+  it('takes the default typed in again as the default, not as a custom relay', async () => {
+    await changeRelay(OTHER_RELAY);
+    await changeRelay(`${DEFAULT_RELAY_URL}/`);
+    expect(getRelayUrl()).toBe(DEFAULT_RELAY_URL);
+    expect(getRelayUrlOverride()).toBeUndefined();
+  });
+
   it('restores the default relay', async () => {
     await changeRelay(OTHER_RELAY);
     await changeRelay(null);
@@ -239,6 +246,13 @@ describe('a code for another relay', () => {
 
     await expect(pairWithUri(uriFor(OTHER_RELAY))).rejects.toThrow(/still has connections/);
     expect(getRelayUrl()).toBe(DEFAULT_RELAY_URL);
+  });
+
+  it('goes back to the default, not to a custom copy of it, when a code brings the default relay', async () => {
+    await changeRelay(OTHER_RELAY);
+    await pairWithUri(uriFor(DEFAULT_RELAY_URL));
+    expect(getRelayUrl()).toBe(DEFAULT_RELAY_URL);
+    expect(getRelayUrlOverride()).toBeUndefined();
   });
 
   it('moves the wallet to the relay in the code when nothing is in the way', async () => {

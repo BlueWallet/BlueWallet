@@ -108,6 +108,50 @@ export const ConnectOption: React.FC<ConnectOptionProps> = ({
   );
 };
 
+interface ConnectInfoRowProps {
+  icon: MaterialIconName;
+  title: string;
+  subtitle?: string;
+  /** An address or similar, in small monospace, shortened in the middle. */
+  detail?: string;
+  /** Colour of the icon: `accent` (default), `ok` for what comes back, `muted` for the secondary. */
+  tone?: 'accent' | 'ok' | 'muted';
+  divider?: boolean;
+  testID?: string;
+}
+
+/** A row that only shows something: what a transaction pays, which address answers. */
+export const ConnectInfoRow: React.FC<ConnectInfoRowProps> = ({ icon, title, subtitle, detail, tone = 'accent', divider, testID }) => {
+  const p = useSettingsPalette();
+  const circle =
+    tone === 'ok'
+      ? { bg: p.ok.bg, fg: p.ok.dot }
+      : tone === 'muted'
+        ? { bg: p.ground, fg: p.mutedOnCard }
+        : { bg: p.accentSoft, fg: p.accentText };
+  return (
+    <View
+      style={[styles.option, divider && { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: p.divider }]}
+      accessible
+      accessibilityLabel={[title, subtitle, detail].filter(Boolean).join(', ')}
+      testID={testID}
+    >
+      <View style={[styles.center, styles.circle, { backgroundColor: circle.bg }]}>
+        <Icon name={icon} type="material" size={20} color={circle.fg} />
+      </View>
+      <View style={styles.texts}>
+        <Text style={[styles.title, { color: p.ink }]}>{title}</Text>
+        {subtitle ? <Text style={[styles.subtitle, { color: p.mutedOnCard }]}>{subtitle}</Text> : null}
+        {detail ? (
+          <Text style={[styles.detail, { color: p.mutedOnCard }]} numberOfLines={1} ellipsizeMode="middle" selectable>
+            {detail}
+          </Text>
+        ) : null}
+      </View>
+    </View>
+  );
+};
+
 interface FooterButton {
   title: string;
   onPress: () => void;
@@ -165,6 +209,7 @@ export const ConnectFooter: React.FC<{ primary: FooterButton; secondary?: Footer
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },
   clip: { overflow: 'hidden' },
+  circle: { width: 40, height: 40, borderRadius: 20 },
   pressed: { opacity: 0.6 },
   disabled: { opacity: 0.4 },
   notice: { flexDirection: 'row', alignItems: 'flex-start', columnGap: 10, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 },

@@ -12,6 +12,7 @@ import DefaultPreference from 'react-native-default-preference';
 import { NEURAI_CHAIN_MAINNET, NEURAI_CHAIN_TESTNET } from '@neuraiproject/neurai-connect-core';
 import { GROUP_IO_BLUEWALLET } from '../../currency';
 import { isTestnetChain, type NeuraiChainType, type NeuraiNetwork } from '../networkConfig';
+import { sameRelay } from './relay-url';
 
 export const DEFAULT_RELAY_URL = 'wss://relay.neurai.org/v1';
 const OVERRIDE_KEY = 'NEURAI_CONNECT_RELAY_URL';
@@ -22,7 +23,8 @@ let loading: Promise<void> | null = null;
 async function load(): Promise<void> {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   const value = (await DefaultPreference.get(OVERRIDE_KEY)) as string | null;
-  if (typeof value === 'string' && value.length > 0) override = value;
+  // Saved before the default was recognised (below): it is not an override.
+  if (typeof value === 'string' && value.length > 0 && !sameRelay(value, DEFAULT_RELAY_URL)) override = value;
 }
 
 export function loadRelayOverride(): Promise<void> {
@@ -47,6 +49,14 @@ export async function setRelayUrlOverride(url: string | null): Promise<void> {
     return;
   }
   if (!/^wss?:\/\//.test(trimmed)) throw new Error('the relay URL must start with ws:// or wss://');
+  // The default is not an override, however it arrived (typed in, or from a
+  // scanned code after a move to another relay): store it as no override, so
+  // the settings do not call it custom.
+  if (sameRelay(trimmed, DEFAULT_RELAY_URL)) {
+    await DefaultPreference.clear(OVERRIDE_KEY);
+    override = undefined;
+    return;
+  }
   await DefaultPreference.set(OVERRIDE_KEY, trimmed);
   override = trimmed;
 }
