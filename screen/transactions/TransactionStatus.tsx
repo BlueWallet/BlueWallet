@@ -8,7 +8,7 @@
  * configured block explorer.
  */
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 
@@ -23,6 +23,7 @@ import loc from '../../loc';
 import type { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import type { Transaction } from '../../class/wallets/types';
 import { getBlockExplorerUrl, getBlockExplorerUrlForWallet, getTestnetBlockExplorerUrl } from '../../models/blockExplorer';
+import NeuraiLoader from '../../components/NeuraiLoader';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'TransactionStatus'>;
 
@@ -78,7 +79,7 @@ const TransactionStatus: React.FC = () => {
     return (
       <SafeArea>
         <View style={[styles.flex, themed.root]}>
-          <ActivityIndicator />
+          <NeuraiLoader />
         </View>
       </SafeArea>
     );

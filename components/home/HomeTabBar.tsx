@@ -87,7 +87,7 @@ const HomeTabBar: React.FC<HomeTabBarProps> = ({ tab, onSelect, onScan, onScanLo
     <View
       accessibilityRole="tablist"
       accessibilityLabel={loc.home.sections}
-      style={[styles.bar, { bottom: insets.bottom + BAR_GAP, backgroundColor: p.card, shadowColor: p.shadow }]}
+      style={[styles.bar, p.dark ? styles.barDark : styles.barLight, { bottom: insets.bottom + BAR_GAP, backgroundColor: p.card }]}
     >
       {renderItem(ITEMS[0])}
       {renderItem(ITEMS[1])}
@@ -119,10 +119,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
-    elevation: 8,
+  },
+  // A soft shadow all round, the top too, so the bar stands apart from the cards scrolling under it;
+  // on the dark ground a shadow barely shows, so a faint edge does the rest.
+  barLight: { boxShadow: '0px 2px 14px rgba(17, 24, 39, 0.13)' },
+  barDark: {
+    boxShadow: '0px 2px 16px rgba(0, 0, 0, 0.55)',
+    borderWidth: StyleSheet.hairlineWidth * 2,
+    borderColor: 'rgba(255, 255, 255, 0.07)',
   },
   item: { flex: 1, height: BAR_HEIGHT - 4, alignItems: 'center', justifyContent: 'center', rowGap: 3 },
   pressed: { opacity: 0.6 },

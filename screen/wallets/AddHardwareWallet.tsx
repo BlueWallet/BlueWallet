@@ -26,6 +26,7 @@ import {
   type SetupWordCount,
 } from '../../blue_modules/neurai-hw/setupSeed';
 import loc from '../../loc';
+import NeuraiLoader from '../../components/NeuraiLoader';
 
 const networkLabel = (chain: string): string => (chain.includes('test') ? 'Neurai Testnet' : 'Neurai');
 
@@ -348,7 +349,7 @@ const AddHardwareWallet: React.FC = () => {
 
   const renderBusy = (message: string) => (
     <View style={styles.action}>
-      <ActivityIndicator />
+      <NeuraiLoader />
       <BlueSpacing20 />
       <Text style={[styles.statusText, stylesHook.status]}>{message}</Text>
     </View>

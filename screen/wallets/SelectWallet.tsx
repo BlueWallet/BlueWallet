@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigationState, useRoute, RouteProp } from '@react-navigation/native';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueText } from '../../BlueComponents';
 import SafeArea from '../../components/SafeArea';
@@ -15,6 +15,7 @@ import { pop } from '../../NavigationService';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import NeuraiLoader from '../../components/NeuraiLoader';
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'SelectWallet'>;
 
@@ -119,7 +120,7 @@ const SelectWallet: React.FC = () => {
   if (isLoading) {
     return (
       <View style={[styles.loading, stylesHook.loading]}>
-        <ActivityIndicator />
+        <NeuraiLoader />
       </View>
     );
   }

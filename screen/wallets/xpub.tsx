@@ -1,6 +1,6 @@
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 import Share from 'react-native-share';
 import { BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
@@ -15,6 +15,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import NeuraiLoader from '../../components/NeuraiLoader';
 
 type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
 export type RootStackParamList = {
@@ -93,7 +94,7 @@ const WalletXpub: React.FC = () => {
   return (
     <SafeArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>
       {isLoading ? (
-        <ActivityIndicator />
+        <NeuraiLoader />
       ) : (
         <>
           <View style={styles.container}>

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import Icon from '../../components/Icon';
-import { ActivityIndicator, LayoutChangeEvent, ScrollView, StyleSheet, View } from 'react-native';
+import { LayoutChangeEvent, ScrollView, StyleSheet, View } from 'react-native';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { validateMnemonic } from '../../blue_modules/bip39';
 import { BlueText } from '../../BlueComponents';
@@ -12,6 +12,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import useAppState from '../../hooks/useAppState';
 import loc from '../../loc';
 import { WalletExportStackParamList } from '../../navigation/WalletExportStack';
+import NeuraiLoader from '../../components/NeuraiLoader';
 
 type RouteProps = RouteProp<WalletExportStackParamList, 'WalletExport'>;
 
@@ -115,7 +116,7 @@ const WalletExport: React.FC = () => {
     return (
       <Scroll>
         <DoNotDisclose />
-        <ActivityIndicator />
+        <NeuraiLoader />
       </Scroll>
     );
   }

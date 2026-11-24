@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, Keyboard, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { Layout } from 'react-native-reanimated';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -10,6 +10,7 @@ import { NeuraiECDSAWallet } from '../../class/wallets/neurai-ecdsa-wallet';
 import { chainFor, isKindAvailable, NeuraiNetwork, WalletKind } from '../../blue_modules/neurai';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
+import NeuraiLoader, { untilLoaderPainted } from '../../components/NeuraiLoader';
 import SegmentedControl from '../../components/SegmentedControl';
 import WalletButton from '../../components/WalletButton';
 import { useTheme } from '../../components/themes';
@@ -53,6 +54,8 @@ const WalletsAdd: React.FC = () => {
     Keyboard.dismiss();
     setIsLoading(true);
     try {
+      // Generating and deriving hold the JS thread: let the loader show first.
+      await untilLoaderPainted();
       const wallet = walletKind === 'pq' ? new NeuraiPQWallet() : walletKind === 'ecdsa' ? new NeuraiECDSAWallet() : new NeuraiHDWallet();
       wallet.setNetwork(chainFor(network, walletKind));
       wallet.setLabel(label.trim() || loc.wallets.details_title);
@@ -157,7 +160,7 @@ const WalletsAdd: React.FC = () => {
               <BlueSpacing40 />
             </>
           ) : (
-            <ActivityIndicator />
+            <NeuraiLoader label={loc.wallets.add_creating} style={styles.loader} />
           )}
         </View>
       </SafeAreaScrollView>
@@ -203,6 +206,9 @@ const styles = StyleSheet.create({
   },
   import: {
     marginVertical: 24,
+  },
+  loader: {
+    paddingVertical: 24,
   },
 });
 

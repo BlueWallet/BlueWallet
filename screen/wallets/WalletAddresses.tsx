@@ -8,24 +8,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  ActivityIndicator,
-  FlatList,
-  InteractionManager,
-  Keyboard,
-  ListRenderItem,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { FlatList, InteractionManager, Keyboard, ListRenderItem, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MAX_LISTED_ADDRESSES, NeuraiAddressEntry } from '../../class/wallets/abstract-neurai-wallet';
 import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
 import presentAlert from '../../components/Alert';
 import { AddressRow } from '../../components/addresses/AddressRow';
+import NeuraiLoader from '../../components/NeuraiLoader';
 import {
   SettingsCard,
   SettingsScreenHeader,
@@ -88,12 +78,13 @@ const WalletAddresses: React.FC = () => {
     }, [disableScreenProtect, enableScreenProtect, isPrivacyBlurEnabled]),
   );
 
-  // The engine (or a Legacy device's scan) comes up lazily: bring it up once.
+  // The engine (or a Legacy device's scan) comes up lazily: bring it up once,
+  // after the loader has painted, since deriving holds the JS thread.
   useEffect(() => {
     if (!neurai) return;
     let cancelled = false;
-    neurai
-      .loadAddresses()
+    afterPaint()
+      .then(() => neurai.loadAddresses())
       .then(() => {
         if (!cancelled) setEntries(neurai.getAddressEntries());
       })
@@ -201,7 +192,7 @@ const WalletAddresses: React.FC = () => {
       style={({ pressed }) => [styles.more, { borderTopColor: p.divider }, pressed && styles.pressed]}
     >
       {deriving ? (
-        <ActivityIndicator color={p.accent} />
+        <NeuraiLoader size={34} />
       ) : (
         <Text style={[styles.moreText, { color: p.accentText }]}>
           {String(loc.formatString(loc.addresses.show_more, { count: Math.min(PAGE, MAX_LISTED_ADDRESSES - shown) }))}
@@ -230,7 +221,7 @@ const WalletAddresses: React.FC = () => {
         )}
         <SettingsCard style={styles.listCard}>
           {loading || !wallet ? (
-            <ActivityIndicator style={styles.spinner} color={p.accent} />
+            <NeuraiLoader label={loc.addresses.loading} style={styles.loader} />
           ) : (
             <FlatList
               ref={list}
@@ -267,10 +258,10 @@ const styles = StyleSheet.create({
   // Sized to its rows, and no taller than the screen: past that the list scrolls inside the card.
   listCard: { flexShrink: 1, overflow: 'hidden' },
   list: { flexGrow: 0 },
-  spinner: { paddingVertical: 24 },
+  loader: { paddingVertical: 36 },
   empty: { fontSize: 14, textAlign: 'center', paddingVertical: 20 },
   note: { fontSize: 12, lineHeight: 17, marginHorizontal: 4 },
-  more: { minHeight: 48, alignItems: 'center', justifyContent: 'center', borderTopWidth: StyleSheet.hairlineWidth * 2 },
+  more: { minHeight: 52, alignItems: 'center', justifyContent: 'center', borderTopWidth: StyleSheet.hairlineWidth * 2 },
   moreText: { fontSize: 14, fontWeight: '600' },
   pressed: { opacity: 0.6 },
 });

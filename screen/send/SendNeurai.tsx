@@ -27,6 +27,7 @@ import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { BlueFormLabel, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
+import NeuraiLoader, { untilLoaderPainted } from '../../components/NeuraiLoader';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import CoinControl, { coinKey, sumSats } from '../../components/CoinControl';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
@@ -350,7 +351,7 @@ const SendNeurai: React.FC = () => {
 
     setIsBuilding(true);
     try {
-      await afterNextFrame();
+      await untilLoaderPainted();
       let result: NeuraiBuildTransactionResult;
       // PQ wallets with address reuse on should send change back to the static
       // receive address; otherwise the engine picks a fresh index and surprises
@@ -651,7 +652,7 @@ const SendNeurai: React.FC = () => {
         <BlueSpacing20 />
         {isBuilding || isBroadcasting ? (
           <>
-            <ActivityIndicator />
+            <NeuraiLoader size={56} />
             {hwWallet && isBroadcasting ? (
               <Text style={[styles.feeLabel, styles.hwHint, stylesHook.feeLabel]}>
                 {hw.status === 'connecting' ? 'Connect the device and confirm on it…' : 'Signing on device…'}

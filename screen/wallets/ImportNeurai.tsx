@@ -10,11 +10,12 @@
 
 import React, { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { ActivityIndicator, Keyboard, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 
 import { BlueFormLabel } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
+import NeuraiLoader, { untilLoaderPainted } from '../../components/NeuraiLoader';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import SegmentedControl from '../../components/SegmentedControl';
@@ -74,10 +75,9 @@ const ImportNeurai: React.FC = () => {
       return;
     }
     setIsImporting(true);
-    // Yield a frame so the loading spinner actually paints before the CPU-heavy
-    // key derivation (PQ ML-DSA is ~2s and synchronous) blocks the JS thread —
-    // otherwise the screen looks frozen with no feedback.
-    await new Promise<void>(resolve => setTimeout(resolve, 50));
+    // Let the loader paint before the CPU-heavy key derivation (PQ ML-DSA is
+    // ~2s and synchronous) blocks the JS thread; it keeps moving meanwhile.
+    await untilLoaderPainted();
     try {
       const wallet = kind === 'pq' ? new NeuraiPQWallet() : kind === 'ecdsa' ? new NeuraiECDSAWallet() : new NeuraiHDWallet();
       wallet.setNetwork(chainFor(network, kind));
@@ -191,7 +191,7 @@ const ImportNeurai: React.FC = () => {
       <View style={styles.actions}>
         <BlueSpacing20 />
         {isImporting ? (
-          <ActivityIndicator />
+          <NeuraiLoader label={loc.wallets.import_importing} />
         ) : (
           <Button testID="ImportNeuraiSubmit" title={loc.wallets.import_do_import} onPress={importWallet} />
         )}

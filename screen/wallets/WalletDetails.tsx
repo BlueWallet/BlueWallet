@@ -36,6 +36,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { useSettings } from '../../hooks/context/useSettings';
 import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
 import { NeuraiHardwareWallet } from '../../class/wallets/neurai-hardware-wallet';
+import NeuraiLoader from '../../components/NeuraiLoader';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const WalletDetails: React.FC = () => {
@@ -286,7 +287,7 @@ const WalletDetails: React.FC = () => {
   if (isLoading) {
     return (
       <View style={[styles.root, styles.centered, { backgroundColor: p.ground }]}>
-        <ActivityIndicator color={p.accent} size="large" />
+        <NeuraiLoader />
       </View>
     );
   }
