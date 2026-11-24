@@ -1,13 +1,29 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, LayoutAnimation, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+/**
+ * A wallet's own settings, in the settings style: its name and type on top,
+ * the switches that apply to it, what identifies it (fingerprint, derivation
+ * path), the screens it opens (addresses, backup, XPUB) and, last and apart,
+ * deleting it. Exporting the history and deleting used to sit in a menu behind
+ * "⋯"; they are rows now, where they can be seen.
+ *
+ * Two support shortcuts stay hidden: ten taps on the type export the wallet's
+ * internals, ten on the transaction count purge its cache.
+ */
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, LayoutAnimation, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueCard, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
-import Button from '../../components/Button';
-import ListItem from '../../components/ListItem';
-import { SecondButton } from '../../components/SecondButton';
-import { useTheme } from '../../components/themes';
+import Icon, { MaterialIconName } from '../../components/Icon';
+import {
+  SettingsBadge,
+  SettingsCard,
+  SettingsRow,
+  SettingsScreenHeader,
+  SettingsSectionLabel,
+  SettingsSwitchRow,
+  useSettingsPalette,
+} from '../../components/settings/SettingsUI';
 import prompt from '../../helpers/prompt';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -17,12 +33,6 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { useFocusEffect, useRoute, RouteProp, usePreventRemove, useLocale } from '@react-navigation/native';
 import { Transaction, TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import HeaderMenuButton from '../../components/HeaderMenuButton';
-import { Action } from '../../components/types';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { BlueLoading } from '../../components/BlueLoading';
 import { useSettings } from '../../hooks/context/useSettings';
 import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
 import { NeuraiHardwareWallet } from '../../class/wallets/neurai-hardware-wallet';
@@ -43,8 +53,9 @@ const WalletDetails: React.FC = () => {
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState<boolean>(
     wallet.getHideTransactionsInWalletsList ? !wallet.getHideTransactionsInWalletsList() : true,
   );
-  const { setOptions, navigate, navigateToWalletsList } = useExtendedNavigation();
-  const { colors } = useTheme();
+  const { navigate, navigateToWalletsList, goBack } = useExtendedNavigation();
+  const p = useSettingsPalette();
+  const insets = useSafeAreaInsets();
   const [walletName, setWalletName] = useState<string>(wallet.getLabel());
   // Legacy and ECDSA software wallets can use only their first address; PQ
   // wallets always do, and the hardware wallet has a single address.
@@ -165,44 +176,13 @@ const WalletDetails: React.FC = () => {
     return `${label}-history.csv`;
   }, [wallet]);
 
-  const toolTipOnPressMenuItem = useCallback(
-    async (id: string) => {
-      if (id === CommonToolTipActions.Delete.id) {
-        handleDeleteButtonTapped();
-      } else if (id === CommonToolTipActions.Share.id) {
-        await writeFileAndExport(fileName, exportHistoryContent(), true);
-      } else if (id === CommonToolTipActions.SaveFile.id) {
-        await writeFileAndExport(fileName, exportHistoryContent(), false);
-      }
-    },
-    [exportHistoryContent, fileName, handleDeleteButtonTapped],
-  );
-
-  const toolTipActions = useMemo(() => {
-    const actions: Action[] = [
-      {
-        id: loc.wallets.details_export_history,
-        text: loc.wallets.details_export_history,
-        displayInline: true,
-        hidden: walletTransactionsLength === 0,
-        subactions: [CommonToolTipActions.Share, CommonToolTipActions.SaveFile],
-      },
-      CommonToolTipActions.Delete,
-    ];
-
-    return actions;
-  }, [walletTransactionsLength]);
-
-  const HeaderRight = useMemo(
-    () => <HeaderMenuButton disabled={isLoading} onPressMenuItem={toolTipOnPressMenuItem} actions={toolTipActions} />,
-    [toolTipOnPressMenuItem, toolTipActions, isLoading],
-  );
-
-  useEffect(() => {
-    setOptions({
-      headerRight: () => HeaderRight,
-    });
-  }, [HeaderRight, setOptions]);
+  const onExportHistory = useCallback(() => {
+    Alert.alert(loc.wallets.details_export_history, undefined, [
+      { text: loc._.cancel, style: 'cancel' },
+      { text: loc.wallets.details_export_save, onPress: () => writeFileAndExport(fileName, exportHistoryContent(), false) },
+      { text: loc.wallets.details_export_share, onPress: () => writeFileAndExport(fileName, exportHistoryContent(), true) },
+    ]);
+  }, [exportHistoryContent, fileName]);
 
   // BIP47 contacts panel is no longer reachable on Neurai wallets.
 
@@ -224,25 +204,6 @@ const WalletDetails: React.FC = () => {
       };
     }, [isMasterFingerPrintVisible, wallet]),
   );
-
-  const stylesHook = StyleSheet.create({
-    textLabel1: {
-      color: colors.feeText,
-      writingDirection: direction,
-    },
-    textLabel2: {
-      color: colors.feeText,
-      writingDirection: direction,
-    },
-    textValue: {
-      color: colors.outputValue,
-    },
-    input: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
-  });
 
   const navigateToWalletExport = () => {
     navigate('WalletExport', {
@@ -314,195 +275,205 @@ const WalletDetails: React.FC = () => {
     setIsMasterFingerPrintVisible(true);
   };
 
+  const neurai = isNeuraiWallet(wallet) ? wallet : null;
+  const networkLabel = neurai
+    ? neurai.getNeuraiNetwork() === 'testnet'
+      ? loc.wallets.neurai_network_testnet
+      : loc.wallets.neurai_network_mainnet
+    : undefined;
+  const typeIcon: MaterialIconName =
+    wallet.type === NeuraiHardwareWallet.type ? 'usb' : neurai?.walletKind === 'pq' ? 'security' : 'account-balance-wallet';
+  const showFingerprint = !!(wallet.allowMasterFingerprint && wallet.allowMasterFingerprint());
+  const divider = { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: p.divider };
+
+  if (isLoading) {
+    return (
+      <View style={[styles.root, styles.centered, { backgroundColor: p.ground }]}>
+        <ActivityIndicator color={p.accent} size="large" />
+      </View>
+    );
+  }
+
   return (
-    <SafeAreaScrollView centerContent={isLoading} testID="WalletDetailsScroll">
-      <>
-        {isLoading ? (
-          <BlueLoading />
-        ) : (
-          <>
-            <BlueCard style={styles.address}>
-              <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.add_wallet_name.toLowerCase()}</Text>
-              <View style={[styles.input, stylesHook.input]}>
+    <View style={[styles.root, { backgroundColor: p.ground }]}>
+      <SettingsScreenHeader title={loc.wallets.details_title} onBack={goBack} />
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
+        keyboardShouldPersistTaps="handled"
+        testID="WalletDetailsScroll"
+      >
+        <SettingsCard style={styles.hero}>
+          <View style={styles.heroHead}>
+            <View style={[styles.heroIcon, { backgroundColor: p.accentSoft }]}>
+              <Icon name={typeIcon} type="material" size={28} color={p.accentText} />
+            </View>
+            <View style={styles.texts}>
+              <View style={[styles.nameBox, { backgroundColor: p.ground }]}>
                 <TextInput
                   value={walletName}
-                  onChangeText={(text: string) => {
-                    setWalletName(text);
-                  }}
-                  onChange={event => {
-                    const text = event.nativeEvent.text;
-                    setWalletName(text);
-                  }}
+                  onChangeText={setWalletName}
                   onBlur={walletNameTextInputOnBlur}
                   numberOfLines={1}
-                  placeholderTextColor="#81868e"
-                  style={[styles.inputText, { writingDirection: direction }]}
+                  placeholder={loc.wallets.add_wallet_name}
+                  placeholderTextColor={p.mutedOnCard}
+                  accessibilityLabel={loc.wallets.add_wallet_name}
+                  style={[styles.nameInput, { color: p.ink, writingDirection: direction }]}
                   editable={!isLoading}
                   underlineColorAndroid="transparent"
                   testID="WalletNameInput"
                 />
+                <Icon name="edit" type="material" size={18} color={p.mutedOnCard} />
               </View>
-              <BlueSpacing20 />
-              <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_type.toLowerCase()}</Text>
-              <Text style={[styles.textValue, stylesHook.textValue]} selectable>
+              <Text onPress={exportInternals} style={[styles.subtitle, { color: p.mutedOnCard }]} selectable>
                 {wallet.typeReadable}
               </Text>
-              <BlueSpacing20 />
-              <>
-                <Text onPress={exportInternals} style={[styles.textLabel2, stylesHook.textLabel2]}>
-                  {loc.transactions.list_title.toLowerCase()}
-                </Text>
-                <View style={styles.hardware}>
-                  <BlueText>{loc.wallets.details_display}</BlueText>
-                  <Switch
-                    value={hideTransactionsInWalletsList}
-                    onValueChange={async (value: boolean) => {
-                      if (wallet.setHideTransactionsInWalletsList) {
-                        wallet.setHideTransactionsInWalletsList(!value);
-                        triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
-                        setHideTransactionsInWalletsList(!wallet.getHideTransactionsInWalletsList());
-                      }
-                      try {
-                        await saveToDisk();
-                      } catch (error: any) {
-                        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-                        console.error(error.message);
-                      }
-                    }}
-                  />
-                </View>
-              </>
-              {addressWallet && (
-                <>
-                  <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.addresses.addresses_title.toLowerCase()}</Text>
-                  <View style={styles.hardware}>
-                    <BlueText>{loc.settings.single_address}</BlueText>
-                    <Switch
-                      testID="WalletSingleAddressSwitch"
-                      value={singleAddress || isSingleAddressEnabled}
-                      disabled={isSingleAddressEnabled}
-                      onValueChange={async (value: boolean) => {
-                        addressWallet.singleAddress = value;
-                        setSingleAddress(value);
-                        triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
-                        try {
-                          await saveToDisk();
-                        } catch (error: any) {
-                          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-                          console.error(error.message);
-                        }
-                      }}
-                    />
-                  </View>
-                  <Text style={[styles.note, stylesHook.textLabel2]}>
-                    {isSingleAddressEnabled ? loc.wallets.details_single_address_all : loc.wallets.details_single_address_explanation}
-                  </Text>
-                </>
-              )}
-              <>
-                <Text onPress={purgeTransactions} style={[styles.textLabel2, stylesHook.textLabel2]} testID="PurgeBackdoorButton">
-                  {loc.transactions.transactions_count.toLowerCase()}
-                </Text>
-                <BlueText>{wallet.getTransactions().length}</BlueText>
-              </>
+            </View>
+            {networkLabel && <SettingsBadge label={networkLabel} />}
+          </View>
+        </SettingsCard>
 
-              <View>
-                <View style={styles.row}>
-                  {wallet.allowMasterFingerprint && wallet.allowMasterFingerprint() && (
-                    <View style={styles.marginRight16}>
-                      <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_master_fingerprint.toLowerCase()}</Text>
-                      {isMasterFingerPrintVisible ? (
-                        <BlueText selectable>{masterFingerprint ?? <ActivityIndicator />}</BlueText>
-                      ) : (
-                        <TouchableOpacity onPress={onViewMasterFingerPrintPress}>
-                          <BlueText>{loc.multisig.view}</BlueText>
-                        </TouchableOpacity>
-                      )}
-                    </View>
-                  )}
+        <View>
+          <SettingsSectionLabel>{loc.wallets.details_section_options}</SettingsSectionLabel>
+          <SettingsCard>
+            <SettingsSwitchRow
+              icon="dashboard"
+              title={loc.wallets.details_display}
+              value={hideTransactionsInWalletsList}
+              onValueChange={async (value: boolean) => {
+                if (wallet.setHideTransactionsInWalletsList) {
+                  wallet.setHideTransactionsInWalletsList(!value);
+                  triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+                  setHideTransactionsInWalletsList(!wallet.getHideTransactionsInWalletsList());
+                }
+                try {
+                  await saveToDisk();
+                } catch (error: any) {
+                  triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+                  console.error(error.message);
+                }
+              }}
+            />
+            {addressWallet && (
+              <SettingsSwitchRow
+                divider
+                icon="place"
+                title={loc.settings.single_address}
+                subtitle={isSingleAddressEnabled ? loc.wallets.details_single_address_all : loc.wallets.details_single_address_explanation}
+                value={singleAddress || isSingleAddressEnabled}
+                disabled={isSingleAddressEnabled}
+                switchTestID="WalletSingleAddressSwitch"
+                onValueChange={async (value: boolean) => {
+                  addressWallet.singleAddress = value;
+                  setSingleAddress(value);
+                  triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+                  try {
+                    await saveToDisk();
+                  } catch (error: any) {
+                    triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+                    console.error(error.message);
+                  }
+                }}
+              />
+            )}
+          </SettingsCard>
+        </View>
 
-                  {derivationPath && (
-                    <View>
-                      <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
-                      <BlueText selectable testID="DerivationPath">
-                        {derivationPath}
-                      </BlueText>
-                    </View>
-                  )}
-                </View>
-              </View>
-            </BlueCard>
-            <ListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
-            <BlueCard style={styles.address}>
-              <View>
-                <BlueSpacing20 />
-                <Button onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
-                {wallet.allowXpub && wallet.allowXpub() && (
-                  <>
-                    <BlueSpacing20 />
-                    <SecondButton onPress={navigateToXPub} testID="XpubButton" title={loc.wallets.details_show_xpub} />
-                  </>
+        <View>
+          <SettingsSectionLabel>{loc.wallets.details_section_info}</SettingsSectionLabel>
+          <SettingsCard>
+            <Pressable onPress={purgeTransactions} testID="PurgeBackdoorButton" style={styles.info}>
+              <Text style={[styles.infoLabel, styles.texts, { color: p.mutedOnCard }]}>{loc.transactions.transactions_count}</Text>
+              <Text style={[styles.infoValue, { color: p.ink }]}>{walletTransactionsLength}</Text>
+            </Pressable>
+            {showFingerprint && (
+              <View style={[styles.info, divider]}>
+                <Text style={[styles.infoLabel, styles.texts, { color: p.mutedOnCard }]}>{loc.wallets.details_master_fingerprint}</Text>
+                {isMasterFingerPrintVisible ? (
+                  masterFingerprint ? (
+                    <Text style={[styles.infoValue, styles.mono, { color: p.ink }]} selectable>
+                      {masterFingerprint}
+                    </Text>
+                  ) : (
+                    <ActivityIndicator color={p.accent} />
+                  )
+                ) : (
+                  <Pressable onPress={onViewMasterFingerPrintPress} accessibilityRole="button" hitSlop={8}>
+                    <Text style={[styles.infoValue, { color: p.accentText }]}>{loc.multisig.view}</Text>
+                  </Pressable>
                 )}
-                <BlueSpacing20 />
-                <BlueSpacing20 />
               </View>
-            </BlueCard>
-          </>
-        )}
-      </>
-    </SafeAreaScrollView>
+            )}
+            {derivationPath && (
+              <View style={[styles.info, divider]}>
+                <Text style={[styles.infoLabel, styles.texts, { color: p.mutedOnCard }]}>{loc.wallets.details_derivation_path}</Text>
+                <Text style={[styles.infoValue, styles.mono, { color: p.ink }]} selectable testID="DerivationPath">
+                  {derivationPath}
+                </Text>
+              </View>
+            )}
+          </SettingsCard>
+        </View>
+
+        <SettingsCard>
+          <SettingsRow icon="format-list-bulleted" title={loc.wallets.details_show_addresses} onPress={navigateToAddresses} />
+          <SettingsRow
+            divider
+            icon="key"
+            title={loc.wallets.details_export_backup}
+            onPress={navigateToWalletExport}
+            testID="WalletExport"
+          />
+          {wallet.allowXpub && wallet.allowXpub() && (
+            <SettingsRow divider icon="vpn-key" title={loc.wallets.details_show_xpub} onPress={navigateToXPub} testID="XpubButton" />
+          )}
+          {walletTransactionsLength > 0 && (
+            <SettingsRow
+              divider
+              icon="file-download"
+              title={loc.wallets.details_export_history}
+              onPress={onExportHistory}
+              testID="ExportHistoryButton"
+            />
+          )}
+        </SettingsCard>
+
+        <SettingsCard>
+          <Pressable
+            onPress={handleDeleteButtonTapped}
+            accessibilityRole="button"
+            testID="DeleteWalletButton"
+            style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+          >
+            <View style={[styles.round, { backgroundColor: p.fail.bg }]}>
+              <Icon name="delete-outline" type="material" size={20} color={p.fail.dot} />
+            </View>
+            <Text style={[styles.title, styles.texts, { color: p.fail.fg }]}>{loc.wallets.details_delete_wallet}</Text>
+          </Pressable>
+        </SettingsCard>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  address: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  textLabel1: {
-    fontWeight: '500',
-    fontSize: 14,
-    marginVertical: 12,
-  },
-  textLabel2: {
-    fontWeight: '500',
-    fontSize: 14,
-    marginVertical: 16,
-  },
-  textValue: {
-    fontWeight: '500',
-    fontSize: 14,
-  },
-  input: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  inputText: {
-    flex: 1,
-    marginHorizontal: 8,
-    minHeight: 33,
-    color: '#81868e',
-  },
-  hardware: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  note: {
-    fontSize: 13,
-    marginTop: 4,
-  },
-  row: {
-    flexDirection: 'row',
-  },
-  marginRight16: {
-    marginRight: 16,
-  },
+  root: { flex: 1 },
+  centered: { alignItems: 'center', justifyContent: 'center' },
+  content: { paddingHorizontal: 16, paddingTop: 8, rowGap: 20 },
+  pressed: { opacity: 0.6 },
+  hero: { paddingVertical: 16 },
+  heroHead: { flexDirection: 'row', alignItems: 'center', columnGap: 14 },
+  heroIcon: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
+  texts: { flex: 1, rowGap: 4 },
+  nameBox: { flexDirection: 'row', alignItems: 'center', columnGap: 6, borderRadius: 12, paddingHorizontal: 12, height: 44 },
+  nameInput: { flex: 1, fontSize: 18, fontWeight: '700', paddingVertical: 0 },
+  subtitle: { fontSize: 13, lineHeight: 18 },
+  info: { flexDirection: 'row', alignItems: 'center', columnGap: 12, minHeight: 52, paddingVertical: 10 },
+  infoLabel: { fontSize: 14 },
+  infoValue: { fontSize: 15, fontWeight: '600' },
+  mono: { fontFamily: 'monospace', fontSize: 14 },
+  row: { flexDirection: 'row', alignItems: 'center', columnGap: 12, minHeight: 64, paddingVertical: 10 },
+  round: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  title: { fontSize: 15, fontWeight: '600' },
 });
 
 export default WalletDetails;

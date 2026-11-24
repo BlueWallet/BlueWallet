@@ -146,10 +146,11 @@ export function hashIt(s) {
 export async function helperDeleteWallet(label, remainingBalanceSat = false) {
   await element(by.text(label)).tap();
   await element(by.id('WalletDetails')).tap();
-  await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
-  await sleep(200);
-  await element(by.id('HeaderMenuButton')).tap();
-  await element(by.text('Delete')).tap();
+  await waitFor(element(by.id('DeleteWalletButton')))
+    .toBeVisible()
+    .whileElement(by.id('WalletDetailsScroll'))
+    .scroll(300, 'down');
+  await element(by.id('DeleteWalletButton')).tap();
   await waitForText('Yes, delete');
   await element(by.text('Yes, delete')).tap();
   if (remainingBalanceSat) {

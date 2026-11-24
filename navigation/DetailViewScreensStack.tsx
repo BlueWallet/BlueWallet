@@ -137,9 +137,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="WalletDetails"
           component={WalletDetails}
-          options={navigationStyle({
-            headerTitle: loc.wallets.details_title,
-          })(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.wallets.details_title }}
         />
         <DetailViewStack.Screen
           name="TransactionDetails"
