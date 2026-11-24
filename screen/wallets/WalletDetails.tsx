@@ -50,9 +50,6 @@ const WalletDetails: React.FC = () => {
   // BIP47 (Bitcoin-only) and hardware-wallet flags don't apply to Neurai
   // wallets; the screens that consumed these states are gone.
 
-  const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState<boolean>(
-    wallet.getHideTransactionsInWalletsList ? !wallet.getHideTransactionsInWalletsList() : true,
-  );
   const { navigate, navigateToWalletsList, goBack } = useExtendedNavigation();
   const p = useSettingsPalette();
   const insets = useSafeAreaInsets();
@@ -332,30 +329,11 @@ const WalletDetails: React.FC = () => {
           </View>
         </SettingsCard>
 
-        <View>
-          <SettingsSectionLabel>{loc.wallets.details_section_options}</SettingsSectionLabel>
-          <SettingsCard>
-            <SettingsSwitchRow
-              icon="dashboard"
-              title={loc.wallets.details_display}
-              value={hideTransactionsInWalletsList}
-              onValueChange={async (value: boolean) => {
-                if (wallet.setHideTransactionsInWalletsList) {
-                  wallet.setHideTransactionsInWalletsList(!value);
-                  triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
-                  setHideTransactionsInWalletsList(!wallet.getHideTransactionsInWalletsList());
-                }
-                try {
-                  await saveToDisk();
-                } catch (error: any) {
-                  triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-                  console.error(error.message);
-                }
-              }}
-            />
-            {addressWallet && (
+        {addressWallet && (
+          <View>
+            <SettingsSectionLabel>{loc.wallets.details_section_options}</SettingsSectionLabel>
+            <SettingsCard>
               <SettingsSwitchRow
-                divider
                 icon="place"
                 title={loc.settings.single_address}
                 subtitle={isSingleAddressEnabled ? loc.wallets.details_single_address_all : loc.wallets.details_single_address_explanation}
@@ -374,9 +352,9 @@ const WalletDetails: React.FC = () => {
                   }
                 }}
               />
-            )}
-          </SettingsCard>
-        </View>
+            </SettingsCard>
+          </View>
+        )}
 
         <View>
           <SettingsSectionLabel>{loc.wallets.details_section_info}</SettingsSectionLabel>
