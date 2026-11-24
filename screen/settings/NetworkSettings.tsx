@@ -210,6 +210,16 @@ const NetworkSettings: React.FC = () => {
             )}
           </SettingsCard>
         </View>
+
+        <SettingsCard>
+          <SettingsRow
+            icon="cell-tower"
+            title={loc.settings.network_broadcast}
+            subtitle={loc.settings.broadcast_hint}
+            onPress={() => navigation.navigate('Broadcast')}
+            testID="Broadcast"
+          />
+        </SettingsCard>
       </ScrollView>
     </View>
   );

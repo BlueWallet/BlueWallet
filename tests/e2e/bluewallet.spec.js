@@ -211,26 +211,14 @@ describe('NeuraiWallet UI Tests - no wallets', () => {
       await goBack();
     }
 
-    // tools
-    await element(by.id('Tools')).tap();
-
-    // tools -> broadcast
+    // network -> broadcast
     // try to broadcast wrong tx
+    await element(by.id('NetworkSettings')).tap();
     await element(by.id('Broadcast')).tap();
-    await element(by.id('TxHex')).replaceText('invalid\n');
+    await element(by.id('TxHexInput')).replaceText('invalid\n');
     await waitForKeyboardToClose();
     await element(by.id('BroadcastButton')).tap();
     await waitForText('OK');
-    // await expect(element(by.text('the transaction was rejected by network rules....'))).toBeVisible();
-    await element(by.text('OK')).tap();
-    await goBack();
-
-    // IsItMyAddress
-    await element(by.id('IsItMyAddress')).tap();
-    await waitForId('AddressInput');
-    await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('CheckAddress')).tap();
-    await expect(element(by.text('None of the available wallets own the provided address.'))).toBeVisible();
     await element(by.text('OK')).tap();
     await goBack();
     await goBack();

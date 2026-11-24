@@ -1,55 +1,77 @@
 /**
- * Raw transaction broadcaster for Neurai.
+ * Raw transaction broadcaster for Neurai, opened from Settings → Network.
  *
- * The user pastes a signed transaction hex, picks a network (testnet by
- * default), and we relay it through the default Neurai backend
- * (`createDefaultBackend`). On success we surface the txid the node
- * accepts; on failure we show the backend error verbatim so users debugging
- * a build can see *why* the node rejected it.
+ * The user pastes or scans a signed transaction hex, picks a network (testnet
+ * by default), and we relay it through the default Neurai backend
+ * (`createDefaultBackend`). On success we surface the txid the node accepts;
+ * on failure we show the backend error verbatim so users debugging a build can
+ * see *why* the node rejected it. Useful for a transaction signed elsewhere
+ * (offline, another wallet) or one that has to be sent again.
  */
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, Keyboard, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Keyboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 
 import { createDefaultBackend, NeuraiNetwork } from '../../blue_modules/neurai';
-import { BlueFormLabel, BlueText } from '../../BlueComponents';
-import presentAlert from '../../components/Alert';
-import Button from '../../components/Button';
-import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
-import SegmentedControl from '../../components/SegmentedControl';
-import { useTheme } from '../../components/themes';
+import presentAlert, { AlertType } from '../../components/Alert';
+import { ConnectFooter, ConnectInfoRow } from '../../components/ConnectUI';
+import Icon, { MaterialIconName } from '../../components/Icon';
+import {
+  SettingsCard,
+  SettingsScreenHeader,
+  SettingsSectionLabel,
+  SettingsSegment,
+  SettingsSegmented,
+  useSettingsPalette,
+} from '../../components/settings/SettingsUI';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 
-const NETWORK_OPTIONS: NeuraiNetwork[] = ['testnet', 'mainnet'];
+const networkName = (network: NeuraiNetwork): string =>
+  network === 'mainnet' ? loc.wallets.neurai_network_mainnet : loc.wallets.neurai_network_testnet;
+
+const NETWORKS: SettingsSegment<NeuraiNetwork>[] = [
+  { value: 'mainnet', label: networkName('mainnet'), icon: 'public', testID: 'BroadcastMainnet' },
+  { value: 'testnet', label: networkName('testnet'), icon: 'science', testID: 'BroadcastTestnet' },
+];
+
+/** Small round-ended button under the text field. */
+const Pill: React.FC<{ icon: MaterialIconName; title: string; onPress: () => void; disabled?: boolean; testID?: string }> = ({
+  icon,
+  title,
+  onPress,
+  disabled,
+  testID,
+}) => {
+  const p = useSettingsPalette();
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      testID={testID}
+      style={({ pressed }) => [styles.pill, { backgroundColor: p.ground }, (pressed || disabled) && styles.pressed]}
+    >
+      <Icon name={icon} type="material" size={18} color={p.ink} />
+      <Text style={[styles.pillText, { color: p.ink }]}>{title}</Text>
+    </Pressable>
+  );
+};
 
 const Broadcast: React.FC = () => {
-  const { colors } = useTheme();
+  const navigation = useExtendedNavigation();
+  const p = useSettingsPalette();
   const [rawHex, setRawHex] = useState('');
   const [network, setNetwork] = useState<NeuraiNetwork>('testnet');
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [resultTxid, setResultTxid] = useState<string | null>(null);
 
-  const stylesHook = {
-    root: { backgroundColor: colors.elevated, flex: 1 },
-    inputBox: {
-      borderColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
-    input: { color: colors.foregroundColor },
-    txidBox: { borderColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
-    txidText: { color: colors.foregroundColor },
-  };
-
-  const networkSegments = NETWORK_OPTIONS.map(n =>
-    n === 'mainnet' ? loc.wallets.neurai_network_mainnet : loc.wallets.neurai_network_testnet,
-  );
-  const selectedIndex = NETWORK_OPTIONS.indexOf(network);
-
   const onBroadcast = useCallback(async () => {
     Keyboard.dismiss();
     const trimmed = rawHex.trim().toLowerCase();
     if (!/^[0-9a-f]+$/.test(trimmed) || trimmed.length < 20) {
-      presentAlert({ message: loc.send.details_no_signed_tx });
+      presentAlert({ message: loc.settings.broadcast_invalid });
       return;
     }
     setIsBroadcasting(true);
@@ -70,86 +92,102 @@ const Broadcast: React.FC = () => {
     if (text) setRawHex(text.trim());
   }, []);
 
+  const scan = useCallback(async () => {
+    const scanned = await scanQrHelper();
+    if (scanned) setRawHex(scanned.trim());
+  }, []);
+
   const copyTxid = useCallback(() => {
     if (!resultTxid) return;
     Clipboard.setString(resultTxid);
-    presentAlert({ message: loc._.clipboard });
+    presentAlert({ message: loc._.clipboard, type: AlertType.Toast });
   }, [resultTxid]);
 
   return (
-    <ScrollView contentContainerStyle={styles.scroll} style={stylesHook.root}>
-      <BlueSpacing20 />
-      <BlueFormLabel>{loc.wallets.neurai_network_label}</BlueFormLabel>
-      <View style={styles.segmentRow}>
-        <SegmentedControl values={networkSegments} selectedIndex={selectedIndex} onChange={idx => setNetwork(NETWORK_OPTIONS[idx])} />
-      </View>
+    <View style={[styles.root, { backgroundColor: p.ground }]} testID="BroadcastScreen">
+      <SettingsScreenHeader title={loc.settings.network_broadcast} onBack={() => navigation.goBack()} />
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <View>
+          <SettingsSectionLabel>{loc.settings.network}</SettingsSectionLabel>
+          <SettingsCard style={styles.padded}>
+            <SettingsSegmented segments={NETWORKS} value={network} onChange={setNetwork} testID="BroadcastNetwork" />
+          </SettingsCard>
+        </View>
 
-      <BlueFormLabel>{loc.send.create_tx_signed_label}</BlueFormLabel>
-      <View style={[styles.inputBox, stylesHook.inputBox]}>
-        <TextInput
-          testID="TxHexInput"
-          value={rawHex}
-          placeholder={loc.send.create_this_is_hex}
-          placeholderTextColor="#81868e"
-          multiline
-          numberOfLines={6}
-          onChangeText={setRawHex}
-          autoCapitalize="none"
-          autoCorrect={false}
-          editable={!isBroadcasting}
-          style={[styles.input, stylesHook.input]}
-          underlineColorAndroid="transparent"
-        />
-      </View>
+        <View>
+          <SettingsSectionLabel>{loc.settings.broadcast_tx_label}</SettingsSectionLabel>
+          <SettingsCard style={styles.padded}>
+            <TextInput
+              testID="TxHexInput"
+              value={rawHex}
+              placeholder={loc.settings.broadcast_placeholder}
+              placeholderTextColor={p.mutedOnCard}
+              multiline
+              onChangeText={setRawHex}
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!isBroadcasting}
+              style={[styles.input, { backgroundColor: p.ground, color: p.ink }]}
+              underlineColorAndroid="transparent"
+            />
+            <View style={styles.pills}>
+              <Pill icon="content-paste" title={loc.send.input_paste} onPress={pasteFromClipboard} disabled={isBroadcasting} />
+              <Pill icon="qr-code-scanner" title={loc.settings.broadcast_scan} onPress={scan} disabled={isBroadcasting} />
+            </View>
+          </SettingsCard>
+          <Text style={[styles.note, { color: p.muted }]}>
+            {String(loc.formatString(loc.settings.network_broadcast_explanation, { network: networkName(network) }))}
+          </Text>
+        </View>
 
-      <BlueSpacing20 />
-      <View style={styles.row}>
-        <Button title={loc.send.input_paste} onPress={pasteFromClipboard} />
-      </View>
+        {resultTxid && (
+          <SettingsCard testID="BroadcastResult">
+            <ConnectInfoRow
+              tone="ok"
+              icon="check"
+              title={loc.settings.broadcast_sent}
+              subtitle={loc.transactions.txid}
+              detail={resultTxid}
+            />
+            <View style={[styles.copyRow, { borderTopColor: p.divider }]}>
+              <Pill icon="content-copy" title={loc.transactions.details_copy} onPress={copyTxid} />
+            </View>
+          </SettingsCard>
+        )}
+      </ScrollView>
 
-      <BlueSpacing20 />
-      {isBroadcasting ? <ActivityIndicator /> : <Button testID="BroadcastButton" title={loc.send.broadcastButton} onPress={onBroadcast} />}
-
-      {resultTxid && (
-        <>
-          <BlueSpacing40 />
-          <BlueFormLabel>{loc.transactions.txid}</BlueFormLabel>
-          <View style={[styles.txidBox, stylesHook.txidBox]}>
-            <BlueText selectable style={stylesHook.txidText}>
-              {resultTxid}
-            </BlueText>
-          </View>
-          <BlueSpacing20 />
-          <Button title={loc.transactions.details_copy} onPress={copyTxid} />
-        </>
-      )}
-
-      <BlueSpacing40 />
-      <Text style={[styles.hint, stylesHook.txidText]}>{loc.formatString(loc.settings.network_broadcast_explanation, { network })}</Text>
-    </ScrollView>
+      <ConnectFooter
+        primary={{
+          title: loc.send.broadcastButton,
+          onPress: onBroadcast,
+          disabled: rawHex.trim().length === 0,
+          loading: isBroadcasting,
+          testID: 'BroadcastButton',
+        }}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  scroll: { padding: 20 },
-  segmentRow: { marginVertical: 12 },
-  inputBox: {
-    borderWidth: 1,
-    borderRadius: 4,
+  root: { flex: 1 },
+  content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, rowGap: 20 },
+  padded: { paddingVertical: 14, rowGap: 12 },
+  input: {
+    minHeight: 140,
+    borderRadius: 12,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    minHeight: 120,
-    marginVertical: 12,
+    paddingVertical: 10,
+    fontFamily: 'monospace',
+    fontSize: 13,
+    textAlignVertical: 'top',
   },
-  input: { textAlignVertical: 'top' },
-  row: { flexDirection: 'row' },
-  txidBox: {
-    borderWidth: 1,
-    borderRadius: 4,
-    padding: 12,
-    marginVertical: 8,
-  },
-  hint: { fontSize: 12, opacity: 0.6, marginTop: 8 },
+  pills: { flexDirection: 'row', columnGap: 8 },
+  pill: { height: 40, paddingHorizontal: 14, borderRadius: 20, flexDirection: 'row', alignItems: 'center', columnGap: 6 },
+  pillText: { fontSize: 14, fontWeight: '600' },
+  pressed: { opacity: 0.6 },
+  note: { fontSize: 12, lineHeight: 17, marginHorizontal: 4, marginTop: 8 },
+  copyRow: { flexDirection: 'row', paddingVertical: 12, borderTopWidth: StyleSheet.hairlineWidth * 2 },
 });
 
 export default Broadcast;

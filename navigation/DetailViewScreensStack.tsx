@@ -4,9 +4,7 @@ import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import IsItMyAddress from '../screen/settings/IsItMyAddress';
 import Broadcast from '../screen/settings/Broadcast';
-import GenerateWord from '../screen/settings/GenerateWord';
 import TransactionDetails from '../screen/transactions/TransactionDetails';
 import TransactionStatus from '../screen/transactions/TransactionStatus';
 import WalletAddresses from '../screen/wallets/WalletAddresses';
@@ -34,7 +32,6 @@ import Language from '../screen/settings/Language';
 import NotificationSettings from '../screen/settings/NotificationSettings';
 import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
-import SettingsTools from '../screen/settings/SettingsTools';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { ConnectionPollContext } from './ConnectionPollContext';
@@ -182,20 +179,9 @@ const DetailViewStackScreensStack = () => {
           options={navigationStyle({ title: loc.wallets.import_title })(theme)}
         />
         <DetailViewStack.Screen
-          name="IsItMyAddress"
-          component={IsItMyAddress}
-          initialParams={{ address: undefined }}
-          options={navigationStyle(getSettingsHeaderOptions(loc.is_it_my_address.title))(theme)}
-        />
-        <DetailViewStack.Screen
           name="Broadcast"
           component={Broadcast}
-          options={navigationStyle(getSettingsHeaderOptions(loc.settings.network_broadcast))(theme)}
-        />
-        <DetailViewStack.Screen
-          name="GenerateWord"
-          component={GenerateWord}
-          options={navigationStyle(getSettingsHeaderOptions(loc.autofill_word.title))(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.settings.network_broadcast }}
         />
         <DetailViewStack.Screen
           name="WalletAddresses"
@@ -344,11 +330,6 @@ const DetailViewStackScreensStack = () => {
           name="ReleaseNotes"
           component={ReleaseNotes}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.about_release_notes))(theme)}
-        />
-        <DetailViewStack.Screen
-          name="SettingsTools"
-          component={SettingsTools}
-          options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)}
         />
         <DetailViewStack.Screen
           name="PromptPasswordConfirmationSheet"

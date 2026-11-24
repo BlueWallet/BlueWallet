@@ -45,9 +45,7 @@ export type DetailViewStackParamList = {
     /** Scrolls the picker to the wallet with this ID. */
     selectedWalletID?: string;
   };
-  IsItMyAddress: object;
   Broadcast: undefined;
-  GenerateWord: undefined;
   WalletAddresses: { walletID: string };
   WalletTransactionHistory: { walletID: string };
   AddWalletRoot: NavigatorScreenParams<AddWalletStackParamList> | undefined;
@@ -87,7 +85,6 @@ export type DetailViewStackParamList = {
   NotificationSettings: undefined;
   SelfTest: undefined;
   ReleaseNotes: undefined;
-  SettingsTools: undefined;
   WalletXpub: { walletID: string; xpub: string };
   ReceiveDetails: {
     walletID?: string;

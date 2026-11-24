@@ -343,14 +343,6 @@ const Settings: React.FC = () => {
             />
             <SettingsRow
               divider
-              icon="build"
-              title={loc.settings.tools}
-              subtitle={loc.settings.tools_subtitle}
-              onPress={() => navigation.navigate('SettingsTools')}
-              testID="Tools"
-            />
-            <SettingsRow
-              divider
               icon="info-outline"
               title={loc.settings.about}
               subtitle={loc.settings.about_subtitle}
