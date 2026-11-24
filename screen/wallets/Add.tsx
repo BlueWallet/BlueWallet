@@ -267,6 +267,13 @@ const WalletsAdd: React.FC = () => {
   };
 
   const createWallet = async () => {
+    // Ask for passphrase if user has selected to use passphrase and is creating an on-chain wallet
+    let passphrase: string | undefined;
+    if (selectedWalletType === ButtonSelected.ONCHAIN && askPassphraseMenuState) {
+      passphrase = await askNewPassphrase();
+      if (!passphrase) return;
+    }
+
     setIsLoading(true);
 
     if (selectedWalletType === ButtonSelected.OFFCHAIN) {
@@ -298,12 +305,7 @@ const WalletsAdd: React.FC = () => {
       assert(w!, 'Internal error: could not decide which wallet to create');
 
       let passphraseSet = false;
-      if (askPassphraseMenuState) {
-        const passphrase = await askNewPassphrase();
-        if (!passphrase) {
-          setIsLoading(false);
-          return;
-        }
+      if (askPassphraseMenuState && passphrase) {
         w.setPassphrase(passphrase);
         passphraseSet = true;
       }
