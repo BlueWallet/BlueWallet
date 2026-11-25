@@ -205,6 +205,7 @@ const WalletHomeBody: React.FC<BodyProps> = ({
   const cycleUnit = useCallback(() => {
     const next =
       displayUnit === XnaUnit.XNA ? XnaUnit.SATS : displayUnit === XnaUnit.SATS && !testnet ? XnaUnit.LOCAL_CURRENCY : XnaUnit.XNA;
+    triggerHapticFeedback(HapticFeedbackTypes.Selection);
     setUnitSwitching(true);
     setUnit(next);
     wallet.setPreferredBalanceUnit(next);

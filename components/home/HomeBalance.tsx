@@ -78,10 +78,10 @@ const BreakdownRow: React.FC<{
 };
 
 /**
- * The wallet's balance, with the eye that hides it beside its label and the
- * unit switch. With silent payments (ECDSA wallets) or a private balance read
- * in the privacy pool (testnet), a round button on the right of the number,
- * under the unit switch, unfolds a card with a line per part: the wallet, the
+ * The wallet's balance, with the eye that hides it beside its label; a tap on
+ * the number switches its unit. With silent payments (ECDSA wallets) or a private balance read
+ * in the privacy pool (testnet), a round button on the right of the number
+ * unfolds a card with a line per part: the wallet, the
  * silent payments (spent apart, from Send) and the pool, which counts in the
  * total from its last reading. Folded, only the button shows.
  */
@@ -157,21 +157,18 @@ const HomeBalance: React.FC<HomeBalanceProps> = ({
           <Text style={[styles.label, { color: p.muted }]}>{poolBalance > 0n ? loc.home.total_balance : loc.home.available_balance}</Text>
           <Icon name={hidden ? 'visibility-off' : 'visibility'} type="material" size={17} color={p.muted} />
         </Pressable>
-        <Pressable
-          onPress={onCycleUnit}
-          disabled={unitSwitching}
-          accessibilityRole="button"
-          accessibilityLabel={String(loc.formatString(loc.home.balance_unit, { unit: unitText }))}
-          testID="HomeBalanceUnit"
-          style={({ pressed }) => [styles.unitChip, { backgroundColor: p.card }, pressed && styles.pressed]}
-        >
-          <Text style={[styles.unitChipText, { color: p.ink }]}>{unitText}</Text>
-          <Icon name="expand-more" type="material" size={18} color={p.ink} />
-        </Pressable>
       </View>
       <View style={styles.amountRow}>
-        {/* Only the number shrinks to fit a long balance; the unit beside it keeps its size. */}
-        <View style={styles.amountLine}>
+        {/* Tapping the balance switches its unit: XNA, sats, the local currency (not on testnet). */}
+        <Pressable
+          onPress={onCycleUnit}
+          disabled={unitSwitching || hidden}
+          accessibilityRole="button"
+          accessibilityLabel={hidden ? loc.home.available_balance : `${integer}${decimals}${suffix} ${fiat ? '' : unitText}`.trim()}
+          accessibilityHint={String(loc.formatString(loc.home.balance_unit, { unit: unitText }))}
+          testID="HomeBalanceUnit"
+          style={({ pressed }) => [styles.amountLine, pressed && styles.pressed]}
+        >
           <Text
             testID="WalletBalance"
             style={[styles.amount, { color: p.ink }]}
@@ -189,7 +186,7 @@ const HomeBalance: React.FC<HomeBalanceProps> = ({
               {unitText}
             </Text>
           ) : null}
-        </View>
+        </Pressable>
         {canBreakDown ? (
           <Pressable
             onPress={toggle}
@@ -242,11 +239,9 @@ const HomeBalance: React.FC<HomeBalanceProps> = ({
 
 const styles = StyleSheet.create({
   root: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 4, rowGap: 2 },
-  labelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 },
+  labelRow: { flexDirection: 'row', alignItems: 'center', minHeight: 36 },
   labelButton: { flexDirection: 'row', alignItems: 'center', columnGap: 6, minHeight: 36 },
   label: { fontSize: 13 },
-  unitChip: { flexDirection: 'row', alignItems: 'center', height: 40, paddingLeft: 14, paddingRight: 10, borderRadius: 20, columnGap: 2 },
-  unitChipText: { fontSize: 14, fontWeight: '600' },
   pressed: { opacity: 0.6 },
   amountRow: { flexDirection: 'row', alignItems: 'center', minHeight: 52 },
   amountLine: { flexDirection: 'row', alignItems: 'baseline', columnGap: 6, flexShrink: 1 },
