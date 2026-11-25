@@ -369,8 +369,9 @@ const SendDetails = () => {
         targets = [{ address: addr }];
         break;
       }
-      const value = transaction.amountSats;
-      if (Number(value) > 0) {
+      // amountSats may be a string (a cached conversion from currency): coinselect needs a number
+      const value = Number(transaction.amountSats);
+      if (value > 0) {
         targets.push({ address: transaction.address, value });
       } else if (transaction.amount) {
         if (btcToSatoshi(transaction.amount) > 0) {
