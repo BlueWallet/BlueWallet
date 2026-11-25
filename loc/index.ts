@@ -533,6 +533,8 @@ export function formatBalancePlain(balance = 0, toUnit: string, withFormatting =
 }
 
 export function _leaveNumbersAndDots(newInputValue: string) {
+  // the symbol of a currency may have dots of its own (for example the one of AED): whats around the number is dropped first
+  newInputValue = newInputValue.replace(/[^\d-]+$/, '').replace(/^[^\d-]+/, '');
   newInputValue = newInputValue.replace(/[^\d.,-]/g, ''); // filtering, leaving only numbers, dots & commas
   if (newInputValue.endsWith('.00') || newInputValue.endsWith(',00')) newInputValue = newInputValue.substring(0, newInputValue.length - 3);
 
