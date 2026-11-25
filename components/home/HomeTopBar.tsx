@@ -20,6 +20,8 @@ interface HomeTopBarProps {
   /** A refresh is running somewhere in the app. */
   updating?: boolean;
   onOpenWallets: () => void;
+  /** The open wallet's own options (backup, export, its settings). */
+  onOpenWalletOptions?: () => void;
   onOpenSettings: () => void;
   onLongPressSettings?: () => void;
 }
@@ -30,11 +32,20 @@ const networkLabel = (network: NeuraiNetwork): string =>
 /**
  * The home's top row: the Neurai logo, then three lines — "Neurai Wallet", the
  * wallet's name and its type and network (tap to open the side panel with
- * every wallet) — and the settings button. Each line has the whole width, so a
- * long wallet name fits. The bar stays put while the sections below change, so
- * the wallet being looked at is always named.
+ * every wallet) — then two round buttons: the open wallet's options and the
+ * app's settings. Each line has the whole width, so a long wallet name fits.
+ * The bar stays put while the sections below change, so the wallet being
+ * looked at is always named.
  */
-const HomeTopBar: React.FC<HomeTopBarProps> = ({ wallet, network, updating, onOpenWallets, onOpenSettings, onLongPressSettings }) => {
+const HomeTopBar: React.FC<HomeTopBarProps> = ({
+  wallet,
+  network,
+  updating,
+  onOpenWallets,
+  onOpenWalletOptions,
+  onOpenSettings,
+  onLongPressSettings,
+}) => {
   const insets = useSafeAreaInsets();
   const p = useHomePalette();
   const name = wallet ? wallet.getLabel() : BRAND;
@@ -74,16 +85,29 @@ const HomeTopBar: React.FC<HomeTopBarProps> = ({ wallet, network, updating, onOp
           )}
         </View>
       </Pressable>
-      <Pressable
-        onPress={onOpenSettings}
-        onLongPress={onLongPressSettings}
-        accessibilityRole="button"
-        accessibilityLabel={loc.home.settings}
-        testID="SettingsButton"
-        style={({ pressed }) => [styles.round, { backgroundColor: p.card }, pressed && styles.pressed]}
-      >
-        <Icon name="tune" type="material" size={22} color={p.ink} />
-      </Pressable>
+      <View style={styles.buttons}>
+        {wallet && onOpenWalletOptions ? (
+          <Pressable
+            onPress={onOpenWalletOptions}
+            accessibilityRole="button"
+            accessibilityLabel={loc.home.wallet_options}
+            testID="WalletDetails"
+            style={({ pressed }) => [styles.round, { backgroundColor: p.card }, pressed && styles.pressed]}
+          >
+            <Icon name="more-horiz" type="material" size={24} color={p.ink} />
+          </Pressable>
+        ) : null}
+        <Pressable
+          onPress={onOpenSettings}
+          onLongPress={onLongPressSettings}
+          accessibilityRole="button"
+          accessibilityLabel={loc.home.settings}
+          testID="SettingsButton"
+          style={({ pressed }) => [styles.round, { backgroundColor: p.card }, pressed && styles.pressed]}
+        >
+          <Icon name="tune" type="material" size={22} color={p.ink} />
+        </Pressable>
+      </View>
     </View>
   );
 };
@@ -106,6 +130,7 @@ const styles = StyleSheet.create({
   name: { fontSize: 17, fontWeight: '600', flexShrink: 1 },
   spinner: { marginLeft: 6 },
   sub: { fontSize: 13 },
+  buttons: { flexDirection: 'row', columnGap: 8 },
   round: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
 });
 

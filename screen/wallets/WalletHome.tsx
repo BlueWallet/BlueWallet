@@ -358,7 +358,6 @@ const WalletHomeBody: React.FC<BodyProps> = ({
         unitSwitching={unitSwitching}
         onCycleUnit={cycleUnit}
         onToggleHidden={toggleHidden}
-        onOpenDetails={openDetails}
       />
       <HomeActions actions={actions} />
       <HomeTiles tiles={tiles} />
@@ -411,6 +410,7 @@ const WalletHomeBody: React.FC<BodyProps> = ({
         network={network}
         updating={updating}
         onOpenWallets={onOpenWallets}
+        onOpenWalletOptions={openDetails}
         onOpenSettings={onOpenSettings}
         onLongPressSettings={onLongPressSettings}
       />
