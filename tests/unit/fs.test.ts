@@ -7,18 +7,44 @@ import {
   isAppleNumbersFile,
   parseWalletHistoryNotes,
   planWalletHistoryNoteImport,
+  readQRCodeFromImageFile,
   selectWalletHistoryNoteUpdates,
   writeFileAndExport,
 } from '../../blue_modules/fs';
-
+import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 const RNFS = require('react-native-fs');
+
+describe('fs image QR decoding', () => {
+  afterEach(() => jest.clearAllMocks());
+
+  it('reads a shared file URL and sends its base64 contents through the QR decoder', async () => {
+    jest.mocked(RNFS.readFile).mockRejectedValueOnce(new Error('file URL unsupported')).mockResolvedValueOnce('shared-image-base64');
+    jest.mocked(detectQRCodeInImage).mockResolvedValueOnce('bitcoin:bc1qshared');
+
+    await expect(readQRCodeFromImageFile('file:///tmp/shared-images/qr.png')).resolves.toBe('bitcoin:bc1qshared');
+
+    expect(RNFS.readFile).toHaveBeenNthCalledWith(1, 'file:///tmp/shared-images/qr.png', 'base64');
+    expect(RNFS.readFile).toHaveBeenNthCalledWith(2, '/tmp/shared-images/qr.png', 'base64');
+    expect(detectQRCodeInImage).toHaveBeenCalledWith('shared-image-base64');
+  });
+});
 
 describe('fs wallet history notes', () => {
   it('reports mismatched BIP-329 origins without importing their notes', () => {
     const diagnostics = { originMismatchCount: 0, invalidLineCount: 0 };
     const contents = [
-      { type: 'tx', ref: 'a'.repeat(64), label: 'Selected wallet', origin: 'wpkh([12345678/84h/0h/0h])' },
-      { type: 'tx', ref: 'b'.repeat(64), label: 'Other wallet', origin: 'wpkh([87654321/84h/0h/0h])' },
+      {
+        type: 'tx',
+        ref: 'a'.repeat(64),
+        label: 'Selected wallet',
+        origin: 'wpkh([12345678/84h/0h/0h])',
+      },
+      {
+        type: 'tx',
+        ref: 'b'.repeat(64),
+        label: 'Other wallet',
+        origin: 'wpkh([87654321/84h/0h/0h])',
+      },
     ]
       .map(record => JSON.stringify(record))
       .join('\n');
@@ -219,15 +245,29 @@ describe('fs wallet history notes', () => {
       const selectedOrigin = "wpkh([d34db33f/84'/0'/0'])";
       const contents = [
         'broken first line',
-        JSON.stringify({ type: 'tx', ref: bip329Txid, label: 'Valid note', origin: selectedOrigin }),
+        JSON.stringify({
+          type: 'tx',
+          ref: bip329Txid,
+          label: 'Valid note',
+          origin: selectedOrigin,
+        }),
         '{not json}',
         'null',
         '[]',
         JSON.stringify({ type: 'tx', ref: 'not-a-txid', label: 'Invalid ID' }),
         JSON.stringify({ type: 'tx', ref: bip329Txid, label: 42 }),
-        JSON.stringify({ type: 'addr', ref: 'bc1qexample', label: 'Ignored address' }),
+        JSON.stringify({
+          type: 'addr',
+          ref: 'bc1qexample',
+          label: 'Ignored address',
+        }),
         JSON.stringify({ type: 'future-type', ref: 'extension' }),
-        JSON.stringify({ type: 'tx', ref: bip329Txid, label: 'Other wallet', origin: "wpkh([d34db33f/84'/0'/1'])" }),
+        JSON.stringify({
+          type: 'tx',
+          ref: bip329Txid,
+          label: 'Other wallet',
+          origin: "wpkh([d34db33f/84'/0'/1'])",
+        }),
         JSON.stringify({ type: 'tx', ref: otherBip329Txid, label: '' }),
         '',
       ].join(separator);
@@ -235,9 +275,15 @@ describe('fs wallet history notes', () => {
         { transactionId: bip329Txid, memo: 'Valid note' },
         { transactionId: otherBip329Txid, memo: '' },
       ]);
-      expect(diagnostics).toEqual({ originMismatchCount: 1, invalidLineCount: 6 });
+      expect(diagnostics).toEqual({
+        originMismatchCount: 1,
+        invalidLineCount: 6,
+      });
       parseWalletHistoryNotes('Date,Transaction ID,Amount,Memo\ntoday,abc123,1,Note', undefined, diagnostics);
-      expect(diagnostics).toEqual({ originMismatchCount: 0, invalidLineCount: 0 });
+      expect(diagnostics).toEqual({
+        originMismatchCount: 0,
+        invalidLineCount: 0,
+      });
     },
   );
 
@@ -271,7 +317,12 @@ describe('fs wallet history notes', () => {
     const csv = 'Date,Transaction ID,Amount,Memo\ntoday,abc123,1,Note';
     expect(parseWalletHistoryNotes(csv, origin)).toEqual([{ transactionId: 'abc123', memo: 'Note' }]);
     expect(origin).not.toHaveBeenCalled();
-    const record = JSON.stringify({ type: 'tx', ref: bip329Txid, label: 'Note', origin: "wpkh([12345678/84'/0'/1'])" });
+    const record = JSON.stringify({
+      type: 'tx',
+      ref: bip329Txid,
+      label: 'Note',
+      origin: "wpkh([12345678/84'/0'/1'])",
+    });
     expect(parseWalletHistoryNotes(`bad,line,with,commas\n${record}`, origin)).toEqual([]);
     expect(origin).toHaveBeenCalledTimes(1);
   });

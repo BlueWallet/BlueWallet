@@ -17,7 +17,7 @@ class EventEmitter: RCTEventEmitter, NativeEventEmitterSpec {
     }
 
     override func supportedEvents() -> [String]! {
-        return ["onUserActivityOpen"]
+        return ["onUserActivityOpen", "onSharedImagePending"]
     }
 
     // Required for TurboModule event emitters. Must call super: RCTEventEmitter counts listeners there,
@@ -42,6 +42,24 @@ class EventEmitter: RCTEventEmitter, NativeEventEmitterSpec {
         // no listeners yet (e.g. cold start): JS picks the activity up with getMostRecentUserActivity()
         guard hasListeners else { return }
         sendEvent(withName: "onUserActivityOpen", body: userInfo)
+    }
+
+    @objc func sendSharedImagePending() {
+        guard hasListeners else { return }
+        sendEvent(withName: "onSharedImagePending", body: nil)
+    }
+
+    @objc func consumePendingSharedImage(_ resolve: @escaping RCTPromiseResolveBlock,
+                                         rejecter reject: RCTPromiseRejectBlock) {
+        #if targetEnvironment(macCatalyst)
+        do {
+            resolve(try SharedImageStore.appGroupStore()?.consumePendingImageURL()?.absoluteString)
+        } catch {
+            reject("shared_image_consume", "Failed to consume a shared image", error)
+        }
+        #else
+        resolve(nil)
+        #endif
     }
 
     @objc func getMostRecentUserActivity(_ resolve: @escaping RCTPromiseResolveBlock,
