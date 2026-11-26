@@ -55,7 +55,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   const shouldActivateListeners = !skipIfNotInitialized || walletsInitialized;
   const { isClipboardGetContentEnabled } = useSettings();
 
-  const { onLeaveForeground, onEnterForeground } = useClipboardDetection(shouldActivateListeners && isClipboardGetContentEnabled);
+  useClipboardDetection(shouldActivateListeners && isClipboardGetContentEnabled);
 
   // Initialize other hooks regardless of activation status
   // They'll handle their own conditional logic internally
@@ -367,27 +367,17 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
       if (!shouldActivateListeners || wallets.length === 0) return;
 
-      if (nextAppState !== 'active') {
-        onLeaveForeground(nextAppState);
-        return;
-      }
+      if (nextAppState !== 'active') return;
 
       const wasBackgroundOrInactive = /inactive|background/.test(previousState);
       if (wasBackgroundOrInactive) {
         updateExchangeRate();
-        const processed = await processPushNotifications();
-        // Reconcile in-process Ark background task results before the
-        // notification-handled early return: if the background task observed
-        // status changes while the app was backgrounded, the affected
-        // wallets need a transactions refresh whether or not a notification
-        // also fired.
+        await processPushNotifications();
+        // Refresh wallets when the Ark background task observed status changes.
         reconcileArkBackgroundTaskResults(fetchAndSaveWalletTransactions);
-        if (AppState.currentState !== 'active') return;
-
-        onEnterForeground(previousState, { skipRead: processed });
       }
     },
-    [processPushNotifications, fetchAndSaveWalletTransactions, onLeaveForeground, onEnterForeground, wallets, shouldActivateListeners],
+    [processPushNotifications, fetchAndSaveWalletTransactions, wallets, shouldActivateListeners],
   );
 
   const addListeners = useCallback(() => {

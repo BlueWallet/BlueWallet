@@ -5,16 +5,7 @@ const STORAGE_KEY: string = 'ClipboardReadAllowed';
 const LAST_SEEN_HASH_KEY: string = 'ClipboardLastSeenHashV6';
 
 let lastSeenHashMemory: string | undefined;
-let clipboardSheetFocused = false;
-
-/** Layout height that means the Detected sheet is actually on screen, not a collapsed card. */
 export const CLIPBOARD_SHEET_VISIBLE_MIN_HEIGHT = 80;
-
-export const setClipboardSheetFocused = (focused: boolean): void => {
-  clipboardSheetFocused = focused;
-};
-
-export const isClipboardSheetFocused = (): boolean => clipboardSheetFocused;
 
 export const isReadClipboardAllowed = async (): Promise<boolean> => {
   try {

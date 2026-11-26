@@ -1,30 +1,14 @@
 import { CommonActions } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
-import { AppState, AppStateStatus, Platform } from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 
-import {
-  getLastSeenClipboardHash,
-  isClipboardSheetFocused,
-  readClipboardForDetection,
-  setLastSeenClipboardHash,
-} from '../blue_modules/clipboard';
-import {
-  CLIPBOARD_IDLE_DELAY_MS,
-  CLIPBOARD_RETRY_DELAY_MS,
-  ClipboardPaymentKind,
-  clipboardActionOnAppStateChange,
-  evaluateClipboardOnForeground,
-} from '../blue_modules/clipboardPayment';
-import { isDesktop } from '../blue_modules/environment';
+import { getLastSeenClipboardHash, readClipboardForDetection, setLastSeenClipboardHash } from '../blue_modules/clipboard';
+import { CLIPBOARD_IDLE_DELAY_MS, ClipboardPaymentKind, evaluateClipboardOnForeground } from '../blue_modules/clipboardPayment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { navigationRef } from '../NavigationService';
 import { useStorage } from './context/useStorage';
 
 const CLIPBOARD_DETECTED_ROUTE = 'ClipboardDetected';
-
-// Reading the pasteboard while the app is `inactive` (normal for the iOS Simulator until its
-// window is key) comes back as "Operation not authorized" and iOS does not show the paste prompt.
-const isForegroundAppState = (state: AppStateStatus) => state === 'active' || state === 'unknown';
 
 function pushClipboardDetectedSheet(params: { payload: string; kind: ClipboardPaymentKind; contentHash: string }): boolean {
   if (!navigationRef.isReady()) return false;
@@ -33,18 +17,25 @@ function pushClipboardDetectedSheet(params: { payload: string; kind: ClipboardPa
   return true;
 }
 
-/** Detects payment data on the clipboard after launch/resume and presents ClipboardDetected. */
+/** Detects payment data on the clipboard at launch and when it changes. */
 const useClipboardDetection = (enabled: boolean) => {
   const { wallets } = useStorage();
   const lastSeenClipboardHash = useRef<string | undefined>(undefined);
-  const needsRead = useRef(true);
   const clipboardReadInFlight = useRef(false);
-  const retryClipboardAfterPastePrompt = useRef(false);
-  const resumedFromBackground = useRef(false);
+  const clipboardChangeVersion = useRef(0);
+  const subscribed = useRef(false);
   const clipboardPasteFollowUpAttempts = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ignoreLastSeenOnNextRead = useRef(false);
   const readRef = useRef<() => Promise<void>>(async () => {});
+  const pendingOffer = useRef<{ payload: string; kind: ClipboardPaymentKind; contentHash: string } | null>(null);
+
+  const presentPendingOffer = useCallback(() => {
+    const offer = pendingOffer.current;
+    if (!offer || !navigationRef.isReady() || navigationRef.getCurrentRoute()?.name === CLIPBOARD_DETECTED_ROUTE) return;
+    pendingOffer.current = null;
+    if (pushClipboardDetectedSheet(offer)) triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+  }, []);
 
   const clearTimer = () => {
     if (!timer.current) return;
@@ -54,18 +45,17 @@ const useClipboardDetection = (enabled: boolean) => {
 
   const readClipboard = useCallback(async () => {
     if (!enabled || wallets.length === 0 || clipboardReadInFlight.current) {
-      if (clipboardReadInFlight.current && Platform.OS === 'ios') retryClipboardAfterPastePrompt.current = true;
       return;
     }
     clipboardReadInFlight.current = true;
-    needsRead.current = false;
+    const readVersion = clipboardChangeVersion.current;
     try {
       const { content, pasteBlocked } = await readClipboardForDetection();
+      if (!subscribed.current || readVersion !== clipboardChangeVersion.current) return;
       if (pasteBlocked || !content) {
         // One follow-up while we stay in the foreground. A tight retry loop makes iOS
         // answer "not authorized" and never show the paste prompt.
-        needsRead.current = true;
-        if (isForegroundAppState(AppState.currentState) && clipboardPasteFollowUpAttempts.current < 1) {
+        if (clipboardPasteFollowUpAttempts.current < 1) {
           clipboardPasteFollowUpAttempts.current += 1;
           ignoreLastSeenOnNextRead.current = true;
           clearTimer();
@@ -80,32 +70,30 @@ const useClipboardDetection = (enabled: boolean) => {
       clipboardPasteFollowUpAttempts.current = 0;
       const ignoreLastSeen = ignoreLastSeenOnNextRead.current;
       ignoreLastSeenOnNextRead.current = false;
-      retryClipboardAfterPastePrompt.current = false;
       const lastSeenHash = ignoreLastSeen
         ? lastSeenClipboardHash.current
         : ((await getLastSeenClipboardHash()) ?? lastSeenClipboardHash.current);
+      if (!subscribed.current || readVersion !== clipboardChangeVersion.current) return;
       const { offer, nextHash } = evaluateClipboardOnForeground(content, lastSeenHash, wallets, { ignoreLastSeen });
       if (!offer) {
+        pendingOffer.current = null;
         lastSeenClipboardHash.current = nextHash;
         await setLastSeenClipboardHash(nextHash);
         return;
       }
-      if (isClipboardSheetFocused() || (navigationRef.isReady() && navigationRef.getCurrentRoute()?.name === CLIPBOARD_DETECTED_ROUTE)) {
-        return;
-      }
-      if (
-        pushClipboardDetectedSheet({
-          payload: offer.payload,
-          kind: offer.kind,
-          contentHash: nextHash,
-        })
-      ) {
-        triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
-      }
+      pendingOffer.current = { payload: offer.payload, kind: offer.kind, contentHash: nextHash };
+      presentPendingOffer();
     } finally {
       clipboardReadInFlight.current = false;
+      if (subscribed.current && readVersion !== clipboardChangeVersion.current) {
+        clearTimer();
+        timer.current = setTimeout(() => {
+          timer.current = null;
+          readRef.current().catch(() => {});
+        }, CLIPBOARD_IDLE_DELAY_MS);
+      }
     }
-  }, [enabled, wallets]);
+  }, [enabled, presentPendingOffer, wallets]);
   readRef.current = readClipboard;
 
   const scheduleRead = useCallback((delayMs: number) => {
@@ -116,68 +104,28 @@ const useClipboardDetection = (enabled: boolean) => {
     }, delayMs);
   }, []);
 
-  const onLeaveForeground = useCallback(
-    (nextAppState: AppStateStatus) => {
-      if (!enabled || wallets.length === 0) return;
-      // `inactive` is also the launch transition and Control Center. Cancelling here drops
-      // the only scheduled read, and coming back to `active` would not start another.
-      if (nextAppState !== 'background') return;
-      clearTimer();
-      needsRead.current = true;
-      clipboardPasteFollowUpAttempts.current = 0;
-      resumedFromBackground.current = true;
-    },
-    [enabled, wallets.length],
-  );
-
-  const onEnterForeground = useCallback(
-    (previousState: AppStateStatus, options?: { skipRead?: boolean }) => {
-      const cameFromBackground = resumedFromBackground.current || (isDesktop && previousState === 'inactive');
-      const readBecausePending = needsRead.current;
-      resumedFromBackground.current = false;
-      if (!enabled || wallets.length === 0) return;
-      const action = clipboardActionOnAppStateChange({
-        previous: previousState,
-        next: 'active',
-        shouldRetryPaste: retryClipboardAfterPastePrompt.current,
-        resumedFromBackground: cameFromBackground || readBecausePending,
-      });
-      // A handled push notification already navigated somewhere; keep the pending read for
-      // the next resume instead of covering that screen with the Detected sheet.
-      if (options?.skipRead) {
-        clearTimer();
-        return;
-      }
-      if (action === 'retry_read') {
-        ignoreLastSeenOnNextRead.current = true;
-        retryClipboardAfterPastePrompt.current = false;
-        scheduleRead(CLIPBOARD_RETRY_DELAY_MS);
-      } else if (action === 'read') {
-        retryClipboardAfterPastePrompt.current = false;
-        scheduleRead(CLIPBOARD_IDLE_DELAY_MS);
-      }
-    },
-    [enabled, scheduleRead, wallets.length],
-  );
-
   useEffect(() => {
     if (!enabled || wallets.length === 0) return;
-    // Not the shared timer: leaving the foreground must not cancel this first read.
-    const initialRead = setTimeout(() => {
-      if (!isForegroundAppState(AppState.currentState)) {
-        needsRead.current = true;
-        return;
-      }
-      readRef.current().catch(() => {});
-    }, CLIPBOARD_IDLE_DELAY_MS);
-    return () => clearTimeout(initialRead);
-  }, [enabled, wallets.length]);
 
-  // AppState transitions are owned by useCompanionListeners, which calls onLeaveForeground /
-  // onEnterForeground so notification handling and clipboard detection cannot race.
-  useEffect(() => () => clearTimer(), []);
-
-  return { onLeaveForeground, onEnterForeground };
+    subscribed.current = true;
+    const subscription = Clipboard.addListener(() => {
+      clipboardChangeVersion.current += 1;
+      pendingOffer.current = null;
+      clipboardPasteFollowUpAttempts.current = 0;
+      scheduleRead(CLIPBOARD_IDLE_DELAY_MS);
+    });
+    const removeStateListener = navigationRef.addListener('state', presentPendingOffer);
+    const removeReadyListener = navigationRef.addListener('ready', presentPendingOffer);
+    scheduleRead(CLIPBOARD_IDLE_DELAY_MS);
+    return () => {
+      subscribed.current = false;
+      pendingOffer.current = null;
+      removeStateListener();
+      removeReadyListener();
+      subscription.remove();
+      clearTimer();
+    };
+  }, [enabled, presentPendingOffer, scheduleRead, wallets.length]);
 };
 
 export default useClipboardDetection;

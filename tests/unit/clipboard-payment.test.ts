@@ -3,7 +3,6 @@ import assert from 'assert';
 import {
   ClipboardPaymentKind,
   classifyClipboardPayment,
-  clipboardActionOnAppStateChange,
   evaluateClipboardOnForeground,
   hashClipboardContent,
   isClipboardPaymentFromOwnWallet,
@@ -193,42 +192,6 @@ describe('clipboardPayment ownership and last-seen', () => {
       kind: ClipboardPaymentKind.Bitcoin,
       payload: P2WPKH,
     });
-  });
-
-  it('does not re-read clipboard after Control Center (inactive), but retries after a paste prompt', () => {
-    assert.strictEqual(
-      clipboardActionOnAppStateChange({
-        previous: 'inactive',
-        next: 'active',
-        shouldRetryPaste: false,
-      }),
-      'none',
-    );
-    assert.strictEqual(
-      clipboardActionOnAppStateChange({
-        previous: 'inactive',
-        next: 'active',
-        shouldRetryPaste: true,
-      }),
-      'retry_read',
-    );
-    assert.strictEqual(
-      clipboardActionOnAppStateChange({
-        previous: 'background',
-        next: 'active',
-        shouldRetryPaste: false,
-      }),
-      'read',
-    );
-    assert.strictEqual(
-      clipboardActionOnAppStateChange({
-        previous: 'inactive',
-        next: 'active',
-        shouldRetryPaste: false,
-        resumedFromBackground: true,
-      }),
-      'read',
-    );
   });
 
   it('offers a payment when the persisted last-seen hash is from different content', () => {
