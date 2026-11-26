@@ -1018,6 +1018,8 @@
     "depin_unavailable": "DePIN chat works with Legacy and ECDSA wallets. PostQuantum messaging is not available yet.",
     "privacy_testnet_only": "The privacy pool is only on Testnet for now. Switch to a Testnet wallet to use it.",
     "privacy_needs_keys": "The privacy pool needs a wallet whose keys are on this phone. Hardware wallets cannot use it.",
-    "privacy_unavailable": "The privacy pool is not available right now."
+    "privacy_unavailable": "The privacy pool is not available right now.",
+    "exit_again": "Press back again to leave",
+    "exit_stay": "Stay in the wallet"
   }
 }

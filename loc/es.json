@@ -884,7 +884,9 @@
     "depin_unavailable": "El chat DePIN funciona con carteras Legacy y ECDSA. La mensajería PostQuantum todavía no está disponible.",
     "privacy_testnet_only": "Por ahora el pool de privacidad solo está en Testnet. Cambia a una cartera de Testnet para usarlo.",
     "privacy_needs_keys": "El pool de privacidad necesita una cartera con las claves en este móvil. Las carteras hardware no pueden usarlo.",
-    "privacy_unavailable": "El pool de privacidad no está disponible ahora mismo."
+    "privacy_unavailable": "El pool de privacidad no está disponible ahora mismo.",
+    "exit_again": "Pulsa atrás otra vez para salir",
+    "exit_stay": "Quedarse en la cartera"
   },
   "assets": {
     "tab_transactions": "Transacciones",

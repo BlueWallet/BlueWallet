@@ -49,6 +49,7 @@ import { WalletTransactionsStatus } from '../../components/Context/StorageProvid
 import DePINChat, { DePINChatHandle } from '../../components/DePINChat';
 import HomeActions, { HomeAction } from '../../components/home/HomeActions';
 import HomeBalance from '../../components/home/HomeBalance';
+import { ExitNotice, useBackToExit } from '../../components/home/ExitNotice';
 import HomeTabBar, { HomeTab, homeTabBarSpace, useKeyboardVisible } from '../../components/home/HomeTabBar';
 import HomeTiles, { HomeTile } from '../../components/home/HomeTiles';
 import HomeTopBar from '../../components/home/HomeTopBar';
@@ -137,20 +138,27 @@ const WalletHomeBody: React.FC<BodyProps> = ({
     walletID,
   });
 
-  // Back walks one level at a time: open token chat → token picker → Home.
+  // Back walks one level at a time: open token chat → token picker → Home →
+  // a warning → out of the app.
+  const exit = useBackToExit();
+  const exitOnBack = exit.onBack;
   const handleBack = useCallback((): boolean => {
-    if (tab === 'home') return false;
+    if (tab === 'home') return exitOnBack();
     if (tab === 'depin' && depinChatRef.current?.goBack()) return true;
     setTab('home');
     return true;
-  }, [tab]);
+  }, [tab, exitOnBack]);
   useFocusEffect(
     useCallback(() => {
-      if (tab === 'home') return;
       const sub = BackHandler.addEventListener('hardwareBackPress', handleBack);
       return () => sub.remove();
-    }, [tab, handleBack]),
+    }, [handleBack]),
   );
+  // The warning only stands while the home is what back would leave.
+  const disarmExit = exit.disarm;
+  useEffect(() => {
+    if (tab !== 'home' || !isFocused) disarmExit();
+  }, [tab, isFocused, disarmExit]);
 
   // ---- Sync notice ----------------------------------------------------------
   const serviceStale = !!neurai && neurai.getServiceStatus?.() === 'stale';
@@ -474,6 +482,7 @@ const WalletHomeBody: React.FC<BodyProps> = ({
         </View>
       )}
 
+      <ExitNotice visible={exit.armed} bottom={barSpace + 4} onCancel={exit.disarm} />
       <HomeTabBar
         tab={tab}
         onSelect={selectTab}
@@ -484,6 +493,24 @@ const WalletHomeBody: React.FC<BodyProps> = ({
       />
     </View>
   );
+};
+
+/** The double back of the home, for the home with no wallet yet. */
+const NoWalletBackToExit: React.FC = () => {
+  const insets = useSafeAreaInsets();
+  const isFocused = useIsFocused();
+  const exit = useBackToExit();
+  const { onBack, disarm } = exit;
+  useFocusEffect(
+    useCallback(() => {
+      const sub = BackHandler.addEventListener('hardwareBackPress', onBack);
+      return () => sub.remove();
+    }, [onBack]),
+  );
+  useEffect(() => {
+    if (!isFocused) disarm();
+  }, [isFocused, disarm]);
+  return <ExitNotice visible={exit.armed} bottom={insets.bottom + 24} onCancel={disarm} />;
 };
 
 const WalletHome: React.FC = () => {
@@ -593,6 +620,7 @@ const WalletHome: React.FC = () => {
           </Text>
           <AddWalletGuide onCreate={openCreateWallet} onImport={openImportWallet} onHardware={openHardwareWallet} />
         </ScrollView>
+        <NoWalletBackToExit />
       </View>
     );
   }
