@@ -1,6 +1,6 @@
 import React from 'react';
 import assert from 'assert';
-import { render } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import WalletsCarousel, { walletHasPendingTransaction } from '../../components/WalletsCarousel';
@@ -87,6 +87,59 @@ describe('walletHasPendingTransaction', () => {
 });
 
 describe('wallet carousel refresh publish', () => {
+  it('exposes each wallet as one descriptive, stateful screen-reader action', () => {
+    const wallet = makeWallet({
+      label: 'Savings',
+      latestTransactionTime: 0,
+      balance: 100_000_000,
+    });
+    const onPress = jest.fn();
+    const onManage = jest.fn();
+    const screen = render(
+      <WalletsCarousel data={[wallet]} onPress={onPress} handleLongPress={onManage} horizontal={false} selectedWallet={wallet.getID()} />,
+    );
+
+    const card = screen.getByTestId('Savings');
+    assert.strictEqual(card.props.accessibilityRole, 'button');
+    assert.strictEqual(
+      card.props.accessibilityLabel,
+      `Savings, 1 BTC, ${loc.wallets.list_latest_transaction}, ${loc.wallets.pull_to_refresh}`,
+    );
+    assert.strictEqual(card.props.accessibilityState.selected, true);
+    assert.deepStrictEqual(card.props.accessibilityActions, [{ name: 'manage', label: loc.wallets.manage_title }]);
+
+    fireEvent(card, 'accessibilityAction', {
+      nativeEvent: { actionName: 'manage' },
+    });
+    assert.strictEqual(onManage.mock.calls.length, 1);
+  });
+
+  it('does not disclose a hidden balance in the accessibility label', () => {
+    const wallet = makeWallet({
+      label: 'Private',
+      hideBalance: true,
+      balance: 123_456_789,
+      latestTransactionTime: 0,
+    });
+    const screen = render(<WalletsCarousel data={[wallet]} onPress={() => {}} />);
+    const accessibilityLabel = screen.getByTestId('Private').props.accessibilityLabel as string;
+
+    assert.ok(accessibilityLabel.includes('Private'));
+    assert.ok(accessibilityLabel.includes(loc.wallets.list_latest_transaction));
+    assert.ok(!accessibilityLabel.includes('1.23456789'));
+  });
+
+  it('labels the wallet collection and describes the create-wallet action', () => {
+    const screen = render(<WalletsCarousel data={[]} onPress={() => {}} onNewWalletPress={() => {}} />);
+    const list = screen.getByLabelText(loc.wallets.list_title);
+    const createWallet = screen.getByTestId('CreateAWallet');
+
+    assert.strictEqual(list.props.accessibilityRole, 'list');
+    assert.strictEqual(createWallet.props.accessibilityRole, 'button');
+    assert.strictEqual(createWallet.props.accessibilityLabel, loc.wallets.list_create_a_wallet);
+    assert.strictEqual(createWallet.props.accessibilityHint, loc.wallets.list_create_a_wallet_text.replace(/\s*\n\s*/g, ' '));
+  });
+
   it.each([
     { name: 'FlatList animateChanges', props: { animateChanges: true } },
     { name: 'FlatList default (no animateChanges)', props: {} },
