@@ -1,12 +1,14 @@
 /**
  * Operations of an opened private wallet: Deposit, Assign, Withdraw and Join
- * side by side with an icon each, the chosen one's short form in a card
- * below, and every transaction reviewed in its own card before it is
- * published.
+ * side by side with an icon each, and below them one card holding the step
+ * the operation is at — its form, or the review of the transaction it built.
+ * A review takes the form's place (the form has nothing left to do until the
+ * review is cancelled), and each new step is scrolled into view, so what the
+ * next tap should be is always on screen.
  */
 
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, type ReactNode } from 'react';
+import { Keyboard, StyleSheet, Text, View } from 'react-native';
 import { formatXna } from '@neuraiproject/neurai-privacy/client';
 
 import type { PrivacyWallet } from '../../blue_modules/neurai/privacy/wallet';
@@ -33,7 +35,16 @@ export function actionLabel(action: string): string {
   }
 }
 
-function Review(props: { title: string; preview: TxPreview; unit: string; busy: boolean; onPublish: () => void; onCancel: () => void }) {
+function Review(props: {
+  title: string;
+  preview: TxPreview;
+  unit: string;
+  busy: boolean;
+  onPublish: () => void;
+  onCancel: () => void;
+  /** Progress or error of the step, right above its buttons. */
+  status?: ReactNode;
+}) {
   const p = useSettingsPalette();
   const rows: Array<[string, string, boolean?]> = [];
   if (props.preview.form) rows.push([loc.privacy.circuit, props.preview.form]);
@@ -53,6 +64,7 @@ function Review(props: { title: string; preview: TxPreview; unit: string; busy: 
           <InfoRow key={label} label={label} value={value} mono={mono} divider={index > 0} />
         ))}
       </View>
+      {props.status}
       <View style={styles.reviewButtons}>
         <View style={styles.flex}>
           <OutlineButton title={loc.privacy.cancel} onPress={props.onCancel} disabled={props.busy} />
@@ -68,7 +80,21 @@ function Review(props: { title: string; preview: TxPreview; unit: string; busy: 
 /** Quick deposit amounts in XNA (private payments use multiples of 100 XNA). */
 const QUICK_DEPOSITS = ['100', '200', '500'];
 
-export function C6OperationsPanel({ wallet, pool, ops }: { wallet: PrivacyWallet; pool: C6PrivateWallet; ops: C6Operations }) {
+export function C6OperationsPanel({
+  wallet,
+  pool,
+  ops,
+  status,
+  onReveal,
+}: {
+  wallet: PrivacyWallet;
+  pool: C6PrivateWallet;
+  ops: C6Operations;
+  /** Progress and error of the running step, shown in its card, next to the buttons that started it. */
+  status?: ReactNode;
+  /** A new step is on screen at this height within the panel: bring it into view. */
+  onReveal?: (y: number) => void;
+}) {
   const busy = pool.busy;
   const pending = !!ops.preview || !!ops.fundingPreview;
   const locked = busy || pending || !pool.historyReady;
@@ -310,6 +336,20 @@ export function C6OperationsPanel({ wallet, pool, ops }: { wallet: PrivacyWallet
     );
   }
 
+  // Which step the operation is at. A review stands in for the form while it
+  // waits for Publish or Cancel.
+  const step = ops.fundingPreview ? 'funding' : ops.preview ? 'review' : 'form';
+  const lastStep = useRef(step);
+  const revealNext = useRef(false);
+  if (lastStep.current !== step) {
+    lastStep.current = step;
+    revealNext.current = true;
+  }
+  // A review has nothing to type: the keyboard would only hide its buttons.
+  useEffect(() => {
+    if (step !== 'form') Keyboard.dismiss();
+  }, [step]);
+
   return (
     <View style={styles.wrap}>
       <View>
@@ -325,28 +365,43 @@ export function C6OperationsPanel({ wallet, pool, ops }: { wallet: PrivacyWallet
           disabled={busy || pending}
         />
       </View>
-      <Card testID="PrivacyOperationForm">{body}</Card>
 
-      {ops.fundingPreview ? (
-        <Review
-          title={loc.privacy.review_funding}
-          preview={ops.fundingPreview}
-          unit={unit}
-          busy={busy}
-          onPublish={ops.publishFunding}
-          onCancel={() => ops.setFundingPreview(null)}
-        />
-      ) : null}
-      {ops.preview ? (
-        <Review
-          title={`${loc.privacy.review} · ${actionLabel(ops.action)}`}
-          preview={ops.preview}
-          unit={unit}
-          busy={busy}
-          onPublish={ops.publishXna}
-          onCancel={() => ops.setPreview(null)}
-        />
-      ) : null}
+      {/* Keyed by step: each step mounts afresh, and its first layout says where to scroll. */}
+      <View
+        key={step}
+        onLayout={event => {
+          if (!revealNext.current) return;
+          revealNext.current = false;
+          onReveal?.(event.nativeEvent.layout.y);
+        }}
+      >
+        {ops.fundingPreview ? (
+          <Review
+            title={loc.privacy.review_funding}
+            preview={ops.fundingPreview}
+            unit={unit}
+            busy={busy}
+            onPublish={ops.publishFunding}
+            onCancel={() => ops.setFundingPreview(null)}
+            status={status}
+          />
+        ) : ops.preview ? (
+          <Review
+            title={`${loc.privacy.review} · ${actionLabel(ops.action)}`}
+            preview={ops.preview}
+            unit={unit}
+            busy={busy}
+            onPublish={ops.publishXna}
+            onCancel={() => ops.setPreview(null)}
+            status={status}
+          />
+        ) : (
+          <Card testID="PrivacyOperationForm">
+            {body}
+            {status}
+          </Card>
+        )}
+      </View>
     </View>
   );
 }

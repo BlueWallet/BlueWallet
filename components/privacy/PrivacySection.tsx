@@ -137,6 +137,25 @@ function PoolView({
   const summary = pool.open ? pool.summary : null;
   const pools = PRIVACY_POOLS.filter(entry => entry.runtime);
 
+  // Progress and errors go where the user is looking: with the operation step
+  // once the private wallet is open, in the card above while it opens.
+  const progress = busy ? <ProgressLine text={pool.phase} seconds={elapsed} onCancel={lock} cancelLabel={loc.privacy.cancel} /> : null;
+  const error = pool.error ? <ErrorBox message={pool.error} /> : null;
+  const stepStatus =
+    pool.open && (progress || error) ? (
+      <>
+        {progress}
+        {error}
+      </>
+    ) : null;
+
+  // Where the operations panel starts in the scrolled content, to bring a new step into view.
+  const operationsY = useRef(0);
+  const revealStep = useCallback(
+    (y: number) => keyboard.scrollRef.current?.scrollTo({ y: Math.max(0, operationsY.current + y - 12), animated: true }),
+    [keyboard.scrollRef],
+  );
+
   return (
     <ScrollView
       ref={keyboard.scrollRef}
@@ -203,7 +222,7 @@ function PoolView({
           ) : null}
         </View>
 
-        {busy ? <ProgressLine text={pool.phase} seconds={elapsed} onCancel={lock} cancelLabel={loc.privacy.cancel} /> : null}
+        {pool.open ? null : progress}
         {!pool.open ? (
           <PrimaryButton
             title={loc.privacy.open_wallet}
@@ -215,7 +234,7 @@ function PoolView({
           />
         ) : null}
         {pool.blockedReason ? <ErrorBox message={pool.blockedReason} /> : null}
-        {pool.error ? <ErrorBox message={pool.error} /> : null}
+        {pool.open ? null : error}
       </Card>
 
       {pool.open && !pool.historyReady ? (
@@ -286,7 +305,11 @@ function PoolView({
         </View>
       ) : null}
 
-      {pool.open ? <C6OperationsPanel wallet={wallet} pool={pool} ops={ops} /> : null}
+      {pool.open ? (
+        <View onLayout={event => (operationsY.current = event.nativeEvent.layout.y)}>
+          <C6OperationsPanel wallet={wallet} pool={pool} ops={ops} status={stepStatus} onReveal={revealStep} />
+        </View>
+      ) : null}
 
       {pool.open && pool.operations.length ? (
         <View>
