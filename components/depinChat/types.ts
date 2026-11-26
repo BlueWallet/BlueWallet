@@ -9,6 +9,10 @@ export interface DePINChatProps {
   paused?: boolean;
   /** Called with true while a token conversation (with its input bar) is open, false on the token picker. */
   onConversationOpenChange?: (open: boolean) => void;
+  /** The DePIN server has traffic this wallet has not read yet (see useDepinPoolWatch). */
+  hasNewMessages?: boolean;
+  /** Unread messages per token, as the chat last counted them. */
+  unreadCounts?: Record<string, number>;
 }
 
 export interface DePINChatHandle {

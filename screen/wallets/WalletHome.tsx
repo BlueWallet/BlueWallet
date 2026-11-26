@@ -131,7 +131,7 @@ const WalletHomeBody: React.FC<BodyProps> = ({
   const depinChatRef = useRef<DePINChatHandle>(null);
   const [conversationOpen, setConversationOpen] = useState(false);
 
-  const { hasNewMessages: hasNewDepinMessages } = useDepinPoolWatch({
+  const { hasNewMessages: hasNewDepinMessages, unreadCounts: depinUnreadCounts } = useDepinPoolWatch({
     enabled: depinAvailable,
     network: neurai ? neurai.getNeuraiNetwork() : 'mainnet',
     walletID,
@@ -455,6 +455,8 @@ const WalletHomeBody: React.FC<BodyProps> = ({
               walletID={walletID}
               paused={tab !== 'depin' || !isFocused}
               onConversationOpenChange={setConversationOpen}
+              hasNewMessages={hasNewDepinMessages}
+              unreadCounts={depinUnreadCounts}
             />
           ) : (
             renderUnavailable('chat-bubble-outline', loc.home.depin_unavailable)

@@ -36,7 +36,8 @@ import { getDepinRpcConfig } from '../blue_modules/neurai/depinRpcOverrides';
 import type { DepinRpc } from './useDepinChatSetup';
 import type { RawRpcCall } from '../blue_modules/neurai/depinRpcAdapter';
 import type { DepinChatIdentity } from '../blue_modules/neurai/depinChatIdentity';
-import { isMeaningfulSignature, markPoolSeen, poolSignature } from '../blue_modules/neurai/depinPoolSeen';
+import { isMeaningfulSignature, markPoolSeen, poolSignature, setUnreadCount } from '../blue_modules/neurai/depinPoolSeen';
+import { loadReadMarks, markMessagesRead } from '../blue_modules/neurai/depinReadMarks';
 import {
   forgetDeviceSession,
   isDeviceLinkLost,
@@ -67,6 +68,7 @@ const MAX_CONSECUTIVE_FAILURES = 4;
  */
 interface CachedChannel {
   groupMessages: DePINMessage[];
+  groupUnread: number;
   privateConversations: Map<string, PrivateConversation>;
   lastTimestamp: number;
   seenKeys: string[];
@@ -131,6 +133,9 @@ export interface RecipientInfo {
 }
 
 const shortAddr = (a: string) => (a.length > 8 ? `${a.substring(0, 4)}…${a.substring(a.length - 4)}` : a);
+
+/** What marks a message as read: the hash the pool gave it. */
+const readKey = (message: DePINMessage) => message.messageHash ?? `${message.sender}-${message.timestamp}`;
 
 export function useDePINChat(params: {
   rpc: DepinRpc | null;
@@ -204,7 +209,7 @@ export function useDePINChat(params: {
       setGroupUnread(0);
       return;
     }
-    setPrivateConversations((prev) => {
+    setPrivateConversations(prev => {
       const conversation = prev.get(activeTab);
       if (!conversation || conversation.unreadCount === 0) return prev;
       const updated = new Map(prev);
@@ -212,6 +217,13 @@ export function useDePINChat(params: {
       return updated;
     });
   }, [activeTab, privateConversations]);
+
+  // What is on screen is read, and stays read after a restart.
+  useEffect(() => {
+    if (paused || !selectedAsset) return;
+    const visible = activeTab === 'group' ? groupMessages : (privateConversations.get(activeTab)?.messages ?? []);
+    markMessagesRead(walletID, selectedAsset, visible.map(readKey));
+  }, [paused, selectedAsset, walletID, activeTab, groupMessages, privateConversations]);
 
   const [lastPoll, setLastPoll] = useState<Date | null>(null);
 
@@ -227,6 +239,10 @@ export function useDePINChat(params: {
   useEffect(() => {
     privateConversationsRef.current = privateConversations;
   }, [privateConversations]);
+  const groupUnreadRef = useRef(0);
+  useEffect(() => {
+    groupUnreadRef.current = groupUnread;
+  }, [groupUnread]);
 
   const lastTimestampRef = useRef<number>(0);
   const cursorRef = useRef<DepinSequenceCursor | null>(null);
@@ -247,7 +263,7 @@ export function useDePINChat(params: {
     (async () => {
       try {
         const keys = await AsyncStorage.getAllKeys();
-        const mine = keys.filter((k) => k.startsWith(PRIVATE_MSG_PREFIX));
+        const mine = keys.filter(k => k.startsWith(PRIVATE_MSG_PREFIX));
         if (mine.length === 0 || cancelled) return;
         const pairs = await AsyncStorage.multiGet(mine);
         for (const [k, v] of pairs) {
@@ -298,12 +314,14 @@ export function useDePINChat(params: {
       cursorRef.current = cached.cursor ?? null;
       seenMessageKeysRef.current = new Set(cached.seenKeys);
       setGroupMessages(cached.groupMessages);
+      setGroupUnread(cached.groupUnread);
       setPrivateConversations(new Map(cached.privateConversations));
     } else {
       lastTimestampRef.current = 0;
       cursorRef.current = null;
       seenMessageKeysRef.current = new Set();
       setGroupMessages([]);
+      setGroupUnread(0);
       setPrivateConversations(new Map());
     }
 
@@ -311,6 +329,7 @@ export function useDePINChat(params: {
       if (!key) return;
       channelCache.set(key, {
         groupMessages: groupMessagesRef.current,
+        groupUnread: groupUnreadRef.current,
         privateConversations: privateConversationsRef.current,
         lastTimestamp: lastTimestampRef.current,
         seenKeys: Array.from(seenMessageKeysRef.current),
@@ -345,7 +364,9 @@ export function useDePINChat(params: {
     [deviceBacked, device],
   );
 
-  const ingestItems = useCallback((myAddr: string, decrypted: DePINMessage[]) => {
+  // `read`: messages already seen on screen, in this session or an earlier one.
+  const ingestItems = useCallback((myAddr: string, decrypted: DePINMessage[], read: Set<string>) => {
+    const isNew = (m: DePINMessage) => m.sender !== myAddr && !read.has(readKey(m));
     const newGroup: DePINMessage[] = [];
     const privateUpdates = new Map<string, DePINMessage[]>();
     for (const msg of decrypted) {
@@ -357,25 +378,25 @@ export function useDePINChat(params: {
       }
     }
     if (newGroup.length > 0) {
-      setGroupMessages((prev) => [...prev, ...newGroup].sort((a, b) => a.timestamp - b.timestamp));
+      setGroupMessages(prev => [...prev, ...newGroup].sort((a, b) => a.timestamp - b.timestamp));
       // Only count what the user is not looking at, and never your own echo.
-      const unseen = activeTabRef.current === 'group' ? 0 : newGroup.filter((m) => m.sender !== myAddr).length;
-      if (unseen > 0) setGroupUnread((prev) => prev + unseen);
+      const unseen = activeTabRef.current === 'group' ? 0 : newGroup.filter(isNew).length;
+      if (unseen > 0) setGroupUnread(prev => prev + unseen);
     }
     if (privateUpdates.size > 0) {
-      setPrivateConversations((prev) => {
+      setPrivateConversations(prev => {
         const updated = new Map(prev);
         for (const [contact, msgs] of privateUpdates.entries()) {
           const existing = updated.get(contact);
           const all = existing ? [...existing.messages, ...msgs].sort((a, b) => a.timestamp - b.timestamp) : msgs;
           // Messages landing in the open conversation are read on arrival, and
           // your own outgoing ones never count.
-          const unseen = activeTabRef.current === contact ? 0 : msgs.filter((m) => m.sender !== myAddr).length;
+          const unseen = activeTabRef.current === contact ? 0 : msgs.filter(isNew).length;
           updated.set(contact, {
             address: contact,
             displayName: contact === myAddr ? 'Me' : shortAddr(contact),
             unreadCount: (existing?.unreadCount || 0) + unseen,
-            lastMessageTime: Math.max(...all.map((m) => m.timestamp)),
+            lastMessageTime: Math.max(...all.map(m => m.timestamp)),
             messages: all,
           });
         }
@@ -398,6 +419,8 @@ export function useDePINChat(params: {
 
     if (channelEpoch !== channelEpochRef.current) return;
     const signature = poolSignature(summarizeVerifiedPool(pool));
+    const readMarks = await loadReadMarks(walletID, selectedAsset);
+    if (channelEpoch !== channelEpochRef.current) return;
     // Publish verified pages incrementally while the admission cursor advances.
     const toChatMessage = (meta: Omit<DepinPlainMessage, 'plaintext'>, plaintext: string): DePINMessage => {
       const ts = typeof meta.timestamp === 'number' ? meta.timestamp : Math.floor(Date.now() / 1000);
@@ -433,7 +456,7 @@ export function useDePINChat(params: {
         fresh.push(toChatMessage(msg, msg.plaintext));
       }
       lastTimestampRef.current = maxTimestamp;
-      if (fresh.length > 0) ingestItems(effectiveAddress, fresh);
+      if (fresh.length > 0) ingestItems(effectiveAddress, fresh, readMarks);
     };
 
     const membership = [pool.context.instance_id, pool.context.membership_revision].join('|');
@@ -503,7 +526,19 @@ export function useDePINChat(params: {
 
     if (caughtUp && isMeaningfulSignature(signature)) markPoolSeen(walletID, signature);
     setLastPoll(new Date());
-  }, [rpc, network, selectedAsset, effectiveAddress, identity, getContactAddress, ingestItems, deviceBacked, deviceChannel, canCrypt, walletID]);
+  }, [
+    rpc,
+    network,
+    selectedAsset,
+    effectiveAddress,
+    identity,
+    getContactAddress,
+    ingestItems,
+    deviceBacked,
+    deviceChannel,
+    canCrypt,
+    walletID,
+  ]);
 
   // Automatic polling every 5s while connected.
   useEffect(() => {
@@ -617,9 +652,9 @@ export function useDePINChat(params: {
       // C1 remains separate: the current audit hook has no independent source
       // and reports independent:false. Pool signatures and address/key binding
       // do not prove asset ownership; this hook never claims otherwise.
-      const auditedAddresses = isPrivate && targetAddress ? [targetAddress] : recipientList.map((r) => r.address);
+      const auditedAddresses = isPrivate && targetAddress ? [targetAddress] : recipientList.map(r => r.address);
       auditRecipients({ addresses: auditedAddresses, token: normalizeDepinToken(selectedAsset), network })
-        .then((audit) => {
+        .then(audit => {
           if (audit.independent && !audit.ok && audit.unconfirmed.length > 0) {
             setRecipientWarning(
               `${audit.unconfirmed.length} recipient address(es) are not confirmed as active holders of ` +
@@ -630,7 +665,7 @@ export function useDePINChat(params: {
             setRecipientWarning(null);
           }
         })
-        .catch((e) => console.debug('useDePINChat: recipient audit failed', e));
+        .catch(e => console.debug('useDePINChat: recipient audit failed', e));
 
       // A private message goes to one holder and to us, and to nobody else. A
       // group message is resolved and encrypted to every holder by the library.
@@ -685,7 +720,19 @@ export function useDePINChat(params: {
       // cannot prove that concurrent messages from others have been read.
       return result;
     },
-    [rpc, network, selectedAsset, effectiveAddress, identity, recipientList, rememberPrivateRecipient, deviceBacked, canCrypt, deviceChannel, handleDeviceError],
+    [
+      rpc,
+      network,
+      selectedAsset,
+      effectiveAddress,
+      identity,
+      recipientList,
+      rememberPrivateRecipient,
+      deviceBacked,
+      canCrypt,
+      deviceChannel,
+      handleDeviceError,
+    ],
   );
 
   const checkAssetValidity = useCallback(async (): Promise<AssetValidity | null> => {
@@ -700,7 +747,7 @@ export function useDePINChat(params: {
 
   const createPrivateConversation = useCallback(
     (address: string) => {
-      setPrivateConversations((prev) => {
+      setPrivateConversations(prev => {
         if (prev.has(address)) return prev;
         const updated = new Map(prev);
         updated.set(address, {
@@ -716,12 +763,18 @@ export function useDePINChat(params: {
     [effectiveAddress],
   );
 
+  const totalUnread = groupUnread + Array.from(privateConversations.values()).reduce((sum, c) => sum + c.unreadCount, 0);
+  // The wallet's DePIN marker (home tile, tab bar) stays on while this is above zero.
+  useEffect(() => {
+    if (selectedAsset) setUnreadCount(walletID, selectedAsset, totalUnread);
+  }, [walletID, selectedAsset, totalUnread]);
+
   return {
     groupMessages,
     privateConversations,
     groupUnread,
     /** Unread across every conversation — drives the badge on the contacts button. */
-    totalUnread: groupUnread + Array.from(privateConversations.values()).reduce((sum, c) => sum + c.unreadCount, 0),
+    totalUnread,
     isPolling,
     setIsPolling,
     /** The device waits for the owner to approve the DePIN session. */

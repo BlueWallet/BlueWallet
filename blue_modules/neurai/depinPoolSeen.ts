@@ -65,10 +65,56 @@ export function markPoolSeen(walletID: string, signature: string): void {
   if (!walletID || !isMeaningfulSignature(signature) || seen.get(walletID) === signature) return;
   seen.set(walletID, signature);
   AsyncStorage.setItem(KEY_PREFIX + walletID, signature).catch(() => {});
-  listeners.forEach((listener) => listener());
+  listeners.forEach(listener => listener());
 }
 
 export function subscribePoolSeen(listener: Listener): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
+}
+
+/*
+ * Unread messages per wallet and token. The pool marker above clears as soon as
+ * the chat has read the channel, even when what arrived was a private message
+ * for a conversation that is not open. These counts keep the wallet's DePIN
+ * marker on until the conversations holding them have been opened.
+ */
+const UNREAD_PREFIX = 'depin_unread_';
+const unread = new Map<string, Record<string, number>>();
+
+export async function loadUnreadCounts(walletID: string): Promise<Record<string, number>> {
+  const known = unread.get(walletID);
+  if (known) return known;
+  let counts: Record<string, number> = {};
+  try {
+    const raw = await AsyncStorage.getItem(UNREAD_PREFIX + walletID);
+    const parsed = raw ? JSON.parse(raw) : null;
+    if (parsed && typeof parsed === 'object') counts = parsed;
+  } catch {
+    // Nothing stored: no marker until the chat counts again.
+  }
+  if (!unread.has(walletID)) unread.set(walletID, counts);
+  return unread.get(walletID) ?? counts;
+}
+
+/** Unread messages of each token of a wallet, as last counted by the chat. */
+export function getUnreadCounts(walletID: string): Record<string, number> {
+  return unread.get(walletID) ?? {};
+}
+
+export function getUnreadTotal(walletID: string): number {
+  return Object.values(getUnreadCounts(walletID)).reduce((sum, count) => sum + (Number(count) || 0), 0);
+}
+
+/** The chat counted the unread messages of a token: store them and wake any watcher. */
+export function setUnreadCount(walletID: string, token: string, count: number): void {
+  if (!walletID || !token) return;
+  const current = unread.get(walletID) ?? {};
+  if ((current[token] ?? 0) === count) return;
+  const next = { ...current };
+  if (count > 0) next[token] = count;
+  else delete next[token];
+  unread.set(walletID, next);
+  AsyncStorage.setItem(UNREAD_PREFIX + walletID, JSON.stringify(next)).catch(() => {});
+  listeners.forEach(listener => listener());
 }

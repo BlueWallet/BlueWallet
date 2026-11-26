@@ -1,176 +1,162 @@
-import React, { type ReactNode } from 'react';
+/**
+ * The two areas of the DePIN section, chosen with a segmented control: the
+ * chats of the DePIN tokens held at the DePIN address, and the IoT test area.
+ * Each token is a row saying whether this server opens its chat and whether
+ * it has messages waiting.
+ */
+import React from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import loc from '../../loc';
 import Icon from '../Icon';
+import {
+  SettingsBadge,
+  SettingsCard,
+  SettingsIconCircle,
+  SettingsSectionLabel,
+  SettingsSegmented,
+  useSettingsPalette,
+} from '../settings/SettingsUI';
+import { UnreadBadge } from './DepinUI';
 
-// Cap on the selected tab. Same brand orange as the send button and the rest
-// of the wallet's accents; the tabs themselves stay neutral so the green/red
-// server dot is the only colored signal competing for attention.
-const TAB_ACCENT = '#f97316';
+export type DepinSection = 'chat' | 'iot';
 
 interface DepinChatTokenSectionsProps {
-  activeSection: 'chat' | 'iot';
+  activeSection: DepinSection;
   assetNames: string[];
-  chatActive: boolean;
-  iconColor: string;
+  /** The server has new traffic not read yet (it serves one token: the one with access). */
+  hasNewMessages: boolean;
   loadingAssets: boolean;
   onSelectAsset: (assetName: string) => void;
-  onSelectSection: (section: 'chat' | 'iot') => void;
-  revealBanner: ReactNode;
-  stylesHook: any;
+  onSelectSection: (section: DepinSection) => void;
   tokenHasAccess: (assetName: string) => boolean | null;
+  /** Unread messages per token, as the chat last counted them. */
+  unreadCounts: Record<string, number>;
 }
+
+const TokenRow: React.FC<{
+  name: string;
+  access: boolean | null;
+  unread: number;
+  isNew: boolean;
+  divider: boolean;
+  onPress: () => void;
+}> = ({ name, access, unread, isNew, divider, onPress }) => {
+  const p = useSettingsPalette();
+  const tone = access === true ? p.ok : access === false ? p.fail : p.idle;
+  const state = access === true ? loc.depin.token_open : access === false ? loc.depin.token_closed : loc.depin.token_checking;
+  const news =
+    unread > 0 ? (loc.formatString(loc.depin.unread_count, { count: unread }) as string) : isNew ? loc.depin.new_badge : undefined;
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={[name, state, news].filter(Boolean).join(', ')}
+      testID={`DepinAsset-${name}`}
+      style={({ pressed }) => [
+        styles.row,
+        divider && { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: p.divider },
+        pressed && styles.pressed,
+      ]}
+    >
+      <SettingsIconCircle icon="forum" muted={access === false} />
+      <View style={styles.texts}>
+        <Text style={[styles.rowTitle, { color: p.ink }]}>{name}</Text>
+        <View style={styles.subtitleRow}>
+          <View style={[styles.dot, { backgroundColor: tone.dot }]} />
+          <Text style={[styles.subtitle, { color: p.mutedOnCard }]}>{state}</Text>
+        </View>
+      </View>
+      {unread > 0 ? <UnreadBadge count={unread} /> : isNew ? <SettingsBadge label={loc.depin.new_badge} tone="ok" /> : null}
+      <Icon name="chevron-right" type="material" size={22} color={p.mutedOnCard} />
+    </Pressable>
+  );
+};
 
 const DepinChatTokenSections = ({
   activeSection,
   assetNames,
-  chatActive,
-  iconColor,
+  hasNewMessages,
   loadingAssets,
   onSelectAsset,
   onSelectSection,
-  revealBanner,
-  stylesHook,
   tokenHasAccess,
+  unreadCounts,
 }: DepinChatTokenSectionsProps) => {
-  // The selected tab shares the panel's surface and leaves a gap in the top
-  // line, so the two read as one folder sheet. Unselected tabs are shorter and
-  // keep the line running underneath, sitting visually behind the panel.
-  // Selection lives in the shape and the orange cap only — never in the border
-  // color, which is what previously left Chat outlined in green while IoT was
-  // open. Server health stays on its own dot.
-  const tabStyle = (selected: boolean) =>
-    selected ? [styles.tab, stylesHook.panel, styles.tabActive] : [styles.tab, styles.tabIdle, stylesHook.tabLine];
-
+  const p = useSettingsPalette();
   return (
     <>
-      <View style={styles.tabsRow}>
-        <View style={[styles.tabFill, styles.tabFillLead, stylesHook.tabLine]} />
+      <SettingsSegmented<DepinSection>
+        segments={[
+          { value: 'chat', label: loc.depin.tab_chat, icon: 'forum', testID: 'DepinSectionChat' },
+          { value: 'iot', label: `${loc.depin.tab_iot} · ${loc.depin.iot_test_badge}`, icon: 'memory', testID: 'DepinSectionIot' },
+        ]}
+        value={activeSection}
+        onChange={onSelectSection}
+        testID="DepinSections"
+      />
 
-        {/* Always selectable: it holds the token list even when no held token opens a chat on this
-            server (the red dot says so). Gating it trapped the user on IoT. */}
-        <Pressable
-          onPress={() => onSelectSection('chat')}
-          style={[tabStyle(activeSection === 'chat'), !chatActive && styles.tabMuted]}
-          testID="DepinSectionChat"
-        >
-          <View style={[styles.chipDot, chatActive ? styles.chipDotOk : styles.chipDotNo]} />
-          <Text style={[styles.tabText, activeSection === 'chat' ? stylesHook.chipText : stylesHook.subtext]}>{loc.depin.tab_chat}</Text>
-        </Pressable>
-
-        <Pressable onPress={() => onSelectSection('iot')} style={tabStyle(activeSection === 'iot')} testID="DepinSectionIot">
-          <Text style={[styles.tabText, activeSection === 'iot' ? stylesHook.chipText : stylesHook.subtext]}>{loc.depin.tab_iot}</Text>
-          <View style={styles.testBadge}>
-            <Text style={styles.testBadgeText}>{loc.depin.iot_test_badge}</Text>
-          </View>
-        </Pressable>
-
-        <View style={[styles.tabFill, styles.flex, stylesHook.tabLine]} />
-      </View>
-
-      <View style={[styles.panel, stylesHook.panel]}>
-        {activeSection === 'chat' ? (
-          <>
-            <Text style={[styles.sectionLabel, stylesHook.subtext]}>{loc.depin.tokens_label}</Text>
+      {activeSection === 'chat' ? (
+        <View>
+          <SettingsSectionLabel>{loc.depin.tokens_label}</SettingsSectionLabel>
+          <SettingsCard>
             {loadingAssets && assetNames.length === 0 ? (
-              <ActivityIndicator style={styles.loader} />
+              <ActivityIndicator style={styles.loader} color={p.accent} accessibilityLabel={loc.depin.token_checking} />
             ) : assetNames.length === 0 ? (
-              <Text style={[styles.info, stylesHook.subtext]}>{loc.depin.no_token}</Text>
-            ) : (
-              <View style={styles.chipsWrap}>
-                {assetNames.map(assetName => {
-                  const access = tokenHasAccess(assetName);
-                  return (
-                    <Pressable
-                      key={assetName}
-                      onPress={() => onSelectAsset(assetName)}
-                      style={[styles.chip, stylesHook.chip, access === true && styles.chipAccess, access === false && styles.chipNoAccess]}
-                      testID={`DepinAsset-${assetName}`}
-                    >
-                      {access != null && <View style={[styles.chipDot, access ? styles.chipDotOk : styles.chipDotNo]} />}
-                      <Text style={[styles.chipText, stylesHook.chipText]}>{assetName}</Text>
-                    </Pressable>
-                  );
-                })}
+              <View style={styles.empty} testID="DepinNoTokens">
+                <SettingsIconCircle icon="token" muted />
+                <Text style={[styles.emptyText, { color: p.mutedOnCard }]}>{loc.depin.no_token}</Text>
               </View>
+            ) : (
+              assetNames.map((name, index) => {
+                const access = tokenHasAccess(name);
+                return (
+                  <TokenRow
+                    key={name}
+                    name={name}
+                    access={access}
+                    unread={unreadCounts[name] ?? 0}
+                    isNew={hasNewMessages && access === true}
+                    divider={index > 0}
+                    onPress={() => onSelectAsset(name)}
+                  />
+                );
+              })
             )}
-          </>
-        ) : (
-          <>
-            <View style={styles.iotTitleRow}>
-              <Icon name="memory" type="material" size={18} color={iconColor} />
-              <Text style={[styles.iotTitle, stylesHook.text]}>{loc.depin.tab_iot}</Text>
+          </SettingsCard>
+        </View>
+      ) : (
+        <SettingsCard style={styles.iot} testID="DepinIotArea">
+          <View style={styles.iotHead}>
+            <SettingsIconCircle icon="memory" />
+            <View style={styles.texts}>
+              <View style={styles.iotTitleRow}>
+                <Text style={[styles.rowTitle, { color: p.ink }]}>{loc.depin.tab_iot}</Text>
+                <SettingsBadge label={loc.depin.iot_test_badge} />
+              </View>
+              <Text style={[styles.subtitle, { color: p.mutedOnCard }]}>{loc.depin.iot_placeholder}</Text>
             </View>
-            <Text style={[styles.iotDesc, stylesHook.subtext]}>{loc.depin.iot_placeholder}</Text>
-          </>
-        )}
-      </View>
-
-      {activeSection === 'chat' ? revealBanner : null}
+          </View>
+        </SettingsCard>
+      )}
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  info: { fontSize: 15, textAlign: 'center', lineHeight: 22, paddingHorizontal: 8 },
+  pressed: { opacity: 0.6 },
   loader: { marginVertical: 24 },
-  sectionLabel: { fontSize: 13, fontWeight: '600', marginBottom: 8 },
-  chipsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    columnGap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 16,
-    borderWidth: 1,
-  },
-  chipAccess: { borderColor: '#16a34a', borderWidth: 1.5, backgroundColor: 'rgba(22, 163, 74, 0.10)' },
-  chipNoAccess: { borderColor: '#dc2626', borderWidth: 1.5, backgroundColor: 'rgba(220, 38, 38, 0.08)' },
-  chipDot: { width: 8, height: 8, borderRadius: 4 },
-  chipDotOk: { backgroundColor: '#16a34a' },
-  chipDotNo: { backgroundColor: '#dc2626' },
-  chipText: { fontSize: 14, fontWeight: '600' },
-
-  // Folder tabs. The row's two fills plus each unselected tab's bottom border
-  // draw one continuous line across the panel's top; the selected tab simply
-  // omits its own, leaving the mouth of the folder. Nothing overlaps, so there
-  // are no negative margins or z-index games to get wrong.
-  tabsRow: { flexDirection: 'row', alignItems: 'flex-end', marginTop: 18 },
-  tabFill: { borderBottomWidth: 1 },
-  tabFillLead: { width: 14 },
-  tab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    columnGap: 6,
-    paddingHorizontal: 14,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
-  tabActive: { paddingTop: 8, paddingBottom: 11, borderLeftWidth: 1, borderRightWidth: 1, borderTopWidth: 3, borderTopColor: TAB_ACCENT },
-  tabIdle: { paddingTop: 6, paddingBottom: 8, borderBottomWidth: 1 },
-  tabMuted: { opacity: 0.65 },
-  tabText: { fontSize: 14, fontWeight: '700' },
-  // flexGrow, not flex: with a short token list the panel takes the leftover
-  // height down to the bottom of the screen instead of hugging its content;
-  // with a long one it keeps its natural height and the page scrolls.
-  panel: {
-    padding: 14,
-    flexGrow: 1,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderBottomWidth: 1,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
-  },
-
-  testBadge: { backgroundColor: '#f59e0b', borderRadius: 6, paddingHorizontal: 5, paddingVertical: 1 },
-  testBadgeText: { color: '#ffffff', fontSize: 9, fontWeight: '800', letterSpacing: 0.5 },
-  iotTitleRow: { flexDirection: 'row', alignItems: 'center', columnGap: 8, marginBottom: 4 },
-  iotTitle: { fontSize: 15, fontWeight: '700' },
-  iotDesc: { fontSize: 13, lineHeight: 19 },
+  row: { flexDirection: 'row', alignItems: 'center', columnGap: 12, minHeight: 68, paddingVertical: 10 },
+  texts: { flex: 1, rowGap: 3 },
+  rowTitle: { fontSize: 15, fontWeight: '600' },
+  subtitleRow: { flexDirection: 'row', alignItems: 'center', columnGap: 6 },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  subtitle: { fontSize: 13, lineHeight: 18, flexShrink: 1 },
+  empty: { flexDirection: 'row', alignItems: 'flex-start', columnGap: 12, paddingVertical: 16 },
+  emptyText: { flex: 1, fontSize: 14, lineHeight: 20 },
+  iot: { paddingVertical: 16 },
+  iotHead: { flexDirection: 'row', alignItems: 'flex-start', columnGap: 12 },
+  iotTitleRow: { flexDirection: 'row', alignItems: 'center', columnGap: 8 },
 });
 
 export default DepinChatTokenSections;

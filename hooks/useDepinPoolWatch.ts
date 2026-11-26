@@ -13,7 +13,9 @@
  * ten cards still make one request.
  *
  * The marker means "the channel has new traffic" — whether a given message is
- * addressed to this wallet can only be known by decrypting it.
+ * addressed to this wallet can only be known by decrypting it. It also stays on
+ * while the chat counted messages the user has not opened yet (a private
+ * message that came in while another conversation was on screen).
  */
 import { getVerifiedPool, summarizeVerifiedPool } from '../blue_modules/neurai/depinPool';
 import { getDepinRpcConfig } from '../blue_modules/neurai/depinRpcOverrides';
@@ -22,8 +24,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { getDepinRpcBackend, loadDepinRpcOverrides, type NeuraiNetwork } from '../blue_modules/neurai';
 import {
   getSeenSignature,
+  getUnreadCounts,
+  getUnreadTotal,
   isMeaningfulSignature,
   loadSeenSignature,
+  loadUnreadCounts,
   poolSignature,
   subscribePoolSeen,
 } from '../blue_modules/neurai/depinPoolSeen';
@@ -59,7 +64,7 @@ async function refreshLatest(network: NeuraiNetwork): Promise<void> {
       });
       const stats = summarizeVerifiedPool(pool);
       latest.set(network, { signature: poolSignature(stats), at: Date.now() });
-      watchers.forEach((notify) => notify());
+      watchers.forEach(notify => notify());
     } catch {
       // Node unreachable: keep the previous state rather than clearing markers.
     }
@@ -69,25 +74,33 @@ async function refreshLatest(network: NeuraiNetwork): Promise<void> {
   return request;
 }
 
-export function useDepinPoolWatch(params: { enabled: boolean; network: NeuraiNetwork; walletID: string }): { hasNewMessages: boolean } {
+export function useDepinPoolWatch(params: { enabled: boolean; network: NeuraiNetwork; walletID: string }): {
+  hasNewMessages: boolean;
+  /** Unread messages per token, as the chat last counted them. */
+  unreadCounts: Record<string, number>;
+} {
   const { enabled, network, walletID } = params;
   const [hasNewMessages, setHasNewMessages] = useState(false);
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
 
   const evaluate = useCallback(() => {
+    setUnreadCounts(getUnreadCounts(walletID));
+    const pending = getUnreadTotal(walletID) > 0;
     const current = latest.get(network)?.signature;
     if (!current || !isMeaningfulSignature(current)) {
-      setHasNewMessages(false);
+      setHasNewMessages(pending);
       return;
     }
     const seen = getSeenSignature(walletID);
     // Nothing seen yet: treat the current state as the baseline rather than
     // greeting a first-time user with a permanent marker.
-    setHasNewMessages(seen != null && seen !== current);
+    setHasNewMessages(pending || (seen != null && seen !== current));
   }, [network, walletID]);
 
   useEffect(() => {
     if (!enabled) {
       setHasNewMessages(false);
+      setUnreadCounts({});
       return;
     }
     let cancelled = false;
@@ -99,8 +112,10 @@ export function useDepinPoolWatch(params: { enabled: boolean; network: NeuraiNet
     };
 
     (async () => {
-      await loadSeenSignature(walletID);
-      if (!cancelled) tick();
+      await Promise.all([loadSeenSignature(walletID), loadUnreadCounts(walletID)]);
+      if (cancelled) return;
+      evaluate();
+      tick();
     })();
 
     const interval = setInterval(tick, POOL_WATCH_INTERVAL_MS);
@@ -116,7 +131,7 @@ export function useDepinPoolWatch(params: { enabled: boolean; network: NeuraiNet
     };
   }, [enabled, network, walletID, evaluate]);
 
-  return { hasNewMessages };
+  return { hasNewMessages, unreadCounts };
 }
 
 export default useDepinPoolWatch;
