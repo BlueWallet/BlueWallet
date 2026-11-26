@@ -9,10 +9,25 @@ on:
       source_sha:
         required: true
         type: string
+    secrets:
+      GIT_URL:
+        required: true
+      GIT_ACCESS_TOKEN:
+        required: true
+      MATCH_PASSWORD:
+        required: true
+      KEYSTORE_PASSWORD:
+        required: true
 
 jobs:
   buildReleaseApk:
+    if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      artifact_url: ${{ steps.upload_apk.outputs.artifact-url }}
+      apk_filename: ${{ steps.build_and_sign_apk.outputs.apk_filename }}
 
     steps:
       - name: Checkout project
@@ -20,6 +35,7 @@ jobs:
         with:
           fetch-depth: "0"
           ref: ${{ inputs.source_sha }}
+          persist-credentials: false
 
       - name: Free disk space (Android build)
         shell: bash
@@ -109,79 +125,75 @@ jobs:
         run: bundle exec fastlane android build_release_apk
         env:
           BUILD_NUMBER: ${{ steps.build_number.outputs.build_number }}
-          KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          ANDROID_SIGNING_DECRYPTION_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
-      - name: Upload build logs on failure
-        if: failure()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: android-build-logs
-          path: |
-            fastlane/logs/**/*.log
-            android/**/*.log
-            android/**/build/**/*.log
-            android/**/outputs/logs/**/*.log
-            android/**/reports/**/*.log
-          if-no-files-found: warn
-
-      - name: Determine APK Filename and Path
-        id: determine_apk_path
+      - name: Confirm APK signer matches private Match certificate
+        env:
+          APK_PATH: ${{ steps.build_and_sign_apk.outputs.apk_output_path }}
+          EXPECTED_SHA256: ${{ steps.build_and_sign_apk.outputs.signing_certificate_sha256 }}
+        shell: bash
         run: |
-          BUILD_NUMBER=${{ steps.build_number.outputs.build_number }}
-          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
-          BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}
-          BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/_/g')
-
-          if [ -n "$BRANCH_NAME" ] && [ "$BRANCH_NAME" != "master" ]; then
-            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${BUILD_NUMBER}-${BRANCH_NAME}.apk"
-          else
-            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${BUILD_NUMBER}.apk"
+          set -euo pipefail
+          if ! [[ "$EXPECTED_SHA256" =~ ^[0-9A-F]{64}$ ]]; then
+            echo '::error::Missing or invalid verified Match certificate fingerprint.'
+            exit 1
           fi
-      
-          APK_PATH="android/app/build/outputs/apk/release/${EXPECTED_FILENAME}"
-          echo "EXPECTED_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_ENV
-          echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
+          VERIFICATION=$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK_PATH")
+          ACTUAL_SHA256=$(printf '%s\n' "$VERIFICATION" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | tr -d ':' | tr '[:lower:]' '[:upper:]')
+          if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
+            echo '::error::APK signer does not match the verified private Match certificate.'
+            exit 1
+          fi
+          echo 'Confirmed: APK signature is valid and matches the private Match signing certificate.'
+          {
+            echo '### Android APK signature verified'
+            echo 'The finished APK has a valid signature matching the private Match certificate and the pinned signing fingerprint.'
+            printf '\nCertificate SHA-256: `%s`\n' "$ACTUAL_SHA256"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload APK as artifact
+        id: upload_apk
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: signed-apk
-          path: ${{ env.APK_PATH }}
+          path: ${{ steps.build_and_sign_apk.outputs.apk_output_path }}
           if-no-files-found: error
 
-  browserstack:
-    runs-on: macos-26
+  comment_apk:
+    name: Comment signed APK artifact on labeled PR
     needs: buildReleaseApk
-    if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'browserstack') }}
-
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
-        with:
-          ruby-version: 3.4.11
-          bundler-cache: true
-
-      - name: Install dependencies with Bundler
-        run: bundle install --jobs 4 --retry 3
-
-      - name: Download APK artifact
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: signed-apk
-
-      - name: Set APK Path
-        run: |
-          APK_PATH=$(find ${{ github.workspace }} -name '*.apk')
-          echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
-
-      - name: Upload APK to BrowserStack and Post PR Comment
+      - name: Post APK download link for comment-apk PRs
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bundle exec fastlane android upload_to_browserstack_and_comment
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          ARTIFACT_URL: ${{ needs.buildReleaseApk.outputs.artifact_url }}
+          APK_FILENAME: ${{ needs.buildReleaseApk.outputs.apk_filename }}
+        with:
+          script: |
+            const { SOURCE_SHA, ARTIFACT_URL, APK_FILENAME } = process.env;
+            if (!ARTIFACT_URL || !APK_FILENAME) {
+              core.setFailed('Signed APK artifact URL or filename is missing.');
+              return;
+            }
+            const prs = await github.paginate(github.rest.repos.listPullRequestsAssociatedWithCommit, {
+              ...context.repo, commit_sha: SOURCE_SHA, per_page: 100,
+            });
+            for (const pr of prs) {
+              const { data: current } = await github.rest.pulls.get({
+                ...context.repo, pull_number: pr.number,
+              });
+              if (!current.labels.some(label => label.name === 'comment-apk')) continue;
+              const filename = APK_FILENAME.replace(/[\\\[\]]/g, '\\$&');
+              await github.rest.issues.createComment({
+                ...context.repo, issue_number: pr.number,
+                body: `Signed APK artifact: [${filename}](${ARTIFACT_URL})\n\nBuilt from commit ${SOURCE_SHA}.`,
+              });
+            }

@@ -72,6 +72,21 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.0.1'
 
+// Release credentials are intentionally supplied at build time. This keeps the
+// upload keystore and its passwords out of the application repository while
+// allowing local releases and CI to use the exact same Gradle signing path.
+def unsignedRelease = project.findProperty('BLUEWALLET_UNSIGNED_RELEASE') == 'true'
+def releaseKeystorePath = unsignedRelease ? null : (project.findProperty('ANDROID_KEYSTORE_PATH') ?: System.getenv('ANDROID_KEYSTORE_PATH'))
+def releaseKeystorePassword = unsignedRelease ? null : (project.findProperty('ANDROID_KEYSTORE_PASSWORD') ?: System.getenv('ANDROID_KEYSTORE_PASSWORD'))
+def releaseKeyAlias = unsignedRelease ? null : (project.findProperty('ANDROID_KEY_ALIAS') ?: System.getenv('ANDROID_KEY_ALIAS'))
+def releaseKeyPassword = unsignedRelease ? null : (project.findProperty('ANDROID_KEY_PASSWORD') ?: System.getenv('ANDROID_KEY_PASSWORD'))
+def releaseSigningValues = [releaseKeystorePath, releaseKeystorePassword, releaseKeyAlias, releaseKeyPassword]
+def releaseSigningConfigured = releaseSigningValues.every { it != null && !it.trim().isEmpty() }
+
+if (releaseSigningValues.any { it != null && !it.trim().isEmpty() } && !releaseSigningConfigured) {
+    throw new GradleException('Release signing requires ANDROID_KEYSTORE_PATH, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, and ANDROID_KEY_PASSWORD')
+}
+
 android {
     packagingOptions {
         jniLibs {
@@ -112,8 +127,22 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            if (releaseSigningConfigured) {
+                storeFile file(releaseKeystorePath)
+                storePassword releaseKeystorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (releaseSigningConfigured) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
