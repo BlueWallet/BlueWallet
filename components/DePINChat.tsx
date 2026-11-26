@@ -5,8 +5,8 @@
  * Rendered by the wallet home's DePIN tab (Legacy and ECDSA wallets). Derives
  * the dedicated DePIN chat identity (account 100), lists the DePIN tokens held
  * at that address, and — once a token is selected — opens an end-to-end
- * encrypted group/private chat with the other holders via
- * `react-native-gifted-chat` and the `useDePINChat` hook.
+ * encrypted group/private chat with the other holders through the
+ * `useDePINChat` hook, drawn by `DepinMessageList`.
  *
  * The gear button opens `DepinRpcEdit`: the wallet's WSS service, or one for
  * DePIN alone. To receive group messages the address's public key must be
@@ -47,9 +47,8 @@ import DepinChatConversationPanel from './depinChat/DepinChatConversationPanel';
 import DepinChatInfoModal from './depinChat/DepinChatInfoModal';
 import DepinChatRevealBanner from './depinChat/DepinChatRevealBanner';
 import DepinChatTokenSections, { type DepinSection } from './depinChat/DepinChatTokenSections';
-import { CardButton } from './depinChat/DepinUI';
+import { addressTag, CardButton } from './depinChat/DepinUI';
 import type { DePINChatHandle, DePINChatProps } from './depinChat/types';
-import { shortAddr } from './depinChat/utils';
 import Icon, { type MaterialIconName } from './Icon';
 
 export type { DePINChatHandle } from './depinChat/types';
@@ -403,7 +402,7 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
     // encryption) and no conversation open yet. Yourself is listed as notes.
     const holderContacts = recipientList.filter(r => r.pubkey && !privateConversations.has(r.address));
     const isGroup = activeTab === 'group';
-    const title = isGroup ? selectedAsset : activeTab === identity.address ? loc.depin.contacts_me : shortAddr(activeTab);
+    const title = isGroup ? selectedAsset : activeTab === identity.address ? loc.depin.contacts_me : addressTag(activeTab);
     const subtitle = isGroup
       ? `${loc.depin.channel_general} · ${loc.formatString(loc.depin.members_count, { count: recipientList.length })}`
       : `${loc.depin.private_chat} · ${selectedAsset}`;

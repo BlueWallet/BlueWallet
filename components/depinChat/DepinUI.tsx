@@ -28,8 +28,11 @@ export const avatarColor = (address: string): string => {
   return AVATAR_COLORS[hash % AVATAR_COLORS.length];
 };
 
-/** Last four characters: what the chat calls a sender. */
-export const addressTag = (address: string): string => address.slice(-4);
+/** Last six characters: what the chat calls a sender, everywhere it names one. */
+export const addressTag = (address: string): string => address.slice(-6);
+
+/** The avatar's letter: the first of the sender's name, as a capital. */
+export const avatarLetter = (address: string): string => addressTag(address).charAt(0).toUpperCase();
 
 export const SenderAvatar: React.FC<{ address: string; size?: number; me?: boolean }> = ({ address, size = 36, me }) => {
   const p = useSettingsPalette();
@@ -43,7 +46,7 @@ export const SenderAvatar: React.FC<{ address: string; size?: number; me?: boole
   }
   return (
     <View style={[styles.avatar, circle, { backgroundColor: avatarColor(address) }]} importantForAccessibility="no-hide-descendants">
-      <Text style={[styles.avatarText, size >= 40 ? styles.avatarTextLarge : styles.avatarTextSmall]}>{addressTag(address)}</Text>
+      <Text style={[styles.avatarText, size >= 40 ? styles.avatarTextLarge : styles.avatarTextSmall]}>{avatarLetter(address)}</Text>
     </View>
   );
 };
@@ -157,8 +160,8 @@ const styles = StyleSheet.create({
   disabled: { opacity: 0.45 },
   avatar: { alignItems: 'center', justifyContent: 'center' },
   avatarText: { color: '#ffffff', fontWeight: '700' },
-  avatarTextLarge: { fontSize: 12 },
-  avatarTextSmall: { fontSize: 11 },
+  avatarTextLarge: { fontSize: 18 },
+  avatarTextSmall: { fontSize: 15 },
   badge: {
     minWidth: 20,
     height: 20,

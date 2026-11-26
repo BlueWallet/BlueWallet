@@ -9,8 +9,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import type { PoolStats, RecipientInfo } from '../../hooks/useDePINChat';
 import loc from '../../loc';
 import { SettingsIconCircle, SettingsRow, useSettingsPalette } from '../settings/SettingsUI';
-import { CardButton, RoundIconButton } from './DepinUI';
-import { shortAddr } from './utils';
+import { addressTag, CardButton, RoundIconButton } from './DepinUI';
 import type { DepinServerInfo } from './types';
 
 interface DepinChatInfoModalProps {
@@ -89,7 +88,7 @@ const DepinChatInfoModal = ({
               {recipients.map(recipient => (
                 <View key={recipient.address} style={[styles.member, { backgroundColor: p.ground }]}>
                   <Text style={[styles.memberText, { color: p.ink }]}>
-                    {recipient.address === identityAddress ? loc.depin.you : shortAddr(recipient.address)}
+                    {recipient.address === identityAddress ? loc.depin.you : addressTag(recipient.address)}
                   </Text>
                 </View>
               ))}

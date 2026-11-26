@@ -1,4 +1,5 @@
-import { normalizeAmount, parseRevealed, shortAddr } from '../../components/depinChat/utils';
+import { addressTag, avatarLetter } from '../../components/depinChat/DepinUI';
+import { normalizeAmount, parseRevealed } from '../../components/depinChat/utils';
 
 describe('DePIN chat utilities', () => {
   describe('parseRevealed', () => {
@@ -35,8 +36,9 @@ describe('DePIN chat utilities', () => {
     });
   });
 
-  it('shortens long addresses without changing short ones', () => {
-    expect(shortAddr('Nabcdef1234567890')).toBe('Nabcd…67890');
-    expect(shortAddr('short')).toBe('short');
+  it('names a sender by the last six characters and draws its first as a capital', () => {
+    expect(addressTag('Nabcdef12345huye90')).toBe('huye90');
+    expect(avatarLetter('Nabcdef12345huye90')).toBe('H');
+    expect(avatarLetter('Nabcdef1234567890')).toBe('5');
   });
 });

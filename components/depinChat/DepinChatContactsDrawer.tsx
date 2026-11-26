@@ -12,8 +12,7 @@ import type { PrivateConversation, RecipientInfo } from '../../hooks/useDePINCha
 import loc from '../../loc';
 import Icon from '../Icon';
 import { SettingsCard, SettingsRow, SettingsSectionLabel, useSettingsPalette } from '../settings/SettingsUI';
-import { RoundIconButton, SenderAvatar, UnreadBadge } from './DepinUI';
-import { shortAddr } from './utils';
+import { addressTag, RoundIconButton, SenderAvatar, UnreadBadge } from './DepinUI';
 
 interface DepinChatContactsDrawerProps {
   activeTab: string;
@@ -104,10 +103,10 @@ const DepinChatContactsDrawer = ({
     closeDrawer();
     action();
   };
-  const nameOf = (address: string) => (address === identityAddress ? loc.depin.contacts_me : shortAddr(address));
+  const nameOf = (address: string) => (address === identityAddress ? loc.depin.contacts_me : addressTag(address));
   const lastLine = (conversation: PrivateConversation) => {
     const last = conversation.messages[conversation.messages.length - 1];
-    if (!last) return shortAddr(conversation.address);
+    if (!last) return loc.depin.private_chat;
     return last.sender === identityAddress ? `${loc.depin.you}: ${last.message}` : last.message;
   };
 

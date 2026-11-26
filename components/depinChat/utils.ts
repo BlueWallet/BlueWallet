@@ -1,8 +1,5 @@
 import { ONE_COIN } from './constants';
 
-export const shortAddr = (address: string) =>
-  address.length > 10 ? `${address.substring(0, 5)}…${address.substring(address.length - 5)}` : address;
-
 export const parseRevealed = (response: unknown): boolean | null => {
   if (response && typeof response === 'object') {
     const result = response as { revealed?: number; pubkey?: string };
