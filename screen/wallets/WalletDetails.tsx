@@ -203,10 +203,10 @@ const WalletDetails: React.FC = () => {
     }, [isMasterFingerPrintVisible, wallet]),
   );
 
+  // A hardware wallet's words never reach the app: its backup screen explains where they are.
   const navigateToWalletExport = () => {
-    navigate('WalletExport', {
-      walletID,
-    });
+    if (wallet.type === NeuraiHardwareWallet.type) navigate('HardwareBackupInfo', { walletID });
+    else navigate('WalletExport', { walletID });
   };
 
   const navigateToXPub = () =>

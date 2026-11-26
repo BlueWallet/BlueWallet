@@ -86,9 +86,6 @@
     "title": "당위적 거부"
   },
   "pleasebackup": {
-    "ask": "backup phrase 를 저장해뒀나요? 이 backup phrase는 디바이스를 잃어버렸을 때 자금에 접근하는데 필요합니다.  backup phrase가 없다면 영구적으로 자금을 찾을 수 없게 됩니다. ",
-    "ask_no": "아니요, 안했어요.",
-    "ask_yes": "네, 했습니다.",
     "ok": "네, 기록했습니다.",
     "ok_lnd": "네, 저장했습니다.",
     "text": "잠시 멈추고 이 mnemonic phrase를 적을 종이를 준비해주세요.\n이건 월렛을 되찾을 때 쓸 예비 백업입니다.",
@@ -438,7 +435,6 @@
     "import_passphrase_title": "암호",
     "import_passphrase_message": "사용하신적 있으시면 암호를 넣어세요",
     "import_error": "들여오기 실패. 제공한 데이타가 유효한지 확인하세요.",
-    "import_explanation": "종자단어, 공용 키, WIF, 아니면 소지하신 어떤거라도 입력해 주세요. 블루월렛이 맞는 형식을 추정해서 지갑을 들여오기 할 수 있도록 최선을 다할 것입니다.",
     "import_imported": "들여오기 완료",
     "import_scan_qr": "스캔 또는 화일 들여오기",
     "import_success": "사용자 지갑의 성공적인 들여오기가 완료되었습니다.",

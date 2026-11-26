@@ -64,7 +64,6 @@
     "title": "Plausibel Fornektelse"
   },
   "pleasebackup": {
-    "ask": "Har du lagret lommebokens sikkerhetskopifrase? Denne sikkerhetskopifrasen er nødvendig for å få tilgang til pengene dine i tilfelle du mister denne enheten. Uten sikkerhetskopifrasen vil pengene dine gå tapt permanent.",
     "ok": "Greit, jeg skrev det ned.",
     "text": "Vennligst bruk et øyeblikk til å skrive ned denne mnemoniske frasen på et stykke papir.\nDet er sikkerhetskopien din, og du kan bruke den til å gjenopprette lommeboken.",
     "text_lnd": "Vennligst lagre denne sikkerhetskopien. Den lar deg gjenopprette lommeboken i tilfelle tap."
@@ -315,7 +314,6 @@
     "import_passphrase_title": "Passordfrase",
     "import_passphrase_message": "Skriv inn passordfrase hvis du har brukt noen",
     "import_error": "Kunne ikke importere. Vennligst vær sikker på at de oppgitte dataene er gyldige.",
-    "import_explanation": "Vennligst skriv inn dine \"seed words\", den offentlige nøkkelen, WIF eller noe annet du har. NeuraiWallet vil gjøre sitt beste for å gjette riktig format og importere lommeboken.",
     "import_imported": "Importert",
     "import_scan_qr": "Skann eller importer en fil",
     "import_success": "Lommeboken din har blitt importert.",

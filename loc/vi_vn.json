@@ -68,7 +68,6 @@
     "title": "Sự từ chối hợp lý "
   },
   "pleasebackup": {
-    "ask": "Bán đã lưu cụm từ sao lưu của ví chưa? Cụm từ này sẽ được yêu cầu để truy cập tiền của bạn trong trường hợp mất thiết bị này. Nếu không có cụm từ sao lưu thì tiền của bạn sẽ bị mất vĩnh viễn.",
     "text": "Vui lòng dành một chút thời gian để viết ra cụm từ ghi nhớ này trên một tờ giấy.\nBản sao lưu này có thể sử dùng để khôi phục ví của bạn.",
     "text_lnd": "Vui lòng lưu bản sao lưu ví này dể bạn khôi phục ví trong trường hợp mất."
   },
@@ -322,7 +321,6 @@
     "import_passphrase_title": "Passphrase",
     "import_passphrase_message": "Nếu bạn đã sử dụng bất kỳ passphrase thì nhập nó",
     "import_error": "Nhập đã thất bại. Vui lòng đảm bảo dữ liệu cung cấp có hợp lệ.",
-    "import_explanation": "Vui lòng nhập cụm từ hạt giống, khoá công khai, WIF, hoặc bất cứ điều gì bạn có. NeuraiWallet sẽ cố gắng hết sức để đoán định dạng đúng và nhập ví của bạn.",
     "import_imported": "Đã nhập",
     "import_scan_qr": "Quét hoặc nhập tệp",
     "import_success": "Ví của bạn đã được nhập thành công.",

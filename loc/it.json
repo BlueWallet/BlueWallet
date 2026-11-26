@@ -82,9 +82,6 @@
     "title": "Negazione Plausibile"
   },
   "pleasebackup": {
-    "ask": "Hai salvato la frase di backup del tuo portafoglio? Questa è necessaria per accedere ai tuoi fondi nel caso in cui tu smarrisca questo dispositivo. Senza la frase di backup, i tuoi fondi saranno definitivamente persi. ",
-    "ask_no": "No",
-    "ask_yes": "Si",
     "ok": "Ok, prendo nota",
     "ok_lnd": "OK, l'ho registrata.",
     "text": "Per favore prenditi un momento per scrivere questa frase mnemonica su un foglio di carta.\nÈ il tuo backup e puoi usarlo per ripristinare il portafoglio.",
@@ -342,7 +339,6 @@
     "import_passphrase_title": "Passphrase",
     "import_passphrase_message": "Inserisci una passphrase se in uso",
     "import_error": "Importazione fallita. Assicurati che le informazioni fornite siano valide.",
-    "import_explanation": "Per favore inserisci le parole seed, la chiave pubblica, WIF o qualsiasi cosa tu abbia a disposizione. NeuraiWallet farà il possibile per indovinare il formato corretto e importare il tuo portafoglio.",
     "import_imported": "Importato",
     "import_scan_qr": "o scansionare un codice QR?",
     "import_success": "Fatto",

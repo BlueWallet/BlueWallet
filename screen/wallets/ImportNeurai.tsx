@@ -1,42 +1,51 @@
 /**
- * Simple Import flow for Neurai wallets.
- *
- * Asks for a 12-word mnemonic, the wallet kind (Legacy Base58, ECDSA witness
- * v3 or post-quantum ML-DSA-44) and the network (mainnet by default, testnet
- * second; ECDSA and PQ force testnet). Skips the BIP39 multi-format heuristics that
- * `class/wallet-import.ts` runs against Bitcoin paths — for Neurai there is
- * exactly one derivation path per kind, defined in `neurai-key`.
+ * Import a Neurai wallet from its recovery words, in the settings style: the
+ * words, the passphrase if one was used, the network and the kind of wallet
+ * (ECDSA and PQ are testnet only for now). There is exactly one derivation
+ * path per kind, defined in `neurai-key`, so nothing else is asked. The words
+ * are kept out of screenshots and recordings.
  */
 
 import React, { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
-import { BlueFormLabel } from '../../BlueComponents';
-import presentAlert from '../../components/Alert';
-import Button from '../../components/Button';
-import NeuraiLoader, { untilLoaderPainted } from '../../components/NeuraiLoader';
-import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import SegmentedControl from '../../components/SegmentedControl';
-import { secretTextInputProps } from '../../components/secretInputProps';
-import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { chainFor, isKindAvailable, NeuraiNetwork, WalletKind } from '../../blue_modules/neurai';
+import { NeuraiECDSAWallet } from '../../class/wallets/neurai-ecdsa-wallet';
 import { NeuraiHDWallet } from '../../class/wallets/neurai-hd-wallet';
 import { NeuraiPQWallet } from '../../class/wallets/neurai-pq-wallet';
-import { NeuraiECDSAWallet } from '../../class/wallets/neurai-ecdsa-wallet';
+import presentAlert from '../../components/Alert';
+import { ConnectFooter, ConnectOption } from '../../components/ConnectUI';
+import { HomeWalletKind, walletKindIconOf } from '../../components/home/homeTheme';
+import NeuraiLoader, { untilLoaderPainted } from '../../components/NeuraiLoader';
+import { secretTextInputProps } from '../../components/secretInputProps';
+import {
+  SettingsCard,
+  SettingsScreenHeader,
+  SettingsSectionLabel,
+  SettingsSegment,
+  SettingsSegmented,
+  useSettingsPalette,
+} from '../../components/settings/SettingsUI';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import loc from '../../loc';
 
-const KIND_OPTIONS: WalletKind[] = ['legacy', 'ecdsa', 'pq'];
-const KIND_LABELS: Record<WalletKind, string> = { legacy: 'Legacy', ecdsa: 'ECDSA', pq: 'PQ' };
-const NETWORK_OPTIONS: NeuraiNetwork[] = ['mainnet', 'testnet'];
+const NETWORKS: SettingsSegment<NeuraiNetwork>[] = [
+  { value: 'mainnet', label: loc.wallets.neurai_network_mainnet, icon: 'public', testID: 'ImportNeuraiMainnet' },
+  { value: 'testnet', label: loc.wallets.neurai_network_testnet, icon: 'science', testID: 'ImportNeuraiTestnet' },
+];
+
+const KINDS: { kind: WalletKind; icon: HomeWalletKind; title: string; explain: string }[] = [
+  { kind: 'legacy', icon: 'hd', title: loc.wallets.add_neurai_legacy, explain: loc.wallets.add_neurai_legacy_explain },
+  { kind: 'ecdsa', icon: 'ecdsa', title: loc.wallets.add_neurai_ecdsa, explain: loc.wallets.add_neurai_ecdsa_explain },
+  { kind: 'pq', icon: 'pq', title: loc.wallets.add_neurai_pq, explain: loc.wallets.add_neurai_pq_explain },
+];
 
 const ImportNeurai: React.FC = () => {
-  const { colors } = useTheme();
+  const p = useSettingsPalette();
   const { wallets, addWallet, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation();
 
@@ -57,15 +66,6 @@ const ImportNeurai: React.FC = () => {
       };
     }, [enableScreenProtect, disableScreenProtect]),
   );
-
-  const stylesHook = {
-    label: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
-    root: { backgroundColor: colors.elevated },
-  };
 
   const importWallet = useCallback(async () => {
     Keyboard.dismiss();
@@ -122,103 +122,110 @@ const ImportNeurai: React.FC = () => {
     }
   }, [mnemonic, passphrase, kind, network, wallets, addWallet, saveToDisk, navigation]);
 
-  // ECDSA and PQ wallets exist on testnet only for now: selecting one forces
-  // Testnet and greys out the (mainnet-capable) network selector.
-  const onKindChange = useCallback((idx: number) => {
-    const next = KIND_OPTIONS[idx];
-    setKind(next);
-    if (!isKindAvailable('mainnet', next)) setNetwork('testnet');
+  const onNetworkChange = useCallback((next: NeuraiNetwork) => {
+    setNetwork(next);
+    // ECDSA and PQ are not available on mainnet yet: back to legacy if one of them was picked.
+    setKind(current => (isKindAvailable(next, current) ? current : 'legacy'));
   }, []);
 
-  const kindValues = KIND_OPTIONS.map(k => KIND_LABELS[k]);
-  const networkValues = NETWORK_OPTIONS.map(n =>
-    n === 'mainnet' ? loc.wallets.neurai_network_mainnet : loc.wallets.neurai_network_testnet,
-  );
-
   return (
-    <SafeAreaScrollView style={[styles.flex1, stylesHook.root]} testID="ImportNeuraiScroll" automaticallyAdjustKeyboardInsets>
-      <BlueSpacing20 />
-      <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
-      <View style={[styles.input, styles.inputTall, stylesHook.label]}>
-        <TextInput
-          testID="ImportNeuraiMnemonic"
-          value={mnemonic}
-          placeholderTextColor="#81868e"
-          placeholder={loc.wallets.import_title}
-          onChangeText={setMnemonic}
-          multiline
-          {...secretTextInputProps}
-          editable={!isImporting}
-          style={styles.textInputMultiline}
-          underlineColorAndroid="transparent"
-        />
-      </View>
-
-      <BlueFormLabel>{loc.wallets.import_passphrase_message}</BlueFormLabel>
-      <View style={[styles.input, stylesHook.label]}>
-        <TextInput
-          testID="ImportNeuraiPassphrase"
-          value={passphrase}
-          placeholderTextColor="#81868e"
-          placeholder={loc.wallets.import_passphrase_message}
-          onChangeText={setPassphrase}
-          autoCapitalize="none"
-          autoCorrect={false}
-          autoComplete="off"
-          importantForAutofill="no"
-          secureTextEntry
-          editable={!isImporting}
-          style={styles.textInput}
-          underlineColorAndroid="transparent"
-        />
-      </View>
-
-      <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
-      <View style={styles.segment}>
-        <SegmentedControl values={kindValues} selectedIndex={KIND_OPTIONS.indexOf(kind)} onChange={onKindChange} />
-      </View>
-
-      <BlueFormLabel>{loc.wallets.neurai_network_label}</BlueFormLabel>
-      <View style={styles.segment}>
-        <SegmentedControl
-          values={networkValues}
-          selectedIndex={NETWORK_OPTIONS.indexOf(network)}
-          onChange={idx => setNetwork(NETWORK_OPTIONS[idx])}
-          disabled={!isKindAvailable('mainnet', kind)}
-        />
-      </View>
-
-      <View style={styles.actions}>
-        <BlueSpacing20 />
-        {isImporting ? (
+    <View style={[styles.root, { backgroundColor: p.ground }]}>
+      <SettingsScreenHeader title={loc.wallets.import_title} onBack={() => navigation.goBack()} />
+      {isImporting ? (
+        <View style={styles.busy}>
           <NeuraiLoader label={loc.wallets.import_importing} />
-        ) : (
-          <Button testID="ImportNeuraiSubmit" title={loc.wallets.import_do_import} onPress={importWallet} />
-        )}
-        <BlueSpacing40 />
-      </View>
-    </SafeAreaScrollView>
+        </View>
+      ) : (
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          automaticallyAdjustKeyboardInsets
+          testID="ImportNeuraiScroll"
+        >
+          <View>
+            <SettingsSectionLabel>{loc.wallets.import_words}</SettingsSectionLabel>
+            <SettingsCard>
+              <TextInput
+                testID="ImportNeuraiMnemonic"
+                value={mnemonic}
+                onChangeText={setMnemonic}
+                placeholder={loc.wallets.import_words_placeholder}
+                placeholderTextColor={p.mutedOnCard}
+                selectionColor={p.accent}
+                multiline
+                {...secretTextInputProps}
+                style={[styles.words, { color: p.ink }]}
+                underlineColorAndroid="transparent"
+              />
+            </SettingsCard>
+          </View>
+
+          <View>
+            <SettingsSectionLabel>{loc.wallets.import_passphrase_optional}</SettingsSectionLabel>
+            <SettingsCard>
+              <TextInput
+                testID="ImportNeuraiPassphrase"
+                value={passphrase}
+                onChangeText={setPassphrase}
+                placeholder={loc.wallets.import_passphrase_message}
+                placeholderTextColor={p.mutedOnCard}
+                selectionColor={p.accent}
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="off"
+                importantForAutofill="no"
+                secureTextEntry
+                style={[styles.passphrase, { color: p.ink }]}
+                underlineColorAndroid="transparent"
+              />
+            </SettingsCard>
+          </View>
+
+          <View>
+            <SettingsSectionLabel>{loc.wallets.neurai_network_label}</SettingsSectionLabel>
+            <SettingsCard style={styles.padded}>
+              <SettingsSegmented segments={NETWORKS} value={network} onChange={onNetworkChange} testID="ImportNeuraiNetwork" />
+            </SettingsCard>
+          </View>
+
+          <View>
+            <SettingsSectionLabel>{loc.wallets.add_wallet_type}</SettingsSectionLabel>
+            <SettingsCard>
+              {KINDS.map((k, index) => {
+                const available = isKindAvailable(network, k.kind);
+                return (
+                  <ConnectOption
+                    key={k.kind}
+                    icon={walletKindIconOf(k.icon)}
+                    title={k.title}
+                    subtitle={available ? k.explain : loc.wallets.add_testnet_only}
+                    selected={kind === k.kind}
+                    disabled={!available}
+                    onPress={() => setKind(k.kind)}
+                    divider={index > 0}
+                    testID={`ImportNeuraiKind-${k.kind}`}
+                  />
+                );
+              })}
+            </SettingsCard>
+          </View>
+        </ScrollView>
+      )}
+      <ConnectFooter
+        primary={{ title: loc.wallets.import_do_import, onPress: importWallet, disabled: isImporting, testID: 'ImportNeuraiSubmit' }}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  flex1: { flex: 1 },
-  input: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    marginHorizontal: 20,
-    alignItems: 'center',
-    marginVertical: 12,
-    borderRadius: 4,
-  },
-  inputTall: { minHeight: 110, height: 110, alignItems: 'flex-start', paddingTop: 12, paddingBottom: 12 },
-  textInput: { flex: 1, marginHorizontal: 8, color: '#81868e' },
-  textInputMultiline: { flex: 1, marginHorizontal: 8, color: '#81868e', textAlignVertical: 'top' },
-  segment: { marginHorizontal: 20, marginVertical: 12 },
-  actions: { marginHorizontal: 20 },
+  root: { flex: 1 },
+  content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, rowGap: 20 },
+  padded: { paddingVertical: 12 },
+  words: { fontSize: 16, lineHeight: 24, minHeight: 112, paddingVertical: 14, paddingHorizontal: 0, textAlignVertical: 'top' },
+  passphrase: { fontSize: 16, minHeight: 56, paddingVertical: 14, paddingHorizontal: 0 },
+  busy: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });
 
 export default ImportNeurai;

@@ -86,9 +86,6 @@
     "title": "Věrohodná popiratelnost"
   },
   "pleasebackup": {
-    "ask": "Uložili jste záložní větu vaší peněženky? Tato záložní věta je vyžadována pro přístup k vašim finančním prostředkům pro případ ztráty tohoto zařízení. Bez záložní věty budou vaše prostředky trvale ztraceny.",
-    "ask_no": "Ne, neuložil.",
-    "ask_yes": "Ano, uložil.",
     "ok": "Dobře, zapsal jsem si ji.",
     "ok_lnd": "Dobře, uložil jsem to.",
     "text": "Věnujte prosím chvíli zapsání si této mnemotechnické fráze na kousek papíru.\nJe to vaše záloha a můžete ji použít k obnovení peněženky.",
@@ -438,7 +435,6 @@
     "import_passphrase_title": "Přístupová fráze",
     "import_passphrase_message": "Zadejte přístupovou frázi, pokud jste nějakou použili",
     "import_error": "Chyba při importu. Prosím ujistěte se, že poskytnutá data jsou správná.",
-    "import_explanation": "Zadejte slova seedu, veřejný klíč, WIF nebo cokoliv, co máte. NeuraiWallet se bude snažit uhodnout správný formát a importovat vaši peněženku.",
     "import_imported": "Importovaná",
     "import_scan_qr": "Skenovat nebo importovat soubor",
     "import_success": "Vaše peněženka byla úspěšně importována.",

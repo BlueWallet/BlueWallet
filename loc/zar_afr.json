@@ -69,9 +69,6 @@
     "title": "Geloofwaardige Ontkenbaarheid"
   },
   "pleasebackup": {
-    "ask": "Het jy jou beursie se terugval frase gestoor? Dié terugval frase is nodig om jou fondse terug te kry indien jy jou toestel verloor. Sonder die terugval frase sal al jou fondse permanent verlore wees. ",
-    "ask_no": "Nee, ek het nie. ",
-    "ask_yes": "Ja, ek het. ",
     "ok": "OK, ek het dit neergeskryf.",
     "ok_lnd": "OK, ek het dit gestoor.",
     "text": "Vat asseblief ñ oomblik om die woorde op ñ stuk papier neer te skryf.\nDit is jou terugval woorde wat jy gebruik om jou beursie terug te kry. ",

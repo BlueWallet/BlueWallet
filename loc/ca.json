@@ -71,7 +71,6 @@
     "title": "Negació plausible"
   },
   "pleasebackup": {
-    "ask": "Heu desat la frase de recuperació del vostre moneder? Aquesta frase de recuperació és necessària per accedir als vostres fons en cas que perdeu aquest dispositiu. Sense la frase de recuperació, els vostres fons es perdran permanentment.",
     "ok_lnd": "D'acord, l'he guardat",
     "text_lnd": "Si us plau, deseu aquesta còpia de seguretat del moneder. Permet restaurar el moneder en cas de pèrdua.",
     "title": "El teu moneder ha estat creat..."

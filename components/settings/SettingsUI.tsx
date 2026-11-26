@@ -67,7 +67,7 @@ export const biometricLabel = (type?: string): string =>
  * Round back button and a large title, under the status bar. Screens shown as
  * a modal (an approval) pass `icon="close"` and the matching label.
  */
-export const SettingsScreenHeader: React.FC<{ title: string; onBack: () => void; icon?: MaterialIconName; iconLabel?: string }> = ({
+export const SettingsScreenHeader: React.FC<{ title: string; onBack?: () => void; icon?: MaterialIconName; iconLabel?: string }> = ({
   title,
   onBack,
   icon = 'arrow-back',
@@ -77,15 +77,18 @@ export const SettingsScreenHeader: React.FC<{ title: string; onBack: () => void;
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.header, { paddingTop: insets.top + 8, backgroundColor: p.ground }]}>
-      <Pressable
-        onPress={onBack}
-        accessibilityRole="button"
-        accessibilityLabel={iconLabel}
-        testID="SettingsBackButton"
-        style={({ pressed }) => [styles.back, { backgroundColor: p.card }, pressed && styles.pressed]}
-      >
-        <Icon name={icon} type="material" size={22} color={p.ink} />
-      </Pressable>
+      {/* No button on a step that must not be left halfway (the words of a new wallet). */}
+      {onBack ? (
+        <Pressable
+          onPress={onBack}
+          accessibilityRole="button"
+          accessibilityLabel={iconLabel}
+          testID="SettingsBackButton"
+          style={({ pressed }) => [styles.back, { backgroundColor: p.card }, pressed && styles.pressed]}
+        >
+          <Icon name={icon} type="material" size={22} color={p.ink} />
+        </Pressable>
+      ) : null}
       <Text style={[styles.title, { color: p.ink }]} accessibilityRole="header" numberOfLines={1}>
         {title}
       </Text>
@@ -377,7 +380,7 @@ export const SettingsSearchField: React.FC<{
 const styles = StyleSheet.create({
   search: { flexDirection: 'row', alignItems: 'center', columnGap: 8, height: 46, borderRadius: 23, paddingHorizontal: 14 },
   searchInput: { flex: 1, fontSize: 15, paddingVertical: 0 },
-  header: { flexDirection: 'row', alignItems: 'center', columnGap: 12, paddingHorizontal: 16, paddingBottom: 8 },
+  header: { flexDirection: 'row', alignItems: 'center', columnGap: 12, paddingHorizontal: 16, paddingBottom: 8, minHeight: 44 },
   back: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   title: { fontSize: 24, fontWeight: '700', letterSpacing: -0.4, flexShrink: 1 },
   pressed: { opacity: 0.6 },

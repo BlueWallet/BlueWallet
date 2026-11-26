@@ -63,7 +63,6 @@
     "title": "Negare plauzibilă"
   },
   "pleasebackup": {
-    "ask": "Ai salvat cuvintele de rezervă ale portofelului tău? Aceste cuvinte de rezervă sunt necesare pentru a-ți accesa fondurile în cazul în care îți pierzi dispozitivul. Fără cuvintele de rezervă, fondurile tale vor fi permanent pierdute.",
     "ok": "OK, o scriu pe foaie.",
     "ok_lnd": "Ok, am salvat,",
     "text": "Notează această frază mnemonică pe o hîrtie. Este copia de rezervă pe care o poți folosi să restabilești portofelul pe alt dispozitiv. ",
@@ -296,7 +295,6 @@
     "export_title": "Export portofel",
     "import_do_import": "Importă",
     "import_error": "Importare eșuată. Asigură-te că datele furnizate sunt valide.",
-    "import_explanation": "Introdu cuvintele seed, cheia publică, WIF, sau orice ai. NeuraiWallet va face tot posibilul pentru a ghici formatul corect și a-ți importa portofelul.",
     "import_imported": "Importat",
     "import_scan_qr": "Scanează sau importă fișier",
     "import_success": "Portofelul tău a fost importat cu succes.",

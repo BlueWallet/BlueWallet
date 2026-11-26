@@ -86,9 +86,6 @@
     "title": "Uskottava Kiistettävyys"
   },
   "pleasebackup": {
-    "ask": "Oletko tallentanut lompakon varmuuskopion? Tämä varmuuskopio vaaditaan varojen käyttämiseen, jos kadotat tämän laitteen. Ilman varmuuskopiota varat menetetään lopullisesti.",
-    "ask_no": "Ei, en ole.",
-    "ask_yes": "Kyllä, olen.",
     "ok": "Ok, kirjoitin sen ylös",
     "ok_lnd": "OK, olen tallentanut sen.",
     "text": "Varaa hetki aikaa ja kirjoita palautuslause (mnemonic) talteen paperille.\nSe on varmuuskopiosi ja voit käyttää sitä lompakon palauttamiseen.",
@@ -420,7 +417,6 @@
     "import_passphrase_title": "tunnuslause",
     "import_passphrase_message": "Anna tunnuslause, mikäli olet käyttänyt sellaista",
     "import_error": "Tuonti epäonnistui. Varmista, että annettu tieto on oikein",
-    "import_explanation": "Kirjoita siemensanasi, julkinen avain, WIF tai mikä tahansa sinulla on. NeuraiWallet tekee parhaansa arvatakseen oikean formaatin ja tuodakseen lompakkosi. ",
     "import_imported": "Tuotu",
     "import_scan_qr": "Skannaa tai tuo tiedosto",
     "import_success": "Lompakkosi tuonti onnistui.",

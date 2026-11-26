@@ -1,47 +1,40 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+/**
+ * A wallet's backup: its recovery words (or other secret) to write down, then
+ * as a QR to import it in another app. Never offered to copy (keyboards keep a
+ * clipboard history), always kept out of screenshots and recordings, and
+ * closed as soon as the app goes to the background.
+ */
+import React, { useEffect, useMemo } from 'react';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import Icon from '../../components/Icon';
-import { LayoutChangeEvent, ScrollView, StyleSheet, View } from 'react-native';
-import { useScreenProtect } from '../../hooks/useScreenProtect';
+import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+
 import { validateMnemonic } from '../../blue_modules/bip39';
-import { BlueText } from '../../BlueComponents';
+import { ConnectNoticeCard } from '../../components/ConnectUI';
+import NeuraiLoader from '../../components/NeuraiLoader';
 import QRCode from '../../components/QRCode';
-import SeedWords from '../../components/SeedWords';
-import { useTheme } from '../../components/themes';
+import RecoveryWords from '../../components/RecoveryWords';
+import { SettingsCard, SettingsScreenHeader, SettingsSectionLabel, useSettingsPalette } from '../../components/settings/SettingsUI';
 import { useStorage } from '../../hooks/context/useStorage';
 import useAppState from '../../hooks/useAppState';
+import { useScreenProtect } from '../../hooks/useScreenProtect';
 import loc from '../../loc';
 import { WalletExportStackParamList } from '../../navigation/WalletExportStack';
-import NeuraiLoader from '../../components/NeuraiLoader';
 
 type RouteProps = RouteProp<WalletExportStackParamList, 'WalletExport'>;
 
-const HORIZONTAL_PADDING = 20;
-
-const DoNotDisclose: React.FC = () => {
-  const { colors } = useTheme();
-
-  return (
-    <View style={[styles.warningBox, { backgroundColor: colors.changeText }]}>
-      <Icon type="font-awesome-6" name="circle-exclamation" size={24} color="white" />
-      <BlueText style={styles.warning}>{loc.wallets.warning_do_not_disclose}</BlueText>
-    </View>
-  );
-};
+const MAX_QR_SIZE = 280;
+/** Room around the QR across the screen: the screen's, the card's, the panel's and the white tile's padding. */
+const QR_SIDE_ROOM = 16 + 16 + 14 + 8;
 
 const WalletExport: React.FC = () => {
+  const p = useSettingsPalette();
+  const { width } = useWindowDimensions();
   const { wallets } = useStorage();
   const { walletID } = useRoute<RouteProps>().params;
   const navigation = useNavigation();
-  const { colors } = useTheme();
   const wallet = wallets.find(w => w.getID() === walletID)!;
-  const [qrCodeSize, setQRCodeSize] = useState(90);
   const { enableScreenProtect, disableScreenProtect, isProtectionReady } = useScreenProtect();
   const { currentAppState, previousAppState } = useAppState();
-  const stylesHook = StyleSheet.create({
-    root: { backgroundColor: colors.elevated },
-    secretBox: { backgroundColor: colors.lightBorder },
-  });
 
   const secrets: string[] = useMemo(() => {
     try {
@@ -77,161 +70,85 @@ const WalletExport: React.FC = () => {
     };
   }, [enableScreenProtect, disableScreenProtect]);
 
-  const onLayout = useCallback((e: LayoutChangeEvent) => {
-    const { height, width } = e.nativeEvent.layout;
-
-    const isPortrait = height > width;
-    const maxQRSize = 400;
-
-    if (isPortrait) {
-      const heightBasedSize = Math.min(height * 0.5, maxQRSize);
-      const widthBasedSize = width * 0.75 - HORIZONTAL_PADDING * 2;
-      setQRCodeSize(Math.min(heightBasedSize, widthBasedSize));
-    } else {
-      const heightBasedSize = Math.min(height * 0.6, maxQRSize);
-      const widthBasedSize = width * 0.35;
-      setQRCodeSize(Math.min(heightBasedSize, widthBasedSize));
-    }
-  }, []);
-
-  const Scroll = useCallback(
-    // eslint-disable-next-line react/no-unused-prop-types
-    ({ children }: { children: React.ReactNode | React.ReactNode[] }) => (
-      <ScrollView
-        automaticallyAdjustContentInsets
-        contentInsetAdjustmentBehavior="automatic"
-        style={stylesHook.root}
-        contentContainerStyle={styles.scrollViewContent}
-        onLayout={onLayout}
-        testID="WalletExportScroll"
-      >
-        {children}
-      </ScrollView>
-    ),
-    [onLayout, stylesHook.root],
-  );
+  const qrSize = Math.max(160, Math.min(width - QR_SIDE_ROOM * 2, MAX_QR_SIZE));
+  const secret = secrets[0] ?? '';
 
   // Nothing secret is drawn until the window is protected.
+  let content: React.ReactNode;
   if (!isProtectionReady) {
-    return (
-      <Scroll>
-        <DoNotDisclose />
-        <NeuraiLoader />
-      </Scroll>
-    );
-  }
-
-  // for SLIP39
-  if (secrets.length !== 1) {
-    return (
-      <Scroll>
-        <DoNotDisclose />
-
-        <View>
-          <BlueText style={styles.manualText}>{loc.wallets.write_down_header}</BlueText>
-          <BlueText style={styles.writeText}>{loc.wallets.write_down}</BlueText>
-        </View>
-
-        {secrets.map((secret, index) => (
-          <React.Fragment key={secret}>
-            <BlueText style={styles.scanText}>{loc.formatString(loc.wallets.share_number, { number: index + 1 })}</BlueText>
-            <SeedWords seed={secret} />
-          </React.Fragment>
+    content = <NeuraiLoader style={styles.loader} />;
+  } else if (secrets.length !== 1) {
+    // SLIP39: several shares, each written down on its own.
+    content = (
+      <>
+        <Text style={[styles.note, { color: p.muted }]}>{loc.wallets.write_down}</Text>
+        {secrets.map((share, index) => (
+          <View key={share}>
+            <SettingsSectionLabel>{String(loc.formatString(loc.wallets.share_number, { number: index + 1 }))}</SettingsSectionLabel>
+            <RecoveryWords words={share} testID={`Secret-${index}`} />
+          </View>
         ))}
-
-        <BlueText style={styles.typeText}>{loc.formatString(loc.wallets.wallet_type_this, { type: wallet.typeReadable })}</BlueText>
-      </Scroll>
+      </>
+    );
+  } else {
+    content = (
+      <>
+        <View>
+          <SettingsSectionLabel>{loc.wallets.write_down_header}</SettingsSectionLabel>
+          {secretIsMnemonic ? (
+            <RecoveryWords words={secret} />
+          ) : (
+            <SettingsCard style={styles.secretCard}>
+              <Text style={[styles.secret, { color: p.ink }]} testID="Secret">
+                {secret}
+              </Text>
+            </SettingsCard>
+          )}
+          <Text style={[styles.note, { color: p.muted }]}>{loc.wallets.write_down}</Text>
+        </View>
+        <View>
+          <SettingsSectionLabel>{loc.wallets.export_qr}</SettingsSectionLabel>
+          <SettingsCard style={styles.qrCard}>
+            <View style={[styles.panel, { backgroundColor: p.ground }]}>
+              <View style={styles.qrTile}>
+                <QRCode isMenuAvailable={false} value={secret} size={qrSize} logoSize={70} />
+              </View>
+            </View>
+            <Text style={[styles.qrNote, { color: p.mutedOnCard }]}>{loc.wallets.scan_import}</Text>
+          </SettingsCard>
+        </View>
+      </>
     );
   }
-
-  const secret = secrets[0];
 
   return (
-    <ScrollView
-      automaticallyAdjustContentInsets
-      contentInsetAdjustmentBehavior="automatic"
-      style={stylesHook.root}
-      contentContainerStyle={styles.scrollViewContent}
-      onLayout={onLayout}
-      testID="WalletExportScroll"
-    >
-      <DoNotDisclose />
-
-      <BlueText style={styles.scanText}>{loc.wallets.scan_import}</BlueText>
-
-      <View style={styles.qrCodeContainer}>
-        <QRCode isMenuAvailable={false} value={secret} size={qrCodeSize} logoSize={70} />
-      </View>
-
-      {/* Never offer to copy a secret: the clipboard is readable by keyboards and kept in their history */}
-      <View>
-        <BlueText style={styles.manualText}>{loc.wallets.write_down_header}</BlueText>
-        <BlueText style={styles.writeText}>{loc.wallets.write_down}</BlueText>
-      </View>
-      {secretIsMnemonic ? (
-        <SeedWords seed={secret} />
-      ) : (
-        <View style={[styles.secretBox, stylesHook.secretBox]}>
-          <BlueText style={styles.secretText}>{secret}</BlueText>
-        </View>
-      )}
-
-      <BlueText style={styles.typeText}>{loc.formatString(loc.wallets.wallet_type_this, { type: wallet.typeReadable })}</BlueText>
-    </ScrollView>
+    <View style={[styles.root, { backgroundColor: p.ground }]}>
+      <SettingsScreenHeader title={loc.wallets.export_title} onBack={() => navigation.goBack()} icon="close" iconLabel={loc._.close} />
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} testID="WalletExportScroll">
+        <ConnectNoticeCard tone="danger" text={loc.wallets.warning_do_not_disclose} />
+        {content}
+        {isProtectionReady ? (
+          <Text style={[styles.type, { color: p.muted }]}>
+            {String(loc.formatString(loc.wallets.wallet_type_this, { type: wallet.typeReadable }))}
+          </Text>
+        ) : null}
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollViewContent: {
-    justifyContent: 'center',
-    flexGrow: 1,
-    gap: 32,
-    paddingHorizontal: HORIZONTAL_PADDING,
-    paddingTop: 10,
-    paddingBottom: 20,
-  },
-  warningBox: {
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 10,
-    alignSelf: 'stretch',
-    flexDirection: 'row',
-    gap: 8,
-  },
-  warning: {
-    fontSize: 20,
-    color: 'white',
-  },
-  scanText: {
-    textAlign: 'center',
-    fontSize: 20,
-  },
-  writeText: {
-    textAlign: 'center',
-    fontSize: 17,
-  },
-  manualText: {
-    textAlign: 'center',
-    fontSize: 20,
-    marginBottom: 10,
-  },
-  typeText: {
-    textAlign: 'center',
-    fontSize: 17,
-    color: 'grey',
-  },
-  secretBox: {
-    padding: 10,
-    borderRadius: 8,
-  },
-  secretText: {
-    fontSize: 17,
-  },
-  qrCodeContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-  },
+  root: { flex: 1 },
+  content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 32, rowGap: 20 },
+  loader: { paddingVertical: 48 },
+  note: { fontSize: 13, lineHeight: 18, marginTop: 8, marginHorizontal: 4 },
+  secretCard: { paddingVertical: 16 },
+  secret: { fontFamily: 'monospace', fontSize: 15, lineHeight: 22 },
+  qrCard: { paddingVertical: 16, rowGap: 12 },
+  panel: { borderRadius: 20, padding: 14, alignItems: 'center' },
+  qrTile: { backgroundColor: '#FFFFFF', borderRadius: 18, padding: 8 },
+  qrNote: { fontSize: 13, lineHeight: 18, textAlign: 'center' },
+  type: { fontSize: 12, textAlign: 'center' },
 });
 
 export default WalletExport;

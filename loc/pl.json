@@ -86,9 +86,6 @@
     "title": "Wiarygodna zaprzeczalność"
   },
   "pleasebackup": {
-    "ask": "Czy zapisałeś już słowa klucze? Są one niezbędne, by dysponować środkami, w przypadku zgubienia tego urządzenia. Bez słów kluczy, twoje środki przepadną na zawsze.",
-    "ask_no": "Nie, nie mam.",
-    "ask_yes": "Tak, mam.",
     "ok": "OK, zapisałem.",
     "ok_lnd": "OK, zachowałem.",
     "text": "Poświęć chwilę by zapisać tę frazę mnemoniczną na kartce papieru\nTo twoja kopia zapasowa, której możesz użyć później by odtworzyć portfel.",
@@ -438,7 +435,6 @@
     "import_passphrase_title": "Hasło",
     "import_passphrase_message": "Wprowadź hasło, jeśli użyłeś jakiegokolwiek",
     "import_error": "Import nieudany. Upewnij się proszę, że dane są prawidłowe.",
-    "import_explanation": "Proszę wprowadź swoją frazę seed, klucz publiczny, WIF lub cokolwiek innego, co posiadasz. NeuraiWallet zrobi wszystko, co w jej mocy, aby odgadnąć poprawny format i zaimportować twój portfel.",
     "import_imported": "Zaimportowano",
     "import_scan_qr": "Skanuj lub importuj plik",
     "import_success": "Twój portfel został pomyślnie zaimportowany.",

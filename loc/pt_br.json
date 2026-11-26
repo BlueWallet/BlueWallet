@@ -85,9 +85,6 @@
     "title": "Negação plausível"
   },
   "pleasebackup": {
-    "ask": "Você salvou a frase de backup da sua carteira? Esta frase de backup é necessária para acessar seus fundos, caso você perca este dispositivo. Sem a frase de backup, seus fundos serão perdidos permanentemente.",
-    "ask_no": "Não, eu não salvei.",
-    "ask_yes": "Sim, eu salvei",
     "ok": "Ok, eu anotei.",
     "ok_lnd": "OK, eu salvei.",
     "text": "Reserve um tempo para anotar esta sequência de palavras em um pedaço de papel.\nÉ o seu backup e você pode usá-la para recuperar a sua carteira.",
@@ -418,7 +415,6 @@
     "import_passphrase_title": "Senha",
     "import_passphrase_message": "Digite a senha, caso você tenha usado alguma",
     "import_error": "Erro ao importar. Por favor, confira se os dados que você passou são válidos.",
-    "import_explanation": "Insira aqui sua seed, chave pública, WIF ou o que você tiver. A NeuraiWallet vai fazer o possível para decifrar o formato correto e importar a sua carteira.",
     "import_imported": "Importada",
     "import_scan_qr": "Ler código ou importar arquivo",
     "import_success": "Sua carteira foi importada com sucesso.",

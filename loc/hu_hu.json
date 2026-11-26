@@ -68,9 +68,6 @@
     "title": "Elfogadható tagadhatóság"
   },
   "pleasebackup": {
-    "ask": "Készítettél másolatot a tárca visszaállításához szükséges jelszó sorozatról? Ez az elmentett jelszó sorozat nélkülözhetetlen ha elveszik ez az eszközt. A jelszó sorozat nélkül a pénzed végleg elveszik.",
-    "ask_no": "Nem, nincs.",
-    "ask_yes": "Igen, van.",
     "ok": "Rendben, leírtam!",
     "ok_lnd": "OK, elmentettem.",
     "text": "Kérlek írd le az alábbi biztonsági szavakat egy papírlapra. \nEz egy biztonsági mentés, amellyel helyreállíthatod a tárcádat.",
@@ -325,7 +322,6 @@
     "import_passphrase_title": "Jelszó",
     "import_passphrase_message": "Add meg a jelszavadat ha használsz olyat",
     "import_error": "Importálás sikertelen. Ellenőrizd, hogy helyes adatokat adtál-e meg.",
-    "import_explanation": "Kérjük, írja be a biztonsági szavakat, a nyilvános kulcsot, a WIF-et vagy bármi mást. A NeuraiWallet mindent megtesz a helyes formátum kitalálásáért és a pénztárca importálásáért. ",
     "import_imported": "Importálva",
     "import_scan_qr": "vagy QR-kód szkennelése?",
     "import_success": "Sikeres importálás!",

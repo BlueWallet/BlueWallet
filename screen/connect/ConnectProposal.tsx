@@ -211,7 +211,7 @@ const ConnectProposal: React.FC = () => {
             <ConnectSiteIcon icons={metadata.icons} size={56} />
             <View style={styles.texts}>
               <Text style={[styles.name, { color: p.ink }]}>{metadata.name || hostOf(metadata.url)}</Text>
-              <Text style={[styles.subtitle, { color: p.mutedOnCard }]} selectable numberOfLines={1}>
+              <Text style={[styles.subtitle, { color: p.mutedOnCard }]} numberOfLines={1}>
                 {hostOf(metadata.url)}
               </Text>
             </View>

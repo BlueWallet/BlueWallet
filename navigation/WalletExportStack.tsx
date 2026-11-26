@@ -1,7 +1,6 @@
 import React, { lazy } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
@@ -23,10 +22,7 @@ const WalletExportStack = () => {
       <Stack.Screen
         name="WalletExport"
         component={WalletExportComponent}
-        options={navigationStyle({
-          headerBackVisible: false,
-          title: loc.wallets.export_title,
-        })(theme)}
+        options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.wallets.export_title }}
       />
     </Stack.Navigator>
   );

@@ -86,9 +86,6 @@
     "title": "Haldgóð avsannan"
   },
   "pleasebackup": {
-    "ask": "Hevur tú goymt mappu rótorðini? Rótorðini eru neyðug fyri at brúka peningin, frá øðrum eindum ella í fall hendan eindin verður burturmist. Uttan rótorðini, ið virka sum trygdaravrit, fæst eingin atgongd til peningin.",
-    "ask_no": "Nei, tað havi eg ikki.",
-    "ask_yes": "Ja, tað havi eg.",
     "ok": "Ja, eg havi goymt tey á tryggan hátt.",
     "ok_lnd": "Ja, eg havi goymt tað.",
     "text": "Vinaliga gev tær stundir at niðurskriva hesa áminningarramsuna á pappír.\nTað er títt trygdaravrit ið kann nýtast til at endurinnlesa mappuna.",
@@ -438,7 +435,6 @@
     "import_passphrase_title": "Loynisetning",
     "import_passphrase_message": "Inntøppa loynisetning, í fall tú hevur ein",
     "import_error": "Innlesing miseydnaðist. Vinaliga syrg fyri at dáturnar eru gildigar.",
-    "import_explanation": "Vinaliga inntøppa tíni rótorð, almenna lykil, WIF, ella okkurt annað tú hevur. NeuraiWallet roynir, eftir besta førimuni, at finna rættað forsniðið og innlesa mappuna.",
     "import_imported": "Innlisin",
     "import_scan_qr": "Skanna ella innles úr fílu",
     "import_success": "Tað eydnaðist at innlesa tína mappu.",

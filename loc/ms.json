@@ -63,7 +63,6 @@
     "title": "Penafian Munasabah"
   },
   "pleasebackup": {
-    "ask": "Sudahkah anda simpan frasa sandaran dompet anda? Frasa sandaran ini diperlukan untuk mencapai wang anda andai anda kehilangan peranti ini. Tanpa frasa sandaran ini, wang anda akan hilang selamanya.",
     "ok": "OK, sudah disalin.",
     "text": "Sila ambil sedikit waktu untuk menyalin frasa nemonik ini di atas sehelai kertas.\nSalinan ini adalah sandaran anda dan anda boleh menggunakan salinan ini untuk mendapatkan semula dompet anda. ",
     "text_lnd": "Sila simpan sandaran dompet ini. Sandaran ini membolehkan anda untuk mengembalikan dompet ini dalam kes kehilangan."
@@ -292,7 +291,6 @@
     "import_passphrase_title": "Frasa Laluan",
     "import_passphrase_message": "Masukkan frasa laluan jika ada digunakan",
     "import_error": "Gagal untuk dipindah masuk. Sila pastikan butiran yang diberikan adalah sah.",
-    "import_explanation": "Sila masukkan kata benih, kunci umum, WIF, atau lain-lain butiran yang anda ada. NeuraiWallet akan lakukan yang terbaik untuk meneka susun atur yang betul dan memindah masuk dompet anda.",
     "import_imported": "Dipindah Masuk",
     "import_scan_qr": "Imbas atau pindah masuk fail",
     "import_success": "Dompet anda sudah berjaya dipindah masuk.",

@@ -86,9 +86,6 @@
     "title": "Glaubhafte Täuschung"
   },
   "pleasebackup": {
-    "ask": "Ist die Wiederherstellungs-Phrase des Wallets gesichert? Ohne Sie lässt sich nie mehr auf die bitcoin zugreifen und sie wären für immer verloren, sollte das Gerät verloren oder kaputt gehen.",
-    "ask_no": "Nein, habe ich nicht.",
-    "ask_yes": "Ja, habe ich.",
     "ok": "Ok, sie sind notiert.",
     "ok_lnd": "Die Sicherung ist erstellt.",
     "text": "Unbedingt die mnemonischen Wörter auf Papier schreiben.\nDiese Wörter sind das Backup zur Wallet-Wiederherstellung.",
@@ -432,7 +429,6 @@
     "import_passphrase_title": "Passphrase",
     "import_passphrase_message": "Wenn genutzt, die Passphrase eingeben",
     "import_error": "Fehler beim Import. Ist die Eingabe korrekt?",
-    "import_explanation": "Gib hier die mnemonische Phrase, den privaten Schlüssel, WIF oder was immer du hast ein. NeuraiWallet wird bestmöglich das Format interpretieren und die Wallet importieren.",
     "import_imported": "Importiert",
     "import_scan_qr": "QR-Code scannen oder Datei importieren",
     "import_success": "Wallet wurde erfolgreich importiert.",

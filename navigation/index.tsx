@@ -5,10 +5,10 @@ import { withLazySuspense } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
 import loc from '../loc';
-import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import WalletXpub from '../screen/wallets/xpub';
 import WalletExport from '../screen/wallets/WalletExport';
+import HardwareBackupInfo from '../screen/wallets/HardwareBackupInfo';
 
 // Lazy load all components except UnlockWith
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
@@ -56,23 +56,17 @@ const MainRoot = () => {
           <DetailViewStack.Screen
             name="WalletExport"
             component={WalletExport}
-            options={navigationStyle({
-              headerBackVisible: false,
-              title: loc.wallets.export_title,
-              presentation: 'modal',
-              headerShown: true,
-              closeButtonPosition: CloseButtonPosition.Right,
-            })(theme)}
+            options={{ title: loc.wallets.export_title, presentation: 'modal', statusBarStyle: theme.dark ? 'light' : 'dark' }}
+          />
+          <DetailViewStack.Screen
+            name="HardwareBackupInfo"
+            component={HardwareBackupInfo}
+            options={{ title: loc.wallets.hw_backup_title, presentation: 'modal', statusBarStyle: theme.dark ? 'light' : 'dark' }}
           />
           <DetailViewStack.Screen
             name="WalletXpub"
             component={WalletXpub}
-            options={navigationStyle({
-              title: loc.wallets.xpub_title,
-              presentation: 'modal',
-              headerShown: true,
-              closeButtonPosition: CloseButtonPosition.Right,
-            })(theme)}
+            options={{ title: loc.wallets.xpub_title, presentation: 'modal', statusBarStyle: theme.dark ? 'light' : 'dark' }}
           />
           <DetailViewStack.Screen
             name="ScanQRCode"

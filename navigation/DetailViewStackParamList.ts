@@ -88,6 +88,7 @@ export type DetailViewStackParamList = {
   SelfTest: undefined;
   ReleaseNotes: undefined;
   WalletXpub: { walletID: string; xpub: string };
+  HardwareBackupInfo: { walletID: string };
   ReceiveDetails: {
     walletID?: string;
     address: string;

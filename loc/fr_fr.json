@@ -85,9 +85,6 @@
     "title": "Déni plausible"
   },
   "pleasebackup": {
-    "ask": "Avez-vous noté la phrase de sauvegarde de votre portefeuille ? Cette phrase de sauvegarde est nécessaire pour accéder à vos fonds en cas de perte de votre appareil. Sans ce backup, vos fonds pourraient être perdus pour toujours.",
-    "ask_no": "Non.",
-    "ask_yes": "Oui.",
     "ok": "Ok, Je l'ai écrite sur un papier.",
     "ok_lnd": "OK, je l'ai sauvegardée.",
     "text": "Veuillez prendre un moment pour noter cette phrase de sauvegarde sur papier.\nC'est votre backup et vous pouvez l'utiliser pour restaurer votre portefeuille.",
@@ -425,7 +422,6 @@
     "import_passphrase_title": "Phrase secrète",
     "import_passphrase_message": "Entrez la phrase secrète si vous en avez utilisé une",
     "import_error": "Échec de l'import. Merci, de vérifier que les données saisies sont valides.",
-    "import_explanation": "Entrez ici votre mnémonique, clé privée, WIF, ou quoi que ce soit que vous ayez. NeuraiWallet fera de son mieux pour deviner le bon format et importer votre portefeuille",
     "import_imported": "Importé",
     "import_scan_qr": "ou scaner un QR code",
     "import_success": "Succès",

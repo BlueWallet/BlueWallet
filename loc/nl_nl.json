@@ -73,7 +73,6 @@
     "title": "Plausibele ontkenning"
   },
   "pleasebackup": {
-    "ask": "Heeft u uw back-up zin opgeslagen? Deze back-up zin is nodig om toegang te krijgen tot uw tegoeden wanneer u dit apparaat verliest. Zonder de back-up zin zijn je gelden voor altijd verloren.",
     "ok": "Ok, ik heb het opgeschreven",
     "ok_lnd": "Oké, ik heb het bewaard.",
     "text": "Neem alstublieft een moment om deze mnemonische zin te noteren op een stukje papier.\nHet is uw backup en kan gebruikt worden om de wallet te herstellen.",
@@ -316,7 +315,6 @@
     "import_passphrase_title": "Wachtwoord",
     "import_passphrase_message": "Voer wachtwoord in als u één heeft gebruikt",
     "import_error": "Importeren mislukt. Zorg ervoor dat de verstrekte gegevens geldig zijn.",
-    "import_explanation": "Schrijf hier uw mnemonic phrase, public key, WIF of wat je maar hebt. NeuraiWallet zal zijn best doen om het juiste formaat te raden en uw wallet te importeren.",
     "import_imported": "Geïmporteerd",
     "import_scan_qr": "QR-code scannen of importeren?",
     "import_success": "Succes",

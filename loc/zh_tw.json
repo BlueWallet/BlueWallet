@@ -62,7 +62,6 @@
     "title": "合理推諉"
   },
   "pleasebackup": {
-    "ask": "您是否保存了錢包的備份短語？ 如果您丟失了此設備，則需要此備份短語來訪問您的資金。沒有此備份短語，您的資金將永久丟失。",
     "ok": "好，我把它写下来了。",
     "ok_lnd": "好的，我已經儲存了",
     "text_lnd": "請儲存此錢包備份。這個備份可以在裝置遺失時用來恢複此錢包。",
@@ -270,7 +269,6 @@
     "export_title": "錢包匯出",
     "import_do_import": "匯入",
     "import_error": "匯入失敗，請確認所提供的資訊是有效的",
-    "import_explanation": "輸入你的種子短語、公鑰、WIF或者任何你擁有的東西。NeuraiWallet將盡可能猜測正確的格式並匯入您的錢包",
     "import_imported": "已經匯入",
     "import_scan_qr": "掃描或匯入檔案",
     "import_success": "成功",

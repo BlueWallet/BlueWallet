@@ -451,7 +451,7 @@ const ConnectSessions: React.FC = () => {
                     <Text style={[styles.title, { color: p.ink }]} numberOfLines={1}>
                       {identity.domain}
                     </Text>
-                    <Text style={[styles.mono, { color: p.mutedOnCard }]} numberOfLines={1} ellipsizeMode="middle" selectable>
+                    <Text style={[styles.mono, { color: p.mutedOnCard }]} numberOfLines={1} ellipsizeMode="middle">
                       {identity.address}
                     </Text>
                   </View>

@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
 
-import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
@@ -35,32 +35,31 @@ const AddWalletStack = () => {
   const theme = useTheme();
   return (
     <Stack.Navigator initialRouteName="AddWallet">
+      {/* Draws its own header (with the close button), like the settings screens. */}
       <Stack.Screen
         name="AddWallet"
         component={AddComponent}
-        options={navigationStyle({
-          closeButtonPosition: CloseButtonPosition.Left,
-          title: loc.wallets.add_title,
-        })(theme)}
+        options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.wallets.add_title }}
       />
       <Stack.Screen
         name="PleaseBackup"
         component={PleaseBackupComponent}
-        options={navigationStyle({
+        options={{
+          headerShown: false,
           gestureEnabled: false,
-          headerBackVisible: false,
+          statusBarStyle: theme.dark ? 'light' : 'dark',
           title: loc.pleasebackup.title,
-        })(theme)}
+        }}
       />
       <Stack.Screen
         name="ImportNeurai"
         component={ImportNeuraiComponent}
-        options={navigationStyle({ title: loc.wallets.import_title })(theme)}
+        options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.wallets.import_title }}
       />
       <Stack.Screen
         name="AddHardwareWallet"
         component={AddHardwareWalletComponent}
-        options={navigationStyle({ title: loc.wallets.hardware_connect_title })(theme)}
+        options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.wallets.hardware_connect_title }}
       />
       <Stack.Screen
         name="ScanQRCode"

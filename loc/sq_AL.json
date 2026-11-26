@@ -81,9 +81,6 @@
     "title": "Mohim i besueshëm"
   },
   "pleasebackup": {
-    "ask": "A i keni shpetuar fjalet per rigjenerimin e portofolit? Keto fjale do ju duhen per te pasur akses ne fondet tuaja ne rastin se humbni kete dispozitiv. Pa keto fjale, fondet tuaja do jene te humbura.",
-    "ask_no": "Jo, nuk kam.",
-    "ask_yes": "Po, e kam.",
     "ok": "Ok, i shkruajta.",
     "ok_lnd": "Ok, i shpëtova.",
     "text": "Ju lutem merrni nje moment per te shkruajtur keto fjale ne nje cope letre.\nEshte mundesia juaj e vetme per te rigjeneruar portofolin.",

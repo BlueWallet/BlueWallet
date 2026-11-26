@@ -100,3 +100,5 @@ const KIND_ICONS: Record<HomeWalletKind, MaterialIconName> = {
 
 export const walletKindLabel = (wallet: TWallet): string => KIND_LABELS[homeWalletKind(wallet)];
 export const walletKindIcon = (wallet: TWallet): MaterialIconName => KIND_ICONS[homeWalletKind(wallet)];
+/** Icon of a kind of wallet, for the screens that offer one before it exists. */
+export const walletKindIconOf = (kind: HomeWalletKind): MaterialIconName => KIND_ICONS[kind];

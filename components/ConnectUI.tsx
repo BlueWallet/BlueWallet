@@ -32,17 +32,27 @@ export const ConnectSiteIcon: React.FC<{ icons?: string[]; size?: number }> = ({
 };
 
 /** One short line that must be seen: `quiet` informs, `danger` warns. */
-export const ConnectNoticeCard: React.FC<{ tone: 'quiet' | 'danger'; text: string; testID?: string }> = ({ tone, text, testID }) => {
+/** `quiet` informs, `warn` asks for care (write the words down), `danger` stops a mistake. */
+export const ConnectNoticeCard: React.FC<{ tone: 'quiet' | 'warn' | 'danger'; text: string; testID?: string }> = ({
+  tone,
+  text,
+  testID,
+}) => {
   const p = useSettingsPalette();
-  const danger = tone === 'danger';
+  const look =
+    tone === 'danger'
+      ? { bg: p.fail.bg, border: 'transparent', icon: 'warning-amber' as const, iconColor: p.fail.dot, text: p.fail.fg }
+      : tone === 'warn'
+        ? { bg: p.warnBg, border: p.warnBorder, icon: 'warning-amber' as const, iconColor: p.accent, text: p.onText }
+        : { bg: p.card, border: 'transparent', icon: 'info-outline' as const, iconColor: p.mutedOnCard, text: p.mutedOnCard };
   return (
     <View
-      style={[styles.notice, { backgroundColor: danger ? p.fail.bg : p.card }]}
-      accessibilityRole={danger ? 'alert' : undefined}
+      style={[styles.notice, { backgroundColor: look.bg, borderColor: look.border }]}
+      accessibilityRole={tone === 'quiet' ? undefined : 'alert'}
       testID={testID}
     >
-      <Icon name={danger ? 'warning-amber' : 'info-outline'} type="material" size={20} color={danger ? p.fail.dot : p.mutedOnCard} />
-      <Text style={[styles.noticeText, { color: danger ? p.fail.fg : p.mutedOnCard }]}>{text}</Text>
+      <Icon name={look.icon} type="material" size={20} color={look.iconColor} />
+      <Text style={[styles.noticeText, { color: look.text }]}>{text}</Text>
     </View>
   );
 };
@@ -116,12 +126,23 @@ interface ConnectInfoRowProps {
   detail?: string;
   /** Colour of the icon: `accent` (default), `ok` for what comes back, `muted` for the secondary. */
   tone?: 'accent' | 'ok' | 'muted';
+  /** The whole detail, wrapped, instead of one line shortened in the middle: an address to check against a device. */
+  detailFull?: boolean;
   divider?: boolean;
   testID?: string;
 }
 
 /** A row that only shows something: what a transaction pays, which address answers. */
-export const ConnectInfoRow: React.FC<ConnectInfoRowProps> = ({ icon, title, subtitle, detail, tone = 'accent', divider, testID }) => {
+export const ConnectInfoRow: React.FC<ConnectInfoRowProps> = ({
+  icon,
+  title,
+  subtitle,
+  detail,
+  detailFull,
+  tone = 'accent',
+  divider,
+  testID,
+}) => {
   const p = useSettingsPalette();
   const circle =
     tone === 'ok'
@@ -142,8 +163,14 @@ export const ConnectInfoRow: React.FC<ConnectInfoRowProps> = ({ icon, title, sub
       <View style={styles.texts}>
         <Text style={[styles.title, { color: p.ink }]}>{title}</Text>
         {subtitle ? <Text style={[styles.subtitle, { color: p.mutedOnCard }]}>{subtitle}</Text> : null}
-        {detail ? (
-          <Text style={[styles.detail, { color: p.mutedOnCard }]} numberOfLines={1} ellipsizeMode="middle" selectable>
+        {/* Shortened text is not selectable: on Android a selectable text ignores the
+            ellipsis and is drawn on two lines, the second cut off. */}
+        {detail && detailFull ? (
+          <Text style={[styles.detail, styles.detailFull, { color: p.mutedOnCard }]} selectable>
+            {detail}
+          </Text>
+        ) : detail ? (
+          <Text style={[styles.detail, { color: p.mutedOnCard }]} numberOfLines={1} ellipsizeMode="middle">
             {detail}
           </Text>
         ) : null}
@@ -212,13 +239,22 @@ const styles = StyleSheet.create({
   circle: { width: 40, height: 40, borderRadius: 20 },
   pressed: { opacity: 0.6 },
   disabled: { opacity: 0.4 },
-  notice: { flexDirection: 'row', alignItems: 'flex-start', columnGap: 10, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 },
+  notice: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    columnGap: 10,
+    borderRadius: 16,
+    borderWidth: StyleSheet.hairlineWidth * 2,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
   noticeText: { flex: 1, fontSize: 13, lineHeight: 18 },
   option: { flexDirection: 'row', alignItems: 'center', columnGap: 12, minHeight: 64, paddingVertical: 10 },
   texts: { flex: 1, rowGap: 2 },
   title: { fontSize: 15, fontWeight: '600' },
   subtitle: { fontSize: 13, lineHeight: 18 },
   detail: { fontFamily: 'monospace', fontSize: 12 },
+  detailFull: { lineHeight: 17 },
   footer: {
     flexDirection: 'row',
     columnGap: 10,

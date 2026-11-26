@@ -1,15 +1,22 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { NeuraiESP32 } from '@neuraiproject/neurai-sign-esp32/react-native';
 
-import { BlueFormLabel } from '../../BlueComponents';
-import Button from '../../components/Button';
-import SegmentedControl from '../../components/SegmentedControl';
-import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { secretTextInputProps } from '../../components/secretInputProps';
 import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
+import { ConnectFooter, ConnectInfoRow, ConnectNoticeCard, ConnectOption } from '../../components/ConnectUI';
+import { walletKindIconOf } from '../../components/home/homeTheme';
+import Icon from '../../components/Icon';
+import RecoveryWords from '../../components/RecoveryWords';
+import { secretTextInputProps } from '../../components/secretInputProps';
+import {
+  SettingsCard,
+  SettingsRow,
+  SettingsScreenHeader,
+  SettingsSectionLabel,
+  SettingsSegment,
+  SettingsSegmented,
+  useSettingsPalette,
+} from '../../components/settings/SettingsUI';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -29,6 +36,29 @@ import loc from '../../loc';
 import NeuraiLoader from '../../components/NeuraiLoader';
 
 const networkLabel = (chain: string): string => (chain.includes('test') ? 'Neurai Testnet' : 'Neurai');
+
+const NETWORKS: SettingsSegment<SetupNetwork>[] = [
+  { value: 'mainnet', label: loc.wallets.neurai_network_mainnet, icon: 'public', testID: 'HardwareMainnet' },
+  { value: 'testnet', label: loc.wallets.neurai_network_testnet, icon: 'science', testID: 'HardwareTestnet' },
+];
+
+const WORD_COUNTS: SettingsSegment<'12' | '24'>[] = [
+  { value: '12', label: loc.wallets.hardware_words_12, icon: 'notes', testID: 'HardwareWords12' },
+  { value: '24', label: loc.wallets.hardware_words_24, icon: 'subject', testID: 'HardwareWords24' },
+];
+
+/** What a step is about: a title and, if needed, a line or two under it. */
+const StepIntro: React.FC<{ title: string; text?: string }> = ({ title, text }) => {
+  const p = useSettingsPalette();
+  return (
+    <View style={styles.intro}>
+      <Text style={[styles.introTitle, { color: p.ink }]} accessibilityRole="header">
+        {title}
+      </Text>
+      {text ? <Text style={[styles.introText, { color: p.muted }]}>{text}</Text> : null}
+    </View>
+  );
+};
 
 /**
  * Steps of the screen:
@@ -60,7 +90,7 @@ type SetupMode = 'new' | 'restore';
  * with `getDeviceState()` (which tolerates that) before any other command.
  */
 const AddHardwareWallet: React.FC = () => {
-  const { colors } = useTheme();
+  const p = useSettingsPalette();
   const { status, error, connect, disconnect } = useNeuraiHwDevice();
   const { wallets, addWallet, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation();
@@ -79,21 +109,6 @@ const AddHardwareWallet: React.FC = () => {
   // The live connection has to survive across the wizard, so hold it here
   // instead of disconnecting after `connect()`.
   const deviceRef = useRef<NeuraiESP32 | null>(null);
-
-  const stylesHook = {
-    root: { backgroundColor: colors.elevated },
-    status: { color: colors.alternativeTextColor },
-    fieldLabel: { color: colors.alternativeTextColor },
-    fieldValue: { color: colors.foregroundColor },
-    card: { backgroundColor: colors.inputBackgroundColor, borderColor: colors.formBorder },
-    warning: { backgroundColor: colors.inputBackgroundColor, borderColor: colors.redBG },
-    warningText: { color: colors.foregroundColor },
-    restoreInput: { backgroundColor: colors.inputBackgroundColor, borderColor: colors.formBorder, color: colors.foregroundColor },
-    nameInput: { backgroundColor: colors.inputBackgroundColor, borderColor: colors.formBorder, color: colors.foregroundColor },
-    wordChip: { backgroundColor: colors.elevated, borderColor: colors.formBorder },
-    wordIndex: { color: colors.alternativeTextColor },
-    wordText: { color: colors.foregroundColor },
-  };
 
   const isUnsupported = status === 'unsupported';
 
@@ -205,20 +220,14 @@ const AddHardwareWallet: React.FC = () => {
     }
   }, [phase, connect, error, closeConnection, buildWalletFromDevice, stageForReview]);
 
-  // Wizard selectors. PQ keys are testnet-only (the firmware enforces it), so
-  // keep network/key-type mutually consistent instead of letting an invalid
-  // combination reach the device.
-  const onChangeWordCount = useCallback((index: number) => setWordCount(index === 1 ? 24 : 12), []);
-  const onChangeNetwork = useCallback((index: number) => {
-    const next: SetupNetwork = index === 1 ? 'testnet' : 'mainnet';
+  // Wizard selectors. PQ keys are testnet-only (the firmware enforces it): on
+  // mainnet the PQ option is off, and going back to mainnet picks Legacy, so an
+  // invalid combination never reaches the device.
+  const onChangeNetwork = useCallback((next: SetupNetwork) => {
     setNetwork(next);
     if (next === 'mainnet') setKeyType('legacy');
   }, []);
-  const onChangeKeyType = useCallback((index: number) => {
-    const next: SetupKeyType = index === 1 ? 'pq' : 'legacy';
-    setKeyType(next);
-    if (next === 'pq') setNetwork('testnet');
-  }, []);
+  const onChangeKeyType = useCallback((next: SetupKeyType) => setKeyType(next), []);
 
   // New-vs-restore choice for an unconfigured device; both then go to the config step.
   const onChooseNew = useCallback(() => {
@@ -338,308 +347,229 @@ const AddHardwareWallet: React.FC = () => {
     navigation.goBack();
   }, [closeConnection, navigation]);
 
-  const renderField = (label: string, value: string) => (
-    <View style={styles.field}>
-      <Text style={[styles.fieldLabel, stylesHook.fieldLabel]}>{label}</Text>
-      <Text style={[styles.fieldValue, stylesHook.fieldValue]} selectable>
-        {value}
-      </Text>
-    </View>
-  );
-
-  const renderBusy = (message: string) => (
-    <View style={styles.action}>
-      <NeuraiLoader />
-      <BlueSpacing20 />
-      <Text style={[styles.statusText, stylesHook.status]}>{message}</Text>
-    </View>
-  );
-
   const renderChoose = () => (
     <>
-      <BlueFormLabel>{loc.wallets.hardware_setup_title}</BlueFormLabel>
-      <Text style={[styles.statusText, stylesHook.status, styles.setupSubtitle]}>{loc.wallets.hardware_choose_subtitle}</Text>
-      <BlueSpacing20 />
-      <View style={styles.action}>
-        <Button testID="HardwareChooseNewButton" title={loc.wallets.hardware_choose_new} onPress={onChooseNew} />
-        <BlueSpacing20 />
-        <Button testID="HardwareChooseRestoreButton" title={loc.wallets.hardware_choose_restore} onPress={onChooseRestore} />
-        <BlueSpacing20 />
-        <Button testID="HardwareCancelButton" title={loc._.cancel} onPress={onCancel} />
-      </View>
-      <BlueSpacing40 />
+      <StepIntro title={loc.wallets.hardware_setup_title} text={loc.wallets.hardware_choose_subtitle} />
+      <SettingsCard>
+        <SettingsRow
+          icon="add-circle-outline"
+          title={loc.wallets.hardware_choose_new}
+          subtitle={loc.wallets.hardware_choose_new_explain}
+          onPress={onChooseNew}
+          testID="HardwareChooseNewButton"
+        />
+        <SettingsRow
+          icon="restore"
+          title={loc.wallets.hardware_choose_restore}
+          subtitle={loc.wallets.hardware_choose_restore_explain}
+          onPress={onChooseRestore}
+          divider
+          testID="HardwareChooseRestoreButton"
+        />
+      </SettingsCard>
     </>
   );
 
   const renderSetup = () => (
     <>
-      <BlueFormLabel>{mode === 'restore' ? loc.wallets.hardware_restore_title : loc.wallets.hardware_setup_title}</BlueFormLabel>
-      <Text style={[styles.statusText, stylesHook.status, styles.setupSubtitle]}>
-        {mode === 'restore' ? loc.wallets.hardware_setup_subtitle_restore : loc.wallets.hardware_setup_subtitle}
-      </Text>
-      <View style={styles.setupForm}>
-        {mode === 'new' && (
-          <>
-            <Text style={[styles.fieldLabel, stylesHook.fieldLabel]}>{loc.wallets.hardware_setup_words}</Text>
-            <SegmentedControl values={['12', '24']} selectedIndex={wordCount === 24 ? 1 : 0} onChange={onChangeWordCount} />
-          </>
-        )}
-
-        <Text style={[styles.fieldLabel, stylesHook.fieldLabel]}>{loc.wallets.hardware_field_network}</Text>
-        <SegmentedControl
-          values={[loc.wallets.neurai_network_mainnet, loc.wallets.neurai_network_testnet]}
-          selectedIndex={network === 'testnet' ? 1 : 0}
-          onChange={onChangeNetwork}
-        />
-
-        <Text style={[styles.fieldLabel, stylesHook.fieldLabel]}>{loc.wallets.hardware_field_type}</Text>
-        <SegmentedControl
-          values={[loc.wallets.hardware_keytype_legacy, loc.wallets.hardware_keytype_pq]}
-          selectedIndex={keyType === 'pq' ? 1 : 0}
-          onChange={onChangeKeyType}
-        />
-        <Text style={[styles.noteText, stylesHook.status]}>{loc.wallets.hardware_setup_pq_note}</Text>
+      <StepIntro
+        title={mode === 'restore' ? loc.wallets.hardware_restore_title : loc.wallets.hardware_setup_title}
+        text={mode === 'restore' ? loc.wallets.hardware_setup_subtitle_restore : loc.wallets.hardware_setup_subtitle}
+      />
+      {mode === 'new' && (
+        <View>
+          <SettingsSectionLabel>{loc.wallets.hardware_setup_words}</SettingsSectionLabel>
+          <SettingsCard style={styles.padded}>
+            <SettingsSegmented
+              segments={WORD_COUNTS}
+              value={wordCount === 24 ? '24' : '12'}
+              onChange={value => setWordCount(value === '24' ? 24 : 12)}
+              testID="HardwareWordCount"
+            />
+          </SettingsCard>
+        </View>
+      )}
+      <View>
+        <SettingsSectionLabel>{loc.wallets.neurai_network_label}</SettingsSectionLabel>
+        <SettingsCard style={styles.padded}>
+          <SettingsSegmented segments={NETWORKS} value={network} onChange={onChangeNetwork} testID="HardwareNetwork" />
+        </SettingsCard>
       </View>
-      <View style={styles.action}>
-        {mode === 'restore' ? (
-          <Button testID="HardwareRestoreNextButton" title={loc.wallets.hardware_restore_enter} onPress={() => setPhase('restore')} />
-        ) : (
-          <Button testID="HardwareGenerateButton" title={loc.wallets.hardware_setup_generate} onPress={onGenerate} />
-        )}
-        <BlueSpacing20 />
-        <Button testID="HardwareCancelButton" title={loc._.cancel} onPress={onCancel} />
+      <View>
+        <SettingsSectionLabel>{loc.wallets.hardware_field_type}</SettingsSectionLabel>
+        <SettingsCard>
+          <ConnectOption
+            icon={walletKindIconOf('hd')}
+            title={loc.wallets.hardware_keytype_legacy}
+            subtitle={loc.wallets.hardware_keytype_legacy_explain}
+            selected={keyType === 'legacy'}
+            onPress={() => onChangeKeyType('legacy')}
+            testID="HardwareKeyLegacy"
+          />
+          <ConnectOption
+            icon={walletKindIconOf('pq')}
+            title={loc.wallets.hardware_keytype_pq}
+            subtitle={network === 'mainnet' ? loc.wallets.add_testnet_only : loc.wallets.hardware_keytype_pq_explain}
+            selected={keyType === 'pq'}
+            disabled={network === 'mainnet'}
+            onPress={() => onChangeKeyType('pq')}
+            divider
+            testID="HardwareKeyPQ"
+          />
+        </SettingsCard>
       </View>
-      <BlueSpacing40 />
     </>
   );
 
   const renderRestore = () => (
     <>
-      <BlueFormLabel>{loc.wallets.hardware_restore_title}</BlueFormLabel>
-      <Text style={[styles.statusText, stylesHook.status, styles.setupSubtitle]}>{loc.wallets.hardware_restore_subtitle}</Text>
-      <TextInput
-        testID="HardwareRestoreInput"
-        style={[styles.restoreInput, stylesHook.restoreInput]}
-        value={restoreInput}
-        onChangeText={setRestoreInput}
-        placeholder={loc.wallets.hardware_restore_placeholder}
-        placeholderTextColor={colors.alternativeTextColor}
-        multiline
-        {...secretTextInputProps}
-        textAlignVertical="top"
-      />
-      <View style={styles.action}>
-        <Button testID="HardwareRestoreSendButton" title={loc.wallets.hardware_restore_send} onPress={onRestoreContinue} />
-        <BlueSpacing20 />
-        <Button testID="HardwareCancelButton" title={loc._.cancel} onPress={onCancel} />
-      </View>
-      <BlueSpacing40 />
+      <StepIntro title={loc.wallets.hardware_restore_title} text={loc.wallets.hardware_restore_subtitle} />
+      <SettingsCard>
+        <TextInput
+          testID="HardwareRestoreInput"
+          value={restoreInput}
+          onChangeText={setRestoreInput}
+          placeholder={loc.wallets.hardware_restore_placeholder}
+          placeholderTextColor={p.mutedOnCard}
+          selectionColor={p.accent}
+          multiline
+          {...secretTextInputProps}
+          style={[styles.words, { color: p.ink }]}
+          underlineColorAndroid="transparent"
+        />
+      </SettingsCard>
     </>
   );
 
-  const renderBackup = () => {
-    const words = (mnemonic ?? '').split(' ');
-    return (
-      <>
-        <BlueFormLabel>{loc.wallets.hardware_backup_title}</BlueFormLabel>
-        <View style={[styles.warning, stylesHook.warning]}>
-          <Text style={[styles.warningText, stylesHook.warningText]}>{loc.wallets.hardware_backup_warning}</Text>
-        </View>
-        {isProtectionReady ? (
-          <View style={styles.wordsGrid}>
-            {words.map((word, i) => (
-              <View key={`${i}-${word}`} style={[styles.wordChip, stylesHook.wordChip]}>
-                <Text style={[styles.wordIndex, stylesHook.wordIndex]}>{i + 1}</Text>
-                <Text style={[styles.wordText, stylesHook.wordText]}>{word}</Text>
-              </View>
-            ))}
-          </View>
-        ) : (
-          <ActivityIndicator />
-        )}
-        <BlueSpacing20 />
-        <View style={styles.action}>
-          <Button testID="HardwareBackupContinueButton" title={loc.wallets.hardware_backup_continue} onPress={onBackupContinue} />
-          <BlueSpacing20 />
-          <Button testID="HardwareCancelButton" title={loc._.cancel} onPress={onCancel} />
-        </View>
-        <BlueSpacing40 />
-      </>
-    );
-  };
+  const renderBackup = () => (
+    <>
+      <StepIntro title={loc.wallets.hardware_backup_title} />
+      <ConnectNoticeCard tone="warn" text={loc.wallets.hardware_backup_warning} />
+      {isProtectionReady ? <RecoveryWords words={mnemonic ?? ''} testID="HardwareSecret" /> : <NeuraiLoader style={styles.loader} />}
+    </>
+  );
 
   const renderReview = () =>
     pending && (
       <>
-        <BlueFormLabel>{loc.wallets.hardware_review_title}</BlueFormLabel>
-        <BlueFormLabel>{loc.wallets.hardware_name_hint}</BlueFormLabel>
-        <TextInput
-          testID="HardwareWalletNameInput"
-          style={[styles.nameInput, stylesHook.nameInput]}
-          value={walletName}
-          onChangeText={setWalletName}
-          placeholder={loc.wallets.add_wallet_name}
-          placeholderTextColor="#81868e"
-          autoCapitalize="words"
-          autoCorrect={false}
-          maxLength={40}
-          numberOfLines={1}
-          underlineColorAndroid="transparent"
-        />
-        <View style={[styles.card, stylesHook.card]}>
-          {renderField(loc.wallets.hardware_field_network, networkLabel(pending.network))}
-          {renderField(loc.wallets.hardware_field_type, pending.keyType === 'pq' ? 'Post-Quantum (ML-DSA-44)' : 'Legacy (ECDSA P2PKH)')}
-          {renderField(loc.wallets.hardware_field_address, pending.address)}
-          {renderField(loc.wallets.hardware_field_path, pending.hwPath)}
-          {renderField(loc.wallets.hardware_field_fingerprint, pending.hwFingerprint)}
+        <StepIntro title={loc.wallets.hardware_review_title} />
+        <View>
+          <SettingsSectionLabel>{loc.wallets.add_wallet_name}</SettingsSectionLabel>
+          <SettingsCard>
+            <TextInput
+              testID="HardwareWalletNameInput"
+              value={walletName}
+              onChangeText={setWalletName}
+              placeholder={loc.wallets.add_wallet_name}
+              placeholderTextColor={p.mutedOnCard}
+              selectionColor={p.accent}
+              autoCapitalize="words"
+              autoCorrect={false}
+              maxLength={40}
+              numberOfLines={1}
+              style={[styles.name, { color: p.ink }]}
+              underlineColorAndroid="transparent"
+            />
+          </SettingsCard>
+          <Text style={[styles.hint, { color: p.muted }]}>{loc.wallets.hardware_name_hint}</Text>
         </View>
-        <View style={styles.action}>
-          <Button testID="HardwareAddButton" title={loc.wallets.hardware_add} onPress={onAdd} />
-          <BlueSpacing20 />
-          <Button testID="HardwareCancelButton" title={loc._.cancel} onPress={onCancel} />
-        </View>
-        <BlueSpacing40 />
+        <SettingsCard>
+          <ConnectInfoRow icon="public" title={loc.wallets.hardware_field_network} subtitle={networkLabel(pending.network)} />
+          <ConnectInfoRow
+            icon={walletKindIconOf(pending.keyType === 'pq' ? 'pq' : 'hd')}
+            title={loc.wallets.hardware_field_type}
+            subtitle={pending.keyType === 'pq' ? 'Post-Quantum (ML-DSA-44)' : 'Legacy (ECDSA P2PKH)'}
+            divider
+          />
+          <ConnectInfoRow icon="qr-code-2" title={loc.wallets.hardware_field_address} detail={pending.address} detailFull divider />
+          <ConnectInfoRow icon="account-tree" title={loc.wallets.hardware_field_path} detail={pending.hwPath} divider />
+          <ConnectInfoRow icon="fingerprint" title={loc.wallets.hardware_field_fingerprint} detail={pending.hwFingerprint} divider />
+        </SettingsCard>
       </>
     );
 
   const renderIdle = () => (
-    <>
-      <BlueFormLabel>{loc.wallets.hardware_connect_instructions}</BlueFormLabel>
-      <BlueSpacing40 />
-      <View style={styles.action}>
-        <Button testID="ConnectHardwareWalletButton" title={loc.wallets.hardware_connect_button} onPress={onConnect} />
+    <SettingsCard style={styles.hero}>
+      <View style={[styles.heroIcon, { backgroundColor: p.accentSoft }]}>
+        <Icon name="usb" type="material" size={30} color={p.accentText} />
       </View>
-    </>
+      <Text style={[styles.heroTitle, { color: p.ink }]}>NeuraiHW</Text>
+      <Text style={[styles.heroText, { color: p.mutedOnCard }]}>{loc.wallets.hardware_connect_instructions}</Text>
+    </SettingsCard>
   );
 
-  let content: React.ReactNode;
+  // What the step shows, and the one button that moves it on (none while waiting).
+  let content: React.ReactNode = null;
+  let next: { title: string; onPress: () => void; testID: string } | null = null;
+  let busyText = '';
   if (isUnsupported) {
-    content = (
-      <View style={styles.action}>
-        <Text style={[styles.statusText, stylesHook.status]}>{loc.wallets.hardware_only_android}</Text>
-      </View>
-    );
+    content = <ConnectNoticeCard tone="quiet" text={loc.wallets.hardware_only_android} />;
   } else if (phase === 'review') {
     content = renderReview();
+    next = { title: loc.wallets.hardware_add, onPress: onAdd, testID: 'HardwareAddButton' };
   } else if (phase === 'connecting') {
-    content = renderBusy(loc.wallets.hardware_connecting);
+    busyText = loc.wallets.hardware_connecting;
   } else if (phase === 'provisioning') {
-    content = renderBusy(loc.wallets.hardware_setup_waiting);
+    busyText = loc.wallets.hardware_setup_waiting;
   } else if (phase === 'choose') {
     content = renderChoose();
   } else if (phase === 'setup') {
     content = renderSetup();
+    next =
+      mode === 'restore'
+        ? { title: loc.wallets.hardware_restore_enter, onPress: () => setPhase('restore'), testID: 'HardwareRestoreNextButton' }
+        : { title: loc.wallets.hardware_setup_generate, onPress: onGenerate, testID: 'HardwareGenerateButton' };
   } else if (phase === 'backup') {
     content = renderBackup();
+    next = { title: loc.wallets.hardware_backup_continue, onPress: onBackupContinue, testID: 'HardwareBackupContinueButton' };
   } else if (phase === 'restore') {
     content = renderRestore();
+    next = { title: loc.wallets.hardware_restore_send, onPress: onRestoreContinue, testID: 'HardwareRestoreSendButton' };
   } else {
     content = renderIdle();
+    next = { title: loc.wallets.hardware_connect_button, onPress: onConnect, testID: 'ConnectHardwareWalletButton' };
   }
 
   return (
-    <SafeAreaScrollView style={stylesHook.root}>
-      <BlueSpacing20 />
-      {content}
-    </SafeAreaScrollView>
+    <View style={[styles.root, { backgroundColor: p.ground }]}>
+      {/* Back cancels at any step: the connection is closed and a phrase not yet on the device is dropped. */}
+      <SettingsScreenHeader title={loc.wallets.hardware_connect_title} onBack={onCancel} />
+      {busyText ? (
+        <View style={styles.busy}>
+          <NeuraiLoader label={busyText} style={styles.busyLoader} />
+        </View>
+      ) : (
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          automaticallyAdjustKeyboardInsets
+        >
+          {content}
+        </ScrollView>
+      )}
+      {next ? <ConnectFooter primary={next} /> : null}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  action: {
-    marginHorizontal: 20,
-  },
-  statusText: {
-    textAlign: 'center',
-    fontSize: 13,
-  },
-  setupSubtitle: {
-    marginHorizontal: 20,
-    marginTop: 8,
-  },
-  setupForm: {
-    marginHorizontal: 20,
-    marginTop: 16,
-  },
-  noteText: {
-    fontSize: 12,
-    marginTop: -8,
-    marginBottom: 8,
-  },
-  card: {
-    marginHorizontal: 20,
-    marginTop: 12,
-    marginBottom: 20,
-    padding: 16,
-    borderWidth: 1,
-    borderRadius: 8,
-  },
-  warning: {
-    marginHorizontal: 20,
-    marginTop: 12,
-    padding: 14,
-    borderWidth: 1,
-    borderRadius: 8,
-  },
-  warningText: {
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  nameInput: {
-    marginHorizontal: 20,
-    marginTop: 8,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-  },
-  restoreInput: {
-    marginHorizontal: 20,
-    marginTop: 12,
-    marginBottom: 20,
-    minHeight: 110,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 15,
-  },
-  wordsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: 14,
-    marginTop: 16,
-  },
-  wordChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '46%',
-    marginHorizontal: '2%',
-    marginVertical: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderRadius: 8,
-  },
-  wordIndex: {
-    fontSize: 12,
-    width: 22,
-  },
-  wordText: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  field: {
-    marginBottom: 12,
-  },
-  fieldLabel: {
-    fontSize: 12,
-    marginBottom: 6,
-  },
-  fieldValue: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
+  root: { flex: 1 },
+  content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, rowGap: 20 },
+  padded: { paddingVertical: 12 },
+  intro: { rowGap: 6, paddingHorizontal: 4 },
+  introTitle: { fontSize: 20, fontWeight: '700', letterSpacing: -0.3 },
+  introText: { fontSize: 14, lineHeight: 20 },
+  hero: { alignItems: 'center', rowGap: 10, paddingVertical: 28, paddingHorizontal: 24 },
+  heroIcon: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  heroTitle: { fontSize: 20, fontWeight: '700' },
+  heroText: { fontSize: 14, lineHeight: 20, textAlign: 'center' },
+  words: { fontSize: 16, lineHeight: 24, minHeight: 120, paddingVertical: 14, paddingHorizontal: 0, textAlignVertical: 'top' },
+  name: { fontSize: 16, minHeight: 56, paddingVertical: 14, paddingHorizontal: 0 },
+  hint: { fontSize: 12, lineHeight: 17, marginTop: 8, marginHorizontal: 4 },
+  loader: { paddingVertical: 40 },
+  busy: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
+  busyLoader: { maxWidth: 320 },
 });
 
 export default AddHardwareWallet;

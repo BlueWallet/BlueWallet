@@ -65,7 +65,6 @@
     "title": "Verodostojno Zanikanje"
   },
   "pleasebackup": {
-    "ask": "Ali ste shranili varnostno kopijo (seznam besed) vaše denarnice? Varnostna kopija je potrebna za dostop do vaših sredstev v primeru izgube naprave. Brez varnostne kopije bodo vaša sredstva trajno izgubljena.",
     "ok": "V redu, sem si zapisal.",
     "ok_lnd": "V redu, sem shranil.",
     "text": "Prosimo zapišite si seznam besed (mnemonično seme) na list papirja.\nTo je varnostna kopija, ki jo lahko uporabite za obnovitev denarnice.",
@@ -320,7 +319,6 @@
     "import_passphrase_title": "Dodatna beseda/niz (passphrase)",
     "import_passphrase_message": "Vnesite dodatno besedo/niz (passphrase), če jo uporabljate",
     "import_error": "Napaka pri uvozu. Prosimo, preverite ali so podani podatki pravilni.",
-    "import_explanation": "Napišite vaš seznam besed (mnemonično seme), javni ključ, WIF, ali karkoli drugega imate. NeuraiWallet se bo potrudil uganiti pravilno obliko in uvoziti vašo denarnico.",
     "import_imported": "Uvoženo",
     "import_scan_qr": "Skeniraj ali uvozi datoteko",
     "import_success": "Vaša denarnica je bila uspešno uvožena.",

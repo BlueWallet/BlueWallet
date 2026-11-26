@@ -180,7 +180,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ImportNeurai"
           component={ImportNeurai}
-          options={navigationStyle({ title: loc.wallets.import_title })(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.wallets.import_title }}
         />
         <DetailViewStack.Screen
           name="Broadcast"
@@ -358,7 +358,8 @@ const DetailViewStackScreensStack = () => {
           options={{
             presentation: 'fullScreenModal',
             title: loc.wallets.manage_title,
-            headerShown: true,
+            headerShown: false,
+            statusBarStyle: theme.dark ? 'light' : 'dark',
           }}
         />
         <DetailViewStack.Screen

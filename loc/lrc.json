@@ -59,8 +59,6 @@
     "password_should_not_match": "رزم ها و کار مؽره. ی رزم هنی ن و کار بیر."
   },
   "pleasebackup": {
-    "ask_no": "ن، م نارم.",
-    "ask_yes": "ٱ، مه دارم."
   },
   "receive": {
     "details_setAmount": "گرؽتن وا مقدار",

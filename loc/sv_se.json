@@ -71,7 +71,6 @@
     "title": "Trovärdigt förnekande"
   },
   "pleasebackup": {
-    "ask": "Har du skrivit ner din plånboks uppbacknings fras? Denna frasen är nödvändig för att komma åt dina pengar ifall du förlorar denna enheten. Utan denna uppbacknings frasen är dina pengar borta för alltid",
     "ok_lnd": "Ok, jag har sparat det",
     "text": "Innan du går vidare, skriv ned dessa ord på ett papper och förvara på ett säkert ställe. \nDe är din backup och säkerställer att du kan återställa din plånbok igen om något händer.",
     "text_lnd": "Spara denna säkerhetskopia av plånboken. Det tillåter dig att återställa plånboken vid förlust.",
@@ -328,7 +327,6 @@
     "import_passphrase_title": "Lösenordsfras",
     "import_passphrase_message": "Ange lösenordsfras om du har använt någon",
     "import_error": "Import misslyckades. Kontrollera att informationen du matade in är korrekt.",
-    "import_explanation": "Ange dina seed words, offentliga nyckel, WIF eller något annat du har. NeuraiWallet kommer att göra sitt bästa för att gissa rätt format och importera din plånbok.",
     "import_imported": "Importerad",
     "import_scan_qr": "eller skanna QR-kod istället?",
     "import_success": "Import lyckad!",
