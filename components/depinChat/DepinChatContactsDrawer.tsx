@@ -1,7 +1,8 @@
 /**
- * Conversations of a token chat, sliding in from the left: the group, the
- * private conversations (with what was said last and how much is unread) and
- * the token holders a private conversation can be started with.
+ * The menu of a token chat, sliding in from the left: the general channel and
+ * the private conversations (with what was said last and how much is unread),
+ * the token holders a private conversation can be started with, and the
+ * chat's options — its info, the DePIN server and leaving the channel.
  */
 import React, { useMemo } from 'react';
 import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -10,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { PrivateConversation, RecipientInfo } from '../../hooks/useDePINChat';
 import loc from '../../loc';
 import Icon from '../Icon';
-import { SettingsCard, SettingsSectionLabel, useSettingsPalette } from '../settings/SettingsUI';
+import { SettingsCard, SettingsRow, SettingsSectionLabel, useSettingsPalette } from '../settings/SettingsUI';
 import { RoundIconButton, SenderAvatar, UnreadBadge } from './DepinUI';
 import { shortAddr } from './utils';
 
@@ -26,6 +27,10 @@ interface DepinChatContactsDrawerProps {
   selectConversation: (address: string) => void;
   selectedAsset: string;
   visible: boolean;
+  onOpenInfo: () => void;
+  onOpenServer: () => void;
+  /** Back to the token list. */
+  onLeave: () => void;
 }
 
 const DRAWER_WIDTH = 320;
@@ -84,6 +89,9 @@ const DepinChatContactsDrawer = ({
   selectConversation,
   selectedAsset,
   visible,
+  onOpenInfo,
+  onOpenServer,
+  onLeave,
 }: DepinChatContactsDrawerProps) => {
   const p = useSettingsPalette();
   const insets = useSafeAreaInsets();
@@ -91,6 +99,11 @@ const DepinChatContactsDrawer = ({
 
   if (!visible) return null;
 
+  // Options close the menu first, so what they open is not left under it.
+  const then = (action: () => void) => () => {
+    closeDrawer();
+    action();
+  };
   const nameOf = (address: string) => (address === identityAddress ? loc.depin.contacts_me : shortAddr(address));
   const lastLine = (conversation: PrivateConversation) => {
     const last = conversation.messages[conversation.messages.length - 1];
@@ -108,9 +121,12 @@ const DepinChatContactsDrawer = ({
         accessibilityViewIsModal
       >
         <View style={styles.header}>
-          <Text style={[styles.title, { color: p.ink }]} accessibilityRole="header">
-            {loc.depin.conversations_title}
-          </Text>
+          <View style={styles.headerTexts}>
+            <Text style={[styles.kicker, { color: p.muted }]}>{loc.depin.tab_chat}</Text>
+            <Text style={[styles.title, { color: p.ink }]} accessibilityRole="header" numberOfLines={1}>
+              {selectedAsset}
+            </Text>
+          </View>
           <RoundIconButton icon="close" label={loc._.close} onPress={closeDrawer} testID="DepinContactsClose" />
         </View>
         <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 16 }]} showsVerticalScrollIndicator={false}>
@@ -120,10 +136,10 @@ const DepinChatContactsDrawer = ({
               <ConversationRow
                 avatar={
                   <View style={[styles.groupAvatar, { backgroundColor: p.accentSoft }]}>
-                    <Icon name="groups" type="material" size={22} color={p.accentText} />
+                    <Icon name="tag" type="material" size={22} color={p.accentText} />
                   </View>
                 }
-                title={loc.depin.tab_group}
+                title={loc.depin.channel_general}
                 subtitle={loc.formatString(loc.depin.group_subtitle, { token: selectedAsset }) as string}
                 unread={groupUnread}
                 selected={activeTab === 'group'}
@@ -164,6 +180,22 @@ const DepinChatContactsDrawer = ({
               </SettingsCard>
             </View>
           )}
+
+          <View>
+            <SettingsSectionLabel>{loc.depin.options_label}</SettingsSectionLabel>
+            <SettingsCard>
+              <SettingsRow icon="info-outline" title={loc.depin.info_title} onPress={then(onOpenInfo)} testID="DepinMenuInfo" />
+              <SettingsRow icon="dns" title={loc.depin.server_title} onPress={then(onOpenServer)} divider testID="DepinMenuServer" />
+              <SettingsRow
+                icon="logout"
+                title={loc.formatString(loc.depin.leave_channel, { token: selectedAsset }) as string}
+                subtitle={loc.depin.leave_channel_hint}
+                onPress={then(onLeave)}
+                divider
+                testID="DepinMenuLeave"
+              />
+            </SettingsCard>
+          </View>
         </ScrollView>
       </Animated.View>
     </View>
@@ -191,6 +223,8 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     paddingBottom: 8,
   },
+  headerTexts: { flex: 1, rowGap: 1 },
+  kicker: { fontSize: 12, fontWeight: '600', letterSpacing: 0.6, textTransform: 'uppercase' },
   title: { fontSize: 22, fontWeight: '700', letterSpacing: -0.3 },
   content: { paddingHorizontal: 12, paddingTop: 8, rowGap: 20 },
   card: { paddingHorizontal: 0, overflow: 'hidden' },

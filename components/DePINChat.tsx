@@ -17,7 +17,6 @@
  */
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { IMessage } from 'react-native-gifted-chat';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { NeuraiNetwork } from '../blue_modules/neurai';
@@ -43,7 +42,8 @@ import { useSettingsPalette } from './settings/SettingsUI';
 import { FUND_AMOUNT_XNA } from './depinChat/constants';
 import DepinChatAddressCard, { type DepinReadiness } from './depinChat/DepinChatAddressCard';
 import DepinChatContactsDrawer from './depinChat/DepinChatContactsDrawer';
-import DepinChatConversationPanel, { type DepinUnreadNotice } from './depinChat/DepinChatConversationPanel';
+import type { ChatMessage } from './depinChat/chatRows';
+import DepinChatConversationPanel from './depinChat/DepinChatConversationPanel';
 import DepinChatInfoModal from './depinChat/DepinChatInfoModal';
 import DepinChatRevealBanner from './depinChat/DepinChatRevealBanner';
 import DepinChatTokenSections, { type DepinSection } from './depinChat/DepinChatTokenSections';
@@ -134,21 +134,6 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
       device: isHardware ? deviceId.device : null,
     });
 
-    // Back handling is owned by WalletTransactions (which also owns the tab
-    // state): on a back action it calls goBack() first, so an open token chat
-    // closes before the tab or the screen does.
-    useImperativeHandle(
-      ref,
-      () => ({
-        goBack: () => {
-          if (selectedAsset == null) return false;
-          setSelectedAsset(null);
-          return true;
-        },
-      }),
-      [selectedAsset, setSelectedAsset],
-    );
-
     // The host hides its own bottom controls while a conversation's input bar owns the bottom.
     useEffect(() => {
       onConversationOpenChange?.(selectedAsset != null);
@@ -186,9 +171,9 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
       onDeviceLost: isHardware ? deviceId.reset : undefined,
     });
 
-    // Contacts drawer (mirrors the web wallet's left sidebar): Public Group,
-    // then open private conversations, then the token holders you can start a
-    // private chat with.
+    // The chat's menu (mirrors the web wallet's left sidebar): the general
+    // channel, the open private conversations, the token holders you can start
+    // a private chat with, and the chat's options.
     const [drawerVisible, setDrawerVisible] = useState(false);
     const drawerAnim = useRef(new Animated.Value(0)).current;
     const openDrawer = useCallback(() => {
@@ -198,6 +183,25 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
     const closeDrawer = useCallback(() => {
       Animated.timing(drawerAnim, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => setDrawerVisible(false));
     }, [drawerAnim]);
+
+    // Back is owned by the wallet home (which also owns the tab state): on a
+    // back action it calls goBack() first, so the open menu closes, then the
+    // token chat, before the tab does. The chat has no back arrow of its own.
+    useImperativeHandle(
+      ref,
+      () => ({
+        goBack: () => {
+          if (drawerVisible) {
+            closeDrawer();
+            return true;
+          }
+          if (selectedAsset == null) return false;
+          setSelectedAsset(null);
+          return true;
+        },
+      }),
+      [drawerVisible, closeDrawer, selectedAsset, setSelectedAsset],
+    );
     const selectConversation = useCallback(
       (tab: string) => {
         if (tab !== 'group' && !privateConversations.has(tab)) createPrivateConversation(tab);
@@ -233,15 +237,13 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
       navigate('SendNeurai', { walletID, address: identity.address, amount: FUND_AMOUNT_XNA });
     }, [identity, navigate, walletID]);
 
-    const messages = useMemo<IMessage[]>(() => {
+    const messages = useMemo<ChatMessage[]>(() => {
       const src = activeTab === 'group' ? groupMessages : (privateConversations.get(activeTab)?.messages ?? []);
       const confirmed = src.map((m, i) => ({
-        _id: `${m.messageHash ?? m.sender}-${m.timestamp}-${i}`,
+        id: `${m.messageHash ?? m.sender}-${m.timestamp}-${i}`,
         text: m.message,
         createdAt: new Date(m.timestamp * 1000),
-        // Last 4 chars as the display name: every address on a network starts
-        // with the same prefix, so first-letter avatars would all look alike.
-        user: { _id: m.sender, name: m.sender.slice(-4) },
+        sender: m.sender,
         pending: false,
       }));
 
@@ -253,36 +255,26 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
       const stillPending = pending
         .filter(item => item.tab === activeTab && !(item.hash && confirmedHashes.has(item.hash)))
         .map(item => ({
-          _id: item.id,
+          id: item.id,
           text: item.text,
           createdAt: item.createdAt,
-          user: { _id: identity?.address ?? '', name: (identity?.address ?? '').slice(-4) },
+          sender: identity?.address ?? '',
           pending: true,
         }));
 
-      // Oldest first: paired with GiftedChat's `inverted={false}` this renders
-      // top-to-bottom (first message at the top, newest at the bottom).
-      return [...confirmed, ...stillPending].sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt));
+      // Oldest first; the list draws them bottom-up from the newest.
+      return [...confirmed, ...stillPending].sort((a, b) => +a.createdAt - +b.createdAt);
     }, [activeTab, groupMessages, privateConversations, pending, identity?.address]);
 
-    // With a non-inverted list, GiftedChat does NOT follow new messages — they
-    // appear below the visible area while the view stays frozen. Whenever a
-    // message arrives (sent or received) or the conversation tab changes, slide
-    // to the end so the latest message is always in view. The small delay lets
-    // the list commit the new row before measuring the scroll target.
     useEffect(() => {
       setPending([]);
     }, [selectedAsset]);
 
-    const messageCount = messages.length;
+    // Another conversation opens on its latest message.
     useEffect(() => {
-      if (messageCount === 0) return;
-      const t = setTimeout(() => messagesListRef.current?.scrollToEnd?.({ animated: true }), 100);
-      return () => clearTimeout(t);
-    }, [messageCount, activeTab, messagesListRef]);
+      messagesListRef.current?.scrollToOffset?.({ offset: 0, animated: false });
+    }, [activeTab, messagesListRef]);
 
-    // We render our own input bar (below) instead of GiftedChat's built-in
-    // InputToolbar, which proved unreliable to display in this embedded layout.
     const handleSend = useCallback(() => {
       const text = draft.trim();
       if (!text) return;
@@ -293,6 +285,8 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
       // is built, encrypted and submitted.
       setPending(prev => [...prev, { id, tab: activeTab, text, createdAt: new Date() }]);
       setDraft('');
+      // What you send is where you look, even if you had scrolled up.
+      messagesListRef.current?.scrollToOffset?.({ offset: 0, animated: true });
 
       sendMessage(payload)
         .then((hash: string | null) => {
@@ -308,45 +302,7 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
           setPending(prev => prev.filter(item => item.id !== id));
           presentAlert({ message: e?.message ?? loc.depin.send_failed });
         });
-    }, [draft, activeTab, sendMessage]);
-
-    // A notice for what arrived in a conversation that is not on screen: private
-    // messages first (they were written to you), then the group. Closing it hides
-    // it until something else arrives.
-    const myAddress = identity?.address ?? '';
-    const notice = useMemo<DepinUnreadNotice | null>(() => {
-      const candidates: Array<DepinUnreadNotice & { at: number; priority: number }> = [];
-      privateConversations.forEach(conversation => {
-        if (conversation.unreadCount <= 0 || conversation.address === activeTab) return;
-        const last = [...conversation.messages].reverse().find(m => m.sender !== myAddress);
-        candidates.push({
-          tab: conversation.address,
-          name: shortAddr(conversation.address),
-          count: conversation.unreadCount,
-          preview: last?.message ?? '',
-          address: conversation.address,
-          at: conversation.lastMessageTime,
-          priority: 1,
-        });
-      });
-      if (groupUnread > 0 && activeTab !== 'group') {
-        const last = [...groupMessages].reverse().find(m => m.sender !== myAddress);
-        candidates.push({
-          tab: 'group',
-          name: loc.depin.tab_group,
-          count: groupUnread,
-          preview: last ? `${last.sender.slice(-4)}: ${last.message}` : '',
-          at: last?.timestamp ?? 0,
-          priority: 0,
-        });
-      }
-      candidates.sort((a, b) => b.priority - a.priority || b.at - a.at);
-      return candidates[0] ?? null;
-    }, [privateConversations, groupMessages, groupUnread, activeTab, myAddress]);
-    const [dismissedUnread, setDismissedUnread] = useState(0);
-    useEffect(() => {
-      if (totalUnread < dismissedUnread) setDismissedUnread(totalUnread);
-    }, [totalUnread, dismissedUnread]);
+    }, [draft, activeTab, sendMessage, messagesListRef]);
 
     const openServer = useCallback(() => navigate('DepinRpcEdit', { network }), [navigate, network]);
 
@@ -446,36 +402,33 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
     // Holders you could start a private chat with: pubkey on-chain (required for
     // encryption) and no conversation open yet. Yourself is listed as notes.
     const holderContacts = recipientList.filter(r => r.pubkey && !privateConversations.has(r.address));
-    const activeConvName =
-      activeTab === 'group' ? loc.depin.tab_group : activeTab === identity.address ? loc.depin.contacts_me : shortAddr(activeTab);
-    const status = error
-      ? { text: `${error} — ${loc.depin.connection_retrying}`, tone: 'fail' as const, busy: true }
-      : deviceApprovalPending
-        ? { text: loc.depin.device_confirm_session, tone: 'idle' as const, busy: true }
-        : !lastPoll
-          ? { text: loc.depin.checking_server, tone: 'idle' as const, busy: true }
-          : null;
+    const isGroup = activeTab === 'group';
+    const title = isGroup ? selectedAsset : activeTab === identity.address ? loc.depin.contacts_me : shortAddr(activeTab);
+    const subtitle = isGroup
+      ? `${loc.depin.channel_general} · ${loc.formatString(loc.depin.members_count, { count: recipientList.length })}`
+      : `${loc.depin.private_chat} · ${selectedAsset}`;
+    const busyNote = deviceApprovalPending ? loc.depin.device_confirm_session : !lastPoll && !error ? loc.depin.connecting : null;
 
     return (
       <DepinChatConversationPanel
-        activeConversationName={activeConvName}
         activeTab={activeTab}
+        title={title}
+        subtitle={subtitle}
+        busyNote={busyNote}
+        error={error}
         draft={draft}
         identityAddress={identity.address}
-        inputBottom={keyboardHeight > 0 ? 10 : Math.max(insets.bottom, 10)}
+        inputBottom={keyboardHeight > 0 ? 8 : Math.max(insets.bottom, 10)}
         // RN reports the keyboard height without the system nav-bar inset when
         // the app draws edge-to-edge, so lift by both — otherwise the input bar
         // ends up mostly hidden behind the keyboard.
         keyboardOffset={keyboardHeight > 0 ? keyboardHeight + (insets.bottom || 0) : 0}
         messages={messages}
         messagesListRef={messagesListRef}
-        notice={notice && totalUnread > dismissedUnread ? notice : null}
-        onBack={() => setSelectedAsset(null)}
+        unreadElsewhere={totalUnread > 0}
         onChangeDraft={setDraft}
-        onDismissNotice={() => setDismissedUnread(totalUnread)}
-        onOpenDrawer={openDrawer}
+        onOpenMenu={openDrawer}
         onOpenInfo={openInfo}
-        onOpenNotice={tab => setActiveTab(tab)}
         onSend={handleSend}
         overlays={
           <>
@@ -501,13 +454,14 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
               selectConversation={selectConversation}
               selectedAsset={selectedAsset}
               visible={drawerVisible}
+              onOpenInfo={openInfo}
+              onOpenServer={openServer}
+              onLeave={() => setSelectedAsset(null)}
             />
           </>
         }
         revealBanner={<DepinChatRevealBanner {...revealProps} compact />}
         selectedAsset={selectedAsset}
-        status={status}
-        unreadElsewhere={totalUnread}
       />
     );
   },
