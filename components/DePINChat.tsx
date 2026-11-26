@@ -78,8 +78,15 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(({ walletID, pause
     knownRevealed: isKnownRevealed(walletID),
     network,
     supported,
+    paused,
   });
-  const { refreshRecipients, recipientList, selectAsset: loadAsset, selectedAsset, setSelectedAsset } = useDepinChatAssetSelection({ rpc, network, identity });
+  const {
+    refreshRecipients,
+    recipientList,
+    selectAsset: loadAsset,
+    selectedAsset,
+    setSelectedAsset,
+  } = useDepinChatAssetSelection({ rpc, network, identity });
   const [activeTab, setActiveTab] = useState<string>('group');
   const [showQr, setShowQr] = useState(false);
   const [draft, setDraft] = useState('');
@@ -160,7 +167,9 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(({ walletID, pause
     selectedAsset,
     identity,
     recipientList,
-    onMembershipChanged: () => { refreshRecipients().catch(error => console.debug('DePIN recipient refresh failed', error)); },
+    onMembershipChanged: () => {
+      refreshRecipients().catch(error => console.debug('DePIN recipient refresh failed', error));
+    },
     activeTab,
     walletID,
     paused,

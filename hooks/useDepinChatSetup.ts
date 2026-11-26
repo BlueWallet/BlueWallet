@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { InteractionManager } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
 
 import {
   getDepinRpcBackend,
@@ -23,10 +22,15 @@ interface UseDepinChatSetupParams {
   identity: DepinChatIdentity | null;
   network: NeuraiNetwork;
   supported: boolean;
+  /** Not on screen (another section of the home, or another screen): the tokens are not read. */
+  paused?: boolean;
 }
 
+/** While the section is on screen, the tokens are read again at most this often if no block news arrive. */
+const ASSETS_POLL_MS = 60_000;
+
 /** Provides the RPC-backed state needed before a token conversation is opened. */
-const useDepinChatSetup = ({ identity, network, supported, knownRevealed = false }: UseDepinChatSetupParams) => {
+const useDepinChatSetup = ({ identity, network, supported, knownRevealed = false, paused = false }: UseDepinChatSetupParams) => {
   const backendRef = useRef<{ key: string; backend: NeuraiBackend } | null>(null);
   const rpc = useMemo<DepinRpc | null>(() => {
     if (!supported) return null;
@@ -101,14 +105,29 @@ const useDepinChatSetup = ({ identity, network, supported, knownRevealed = false
     }
   }, [identity, refreshServerInfo, rpc]);
 
-  useFocusEffect(
-    useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(() => {
-        loadAssets();
+  // The tokens are read each time the section comes on screen (it stays mounted
+  // behind the home's other sections, so focus alone would read them once), and
+  // again on every new block while it is there: a token just received shows up
+  // once it is confirmed, without leaving and coming back.
+  useEffect(() => {
+    if (paused || !rpc || !identity) return;
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
+    const task = InteractionManager.runAfterInteractions(() => {
+      loadAssets().then(() => {
+        if (cancelled) return;
+        const backend = getBackend() as { onChainTip?: (listener: (height: number) => void) => () => void };
+        unsubscribe = backend.onChainTip?.(() => loadAssets());
       });
-      return () => task.cancel();
-    }, [loadAssets]),
-  );
+    });
+    const poll = setInterval(loadAssets, ASSETS_POLL_MS);
+    return () => {
+      cancelled = true;
+      task.cancel();
+      clearInterval(poll);
+      unsubscribe?.();
+    };
+  }, [paused, rpc, identity, loadAssets, getBackend]);
 
   useEffect(() => {
     if (!rpc || !identity || pubkeyRevealed === true) return;
