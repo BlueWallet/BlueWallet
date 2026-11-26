@@ -8,7 +8,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AccessibilityInfo, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { formatXna } from '@neuraiproject/neurai-privacy/client';
 
@@ -29,17 +29,19 @@ import {
   SettingsCard,
   SettingsIconCircle,
   SettingsPillButton,
-  SettingsSectionLabel,
+  SettingsSegmented,
   SettingsStatusLine,
   type SettingsStatusTone,
   useSettingsPalette,
 } from '../settings/SettingsUI';
 import { C6OperationsPanel, actionLabel } from './C6OperationsPanel';
 import { C6SettingsSheet } from './C6SettingsSheet';
-import { Card, Chip, ChipRow, ErrorBox, Hint, Label, PrimaryButton, ProgressLine, RoundButton } from './C6UI';
+import { Card, Chip, ChipRow, ErrorBox, Hint, Label, PrimaryButton, ProgressLine } from './C6UI';
 import { PrivacyHostProvider } from './PrivacyHost';
 
 const poolLabel = (_id: PrivacyPoolId) => 'C7 · XNA';
+
+type PrivacyArea = 'address' | 'operations' | 'activity';
 const QR_SIZE = 200;
 const COPIED_MS = 1_600;
 
@@ -82,6 +84,8 @@ function PoolView({
   const [zkPassphrase, setZkPassphrase] = useState('');
   const [showQr, setShowQr] = useState(false);
   const [settings, setSettings] = useState(false);
+  // One area at a time under the balance, so the page fits on one screen.
+  const [area, setArea] = useState<PrivacyArea>('operations');
   const [copied, setCopied] = useState(false);
   const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(
@@ -136,6 +140,11 @@ function PoolView({
 
   const summary = pool.open ? pool.summary : null;
   const pools = PRIVACY_POOLS.filter(entry => entry.runtime);
+  // The state and, once synced, how far: one line under the title.
+  const stateLine =
+    summary?.tip && !busy
+      ? `${state.text} · ${pool.sync.syncing ? loc.privacy.refreshing : `${loc.privacy.block} ${summary.tip.height}`}`
+      : state.text;
 
   // Progress and errors go where the user is looking: with the operation step
   // once the private wallet is open, in the card above while it opens.
@@ -177,10 +186,20 @@ function PoolView({
               </Text>
               <SettingsBadge label="TEST" />
             </View>
-            <SettingsStatusLine tone={state.tone} text={state.text} busy={busy} testID="PrivacyState" />
+            <SettingsStatusLine tone={state.tone} text={stateLine} busy={busy} compact testID="PrivacyState" />
           </View>
-          <RoundButton icon="settings" label={loc.privacy.settings} onPress={() => setSettings(true)} testID="PrivacySettings" />
         </View>
+        {/* Out of the way in the corner: the advanced settings are seldom needed. */}
+        <Pressable
+          onPress={() => setSettings(true)}
+          accessibilityRole="button"
+          accessibilityLabel={loc.privacy.settings}
+          hitSlop={8}
+          testID="PrivacySettings"
+          style={({ pressed }) => [styles.gear, pressed && styles.pressed]}
+        >
+          <Icon name="settings" type="material" size={20} color={p.mutedOnCard} />
+        </Pressable>
 
         {pools.length > 1 ? (
           <ChipRow>
@@ -214,12 +233,6 @@ function PoolView({
           ) : (
             <Hint>{loc.privacy.locked_hint}</Hint>
           )}
-          {summary?.tip && !busy ? (
-            <View style={styles.syncRow}>
-              <Icon name={pool.sync.syncing ? 'sync' : 'check-circle-outline'} type="material" size={14} color={p.mutedOnCard} />
-              <Hint lines={1}>{pool.sync.syncing ? loc.privacy.refreshing : `${loc.privacy.synced_block} ${summary.tip.height}`}</Hint>
-            </View>
-          ) : null}
         </View>
 
         {pool.open ? null : progress}
@@ -263,9 +276,22 @@ function PoolView({
       ) : null}
 
       {pool.open ? (
+        <SettingsSegmented<PrivacyArea>
+          segments={[
+            { value: 'address', label: loc.privacy.area_address, icon: 'qr-code-2', testID: 'PrivacyAreaAddress' },
+            { value: 'operations', label: loc.privacy.operations, icon: 'swap-vert', testID: 'PrivacyAreaOperations' },
+            { value: 'activity', label: loc.privacy.activity, icon: 'history', testID: 'PrivacyAreaActivity' },
+          ]}
+          value={area}
+          onChange={setArea}
+          testID="PrivacyAreas"
+        />
+      ) : null}
+
+      {pool.open && area === 'address' ? (
         <View>
-          <SettingsSectionLabel>{loc.privacy.private_address}</SettingsSectionLabel>
           <Card testID="PrivacyAddressCard">
+            <Label>{loc.privacy.private_address}</Label>
             <Text style={[styles.address, { color: address ? p.ink : p.mutedOnCard }]} selectable testID="PrivacyAddress">
               {address || '—'}
             </Text>
@@ -305,15 +331,23 @@ function PoolView({
         </View>
       ) : null}
 
-      {pool.open ? (
+      {pool.open && area === 'operations' ? (
         <View onLayout={event => (operationsY.current = event.nativeEvent.layout.y)}>
           <C6OperationsPanel wallet={wallet} pool={pool} ops={ops} status={stepStatus} onReveal={revealStep} />
         </View>
       ) : null}
 
-      {pool.open && pool.operations.length ? (
+      {pool.open && area === 'activity' && !pool.operations.length ? (
+        <Card testID="PrivacyActivityEmpty">
+          <View style={styles.emptyRow}>
+            <SettingsIconCircle icon="history" muted />
+            <Text style={[styles.emptyText, { color: p.mutedOnCard }]}>{loc.privacy.activity_empty}</Text>
+          </View>
+        </Card>
+      ) : null}
+
+      {pool.open && area === 'activity' && pool.operations.length ? (
         <View>
-          <SettingsSectionLabel>{loc.privacy.activity}</SettingsSectionLabel>
           <SettingsCard testID="PrivacyActivity">
             {pool.operations
               .slice()
@@ -339,7 +373,16 @@ function PoolView({
                       </Text>
                     </View>
                     {canResume ? (
-                      <Chip label={loc.privacy.resume} icon="play-arrow" disabled={busy || pending} onPress={() => ops.resumeXna(op.id)} />
+                      <Chip
+                        label={loc.privacy.resume}
+                        icon="play-arrow"
+                        disabled={busy || pending}
+                        onPress={() => {
+                          // Its review comes up in the operations.
+                          setArea('operations');
+                          ops.resumeXna(op.id);
+                        }}
+                      />
                     ) : null}
                     {canRelease ? (
                       <Chip label={loc.privacy.release} icon="undo" disabled={busy} onPress={() => ops.releaseDraft(op.id)} />
@@ -401,13 +444,16 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   hidden: { display: 'none' },
   content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, rowGap: 20 },
-  head: { flexDirection: 'row', alignItems: 'center', columnGap: 12 },
+  pressed: { opacity: 0.6 },
+  head: { flexDirection: 'row', alignItems: 'center', columnGap: 12, paddingRight: 28 },
+  gear: { position: 'absolute', top: 8, right: 8, width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  emptyRow: { flexDirection: 'row', alignItems: 'center', columnGap: 12 },
+  emptyText: { flex: 1, fontSize: 14, lineHeight: 20 },
   headTexts: { flex: 1, rowGap: 4 },
   titleRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: 8, rowGap: 4 },
   title: { fontSize: 18, fontWeight: '700' },
   balanceBlock: { borderTopWidth: StyleSheet.hairlineWidth * 2, paddingTop: 14, rowGap: 4 },
   balance: { fontSize: 32, fontWeight: '700', letterSpacing: -0.5 },
-  syncRow: { flexDirection: 'row', alignItems: 'center', columnGap: 6, marginTop: 2 },
   notice: { borderRadius: 24, borderWidth: 1, padding: 16, rowGap: 14 },
   noticeHead: { flexDirection: 'row', alignItems: 'flex-start', columnGap: 12 },
   noticeIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },

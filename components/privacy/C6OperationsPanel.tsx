@@ -17,7 +17,7 @@ import type { C6Action, C6Operations, TxPreview } from '../../hooks/useC6Operati
 import type { C6PrivateWallet } from '../../hooks/useC6PrivateWallet';
 import loc from '../../loc';
 import type { MaterialIconName } from '../Icon';
-import { SettingsIconCircle, SettingsSectionLabel, useSettingsPalette } from '../settings/SettingsUI';
+import { SettingsIconCircle, useSettingsPalette } from '../settings/SettingsUI';
 import { ActionTabs, Card, Chip, ChipRow, Field, Hint, InfoRow, Label, OutlineButton, PrimaryButton, Segmented, StepSlider } from './C6UI';
 
 export function actionLabel(action: string): string {
@@ -353,7 +353,6 @@ export function C6OperationsPanel({
   return (
     <View style={styles.wrap}>
       <View>
-        <SettingsSectionLabel>{loc.privacy.operations}</SettingsSectionLabel>
         <ActionTabs
           tabs={tabs}
           value={ops.action}

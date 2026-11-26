@@ -380,18 +380,29 @@ export const SettingsSearchField: React.FC<{
 export type SettingsStatusTone = 'ok' | 'fail' | 'idle';
 
 /** A coloured dot and the words for it: the colour is never the only signal. */
-export const SettingsStatusLine: React.FC<{ tone: SettingsStatusTone; text: string; busy?: boolean; testID?: string }> = ({
-  tone,
-  text,
-  busy,
-  testID,
-}) => {
+export const SettingsStatusLine: React.FC<{
+  tone: SettingsStatusTone;
+  text: string;
+  busy?: boolean;
+  /** Smaller dot and text, for a line under a title. */
+  compact?: boolean;
+  testID?: string;
+}> = ({ tone, text, busy, compact, testID }) => {
   const p = useSettingsPalette();
   const colors = p[tone];
   return (
-    <View style={styles.statusLine} accessibilityLiveRegion="polite" testID={testID}>
-      {busy ? <ActivityIndicator size="small" color={colors.dot} /> : <View style={[styles.dot, { backgroundColor: colors.dot }]} />}
-      <Text style={[styles.statusText, { color: p.mutedOnCard }]}>{text}</Text>
+    <View style={[styles.statusLine, compact && styles.statusLineCompact]} accessibilityLiveRegion="polite" testID={testID}>
+      {busy ? (
+        <ActivityIndicator size="small" color={colors.dot} style={compact && styles.statusSpinnerCompact} />
+      ) : (
+        <View style={[compact ? styles.dotCompact : styles.dot, { backgroundColor: colors.dot }]} />
+      )}
+      <Text
+        style={[styles.statusText, compact && styles.statusTextCompact, { color: p.mutedOnCard }]}
+        numberOfLines={compact ? 1 : undefined}
+      >
+        {text}
+      </Text>
     </View>
   );
 };
@@ -473,6 +484,10 @@ const styles = StyleSheet.create({
   disabled: { opacity: 0.45 },
   statusLine: { flexDirection: 'row', alignItems: 'center', columnGap: 8 },
   statusText: { fontSize: 13, lineHeight: 18, flexShrink: 1 },
+  statusLineCompact: { columnGap: 6 },
+  statusTextCompact: { fontSize: 12, lineHeight: 16 },
+  statusSpinnerCompact: { transform: [{ scale: 0.7 }], marginHorizontal: -4 },
+  dotCompact: { width: 6, height: 6, borderRadius: 3 },
   wideButton: {
     flexDirection: 'row',
     columnGap: 8,
