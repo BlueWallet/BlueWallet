@@ -8,15 +8,16 @@
  */
 
 import React, { useEffect, useRef, type ReactNode } from 'react';
-import { Keyboard, StyleSheet, Text, View } from 'react-native';
+import { AccessibilityInfo, Keyboard, StyleSheet, Text, View } from 'react-native';
 import { formatXna } from '@neuraiproject/neurai-privacy/client';
 
 import type { PrivacyWallet } from '../../blue_modules/neurai/privacy/wallet';
 import { AUTO_FEE } from '../../blue_modules/neurai/privacy/fees';
-import type { C6Action, C6Operations, TxPreview } from '../../hooks/useC6Operations';
+import { triggerSuccessHapticFeedback } from '../../blue_modules/hapticFeedback';
+import type { C6Action, C6Operations, CompletedOperation, TxPreview } from '../../hooks/useC6Operations';
 import type { C6PrivateWallet } from '../../hooks/useC6PrivateWallet';
 import loc from '../../loc';
-import type { MaterialIconName } from '../Icon';
+import Icon, { type MaterialIconName } from '../Icon';
 import { SettingsIconCircle, useSettingsPalette } from '../settings/SettingsUI';
 import { ActionTabs, Card, Chip, ChipRow, Field, Hint, InfoRow, Label, OutlineButton, PrimaryButton, Segmented, StepSlider } from './C6UI';
 
@@ -77,6 +78,56 @@ function Review(props: {
   );
 }
 
+const DONE_TITLE: Record<CompletedOperation['kind'], () => string> = {
+  funding: () => loc.privacy.done_funding,
+  deposit: () => loc.privacy.done_deposit,
+  transfer: () => loc.privacy.done_transfer,
+  withdraw: () => loc.privacy.done_withdraw,
+  join: () => loc.privacy.done_join,
+};
+
+/** The transaction went out: what it was, its id, and what happens next. */
+function Done(props: { done: CompletedOperation; unit: string; error?: ReactNode; onClose: () => void; onShowActivity: () => void }) {
+  const p = useSettingsPalette();
+  const funding = props.done.kind === 'funding';
+  const title = DONE_TITLE[props.done.kind]();
+  const text = funding ? loc.privacy.done_funding_text : loc.privacy.done_text;
+  useEffect(() => {
+    triggerSuccessHapticFeedback();
+    AccessibilityInfo.announceForAccessibility(`${title}. ${text}`);
+  }, [title, text]);
+  return (
+    <Card testID="PrivacyDone">
+      <View style={styles.doneHead}>
+        <View style={[styles.doneIcon, { backgroundColor: p.ok.bg }]}>
+          <Icon name="check" type="material" size={34} color={p.ok.dot} />
+        </View>
+        <Text style={[styles.doneTitle, { color: p.ink }]} accessibilityRole="header">
+          {title}
+        </Text>
+        <Text style={[styles.doneText, { color: p.mutedOnCard }]}>{text}</Text>
+      </View>
+      <View style={[styles.reviewTable, { backgroundColor: p.ground }]}>
+        {props.done.amount ? <InfoRow label={loc.privacy.amount} value={`${props.done.amount} ${props.unit}`} /> : null}
+        <InfoRow label="TxID" value={props.done.txid} mono divider={!!props.done.amount} />
+      </View>
+      {props.error}
+      {funding ? (
+        <PrimaryButton title={loc.privacy.done_continue} icon="arrow-forward" onPress={props.onClose} testID="PrivacyDoneContinue" />
+      ) : (
+        <View style={styles.reviewButtons}>
+          <View style={styles.flex}>
+            <OutlineButton title={loc.privacy.see_activity} onPress={props.onShowActivity} testID="PrivacyDoneActivity" />
+          </View>
+          <View style={styles.flex}>
+            <PrimaryButton title={loc.privacy.done_ok} onPress={props.onClose} testID="PrivacyDoneOk" />
+          </View>
+        </View>
+      )}
+    </Card>
+  );
+}
+
 /** Quick deposit amounts in XNA (private payments use multiples of 100 XNA). */
 const QUICK_DEPOSITS = ['100', '200', '500'];
 
@@ -84,16 +135,22 @@ export function C6OperationsPanel({
   wallet,
   pool,
   ops,
-  status,
+  progress,
+  error,
   onReveal,
+  onShowActivity,
 }: {
   wallet: PrivacyWallet;
   pool: C6PrivateWallet;
   ops: C6Operations;
-  /** Progress and error of the running step, shown in its card, next to the buttons that started it. */
-  status?: ReactNode;
+  /** Progress of the running step, shown in its card, next to the buttons that started it. */
+  progress?: ReactNode;
+  /** Error of the last step, in the same place. */
+  error?: ReactNode;
   /** A new step is on screen at this height within the panel: bring it into view. */
   onReveal?: (y: number) => void;
+  /** Show the activity list (after an operation went out). */
+  onShowActivity: () => void;
 }) {
   const busy = pool.busy;
   const pending = !!ops.preview || !!ops.fundingPreview;
@@ -337,8 +394,16 @@ export function C6OperationsPanel({
   }
 
   // Which step the operation is at. A review stands in for the form while it
-  // waits for Publish or Cancel.
-  const step = ops.fundingPreview ? 'funding' : ops.preview ? 'review' : 'form';
+  // waits for Publish or Cancel, and once published a confirmation stands in
+  // for the review until the user moves on.
+  const step = ops.completed ? 'done' : ops.fundingPreview ? 'funding' : ops.preview ? 'review' : 'form';
+  const status =
+    progress || error ? (
+      <>
+        {progress}
+        {error}
+      </>
+    ) : null;
   const lastStep = useRef(step);
   const revealNext = useRef(false);
   if (lastStep.current !== step) {
@@ -359,6 +424,7 @@ export function C6OperationsPanel({
           onChange={a => {
             ops.setAction(a);
             ops.setAmount('');
+            ops.dismissCompleted();
             pool.setError('');
           }}
           disabled={busy || pending}
@@ -374,7 +440,19 @@ export function C6OperationsPanel({
           onReveal?.(event.nativeEvent.layout.y);
         }}
       >
-        {ops.fundingPreview ? (
+        {ops.completed ? (
+          // The rescan after publishing runs on: its progress would read as if the send were still going.
+          <Done
+            done={ops.completed}
+            unit={unit}
+            error={error}
+            onClose={ops.dismissCompleted}
+            onShowActivity={() => {
+              ops.dismissCompleted();
+              onShowActivity();
+            }}
+          />
+        ) : ops.fundingPreview ? (
           <Review
             title={loc.privacy.review_funding}
             preview={ops.fundingPreview}
@@ -413,4 +491,8 @@ const styles = StyleSheet.create({
   reviewTitle: { flex: 1, fontSize: 16, fontWeight: '700' },
   reviewTable: { borderRadius: 18, paddingHorizontal: 14 },
   reviewButtons: { flexDirection: 'row', columnGap: 10 },
+  doneHead: { alignItems: 'center', rowGap: 8, paddingTop: 4 },
+  doneIcon: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' },
+  doneTitle: { fontSize: 18, fontWeight: '700', textAlign: 'center' },
+  doneText: { fontSize: 14, lineHeight: 20, textAlign: 'center' },
 });

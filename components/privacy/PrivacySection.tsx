@@ -150,13 +150,6 @@ function PoolView({
   // once the private wallet is open, in the card above while it opens.
   const progress = busy ? <ProgressLine text={pool.phase} seconds={elapsed} onCancel={lock} cancelLabel={loc.privacy.cancel} /> : null;
   const error = pool.error ? <ErrorBox message={pool.error} /> : null;
-  const stepStatus =
-    pool.open && (progress || error) ? (
-      <>
-        {progress}
-        {error}
-      </>
-    ) : null;
 
   // Where the operations panel starts in the scrolled content, to bring a new step into view.
   const operationsY = useRef(0);
@@ -278,8 +271,8 @@ function PoolView({
       {pool.open ? (
         <SettingsSegmented<PrivacyArea>
           segments={[
-            { value: 'address', label: loc.privacy.area_address, icon: 'qr-code-2', testID: 'PrivacyAreaAddress' },
             { value: 'operations', label: loc.privacy.operations, icon: 'swap-vert', testID: 'PrivacyAreaOperations' },
+            { value: 'address', label: loc.privacy.area_address, icon: 'qr-code-2', testID: 'PrivacyAreaAddress' },
             { value: 'activity', label: loc.privacy.activity, icon: 'history', testID: 'PrivacyAreaActivity' },
           ]}
           value={area}
@@ -333,7 +326,15 @@ function PoolView({
 
       {pool.open && area === 'operations' ? (
         <View onLayout={event => (operationsY.current = event.nativeEvent.layout.y)}>
-          <C6OperationsPanel wallet={wallet} pool={pool} ops={ops} status={stepStatus} onReveal={revealStep} />
+          <C6OperationsPanel
+            wallet={wallet}
+            pool={pool}
+            ops={ops}
+            progress={progress}
+            error={error}
+            onReveal={revealStep}
+            onShowActivity={() => setArea('activity')}
+          />
         </View>
       ) : null}
 

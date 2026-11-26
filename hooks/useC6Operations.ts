@@ -44,6 +44,13 @@ export const outpointHex = (txid: string, vout: number) => {
   return bytes.join('');
 };
 
+/** A transaction this wallet has just published: the funding coin, or a private operation. */
+export interface CompletedOperation {
+  kind: 'funding' | C6Action;
+  txid: string;
+  amount?: string;
+}
+
 export function useC6Operations(wallet: PrivacyWallet, runtime: C6Runtime, pool: C6PrivateWallet) {
   const { rpc, live } = pool;
   const { isPQAddressReuseEnabled } = useSettings();
@@ -65,6 +72,8 @@ export function useC6Operations(wallet: PrivacyWallet, runtime: C6Runtime, pool:
   const [fundingChecked, setFundingChecked] = useState(false);
   // Transactions published in this session: shown as pending until confirmed.
   const [publishedTxids, setPublishedTxids] = useState<string[]>([]);
+  /** The transaction just published, until the user moves on: says it went out. */
+  const [completed, setCompleted] = useState<CompletedOperation | null>(null);
 
   const form =
     action === 'deposit' ? 'D' : action === 'withdraw' ? 'W' : action === 'join' ? 'J2' : 'T' + Math.min(3, recipients.length + 1);
@@ -88,6 +97,7 @@ export function useC6Operations(wallet: PrivacyWallet, runtime: C6Runtime, pool:
     setFundingPreview(null);
     setFundingCoin(null);
     setFundingSent(null);
+    setCompleted(null);
   }, [pool.open]);
   useEffect(() => setNotes([]), [action]);
 
@@ -217,6 +227,7 @@ export function useC6Operations(wallet: PrivacyWallet, runtime: C6Runtime, pool:
         live(token);
         setFundingSent(p.txid);
         setFundingPreview(null);
+        setCompleted({ kind: 'funding', txid: p.txid, amount: p.amount });
       }),
     [pool, wallet, fundingPreview, checkedRpc, genesis, live],
   );
@@ -328,6 +339,8 @@ export function useC6Operations(wallet: PrivacyWallet, runtime: C6Runtime, pool:
         live(token);
         setPublishedTxids(list => [...list, p.txid]);
         setPreview(null);
+        // Out on the network: say so now, while the wallet rescans its notes.
+        setCompleted({ kind: action, txid: p.txid, amount: p.amount });
         // A published form must not be sent again by accident.
         setAmount('');
         setRecipients([{ recipient: '', amount: '' }]);
@@ -335,8 +348,10 @@ export function useC6Operations(wallet: PrivacyWallet, runtime: C6Runtime, pool:
         pool.update(await pool.requireClient().scan());
         live(token);
       }),
-    [pool, preview, live, checkedRpc, genesis],
+    [pool, preview, live, checkedRpc, genesis, action],
   );
+
+  const dismissCompleted = useCallback(() => setCompleted(null), []);
 
   const resumeXna = useCallback(
     (id: string) =>
@@ -385,6 +400,8 @@ export function useC6Operations(wallet: PrivacyWallet, runtime: C6Runtime, pool:
     preview,
     setPreview,
     publishedTxids,
+    completed,
+    dismissCompleted,
     parseAmount,
     quantum,
     amountIssue,
