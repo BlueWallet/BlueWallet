@@ -65,7 +65,7 @@ export const getShortcutWalletDestination = (selectionMode: ShortcutWalletSelect
 };
 
 export const linking: LinkingOptions<RootParamList> = {
-  prefixes: ['bluewallet://', 'https://bluewallet.io'],
+  prefixes: ['bluewallet://', 'bluewallet:', 'https://bluewallet.io'],
   config: {
     initialRouteName: 'DrawerRoot',
     screens: {
@@ -78,6 +78,7 @@ export const linking: LinkingOptions<RootParamList> = {
             initialRouteName: 'WalletsList' as never,
             screens: {
               ManageWallets: 'manage-wallets',
+              LightningSettings: 'setlndhuburl',
             },
           },
         },
