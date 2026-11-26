@@ -937,6 +937,7 @@
     "no_token": "No tienes ningún token DePIN en tu dirección DePIN. Consigue un activo DePIN (su nombre empieza por «&») en la dirección de arriba para entrar en su chat.",
     "tokens_label": "Tokens DePIN",
     "address_label": "Tu dirección DePIN",
+    "area_address": "Dirección",
     "derivation_label": "Ruta de derivación",
     "address_copied": "Dirección DePIN copiada",
     "copy": "Copiar",

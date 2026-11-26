@@ -195,6 +195,7 @@
     "no_token": "You don't hold any DePIN token at your DePIN address. Get a DePIN asset (its name starts with \"&\") at the address above to join its chat.",
     "tokens_label": "DePIN Tokens",
     "address_label": "Your DePIN address",
+    "area_address": "Address",
     "derivation_label": "Derivation path",
     "address_copied": "DePIN address copied",
     "copy": "Copy",

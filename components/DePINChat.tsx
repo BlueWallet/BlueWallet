@@ -40,7 +40,7 @@ import presentAlert from './Alert';
 import NeuraiLoader from './NeuraiLoader';
 import { SettingsButton, useSettingsPalette } from './settings/SettingsUI';
 import { FUND_AMOUNT_XNA } from './depinChat/constants';
-import DepinChatAddressCard, { type DepinReadiness } from './depinChat/DepinChatAddressCard';
+import { DepinAddressPanel, DepinHeaderCard, type DepinReadiness } from './depinChat/DepinChatAddressCard';
 import DepinChatContactsDrawer from './depinChat/DepinChatContactsDrawer';
 import type { ChatMessage } from './depinChat/chatRows';
 import DepinChatConversationPanel from './depinChat/DepinChatConversationPanel';
@@ -371,9 +371,9 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
       revealing,
     };
 
-    // No token selected yet — the section page: the DePIN card (status, address,
-    // server), what is still missing to receive, then the chat tokens or the
-    // IoT area.
+    // No token selected yet — the section page: the DePIN card (status and
+    // server), what is still missing to receive, then the chat tokens, the IoT
+    // area or the DePIN address, one at a time.
     if (!selectedAsset) {
       return (
         <ScrollView
@@ -381,10 +381,11 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <DepinChatAddressCard identity={identity} readiness={readiness} onOpenServer={openServer} />
+          <DepinHeaderCard readiness={readiness} onOpenServer={openServer} />
           <DepinChatRevealBanner {...revealProps} />
           <DepinChatTokenSections
             activeSection={activeSection}
+            addressPanel={<DepinAddressPanel identity={identity} />}
             assetNames={assetNames}
             hasNewMessages={hasNewMessages}
             loadingAssets={loadingAssets}

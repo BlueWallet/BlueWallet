@@ -1,10 +1,11 @@
 /**
- * The two areas of the DePIN section, chosen with a segmented control: the
- * chats of the DePIN tokens held at the DePIN address, and the IoT test area.
+ * The areas of the DePIN section, chosen with a segmented control: the chats
+ * of the DePIN tokens held at the DePIN address, the IoT test area, and the
+ * DePIN address itself.
  * Each token is a row saying whether this server opens its chat and whether
  * it has messages waiting.
  */
-import React from 'react';
+import React, { type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import loc from '../../loc';
@@ -19,10 +20,12 @@ import {
 } from '../settings/SettingsUI';
 import { UnreadBadge } from './DepinUI';
 
-export type DepinSection = 'chat' | 'iot';
+export type DepinSection = 'chat' | 'iot' | 'address';
 
 interface DepinChatTokenSectionsProps {
   activeSection: DepinSection;
+  /** What the Address tab shows: the DePIN address card. */
+  addressPanel: ReactNode;
   assetNames: string[];
   /** The server has new traffic not read yet (it serves one token: the one with access). */
   hasNewMessages: boolean;
@@ -75,6 +78,7 @@ const TokenRow: React.FC<{
 
 const DepinChatTokenSections = ({
   activeSection,
+  addressPanel,
   assetNames,
   hasNewMessages,
   loadingAssets,
@@ -90,6 +94,7 @@ const DepinChatTokenSections = ({
         segments={[
           { value: 'chat', label: loc.depin.tab_chat, icon: 'forum', testID: 'DepinSectionChat' },
           { value: 'iot', label: `${loc.depin.tab_iot} · ${loc.depin.iot_test_badge}`, icon: 'memory', testID: 'DepinSectionIot' },
+          { value: 'address', label: loc.depin.area_address, icon: 'qr-code-2', testID: 'DepinSectionAddress' },
         ]}
         value={activeSection}
         onChange={onSelectSection}
@@ -125,6 +130,8 @@ const DepinChatTokenSections = ({
             )}
           </SettingsCard>
         </View>
+      ) : activeSection === 'address' ? (
+        addressPanel
       ) : (
         <SettingsCard style={styles.iot} testID="DepinIotArea">
           <View style={styles.iotHead}>
