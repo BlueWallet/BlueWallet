@@ -48,10 +48,10 @@ const DepinChatTokenSections = ({
       <View style={styles.tabsRow}>
         <View style={[styles.tabFill, styles.tabFillLead, stylesHook.tabLine]} />
 
+        {/* Always selectable: it holds the token list even when no held token opens a chat on this
+            server (the red dot says so). Gating it trapped the user on IoT. */}
         <Pressable
-          onPress={() => {
-            if (chatActive) onSelectSection('chat');
-          }}
+          onPress={() => onSelectSection('chat')}
           style={[tabStyle(activeSection === 'chat'), !chatActive && styles.tabMuted]}
           testID="DepinSectionChat"
         >

@@ -12,7 +12,7 @@ import { ElectrumXBackend } from './ElectrumXBackend';
 import { RpcBackend } from './RpcBackend';
 import { WssBackend } from './WssBackend';
 import { getWssUrlOverride } from './backendOverrides';
-import { getDepinRpcConfig } from './depinRpcOverrides';
+import { getDepinRpcConfig, getDepinWssOverride } from './depinRpcOverrides';
 
 export * from './networkConfig';
 export * from './NeuraiBackend';
@@ -24,7 +24,10 @@ export {
   loadDepinRpcOverrides,
   getDepinRpcConfig,
   getDepinRpcOverride,
+  getDepinWssOverride,
+  isAllowedDepinServerUrl,
   setDepinRpcConfig,
+  setDepinWssOverride,
   isDepinRpcOverridesLoaded,
   DEFAULT_DEPIN_RPC_URL,
   type DepinRpcConfig,
@@ -126,14 +129,25 @@ export function createDefaultWssBackend(network: NeuraiNetwork, kind: WalletKind
   return createDefaultBackend(network, kind);
 }
 
-/** DePIN uses the same selected WSS service, with a reusable connection. */
+/** A WSS backend on `url` for DePIN, with the network's chain checks. */
+function createDepinWssBackend(network: NeuraiNetwork, url: string): NeuraiBackend {
+  const chain: NeuraiChainType = chainFor(network, 'legacy');
+  const params = CHAIN_PARAMS[chain];
+  return createBackend({ kind: 'wss', chain, url, authToken: params.defaultWssAuthToken, expectedGenesisHash: params.expectedGenesisHash });
+}
+
+/**
+ * DePIN's WSS service, with a reusable connection: the one set for DePIN alone
+ * (getDepinWssOverride) or else the wallet's, checked against the same chain
+ * as the wallet's.
+ */
 const depinBackends = new Map<NeuraiNetwork, { url: string; backend: NeuraiBackend }>();
 export function getDepinRpcBackend(network: NeuraiNetwork): NeuraiBackend {
   const url = getDepinRpcConfig(network).url;
   const cached = depinBackends.get(network);
   if (cached?.url === url) return cached.backend;
   if (cached?.backend instanceof WssBackend) cached.backend.disconnect();
-  const backend = createDefaultBackend(network, 'legacy');
+  const backend = getDepinWssOverride(network) ? createDepinWssBackend(network, url) : createDefaultBackend(network, 'legacy');
   depinBackends.set(network, { url, backend });
   return backend;
 }

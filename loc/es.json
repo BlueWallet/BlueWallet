@@ -896,5 +896,24 @@
     "type_restricted": "Restringido",
     "type_qualifier": "Calificador",
     "type_depin": "DePIN"
+  },
+  "depin": {
+    "reveal_title": "Revela tu clave pública",
+    "reveal_desc": "Para recibir mensajes cifrados del grupo, tu clave pública tiene que estar publicada en la cadena. Para ello se envía desde tu dirección DePIN una pequeña transacción que quema {amount} {ticker}.",
+    "reveal_button": "Revelar (quema {amount} {ticker})",
+    "reveal_waiting": "Esperando a que la clave pública aparezca en la cadena…",
+    "reveal_need_funds": "No hay fondos suficientes en tu dirección DePIN. Envía al menos {amount} {ticker} y vuelve a intentarlo.",
+    "reveal_failed": "No se pudo revelar la clave pública. Inténtalo de nuevo.",
+    "reveal_send_button": "Enviar {amount} {ticker} a la dirección DePIN",
+    "reveal_funds_arriving": "Hay {amount} {ticker} de camino a tu dirección DePIN. Podrás revelar tu clave pública cuando se confirmen en un bloque.",
+    "reveal_confirming": "Esperando la confirmación…",
+    "server_title": "Servidor DePIN",
+    "server_intro": "El chat DePIN y sus tokens usan este servidor. La cartera sigue con el suyo elijas lo que elijas aquí.",
+    "server_wallet": "El de la cartera",
+    "server_own": "Servidor DePIN propio",
+    "server_own_explain": "Una dirección de neurai-wallet-services con DePIN: wss://, o ws:// si está en tu red local",
+    "server_address": "Dirección del servidor",
+    "server_invalid": "La dirección debe empezar por wss://, o por ws:// si el servidor está en tu red local (192.168.x.x, 10.x.x.x…)",
+    "server_save": "Guardar"
   }
 }

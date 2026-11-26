@@ -7,7 +7,7 @@
  * an end-to-end encrypted group/private chat with the other holders via
  * `react-native-gifted-chat` and the `useDePINChat` hook.
  *
- * The gear button opens the shared WSS service settings through `DepinRpcEdit`.
+ * The gear button opens `DepinRpcEdit`: the wallet's WSS service, or one for DePIN alone.
  * The chat uses the same service as the wallet. To receive group messages the address's public key must be on-chain, so
  * when it isn't we offer a "reveal" action that burns a little XNA from the
  * DePIN address (mirrors the web wallet).
@@ -73,13 +73,14 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(({ walletID, pause
   const deviceId = useDepinChatDeviceIdentity({ enabled: supported && isHardware, network: chainType as DepinChatNetwork });
   const identity = isHardware ? deviceId.identity : mnemonicIdentity;
 
-  const { chatAssets, depinBalance, getBackend, loadingAssets, pubkeyRevealed, refreshServerInfo, rpc, serverInfo } = useDepinChatSetup({
-    identity,
-    knownRevealed: isKnownRevealed(walletID),
-    network,
-    supported,
-    paused,
-  });
+  const { chatAssets, depinBalance, depinIncoming, getBackend, loadingAssets, pubkeyRevealed, refreshServerInfo, rpc, serverInfo } =
+    useDepinChatSetup({
+      identity,
+      knownRevealed: isKnownRevealed(walletID),
+      network,
+      supported,
+      paused,
+    });
   const {
     refreshRecipients,
     recipientList,
@@ -420,6 +421,7 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(({ walletID, pause
   const revealBanner = (
     <DepinChatRevealBanner
       depinBalance={depinBalance}
+      depinIncoming={depinIncoming}
       onFund={goFundDepinAddress}
       onReveal={handleReveal}
       pubkeyRevealed={pubkeyRevealed}

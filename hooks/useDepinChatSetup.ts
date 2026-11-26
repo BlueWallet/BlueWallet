@@ -28,6 +28,8 @@ interface UseDepinChatSetupParams {
 
 /** While the section is on screen, the tokens are read again at most this often if no block news arrive. */
 const ASSETS_POLL_MS = 60_000;
+/** While the address still waits for the funds of its reveal, its balance is read again this often. */
+const BALANCE_POLL_MS = 15_000;
 
 /** Provides the RPC-backed state needed before a token conversation is opened. */
 const useDepinChatSetup = ({ identity, network, supported, knownRevealed = false, paused = false }: UseDepinChatSetupParams) => {
@@ -62,6 +64,7 @@ const useDepinChatSetup = ({ identity, network, supported, knownRevealed = false
   }>({ firstContact: false, fingerprint: null, error: null });
   const [pubkeyRevealed, setPubkeyRevealed] = useState<boolean | null>(knownRevealed ? true : null);
   const [depinBalance, setDepinBalance] = useState<number | null>(null);
+  const [depinIncoming, setDepinIncoming] = useState(0);
 
   const refreshServerInfo = useCallback(() => {
     if (!rpc) return Promise.resolve();
@@ -148,27 +151,60 @@ const useDepinChatSetup = ({ identity, network, supported, knownRevealed = false
     };
   }, [identity, pubkeyRevealed, rpc]);
 
+  // The DePIN address's confirmed XNA, which the reveal spends, and the XNA on
+  // its way to it in the mempool, which it can spend once confirmed.
+  const loadBalance = useCallback(async () => {
+    if (!identity) return;
+    try {
+      const backend = getBackend();
+      const [utxos, mempool] = await Promise.all([
+        backend.getUtxos([identity.address]),
+        backend.getMempool([identity.address]).catch(() => []),
+      ]);
+      const isXna = (assetName?: string) => !assetName || assetName === 'XNA';
+      const confirmed = (utxos ?? []).filter(utxo => isXna(utxo.assetName)).reduce((sum, utxo) => sum + BigInt(utxo.satoshis), 0n);
+      const pending = (mempool ?? []).filter(entry => isXna(entry.assetName)).reduce((sum, entry) => sum + BigInt(entry.satoshis), 0n);
+      setDepinBalance(Number(confirmed) / ONE_COIN);
+      setDepinIncoming(pending > 0n ? Number(pending) / ONE_COIN : 0);
+    } catch (error) {
+      console.debug('DePINChat: failed to load chat address balance', error);
+      setDepinBalance(null);
+      setDepinIncoming(0);
+    }
+  }, [getBackend, identity]);
+
+  // Until the pubkey is revealed, the balance is read when the section shows,
+  // on every new block and every few seconds: the funds sent for the reveal
+  // show up (from the mempool) without leaving the section and coming back.
   useEffect(() => {
-    if (!identity || pubkeyRevealed !== false || !rpc) return;
+    if (paused || !identity || pubkeyRevealed !== false || !rpc) return;
     let cancelled = false;
-    (async () => {
-      try {
-        const utxos = await getBackend().getUtxos([identity.address]);
-        const satoshis = (utxos ?? [])
-          .filter(utxo => !utxo.assetName || utxo.assetName === 'XNA')
-          .reduce((sum, utxo) => sum + (Number(utxo.satoshis) || 0), 0);
-        if (!cancelled) setDepinBalance(satoshis / ONE_COIN);
-      } catch (error) {
-        console.debug('DePINChat: failed to load chat address balance', error);
-        if (!cancelled) setDepinBalance(null);
-      }
-    })();
+    let unsubscribe: (() => void) | undefined;
+    loadBalance().then(() => {
+      if (cancelled) return;
+      const backend = getBackend() as { onChainTip?: (listener: (height: number) => void) => () => void };
+      unsubscribe = backend.onChainTip?.(() => loadBalance());
+    });
+    const poll = setInterval(loadBalance, BALANCE_POLL_MS);
     return () => {
       cancelled = true;
+      clearInterval(poll);
+      unsubscribe?.();
     };
-  }, [getBackend, identity, pubkeyRevealed, rpc]);
+  }, [paused, identity, pubkeyRevealed, rpc, loadBalance, getBackend]);
 
-  return { chatAssets, depinBalance, getBackend, loadingAssets, poolTrust, pubkeyRevealed, refreshServerInfo, rpc, serverInfo };
+  return {
+    chatAssets,
+    depinBalance,
+    depinIncoming,
+    getBackend,
+    loadingAssets,
+    poolTrust,
+    pubkeyRevealed,
+    refreshServerInfo,
+    rpc,
+    serverInfo,
+  };
 };
 
 export default useDepinChatSetup;

@@ -1,7 +1,13 @@
 import { TESTNET_GENESIS_HASH } from '@neuraiproject/neurai-rpc';
 import { RpcBackend } from '../../blue_modules/neurai/RpcBackend';
 import { createDefaultBackend, getDepinRpcBackend } from '../../blue_modules/neurai';
-import { getDepinRpcConfig, setDepinRpcConfig } from '../../blue_modules/neurai/depinRpcOverrides';
+import {
+  getDepinRpcConfig,
+  getDepinWssOverride,
+  isAllowedDepinServerUrl,
+  setDepinRpcConfig,
+  setDepinWssOverride,
+} from '../../blue_modules/neurai/depinRpcOverrides';
 import { setWssUrlOverride } from '../../blue_modules/neurai/backendOverrides';
 import { WssBackend } from '../../blue_modules/neurai/WssBackend';
 import { NeuraiHDWallet } from '../../class/wallets/neurai-hd-wallet';
@@ -226,8 +232,8 @@ test('uses only the selected socket for builder queries and broadcast, including
     expect(await backend.rpc('sendrawtransaction', ['signed-hex'])).toBe('signed-tx');
     server.close();
     await backend.rpc('getaddressutxos', []);
-    expect(server.methods.filter((m) => m === 'rpc.call:')).toHaveLength(2);
-    expect(server.methods.filter((m) => m === 'hello:wss/2')).toHaveLength(2);
+    expect(server.methods.filter(m => m === 'rpc.call:')).toHaveLength(2);
+    expect(server.methods.filter(m => m === 'hello:wss/2')).toHaveLength(2);
     expect(global.fetch).not.toHaveBeenCalled();
   } finally {
     server.close();
@@ -267,7 +273,7 @@ it('reports stale and recovery at unchanged monetary status', async () => {
   }
 });
 
-test.each(['mainnet', 'testnet'] as const)('default and custom %s wallet/DePIN backends use only the selected WSS', async (network) => {
+test.each(['mainnet', 'testnet'] as const)('default and custom %s wallet/DePIN backends use only the selected WSS', async network => {
   const server = service(2, '10000000000000001', true, network);
   global.fetch = jest.fn(() => {
     throw new Error('HTTP forbidden');
@@ -297,6 +303,48 @@ test.each(['mainnet', 'testnet'] as const)('default and custom %s wallet/DePIN b
   }
 });
 
+test.each(['mainnet', 'testnet'] as const)(
+  'a %s WSS server for DePIN alone leaves the wallet on its own and refuses HTTP',
+  async network => {
+    const walletUrl = getDepinRpcConfig(network).url;
+    try {
+      await expect(setDepinWssOverride(network, 'http://192.168.1.222:19222/rpc')).rejects.toThrow('wss://');
+      await expect(setDepinWssOverride(network, 'ws://depin.example.org/push')).rejects.toThrow('local network');
+      expect(getDepinWssOverride(network)).toBeUndefined();
+
+      await setDepinWssOverride(network, 'wss://depin.lan.example/push');
+      expect(getDepinRpcConfig(network).url).toBe('wss://depin.lan.example/push');
+      await setWssUrlOverride(network, 'wss://wallet.example/push');
+      expect(getDepinRpcConfig(network).url).toBe('wss://depin.lan.example/push');
+
+      await setDepinWssOverride(network, null);
+      expect(getDepinRpcConfig(network).url).toBe('wss://wallet.example/push');
+    } finally {
+      await setDepinWssOverride(network, null);
+      await setWssUrlOverride(network, null);
+    }
+    expect(getDepinRpcConfig(network).url).toBe(walletUrl);
+  },
+);
+
+test.each([
+  ['wss://depin.example.org/push', true],
+  ['wss://203.0.113.7:443/push', true],
+  ['ws://192.168.1.222:19020/push', true],
+  ['ws://10.0.0.5:19020/push', true],
+  ['ws://172.20.1.2/push', true],
+  ['ws://localhost:19020/push', true],
+  ['ws://127.0.0.1:19020', true],
+  ['ws://depin-node.local/push', true],
+  ['ws://depin.example.org/push', false],
+  ['ws://203.0.113.7:19020/push', false],
+  ['ws://172.32.0.1/push', false],
+  ['http://192.168.1.222:19222/rpc', false],
+  ['wss://', false],
+])('DePIN server %s is allowed: %s (plain ws:// only on the local network)', (url, allowed) => {
+  expect(isAllowedDepinServerUrl(url)).toBe(allowed);
+});
+
 it('retries failed subscriptions on re-entry, even when addresses and monetary status are unchanged', async () => {
   const server = service(2, '1');
   const backend = new WssBackend({ chain: 'xna-test', url: 'ws://local/push' });
@@ -308,9 +356,9 @@ it('retries failed subscriptions on re-entry, even when addresses and monetary s
     server.failSubscription(false);
     await backend.setSubscribedAddresses(['a']);
     expect(backend.getServiceStatus()).toBe('exact');
-    expect(server.methods.filter((m) => m === 'address.subscribe.bulk:')).toHaveLength(2);
+    expect(server.methods.filter(m => m === 'address.subscribe.bulk:')).toHaveLength(2);
     await backend.setSubscribedAddresses(['a']);
-    expect(server.methods.filter((m) => m === 'address.subscribe.bulk:')).toHaveLength(2);
+    expect(server.methods.filter(m => m === 'address.subscribe.bulk:')).toHaveLength(2);
   } finally {
     backend.disconnect();
   }
@@ -327,7 +375,7 @@ it('recovers a suspended OPEN socket on notification resume and ignores old-sess
     const oldSocket = server.socket();
     expect(oldSocket.readyState).toBe(1);
     server.holdReads(true);
-    const interrupted = backend.getBalance(['a']).catch((error) => error);
+    const interrupted = backend.getBalance(['a']).catch(error => error);
     await Promise.resolve();
     await Promise.resolve();
     server.holdReads(false);
@@ -339,8 +387,8 @@ it('recovers a suspended OPEN socket on notification resume and ignores old-sess
     oldSocket.onmessage({ data: JSON.stringify({ method: 'address.sync_status', params: { address: 'a', stale: true } }) });
     expect(backend.getServiceStatus()).toBe('exact');
     expect(await backend.getBalance(['a'])).toBe(1n);
-    expect(server.methods.filter((m) => m === 'hello:wss/2')).toHaveLength(2);
-    expect(server.methods.filter((m) => m === 'address.subscribe.bulk:')).toHaveLength(2);
+    expect(server.methods.filter(m => m === 'hello:wss/2')).toHaveLength(2);
+    expect(server.methods.filter(m => m === 'address.subscribe.bulk:')).toHaveLength(2);
   } finally {
     backend.disconnect();
   }
@@ -367,7 +415,7 @@ test('DePIN sequence transport keeps the signed request and every cursor digit i
     const request = { protocol: 6, signature: 'signature', args: { cursor: { after_seq: 9007199254740993n } } };
     const result = await backend.rpc('depinreceiveseq', [request]);
     expect(result).toEqual({ encrypted: 'opaque', poolsig: 'signature', protocol: 6, request_hash: 'hash' });
-    const raw = server.rawRequests.find((r) => r.includes('depin.receive_seq'))!;
+    const raw = server.rawRequests.find(r => r.includes('depin.receive_seq'))!;
     expect(raw).toContain('9007199254740993');
     expect(raw).not.toContain('9007199254740992');
   } finally {

@@ -243,7 +243,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="DepinRpcEdit"
           component={DepinRpcEdit}
-          options={navigationStyle(getSettingsHeaderOptions(loc.depin.rpc_settings_title))(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.depin.server_title }}
         />
         {/* Neurai Connect. The three approval screens are modals: a site asking
             for a signature interrupts whatever the user was doing, and it must

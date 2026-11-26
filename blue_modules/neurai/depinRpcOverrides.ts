@@ -1,7 +1,9 @@
 /**
- * DePIN uses the selected wallet WSS endpoint. Legacy RPC preferences remain
- * readable for compatibility, but do not select a transport or receive traffic.
- * Pool-key trust is keyed by the effective WSS URL, never by obsolete HTTP URLs.
+ * DePIN talks to a WSS service: the wallet's own by default, or one set for
+ * DePIN alone (a DePIN node on the LAN, say) without moving the wallet off
+ * its service. Legacy RPC preferences remain readable for compatibility, but
+ * do not select a transport or receive traffic. Pool-key trust is keyed by the
+ * effective WSS URL, never by obsolete HTTP URLs.
  */
 
 import DefaultPreference from 'react-native-default-preference';
@@ -27,7 +29,34 @@ export const DEFAULT_DEPIN_RPC_URL: Record<NeuraiNetwork, string> = {
   testnet: CHAIN_PARAMS['xna-test'].defaultWssUrl,
 };
 
+/** A WSS service for DePIN alone, per network: wins over the wallet's when set. */
+const WSS_KEY_BY_NETWORK: Record<NeuraiNetwork, string> = {
+  mainnet: 'NEURAI_DEPIN_WSS_MAINNET',
+  testnet: 'NEURAI_DEPIN_WSS_TESTNET',
+};
+
+/** A host on this device or its local network: loopback, private IPv4 ranges, `.local` names. */
+const isLocalHost = (host: string): boolean =>
+  host === 'localhost' ||
+  host.endsWith('.local') ||
+  /^127\./.test(host) ||
+  /^10\./.test(host) ||
+  /^192\.168\./.test(host) ||
+  /^172\.(1[6-9]|2\d|3[01])\./.test(host);
+
+/**
+ * Where DePIN may talk to: any `wss://` service, or a plain `ws://` one only on
+ * this device or the local network (a DePIN node at home, say). Unencrypted
+ * traffic never leaves the LAN.
+ */
+export function isAllowedDepinServerUrl(url: string): boolean {
+  const match = /^(wss?):\/\/([^/:?#\s]+)(?::\d+)?(?:[/?#]\S*)?$/i.exec(url.trim());
+  if (!match) return false;
+  return match[1].toLowerCase() === 'wss' || isLocalHost(match[2].toLowerCase());
+}
+
 const cache = new Map<NeuraiNetwork, DepinRpcConfig>();
+const wssCache = new Map<NeuraiNetwork, string>();
 let loaded = false;
 let loading: Promise<void> | null = null;
 
@@ -55,6 +84,8 @@ async function load(): Promise<void> {
     const value = (await DefaultPreference.get(KEY_BY_NETWORK[network])) as string | null;
     const cfg = parseConfig(value);
     if (cfg) cache.set(network, cfg);
+    const wss = (await DefaultPreference.get(WSS_KEY_BY_NETWORK[network])) as string | null;
+    if (typeof wss === 'string' && isAllowedDepinServerUrl(wss)) wssCache.set(network, wss);
   }
   loaded = true;
 }
@@ -73,10 +104,30 @@ export function getDepinRpcOverride(network: NeuraiNetwork): DepinRpcConfig | un
   return cache.get(network);
 }
 
-/** Effective endpoint shared with the wallet, including custom WSS settings. */
+/** The WSS service set for DePIN alone on a network, or undefined: DePIN then uses the wallet's. */
+export function getDepinWssOverride(network: NeuraiNetwork): string | undefined {
+  return wssCache.get(network);
+}
+
+/** Sets (`wss://`, or `ws://` on the local network) or clears (null or empty) the WSS service for DePIN alone. */
+export async function setDepinWssOverride(network: NeuraiNetwork, url: string | null): Promise<void> {
+  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+  const key = WSS_KEY_BY_NETWORK[network];
+  const trimmed = (url ?? '').trim();
+  if (trimmed.length === 0) {
+    await DefaultPreference.clear(key);
+    wssCache.delete(network);
+    return;
+  }
+  if (!isAllowedDepinServerUrl(trimmed)) throw new Error('The DePIN server must be wss://, or ws:// on the local network');
+  await DefaultPreference.set(key, trimmed);
+  wssCache.set(network, trimmed);
+}
+
+/** Effective DePIN endpoint: the one set for DePIN, else the wallet's own WSS service. */
 export function getDepinRpcConfig(network: NeuraiNetwork): DepinRpcConfig {
   // Old HTTP preferences remain stored for recovery but are never contacted.
-  return { url: getWssUrlOverride(network) ?? CHAIN_PARAMS[chainFor(network, 'legacy')].defaultWssUrl };
+  return { url: wssCache.get(network) ?? getWssUrlOverride(network) ?? CHAIN_PARAMS[chainFor(network, 'legacy')].defaultWssUrl };
 }
 
 /** Persist (or clear, when `config` is null) the DePIN RPC config for a network. */

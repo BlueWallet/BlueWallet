@@ -7,6 +7,8 @@ import { FUND_AMOUNT_XNA, REVEAL_AMOUNT_XNA } from './constants';
 
 interface DepinChatRevealBannerProps {
   depinBalance: number | null;
+  /** XNA sent to the DePIN address that is still in the mempool. */
+  depinIncoming: number;
   onFund: () => void;
   onReveal: () => void;
   pubkeyRevealed: boolean | null;
@@ -17,6 +19,7 @@ interface DepinChatRevealBannerProps {
 
 const DepinChatRevealBanner = ({
   depinBalance,
+  depinIncoming,
   onFund,
   onReveal,
   pubkeyRevealed,
@@ -27,19 +30,26 @@ const DepinChatRevealBanner = ({
   if (pubkeyRevealed !== false) return null;
 
   const needsFunding = depinBalance !== null && depinBalance < REVEAL_AMOUNT_XNA;
+  // Enough is on its way: the reveal can only spend it once it is confirmed.
+  const fundsArriving = needsFunding && depinBalance + depinIncoming >= REVEAL_AMOUNT_XNA;
+  const description = fundsArriving
+    ? loc.formatString(loc.depin.reveal_funds_arriving, { amount: Number(depinIncoming.toFixed(8)), ticker: 'XNA' })
+    : loc.formatString(needsFunding ? loc.depin.reveal_need_funds : loc.depin.reveal_desc, {
+        amount: needsFunding ? FUND_AMOUNT_XNA : REVEAL_AMOUNT_XNA,
+        ticker: 'XNA',
+      });
   return (
     <View style={[styles.banner, stylesHook.banner]}>
       <View style={styles.bannerTitleRow}>
         <Icon name="fire" type="font-awesome" size={18} color="#ef4444" />
         <Text style={[styles.bannerTitle, stylesHook.text]}>{loc.depin.reveal_title}</Text>
       </View>
-      <Text style={[styles.bannerDesc, stylesHook.subtext]}>
-        {loc.formatString(needsFunding ? loc.depin.reveal_need_funds : loc.depin.reveal_desc, {
-          amount: needsFunding ? FUND_AMOUNT_XNA : REVEAL_AMOUNT_XNA,
-          ticker: 'XNA',
-        })}
-      </Text>
-      {needsFunding ? (
+      <Text style={[styles.bannerDesc, stylesHook.subtext]}>{description}</Text>
+      {fundsArriving ? (
+        <View style={[styles.revealBtn, stylesHook.chipActive, styles.revealBtnDisabled]} testID="DepinFundsArriving">
+          <Text style={[styles.revealBtnText, stylesHook.text]}>{loc.depin.reveal_confirming}</Text>
+        </View>
+      ) : needsFunding ? (
         <Pressable onPress={onFund} style={[styles.revealBtn, stylesHook.chipActive]} testID="DepinFundAddress">
           <Text style={[styles.revealBtnText, stylesHook.text]}>
             {loc.formatString(loc.depin.reveal_send_button, { amount: FUND_AMOUNT_XNA, ticker: 'XNA' })}

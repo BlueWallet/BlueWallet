@@ -189,6 +189,8 @@
     "reveal_need_funds": "Not enough funds at your DePIN address. Send at least {amount} {ticker} to it and try again.",
     "reveal_failed": "Could not reveal the public key. Please try again.",
     "reveal_send_button": "Send {amount} {ticker} to the DePIN address",
+    "reveal_funds_arriving": "{amount} {ticker} is on its way to your DePIN address. You can reveal your public key once it is confirmed in a block.",
+    "reveal_confirming": "Waiting for confirmation…",
     "input_placeholder": "Message…",
     "input_placeholder_private": "@address message — private",
     "send_failed": "Failed to send message",
@@ -208,7 +210,14 @@
     "info_expiring": "Expiring in 24h",
     "info_members": "Members",
     "info_close": "Close",
-    "rpc_settings_title": "DePIN RPC"
+    "server_title": "DePIN server",
+    "server_intro": "DePIN chat and its tokens use this server. The wallet keeps its own whichever you choose here.",
+    "server_wallet": "The wallet's server",
+    "server_own": "Own DePIN server",
+    "server_own_explain": "A neurai-wallet-services address with DePIN: wss://, or ws:// if it is on your local network",
+    "server_address": "Server address",
+    "server_invalid": "The address must start with wss://, or ws:// if the server is on your local network (192.168.x.x, 10.x.x.x…)",
+    "server_save": "Save"
   },
   "errors": {
     "error": "Error",
