@@ -11,6 +11,7 @@ import {
   splitFormattedAmount,
   splitShortenedAmount,
   shortenFormattedAmount,
+  formatCompactXna,
 } from '../../blue_modules/neurai/amounts';
 import { estimateNeuraiFeeSats } from '../../blue_modules/neurai/feeEstimate';
 import { formatAssetAmount } from '../../blue_modules/neurai/assetUtils';
@@ -95,5 +96,36 @@ describe('shortened amounts (at most N decimals, cut not rounded)', () => {
   it('keeps a suffix such as the unit', () => {
     expect(shortenFormattedAmount('1.284,56789 XNA', 4, ',')).toBe('1.284,5678 XNA');
     expect(shortenFormattedAmount('2.12345678 XNA', 2, '.')).toBe('2.12 XNA');
+  });
+});
+
+describe('compact XNA for lists', () => {
+  const xna = (value: string) => xnaToSats(value);
+  test.each([
+    ['0', '0'],
+    ['0.0005', '<0.001'],
+    ['0.001992', '0.001'],
+    ['12.5', '12.5'],
+    ['99.99999999', '99.999'],
+    ['100', '100'],
+    ['9499.9956', '9,499'],
+    ['9999.99999999', '9,999'],
+    ['10000', '10k'],
+    ['15398.794', '15.3k'],
+    ['99999.99', '99.9k'],
+    ['250000', '250k'],
+    ['2500000', '2,500k'],
+    ['9999999.99', '9,999k'],
+    ['10000000', '10M'],
+    ['12345678', '12.3M'],
+    ['250000000', '250M'],
+  ])('%s XNA reads %s (cut, never rounded up)', (value, shown) => {
+    expect(formatCompactXna(xna(value), 'en-US')).toBe(shown);
+  });
+
+  it('uses the separators of the language', () => {
+    expect(formatCompactXna(xna('15398.794'), 'es-ES')).toBe('15,3k');
+    expect(formatCompactXna(xna('9499.9956'), 'de-DE')).toBe('9.499');
+    expect(formatCompactXna(xna('0.0005'), 'es-ES')).toBe('<0,001');
   });
 });

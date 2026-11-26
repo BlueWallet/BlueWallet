@@ -3,7 +3,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { DrawerContentComponentProps, useDrawerStatus } from '@react-navigation/drawer';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { splitShortenedAmount } from '../../blue_modules/neurai/amounts';
+import { formatCompactXna, splitShortenedAmount } from '../../blue_modules/neurai/amounts';
 import type { NeuraiNetwork } from '../../blue_modules/neurai/networkConfig';
 import { NETWORKS, walletNetwork } from '../../blue_modules/neurai/networkSelection';
 import type { TWallet } from '../../class/wallets/types';
@@ -131,7 +131,8 @@ const HomeWalletsPanel: React.FC<DrawerContentComponentProps> = ({ navigation })
         )}
         {list.map(w => {
           const selected = current?.getID() === w.getID();
-          const [integer, decimals] = xna(w.getBalance() ?? 0n);
+          // Short (9,499 · 15.3k · 12.3M), on the second line: the name keeps the whole first line.
+          const balance = w.hideBalance ? '••••' : formatCompactXna(w.getBalance() ?? 0n);
           return (
             <Pressable
               key={w.getID()}
@@ -153,16 +154,15 @@ const HomeWalletsPanel: React.FC<DrawerContentComponentProps> = ({ navigation })
                 <Text style={[styles.walletName, { color: p.ink }]} numberOfLines={1}>
                   {w.getLabel()}
                 </Text>
-                <Text style={[styles.walletKind, { color: p.muted }]} numberOfLines={1}>
-                  {walletKindLabel(w)}
-                </Text>
-              </View>
-              <View style={styles.walletBalance}>
-                <Text style={[styles.walletAmount, { color: p.ink }]} numberOfLines={1}>
-                  {w.hideBalance ? '••••' : integer}
-                  {!w.hideBalance && decimals ? <Text style={[styles.walletDecimals, { color: p.muted }]}>{decimals}</Text> : null}
-                </Text>
-                <Text style={[styles.walletUnit, { color: p.muted }]}>XNA</Text>
+                <View style={styles.walletLine}>
+                  <Text style={[styles.walletKind, { color: p.muted }]} numberOfLines={1}>
+                    {walletKindLabel(w)}
+                  </Text>
+                  <Text style={[styles.walletAmount, { color: p.ink }]} numberOfLines={1} testID={`HomePanelBalance-${w.getLabel()}`}>
+                    {balance}
+                    <Text style={[styles.walletUnit, { color: p.muted }]}> XNA</Text>
+                  </Text>
+                </View>
               </View>
             </Pressable>
           );
@@ -219,11 +219,10 @@ const styles = StyleSheet.create({
   walletIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   walletTexts: { flex: 1, rowGap: 2 },
   walletName: { fontSize: 15, fontWeight: '600' },
-  walletKind: { fontSize: 12 },
-  walletBalance: { alignItems: 'flex-end', rowGap: 2, maxWidth: '45%' },
-  walletAmount: { fontSize: 15, fontWeight: '600' },
-  walletDecimals: { fontSize: 13 },
-  walletUnit: { fontSize: 12 },
+  walletLine: { flexDirection: 'row', alignItems: 'baseline', columnGap: 8 },
+  walletKind: { flex: 1, fontSize: 12 },
+  walletAmount: { fontSize: 14, fontWeight: '700' },
+  walletUnit: { fontSize: 12, fontWeight: '500' },
   footer: { rowGap: 4 },
   add: {
     height: 52,
