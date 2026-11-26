@@ -42,7 +42,11 @@ import { PrivacyHostProvider } from './PrivacyHost';
 const poolLabel = (_id: PrivacyPoolId) => 'C7 · XNA';
 
 type PrivacyArea = 'address' | 'operations' | 'activity';
-const QR_SIZE = 200;
+/** Padding of the panel around the QR tile, and of the white tile around the code. */
+const QR_PANEL_PAD = 12;
+const QR_TILE_PAD = 10;
+/** A wide screen (tablet) does not need a QR larger than this to be read. */
+const QR_MAX = 420;
 const COPIED_MS = 1_600;
 
 const ACTION_ICON: Record<string, MaterialIconName> = {
@@ -83,6 +87,7 @@ function PoolView({
   const ops = useC6Operations(wallet, runtime, pool);
   const [zkPassphrase, setZkPassphrase] = useState('');
   const [showQr, setShowQr] = useState(false);
+  const [qrSpace, setQrSpace] = useState(0);
   const [settings, setSettings] = useState(false);
   // One area at a time under the balance, so the page fits on one screen.
   const [area, setArea] = useState<PrivacyArea>('operations');
@@ -157,6 +162,9 @@ function PoolView({
     (y: number) => keyboard.scrollRef.current?.scrollTo({ y: Math.max(0, operationsY.current + y - 12), animated: true }),
     [keyboard.scrollRef],
   );
+
+  // As wide as the card allows: the panel's width less its padding and the tile's.
+  const qrSize = Math.min(QR_MAX, Math.floor(qrSpace - 2 * QR_PANEL_PAD - 2 * QR_TILE_PAD));
 
   return (
     <ScrollView
@@ -312,12 +320,14 @@ function PoolView({
               />
             </View>
             {showQr && address ? (
-              <View style={[styles.qrPanel, { backgroundColor: p.ground }]}>
-                <View style={styles.qrTile} accessible accessibilityLabel={`${loc.privacy.show_qr}: ${address}`}>
-                  <QrStaggerReveal size={QR_SIZE} maskColor="#FFFFFF" runKey={address}>
-                    <QRCode value={address} size={QR_SIZE} />
-                  </QrStaggerReveal>
-                </View>
+              <View style={[styles.qrPanel, { backgroundColor: p.ground }]} onLayout={event => setQrSpace(event.nativeEvent.layout.width)}>
+                {qrSize > 0 ? (
+                  <View style={styles.qrTile} accessible accessibilityLabel={`${loc.privacy.show_qr}: ${address}`} testID="PrivacyQr">
+                    <QrStaggerReveal size={qrSize} maskColor="#FFFFFF" runKey={`${address}|${qrSize}`}>
+                      <QRCode value={address} size={qrSize} />
+                    </QrStaggerReveal>
+                  </View>
+                ) : null}
               </View>
             ) : null}
           </Card>
@@ -462,8 +472,8 @@ const styles = StyleSheet.create({
   noticeButtons: { flexDirection: 'row', columnGap: 10 },
   address: { fontFamily: 'monospace', fontSize: 14, lineHeight: 20 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  qrPanel: { alignItems: 'center', borderRadius: 20, paddingVertical: 16 },
-  qrTile: { backgroundColor: '#FFFFFF', borderRadius: 18, padding: 8 },
+  qrPanel: { alignItems: 'center', borderRadius: 20, padding: QR_PANEL_PAD },
+  qrTile: { backgroundColor: '#FFFFFF', borderRadius: 18, padding: QR_TILE_PAD },
   activityRow: { flexDirection: 'row', alignItems: 'center', columnGap: 12, minHeight: 68, paddingVertical: 10 },
   activityTitle: { fontSize: 15, fontWeight: '600' },
   activityStatus: { fontSize: 13, marginTop: 1 },
