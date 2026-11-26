@@ -1,16 +1,16 @@
 /**
- * Privacy tab of a testnet wallet (C7 TEST pool), laid out like the DePIN
- * section: a header card (status badge, pool chips, private balance and
- * address, gear for the advanced settings), folder tabs for the operations
- * and a short activity list. Switching pools keeps the others' sessions open.
- * The proving engine (hidden WebView) lives only while this tab is open.
+ * Privacy tab of a testnet wallet (C7 TEST pool), in the settings' style: a
+ * card with the pool's state in words, the private balance and the way to
+ * open the private wallet; the private address with copy, QR and a new one;
+ * the operations; and the latest activity. The gear opens the advanced
+ * settings. Switching pools keeps the others' sessions open. The proving
+ * engine (hidden WebView) lives only while this tab is open.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { formatXna } from '@neuraiproject/neurai-privacy/client';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DEFAULT_PRIVACY_POOL, PRIVACY_POOLS, type C6Runtime, type PrivacyPoolId } from '../../blue_modules/neurai/privacy/deployment';
 import type { PrivacyWallet } from '../../blue_modules/neurai/privacy/wallet';
@@ -20,27 +20,35 @@ import useScrollAboveKeyboard from '../../hooks/useScrollAboveKeyboard';
 import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
 import { useStorage } from '../../hooks/context/useStorage';
 import loc from '../../loc';
+import Icon, { type MaterialIconName } from '../Icon';
 import QRCode from '../QRCode';
+import QrStaggerReveal from '../QrStaggerReveal';
+import {
+  SettingsBadge,
+  SettingsButton,
+  SettingsCard,
+  SettingsIconCircle,
+  SettingsPillButton,
+  SettingsSectionLabel,
+  SettingsStatusLine,
+  type SettingsStatusTone,
+  useSettingsPalette,
+} from '../settings/SettingsUI';
 import { C6OperationsPanel, actionLabel } from './C6OperationsPanel';
 import { C6SettingsSheet } from './C6SettingsSheet';
-import {
-  Badge,
-  Card,
-  Chip,
-  ChipRow,
-  ErrorBox,
-  Hint,
-  IconButton,
-  Label,
-  PrimaryButton,
-  ProgressLine,
-  TestBadge,
-  usePrivacyTheme,
-  type BadgeTone,
-} from './C6UI';
+import { Card, Chip, ChipRow, ErrorBox, Hint, Label, PrimaryButton, ProgressLine, RoundButton } from './C6UI';
 import { PrivacyHostProvider } from './PrivacyHost';
 
 const poolLabel = (_id: PrivacyPoolId) => 'C7 · XNA';
+const QR_SIZE = 200;
+const COPIED_MS = 1_600;
+
+const ACTION_ICON: Record<string, MaterialIconName> = {
+  deposit: 'login',
+  transfer: 'swap-horiz',
+  withdraw: 'logout',
+  join: 'call-merge',
+};
 
 /** Seconds since `busy` turned on. */
 function useElapsed(busy: boolean): number {
@@ -68,13 +76,20 @@ function PoolView({
   onPool: (id: PrivacyPoolId) => void;
   hidden: boolean;
 }) {
-  const t = usePrivacyTheme();
-  const insets = useSafeAreaInsets();
+  const p = useSettingsPalette();
   const pool = useC6PrivateWallet(wallet, runtime, hidden);
   const ops = useC6Operations(wallet, runtime, pool);
   const [zkPassphrase, setZkPassphrase] = useState('');
   const [showQr, setShowQr] = useState(false);
   const [settings, setSettings] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (copiedTimer.current) clearTimeout(copiedTimer.current);
+    },
+    [],
+  );
   // The settings sheet is a modal with its own fields: leave its keyboard alone.
   const keyboard = useScrollAboveKeyboard(!hidden && !settings);
 
@@ -89,165 +104,227 @@ function PoolView({
     pool.lock();
     setShowQr(false);
   }, [pool]);
+  const startNewHistory = () => pool.run(loc.privacy.opening, () => pool.unlock({ create: true, zkPassphrase }));
+  const newAddress = () =>
+    pool.run(loc.privacy.new_address, async token => {
+      pool.update(await pool.requireClient().newAddress());
+      pool.live(token);
+      pool.setSaved(false);
+    });
+  const copyAddress = () => {
+    Clipboard.setString(address);
+    AccessibilityInfo.announceForAccessibility(loc.privacy.address_copied);
+    setCopied(true);
+    if (copiedTimer.current) clearTimeout(copiedTimer.current);
+    copiedTimer.current = setTimeout(() => setCopied(false), COPIED_MS);
+  };
 
   // The journal keeps a published but unconfirmed operation as `prepared`.
   const published = new Set(ops.publishedTxids);
   const opStatus = (op: { outcome: string | null; phase: string; txid: string | null }) =>
     op.outcome ?? (published.has(op.txid ?? '') ? loc.privacy.pending : op.phase);
 
-  const badge: { label: string; tone: BadgeTone } = pool.error
-    ? { label: loc.privacy.badge_error, tone: 'error' }
+  const state: { tone: SettingsStatusTone; text: string } = pool.error
+    ? { tone: 'fail', text: loc.privacy.badge_error }
     : busy
-      ? { label: loc.privacy.badge_working, tone: 'busy' }
+      ? { tone: 'idle', text: loc.privacy.badge_working }
       : !pool.open
-        ? { label: loc.privacy.badge_locked, tone: 'off' }
+        ? { tone: 'idle', text: loc.privacy.badge_locked }
         : pool.historyReady
-          ? { label: loc.privacy.badge_ready, tone: 'ok' }
-          : { label: loc.privacy.badge_read_only, tone: 'busy' };
+          ? { tone: 'ok', text: loc.privacy.badge_ready }
+          : { tone: 'idle', text: loc.privacy.badge_read_only };
 
   const summary = pool.open ? pool.summary : null;
-  const status = busy ? (
-    <ProgressLine text={pool.phase} seconds={elapsed} onCancel={lock} cancelLabel={loc.privacy.cancel} />
-  ) : summary?.tip ? (
-    <Hint lines={1}>{pool.sync.syncing ? loc.privacy.refreshing : `${loc.privacy.synced_block} ${summary.tip.height}`}</Hint>
-  ) : null;
+  const pools = PRIVACY_POOLS.filter(entry => entry.runtime);
 
   return (
     <ScrollView
       ref={keyboard.scrollRef}
-      style={[styles.flex, { backgroundColor: t.colors.background, marginBottom: keyboard.bottomInset }]}
-      contentContainerStyle={[styles.content, { paddingBottom: (insets.bottom || 0) + 16 }]}
+      style={[styles.flex, { backgroundColor: p.ground, marginBottom: keyboard.bottomInset }]}
+      contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
       onLayout={keyboard.onLayout}
       onScroll={keyboard.onScroll}
       scrollEventThrottle={16}
     >
-      <Card badge={<Badge label={badge.label} tone={badge.tone} />}>
-        <View style={styles.titleRow}>
-          <Text style={[styles.title, t.text]}>{loc.privacy.title}</Text>
-          <Text style={[styles.subtitle, t.subtext]}>{` — ${runtime.generation}`}</Text>
-          <TestBadge label="TEST" />
+      <Card testID="PrivacyHero">
+        <View style={styles.head}>
+          <SettingsIconCircle icon="shield" />
+          <View style={styles.headTexts}>
+            <View style={styles.titleRow}>
+              <Text style={[styles.title, { color: p.ink }]} accessibilityRole="header">
+                {loc.privacy.title}
+              </Text>
+              <SettingsBadge label="TEST" />
+            </View>
+            <SettingsStatusLine tone={state.tone} text={state.text} busy={busy} testID="PrivacyState" />
+          </View>
+          <RoundButton icon="settings" label={loc.privacy.settings} onPress={() => setSettings(true)} testID="PrivacySettings" />
         </View>
 
-        <ChipRow>
-          {PRIVACY_POOLS.filter(p => p.runtime).map(p => (
-            <Chip
-              key={p.id}
-              label={poolLabel(p.id)}
-              active={p.id === poolId}
-              disabled={busy || pending}
-              onPress={() => onPool(p.id)}
-              testID={`PrivacyPool-${p.id}`}
-            />
-          ))}
-        </ChipRow>
+        {pools.length > 1 ? (
+          <ChipRow>
+            {pools.map(entry => (
+              <Chip
+                key={entry.id}
+                label={poolLabel(entry.id)}
+                active={entry.id === poolId}
+                disabled={busy || pending}
+                onPress={() => onPool(entry.id)}
+                testID={`PrivacyPool-${entry.id}`}
+              />
+            ))}
+          </ChipRow>
+        ) : null}
 
-        <View style={styles.section}>
-          <Label>{loc.privacy.private_balance}</Label>
-          <Text style={[styles.balance, t.text]} numberOfLines={1} adjustsFontSizeToFit>
-            {summary ? `${formatXna(summary.balanceAtomic)} ${unit}` : '—'}
+        <View style={[styles.balanceBlock, { borderTopColor: p.divider }]}>
+          <Label>{`${loc.privacy.private_balance} · ${runtime.generation}`}</Label>
+          <Text
+            style={[styles.balance, { color: summary ? p.ink : p.mutedOnCard }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            testID="PrivacyBalance"
+          >
+            {summary ? `${formatXna(summary.balanceAtomic)} ${unit}` : '— —'}
           </Text>
           {summary ? (
             <Hint
               lines={1}
-            >{`${loc.privacy.available} ${formatXna(summary.spendableAtomic)} · ${loc.privacy.notes_count} ${summary.notes.length}`}</Hint>
+            >{`${loc.privacy.available} ${formatXna(summary.spendableAtomic)} ${unit} · ${summary.notes.length} ${loc.privacy.notes_count}`}</Hint>
+          ) : (
+            <Hint>{loc.privacy.locked_hint}</Hint>
+          )}
+          {summary?.tip && !busy ? (
+            <View style={styles.syncRow}>
+              <Icon name={pool.sync.syncing ? 'sync' : 'check-circle-outline'} type="material" size={14} color={p.mutedOnCard} />
+              <Hint lines={1}>{pool.sync.syncing ? loc.privacy.refreshing : `${loc.privacy.synced_block} ${summary.tip.height}`}</Hint>
+            </View>
           ) : null}
         </View>
 
-        {pool.open ? (
-          <View style={styles.section}>
-            <Label>{loc.privacy.private_address}</Label>
-            <Text style={[styles.address, t.text]} numberOfLines={1} ellipsizeMode="middle">
-              {address || '—'}
-            </Text>
-            <View style={styles.addressActions}>
-              <ChipRow>
-                <Chip
-                  label={loc.privacy.copy}
-                  disabled={!address}
-                  onPress={() => Clipboard.setString(address)}
-                  testID="PrivacyCopyAddress"
-                />
-                <Chip label={showQr ? loc.privacy.hide_qr : loc.privacy.show_qr} disabled={!address} onPress={() => setShowQr(v => !v)} />
-                <Chip
-                  label={loc.privacy.new_address}
-                  disabled={busy || !pool.historyReady}
-                  onPress={() =>
-                    pool.run(loc.privacy.new_address, async token => {
-                      pool.update(await pool.requireClient().newAddress());
-                      pool.live(token);
-                      pool.setSaved(false);
-                    })
-                  }
-                />
-              </ChipRow>
-            </View>
-            {showQr && address ? (
-              <View style={styles.qr}>
-                <QRCode value={address} size={200} />
-              </View>
-            ) : null}
-            {!pool.historyReady ? (
-              <View style={styles.section}>
-                <Hint>{loc.privacy.no_history}</Hint>
-                <View style={styles.addressActions}>
-                  <ChipRow>
-                    <Chip label={loc.privacy.restore_backup} disabled={busy} onPress={() => setSettings(true)} />
-                    <Chip
-                      label={loc.privacy.new_history}
-                      disabled={busy}
-                      onPress={() => pool.run(loc.privacy.opening, () => pool.unlock({ create: true, zkPassphrase }))}
-                    />
-                  </ChipRow>
-                </View>
-              </View>
-            ) : null}
-          </View>
-        ) : (
-          <View style={styles.section}>
-            <PrimaryButton title={loc.privacy.open_wallet} onPress={unlock} disabled={!pool.valid} busy={busy} testID="PrivacyOpen" />
-          </View>
-        )}
-
-        <View style={styles.footer}>
-          <View style={styles.flex}>{status}</View>
-          <IconButton name="settings" label={loc.privacy.settings} onPress={() => setSettings(true)} testID="PrivacySettings" />
-        </View>
+        {busy ? <ProgressLine text={pool.phase} seconds={elapsed} onCancel={lock} cancelLabel={loc.privacy.cancel} /> : null}
+        {!pool.open ? (
+          <PrimaryButton
+            title={loc.privacy.open_wallet}
+            icon="lock-open"
+            onPress={unlock}
+            disabled={!pool.valid}
+            busy={busy}
+            testID="PrivacyOpen"
+          />
+        ) : null}
         {pool.blockedReason ? <ErrorBox message={pool.blockedReason} /> : null}
         {pool.error ? <ErrorBox message={pool.error} /> : null}
       </Card>
 
-      {pool.open ? (
-        <View style={styles.section}>
-          <C6OperationsPanel wallet={wallet} pool={pool} ops={ops} />
+      {pool.open && !pool.historyReady ? (
+        <View style={[styles.notice, { backgroundColor: p.warnBg, borderColor: p.warnBorder }]} accessibilityLiveRegion="polite">
+          <View style={styles.noticeHead}>
+            <View style={[styles.noticeIcon, { backgroundColor: p.warnIconBg }]}>
+              <Icon name="history" type="material" size={20} color={p.accentText} />
+            </View>
+            <Text style={[styles.noticeText, { color: p.ink }]}>{loc.privacy.no_history}</Text>
+          </View>
+          <View style={styles.noticeButtons}>
+            <View style={styles.flex}>
+              <SettingsButton
+                title={loc.privacy.restore_backup}
+                onPress={() => setSettings(true)}
+                disabled={busy}
+                variant="secondary"
+                icon="restore"
+              />
+            </View>
+            <View style={styles.flex}>
+              <SettingsButton title={loc.privacy.new_history} onPress={startNewHistory} disabled={busy} icon="add" />
+            </View>
+          </View>
         </View>
       ) : null}
 
+      {pool.open ? (
+        <View>
+          <SettingsSectionLabel>{loc.privacy.private_address}</SettingsSectionLabel>
+          <Card testID="PrivacyAddressCard">
+            <Text style={[styles.address, { color: address ? p.ink : p.mutedOnCard }]} selectable testID="PrivacyAddress">
+              {address || '—'}
+            </Text>
+            <View style={styles.actions}>
+              <SettingsPillButton
+                icon={copied ? 'check' : 'content-copy'}
+                title={copied ? loc.privacy.copied : loc.privacy.copy}
+                onPress={copyAddress}
+                disabled={!address}
+                testID="PrivacyCopyAddress"
+              />
+              <SettingsPillButton
+                icon="qr-code-2"
+                title={showQr ? loc.privacy.hide_qr : loc.privacy.show_qr}
+                onPress={() => setShowQr(value => !value)}
+                disabled={!address}
+                testID="PrivacyToggleQr"
+              />
+              <SettingsPillButton
+                icon="autorenew"
+                title={loc.privacy.new_address}
+                onPress={newAddress}
+                disabled={busy || !pool.historyReady}
+                testID="PrivacyNewAddress"
+              />
+            </View>
+            {showQr && address ? (
+              <View style={[styles.qrPanel, { backgroundColor: p.ground }]}>
+                <View style={styles.qrTile} accessible accessibilityLabel={`${loc.privacy.show_qr}: ${address}`}>
+                  <QrStaggerReveal size={QR_SIZE} maskColor="#FFFFFF" runKey={address}>
+                    <QRCode value={address} size={QR_SIZE} />
+                  </QrStaggerReveal>
+                </View>
+              </View>
+            ) : null}
+          </Card>
+        </View>
+      ) : null}
+
+      {pool.open ? <C6OperationsPanel wallet={wallet} pool={pool} ops={ops} /> : null}
+
       {pool.open && pool.operations.length ? (
-        <View style={styles.section}>
-          <Card>
-            <Text style={[styles.cardTitle, t.text]}>{loc.privacy.activity}</Text>
+        <View>
+          <SettingsSectionLabel>{loc.privacy.activity}</SettingsSectionLabel>
+          <SettingsCard testID="PrivacyActivity">
             {pool.operations
               .slice()
               .reverse()
               .slice(0, 8)
-              .map(op => (
-                <View key={op.id} style={styles.activityRow}>
-                  <View style={styles.flex}>
-                    <Text style={[styles.activityTitle, t.text]}>{`${actionLabel(op.action)} · ${opStatus(op)}`}</Text>
-                    <Text style={[styles.activityId, t.subtext]} numberOfLines={1} ellipsizeMode="middle">
-                      {op.txid ?? op.id}
-                    </Text>
+              .map((op, index) => {
+                const canResume = !op.outcome && op.phase === 'prepared' && !published.has(op.txid ?? '');
+                const canRelease = !op.outcome && op.phase === 'draft';
+                const status = opStatus(op);
+                return (
+                  <View
+                    key={op.id}
+                    style={[styles.activityRow, index > 0 && { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: p.divider }]}
+                  >
+                    <SettingsIconCircle icon={ACTION_ICON[op.action] ?? 'sync-alt'} muted={!!op.outcome} />
+                    <View style={styles.flex} accessible accessibilityLabel={`${actionLabel(op.action)}, ${status}`}>
+                      <Text style={[styles.activityTitle, { color: p.ink }]}>{actionLabel(op.action)}</Text>
+                      <Text style={[styles.activityStatus, { color: p.mutedOnCard }]} numberOfLines={1}>
+                        {status}
+                      </Text>
+                      <Text style={[styles.activityId, { color: p.mutedOnCard }]} numberOfLines={1} ellipsizeMode="middle">
+                        {op.txid ?? op.id}
+                      </Text>
+                    </View>
+                    {canResume ? (
+                      <Chip label={loc.privacy.resume} icon="play-arrow" disabled={busy || pending} onPress={() => ops.resumeXna(op.id)} />
+                    ) : null}
+                    {canRelease ? (
+                      <Chip label={loc.privacy.release} icon="undo" disabled={busy} onPress={() => ops.releaseDraft(op.id)} />
+                    ) : null}
                   </View>
-                  {!op.outcome && op.phase === 'prepared' && !published.has(op.txid ?? '') ? (
-                    <Chip label={loc.privacy.resume} disabled={busy || pending} onPress={() => ops.resumeXna(op.id)} />
-                  ) : null}
-                  {!op.outcome && op.phase === 'draft' ? (
-                    <Chip label={loc.privacy.release} disabled={busy} onPress={() => ops.releaseDraft(op.id)} />
-                  ) : null}
-                </View>
-              ))}
-          </Card>
+                );
+              })}
+          </SettingsCard>
         </View>
       ) : null}
 
@@ -300,18 +377,25 @@ export default function PrivacySection({ walletID, hidden = false }: { walletID:
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   hidden: { display: 'none' },
-  content: { padding: 16 },
-  section: { marginTop: 14 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', columnGap: 4, marginBottom: 12, paddingRight: 70 },
+  content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24, rowGap: 20 },
+  head: { flexDirection: 'row', alignItems: 'center', columnGap: 12 },
+  headTexts: { flex: 1, rowGap: 4 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: 8, rowGap: 4 },
   title: { fontSize: 18, fontWeight: '700' },
-  subtitle: { fontSize: 13, fontWeight: '600', fontStyle: 'italic', marginRight: 4 },
-  balance: { fontSize: 26, fontWeight: '700' },
-  address: { fontSize: 14, fontWeight: '600' },
-  addressActions: { marginTop: 10 },
-  qr: { alignItems: 'center', marginTop: 14 },
-  footer: { flexDirection: 'row', alignItems: 'center', columnGap: 8, marginTop: 8 },
-  cardTitle: { fontSize: 15, fontWeight: '700', marginBottom: 4 },
-  activityRow: { flexDirection: 'row', alignItems: 'center', columnGap: 8, marginTop: 10 },
-  activityTitle: { fontSize: 13, fontWeight: '600' },
-  activityId: { fontSize: 11, fontFamily: 'monospace' },
+  balanceBlock: { borderTopWidth: StyleSheet.hairlineWidth * 2, paddingTop: 14, rowGap: 4 },
+  balance: { fontSize: 32, fontWeight: '700', letterSpacing: -0.5 },
+  syncRow: { flexDirection: 'row', alignItems: 'center', columnGap: 6, marginTop: 2 },
+  notice: { borderRadius: 24, borderWidth: 1, padding: 16, rowGap: 14 },
+  noticeHead: { flexDirection: 'row', alignItems: 'flex-start', columnGap: 12 },
+  noticeIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  noticeText: { flex: 1, fontSize: 14, lineHeight: 20 },
+  noticeButtons: { flexDirection: 'row', columnGap: 10 },
+  address: { fontFamily: 'monospace', fontSize: 14, lineHeight: 20 },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  qrPanel: { alignItems: 'center', borderRadius: 20, paddingVertical: 16 },
+  qrTile: { backgroundColor: '#FFFFFF', borderRadius: 18, padding: 8 },
+  activityRow: { flexDirection: 'row', alignItems: 'center', columnGap: 12, minHeight: 68, paddingVertical: 10 },
+  activityTitle: { fontSize: 15, fontWeight: '600' },
+  activityStatus: { fontSize: 13, marginTop: 1 },
+  activityId: { fontSize: 11, fontFamily: 'monospace', marginTop: 1 },
 });

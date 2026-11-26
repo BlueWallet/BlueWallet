@@ -1,8 +1,8 @@
 /**
- * Building blocks of the privacy tab, in the DePIN section's visual language:
- * cards with a corner badge, rounded chips, folder tabs over a panel, the
- * orange primary button and outlined secondary buttons, a stepped slider and a
- * segmented control for quick values.
+ * Building blocks of the privacy tab, in the settings' style: white cards on
+ * the home ground, fields and choices in the ground's colour inside them, the
+ * deep orange for the action that moves things forward, a stepped slider for
+ * the fee and a segmented control for quick values.
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -11,108 +11,70 @@ import {
   Animated,
   PanResponder,
   Pressable,
+  StyleProp,
   StyleSheet,
   Text,
   TextInput,
   View,
+  ViewStyle,
   type KeyboardTypeOptions,
 } from 'react-native';
 
 import { triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
-import Icon from '../Icon';
-import { useTheme } from '../themes';
+import Icon, { MaterialIconName } from '../Icon';
+import { SettingsButton, SettingsCard, useSettingsPalette } from '../settings/SettingsUI';
 
-export const ACCENT = '#f97316';
-
-export function usePrivacyTheme() {
-  const { colors } = useTheme();
-  return useMemo(
-    () => ({
-      colors,
-      text: { color: colors.foregroundColor },
-      subtext: { color: colors.alternativeTextColor },
-      card: { backgroundColor: colors.inputBackgroundColor, borderColor: colors.formBorder },
-      chip: { backgroundColor: colors.inputBackgroundColor, borderColor: colors.formBorder },
-      chipActive: { backgroundColor: colors.elevated, borderColor: ACCENT },
-      panel: { backgroundColor: colors.elevated, borderColor: colors.formBorder },
-      tabLine: { borderColor: colors.formBorder },
-      input: { color: colors.foregroundColor, backgroundColor: colors.elevated, borderColor: colors.formBorder },
-      error: { color: colors.failedColor },
-      errorBox: { borderColor: colors.failedColor, backgroundColor: colors.redBG },
-      placeholder: colors.placeholderTextColor,
-      track: { backgroundColor: colors.formBorder },
-      stopIdle: { backgroundColor: colors.elevated, borderColor: colors.formBorder },
-      segmented: { backgroundColor: colors.inputBackgroundColor, borderColor: colors.formBorder },
-      segmentHighlight: { backgroundColor: colors.elevated, borderColor: colors.formBorder },
-    }),
-    [colors],
-  );
-}
-
-export function Card({ children, badge }: { children: React.ReactNode; badge?: React.ReactNode }) {
-  const t = usePrivacyTheme();
+/** White card with its content spaced out. */
+export function Card({ children, style, testID }: { children: React.ReactNode; style?: StyleProp<ViewStyle>; testID?: string }) {
   return (
-    <View style={[styles.card, t.card]}>
-      {badge}
+    <SettingsCard style={[styles.card, style]} testID={testID}>
       {children}
-    </View>
+    </SettingsCard>
   );
 }
 
-export type BadgeTone = 'ok' | 'busy' | 'off' | 'error';
-
-export function Badge({ label, tone }: { label: string; tone: BadgeTone }) {
-  const toneStyle =
-    tone === 'ok' ? styles.badgeOk : tone === 'busy' ? styles.badgeBusy : tone === 'error' ? styles.badgeError : styles.badgeOff;
-  return (
-    <View style={[styles.badge, toneStyle]}>
-      <Text style={styles.badgeText}>{label}</Text>
-    </View>
-  );
-}
-
-export function TestBadge({ label }: { label: string }) {
-  return (
-    <View style={styles.testBadge}>
-      <Text style={styles.testBadgeText}>{label}</Text>
-    </View>
-  );
-}
-
+/** Small uppercase label above a value or a field, inside a card. */
 export function Label({ children }: { children: React.ReactNode }) {
-  const t = usePrivacyTheme();
-  return <Text style={[styles.label, t.subtext]}>{children}</Text>;
+  const p = useSettingsPalette();
+  return <Text style={[styles.label, { color: p.mutedOnCard }]}>{children}</Text>;
 }
 
 export function Hint({ children, lines }: { children: React.ReactNode; lines?: number }) {
-  const t = usePrivacyTheme();
+  const p = useSettingsPalette();
   return (
-    <Text style={[styles.hint, t.subtext]} numberOfLines={lines}>
+    <Text style={[styles.hint, { color: p.mutedOnCard }]} numberOfLines={lines}>
       {children}
     </Text>
   );
 }
 
+/** A choice among a few (a note, a quick action): raised in orange when chosen. */
 export function Chip(props: {
   label: string;
   active?: boolean;
   disabled?: boolean;
   onPress?: () => void;
-  dot?: 'ok' | 'no';
+  icon?: MaterialIconName;
   testID?: string;
 }) {
-  const t = usePrivacyTheme();
+  const p = useSettingsPalette();
+  const color = props.active ? p.accentText : p.ink;
   return (
     <Pressable
       onPress={props.onPress}
       disabled={props.disabled || !props.onPress}
-      style={[styles.chip, props.active ? t.chipActive : t.chip, props.active && styles.chipActive, props.disabled && styles.muted]}
+      style={({ pressed }) => [
+        styles.chip,
+        { backgroundColor: props.active ? p.accentSoft : p.ground, borderColor: props.active ? p.accent : 'transparent' },
+        props.disabled && styles.muted,
+        pressed && styles.pressed,
+      ]}
       accessibilityRole="button"
       accessibilityState={{ selected: !!props.active, disabled: !!props.disabled }}
       testID={props.testID}
     >
-      {props.dot ? <View style={[styles.dot, props.dot === 'ok' ? styles.dotOk : styles.dotNo]} /> : null}
-      <Text style={[styles.chipText, t.text]} numberOfLines={1}>
+      {props.icon ? <Icon name={props.icon} type="material" size={16} color={color} /> : null}
+      <Text style={[styles.chipText, { color }]} numberOfLines={1}>
         {props.label}
       </Text>
     </Pressable>
@@ -123,94 +85,109 @@ export function ChipRow({ children }: { children: React.ReactNode }) {
   return <View style={styles.chipRow}>{children}</View>;
 }
 
-export function PrimaryButton(props: { title: string; onPress: () => void; disabled?: boolean; busy?: boolean; testID?: string }) {
-  const disabled = props.disabled || props.busy;
+export function PrimaryButton(props: {
+  title: string;
+  onPress: () => void;
+  disabled?: boolean;
+  busy?: boolean;
+  icon?: MaterialIconName;
+  testID?: string;
+}) {
   return (
-    <Pressable
+    <SettingsButton
+      title={props.title}
       onPress={props.onPress}
-      disabled={disabled}
-      style={[styles.primary, disabled && styles.primaryDisabled]}
-      accessibilityRole="button"
-      accessibilityState={{ disabled: !!disabled, busy: !!props.busy }}
+      disabled={props.disabled}
+      loading={props.busy}
+      icon={props.icon}
       testID={props.testID}
-    >
-      {props.busy ? <ActivityIndicator color="#ffffff" size="small" /> : null}
-      <Text style={styles.primaryText} numberOfLines={1}>
-        {props.title}
-      </Text>
-    </Pressable>
+    />
   );
 }
 
 export function OutlineButton(props: { title: string; onPress: () => void; disabled?: boolean; danger?: boolean; testID?: string }) {
-  const t = usePrivacyTheme();
   return (
-    <Pressable
+    <SettingsButton
+      title={props.title}
       onPress={props.onPress}
       disabled={props.disabled}
-      style={[styles.outline, t.chip, props.disabled && styles.muted]}
-      accessibilityRole="button"
-      accessibilityState={{ disabled: !!props.disabled }}
+      variant={props.danger ? 'danger' : 'secondary'}
       testID={props.testID}
-    >
-      <Text style={[styles.outlineText, props.danger ? t.error : t.text]} numberOfLines={1}>
-        {props.title}
-      </Text>
-    </Pressable>
+    />
   );
 }
 
-export function IconButton(props: { name: string; onPress: () => void; label: string; disabled?: boolean; testID?: string }) {
+/** 44-point round button with an icon. */
+export function RoundButton(props: {
+  icon: MaterialIconName;
+  label: string;
+  onPress: () => void;
+  disabled?: boolean;
+  /** `ground` inside a card (the default), `card` on the screen ground. */
+  surface?: 'ground' | 'card';
+  testID?: string;
+}) {
+  const p = useSettingsPalette();
   return (
     <Pressable
       onPress={props.onPress}
       disabled={props.disabled}
-      style={[styles.iconButton, props.disabled && styles.muted]}
       accessibilityRole="button"
       accessibilityLabel={props.label}
-      hitSlop={8}
+      accessibilityState={{ disabled: !!props.disabled }}
+      hitSlop={4}
       testID={props.testID}
+      style={({ pressed }) => [
+        styles.round,
+        { backgroundColor: props.surface === 'card' ? p.card : p.ground },
+        props.disabled && styles.muted,
+        pressed && styles.pressed,
+      ]}
     >
-      <Icon name={props.name as never} type="material" size={22} color={ACCENT} />
+      <Icon name={props.icon} type="material" size={22} color={p.ink} />
     </Pressable>
   );
 }
 
-export function FolderTabs<K extends string>(props: {
-  tabs: Array<{ key: K; label: string }>;
+/** The operations, side by side with an icon each: the chosen one raised on the ground. */
+export function ActionTabs<K extends string>(props: {
+  tabs: Array<{ key: K; label: string; icon: MaterialIconName }>;
   value: K;
   onChange: (key: K) => void;
   disabled?: boolean;
-  children: React.ReactNode;
 }) {
-  const t = usePrivacyTheme();
+  const p = useSettingsPalette();
   return (
-    <View>
-      <View style={styles.tabsRow}>
-        <View style={[styles.tabFill, styles.tabFillLead, t.tabLine]} />
-        {props.tabs.map(tab => {
-          const selected = tab.key === props.value;
-          return (
-            <Pressable
-              key={tab.key}
-              onPress={() => props.onChange(tab.key)}
-              disabled={props.disabled}
-              style={
-                selected ? [styles.tab, t.panel, styles.tabActive] : [styles.tab, styles.tabIdle, t.tabLine, props.disabled && styles.muted]
-              }
-              accessibilityRole="tab"
-              accessibilityState={{ selected, disabled: !!props.disabled }}
-              testID={`PrivacyTab-${tab.key}`}
-            >
-              <Text style={[styles.tabText, selected ? t.text : t.subtext]} numberOfLines={1}>
-                {tab.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-        <View style={[styles.tabFill, styles.flex, t.tabLine]} />
-      </View>
-      <View style={[styles.panel, t.panel]}>{props.children}</View>
+    <View style={[styles.tabs, { backgroundColor: p.card }]} accessibilityRole="tablist">
+      {props.tabs.map(tab => {
+        const selected = tab.key === props.value;
+        const color = selected ? p.accentText : p.mutedOnCard;
+        return (
+          <Pressable
+            key={tab.key}
+            onPress={() => {
+              if (!selected) triggerSelectionHapticFeedback();
+              props.onChange(tab.key);
+            }}
+            disabled={props.disabled}
+            style={({ pressed }) => [
+              styles.tab,
+              selected && { backgroundColor: p.accentSoft },
+              props.disabled && !selected && styles.muted,
+              pressed && !selected && styles.pressed,
+            ]}
+            accessibilityRole="tab"
+            accessibilityLabel={tab.label}
+            accessibilityState={{ selected, disabled: !!props.disabled }}
+            testID={`PrivacyTab-${tab.key}`}
+          >
+            <Icon name={tab.icon} type="material" size={22} color={color} />
+            <Text style={[styles.tabText, { color }]} numberOfLines={1}>
+              {tab.label}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
@@ -228,45 +205,48 @@ export function Field(props: {
   labelRight?: string;
   /** Small action inside the field, after the suffix (e.g. fill the maximum). */
   action?: { label: string; onPress: () => void; disabled?: boolean };
+  /** Addresses and other codes: monospace, smaller. */
+  mono?: boolean;
   testID?: string;
 }) {
-  const t = usePrivacyTheme();
+  const p = useSettingsPalette();
   return (
     <View style={styles.field}>
-      {props.labelRight ? (
-        <View style={styles.labelRow}>
-          <Text style={[styles.labelInline, t.subtext]}>{props.label}</Text>
-          <Text style={[styles.labelInline, t.subtext]} numberOfLines={1}>
+      <View style={styles.labelRow}>
+        <Text style={[styles.label, { color: p.mutedOnCard }]}>{props.label}</Text>
+        {props.labelRight ? (
+          <Text style={[styles.labelRight, { color: p.mutedOnCard }]} numberOfLines={1}>
             {props.labelRight}
           </Text>
-        </View>
-      ) : (
-        <Label>{props.label}</Label>
-      )}
-      <View style={[styles.inputRow, t.input]}>
+        ) : null}
+      </View>
+      <View style={[styles.inputRow, { backgroundColor: p.ground }, props.editable === false && styles.muted]}>
         <TextInput
-          style={[styles.input, t.text]}
+          style={[styles.input, props.mono && styles.inputMono, { color: p.ink }]}
           value={props.value}
           onChangeText={props.onChangeText}
           editable={props.editable !== false}
           secureTextEntry={props.secure}
           placeholder={props.placeholder}
-          placeholderTextColor={t.placeholder}
+          placeholderTextColor={p.mutedOnCard}
+          selectionColor={p.accent}
           keyboardType={props.keyboardType}
           autoCapitalize="none"
           autoCorrect={false}
+          accessibilityLabel={props.label}
+          underlineColorAndroid="transparent"
           testID={props.testID}
         />
-        {props.suffix ? <Text style={[styles.suffix, t.subtext]}>{props.suffix}</Text> : null}
+        {props.suffix ? <Text style={[styles.suffix, { color: p.mutedOnCard }]}>{props.suffix}</Text> : null}
         {props.action ? (
           <Pressable
             onPress={props.action.onPress}
             disabled={props.action.disabled}
-            style={[styles.fieldAction, props.action.disabled && styles.muted]}
+            style={[styles.fieldAction, { backgroundColor: p.accentSoft }, props.action.disabled && styles.muted]}
             accessibilityRole="button"
             hitSlop={6}
           >
-            <Text style={styles.fieldActionText}>{props.action.label}</Text>
+            <Text style={[styles.fieldActionText, { color: p.accentText }]}>{props.action.label}</Text>
           </Pressable>
         ) : null}
       </View>
@@ -274,10 +254,10 @@ export function Field(props: {
   );
 }
 
-const THUMB = 22;
+const THUMB = 24;
 const STOP = 10;
-const SLIDER_HEIGHT = 30;
-const SEGMENT_PAD = 3;
+const SLIDER_HEIGHT = 36;
+const SEGMENT_PAD = 4;
 
 /**
  * Stepped slider for a few levels (the network fee): a thin track with one
@@ -296,7 +276,7 @@ export function StepSlider(props: {
   disabled?: boolean;
   testID?: string;
 }) {
-  const t = usePrivacyTheme();
+  const p = useSettingsPalette();
   const { levels, value, onChange, disabled } = props;
   const formatStop = props.formatStop ?? props.format;
   const selected = levels.indexOf(value);
@@ -336,11 +316,12 @@ export function StepSlider(props: {
 
   const offset = Animated.multiply(position, step);
   const valueText = selected >= 0 ? props.format(value) : '—';
+  const track = p.dark ? '#374151' : '#e5e7eb';
   return (
     <View style={disabled && styles.muted}>
       <View style={styles.labelRow}>
-        <Text style={[styles.labelInline, t.subtext]}>{props.label}</Text>
-        <Text style={styles.sliderValue}>{valueText}</Text>
+        <Text style={[styles.label, { color: p.mutedOnCard }]}>{props.label}</Text>
+        <Text style={[styles.sliderValue, { color: p.accentText }]}>{valueText}</Text>
       </View>
       {levels.length > 1 ? (
         <>
@@ -360,18 +341,25 @@ export function StepSlider(props: {
             }}
             testID={props.testID}
           >
-            <View pointerEvents="none" style={[styles.sliderTrack, t.track]} />
-            <Animated.View pointerEvents="none" style={[styles.sliderFill, { width: offset }]} />
+            <View pointerEvents="none" style={[styles.sliderTrack, { backgroundColor: track }]} />
+            <Animated.View pointerEvents="none" style={[styles.sliderFill, { width: offset, backgroundColor: p.accent }]} />
             {width > 0
               ? levels.map((level, i) => (
                   <View
                     key={level}
                     pointerEvents="none"
-                    style={[styles.sliderStop, i <= index ? styles.sliderStopOn : t.stopIdle, { left: THUMB / 2 + i * step - STOP / 2 }]}
+                    style={[
+                      styles.sliderStop,
+                      i <= index ? { backgroundColor: p.accent, borderColor: p.accent } : { backgroundColor: p.card, borderColor: track },
+                      { left: THUMB / 2 + i * step - STOP / 2 },
+                    ]}
                   />
                 ))
               : null}
-            <Animated.View pointerEvents="none" style={[styles.sliderThumb, { transform: [{ translateX: offset }] }]} />
+            <Animated.View
+              pointerEvents="none"
+              style={[styles.sliderThumb, { borderColor: p.accent, transform: [{ translateX: offset }] }]}
+            />
           </View>
           <View style={styles.sliderLabels}>
             {levels.map((level, i) => (
@@ -379,7 +367,7 @@ export function StepSlider(props: {
                 key={level}
                 style={[
                   styles.sliderLabel,
-                  i === index ? [styles.sliderLabelOn, t.text] : t.subtext,
+                  i === index ? [styles.sliderLabelOn, { color: p.ink }] : { color: p.mutedOnCard },
                   i === 0
                     ? styles.sliderLabelFirst
                     : i === levels.length - 1
@@ -409,7 +397,7 @@ export function Segmented(props: {
   disabled?: boolean;
   testID?: string;
 }) {
-  const t = usePrivacyTheme();
+  const p = useSettingsPalette();
   const index = props.options.findIndex(o => o.value === props.value);
   const [width, setWidth] = useState(0);
   const segment = props.options.length ? Math.max(0, width - 2 * SEGMENT_PAD) / props.options.length : 0;
@@ -421,8 +409,9 @@ export function Segmented(props: {
   }, [index, position, shown]);
   return (
     <View
-      style={[styles.segmented, t.segmented, props.disabled && styles.muted]}
+      style={[styles.segmented, { backgroundColor: p.ground }, props.disabled && styles.muted]}
       onLayout={event => setWidth(event.nativeEvent.layout.width)}
+      accessibilityRole="radiogroup"
       testID={props.testID}
     >
       {segment > 0 ? (
@@ -430,8 +419,7 @@ export function Segmented(props: {
           pointerEvents="none"
           style={[
             styles.segmentHighlight,
-            t.segmentHighlight,
-            { width: segment, opacity: shown, transform: [{ translateX: Animated.multiply(position, segment) }] },
+            { backgroundColor: p.card, width: segment, opacity: shown, transform: [{ translateX: Animated.multiply(position, segment) }] },
           ]}
         />
       ) : null}
@@ -444,10 +432,13 @@ export function Segmented(props: {
             if (option.value !== props.value) triggerSelectionHapticFeedback();
             props.onChange(option.value);
           }}
-          accessibilityRole="button"
-          accessibilityState={{ selected: i === index, disabled: !!props.disabled }}
+          accessibilityRole="radio"
+          accessibilityState={{ checked: i === index, disabled: !!props.disabled }}
         >
-          <Text style={[styles.segmentText, i === index ? styles.segmentTextOn : t.subtext]} numberOfLines={1}>
+          <Text
+            style={[styles.segmentText, { color: i === index ? p.accentText : p.mutedOnCard }, i === index && styles.segmentTextOn]}
+            numberOfLines={1}
+          >
             {option.label}
           </Text>
         </Pressable>
@@ -456,7 +447,7 @@ export function Segmented(props: {
   );
 }
 
-/** One-line status of a running job: spinner, short phase, seconds and a cancel button. */
+/** Status of a running job: spinner, short phase, seconds and a cancel button. */
 export function ProgressLine({
   text,
   seconds,
@@ -468,39 +459,50 @@ export function ProgressLine({
   onCancel: () => void;
   cancelLabel: string;
 }) {
-  const t = usePrivacyTheme();
+  const p = useSettingsPalette();
   return (
-    <View style={styles.progress} accessibilityLiveRegion="polite">
-      <ActivityIndicator size="small" color={ACCENT} />
-      <Text style={[styles.progressText, t.text]} numberOfLines={1}>
+    <View style={[styles.progress, { backgroundColor: p.ground }]} accessibilityLiveRegion="polite">
+      <ActivityIndicator size="small" color={p.accent} />
+      <Text style={[styles.progressText, { color: p.ink }]} numberOfLines={2}>
         {text}
       </Text>
-      <Text style={[styles.progressSeconds, t.subtext]}>{`${seconds}s`}</Text>
-      <Pressable onPress={onCancel} hitSlop={8} accessibilityRole="button" accessibilityLabel={cancelLabel}>
-        <Icon name="close" type="material" size={20} color={t.colors.alternativeTextColor} />
+      <Text style={[styles.progressSeconds, { color: p.mutedOnCard }]}>{`${seconds}s`}</Text>
+      <Pressable
+        onPress={onCancel}
+        hitSlop={10}
+        accessibilityRole="button"
+        accessibilityLabel={cancelLabel}
+        style={({ pressed }) => [styles.progressCancel, { backgroundColor: p.card }, pressed && styles.pressed]}
+      >
+        <Icon name="close" type="material" size={18} color={p.mutedOnCard} />
       </Pressable>
     </View>
   );
 }
 
 export function ErrorBox({ message }: { message: string }) {
-  const t = usePrivacyTheme();
+  const p = useSettingsPalette();
   return (
-    <View style={[styles.errorBox, t.errorBox]} accessibilityRole="alert">
-      <Text style={[styles.errorText, t.error]} numberOfLines={5}>
+    <View style={[styles.errorBox, { backgroundColor: p.fail.bg }]} accessibilityRole="alert">
+      <Icon name="error-outline" type="material" size={18} color={p.fail.fg} />
+      <Text style={[styles.errorText, { color: p.fail.fg }]} numberOfLines={6}>
         {message}
       </Text>
     </View>
   );
 }
 
-/** Label / value line for summaries. */
-export function InfoRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
-  const t = usePrivacyTheme();
+/** Label / value line for summaries; `divider` when it follows another. */
+export function InfoRow({ label, value, mono, divider }: { label: string; value: string; mono?: boolean; divider?: boolean }) {
+  const p = useSettingsPalette();
   return (
-    <View style={styles.infoRow}>
-      <Text style={[styles.infoLabel, t.subtext]}>{label}</Text>
-      <Text style={[mono ? styles.infoMono : styles.infoValue, t.text]} numberOfLines={1} ellipsizeMode="middle">
+    <View
+      style={[styles.infoRow, divider && { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: p.divider }]}
+      accessible
+      accessibilityLabel={`${label}: ${value}`}
+    >
+      <Text style={[styles.infoLabel, { color: p.mutedOnCard }]}>{label}</Text>
+      <Text style={[mono ? styles.infoMono : styles.infoValue, { color: p.ink }]} numberOfLines={1} ellipsizeMode="middle">
         {value}
       </Text>
     </View>
@@ -508,88 +510,41 @@ export function InfoRow({ label, value, mono }: { label: string; value: string; 
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
   muted: { opacity: 0.5 },
-  card: { padding: 14, borderRadius: 12, borderWidth: 1, overflow: 'hidden' },
-  badge: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderBottomLeftRadius: 10,
-    zIndex: 1,
-  },
-  badgeOk: { backgroundColor: '#16a34a' },
-  badgeBusy: { backgroundColor: '#f59e0b' },
-  badgeOff: { backgroundColor: '#6b7280' },
-  badgeError: { backgroundColor: '#dc2626' },
-  badgeText: { color: '#ffffff', fontSize: 12, fontWeight: '700', letterSpacing: 0.5 },
-  testBadge: { backgroundColor: '#f59e0b', borderRadius: 6, paddingHorizontal: 5, paddingVertical: 1 },
-  testBadgeText: { color: '#ffffff', fontSize: 9, fontWeight: '800', letterSpacing: 0.5 },
-  label: { fontSize: 12, fontWeight: '600', marginBottom: 4 },
-  labelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', columnGap: 12, marginBottom: 4 },
-  labelInline: { fontSize: 12, fontWeight: '600', flexShrink: 1 },
-  hint: { fontSize: 12, lineHeight: 17 },
+  pressed: { opacity: 0.6 },
+  card: { paddingVertical: 16, rowGap: 14 },
+  label: { fontSize: 12, fontWeight: '600', letterSpacing: 0.6, textTransform: 'uppercase', flexShrink: 1 },
+  labelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', columnGap: 12, marginBottom: 6 },
+  labelRight: { fontSize: 12, fontWeight: '600', flexShrink: 1 },
+  hint: { fontSize: 13, lineHeight: 18 },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  round: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
     columnGap: 6,
+    minHeight: 40,
     paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 16,
-    borderWidth: 1,
+    borderRadius: 20,
+    borderWidth: 1.5,
     maxWidth: '100%',
   },
-  chipActive: { borderWidth: 1.5 },
-  chipText: { fontSize: 13, fontWeight: '600', flexShrink: 1 },
-  dot: { width: 8, height: 8, borderRadius: 4 },
-  dotOk: { backgroundColor: '#16a34a' },
-  dotNo: { backgroundColor: '#dc2626' },
-  primary: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    columnGap: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 18,
-    borderRadius: 10,
-    backgroundColor: ACCENT,
-  },
-  primaryDisabled: { opacity: 0.45 },
-  primaryText: { color: '#ffffff', fontSize: 15, fontWeight: '700' },
-  outline: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 10, borderWidth: 1, alignItems: 'center' },
-  outlineText: { fontSize: 14, fontWeight: '700' },
-  iconButton: { padding: 6 },
-  tabsRow: { flexDirection: 'row', alignItems: 'flex-end' },
-  tabFill: { borderBottomWidth: 1 },
-  tabFillLead: { width: 10 },
-  tab: { paddingHorizontal: 12, borderTopLeftRadius: 10, borderTopRightRadius: 10 },
-  tabActive: { paddingTop: 8, paddingBottom: 11, borderLeftWidth: 1, borderRightWidth: 1, borderTopWidth: 3, borderTopColor: ACCENT },
-  tabIdle: { paddingTop: 6, paddingBottom: 8, borderBottomWidth: 1 },
-  tabText: { fontSize: 14, fontWeight: '700' },
-  panel: {
-    padding: 14,
-    rowGap: 12,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderBottomWidth: 1,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
-  },
+  chipText: { fontSize: 14, fontWeight: '600', flexShrink: 1 },
+  tabs: { flexDirection: 'row', columnGap: 4, padding: 6, borderRadius: 24 },
+  tab: { flex: 1, minHeight: 60, borderRadius: 18, alignItems: 'center', justifyContent: 'center', rowGap: 4, paddingHorizontal: 2 },
+  tabText: { fontSize: 13, fontWeight: '700' },
   field: { flexGrow: 1 },
-  inputRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 10, paddingHorizontal: 12 },
-  input: { flex: 1, fontSize: 15, paddingVertical: 9 },
-  suffix: { fontSize: 13, fontWeight: '600', marginLeft: 8 },
-  fieldAction: { marginLeft: 10, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, backgroundColor: 'rgba(249, 115, 22, 0.14)' },
-  fieldActionText: { color: ACCENT, fontSize: 12, fontWeight: '700' },
-  sliderValue: { color: ACCENT, fontSize: 14, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  inputRow: { flexDirection: 'row', alignItems: 'center', borderRadius: 16, minHeight: 50, paddingHorizontal: 14 },
+  input: { flex: 1, fontSize: 16, paddingVertical: 12 },
+  inputMono: { fontFamily: 'monospace', fontSize: 14 },
+  suffix: { fontSize: 14, fontWeight: '600', marginLeft: 8 },
+  fieldAction: { marginLeft: 10, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
+  fieldActionText: { fontSize: 13, fontWeight: '700' },
+  sliderValue: { fontSize: 14, fontWeight: '700', fontVariant: ['tabular-nums'] },
   sliderArea: { height: SLIDER_HEIGHT, justifyContent: 'center' },
   sliderTrack: { position: 'absolute', left: THUMB / 2, right: THUMB / 2, top: (SLIDER_HEIGHT - 4) / 2, height: 4, borderRadius: 2 },
-  sliderFill: { position: 'absolute', left: THUMB / 2, top: (SLIDER_HEIGHT - 4) / 2, height: 4, borderRadius: 2, backgroundColor: ACCENT },
+  sliderFill: { position: 'absolute', left: THUMB / 2, top: (SLIDER_HEIGHT - 4) / 2, height: 4, borderRadius: 2 },
   sliderStop: { position: 'absolute', top: (SLIDER_HEIGHT - STOP) / 2, width: STOP, height: STOP, borderRadius: STOP / 2, borderWidth: 2 },
-  sliderStopOn: { backgroundColor: ACCENT, borderColor: ACCENT },
   sliderThumb: {
     position: 'absolute',
     left: 0,
@@ -598,8 +553,7 @@ const styles = StyleSheet.create({
     height: THUMB,
     borderRadius: THUMB / 2,
     backgroundColor: '#ffffff',
-    borderWidth: 2,
-    borderColor: ACCENT,
+    borderWidth: 3,
     elevation: 3,
     shadowColor: '#000000',
     shadowOpacity: 0.18,
@@ -611,30 +565,45 @@ const styles = StyleSheet.create({
   sliderLabelOn: { fontWeight: '700' },
   sliderLabelFirst: { left: 0, textAlign: 'left' },
   sliderLabelLast: { right: 0, textAlign: 'right' },
-  segmented: { flexDirection: 'row', borderWidth: 1, borderRadius: 10, padding: SEGMENT_PAD },
+  segmented: { flexDirection: 'row', borderRadius: 16, padding: SEGMENT_PAD },
   segmentHighlight: {
     position: 'absolute',
     top: SEGMENT_PAD,
     bottom: SEGMENT_PAD,
     left: SEGMENT_PAD,
-    borderRadius: 8,
-    borderWidth: 1,
-    elevation: 1,
-    shadowColor: '#000000',
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: '#111827',
+    shadowOpacity: 0.14,
+    shadowRadius: 3,
     shadowOffset: { width: 0, height: 1 },
   },
-  segment: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 7 },
-  segmentText: { fontSize: 13, fontWeight: '600', fontVariant: ['tabular-nums'] },
-  segmentTextOn: { color: ACCENT, fontWeight: '700' },
-  progress: { flexDirection: 'row', alignItems: 'center', columnGap: 8, marginTop: 10 },
-  progressText: { flex: 1, fontSize: 13, fontWeight: '600' },
-  progressSeconds: { fontSize: 12, fontVariant: ['tabular-nums'] },
-  errorBox: { borderWidth: 1, borderRadius: 10, padding: 10, marginTop: 10 },
-  errorText: { fontSize: 13, lineHeight: 18 },
-  infoRow: { flexDirection: 'row', justifyContent: 'space-between', columnGap: 12, marginTop: 6 },
-  infoLabel: { fontSize: 13 },
-  infoValue: { fontSize: 13, fontWeight: '600', flexShrink: 1, textAlign: 'right' },
+  segment: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 40 },
+  segmentText: { fontSize: 14, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  segmentTextOn: { fontWeight: '700' },
+  progress: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 10,
+    borderRadius: 18,
+    paddingLeft: 14,
+    paddingRight: 8,
+    paddingVertical: 8,
+  },
+  progressText: { flex: 1, fontSize: 14, fontWeight: '600' },
+  progressSeconds: { fontSize: 13, fontVariant: ['tabular-nums'] },
+  progressCancel: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  errorBox: { flexDirection: 'row', alignItems: 'flex-start', columnGap: 8, borderRadius: 16, padding: 12 },
+  errorText: { flex: 1, fontSize: 13, lineHeight: 18 },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    columnGap: 12,
+    minHeight: 44,
+    paddingVertical: 8,
+  },
+  infoLabel: { fontSize: 14, flexShrink: 0 },
+  infoValue: { fontSize: 14, fontWeight: '600', flexShrink: 1, textAlign: 'right' },
   infoMono: { fontSize: 12, fontFamily: 'monospace', flexShrink: 1, textAlign: 'right' },
 });

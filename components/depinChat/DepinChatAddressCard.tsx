@@ -11,15 +11,23 @@ import type { DepinChatIdentity } from '../../blue_modules/neurai/depinChatIdent
 import loc from '../../loc';
 import QRCode from '../QRCode';
 import QrStaggerReveal from '../QrStaggerReveal';
-import { SettingsBadge, SettingsCard, SettingsIconCircle, useSettingsPalette } from '../settings/SettingsUI';
-import { DepinStatusTone, PillButton, RoundIconButton, StatusLine } from './DepinUI';
+import {
+  SettingsBadge,
+  SettingsCard,
+  SettingsIconCircle,
+  SettingsPillButton,
+  SettingsStatusLine,
+  SettingsStatusTone,
+  useSettingsPalette,
+} from '../settings/SettingsUI';
+import { RoundIconButton } from './DepinUI';
 
 const QR_SIZE = 200;
 const COPIED_MS = 1_600;
 
 export type DepinReadiness = 'ready' | 'checking' | 'needs_reveal' | 'server_off';
 
-const READINESS: Record<DepinReadiness, { tone: DepinStatusTone; text: () => string }> = {
+const READINESS: Record<DepinReadiness, { tone: SettingsStatusTone; text: () => string }> = {
   ready: { tone: 'ok', text: () => loc.depin.status_ready },
   checking: { tone: 'idle', text: () => loc.depin.status_checking },
   needs_reveal: { tone: 'fail', text: () => loc.depin.status_needs_reveal },
@@ -64,7 +72,7 @@ const DepinChatAddressCard = ({ identity, readiness, onOpenServer }: DepinChatAd
             </Text>
             <SettingsBadge label={loc.depin.experimental} />
           </View>
-          <StatusLine tone={status.tone} text={status.text()} busy={readiness === 'checking'} testID="DepinReadiness" />
+          <SettingsStatusLine tone={status.tone} text={status.text()} busy={readiness === 'checking'} testID="DepinReadiness" />
         </View>
         <RoundIconButton icon="settings" label={loc.depin.server_title} onPress={onOpenServer} surface="ground" testID="DepinChatConfig" />
       </View>
@@ -79,13 +87,13 @@ const DepinChatAddressCard = ({ identity, readiness, onOpenServer }: DepinChatAd
         </Text>
         <Text style={[styles.path, { color: p.mutedOnCard }]}>{`${loc.depin.derivation_label}: ${identity.path}`}</Text>
         <View style={styles.actions}>
-          <PillButton
+          <SettingsPillButton
             icon={copied ? 'check' : 'content-copy'}
             title={copied ? loc.depin.copied : loc.depin.copy}
             onPress={copy}
             testID="DepinCopyAddress"
           />
-          <PillButton
+          <SettingsPillButton
             icon="qr-code-2"
             title={showQr ? loc.depin.hide_qr : loc.depin.show_qr}
             onPress={() => setShowQr(value => !value)}

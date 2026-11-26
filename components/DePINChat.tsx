@@ -38,7 +38,7 @@ import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
 import presentAlert from './Alert';
 import NeuraiLoader from './NeuraiLoader';
-import { useSettingsPalette } from './settings/SettingsUI';
+import { SettingsButton, useSettingsPalette } from './settings/SettingsUI';
 import { FUND_AMOUNT_XNA } from './depinChat/constants';
 import DepinChatAddressCard, { type DepinReadiness } from './depinChat/DepinChatAddressCard';
 import DepinChatContactsDrawer from './depinChat/DepinChatContactsDrawer';
@@ -47,7 +47,7 @@ import DepinChatConversationPanel from './depinChat/DepinChatConversationPanel';
 import DepinChatInfoModal from './depinChat/DepinChatInfoModal';
 import DepinChatRevealBanner from './depinChat/DepinChatRevealBanner';
 import DepinChatTokenSections, { type DepinSection } from './depinChat/DepinChatTokenSections';
-import { addressTag, CardButton } from './depinChat/DepinUI';
+import { addressTag } from './depinChat/DepinUI';
 import type { DePINChatHandle, DePINChatProps } from './depinChat/types';
 import Icon, { type MaterialIconName } from './Icon';
 
@@ -323,7 +323,7 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
         }
         return (
           <CenteredState icon="usb" text={loc.depin.device_connect_hint} error={deviceId.error ?? undefined}>
-            <CardButton
+            <SettingsButton
               title={loc.depin.device_connect_button}
               icon="usb"
               onPress={() => {

@@ -1,7 +1,8 @@
 /**
- * Operations of an opened private wallet as folder tabs (Deposit, Assign,
- * Withdraw, Join) with short forms; every transaction is reviewed before it
- * is published.
+ * Operations of an opened private wallet: Deposit, Assign, Withdraw and Join
+ * side by side with an icon each, the chosen one's short form in a card
+ * below, and every transaction reviewed in its own card before it is
+ * published.
  */
 
 import React from 'react';
@@ -13,21 +14,9 @@ import { AUTO_FEE } from '../../blue_modules/neurai/privacy/fees';
 import type { C6Action, C6Operations, TxPreview } from '../../hooks/useC6Operations';
 import type { C6PrivateWallet } from '../../hooks/useC6PrivateWallet';
 import loc from '../../loc';
-import {
-  Card,
-  Chip,
-  ChipRow,
-  Field,
-  FolderTabs,
-  Hint,
-  InfoRow,
-  Label,
-  OutlineButton,
-  PrimaryButton,
-  Segmented,
-  StepSlider,
-  usePrivacyTheme,
-} from './C6UI';
+import type { MaterialIconName } from '../Icon';
+import { SettingsIconCircle, SettingsSectionLabel, useSettingsPalette } from '../settings/SettingsUI';
+import { ActionTabs, Card, Chip, ChipRow, Field, Hint, InfoRow, Label, OutlineButton, PrimaryButton, Segmented, StepSlider } from './C6UI';
 
 export function actionLabel(action: string): string {
   switch (action) {
@@ -45,25 +34,34 @@ export function actionLabel(action: string): string {
 }
 
 function Review(props: { title: string; preview: TxPreview; unit: string; busy: boolean; onPublish: () => void; onCancel: () => void }) {
-  const t = usePrivacyTheme();
+  const p = useSettingsPalette();
+  const rows: Array<[string, string, boolean?]> = [];
+  if (props.preview.form) rows.push([loc.privacy.circuit, props.preview.form]);
+  if (props.preview.amount) rows.push([loc.privacy.amount, `${props.preview.amount} ${props.unit}`]);
+  rows.push([loc.privacy.network_fee, `${props.preview.fee} XNA`]);
+  rows.push(['TxID', props.preview.txid, true]);
   return (
-    <View style={styles.review}>
-      <Card>
-        <Text style={[styles.reviewTitle, t.text]}>{props.title}</Text>
-        {props.preview.form ? <InfoRow label={loc.privacy.circuit} value={props.preview.form} /> : null}
-        {props.preview.amount ? <InfoRow label={loc.privacy.amount} value={`${props.preview.amount} ${props.unit}`} /> : null}
-        <InfoRow label={loc.privacy.network_fee} value={`${props.preview.fee} XNA`} />
-        <InfoRow label="TxID" value={props.preview.txid} mono />
-        <View style={styles.reviewButtons}>
-          <View style={styles.flex}>
-            <OutlineButton title={loc.privacy.cancel} onPress={props.onCancel} disabled={props.busy} />
-          </View>
-          <View style={styles.flex}>
-            <PrimaryButton title={loc.privacy.publish} onPress={props.onPublish} busy={props.busy} testID="PrivacyPublish" />
-          </View>
+    <Card testID="PrivacyReview">
+      <View style={styles.reviewHead} accessibilityLiveRegion="polite">
+        <SettingsIconCircle icon="fact-check" />
+        <Text style={[styles.reviewTitle, { color: p.ink }]} accessibilityRole="header">
+          {props.title}
+        </Text>
+      </View>
+      <View style={[styles.reviewTable, { backgroundColor: p.ground }]}>
+        {rows.map(([label, value, mono], index) => (
+          <InfoRow key={label} label={label} value={value} mono={mono} divider={index > 0} />
+        ))}
+      </View>
+      <View style={styles.reviewButtons}>
+        <View style={styles.flex}>
+          <OutlineButton title={loc.privacy.cancel} onPress={props.onCancel} disabled={props.busy} />
         </View>
-      </Card>
-    </View>
+        <View style={styles.flex}>
+          <PrimaryButton title={loc.privacy.publish} icon="send" onPress={props.onPublish} busy={props.busy} testID="PrivacyPublish" />
+        </View>
+      </View>
+    </Card>
   );
 }
 
@@ -77,11 +75,11 @@ export function C6OperationsPanel({ wallet, pool, ops }: { wallet: PrivacyWallet
   const unit = ops.unit;
   const spendable = (pool.summary?.notes ?? []).filter(n => n.spendable);
 
-  const tabs: Array<{ key: C6Action; label: string }> = [
-    { key: 'deposit', label: loc.privacy.action_deposit },
-    { key: 'transfer', label: loc.privacy.action_transfer },
-    { key: 'withdraw', label: loc.privacy.action_withdraw },
-    { key: 'join', label: loc.privacy.action_join },
+  const tabs: Array<{ key: C6Action; label: string; icon: MaterialIconName }> = [
+    { key: 'deposit', label: loc.privacy.action_deposit, icon: 'login' },
+    { key: 'transfer', label: loc.privacy.action_transfer, icon: 'swap-horiz' },
+    { key: 'withdraw', label: loc.privacy.action_withdraw, icon: 'logout' },
+    { key: 'join', label: loc.privacy.action_join, icon: 'call-merge' },
   ];
 
   const toggleNote = (cm: string) =>
@@ -101,6 +99,7 @@ export function C6OperationsPanel({ wallet, pool, ops }: { wallet: PrivacyWallet
               <Chip
                 key={n.cm}
                 label={`${formatXna(n.amountAtomic)} ${unit}`}
+                icon={ops.notes.includes(n.cm) ? 'check-circle' : 'radio-button-unchecked'}
                 active={ops.notes.includes(n.cm)}
                 disabled={locked}
                 onPress={() => toggleNote(n.cm)}
@@ -163,6 +162,7 @@ export function C6OperationsPanel({ wallet, pool, ops }: { wallet: PrivacyWallet
         {fundingReady ? (
           <PrimaryButton
             title={`2/2 · ${loc.privacy.action_deposit}`}
+            icon="login"
             onPress={prove}
             disabled={locked || !amountOk}
             busy={busy}
@@ -173,6 +173,7 @@ export function C6OperationsPanel({ wallet, pool, ops }: { wallet: PrivacyWallet
         ) : (
           <PrimaryButton
             title={`1/2 · ${loc.privacy.prepare_funding}`}
+            icon="build"
             onPress={ops.prepareFunding}
             disabled={locked || !amountOk || !ops.fundingChecked}
             busy={busy}
@@ -191,6 +192,7 @@ export function C6OperationsPanel({ wallet, pool, ops }: { wallet: PrivacyWallet
               label={`${loc.privacy.recipient} ${ops.recipients.length > 1 ? i + 1 : ''}`}
               value={r.recipient}
               placeholder="tnzk1…"
+              mono
               editable={!locked}
               onChangeText={value => ops.setRecipients(rows => rows.map((row, j) => (j === i ? { ...row, recipient: value } : row)))}
             />
@@ -209,18 +211,25 @@ export function C6OperationsPanel({ wallet, pool, ops }: { wallet: PrivacyWallet
         <ChipRow>
           {ops.recipients.length < 2 ? (
             <Chip
-              label={`+ ${loc.privacy.recipient}`}
+              label={loc.privacy.recipient}
+              icon="person-add"
               disabled={locked}
               onPress={() => ops.setRecipients(rows => [...rows, { recipient: '', amount: '' }])}
             />
           ) : null}
           {ops.recipients.length > 1 ? (
-            <Chip label={`− ${loc.privacy.recipient}`} disabled={locked} onPress={() => ops.setRecipients(rows => rows.slice(0, -1))} />
+            <Chip
+              label={loc.privacy.recipient}
+              icon="person-remove"
+              disabled={locked}
+              onPress={() => ops.setRecipients(rows => rows.slice(0, -1))}
+            />
           ) : null}
         </ChipRow>
         {feeChips}
         <PrimaryButton
           title={loc.privacy.action_transfer}
+          icon="swap-horiz"
           onPress={prove}
           disabled={
             locked ||
@@ -260,10 +269,12 @@ export function C6OperationsPanel({ wallet, pool, ops }: { wallet: PrivacyWallet
           onChangeText={ops.setDestination}
           editable={!locked}
           placeholder="t… / tnq1r… / tpq1z…"
+          mono
         />
         <ChipRow>
           <Chip
             label={loc.privacy.my_address}
+            icon="account-balance-wallet"
             disabled={locked}
             onPress={async () => {
               const [own] = await wallet.listOwnAddresses();
@@ -274,6 +285,7 @@ export function C6OperationsPanel({ wallet, pool, ops }: { wallet: PrivacyWallet
         {feeChips}
         <PrimaryButton
           title={loc.privacy.action_withdraw}
+          icon="logout"
           onPress={prove}
           disabled={locked || !ops.notes[0] || !ops.amount || !!issue || !ops.destination}
           busy={busy}
@@ -288,6 +300,7 @@ export function C6OperationsPanel({ wallet, pool, ops }: { wallet: PrivacyWallet
         {feeChips}
         <PrimaryButton
           title={loc.privacy.action_join}
+          icon="call-merge"
           onPress={prove}
           disabled={locked || ops.notes.length !== 2}
           busy={busy}
@@ -298,19 +311,21 @@ export function C6OperationsPanel({ wallet, pool, ops }: { wallet: PrivacyWallet
   }
 
   return (
-    <View>
-      <FolderTabs
-        tabs={tabs}
-        value={ops.action}
-        onChange={a => {
-          ops.setAction(a);
-          ops.setAmount('');
-          pool.setError('');
-        }}
-        disabled={busy || pending}
-      >
-        {body}
-      </FolderTabs>
+    <View style={styles.wrap}>
+      <View>
+        <SettingsSectionLabel>{loc.privacy.operations}</SettingsSectionLabel>
+        <ActionTabs
+          tabs={tabs}
+          value={ops.action}
+          onChange={a => {
+            ops.setAction(a);
+            ops.setAmount('');
+            pool.setError('');
+          }}
+          disabled={busy || pending}
+        />
+      </View>
+      <Card testID="PrivacyOperationForm">{body}</Card>
 
       {ops.fundingPreview ? (
         <Review
@@ -338,8 +353,10 @@ export function C6OperationsPanel({ wallet, pool, ops }: { wallet: PrivacyWallet
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  recipient: { rowGap: 8 },
-  review: { marginTop: 14 },
-  reviewTitle: { fontSize: 15, fontWeight: '700', marginBottom: 4 },
-  reviewButtons: { flexDirection: 'row', columnGap: 10, marginTop: 14 },
+  wrap: { rowGap: 10 },
+  recipient: { rowGap: 10 },
+  reviewHead: { flexDirection: 'row', alignItems: 'center', columnGap: 12 },
+  reviewTitle: { flex: 1, fontSize: 16, fontWeight: '700' },
+  reviewTable: { borderRadius: 18, paddingHorizontal: 14 },
+  reviewButtons: { flexDirection: 'row', columnGap: 10 },
 });

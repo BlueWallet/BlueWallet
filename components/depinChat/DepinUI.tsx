@@ -3,7 +3,7 @@
  * buttons, the unread counter, the sender avatars and the status line.
  */
 import React from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import loc from '../../loc';
 import Icon, { MaterialIconName } from '../Icon';
@@ -84,80 +84,8 @@ export const RoundIconButton: React.FC<{
   );
 };
 
-export type DepinStatusTone = 'ok' | 'fail' | 'idle';
-
-/** A coloured dot and the words for it: the colour is never the only signal. */
-export const StatusLine: React.FC<{ tone: DepinStatusTone; text: string; busy?: boolean; testID?: string }> = ({
-  tone,
-  text,
-  busy,
-  testID,
-}) => {
-  const p = useSettingsPalette();
-  const colors = p[tone];
-  return (
-    <View style={styles.statusLine} accessibilityLiveRegion="polite" testID={testID}>
-      {busy ? <ActivityIndicator size="small" color={colors.dot} /> : <View style={[styles.statusDot, { backgroundColor: colors.dot }]} />}
-      <Text style={[styles.statusText, { color: p.mutedOnCard }]}>{text}</Text>
-    </View>
-  );
-};
-
-/** Wide filled button inside a card. */
-export const CardButton: React.FC<{
-  title: string;
-  onPress: () => void;
-  disabled?: boolean;
-  loading?: boolean;
-  icon?: MaterialIconName;
-  testID?: string;
-}> = ({ title, onPress, disabled, loading, icon, testID }) => {
-  const p = useSettingsPalette();
-  return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled || loading}
-      accessibilityRole="button"
-      accessibilityState={{ disabled: !!disabled, busy: !!loading }}
-      testID={testID}
-      style={({ pressed }) => [styles.cardButton, { backgroundColor: p.button }, disabled && styles.disabled, pressed && styles.pressed]}
-    >
-      {loading ? (
-        <ActivityIndicator color="#ffffff" />
-      ) : (
-        <>
-          {icon ? <Icon name={icon} type="material" size={20} color="#ffffff" /> : null}
-          <Text style={styles.cardButtonText}>{title}</Text>
-        </>
-      )}
-    </Pressable>
-  );
-};
-
-/** Small tinted button with an icon (copy, QR). */
-export const PillButton: React.FC<{ icon: MaterialIconName; title: string; onPress: () => void; testID?: string }> = ({
-  icon,
-  title,
-  onPress,
-  testID,
-}) => {
-  const p = useSettingsPalette();
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      testID={testID}
-      style={({ pressed }) => [styles.pill, { backgroundColor: p.accentSoft }, pressed && styles.pressed]}
-    >
-      <Icon name={icon} type="material" size={18} color={p.accentText} />
-      <Text style={[styles.pillText, { color: p.accentText }]}>{title}</Text>
-    </Pressable>
-  );
-};
-
 const styles = StyleSheet.create({
   pressed: { opacity: 0.6 },
-  disabled: { opacity: 0.45 },
   avatar: { alignItems: 'center', justifyContent: 'center' },
   avatarText: { color: '#ffffff', fontWeight: '700' },
   avatarTextLarge: { fontSize: 18 },
@@ -174,19 +102,4 @@ const styles = StyleSheet.create({
   badgeText: { color: '#ffffff', fontSize: 12, fontWeight: '700' },
   round: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   roundBadge: { position: 'absolute', top: -4, right: -4 },
-  statusLine: { flexDirection: 'row', alignItems: 'center', columnGap: 8 },
-  statusDot: { width: 8, height: 8, borderRadius: 4 },
-  statusText: { fontSize: 13, lineHeight: 18, flexShrink: 1 },
-  cardButton: {
-    flexDirection: 'row',
-    columnGap: 8,
-    minHeight: 48,
-    borderRadius: 24,
-    paddingHorizontal: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardButtonText: { color: '#ffffff', fontSize: 15, fontWeight: '700', textAlign: 'center', flexShrink: 1 },
-  pill: { flexDirection: 'row', alignItems: 'center', columnGap: 6, height: 40, borderRadius: 20, paddingHorizontal: 14 },
-  pillText: { fontSize: 14, fontWeight: '600' },
 });

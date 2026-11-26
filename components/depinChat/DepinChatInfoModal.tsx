@@ -8,8 +8,8 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 
 import type { PoolStats, RecipientInfo } from '../../hooks/useDePINChat';
 import loc from '../../loc';
-import { SettingsIconCircle, SettingsRow, useSettingsPalette } from '../settings/SettingsUI';
-import { addressTag, CardButton, RoundIconButton } from './DepinUI';
+import { SettingsButton, SettingsIconCircle, SettingsRow, useSettingsPalette } from '../settings/SettingsUI';
+import { addressTag, RoundIconButton } from './DepinUI';
 import type { DepinServerInfo } from './types';
 
 interface DepinChatInfoModalProps {
@@ -108,7 +108,7 @@ const DepinChatInfoModal = ({
             </View>
           </ScrollView>
 
-          <CardButton title={loc._.close} onPress={onClose} testID="DepinInfoClose" />
+          <SettingsButton title={loc._.close} onPress={onClose} testID="DepinInfoClose" />
         </View>
       </View>
     </Modal>

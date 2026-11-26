@@ -8,9 +8,8 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import loc from '../../loc';
 import Icon from '../Icon';
-import { useSettingsPalette } from '../settings/SettingsUI';
+import { SettingsButton, useSettingsPalette } from '../settings/SettingsUI';
 import { FUND_AMOUNT_XNA, REVEAL_AMOUNT_XNA } from './constants';
-import { CardButton } from './DepinUI';
 
 interface DepinChatRevealBannerProps {
   depinBalance: number | null;
@@ -66,16 +65,16 @@ const DepinChatRevealBanner = ({
         </View>
       </View>
       {fundsArriving ? (
-        <CardButton title={loc.depin.reveal_confirming} onPress={() => {}} disabled icon="schedule" testID="DepinFundsArriving" />
+        <SettingsButton title={loc.depin.reveal_confirming} onPress={() => {}} disabled icon="schedule" testID="DepinFundsArriving" />
       ) : needsFunding ? (
-        <CardButton
+        <SettingsButton
           title={loc.formatString(loc.depin.reveal_send_button, { amount: FUND_AMOUNT_XNA, ticker: 'XNA' }) as string}
           onPress={onFund}
           icon="arrow-upward"
           testID="DepinFundAddress"
         />
       ) : (
-        <CardButton
+        <SettingsButton
           title={
             revealPending
               ? loc.depin.reveal_waiting

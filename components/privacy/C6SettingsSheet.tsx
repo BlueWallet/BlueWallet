@@ -1,6 +1,7 @@
 /**
- * Advanced privacy settings behind the gear: ZK passphrase, encrypted history
- * backup and restore, proving files, lock, and the pinned pool instance.
+ * Advanced privacy settings behind the gear, as a sheet from the bottom in
+ * the settings' style: ZK passphrase and lock, encrypted history backup and
+ * restore, proving files, and the pinned pool instance.
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
@@ -12,16 +13,19 @@ import { getArtifactBaseUrl, setArtifactBaseUrl, type ArtifactStatus } from '../
 import type { C6Runtime } from '../../blue_modules/neurai/privacy/deployment';
 import type { C6PrivateWallet } from '../../hooks/useC6PrivateWallet';
 import loc from '../../loc';
-import { Chip, ChipRow, Field, Hint, InfoRow, Label, OutlineButton, PrimaryButton, usePrivacyTheme } from './C6UI';
+import { ConnectNoticeCard } from '../ConnectUI';
+import { SettingsRow, SettingsSectionLabel, useSettingsPalette } from '../settings/SettingsUI';
+import { Card, Chip, ChipRow, Field, Hint, InfoRow, OutlineButton, PrimaryButton, RoundButton } from './C6UI';
 
 /** Largest encrypted journal backup the library accepts. */
 const MAX_BACKUP_CHARS = 8_001_000;
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children, rows }: { title: string; children: React.ReactNode; rows?: boolean }) {
   return (
-    <View style={styles.section}>
-      <Label>{title.toUpperCase()}</Label>
-      <View style={styles.sectionBody}>{children}</View>
+    <View>
+      <SettingsSectionLabel>{title}</SettingsSectionLabel>
+      {/* Rows bring their own padding and dividers; anything else is spaced out. */}
+      {rows ? <Card style={styles.rowsCard}>{children}</Card> : <Card>{children}</Card>}
     </View>
   );
 }
@@ -37,7 +41,7 @@ export function C6SettingsSheet(props: {
   backupName: string;
 }) {
   const { pool, runtime } = props;
-  const t = usePrivacyTheme();
+  const p = useSettingsPalette();
   const insets = useSafeAreaInsets();
   const [files, setFiles] = useState<ArtifactStatus | null>(null);
   const [url, setUrl] = useState('');
@@ -72,18 +76,33 @@ export function C6SettingsSheet(props: {
     });
 
   return (
-    <Modal visible={props.visible} transparent animationType="slide" onRequestClose={props.onClose}>
-      <Pressable style={styles.backdrop} onPress={props.onClose}>
-        <Pressable style={[styles.sheet, t.panel]}>
+    <Modal
+      visible={props.visible}
+      transparent
+      animationType="slide"
+      onRequestClose={props.onClose}
+      statusBarTranslucent
+      navigationBarTranslucent
+    >
+      <View style={styles.backdrop}>
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={props.onClose}
+          accessibilityRole="button"
+          accessibilityLabel={loc.privacy.close}
+        />
+        <View style={[styles.sheet, { backgroundColor: p.ground }]} accessibilityViewIsModal testID="PrivacySettingsSheet">
+          <View style={[styles.grabber, { backgroundColor: p.mutedOnCard }]} />
           <View style={styles.header}>
-            <Text style={[styles.title, t.text]}>{loc.privacy.settings}</Text>
-            <Pressable onPress={props.onClose} hitSlop={10} accessibilityRole="button" testID="PrivacySettingsClose">
-              <Text style={[styles.close, t.subtext]}>{loc.privacy.close}</Text>
-            </Pressable>
+            <Text style={[styles.title, { color: p.ink }]} accessibilityRole="header">
+              {loc.privacy.settings}
+            </Text>
+            <RoundButton icon="close" label={loc.privacy.close} onPress={props.onClose} surface="card" testID="PrivacySettingsClose" />
           </View>
           <ScrollView
-            contentContainerStyle={[styles.body, { paddingBottom: (insets.bottom || 0) + 24 }]}
+            contentContainerStyle={[styles.body, { paddingBottom: insets.bottom + 24 }]}
             keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
             <Section title={loc.privacy.section_wallet}>
               <Field
@@ -98,30 +117,52 @@ export function C6SettingsSheet(props: {
               {pool.open ? <OutlineButton title={loc.privacy.lock} onPress={props.onLock} testID="PrivacyLock" /> : null}
             </Section>
 
-            <Section title={loc.privacy.section_history}>
-              <Hint>{pool.historyReady ? (pool.saved ? loc.privacy.backup_saved : loc.privacy.backup_hint) : loc.privacy.no_history}</Hint>
-              <ChipRow>
-                <Chip label={loc.privacy.save_backup} disabled={busy || !pool.historyReady} onPress={saveHistory} />
-                <Chip label={loc.privacy.restore_backup} disabled={busy || !pool.valid} onPress={restoreHistory} />
-                {pool.open && !pool.historyReady ? (
-                  <Chip
-                    label={loc.privacy.new_history}
-                    disabled={busy}
-                    onPress={() => pool.run(loc.privacy.opening, () => pool.unlock({ create: true, zkPassphrase: props.zkPassphrase }))}
-                  />
-                ) : null}
-              </ChipRow>
+            <Section title={loc.privacy.section_history} rows>
+              <View style={styles.rowsHint}>
+                <Hint>
+                  {pool.historyReady ? (pool.saved ? loc.privacy.backup_saved : loc.privacy.backup_hint) : loc.privacy.no_history}
+                </Hint>
+              </View>
+              <SettingsRow
+                icon="file-download"
+                title={loc.privacy.save_backup}
+                onPress={saveHistory}
+                disabled={busy || !pool.historyReady}
+                divider
+                testID="PrivacySaveBackup"
+              />
+              <SettingsRow
+                icon="restore"
+                title={loc.privacy.restore_backup}
+                onPress={restoreHistory}
+                disabled={busy || !pool.valid}
+                divider
+                testID="PrivacyRestoreBackup"
+              />
+              {pool.open && !pool.historyReady ? (
+                <SettingsRow
+                  icon="add"
+                  title={loc.privacy.new_history}
+                  onPress={() => pool.run(loc.privacy.opening, () => pool.unlock({ create: true, zkPassphrase: props.zkPassphrase }))}
+                  disabled={busy}
+                  divider
+                  testID="PrivacyNewHistory"
+                />
+              ) : null}
             </Section>
 
             <Section title={loc.privacy.section_files}>
-              <InfoRow
-                label={complete ? loc.privacy.files_ready : loc.privacy.files_missing}
-                value={files ? `${files.present}/${files.total} · ${mb(files.bytesPresent)}/${mb(files.bytesTotal)} MB` : '—'}
-              />
+              <View style={[styles.table, { backgroundColor: p.ground }]}>
+                <InfoRow
+                  label={complete ? loc.privacy.files_ready : loc.privacy.files_missing}
+                  value={files ? `${files.present}/${files.total} · ${mb(files.bytesPresent)}/${mb(files.bytesTotal)} MB` : '—'}
+                />
+              </View>
               {progress ? <Hint>{progress}</Hint> : null}
               {!complete ? (
                 <PrimaryButton
                   title={loc.privacy.download_files}
+                  icon="cloud-download"
                   disabled={busy}
                   busy={!!progress}
                   onPress={() =>
@@ -144,10 +185,11 @@ export function C6SettingsSheet(props: {
                   testID="PrivacyDownloadFiles"
                 />
               ) : null}
-              <Field label={loc.privacy.files_url} value={url} onChangeText={setUrl} editable={!busy} keyboardType="url" />
+              <Field label={loc.privacy.files_url} value={url} onChangeText={setUrl} editable={!busy} keyboardType="url" mono />
               <ChipRow>
                 <Chip
                   label={loc.privacy.save}
+                  icon="save"
                   disabled={busy}
                   onPress={() =>
                     pool.run(loc.privacy.save, async () => {
@@ -158,6 +200,7 @@ export function C6SettingsSheet(props: {
                 />
                 <Chip
                   label={loc.privacy.reset}
+                  icon="settings-backup-restore"
                   disabled={busy}
                   onPress={() =>
                     pool.run(loc.privacy.reset, async () => {
@@ -168,6 +211,7 @@ export function C6SettingsSheet(props: {
                 />
                 <Chip
                   label={loc.privacy.delete_files}
+                  icon="delete-outline"
                   disabled={busy || !files?.present}
                   onPress={() =>
                     pool.run(loc.privacy.delete_files, async () => {
@@ -180,24 +224,27 @@ export function C6SettingsSheet(props: {
             </Section>
 
             <Section title={loc.privacy.section_pool}>
-              <InfoRow label={loc.privacy.instance} value={String((runtime.config.manifest as { identity?: string }).identity ?? '')} />
-              <InfoRow label={loc.privacy.commitment} value={runtime.config.expectedCommitment} mono />
-              <Hint>{loc.privacy.test_warning}</Hint>
+              <View style={[styles.table, { backgroundColor: p.ground }]}>
+                <InfoRow label={loc.privacy.instance} value={String((runtime.config.manifest as { identity?: string }).identity ?? '')} />
+                <InfoRow label={loc.privacy.commitment} value={runtime.config.expectedCommitment} mono divider />
+              </View>
             </Section>
+            <ConnectNoticeCard tone="warn" text={loc.privacy.test_warning} />
           </ScrollView>
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.55)', justifyContent: 'flex-end' },
-  sheet: { maxHeight: '88%', borderTopLeftRadius: 18, borderTopRightRadius: 18, borderWidth: 1, paddingTop: 14 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 18, paddingBottom: 6 },
-  title: { fontSize: 17, fontWeight: '700' },
-  close: { fontSize: 15, fontWeight: '600' },
-  body: { paddingHorizontal: 18, paddingBottom: 32 },
-  section: { marginTop: 18 },
-  sectionBody: { rowGap: 10 },
+  backdrop: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'flex-end' },
+  sheet: { maxHeight: '90%', borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingTop: 8 },
+  grabber: { alignSelf: 'center', width: 40, height: 4, borderRadius: 2, opacity: 0.4, marginBottom: 6 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 8 },
+  title: { fontSize: 22, fontWeight: '700', letterSpacing: -0.3 },
+  body: { paddingHorizontal: 16, paddingTop: 8, rowGap: 20 },
+  rowsCard: { paddingVertical: 2, rowGap: 0 },
+  rowsHint: { paddingTop: 12, paddingBottom: 10 },
+  table: { borderRadius: 18, paddingHorizontal: 14 },
 });

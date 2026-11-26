@@ -377,6 +377,92 @@ export const SettingsSearchField: React.FC<{
   );
 };
 
+export type SettingsStatusTone = 'ok' | 'fail' | 'idle';
+
+/** A coloured dot and the words for it: the colour is never the only signal. */
+export const SettingsStatusLine: React.FC<{ tone: SettingsStatusTone; text: string; busy?: boolean; testID?: string }> = ({
+  tone,
+  text,
+  busy,
+  testID,
+}) => {
+  const p = useSettingsPalette();
+  const colors = p[tone];
+  return (
+    <View style={styles.statusLine} accessibilityLiveRegion="polite" testID={testID}>
+      {busy ? <ActivityIndicator size="small" color={colors.dot} /> : <View style={[styles.dot, { backgroundColor: colors.dot }]} />}
+      <Text style={[styles.statusText, { color: p.mutedOnCard }]}>{text}</Text>
+    </View>
+  );
+};
+
+/**
+ * Wide button inside a card: filled for the action that moves things forward,
+ * `secondary` (the ground's colour) for the other choice, `danger` for what
+ * cannot be undone.
+ */
+export const SettingsButton: React.FC<{
+  title: string;
+  onPress: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  icon?: MaterialIconName;
+  variant?: 'primary' | 'secondary' | 'danger';
+  testID?: string;
+}> = ({ title, onPress, disabled, loading, icon, variant = 'primary', testID }) => {
+  const p = useSettingsPalette();
+  const filled = variant === 'primary';
+  const fg = filled ? '#ffffff' : variant === 'danger' ? p.fail.fg : p.ink;
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled || loading}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !!disabled, busy: !!loading }}
+      testID={testID}
+      style={({ pressed }) => [
+        styles.wideButton,
+        { backgroundColor: filled ? p.button : variant === 'danger' ? p.fail.bg : p.ground },
+        disabled && styles.disabled,
+        pressed && styles.pressed,
+      ]}
+    >
+      {loading ? (
+        <ActivityIndicator color={fg} />
+      ) : (
+        <>
+          {icon ? <Icon name={icon} type="material" size={20} color={fg} /> : null}
+          <Text style={[styles.wideButtonText, { color: fg }]}>{title}</Text>
+        </>
+      )}
+    </Pressable>
+  );
+};
+
+/** Small tinted button with an icon (copy, QR). */
+export const SettingsPillButton: React.FC<{
+  icon: MaterialIconName;
+  title: string;
+  onPress: () => void;
+  disabled?: boolean;
+  testID?: string;
+}> = ({ icon, title, onPress, disabled, testID }) => {
+  const p = useSettingsPalette();
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !!disabled }}
+      testID={testID}
+      style={({ pressed }) => [styles.pill, { backgroundColor: p.accentSoft }, disabled && styles.disabled, pressed && styles.pressed]}
+    >
+      <Icon name={icon} type="material" size={18} color={p.accentText} />
+      <Text style={[styles.pillText, { color: p.accentText }]}>{title}</Text>
+    </Pressable>
+  );
+};
+
 const styles = StyleSheet.create({
   search: { flexDirection: 'row', alignItems: 'center', columnGap: 8, height: 46, borderRadius: 23, paddingHorizontal: 14 },
   searchInput: { flex: 1, fontSize: 15, paddingVertical: 0 },
@@ -384,6 +470,21 @@ const styles = StyleSheet.create({
   back: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   title: { fontSize: 24, fontWeight: '700', letterSpacing: -0.4, flexShrink: 1 },
   pressed: { opacity: 0.6 },
+  disabled: { opacity: 0.45 },
+  statusLine: { flexDirection: 'row', alignItems: 'center', columnGap: 8 },
+  statusText: { fontSize: 13, lineHeight: 18, flexShrink: 1 },
+  wideButton: {
+    flexDirection: 'row',
+    columnGap: 8,
+    minHeight: 48,
+    borderRadius: 24,
+    paddingHorizontal: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  wideButtonText: { fontSize: 15, fontWeight: '700', textAlign: 'center', flexShrink: 1 },
+  pill: { flexDirection: 'row', alignItems: 'center', columnGap: 6, height: 40, borderRadius: 20, paddingHorizontal: 14 },
+  pillText: { fontSize: 14, fontWeight: '600' },
   sectionLabel: { fontSize: 12, fontWeight: '600', letterSpacing: 0.6, textTransform: 'uppercase', marginLeft: 4, marginBottom: 8 },
   card: { borderRadius: 24, paddingHorizontal: 16, paddingVertical: 2 },
   iconCircle: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
