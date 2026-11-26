@@ -52,31 +52,6 @@ export const getClipboardContent = async (): Promise<string | undefined> => {
   }
 };
 
-/**
- * iOS 16+ can show a system paste prompt and resolve `getString()` with an empty
- * value before the user answers. `pasteBlocked` is true when there is clipboard
- * text we were not allowed to read yet (or the read failed).
- */
-export const readClipboardForDetection = async (): Promise<{
-  content: string | undefined;
-  pasteBlocked: boolean;
-}> => {
-  try {
-    const isAllowed = await isReadClipboardAllowed();
-    if (!isAllowed) return { content: undefined, pasteBlocked: false };
-
-    const content = await Clipboard.getString();
-    if (content) return { content, pasteBlocked: false };
-
-    const hasString = await Clipboard.hasString();
-    if (hasString) return { content: undefined, pasteBlocked: true };
-    return { content: undefined, pasteBlocked: false };
-  } catch (error) {
-    console.error('Error accessing clipboard:', error);
-    return { content: undefined, pasteBlocked: true };
-  }
-};
-
 export const getLastSeenClipboardHash = async (): Promise<string | undefined> => {
   try {
     if (lastSeenHashMemory !== undefined) return lastSeenHashMemory;
