@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import LottieView from 'lottie-react-native';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import BlueCard from '../../components/BlueCard';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
@@ -55,7 +55,9 @@ const Success = () => {
 
   return (
     <SafeArea style={[styles.root, stylesHook.root]}>
-      <SuccessView amount={amount} amountUnit={amountUnit} fee={fee} invoiceDescription={invoiceDescription} />
+      <ScrollView contentContainerStyle={styles.grow} alwaysBounceVertical={false}>
+        <SuccessView amount={amount} amountUnit={amountUnit} fee={fee} invoiceDescription={invoiceDescription} centered />
+      </ScrollView>
       <View style={styles.buttonContainer}>
         <Button onPress={onDonePressed} title={loc.send.success_done} />
       </View>
@@ -78,11 +80,21 @@ interface SuccessViewParam {
   fee?: number;
   invoiceDescription?: string;
   shouldAnimate?: boolean;
+  centered?: boolean;
   children?: React.ReactNode;
 }
 
-export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shouldAnimate = true, children }: SuccessViewParam) => {
+export const SuccessView = ({
+  amount,
+  amountUnit,
+  fee,
+  invoiceDescription,
+  shouldAnimate = true,
+  centered = false,
+  children,
+}: SuccessViewParam) => {
   const { colors } = useTheme();
+  const hasAmount = Boolean(amount) || (fee ?? 0) > 0;
 
   let unit: string = '';
   switch (amountUnit) {
@@ -102,8 +114,8 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
   });
 
   return (
-    <View style={styles.root}>
-      {amount || (fee ?? 0) > 0 ? (
+    <View style={[styles.root, centered && !hasAmount && styles.centered]}>
+      {hasAmount ? (
         <BlueCard style={styles.amount}>
           <View style={styles.view}>
             {amount ? (
@@ -157,6 +169,12 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     paddingTop: 19,
+  },
+  centered: {
+    justifyContent: 'center',
+  },
+  grow: {
+    flexGrow: 1,
   },
   buttonContainer: {
     paddingHorizontal: 58,
