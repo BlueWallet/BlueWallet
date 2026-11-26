@@ -90,6 +90,14 @@ jobs:
           RCT_USE_RN_DEP: '1'
           RCT_USE_PREBUILT_RNCORE: '1'
 
+      - name: Test Mac Catalyst share extension
+        run: >-
+          xcodebuild test
+          -project ios/BlueWallet.xcodeproj
+          -scheme ShareExtensionTests
+          -destination 'platform=macOS,variant=Mac Catalyst'
+          CODE_SIGNING_ALLOWED=NO
+
       - name: Create temporary signing keychain
         run: |
           security create-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain

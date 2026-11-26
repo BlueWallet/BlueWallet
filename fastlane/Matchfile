@@ -12,6 +12,7 @@ app_identifier([
   "io.bluewallet.bluewallet", 
   "io.bluewallet.bluewallet.Stickers", 
   "io.bluewallet.bluewallet.MarketWidget",
+  "io.bluewallet.bluewallet.ShareExtension",
   "io.bluewallet.bluewallet.QuickLookPreview",
   "io.bluewallet.bluewallet.QuickLookThumbnail"
 ])
