@@ -55,6 +55,8 @@ export type DetailViewStackParamList = {
     walletID: string;
     address?: string;
     amount?: string;
+    /** Opens in asset mode with this asset chosen (from the assets list). */
+    assetName?: string;
     onBarScanned?: string;
   };
   ImportNeurai: undefined;

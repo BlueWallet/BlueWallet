@@ -887,6 +887,9 @@
     "privacy_unavailable": "El pool de privacidad no está disponible ahora mismo."
   },
   "assets": {
+    "tab_transactions": "Transacciones",
+    "tab_assets": "Activos",
+    "tab_depin": "DePIN",
     "list_empty": "Esta cartera no tiene activos.",
     "send_select": "Elige un activo",
     "type_root": "Activo",
@@ -895,7 +898,26 @@
     "type_owner": "Propietario",
     "type_restricted": "Restringido",
     "type_qualifier": "Calificador",
-    "type_depin": "DePIN"
+    "type_depin": "DePIN",
+    "count": "{count} activos",
+    "count_one": "1 activo",
+    "loading": "Buscando activos…",
+    "search": "Buscar activos",
+    "filter_all": "Todos",
+    "no_match": "Ningún activo coincide con la búsqueda.",
+    "empty_hint": "Los activos que lleguen a las direcciones de esta cartera aparecerán aquí.",
+    "held": "En la cartera",
+    "send": "Enviar",
+    "copy_name": "Copiar el nombre",
+    "name_copied": "Nombre copiado",
+    "open_depin": "Abrir el chat DePIN",
+    "about_root": "Un activo principal.",
+    "about_sub": "Un activo bajo uno principal (PRINCIPAL/SUB).",
+    "about_unique": "Un token único (NOMBRE#ETIQUETA).",
+    "about_owner": "Demuestra la propiedad de un activo: permite emitir más o crear subactivos (NOMBRE!).",
+    "about_restricted": "Un activo que solo pueden tener las direcciones con el calificador adecuado ($NOMBRE).",
+    "about_qualifier": "Una etiqueta que permite a las direcciones tener activos restringidos (#NOMBRE).",
+    "about_depin": "Da acceso a un chat o servicio DePIN (&NOMBRE)."
   },
   "depin": {
     "title": "DePIN",

@@ -233,7 +233,7 @@ const SendNeurai: React.FC = () => {
   const amountUnit = isAssetMode && selectedAsset ? selectedAsset.name : 'XNA';
 
   const onToggleAssetMode = useCallback(
-    async (on: boolean) => {
+    async (on: boolean, preselect?: string) => {
       setIsAssetMode(on);
       if (on) setCoinSource(null);
       setIsSendMax(false);
@@ -253,11 +253,21 @@ const SendNeurai: React.FC = () => {
       }
       const assets = wallet.getHeldAssetsCached();
       setHeldAssets(assets);
-      // Auto-select when there's only one asset to spare the user a tap.
-      if (assets.length === 1) setSelectedAsset(assets[0]);
+      // The asset the screen was opened for, or the only one held: spare the user a tap.
+      const wanted = preselect ? assets.find(asset => asset.name === preselect) : undefined;
+      if (wanted) setSelectedAsset(wanted);
+      else if (assets.length === 1) setSelectedAsset(assets[0]);
     },
     [wallet, resetDrafts],
   );
+
+  // Opened from an asset: start in asset mode with it chosen.
+  const openedForAsset = useRef(false);
+  useEffect(() => {
+    if (openedForAsset.current || !params.assetName) return;
+    openedForAsset.current = true;
+    onToggleAssetMode(true, params.assetName);
+  }, [params.assetName, onToggleAssetMode]);
 
   const onSwitchCoinSource = useCallback(
     async (source: CoinSource, on: boolean) => {

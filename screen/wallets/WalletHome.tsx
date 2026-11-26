@@ -443,7 +443,7 @@ const WalletHomeBody: React.FC<BodyProps> = ({
 
       {mounted.has('assets') && (
         <View style={[panel('assets'), { paddingBottom: barSpace }]}>
-          <AssetsList walletID={walletID} />
+          <AssetsList walletID={walletID} onOpenDepin={depinAvailable ? () => selectTab('depin') : undefined} />
         </View>
       )}
 
