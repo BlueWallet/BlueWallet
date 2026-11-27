@@ -8,6 +8,7 @@ import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { validateMnemonic } from '../../blue_modules/bip39';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueText from '../../components/BlueText';
+import { AbstractHDWallet } from '../../class/wallets/abstract-hd-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import HandOffComponent from '../../components/HandOffComponent';
@@ -68,6 +69,7 @@ const WalletExport: React.FC = () => {
   const { currentAppState, previousAppState } = useAppState();
   const stylesHook = StyleSheet.create({
     root: { backgroundColor: colors.elevated },
+    warningBox: { backgroundColor: colors.changeText },
   });
 
   const secrets: string[] = useMemo(() => {
@@ -83,6 +85,10 @@ const WalletExport: React.FC = () => {
   const secretIsMnemonic: boolean = useMemo(() => {
     return validateMnemonic(wallet.getSecret());
   }, [wallet]);
+
+  // A BIP39 passphrase is not part of the mnemonic, so the words alone do not restore this wallet. The QR code still encodes
+  // only the words and is shown with a note saying so. The passphrase itself is intentionally not displayed on this screen.
+  const hasPassphrase = secretIsMnemonic && wallet instanceof AbstractHDWallet && !!wallet.getPassphrase();
 
   useEffect(() => {
     if (previousAppState === 'active' && currentAppState !== 'active') {
@@ -180,7 +186,9 @@ const WalletExport: React.FC = () => {
     >
       {wallet.type !== WatchOnlyWallet.type && <DoNotDisclose />}
 
-      <BlueText style={styles.scanText}>{loc.wallets.scan_import}</BlueText>
+      {hasPassphrase && <BlueText style={styles.writeText}>{loc.wallets.export_passphrase_qr_unavailable}</BlueText>}
+
+      {!hasPassphrase && <BlueText style={styles.scanText}>{loc.wallets.scan_import}</BlueText>}
 
       <View style={styles.qrCodeContainer}>
         <QRCode isMenuAvailable={false} value={secret} size={qrCodeSize} logoSize={70} />
@@ -194,6 +202,15 @@ const WalletExport: React.FC = () => {
             <BlueText style={styles.writeText}>{loc.wallets.write_down}</BlueText>
           </View>
           <SeedWords seed={secret} />
+          {hasPassphrase && (
+            <>
+              <BlueText style={styles.writeText}>{loc.wallets.export_passphrase_usage}</BlueText>
+              <View testID="ExportPassphraseWarning" style={[styles.warningBox, stylesHook.warningBox]}>
+                <Icon type="font-awesome-6" name="circle-exclamation" size={24} color="white" />
+                <BlueText style={styles.passphraseWarningText}>{loc.wallets.export_passphrase_warning}</BlueText>
+              </View>
+            </>
+          )}
         </>
       ) : (
         <>
@@ -232,6 +249,13 @@ const styles = StyleSheet.create({
   },
   warning: {
     fontSize: 20,
+    color: 'white',
+  },
+  passphraseWarningText: {
+    flex: 1,
+    flexShrink: 1,
+    fontSize: 17,
+    lineHeight: 22,
     color: 'white',
   },
   scanText: {
