@@ -11,7 +11,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { withDevice } from './deviceQueue';
+import { acquireLink, currentLink, releaseLink, type LinkHolder } from './sharedLink';
 import { createNeuraiESP32OverUsb, type NeuraiESP32 } from '@neuraiproject/neurai-sign-esp32/react-native';
 import { createUsbSerialDriver, ensureUsbPermission, isUsbSupported, listNeuraiHwDevices } from './usbSerialDriver';
 
@@ -39,51 +39,34 @@ export interface UseNeuraiHwDeviceOptions {
   keepAliveOnUnmount?: boolean;
 }
 
-/**
- * The one open link to the device, shared by every consumer. Only one handle to
- * a USB serial port can be used safely: a second `connect()` while the DePIN
- * chat holds the port would either fail or interleave traffic with signing.
- */
-const sharedDevice: { current: NeuraiESP32 | null } = { current: null };
+/** The DePIN chat keeps the link across navigation; it is the only screen that does. */
+const KEPT_ALIVE_HOLDER = 'kept-alive';
 
 export function useNeuraiHwDevice(options: UseNeuraiHwDeviceOptions = {}): UseNeuraiHwDevice {
   const { keepAliveOnUnmount = false } = options;
   const supported = isUsbSupported();
   const [status, setStatus] = useState<NeuraiHwStatus>(supported ? 'idle' : 'unsupported');
   const [error, setError] = useState<string | null>(null);
-  const deviceRef = useRef<NeuraiESP32 | null>(null);
   const [device, setDevice] = useState<NeuraiESP32 | null>(null);
   const mounted = useRef(true);
+  // Who holds the shared link (see sharedLink.ts). A screen that keeps the link
+  // across unmounts uses one stable key, so remounting does not add holders
+  // that nothing would ever release.
+  const holder = useRef<LinkHolder>(keepAliveOnUnmount ? KEPT_ALIVE_HOLDER : Symbol('neurai-hw-screen'));
 
   useEffect(() => {
     mounted.current = true;
+    const me = holder.current;
     return () => {
       mounted.current = false;
-      if (keepAliveOnUnmount) return; // caller keeps the link and closes it itself
-      // The link is shared: closing it here would cut off whoever else is still
-      // using it (the DePIN chat holds one across navigation). Only drop our
-      // reference; the port closes on an explicit `disconnect` or when the
-      // device stops answering.
-      if (deviceRef.current && deviceRef.current === sharedDevice.current) {
-        deviceRef.current = null;
-        return;
-      }
-      deviceRef.current?.disconnect().catch(() => {});
-      deviceRef.current = null;
+      if (keepAliveOnUnmount) return; // the caller keeps the link and closes it itself
+      // Closes the port only if no other screen still holds the link.
+      releaseLink(me).catch(() => {});
     };
   }, [keepAliveOnUnmount]);
 
   const disconnect = useCallback(async () => {
-    const current = deviceRef.current;
-    deviceRef.current = null;
-    if (sharedDevice.current === current) sharedDevice.current = null;
-    if (current) {
-      try {
-        await current.disconnect();
-      } catch {
-        // ignore — best effort
-      }
-    }
+    await releaseLink(holder.current).catch(() => {});
     if (mounted.current) {
       setDevice(null);
       setStatus(supported ? 'idle' : 'unsupported');
@@ -98,45 +81,29 @@ export function useNeuraiHwDevice(options: UseNeuraiHwDeviceOptions = {}): UseNe
       return null;
     }
 
-    // Reuse a link another screen already opened, if it still answers.
-    if (sharedDevice.current) {
-      try {
-        await withDevice(() => sharedDevice.current!.ping());
-        deviceRef.current = sharedDevice.current;
-        setDevice(sharedDevice.current);
-        setStatus('connected');
-        return sharedDevice.current;
-      } catch {
-        sharedDevice.current = null; // stale — fall through and open a fresh one
-      }
-    }
-
-    setStatus('connecting');
+    if (!currentLink()) setStatus('connecting');
     setError(null);
 
     try {
-      const devices = await listNeuraiHwDevices();
-      if (devices.length === 0) {
-        throw new Error('No NeuraiHW device found. Connect it via USB-C and try again.');
-      }
-
-      const target = devices[0];
-      const granted = await ensureUsbPermission(target.deviceId);
-      if (!granted) {
-        throw new Error('USB permission denied. Accept the Android dialog and try again.');
-      }
-
-      const driver = createUsbSerialDriver(target.deviceId);
-      const esp32 = createNeuraiESP32OverUsb(driver);
-      await esp32.connect();
+      const esp32 = await acquireLink(holder.current, async () => {
+        const devices = await listNeuraiHwDevices();
+        if (devices.length === 0) {
+          throw new Error('No NeuraiHW device found. Connect it via USB-C and try again.');
+        }
+        const target = devices[0];
+        const granted = await ensureUsbPermission(target.deviceId);
+        if (!granted) {
+          throw new Error('USB permission denied. Accept the Android dialog and try again.');
+        }
+        const opened = createNeuraiESP32OverUsb(createUsbSerialDriver(target.deviceId));
+        await opened.connect();
+        return opened;
+      });
 
       if (!mounted.current) {
-        await esp32.disconnect().catch(() => {});
+        if (!keepAliveOnUnmount) await releaseLink(holder.current).catch(() => {});
         return null;
       }
-
-      deviceRef.current = esp32;
-      sharedDevice.current = esp32;
       setDevice(esp32);
       setStatus('connected');
       return esp32;
@@ -148,7 +115,7 @@ export function useNeuraiHwDevice(options: UseNeuraiHwDeviceOptions = {}): UseNe
       }
       return null;
     }
-  }, [supported]);
+  }, [supported, keepAliveOnUnmount]);
 
   return { status, error, device, connect, disconnect };
 }

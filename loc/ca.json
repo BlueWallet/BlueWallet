@@ -62,14 +62,6 @@
     "sats": "sats",
     "wasnt_paid_and_expired": "Aquesta factura no ha estat pagada i ha caducat"
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Crear informació xifrada falsa",
-    "create_password_explanation": "La contrasenya no pot ser la mateixa que la del seu moneder principal.",
-    "help": "Sota certes circumstàncies, vostè podria ser obligat a revelar la contrasenya del seu moneder. Per a mantenir les seves monedes segures, NeuraiWallet pot crear un altre moneder xifrat, amb una altra contrasenya. Si es veu obligat, pot revelar la contrasenya per al fals moneder a un tercer de manera que ells creuran que és el seu moneder principal",
-    "help2": "El moneder \"false\" és completament funcional. Pot dipositar una quantitat mínima perquè sigui més creïble.",
-    "password_should_not_match": "La contrasenya no pot ser la mateixa que la del seu moneder principal.",
-    "title": "Negació plausible"
-  },
   "pleasebackup": {
     "ok_lnd": "D'acord, l'he guardat",
     "text_lnd": "Si us plau, deseu aquesta còpia de seguretat del moneder. Permet restaurar el moneder en cas de pèrdua.",
@@ -175,7 +167,6 @@
     "notifications": "Notificacions",
     "open_link_in_explorer": "Obre l'enllaç a l'explorador",
     "password": "Contrasenya",
-    "plausible_deniability": "Negació plausible...",
     "privacy": "Privacitat",
     "privacy_read_clipboard": "Llegir el portapapers",
     "privacy_system_settings": "Configuració del Sistema",
@@ -234,7 +225,6 @@
     "export_title": "Exportació de moneder",
     "import_do_import": "Importar",
     "import_error": "No s'ha pogut importar. ¿És vàlid?",
-    "import_imported": "Importat",
     "import_scan_qr": "o escanejar codi QR?",
     "import_success": "Èxit",
     "import_title": "importar",

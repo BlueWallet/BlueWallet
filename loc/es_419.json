@@ -77,14 +77,6 @@
     "date_time": "Fecha y hora",
     "wasnt_paid_and_expired": "Esta factura no se pagó y ha caducado."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Crear almacenamiento encriptado",
-    "create_password_explanation": "La contraseña del almacenamiento falso no debe coincidir con la contraseña de tu almacenamiento principal.",
-    "help": "Bajo ciertas circunstancias, podrías verte obligado a revelar una contraseña. Para mantener tus monedas seguras, NeuraiWallet puede crear otro almacenamiento encriptado, con una contraseña diferente. Bajo presión puedes revelar esta contraseña a un tercero. Si se ingresa en NeuraiWallet, desbloqueará un nuevo almacenamiento \"falso\". Esto parecerá legítimo para un tercero, pero en secreto mantendrá tu almacenamiento principal con monedas seguras.",
-    "help2": "El nuevo almacén será completamente funcional, y puedes almacenar cantidades mínimas para que sea mas creíble.",
-    "password_should_not_match": "La contraseña está actualmente en uso. Intenta con una contraseña diferente.",
-    "title": "Negación plausible"
-  },
   "pleasebackup": {
     "ok": "OK, lo escribí.",
     "ok_lnd": "OK, lo he guardado.",
@@ -298,7 +290,6 @@
     "open_link_in_explorer": "Abrir enlace en el explorador",
     "password": "Contraseña",
     "password_explain": "Ingresa la contraseña que usarás para desbloquear tu almacenamiento.",
-    "plausible_deniability": "Negación Plausible",
     "reset_storage_button": "Start fresh",
     "reset_storage_confirm": "Restablecer almacenamiento",
     "reset_storage_message": "Esto elimina todas las billeteras guardadas en este dispositivo y abre NeuraiWallet con almacenamiento local vacío. Continúa solo si tienes tu frase de recuperación o estás revisando la app.",
@@ -318,7 +309,23 @@
     "total_balance": "Balance Total",
     "total_balance_explanation": "Muestra el saldo total de tus billeteras en los widgets.",
     "widgets": "Widgets",
-    "tools": "Herramientas"
+    "tools": "Herramientas",
+    "storage_unavailable_title": "Almacenamiento de carteras no disponible",
+    "storage_unavailable_message": "Ahora mismo no se pueden leer tus carteras. No se ha cambiado nada. Vuelve a intentarlo en un momento o reinicia el teléfono si sigue fallando.",
+    "storage_retry": "Reintentar",
+    "storage_save_failed": "No se pudieron guardar los cambios. Las carteras guardadas no se han sobrescrito. Vuelve a intentarlo.",
+    "storage_preserved_records": "Esta versión no puede abrir algunas carteras guardadas. Se conservan sin cambios.",
+    "encrypt_other_storage": "Este almacenamiento contiene otro almacenamiento cifrado con una contraseña distinta, creado con la antigua función de señuelo. Quitar la contraseña lo borraría, así que la contraseña sigue activa.",
+    "storage_restore_backup": "Restaurar la copia de respaldo",
+    "storage_restore_backup_title": "¿Restaurar la copia de respaldo?",
+    "storage_restore_backup_message": "No se puede leer el almacenamiento principal. NeuraiWallet guarda una copia de respaldo que puede ser más antigua: las carteras añadidas o cambiadas después de guardarla no estarán. Tus frases de recuperación restauran cualquier cartera. La copia de respaldo sustituye al almacenamiento ilegible.",
+    "storage_restore_bucket_message": "Tu contraseña abre una parte del almacenamiento cuyo contenido está dañado. La copia que elijas reemplaza solo esa parte y se abrirá con la misma contraseña. Los almacenamientos protegidos con otras contraseñas se conservan tal cual, y el contenido dañado se guarda aparte.",
+    "storage_reset_failed": "No se pudo restablecer el almacenamiento, así que no se ha abierto. Vuelve a intentarlo.",
+    "storage_reset_cleanup_pending": "Se restableció el almacenamiento. Algunos archivos de respaldo antiguos aún no se pudieron borrar; se borrarán la próxima vez que se abra la app.",
+    "storage_restore_backup_dated": "Restaurar la copia guardada el {date}",
+    "storage_restore_backup_several": "Hay varias copias de respaldo distintas; las que no elijas se quedan en el dispositivo y se vuelven a ofrecer si alguna vez hace falta recuperar.",
+    "storage_restore_changed": "Las copias de respaldo cambiaron desde que elegiste. No se restauró nada: revísalas y elige de nuevo.",
+    "storage_readable_again": "El almacenamiento principal cambió o se puede leer de nuevo desde que se ofreció la copia. No se restauró nada: se comprueba otra vez como siempre."
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "¿Te gustaría recibir notificaciones cuando recibas pagos entrantes?",
@@ -439,7 +446,6 @@
     "import_passphrase_title": "Frase de contraseña",
     "import_passphrase_message": "Ingrese la frase de contraseña si ha usado alguna",
     "import_error": "No se pudo importar. Asegúrate de que los datos proporcionados sean válidos.",
-    "import_imported": "Importado",
     "import_scan_qr": "Escanear o importar un archivo",
     "import_success": "Tu billetera se ha importado correctamente.",
     "import_success_watchonly": "Tu billetera se ha importado correctamente. ADVERTENCIA: Esta es una billetera de \"solo ver\", NO puedes gastar desde él.",
@@ -495,7 +501,8 @@
     "manage_wallets_search_placeholder": "Búsqueda de billeteras, direcciones, transacciones y memos",
     "more_info": "Más información",
     "details_delete_wallet_error_message": "Hubo un problema al confirmar si esta billetera se eliminó de las notificaciones, lo que podría deberse a un problema de red o a una mala conexión. Si continúas, es posible que aún recibas notificaciones de transacciones relacionadas con esta billetera, incluso después de que se elimine.",
-    "details_delete_anyway": "Borrar de todos modos"
+    "details_delete_anyway": "Borrar de todos modos",
+    "screen_protect_failed": "No se ha podido proteger la pantalla contra capturas y grabaciones, así que el secreto sigue oculto. Vuelve a intentarlo."
   },
   "total_balance_view": {
     "display_in_bitcoin": "Mostrar en Bitcoin",

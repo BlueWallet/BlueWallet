@@ -1,5 +1,4 @@
-import {stringifyRpcJson,assertNoDuplicateJsonKeys} from '@neuraiproject/neurai-rpc';
-import { parseRpcJson } from '@neuraiproject/neurai-rpc';
+import { assertNoDuplicateJsonKeys, parseRpcJson, stringifyRpcJson } from '@neuraiproject/neurai-rpc';
 import { parseRawSats, parseMoneySats, satsToXna } from './amounts';
 /**
  * Backend for neurai-wallet-services.

@@ -22,13 +22,10 @@ class MainApplication : Application(), ReactApplication {
     private val themeChangeReceiver = ThemeChangeReceiver()
     private val preferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
         if (key == "preferredCurrency") {
-            prefs.edit().remove("previous_price").apply()
-            
-            // Update BitcoinPrice widgets
-            WidgetUpdateWorker.scheduleWork(this)
-            
-            // Immediately refresh Market widgets
-            MarketWidget.refreshAllWidgetsImmediately(this)
+            // The stored quote is in the old currency: drop it and fetch again.
+            NeuraiMarket.forget(this)
+            NeuraiWidgets.renderAll(this)
+            NeuraiWidgetWorker.updateNow(this)
         } else if (key == "force_dark_mode") {
             // Theme setting changed, update all widgets
             ThemeHelper.updateAllWidgets(this)
@@ -100,6 +97,11 @@ class MainApplication : Application(), ReactApplication {
         loadReactNative(this)
 
         initializeDeviceUID()
+
+        // After an update from the Bitcoin widgets: drop their cached BTC data and
+        // work, and redraw any widget already placed as the Neurai one.
+        NeuraiMarket.forgetLegacyState(this)
+        if (NeuraiWidgets.hasWidgets(this)) NeuraiWidgets.refresh(this) else NeuraiWidgetWorker.schedule(this)
     }
 
     override fun onTerminate() {

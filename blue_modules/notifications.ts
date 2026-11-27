@@ -22,6 +22,8 @@ let baseURI = groundControlUri;
 let notificationSubscriptions: EmitterSubscription[] = [];
 let onProcessNotificationsHandler: undefined | (() => void | Promise<void>);
 const handledNotificationKeys = new Set<string>();
+/** Pushes being written right now: a duplicate delivery meanwhile is ignored. */
+const pendingNotificationKeys = new Set<string>();
 let pendingRegistrationPromise: Promise<boolean> | null = null;
 let pendingRegistrationResolve: ((value: boolean) => void) | null = null;
 let pendingRegistrationTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -74,6 +76,23 @@ type TPayload = {
   hash: string;
   [key: string]: any;
 };
+
+/**
+ * What may be logged about a push: its kind and how it arrived. Addresses,
+ * txids, messages and the device token tie this phone to wallet activity, so
+ * they never reach a log, also in development builds (H13).
+ */
+export function describeNotification(payload: Partial<TPayload> | null | undefined): Record<string, unknown> {
+  if (!payload) return {};
+  return {
+    type: payload.type,
+    chain: typeof payload.chain === 'string' ? payload.chain : undefined,
+    foreground: payload.foreground,
+    userInteraction: payload.userInteraction,
+    hasTxid: Boolean(payload.txid),
+    hasAddress: Boolean(payload.address),
+  };
+}
 
 function deepClone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
@@ -170,7 +189,7 @@ const normalizeNotificationPayload = (notification: RNNotification, status: Pick
   return payload;
 };
 
-const storeIncomingNotification = async (
+export const storeIncomingNotification = async (
   notification: RNNotification,
   status: Pick<TPayload, 'foreground' | 'userInteraction'>,
   completion?: ((response: NotificationCompletion) => void) | ((response: NotificationBackgroundFetchResult) => void),
@@ -178,17 +197,25 @@ const storeIncomingNotification = async (
   try {
     const payload = normalizeNotificationPayload(notification, status);
     const notificationKey = getNotificationKey(payload, notification);
-    if (handledNotificationKeys.has(notificationKey)) {
+    if (handledNotificationKeys.has(notificationKey) || pendingNotificationKeys.has(notificationKey)) {
       return;
     }
-    markNotificationHandled(notificationKey);
 
     if (!payload.subText && !payload.message) {
-      console.warn('Notification missing required fields:', payload);
+      markNotificationHandled(notificationKey);
+      console.warn('Notification missing required fields:', describeNotification(payload));
       return;
     }
 
-    await addNotification(payload);
+    // Marked handled only once it is persisted: a failed write leaves the
+    // push deliverable again instead of silently dropping it (H20).
+    pendingNotificationKeys.add(notificationKey);
+    try {
+      await addNotification(payload);
+      markNotificationHandled(notificationKey);
+    } finally {
+      pendingNotificationKeys.delete(notificationKey);
+    }
 
     if (payload.foreground && onProcessNotificationsHandler) {
       await onProcessNotificationsHandler();
@@ -439,20 +466,55 @@ export const setLevels = async (levelAll: boolean) => {
   }
 };
 
-export const addNotification = async (notification: TPayload) => {
-  let notifications = [];
-  try {
-    const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
-    notifications = JSON.parse(String(stringified));
-    if (!Array.isArray(notifications)) notifications = [];
-  } catch (e) {
-    console.error(e);
-    notifications = [];
-  }
+/**
+ * Every change to the stored push queue runs one at a time. The queue is a
+ * read-modify-write of one AsyncStorage key, and two pushes arriving together
+ * used to overwrite each other (H20).
+ */
+let queueTail: Promise<unknown> = Promise.resolve();
+function inNotificationQueue<T>(op: () => Promise<T>): Promise<T> {
+  const run = queueTail.then(op, op);
+  queueTail = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
+}
 
-  notifications.push(notification);
-  await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify(notifications));
-};
+/** The stored queue; an unreadable value is reset to empty, a storage error is thrown. */
+async function readNotificationQueue(): Promise<TPayload[]> {
+  let notifications: unknown;
+  try {
+    notifications = JSON.parse(String(await AsyncStorage.getItem(NOTIFICATIONS_STORAGE)));
+  } catch (e) {
+    if (!(e instanceof SyntaxError)) throw e;
+    console.error('Invalid notifications format, resetting the queue');
+    await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, '[]');
+    return [];
+  }
+  return Array.isArray(notifications) ? (notifications as TPayload[]) : [];
+}
+
+export const addNotification = (notification: TPayload): Promise<void> =>
+  inNotificationQueue(async () => {
+    const notifications = await readNotificationQueue();
+    notifications.push(notification);
+    await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify(notifications));
+  });
+
+/**
+ * Removes one processed push from the queue. Called after the push was
+ * dispatched, so a crash in between replays it instead of losing it (H20).
+ */
+export const acknowledgeStoredNotification = (notification: Partial<TPayload>): Promise<void> =>
+  inNotificationQueue(async () => {
+    const notifications = await readNotificationQueue();
+    const key = getNotificationKey(notification);
+    const index = notifications.findIndex(stored => getNotificationKey(stored) === key);
+    if (index < 0) return;
+    notifications.splice(index, 1);
+    await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify(notifications));
+  });
 
 const postTokenConfig = async () => {
   console.log('postTokenConfig: Starting token configuration');
@@ -598,11 +660,8 @@ const configureNotifications = async (onProcessNotifications?: () => void): Prom
       try {
         notificationSubscriptions = [
           Notifications.events().registerRemoteNotificationsRegistered(async event => {
-            console.log('processing event', event);
+            console.log('configureNotifications: push token received');
             const token = createPushToken(event.deviceToken);
-            if (__DEV__) {
-              console.log('configureNotifications: Token received:', token);
-            }
             await _setPushToken(token);
             await postTokenConfig().catch(error => console.error('Failed to post token configuration:', error));
             settlePendingRegistration(true);
@@ -639,7 +698,7 @@ const configureNotifications = async (onProcessNotifications?: () => void): Prom
       Notifications.getInitialNotification()
         .then(async initialNotification => {
           if (initialNotification) {
-            console.log('App was launched by a push notification:', initialNotification);
+            console.log('App was launched by a push notification');
             await storeIncomingNotification(initialNotification, { foreground: false, userInteraction: true });
           }
         })
@@ -658,9 +717,10 @@ const configureNotifications = async (onProcessNotifications?: () => void): Prom
 /**
  * Validates whether the provided GroundControl URI is valid by pinging it.
  */
-export const isGroundControlUriValid = async (uri: string) => {
+/** True when `uri` answers `/ping` like a GroundControl server within `timeout` ms. */
+export const isGroundControlUriValid = async (uri: string, timeout?: number) => {
   try {
-    const response = await fetch(`${uri}/ping`, { headers: _getHeaders() });
+    const response = await fetch(`${uri}/ping`, { headers: _getHeaders(), timeout });
     const json = await response.json();
     return !!json.description;
   } catch (_) {
@@ -766,7 +826,7 @@ const _getHeaders = () => {
 
 export const clearStoredNotifications = async () => {
   try {
-    await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify([]));
+    await inNotificationQueue(() => AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify([])));
   } catch (_) {}
 };
 
@@ -868,24 +928,8 @@ export const isNotificationsEnabled = async () => {
   }
 };
 
-export const getStoredNotifications = async (): Promise<TPayload[]> => {
-  let notifications = [];
-  try {
-    notifications = JSON.parse(String(await AsyncStorage.getItem(NOTIFICATIONS_STORAGE)));
-    if (!Array.isArray(notifications)) notifications = [];
-  } catch (e) {
-    if (e instanceof SyntaxError) {
-      console.error('Invalid notifications format:', e);
-      notifications = [];
-      await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, '[]');
-    } else {
-      console.error('Error accessing notifications:', e);
-      throw e;
-    }
-  }
-
-  return notifications;
-};
+/** A snapshot of the stored queue. Entries stay stored until acknowledged. */
+export const getStoredNotifications = (): Promise<TPayload[]> => inNotificationQueue(readNotificationQueue);
 
 // on app launch (load module):
 export const initializeNotifications = async (onProcessNotifications?: () => void) => {

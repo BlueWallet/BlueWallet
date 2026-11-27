@@ -12,7 +12,13 @@ import { ElectrumXBackend } from './ElectrumXBackend';
 import { RpcBackend } from './RpcBackend';
 import { WssBackend } from './WssBackend';
 import { getWssUrlOverride } from './backendOverrides';
-import { getDepinRpcConfig, getDepinWssOverride } from './depinRpcOverrides';
+import {
+  DepinServerSuspendedError,
+  getDepinRpcConfig,
+  getDepinSuspension,
+  getDepinWssOverride,
+  type DepinSuspension,
+} from './depinRpcOverrides';
 
 export * from './networkConfig';
 export * from './NeuraiBackend';
@@ -25,6 +31,10 @@ export {
   getDepinRpcConfig,
   getDepinRpcOverride,
   getDepinWssOverride,
+  getDepinSuspension,
+  getIncompatibleDepinServer,
+  DepinServerSuspendedError,
+  type DepinSuspension,
   isAllowedDepinServerUrl,
   setDepinRpcConfig,
   setDepinWssOverride,
@@ -137,12 +147,74 @@ function createDepinWssBackend(network: NeuraiNetwork, url: string): NeuraiBacke
 }
 
 /**
+ * Stands in for DePIN's backend while it must not talk to any server: every
+ * call is refused, nothing is opened, so no other node receives the queries
+ * (some carry addresses) meant for the server the user chose.
+ */
+class SuspendedDepinBackend implements NeuraiBackend {
+  readonly kind = 'wss' as const;
+  readonly chain: NeuraiChainType;
+  readonly suspension: DepinSuspension;
+  constructor(chain: NeuraiChainType, suspension: DepinSuspension) {
+    this.chain = chain;
+    this.suspension = suspension;
+  }
+
+  private refuse(): Promise<never> {
+    return Promise.reject(new DepinServerSuspendedError(this.suspension));
+  }
+
+  rpc<T = unknown>(): Promise<T> {
+    return this.refuse();
+  }
+
+  getTipHeight(): Promise<number> {
+    return this.refuse();
+  }
+
+  getBalance(): Promise<bigint> {
+    return this.refuse();
+  }
+
+  getAddressHistory(): Promise<AddressDelta[]> {
+    return this.refuse();
+  }
+
+  getUtxos(): Promise<NeuraiUtxo[]> {
+    return this.refuse();
+  }
+
+  getMempool(): Promise<MempoolEntry[]> {
+    return this.refuse();
+  }
+
+  broadcast(): Promise<string> {
+    return this.refuse();
+  }
+
+  estimateFee(): Promise<FeeEstimate> {
+    return this.refuse();
+  }
+
+  getBlockTimes(): Promise<Record<number, number>> {
+    return this.refuse();
+  }
+
+  async ping(): Promise<boolean> {
+    return false;
+  }
+}
+
+/**
  * DePIN's WSS service, with a reusable connection: the one set for DePIN alone
  * (getDepinWssOverride) or else the wallet's, checked against the same chain
- * as the wallet's.
+ * as the wallet's. While `getDepinSuspension` gives a reason, a backend that
+ * refuses every call.
  */
 const depinBackends = new Map<NeuraiNetwork, { url: string; backend: NeuraiBackend }>();
 export function getDepinRpcBackend(network: NeuraiNetwork): NeuraiBackend {
+  const suspension = getDepinSuspension(network);
+  if (suspension) return new SuspendedDepinBackend(chainFor(network, 'legacy'), suspension);
   const url = getDepinRpcConfig(network).url;
   const cached = depinBackends.get(network);
   if (cached?.url === url) return cached.backend;

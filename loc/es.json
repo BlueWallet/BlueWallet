@@ -176,14 +176,6 @@
     "sats": "sats.",
     "wasnt_paid_and_expired": "Esta factura no fue pagada y ha expirado."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Crear almacenamiento cifrado",
-    "create_password_explanation": "La contraseña para el almacenamiento falso no puede ser igual que la del almacenamiento principal.",
-    "help": "Bajo ciertas circunstancias, podrías verte forzado a revelar tu contraseña. Para proteger tus fondos, NeuraiWallet puede crear otro almacenamiento cifrado con una contraseña diferente. Proporciona esta otra contraseña a quien te esté obligando a hacerlo y NeuraiWallet mostrará un almacenamiento \"falso\" que parecerá legítimo. Así mantendrás a buen recaudo el almacenamiento con tus fondos.",
-    "help2": "El nuevo almacen sera completamente funcional, y puedes almacenar cantidades minimas para que sea mas creible.",
-    "password_should_not_match": "Esta contraseña ya está en uso. Por favor, introduce una diferente.",
-    "title": "Negación plausible"
-  },
   "pleasebackup": {
     "ok": "OK, ya la he anotado.",
     "ok_lnd": "OK, lo he guardado.",
@@ -404,7 +396,6 @@
     "notifications": "Notificaciones",
     "open_link_in_explorer": "Abrir enlace en el navegador",
     "password": "Contraseña",
-    "plausible_deniability": "Negación plausible",
     "reset_storage_button": "Start fresh",
     "reset_storage_confirm": "Restablecer almacenamiento",
     "reset_storage_message": "Esto elimina todas las carteras guardadas en este dispositivo y abre NeuraiWallet con almacenamiento local vacío. Continúa solo si tienes tu frase de recuperación o estás revisando la app.",
@@ -464,13 +455,27 @@
     "quick_unavailable": "No disponible",
     "encrypt_recommended": "Recomendado",
     "encrypt_storage_expl": "Cifra las carteras en el teléfono y pide la contraseña al abrir la app.",
-    "plausible_deniability_expl": "Una segunda contraseña abre unas carteras señuelo.",
-    "plausible_deniability_needs_password": "Necesita la contraseña activada.",
     "block_screenshots": "Bloquear capturas de pantalla",
     "block_screenshots_expl": "Si lo desactivas, solo dura hasta reiniciar la app. La frase de recuperación nunca se puede capturar.",
     "security_bio_expl": "Se pide antes de enviar, desbloquear, exportar o borrar una cartera.",
     "encrypt_enc_and_pass": "Protegido con contraseña",
-    "block_explorer": "Explorador de bloques"
+    "block_explorer": "Explorador de bloques",
+    "storage_unavailable_title": "Almacenamiento de carteras no disponible",
+    "storage_unavailable_message": "Ahora mismo no se pueden leer tus carteras. No se ha cambiado nada. Vuelve a intentarlo en un momento o reinicia el teléfono si sigue fallando.",
+    "storage_retry": "Reintentar",
+    "storage_save_failed": "No se pudieron guardar los cambios. Las carteras guardadas no se han sobrescrito. Vuelve a intentarlo.",
+    "storage_preserved_records": "Esta versión no puede abrir algunas carteras guardadas. Se conservan sin cambios.",
+    "encrypt_other_storage": "Este almacenamiento contiene otro almacenamiento cifrado con una contraseña distinta, creado con la antigua función de señuelo. Quitar la contraseña lo borraría, así que la contraseña sigue activa.",
+    "storage_restore_backup": "Restaurar la copia de respaldo",
+    "storage_restore_backup_title": "¿Restaurar la copia de respaldo?",
+    "storage_restore_backup_message": "No se puede leer el almacenamiento principal. NeuraiWallet guarda una copia de respaldo que puede ser más antigua: las carteras añadidas o cambiadas después de guardarla no estarán. Tus frases de recuperación restauran cualquier cartera. La copia de respaldo sustituye al almacenamiento ilegible.",
+    "storage_restore_bucket_message": "Tu contraseña abre una parte del almacenamiento cuyo contenido está dañado. La copia que elijas sustituye solo esa parte y se abrirá con la misma contraseña. Los almacenamientos protegidos con otras contraseñas se conservan tal cual, y el contenido dañado se guarda aparte.",
+    "storage_reset_failed": "No se pudo restablecer el almacenamiento, así que no se ha abierto. Vuelve a intentarlo.",
+    "storage_reset_cleanup_pending": "Se ha restablecido el almacenamiento. Algunos archivos de respaldo antiguos aún no se han podido borrar; se borrarán la próxima vez que se abra la app.",
+    "storage_restore_backup_dated": "Restaurar la copia guardada el {date}",
+    "storage_restore_backup_several": "Hay varias copias de respaldo distintas; las que no elijas se quedan en el dispositivo y se vuelven a ofrecer si alguna vez hace falta recuperar.",
+    "storage_restore_changed": "Las copias de respaldo han cambiado desde que elegiste. No se ha restaurado nada: revísalas y elige de nuevo.",
+    "storage_readable_again": "El almacenamiento principal ha cambiado o vuelve a poder leerse desde que se ofreció la copia. No se ha restaurado nada: se comprueba de nuevo como siempre."
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "¿Quires recibir notificaciones cuando detectemos transferencias entrantes?"
@@ -603,7 +608,6 @@
     "import_passphrase_title": "Passphrase",
     "import_passphrase_message": "Introduce la passphrase si has usado una",
     "import_error": "Error al importar. Por favor, asegúrate de que los datos introducidos son correctos.",
-    "import_imported": "Importado",
     "import_scan_qr": "Escanear o importar un archivo",
     "import_success": "Tu cartera ha sido importada.",
     "import_search_accounts": "Buscar cuentas",
@@ -710,7 +714,8 @@
     "hw_backup_step_show": "«Review seed»: el dispositivo muestra tus palabras",
     "hw_backup_words": "Estas palabras son indispensables para hacer la copia de seguridad de tu cartera. Escríbelas en papel, en orden, y guárdalas en un lugar seguro: sin ellas, si el dispositivo se pierde o se rompe, se pierden los fondos.",
     "hw_backup_replay": "Ver otra vez",
-    "hw_backup_ok": "Entendido"
+    "hw_backup_ok": "Entendido",
+    "screen_protect_failed": "No se ha podido proteger la pantalla contra capturas y grabaciones, así que el secreto sigue oculto. Vuelve a intentarlo."
   },
   "multisig": {
     "default_label": "Vault multifirma",
@@ -968,6 +973,7 @@
     "status_checking": "Comprobando el servidor DePIN…",
     "status_needs_reveal": "Revela tu clave pública para recibir mensajes",
     "status_server_off": "Este servidor DePIN tiene el chat desactivado",
+    "status_server_incompatible": "En pausa: servidor ya no permitido",
     "copied": "Copiada",
     "hide_qr": "Ocultar QR",
     "token_open": "Chat abierto en este servidor",
@@ -1004,7 +1010,10 @@
     "server_own": "Servidor DePIN propio",
     "server_own_explain": "Una dirección de neurai-wallet-services con DePIN: wss://, o ws:// si está en tu red local",
     "server_address": "Dirección del servidor",
-    "server_invalid": "La dirección debe empezar por wss://, o por ws:// si el servidor está en tu red local (192.168.x.x, 10.x.x.x…)",
+    "server_invalid": "La dirección debe empezar por wss://, o por ws:// si el servidor está en tu red local, en una dirección 192.168.0.x o 192.168.1.x.",
+    "server_incompatible": "DePIN está en pausa. Tu servidor guardado {url} usa ws:// fuera de 192.168.0.x y 192.168.1.x, y esta versión ya no lo permite. No se envía nada a ningún servidor hasta que lo cambies.",
+    "server_incompatible_edit": "El servidor guardado {url} ya no está permitido: sin TLS solo se aceptan direcciones 192.168.0.x y 192.168.1.x. Escribe una dirección wss:// o elige el servidor de la cartera. DePIN sigue en pausa hasta que guardes.",
+    "server_change": "Cambiar servidor DePIN",
     "server_save": "Guardar"
   },
   "privacy": {
@@ -1013,7 +1022,6 @@
     "tx_deposit": "Depósito en el pool privado",
     "tx_withdraw": "Retirada del pool privado",
     "tx_other": "Operación del pool privado",
-    "asset": "Activo",
     "badge_locked": "Cerrada",
     "badge_working": "Trabajando",
     "badge_ready": "Lista",

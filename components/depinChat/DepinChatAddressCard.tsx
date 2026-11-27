@@ -33,13 +33,14 @@ const QR_TILE_PAD = 10;
 /** A wide screen (tablet) does not need a QR larger than this to be read. */
 const QR_MAX = 420;
 
-export type DepinReadiness = 'ready' | 'checking' | 'needs_reveal' | 'server_off';
+export type DepinReadiness = 'ready' | 'checking' | 'needs_reveal' | 'server_off' | 'server_incompatible';
 
 const READINESS: Record<DepinReadiness, { tone: SettingsStatusTone; text: () => string }> = {
   ready: { tone: 'ok', text: () => loc.depin.status_ready },
   checking: { tone: 'idle', text: () => loc.depin.status_checking },
   needs_reveal: { tone: 'fail', text: () => loc.depin.status_needs_reveal },
   server_off: { tone: 'fail', text: () => loc.depin.status_server_off },
+  server_incompatible: { tone: 'fail', text: () => loc.depin.status_server_incompatible },
 };
 
 export const DepinHeaderCard = ({ readiness, onOpenServer }: { readiness: DepinReadiness; onOpenServer: () => void }) => {

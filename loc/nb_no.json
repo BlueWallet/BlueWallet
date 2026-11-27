@@ -55,14 +55,6 @@
     "sats": "sats.",
     "wasnt_paid_and_expired": "Denne fakturaen ble ikke betalt og har utløpt."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Opprett Kryptert Lagring",
-    "create_password_explanation": "Passordet for den falske lagringen skal ikke samsvare med passordet for hovedlagringen din.",
-    "help": "Under visse omstendigheter kan du bli tvunget til å oppgi et passord. For å holde myntene dine trygge, kan NeuraiWallet opprette en annen kryptert lagring med et annet passord. Under press kan du avsløre dette passordet til en tredjepart. Hvis den legges inn i NeuraiWallet, vil den låse opp en ny \"falsk\" lagring. Dette vil virke legitimt for tredjeparten, men det vil i hemmelighet holde hovedlagringen din trygt.",
-    "help2": "Den nye lagringen vil være fullt funksjonell, og du kan lagre noen minimumsbeløp der slik at den ser mer troverdig ut.",
-    "password_should_not_match": "Passordet er i bruk. Prøv et annet passord.",
-    "title": "Plausibel Fornektelse"
-  },
   "pleasebackup": {
     "ok": "Greit, jeg skrev det ned.",
     "text": "Vennligst bruk et øyeblikk til å skrive ned denne mnemoniske frasen på et stykke papir.\nDet er sikkerhetskopien din, og du kan bruke den til å gjenopprette lommeboken.",
@@ -212,7 +204,6 @@
     "notifications": "Varslinger",
     "open_link_in_explorer": "Åpne lenken i Utforsker",
     "password": "Passord",
-    "plausible_deniability": "Plausibel Fornektelse",
     "privacy": "Personvern",
     "privacy_read_clipboard": "Les Utklippstavlen",
     "privacy_system_settings": "Systeminnstillinger",
@@ -314,7 +305,6 @@
     "import_passphrase_title": "Passordfrase",
     "import_passphrase_message": "Skriv inn passordfrase hvis du har brukt noen",
     "import_error": "Kunne ikke importere. Vennligst vær sikker på at de oppgitte dataene er gyldige.",
-    "import_imported": "Importert",
     "import_scan_qr": "Skann eller importer en fil",
     "import_success": "Lommeboken din har blitt importert.",
     "import_search_accounts": "Søk kontoer",

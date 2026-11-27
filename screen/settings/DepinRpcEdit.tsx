@@ -13,6 +13,7 @@ import {
   CHAIN_PARAMS,
   chainFor,
   getDepinWssOverride,
+  getIncompatibleDepinServer,
   getWssUrlOverride,
   isAllowedDepinServerUrl,
   loadDepinRpcOverrides,
@@ -35,8 +36,12 @@ const DepinRpcEdit: React.FC = () => {
   const network: NeuraiNetwork = useRoute<RouteProps>().params?.network ?? 'mainnet';
   const walletUrl = getWssUrlOverride(network) ?? CHAIN_PARAMS[chainFor(network, 'legacy')].defaultWssUrl;
 
-  const [choice, setChoice] = useState<Choice>(() => (getDepinWssOverride(network) ? 'own' : 'wallet'));
-  const [url, setUrl] = useState(() => getDepinWssOverride(network) ?? '');
+  // A saved server the current policy refuses is still the user's choice: shown
+  // here to be corrected, not swapped for the wallet's.
+  const savedOwn = () => getDepinWssOverride(network) ?? getIncompatibleDepinServer(network);
+  const [choice, setChoice] = useState<Choice>(() => (savedOwn() ? 'own' : 'wallet'));
+  const [url, setUrl] = useState(() => savedOwn() ?? '');
+  const [incompatible, setIncompatible] = useState(() => getIncompatibleDepinServer(network));
   const [saving, setSaving] = useState(false);
 
   // The saved choice, once the stored settings are loaded.
@@ -45,9 +50,10 @@ const DepinRpcEdit: React.FC = () => {
     loadDepinRpcOverrides()
       .then(() => {
         if (cancelled) return;
-        const own = getDepinWssOverride(network);
+        const own = getDepinWssOverride(network) ?? getIncompatibleDepinServer(network);
         setChoice(own ? 'own' : 'wallet');
         setUrl(own ?? '');
+        setIncompatible(getIncompatibleDepinServer(network));
       })
       .catch(() => {});
     return () => {
@@ -84,6 +90,13 @@ const DepinRpcEdit: React.FC = () => {
         showsVerticalScrollIndicator={false}
         automaticallyAdjustKeyboardInsets
       >
+        {incompatible ? (
+          <ConnectNoticeCard
+            tone="warn"
+            text={loc.formatString(loc.depin.server_incompatible_edit, { url: incompatible })}
+            testID="DepinServerIncompatibleEdit"
+          />
+        ) : null}
         <ConnectNoticeCard tone="quiet" text={loc.depin.server_intro} />
         <View>
           <SettingsSectionLabel>{networkName}</SettingsSectionLabel>

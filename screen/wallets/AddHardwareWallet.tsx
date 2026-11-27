@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { NeuraiESP32 } from '@neuraiproject/neurai-sign-esp32/react-native';
 
 import presentAlert from '../../components/Alert';
+import { isReportedSaveError } from '../../class/storage-errors';
 import { ConnectFooter, ConnectInfoRow, ConnectNoticeCard, ConnectOption } from '../../components/ConnectUI';
 import { walletKindIconOf } from '../../components/home/homeTheme';
 import Icon from '../../components/Icon';
@@ -34,6 +35,7 @@ import {
 } from '../../blue_modules/neurai-hw/setupSeed';
 import loc from '../../loc';
 import NeuraiLoader from '../../components/NeuraiLoader';
+import ScreenProtectionGate from '../../components/ScreenProtectionGate';
 
 const networkLabel = (chain: string): string => (chain.includes('test') ? 'Neurai Testnet' : 'Neurai');
 
@@ -92,7 +94,7 @@ type SetupMode = 'new' | 'restore';
 const AddHardwareWallet: React.FC = () => {
   const p = useSettingsPalette();
   const { status, error, connect, disconnect } = useNeuraiHwDevice();
-  const { wallets, addWallet, saveToDisk } = useStorage();
+  const { wallets, addWalletAndSave } = useStorage();
   const navigation = useExtendedNavigation();
   const [phase, setPhase] = useState<Phase>('idle');
   const [pending, setPending] = useState<NeuraiHardwareWallet | null>(null);
@@ -114,7 +116,7 @@ const AddHardwareWallet: React.FC = () => {
 
   // The backup step shows the seed and the restore step takes it: keep both out of screenshots,
   // recordings and the recents thumbnail, whatever the "Allow Screen Capture" setting says.
-  const { enableScreenProtect, disableScreenProtect, isProtectionReady } = useScreenProtect();
+  const { enableScreenProtect, disableScreenProtect, isProtectionReady, isProtectionFailed } = useScreenProtect();
   const handlesSeed = phase === 'backup' || phase === 'restore';
   useEffect(() => {
     if (!handlesSeed) return;
@@ -310,11 +312,15 @@ const AddHardwareWallet: React.FC = () => {
 
   const onAdd = useCallback(async () => {
     if (!pending) return;
-    // Refuse to add the same device twice (match by pubkey, falling back to address).
+    // Refuse to add the same device twice (match by pubkey, falling back to
+    // address), and anything with the same wallet ID: network + key type +
+    // fingerprint + path name one wallet (H02).
+    const pendingID = pending.getID();
     const duplicate = wallets.some(
       w =>
-        w.type === NeuraiHardwareWallet.type &&
-        ((w as NeuraiHardwareWallet).pubkey === pending.pubkey || (w as NeuraiHardwareWallet).address === pending.address),
+        w.getID() === pendingID ||
+        (w.type === NeuraiHardwareWallet.type &&
+          ((w as NeuraiHardwareWallet).pubkey === pending.pubkey || (w as NeuraiHardwareWallet).address === pending.address)),
     );
     if (duplicate) {
       presentAlert({ message: loc.wallets.hardware_already_added });
@@ -329,12 +335,17 @@ const AddHardwareWallet: React.FC = () => {
           wallets.map(w => w.getLabel()),
         ),
     );
-    addWallet(pending);
-    await saveToDisk();
+    try {
+      // Rejects, and drops the wallet again, when it was not saved (H03).
+      await addWalletAndSave(pending);
+    } catch (saveError) {
+      if (!isReportedSaveError(saveError)) presentAlert({ message: (saveError as Error)?.message ?? String(saveError) });
+      return;
+    }
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     // Close the whole "Add wallet" modal and land on the wallet list.
     navigation.getParent()?.goBack();
-  }, [pending, walletName, wallets, addWallet, saveToDisk, navigation]);
+  }, [pending, walletName, wallets, addWalletAndSave, navigation]);
 
   const onCancel = useCallback(async () => {
     setMnemonic(null);
@@ -424,20 +435,22 @@ const AddHardwareWallet: React.FC = () => {
   const renderRestore = () => (
     <>
       <StepIntro title={loc.wallets.hardware_restore_title} text={loc.wallets.hardware_restore_subtitle} />
-      <SettingsCard>
-        <TextInput
-          testID="HardwareRestoreInput"
-          value={restoreInput}
-          onChangeText={setRestoreInput}
-          placeholder={loc.wallets.hardware_restore_placeholder}
-          placeholderTextColor={p.mutedOnCard}
-          selectionColor={p.accent}
-          multiline
-          {...secretTextInputProps}
-          style={[styles.words, { color: p.ink }]}
-          underlineColorAndroid="transparent"
-        />
-      </SettingsCard>
+      <ScreenProtectionGate ready={isProtectionReady} failed={isProtectionFailed} onRetry={enableScreenProtect} loaderStyle={styles.loader}>
+        <SettingsCard>
+          <TextInput
+            testID="HardwareRestoreInput"
+            value={restoreInput}
+            onChangeText={setRestoreInput}
+            placeholder={loc.wallets.hardware_restore_placeholder}
+            placeholderTextColor={p.mutedOnCard}
+            selectionColor={p.accent}
+            multiline
+            {...secretTextInputProps}
+            style={[styles.words, { color: p.ink }]}
+            underlineColorAndroid="transparent"
+          />
+        </SettingsCard>
+      </ScreenProtectionGate>
     </>
   );
 
@@ -445,7 +458,9 @@ const AddHardwareWallet: React.FC = () => {
     <>
       <StepIntro title={loc.wallets.hardware_backup_title} />
       <ConnectNoticeCard tone="warn" text={loc.wallets.hardware_backup_warning} />
-      {isProtectionReady ? <RecoveryWords words={mnemonic ?? ''} testID="HardwareSecret" /> : <NeuraiLoader style={styles.loader} />}
+      <ScreenProtectionGate ready={isProtectionReady} failed={isProtectionFailed} onRetry={enableScreenProtect} loaderStyle={styles.loader}>
+        <RecoveryWords words={mnemonic ?? ''} testID="HardwareSecret" />
+      </ScreenProtectionGate>
     </>
   );
 

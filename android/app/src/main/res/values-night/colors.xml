@@ -13,5 +13,8 @@
     <color name="alternative_text_color">#9ca3af</color>
     <color name="ripple_color">#1Affffff</color>
     <color name="ripple_color_selected">#1Af97316</color>
+    <!-- Neurai widgets: 24-hour change up / down -->
+    <color name="widget_up">#4ADE80</color>
+    <color name="widget_down">#F87171</color>
 </resources>
 

@@ -51,10 +51,14 @@ function isEntry(value: unknown): value is ConnectHistoryEntry {
   return !!v && (v.kind === 'login' || v.kind === 'session') && typeof v.at === 'number' && typeof v.url === 'string';
 }
 
-/** The history, newest first. */
+/**
+ * The history, newest first. A read that fails rejects and is not cached: an
+ * empty list here would be written back by the next entry and erase the
+ * stored history (review 9). Only a missing key is an empty history.
+ */
 export async function connectHistory(): Promise<ConnectHistoryEntry[]> {
   if (cache) return cache;
-  const stored = await storage.get<unknown>(KEY).catch(() => undefined);
+  const stored = await storage.get<unknown>(KEY);
   cache = Array.isArray(stored) ? stored.filter(isEntry) : [];
   return cache;
 }

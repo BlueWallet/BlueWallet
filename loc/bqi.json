@@ -75,13 +75,6 @@
     "date_time": "ویرگار وو زمووݩ",
     "wasnt_paid_and_expired": "ای سۊرت هساو پرداخت نوابیڌه ۉ مونقزی وابیڌه."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "وورکل جاگه رزم ناڌه وابیڌه سی زفت کردن",
-    "create_password_explanation": "رزمی ک سی جاگه زفت کردنی جعلی هڌ، نوا وا رزم جاگه زفت کردنی ٱلسی ی جۊر بۊ.",
-    "help2": "جاگه زفت کردنی نۊ قلوه و کار ایا وو ایسا ترین یتی ز دارایی خوتۉݩ ن اۊچنا واڌارنین تا ب تؽ بیا ک هونی زس استفاڌه اکۊنین.",
-    "password_should_not_match": "رزم هونی ب کار اروه. ی رزم دیری ن ب کار بگر.",
-    "title": "انکار مووجه"
-  },
   "pleasebackup": {
     "ok": "خا، هو ن هؽل کردوم.",
     "ok_lnd": "خا، هو ن زفت کردوم.",
@@ -251,7 +244,6 @@
     "notifications": "وارسۊویا",
     "open_link_in_explorer": "گۊشیڌن لینگ من گشت گر",
     "password": "رزم",
-    "plausible_deniability": "انکار موجه",
     "privacy": "سی خومی",
     "privacy_read_clipboard": "خوندن ویرگه",
     "privacy_system_settings": "سامووا دسگا",
@@ -314,7 +306,6 @@
     "import_passphrase_title": "پس فریز (Passphrase)",
     "import_passphrase_message": "ٱر پس فریز (Passphrase) ن و کار گرؽڌینه، هونه بزنین",
     "import_error": "و من ٱووردن نا مووفق بی. ز زبال بیڌن داده داڌه وابیڌه موتمعن بۊین.",
-    "import_imported": "و من ٱووڌ",
     "import_scan_qr": "اسکن یا و من ٱووردن فایل",
     "import_success": "کیف پیل ایسا وا مووفقیت و من ٱووڌ.",
     "import_search_accounts": "پیتینیڌن هساوا",

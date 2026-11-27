@@ -1,0 +1,12 @@
+<resources>
+    <!-- Neurai widgets (home screen) -->
+    <string name="price_widget_name">Precio de Neurai</string>
+    <string name="price_widget_description">Precio de XNA en la moneda de la app y su cambio en 24 horas.</string>
+    <string name="market_widget_name">Mercado de Neurai</string>
+    <string name="market_widget_description">Precio de XNA, cambio en 24 horas, capitalización y volumen en 24 horas.</string>
+    <string name="market_price">Precio</string>
+    <string name="widget_change_24h">24 h</string>
+    <string name="widget_market_cap">Capitalización</string>
+    <string name="widget_volume_24h">Volumen 24 h</string>
+    <string name="widget_not_updated">Sin actualizar</string>
+</resources>

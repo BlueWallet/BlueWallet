@@ -77,14 +77,6 @@
     "date_time": "Päivämäärä ja aika",
     "wasnt_paid_and_expired": "Tätä laskua ei maksettu, ja se on vanhentunut."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Luo Salattu tallennustila",
-    "create_password_explanation": "Väärennetyn tallennustilan salasana ei tule täsmätä oikean tallennustilan salasanan kanssa",
-    "help": "Joissain tilanteissa, saatat olla pakotettu kertomaan salasanasi. Pitääksesi kolikkosi turvassa, NeuraiWallet voi luoda toisen salatun tallennustilan, toisella salasanalla. Paineen alla, voit kertoa tämän salasanan kolmannelle osapuolelle. Jos se tulee sisään NeuraiWallet:iin, se avaa uuden \"väärennetyn\" tallennustilan. Se näyttää oikealta kolmannelle osapuolelle, mutta pitää oikean tallennustilasi kolikkoineen turvassa.",
-    "help2": "Uusi tallennustila näyttää täysin toimivalta, ja voit säilyttää pieniä summia siellä, jotta se näyttää uskottavalta.",
-    "password_should_not_match": "Salasana on käytössä. Ole hyvä, ja kokeile toista salasanaa.",
-    "title": "Uskottava Kiistettävyys"
-  },
   "pleasebackup": {
     "ok": "Ok, kirjoitin sen ylös",
     "ok_lnd": "OK, olen tallentanut sen.",
@@ -287,7 +279,6 @@
     "open_link_in_explorer": "Avaa linkki selaimessa",
     "password": "Salasana",
     "password_explain": "Anna salasana jolla avaat tallennustilan",
-    "plausible_deniability": "Uskottava kiistettävyys",
     "privacy": "Yksityisyys",
     "privacy_read_clipboard": "Lue Leikepöytä",
     "privacy_system_settings": "Järjestelmäasetukset",
@@ -417,7 +408,6 @@
     "import_passphrase_title": "tunnuslause",
     "import_passphrase_message": "Anna tunnuslause, mikäli olet käyttänyt sellaista",
     "import_error": "Tuonti epäonnistui. Varmista, että annettu tieto on oikein",
-    "import_imported": "Tuotu",
     "import_scan_qr": "Skannaa tai tuo tiedosto",
     "import_success": "Lompakkosi tuonti onnistui.",
     "import_success_watchonly": "Lompakkosi on onnistuneesti tuotu. VAROITUS: Tämä lompakko on pelkkä tarkastelulompakko, et voi käyttää siitä rahaa.",

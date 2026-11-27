@@ -55,9 +55,6 @@
     "sats": "ساتۊشی پرداخت بکو.",
     "wasnt_paid_and_expired": "اؽ سۊرت هساو پرداخت نبیه ۉ مونقزی بیه."
   },
-  "plausibledeniability": {
-    "password_should_not_match": "رزم ها و کار مؽره. ی رزم هنی ن و کار بیر."
-  },
   "pleasebackup": {
   },
   "receive": {
@@ -158,7 +155,6 @@
     "import_do_import": "و مؽن اووردن",
     "import_passphrase": "پس فریز (Passphrase)",
     "import_passphrase_title": "پس فریز (Passphrase)",
-    "import_imported": "و مؽن اوما",
     "import_scan_qr": "اسکن یا و مؽن اووردن فایل",
     "import_success": "کیف پیلٛ شما وا مووفقیت و مؽن اوما.",
     "import_title": "و مؽن اووردن",

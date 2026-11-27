@@ -77,14 +77,6 @@
     "date_time": "Tanggal dan Waktu",
     "wasnt_paid_and_expired": "Faktur ini belum dibayar dan telah kedaluwarsa"
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Buat penyimpanan terenkripsi palsu",
-    "create_password_explanation": "Kata sandi untuk penyimpanan palsu tidak seharusnya sama dengan kata sandi penyimpanan utama Anda",
-    "help": "Under certain circumstances, you might be forced to disclose a password. To keep your coins safe, NeuraiWallet can create another encrypted storage, with a different password. Under pressure, you can disclose this password to a 3rd party. If entered in NeuraiWallet, it will unlock new 'fake' storage. This will seem legit to a 3rd party, but will secretly keep your main storage with coins safe.",
-    "help2": "New storage will be fully functional, and you can store some minimum amounts there so it looks more believable.",
-    "password_should_not_match": "Password for fake storage should not match password for your main storage",
-    "title": "Penyangkalan yang Masuk Akal"
-  },
   "pleasebackup": {
     "ok_lnd": "Oke, saya sudah menyimpannya.",
     "text": "Silakan tulis frasa mnemonik ini di atas kertas.\nIni adalah cadangan Anda dan Anda bisa menggunakannya untuk memulihkan dompet Anda.",
@@ -226,7 +218,6 @@
     "notifications": "Pemberitahuan",
     "open_link_in_explorer": "Buka tautan di peramban",
     "password": "kata sandi",
-    "plausible_deniability": "Plausible deniability...",
     "privacy": "Privasi",
     "privacy_read_clipboard": "Baca Clipboard",
     "privacy_system_settings": "Pengaturan sistem",
@@ -295,7 +286,6 @@
     "import_passphrase": "Frasa sandi",
     "import_passphrase_title": "Frasa sandi",
     "import_error": "Gagal mengimpor. Pastikan data yang diketik benar.",
-    "import_imported": "Diimpor",
     "import_scan_qr": "atau mau pindai QR code?",
     "import_success": "Berhasil",
     "import_search_accounts": "Cari akun",

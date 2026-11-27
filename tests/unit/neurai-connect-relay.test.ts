@@ -69,7 +69,8 @@ jest.mock('react-native-secure-key-store', () => ({
   default: {
     set: jest.fn(async () => {}),
     get: jest.fn(async () => {
-      throw new Error('empty');
+      // A missing key, as react-native-secure-key-store reports it.
+      throw Object.assign(new Error('empty'), { code: '404' });
     }),
     remove: jest.fn(async () => {}),
   },

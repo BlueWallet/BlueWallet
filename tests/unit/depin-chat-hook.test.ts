@@ -35,6 +35,7 @@ test('admission cursors retain late/backdated messages and avoid duplicates acro
   await send('first', 1700000000);
   let chat!: ReturnType<typeof useDePINChat>, renderer!: TestRenderer.ReactTestRenderer;
   function Probe() {
+    // eslint-disable-next-line react-hooks/globals -- the probe hands the hook result to the test
     chat = useDePINChat({
       rpc,
       selectedAsset: '&TEST/NEWS',
@@ -97,6 +98,7 @@ test('a response completing after a channel change cannot populate the new chann
   };
   let chat!: ReturnType<typeof useDePINChat>, renderer!: TestRenderer.ReactTestRenderer;
   function Probe({ token }: { token: string }) {
+    // eslint-disable-next-line react-hooks/globals -- the probe hands the hook result to the test
     chat = useDePINChat({
       rpc,
       selectedAsset: token,
@@ -144,6 +146,7 @@ test('a hardware identity reads and sends through the device session', async () 
   const hw = await deviceDouble({ privateKey: '77'.repeat(32) });
   let chat!: ReturnType<typeof useDePINChat>, renderer!: TestRenderer.ReactTestRenderer;
   function Probe() {
+    // eslint-disable-next-line react-hooks/globals -- the probe hands the hook result to the test
     chat = useDePINChat({
       rpc,
       selectedAsset: '&TEST/NEWS',
@@ -203,6 +206,7 @@ test('a bounded poll with more pages does not mark the unread backlog as seen', 
     });
   let chat!: ReturnType<typeof useDePINChat>, renderer!: TestRenderer.ReactTestRenderer;
   function Probe() {
+    // eslint-disable-next-line react-hooks/globals -- the probe hands the hook result to the test
     chat = useDePINChat({
       rpc,
       selectedAsset: '&TEST/NEWS',

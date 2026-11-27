@@ -77,14 +77,6 @@
     "date_time": "Datum a čas",
     "wasnt_paid_and_expired": "Tato faktura nebyla zaplacena a její platnost vypršela."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Vytvořit zašifrované úložiště",
-    "create_password_explanation": "Heslo k falešnému úložišti nesmí být stejné jako heslo k hlavnímu úložišti.",
-    "help": "Za určitých okolností můžete být donuceni k prozrazení vašeho hesla. K zajištění bezpečnosti vašich prostředků může NeuraiWallet vytvořit další zašifrované úložiště s jiným heslem. V případě potřeby můžete toto heslo dát třetí straně. Pokud bude zadáno do NeuraiWallet, odemkne nové „falešné“ úložiště. To bude vypadat legitimně, ale udrží vaše pravé hlavní úložiště v bezpečí.",
-    "help2": "Nové úložiště bude plně funkční, můžete na něj uložit minimální částku, aby vypadalo více uvěřitelně.",
-    "password_should_not_match": "Heslo k falešnému úložišti nesmí být stejné jako heslo k hlavnímu úložišti.",
-    "title": "Věrohodná popiratelnost"
-  },
   "pleasebackup": {
     "ok": "Dobře, zapsal jsem si ji.",
     "ok_lnd": "Dobře, uložil jsem to.",
@@ -298,7 +290,6 @@
     "open_link_in_explorer": "Otevřít odkaz v průzkumníku",
     "password": "Heslo",
     "password_explain": "Zadejte heslo, které budete používat pro odemčení úložiště.",
-    "plausible_deniability": "Věrohodná popiratelnost",
     "privacy": "Soukromí",
     "privacy_read_clipboard": "Kopírovat ze schránky",
     "privacy_system_settings": "Systémová nastavení",
@@ -435,7 +426,6 @@
     "import_passphrase_title": "Přístupová fráze",
     "import_passphrase_message": "Zadejte přístupovou frázi, pokud jste nějakou použili",
     "import_error": "Chyba při importu. Prosím ujistěte se, že poskytnutá data jsou správná.",
-    "import_imported": "Importovaná",
     "import_scan_qr": "Skenovat nebo importovat soubor",
     "import_success": "Vaše peněženka byla úspěšně importována.",
     "import_success_watchonly": "Vaše peněženka byla úspěšně importována. UPOZORNĚNÍ: Tato peněženka je určena pouze pro sledování, nelze z ní utrácet prostředky.",

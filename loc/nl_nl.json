@@ -64,14 +64,6 @@
     "sats": "sats",
     "wasnt_paid_and_expired": "Deze factuur is niet betaald en is verlopen"
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Creëer versleutelde opslag",
-    "create_password_explanation": "Wachtwoord voor nep-opslag hoort niet overeen te komen met wachtwoord voor uw hoofdopslag",
-    "help": "Onder bepaalde omstandigheden kunt u worden gedwongen om uw wachtwoord te onthullen. Om uw coins veilig te houden, kan NeuraiWallet nog een versleutelde opslag aanmaken, met een ander wachtwoord. Onder druk kunt u dit wachtwoord bekendmaken aan de derde partij. Indien ingevoerd in NeuraiWallet, zal het nieuwe nep'-opslagruimte worden ontgrendeld. Dit lijkt legitiem voor de derde partij, maar zal uw hoofdopslag met coins niet bekend maken aan de derde partij.",
-    "help2": "De nieuwe opslag zal volledig functioneel zijn en u kunt er een minimum aantal munten opslaan zodat het geloofwaardig lijkt.",
-    "password_should_not_match": "Wachtwoord is momenteel in gebruik. Probeer een ander wachtwoord.",
-    "title": "Plausibele ontkenning"
-  },
   "pleasebackup": {
     "ok": "Ok, ik heb het opgeschreven",
     "ok_lnd": "Oké, ik heb het bewaard.",
@@ -217,7 +209,6 @@
     "notifications": "Meldingen",
     "open_link_in_explorer": "Open link in verkenner",
     "password": "Wachtwoord",
-    "plausible_deniability": "Plausibele ontkenning",
     "privacy": "Privacy",
     "privacy_read_clipboard": "Lees klembord",
     "privacy_system_settings": "Systeeminstellingen",
@@ -315,7 +306,6 @@
     "import_passphrase_title": "Wachtwoord",
     "import_passphrase_message": "Voer wachtwoord in als u één heeft gebruikt",
     "import_error": "Importeren mislukt. Zorg ervoor dat de verstrekte gegevens geldig zijn.",
-    "import_imported": "Geïmporteerd",
     "import_scan_qr": "QR-code scannen of importeren?",
     "import_success": "Succes",
     "import_search_accounts": "Doorzoek accounts",

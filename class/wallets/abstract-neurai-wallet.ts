@@ -16,7 +16,7 @@ import { InteractionManager } from 'react-native';
 import NeuraiJsWallet from '@neuraiproject/neurai-jswallet';
 import NeuraiKey, { type HDKey } from '@neuraiproject/neurai-key';
 import { getHistory } from '@neuraiproject/neurai-history-list';
-import { parseRawSats, parseMoneySats, satsToXna, absSats, minSats, amountFromInput } from '../../blue_modules/neurai/amounts';
+import { parseRawSats, parseMoneySats, satsToXna, amountFromInput } from '../../blue_modules/neurai/amounts';
 import type { AddressDelta } from '../../blue_modules/neurai/NeuraiBackend';
 import {
   computeTxid,
@@ -44,12 +44,15 @@ import {
   WalletKind,
   chainFor,
   createDefaultBackend,
+  isOverridesLoaded,
+  loadOverrides,
   isKindAvailable,
   isTestnetChain,
   kindOfChain,
   type NeuraiBackend,
 } from '../../blue_modules/neurai';
 import type { AddressChangedEvent } from '../../blue_modules/neurai/WssBackend';
+import { walletIdV2 } from './wallet-id';
 import { emitWalletChanged } from '../../blue_modules/neurai/eventBus';
 import { LOCAL_FEE_RATE_RPC, LOCAL_FEE_RATE_XNA_PER_KB } from '../../blue_modules/neurai/feePolicy';
 import { estimateNeuraiFeeSats } from '../../blue_modules/neurai/feeEstimate';
@@ -67,14 +70,17 @@ import { accountXpub, type ConnectAccountXpub } from '../../blue_modules/neurai/
 import { getAssetType, type NeuraiHeldAsset } from '../../blue_modules/neurai/assetUtils';
 import { AbstractWallet } from './abstract-wallet';
 import { Transaction, Utxo } from './types';
+import {
+  PENDING_TX_TTL_MS,
+  historyItemToTransaction,
+  pendingSendEntry,
+  prunePending,
+  unconfirmedWithPending,
+  withPendingFirst,
+  type HistoryItem,
+} from './neurai-history-projection';
 type IDelta = AddressDelta;
-type IHistoryItem = {
-  isSent: boolean;
-  fee: string;
-  assets: { assetName: string; satoshis: bigint; value: string }[];
-  blockHeight: number;
-  transactionId: string;
-};
+type IHistoryItem = HistoryItem;
 
 type NeuraiEngine = Awaited<ReturnType<typeof NeuraiJsWallet.createInstance>>;
 
@@ -84,10 +90,6 @@ const branchNodes = new WeakMap<NeuraiEngine, [HDKey, HDKey]>();
 const decimalToSats = (value: DecimalAmount): bigint => decimalToSatoshis(value);
 const rawToSats = parseRawSats;
 const FEE_TARGET_BLOCKS = 6;
-/** A locally-tracked pending send times out after this long if it never
- * confirms (e.g. dropped or replaced in the mempool) so it stops subtracting
- * from the displayed balance forever. */
-const PENDING_TX_TTL_MS = 24 * 60 * 60 * 1000;
 const HISTORY_DELTA_BATCH_SIZE = 250;
 const HISTORY_ITEM_BATCH_SIZE = 100;
 const TX_CACHE_BATCH_SIZE = 100;
@@ -582,6 +584,16 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     return this.passphrase;
   }
 
+  /**
+   * Mainnet keeps the legacy ID byte for byte, so its per-wallet references
+   * stay valid. Testnet adds the chain: the same words there are another
+   * wallet, and sharing the mainnet ID made one of the two disappear on load.
+   */
+  getID(): string {
+    if (!isTestnetChain(this.network)) return this.getLegacyID();
+    return walletIdV2([this.type, this.network, this.getSecret(), this.getPassphrase() ?? '', this._derivationPath ?? '']);
+  }
+
   protected _enforceChainKind(network: NeuraiChainType): void {
     const want = this.walletKind;
     const got = kindOfChain(network);
@@ -664,8 +676,18 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     this._wireBackendPushHandler();
   }
 
+  /**
+   * The wallet's backend, created on first use and kept. It is never created
+   * before the saved node overrides were read: a backend built then would talk
+   * to the default node for the rest of the session even though the user set
+   * their own (H19). Callers see a transient error and retry on the next refresh.
+   */
   getBackend(): NeuraiBackend {
     if (!this._backend) {
+      if (!isOverridesLoaded()) {
+        loadOverrides().catch(() => {});
+        throw new Error('The network settings are still loading. Try again in a moment.');
+      }
       this._backend = createDefaultBackend(this.getNeuraiNetwork(), this.walletKind);
       this._seedBackendStatuses();
       this._wireBackendPushHandler();
@@ -1502,30 +1524,19 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     emitWalletChanged(this.getID());
   }
 
+  /** Pending sends first, then the history; see `neurai-history-projection.ts`. */
   getTransactions(): Transaction[] {
     this._prunePendingTxs();
-    if (this._pendingTxs.length === 0) return this._txCache;
-    // Hide a pending entry once the backend surfaces the same txid (0-conf or
-    // confirmed) so the list never shows a duplicate row for one transaction.
-    const cached = new Set(this._txCache.map(t => t.txid));
-    const stillPending = this._pendingTxs.filter(t => !cached.has(t.txid));
-    if (stillPending.length === 0) return this._txCache;
-    return [...stillPending, ...this._txCache];
+    return withPendingFirst(this._pendingTxs, this._txCache);
   }
 
+  /**
+   * Pending sends keep subtracting until they confirm: the backend's confirmed
+   * balance does not drop until the transaction is mined.
+   */
   getUnconfirmedBalance(): bigint {
     this._prunePendingTxs();
-    // Pending sends keep subtracting from the balance until they CONFIRM: the
-    // backend's confirmed balance does not drop until the tx is mined, so the
-    // deduction must persist through the mempool / 0-conf window.
-    const pendingDelta = this._pendingTxs.filter(t => !this._isConfirmedInCache(t.txid)).reduce((sum, t) => sum + (t.value ?? 0n), 0n);
-    if (pendingDelta < 0) {
-      // Take the most-negative of the local delta and any server-reported
-      // unconfirmed value so the same spend is never counted twice (the PQ
-      // push path may already reflect it in `unconfirmed_balance`).
-      return minSats(this.unconfirmed_balance, pendingDelta);
-    }
-    return this.unconfirmed_balance;
+    return unconfirmedWithPending(this.unconfirmed_balance, this._pendingTxs, this._txCache);
   }
 
   /**
@@ -1541,38 +1552,15 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
   addPendingTx(txid: string, valueSats: bigint, asset?: { name: string; amount: string }): void {
     if (!txid || this._pendingTxs.some(t => t.txid === txid)) return;
     const nowSec = Math.floor(Date.now() / 1000);
-    this._pendingTxs.unshift({
-      txid,
-      hash: txid,
-      version: 0,
-      size: 0,
-      vsize: 0,
-      weight: 0,
-      locktime: 0,
-      inputs: [],
-      outputs: [],
-      blockhash: '',
-      confirmations: 0,
-      time: nowSec,
-      blocktime: nowSec,
-      timestamp: nowSec,
-      value: valueSats,
-      assetName: asset?.name,
-      // Pending entries are always outgoing sends → negative asset amount.
-      assetAmount: asset ? satsToXna(-absSats(decimalToSats(asset.amount))) : undefined,
-    });
+    const pendingAsset = asset ? { name: asset.name, amountSats: decimalToSats(asset.amount) } : undefined;
+    this._pendingTxs.unshift(pendingSendEntry(txid, valueSats, nowSec, pendingAsset));
     emitWalletChanged(this.getID());
-  }
-
-  private _isConfirmedInCache(txid: string): boolean {
-    return this._txCache.some(t => t.txid === txid && t.confirmations > 0);
   }
 
   /** Drop pending entries that have CONFIRMED in the cache or aged out (TTL). */
   private _prunePendingTxs(): void {
     if (this._pendingTxs.length === 0) return;
-    const cutoffSec = Math.floor((Date.now() - PENDING_TX_TTL_MS) / 1000);
-    this._pendingTxs = this._pendingTxs.filter(t => !this._isConfirmedInCache(t.txid) && t.timestamp >= cutoffSec);
+    this._pendingTxs = prunePending(this._pendingTxs, this._txCache, Math.floor((Date.now() - PENDING_TX_TTL_MS) / 1000));
   }
 
   /** Raw history items as returned by `@neuraiproject/neurai-history-list`. */
@@ -2305,39 +2293,7 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     blockTimes: Record<number, number>,
     tipHeight: number,
   ): Transaction {
-    const xnaAsset = item.assets.find(a => a.assetName === 'XNA');
-    const value = xnaAsset ? rawToSats(xnaAsset.satoshis) : 0n;
-    // Real confirmation depth = tip − block + 1 (a tx in the tip block has 1).
-    // Falls back to 1 when the tip is unknown (getTipHeight failed → 0) or the
-    // cached tip lags behind the tx's block.
-    const confirmations = item.blockHeight > 0 ? Math.max(1, tipHeight - item.blockHeight + 1) : 0;
-    // A transaction that moves a Neurai asset (token) carries a non-XNA entry;
-    // surface its name and signed amount so the list can render it as an asset
-    // movement (e.g. "Sent · 100 FOO") rather than a plain XNA row.
-    const nonXnaAsset = item.assets.find(a => a.assetName !== 'XNA');
-    // Mempool txs (height 0) get the current wall clock so the UI shows
-    // "just now" instead of 1970. Confirmed txs use the block header time.
-    const nowSec = Math.floor(Date.now() / 1000);
-    const time = item.blockHeight > 0 ? (blockTimes[item.blockHeight] ?? nowSec) : nowSec;
-    return {
-      txid: item.transactionId,
-      hash: item.transactionId,
-      version: 0,
-      size: 0,
-      vsize: 0,
-      weight: 0,
-      locktime: 0,
-      inputs: [],
-      outputs: [],
-      blockhash: '',
-      confirmations,
-      time,
-      blocktime: time,
-      timestamp: time,
-      value: item.isSent ? -absSats(value) : absSats(value),
-      assetName: nonXnaAsset?.assetName,
-      assetAmount: nonXnaAsset?.value,
-    };
+    return historyItemToTransaction(item, blockTimes, tipHeight, Math.floor(Date.now() / 1000));
   }
 
   // ---------- AbstractWallet `allow*` overrides ------------------------------------

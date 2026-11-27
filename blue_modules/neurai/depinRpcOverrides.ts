@@ -4,13 +4,19 @@
  * its service. Legacy RPC preferences remain readable for compatibility, but
  * do not select a transport or receive traffic. Pool-key trust is keyed by the
  * effective WSS URL, never by obsolete HTTP URLs.
+ *
+ * A saved DePIN server that the current policy refuses (a `ws://` host outside
+ * 192.168.0.x and 192.168.1.x, kept from an older version) is not replaced by
+ * another node: it stays saved and shown, and DePIN sends nothing anywhere
+ * until the user edits it or picks the wallet's server (second review, item 7).
  */
 
 import DefaultPreference from 'react-native-default-preference';
 
 import { GROUP_IO_BLUEWALLET } from '../currency';
 import { CHAIN_PARAMS, chainFor, type NeuraiNetwork } from './networkConfig';
-import { getWssUrlOverride, loadOverrides } from './backendOverrides';
+import { getWssUrlOverride, isOverridesLoaded, loadOverrides } from './backendOverrides';
+import { isCleartextAllowedHost } from './localNetwork';
 
 export interface DepinRpcConfig {
   url: string;
@@ -35,29 +41,38 @@ const WSS_KEY_BY_NETWORK: Record<NeuraiNetwork, string> = {
   testnet: 'NEURAI_DEPIN_WSS_TESTNET',
 };
 
-/** A host on this device or its local network: loopback, private IPv4 ranges, `.local` names. */
-const isLocalHost = (host: string): boolean =>
-  host === 'localhost' ||
-  host.endsWith('.local') ||
-  /^127\./.test(host) ||
-  /^10\./.test(host) ||
-  /^192\.168\./.test(host) ||
-  /^172\.(1[6-9]|2\d|3[01])\./.test(host);
-
 /**
  * Where DePIN may talk to: any `wss://` service, or a plain `ws://` one only on
- * this device or the local network (a DePIN node at home, say). Unencrypted
- * traffic never leaves the LAN.
+ * a host Android also lets through without TLS (`isCleartextAllowedHost`:
+ * 192.168.0.x and 192.168.1.x). Unencrypted traffic never leaves the LAN.
  */
 export function isAllowedDepinServerUrl(url: string): boolean {
   const match = /^(wss?):\/\/([^/:?#\s]+)(?::\d+)?(?:[/?#]\S*)?$/i.exec(url.trim());
   if (!match) return false;
-  return match[1].toLowerCase() === 'wss' || isLocalHost(match[2].toLowerCase());
+  return match[1].toLowerCase() === 'wss' || isCleartextAllowedHost(match[2]);
 }
 
 const cache = new Map<NeuraiNetwork, DepinRpcConfig>();
 const wssCache = new Map<NeuraiNetwork, string>();
+/** Saved DePIN servers the current policy refuses, kept until the user decides. */
+const incompatibleWss = new Map<NeuraiNetwork, string>();
 let loaded = false;
+
+export type DepinSuspension = 'not_loaded' | 'incompatible';
+
+/** DePIN sends nothing: its settings are not read yet, or the saved server is no longer allowed. */
+export class DepinServerSuspendedError extends Error {
+  readonly reason: DepinSuspension;
+  constructor(reason: DepinSuspension) {
+    super(
+      reason === 'incompatible'
+        ? 'The saved DePIN server is no longer allowed: change it or choose the wallet server'
+        : 'The DePIN server settings are still loading',
+    );
+    this.name = 'DepinServerSuspendedError';
+    this.reason = reason;
+  }
+}
 let loading: Promise<void> | null = null;
 
 function parseConfig(raw: string | null): DepinRpcConfig | undefined {
@@ -85,13 +100,23 @@ async function load(): Promise<void> {
     const cfg = parseConfig(value);
     if (cfg) cache.set(network, cfg);
     const wss = (await DefaultPreference.get(WSS_KEY_BY_NETWORK[network])) as string | null;
-    if (typeof wss === 'string' && isAllowedDepinServerUrl(wss)) wssCache.set(network, wss);
+    if (typeof wss !== 'string' || wss.trim().length === 0) continue;
+    if (isAllowedDepinServerUrl(wss)) wssCache.set(network, wss);
+    else incompatibleWss.set(network, wss);
   }
   loaded = true;
 }
 
+/** Like `loadOverrides`: a failed read is retried by the next call (H19). */
 export function loadDepinRpcOverrides(): Promise<void> {
-  if (!loading) loading = Promise.all([load(), loadOverrides()]).then(() => undefined);
+  if (!loading) {
+    loading = Promise.all([load(), loadOverrides()])
+      .then(() => undefined)
+      .catch(error => {
+        loading = null;
+        throw error;
+      });
+  }
   return loading;
 }
 
@@ -102,6 +127,21 @@ export function isDepinRpcOverridesLoaded(): boolean {
 /** User override for a network, or undefined if none set. */
 export function getDepinRpcOverride(network: NeuraiNetwork): DepinRpcConfig | undefined {
   return cache.get(network);
+}
+
+/** A saved DePIN server the current policy refuses: shown to the user, never contacted. */
+export function getIncompatibleDepinServer(network: NeuraiNetwork): string | undefined {
+  return incompatibleWss.get(network);
+}
+
+/**
+ * Why DePIN must not talk to any server on this network right now, or null.
+ * Until both setting stores are read, the server the user chose is unknown.
+ */
+export function getDepinSuspension(network: NeuraiNetwork): DepinSuspension | null {
+  if (incompatibleWss.has(network)) return 'incompatible';
+  if (!loaded || !isOverridesLoaded()) return 'not_loaded';
+  return null;
 }
 
 /** The WSS service set for DePIN alone on a network, or undefined: DePIN then uses the wallet's. */
@@ -117,17 +157,28 @@ export async function setDepinWssOverride(network: NeuraiNetwork, url: string | 
   if (trimmed.length === 0) {
     await DefaultPreference.clear(key);
     wssCache.delete(network);
+    incompatibleWss.delete(network);
     return;
   }
   if (!isAllowedDepinServerUrl(trimmed)) throw new Error('The DePIN server must be wss://, or ws:// on the local network');
   await DefaultPreference.set(key, trimmed);
   wssCache.set(network, trimmed);
+  incompatibleWss.delete(network);
 }
 
-/** Effective DePIN endpoint: the one set for DePIN, else the wallet's own WSS service. */
+/**
+ * Effective DePIN endpoint: the one set for DePIN, else the wallet's own WSS
+ * service. A refused saved server is still the answer, so trust pins and the
+ * screens name the server the user chose; `getDepinRpcBackend` contacts none.
+ */
 export function getDepinRpcConfig(network: NeuraiNetwork): DepinRpcConfig {
   // Old HTTP preferences remain stored for recovery but are never contacted.
-  return { url: wssCache.get(network) ?? getWssUrlOverride(network) ?? CHAIN_PARAMS[chainFor(network, 'legacy')].defaultWssUrl };
+  const url =
+    incompatibleWss.get(network) ??
+    wssCache.get(network) ??
+    getWssUrlOverride(network) ??
+    CHAIN_PARAMS[chainFor(network, 'legacy')].defaultWssUrl;
+  return { url };
 }
 
 /** Persist (or clear, when `config` is null) the DePIN RPC config for a network. */
@@ -149,8 +200,8 @@ export async function setDepinRpcConfig(network: NeuraiNetwork, config: DepinRpc
   cache.set(network, normalized);
 }
 
-// Warm the cache at import. Sync reads fall back to the public default until
-// this resolves; legacy HTTP settings remain stored but inactive.
+// Warm the cache at import. Until it resolves `getDepinRpcBackend` contacts no
+// server; legacy HTTP settings remain stored but inactive.
 loadDepinRpcOverrides().catch(() => {
-  // Storage errors are non-fatal; defaults will be used.
+  // Retried by the next caller; DePIN stays suspended meanwhile.
 });

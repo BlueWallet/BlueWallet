@@ -59,14 +59,6 @@
     "sats": "sats.",
     "wasnt_paid_and_expired": "Hoá đơn này chưa được thanh toán và đã hết hạn. "
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Tạo lưu trữ được mã hoá",
-    "create_password_explanation": "Mật khẩu lưu trữ giả không được khớp với mật khẩu lưu trữ chính của bạn.",
-    "help": "Trong một số trường hợp nhất định, bạn có thể bị buộc phải tiết lộ mật khẩu. Để giữ cho tiền của bạn an toàn, NeuraiWallet có thể tạo một lưu trữ được mã hoá khác có một mật khẩu khác. Trong trường hợp bị áp lực, bạn có thể tiết lộ mật khẩu đó. Khi nhập nó vào NeuraiWallet, nó sẽ mở khoá một lưu trữ “giả” mới. Điều này có vẻ hợp pháp với người khác nhưng sẽ bí mật giữ lưu trữ chính của bạn với tiền xu an toàn.",
-    "help2": "Lưu trữ mới sẻ hoạt động hoàn toàn, và bạn có thể nạp một ít tiền tại đó để nó có vẻ đáng tin cậy.",
-    "password_should_not_match": "Mật khẩu hiện đang được sử dụng. Vui lòng thử một mật khẩu khác.",
-    "title": "Sự từ chối hợp lý "
-  },
   "pleasebackup": {
     "text": "Vui lòng dành một chút thời gian để viết ra cụm từ ghi nhớ này trên một tờ giấy.\nBản sao lưu này có thể sử dùng để khôi phục ví của bạn.",
     "text_lnd": "Vui lòng lưu bản sao lưu ví này dể bạn khôi phục ví trong trường hợp mất."
@@ -217,7 +209,6 @@
     "notifications": "Thông báo",
     "open_link_in_explorer": "Mở liên kết trong explorer",
     "password": "Mật khẩu",
-    "plausible_deniability": "Sự từ chối hợp lý ",
     "privacy": "Riêng tư",
     "privacy_read_clipboard": "Đọc bảng tạm",
     "privacy_system_settings": "Cài đặt hệ thống",
@@ -321,7 +312,6 @@
     "import_passphrase_title": "Passphrase",
     "import_passphrase_message": "Nếu bạn đã sử dụng bất kỳ passphrase thì nhập nó",
     "import_error": "Nhập đã thất bại. Vui lòng đảm bảo dữ liệu cung cấp có hợp lệ.",
-    "import_imported": "Đã nhập",
     "import_scan_qr": "Quét hoặc nhập tệp",
     "import_success": "Ví của bạn đã được nhập thành công.",
     "import_success_watchonly": "Ví của bạn đã được nhập thành công. CẢNH BÁO: Đây là ví “chỉ xem”. Bạn không thể chi tiêu từ nó.",

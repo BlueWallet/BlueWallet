@@ -77,14 +77,6 @@
     "date_time": "日期与时间",
     "wasnt_paid_and_expired": "该发票未支付，已过期。"
   },
-  "plausibledeniability": {
-    "create_fake_storage": "创建加密存储",
-    "create_password_explanation": "虚拟存储的密码不应与主存储的密码相同。",
-    "help": "在某些情况下，您可能被迫暴露密码。为了保护您的资金安全，NeuraiWallet 可以创建另一个使用不同密码的加密存储。在胁迫下，您可以向第三方提供这个密码。输入到 NeuraiWallet 后，它将解锁一个新的“虚假”存储。对第三方来说，这看起来像是正常存储，但实际上会秘密保护您主存储中的资金安全。",
-    "help2": "新的存储将完全可用，您可以在其中存入少量资金，使其看起来更可信。",
-    "password_should_not_match": "该密码已被使用，请尝试其他密码。",
-    "title": "可合理否认"
-  },
   "pleasebackup": {
     "ok": "好的，我把它写下来了。",
     "ok_lnd": "好的，我已经保存好了。",
@@ -298,7 +290,6 @@
     "open_link_in_explorer": "在区块链浏览器中打开链接",
     "password": "密码",
     "password_explain": "请输入用于解锁存储的密码。",
-    "plausible_deniability": "可合理否认",
     "privacy": "隐私",
     "privacy_read_clipboard": "读取剪贴板",
     "privacy_system_settings": "系统设置",
@@ -435,7 +426,6 @@
     "import_passphrase_title": "密码短语",
     "import_passphrase_message": "如果您使用过密码短语，请输入。",
     "import_error": "导入失败。请确保提供的数据有效。",
-    "import_imported": "已导入",
     "import_scan_qr": "扫描或导入文件",
     "import_success": "您的钱包已成功导入。",
     "import_success_watchonly": "您的钱包已成功导入。警告：这是一个“观察钱包”，您无法从中支出资金。",

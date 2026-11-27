@@ -89,7 +89,21 @@ export class AbstractWallet {
     return this._lastTxFetch;
   }
 
+  /**
+   * Local identity of the wallet: navigation params, per-wallet caches and
+   * duplicate detection. It never feeds key derivation, addresses or signing.
+   * Subclasses refine it (see `AbstractNeuraiWallet.getID`).
+   */
   getID(): string {
+    return this.getLegacyID();
+  }
+
+  /**
+   * The original identity formula (type + secret + passphrase + path). It is
+   * still the ID of every mainnet software wallet, and the key under which
+   * older versions stored per-wallet references (see `walletIdMigration`).
+   */
+  getLegacyID(): string {
     const thisWithPassphrase = this as unknown as WalletWithPassphrase;
     const passphrase = thisWithPassphrase.getPassphrase ? thisWithPassphrase.getPassphrase() : '';
     const path = this._derivationPath ?? '';

@@ -77,14 +77,6 @@
     "date_time": "날짜와 시간",
     "wasnt_paid_and_expired": "이 청구서는 미결제되었으며 유효기간이 경과되었습니다."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "암호화된 스토리지 만들기",
-    "create_password_explanation": "fake storage(페이크 저장소)를 위한 패스워드는 메인 저장소의 패스워드와 일치하지 않아야합니다.",
-    "help": "특정 상황에서 비밀번호를 강제로 밝혀야 할 수 있습니다. 코인의 안전을 위해 블루월렛에서는 다른 암호화 스토리지를 다른 비밀번호로 만들어 놓을 수있습니다. 제 3자에게 비밀번호를 노출해도 이는 페이크 스토리지를 열것입니다. 이는 제 3자들에게는 진짜처럼 보이겠지만 코인은 메인 스토리지에 안전하게 보관되고 있을 것입니다. ",
-    "help2": "새로운 스토리지가 활성화됩니다. 최소 금액을 넣으면 더 신뢰성있어보입니다. ",
-    "password_should_not_match": "이 비밀 번호는 현재 사용중입니다. 다른 비밀번호를 입력해주세요.",
-    "title": "당위적 거부"
-  },
   "pleasebackup": {
     "ok": "네, 기록했습니다.",
     "ok_lnd": "네, 저장했습니다.",
@@ -298,7 +290,6 @@
     "open_link_in_explorer": "익스플로어세서 링크 열기",
     "password": "패스워드",
     "password_explain": "저장소 잠금을 해제하는 데 사용할 비밀번호를 입력하세요.",
-    "plausible_deniability": "당위적 부인",
     "privacy": "프라이버시",
     "privacy_read_clipboard": "읽기용 클립보드",
     "privacy_system_settings": "시스템 설정",
@@ -435,7 +426,6 @@
     "import_passphrase_title": "암호",
     "import_passphrase_message": "사용하신적 있으시면 암호를 넣어세요",
     "import_error": "들여오기 실패. 제공한 데이타가 유효한지 확인하세요.",
-    "import_imported": "들여오기 완료",
     "import_scan_qr": "스캔 또는 화일 들여오기",
     "import_success": "사용자 지갑의 성공적인 들여오기가 완료되었습니다.",
     "import_success_watchonly": "지갑이 성공적으로 가져와졌습니다. 경고: 이 지갑은 조회 전용 지갑이며, 송금할 수 없습니다.",

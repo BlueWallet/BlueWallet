@@ -21,7 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { NeuraiNetwork } from '../blue_modules/neurai';
 import { isDepinChatSupportedNetwork, type DepinChatNetwork } from '../blue_modules/neurai/depinChatIdentity';
-import { getDepinRpcConfig } from '../blue_modules/neurai/depinRpcOverrides';
+import { getDepinRpcConfig, getIncompatibleDepinServer } from '../blue_modules/neurai/depinRpcOverrides';
 import { isNeuraiWallet } from '../class/wallets/is-neurai-wallet';
 import { NeuraiHardwareWallet } from '../class/wallets/neurai-hardware-wallet';
 import { useDePINChat } from '../hooks/useDePINChat';
@@ -37,6 +37,7 @@ import useWalletSubscribe from '../hooks/useWalletSubscribe';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
 import presentAlert from './Alert';
+import { ConnectNoticeCard } from './ConnectUI';
 import NeuraiLoader from './NeuraiLoader';
 import { SettingsButton, useSettingsPalette } from './settings/SettingsUI';
 import { FUND_AMOUNT_XNA } from './depinChat/constants';
@@ -352,15 +353,20 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
     // Until both checks have answered, the remembered state stands in, so the
     // status doesn't flash "not ready" on every entry.
     const readyKnown = serverInfo != null && pubkeyRevealed != null;
-    const readiness: DepinReadiness = readyKnown
-      ? pubkeyRevealed === false
-        ? 'needs_reveal'
-        : serverInfo.enabled !== true
-          ? 'server_off'
-          : 'ready'
-      : lastKnownReady
-        ? 'ready'
-        : 'checking';
+    // Kept from an older version and refused by the current policy: DePIN
+    // talks to no server until the user changes it.
+    const incompatibleServer = getIncompatibleDepinServer(network);
+    const readiness: DepinReadiness = incompatibleServer
+      ? 'server_incompatible'
+      : readyKnown
+        ? pubkeyRevealed === false
+          ? 'needs_reveal'
+          : serverInfo.enabled !== true
+            ? 'server_off'
+            : 'ready'
+        : lastKnownReady
+          ? 'ready'
+          : 'checking';
     const revealProps = {
       depinBalance,
       depinIncoming,
@@ -382,6 +388,16 @@ const DePINChat = forwardRef<DePINChatHandle, DePINChatProps>(
           showsVerticalScrollIndicator={false}
         >
           <DepinHeaderCard readiness={readiness} onOpenServer={openServer} />
+          {incompatibleServer ? (
+            <View style={styles.serverNotice}>
+              <ConnectNoticeCard
+                tone="warn"
+                text={loc.formatString(loc.depin.server_incompatible, { url: incompatibleServer })}
+                testID="DepinServerIncompatible"
+              />
+              <SettingsButton title={loc.depin.server_change} icon="dns" onPress={openServer} testID="DepinServerChange" />
+            </View>
+          ) : null}
           <DepinChatRevealBanner {...revealProps} />
           <DepinChatTokenSections
             activeSection={activeSection}
@@ -502,6 +518,7 @@ const styles = StyleSheet.create({
   errorBox: { borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10, alignSelf: 'stretch' },
   errorText: { fontSize: 13, lineHeight: 18, textAlign: 'center' },
   stateAction: { alignSelf: 'stretch', marginTop: 4 },
+  serverNotice: { rowGap: 12 },
 });
 
 export default DePINChat;

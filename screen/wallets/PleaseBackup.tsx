@@ -10,7 +10,7 @@ import React, { useCallback, useEffect } from 'react';
 import { BackHandler, ScrollView, StyleSheet, View } from 'react-native';
 
 import { ConnectFooter, ConnectNoticeCard } from '../../components/ConnectUI';
-import NeuraiLoader from '../../components/NeuraiLoader';
+import ScreenProtectionGate from '../../components/ScreenProtectionGate';
 import RecoveryWords from '../../components/RecoveryWords';
 import { SettingsScreenHeader, useSettingsPalette } from '../../components/settings/SettingsUI';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -27,7 +27,7 @@ const PleaseBackup: React.FC = () => {
   const { walletID } = useRoute<RouteProps>().params;
   const wallet = wallets.find(w => w.getID() === walletID)!;
   const navigation = useNavigation<NavigationProp>();
-  const { enableScreenProtect, disableScreenProtect, isProtectionReady } = useScreenProtect();
+  const { enableScreenProtect, disableScreenProtect, isProtectionReady, isProtectionFailed } = useScreenProtect();
 
   const done = useCallback(() => {
     navigation.getParent()?.goBack();
@@ -54,7 +54,14 @@ const PleaseBackup: React.FC = () => {
       <SettingsScreenHeader title={loc.pleasebackup.title} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} testID="PleaseBackupScrollView">
         <ConnectNoticeCard tone="warn" text={loc.pleasebackup.text} />
-        {isProtectionReady ? <RecoveryWords words={wallet.getSecret()} /> : <NeuraiLoader style={styles.loader} />}
+        <ScreenProtectionGate
+          ready={isProtectionReady}
+          failed={isProtectionFailed}
+          onRetry={enableScreenProtect}
+          loaderStyle={styles.loader}
+        >
+          <RecoveryWords words={wallet.getSecret()} />
+        </ScreenProtectionGate>
       </ScrollView>
       <ConnectFooter primary={{ title: loc.pleasebackup.ok, onPress: done, testID: 'PleasebackupOk' }} />
     </View>

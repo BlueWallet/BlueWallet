@@ -44,11 +44,6 @@
     "please_pay": "Talu",
     "wasnt_paid_and_expired": "Ni chafodd yr anfoneb ei thalu, ac mae wedi gorffen."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Creu storfa wedi encryptio",
-    "create_password_explanation": "Ni ddyliai'r cyfrinair ar gyfer y storfa ffug fod yr un cyfrinair ag ar gyfer y brif storfa",
-    "password_should_not_match": "Mae'r cyfrinair yn cael ei ddefnyddio'n barod. Tria gyfrinair gwahanol."
-  },
   "pleasebackup": {
     "title": "Mae dy waled wedi cael ei chreu."
   },
@@ -163,7 +158,6 @@
     "enter_bip38_password": "Angen cyfrinair i ddad-gryptio",
     "export_title": "Waled Allfor",
     "import_do_import": "Mewnforio",
-    "import_imported": "Mewnforwyd",
     "import_scan_qr": "Sganio neu fewnforio ffeil",
     "import_success": "Mae dy waled wedi cael ei fewnforio'n llwyddiannus.",
     "import_title": "Mewnforio",

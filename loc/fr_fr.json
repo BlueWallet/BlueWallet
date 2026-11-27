@@ -76,14 +76,6 @@
     "date_time": "Date et Heure",
     "wasnt_paid_and_expired": "Cette requête n'a pas été réglée et a expiré"
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Créer un faux espace de stockage chiffré",
-    "create_password_explanation": "Le mot de passe pour le faux espace de stockage ne doit pas être le même que celui du stockage principal",
-    "help": "Dans certaines circonstances, vous serez peut-être forcé par un tiers à communiquer votre mot de passe. Pour protéger vos biens, NeuraiWallet permet de créer un autre espace de stockage, avec un mot de passe différent. Sous la contrainte, vous pourrez divulger ce mot de passe au tiers. Quand il est saisi, NeuraiWallet débloquera ce 'faux' espace de stockage. Le tiers pourra confondre ces données avec des données légitimes, et votre espace de stockage principal restera ainsi sécurisé et hors d'atteinte.",
-    "help2": "Le nouvel espace de stockage sera totalement fonctionnel, et vous pouvez même y stocker de petits montants pour le rendre plus crédible.",
-    "password_should_not_match": "Le mot de passe pour le faux espace de stockage ne doit pas être le même que celui du stockage principal",
-    "title": "Déni plausible"
-  },
   "pleasebackup": {
     "ok": "Ok, Je l'ai écrite sur un papier.",
     "ok_lnd": "OK, je l'ai sauvegardée.",
@@ -288,7 +280,6 @@
     "open_link_in_explorer": "Ouvrir le lien dans l'explorateur",
     "password": "Mot de passe",
     "password_explain": "Entrez le mot de passe que vous utiliserez pour déverrouiller votre stockage.",
-    "plausible_deniability": "Déni plausible...",
     "privacy": "Vie privée",
     "privacy_read_clipboard": "Lecture du presse-papier ",
     "privacy_system_settings": "Paramètres Système",
@@ -422,7 +413,6 @@
     "import_passphrase_title": "Phrase secrète",
     "import_passphrase_message": "Entrez la phrase secrète si vous en avez utilisé une",
     "import_error": "Échec de l'import. Merci, de vérifier que les données saisies sont valides.",
-    "import_imported": "Importé",
     "import_scan_qr": "ou scaner un QR code",
     "import_success": "Succès",
     "import_success_watchonly": "Votre portefeuille a été importé avec succès. AVERTISSEMENT : Il s'agit d'un portefeuille lectures seules, vous ne pouvez PAS dépenser avec celui-ci.",

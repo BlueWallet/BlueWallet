@@ -25,6 +25,7 @@
     "components/react-native-draggable-flatlist",
     "scripts/maccatalystpatches",
     "**/Pods",
-    "privacy-host"
+    "privacy-host",
+    "tmp"
   ]
 }

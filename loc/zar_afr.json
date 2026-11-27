@@ -60,14 +60,6 @@
     "sats": "sats.",
     "wasnt_paid_and_expired": "Die faktuur was nie betaal nie en het verval."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Skep fantasie berging wagwoord",
-    "create_password_explanation": "Die wagwoord vir fop berging moet verskil van die wagwoord vir hoof berging",
-    "help": "Onder sekere omstandighede mag jy dalk geforseer word om jou wagwoord te deel teen jou wil. Om jou te beskerm kan Bluewallet ‘n tweede “fop” beursie skep wat as skerm kan dien. Indien jy hierdie wagwoord deel sal die 3de party nie toegang tot jou hoof fondse kry nie.",
-    "help2": "Fop berging is heeltemal funksioneel",
-    "password_should_not_match": "Die wagwoord vir fantasie berging moet verskil van die wagwoord vir hoof berging.",
-    "title": "Geloofwaardige Ontkenbaarheid"
-  },
   "pleasebackup": {
     "ok": "OK, ek het dit neergeskryf.",
     "ok_lnd": "OK, ek het dit gestoor.",
@@ -137,7 +129,6 @@
     "language": "Taal",
     "lightning_settings": "Lightning Instellings",
     "password": "Wagwoord",
-    "plausible_deniability": "Geloofwaardige ontkenbaarheid...",
     "save": "stoor"
   },
   "transactions": {
@@ -169,7 +160,6 @@
     "export_title": "beursie uitvoer",
     "import_do_import": "Invoer",
     "import_error": "U invoer het misluk. Maak asseblief seker u data is korrek en geldig.",
-    "import_imported": "Invoer suksesvol",
     "import_scan_qr": "of skandeer QR kode?",
     "import_success": "Suksesvol",
     "import_title": "Invoer",

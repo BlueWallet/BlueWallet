@@ -340,7 +340,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       } finally {
         try {
           if (smthChanged) {
-            await saveToDisk();
+            // A failed save is reported by saveToDisk; the fetched page is still shown.
+            await saveToDisk().catch(() => {});
             setLimit(prev => prev + pageSize);
           }
         } finally {

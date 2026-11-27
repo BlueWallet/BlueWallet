@@ -4,28 +4,41 @@ import { BlueApp as BlueAppClass, TCounterpartyMetadata, TTXMetadata } from '../
 import type { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
-import {
-  isNotificationsEnabled,
-  majorTomToGroundControl,
-  syncGroundControlSubscriptions,
-  TSubscriptionEntry,
-  unsubscribe,
-} from '../../blue_modules/notifications';
+import { isNotificationsEnabled, syncGroundControlSubscriptions, TSubscriptionEntry, unsubscribe } from '../../blue_modules/notifications';
 import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
 import { isTestnetChain } from '../../blue_modules/neurai/networkConfig';
 import { onWalletChanged } from '../../blue_modules/neurai/eventBus';
 import { XnaUnit } from '../../models/xnaUnits';
 import { navigationRef } from '../../NavigationService';
-import { getScanWasBBQR } from '../../helpers/scan-qr.ts';
-import { setWalletIdMustUseBBQR } from '../../blue_modules/ur';
+import { StorageWriteError } from '../../class/storage-errors';
 
 const BlueApp = BlueAppClass.getInstance();
 
 // hashmap of timestamps we _started_ refetching some wallet
 const _lastTimeTriedToRefetchWallet: { [walletID: string]: number } = {};
+
+const SAVE_ALERT_INTERVAL_MS = 60_000;
+/** Upper bound for one refresh of every wallet. */
+const REFRESH_TIMEOUT_MS = 120_000;
+let lastSaveAlertAt = 0;
+
+/**
+ * Tells the user that wallets were not saved, at most once a minute: a broken
+ * keystore fails every refresh, and one alert per refresh helps no one.
+ * Returns the error marked as reported.
+ */
+function reportSaveFailure(error: unknown): unknown {
+  console.error('saving wallets failed:', (error as Error)?.message);
+  const now = Date.now();
+  if (now - lastSaveAlertAt >= SAVE_ALERT_INTERVAL_MS) {
+    lastSaveAlertAt = now;
+    presentAlert({ message: loc.settings.storage_save_failed });
+  }
+  if (error instanceof StorageWriteError) error.reported = true;
+  return error;
+}
 
 interface StorageContextType {
   wallets: TWallet[];
@@ -35,15 +48,14 @@ interface StorageContextType {
   saveToDisk: (force?: boolean) => Promise<void>;
   selectedWalletID: () => string | undefined; // Change from string|undefined to a function
   addWallet: (wallet: TWallet) => void;
+  addWalletAndSave: (wallet: TWallet) => Promise<void>;
   deleteWallet: (wallet: TWallet) => void;
   currentSharedCosigner: string;
   setSharedCosigner: (cosigner: string) => void;
-  addAndSaveWallet: (wallet: TWallet) => Promise<void>;
   fetchAndSaveWalletTransactions: (walletID: string) => Promise<void>;
   walletsInitialized: boolean;
   setWalletsInitialized: (initialized: boolean) => void;
   refreshAllWalletTransactions: (lastSnappedTo?: number, showUpdateStatusIndicator?: boolean) => Promise<void>;
-  resetWallets: () => void;
   walletTransactionUpdateStatus: WalletTransactionsStatus | string;
   setWalletTransactionUpdateStatus: (status: WalletTransactionsStatus | string) => void;
   getTransactions: typeof BlueApp.getTransactions;
@@ -54,9 +66,7 @@ interface StorageContextType {
   startAndDecrypt: typeof startAndDecrypt;
   encryptStorage: typeof BlueApp.encryptStorage;
   sleep: typeof BlueApp.sleep;
-  createFakeStorage: typeof BlueApp.createFakeStorage;
   decryptStorage: typeof BlueApp.decryptStorage;
-  isPasswordInUse: typeof BlueApp.isPasswordInUse;
   cachedPassword: typeof BlueApp.cachedPassword;
   getItem: typeof BlueApp.getItem;
   setItem: typeof BlueApp.setItem;
@@ -158,6 +168,11 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     return undefined;
   };
 
+  /**
+   * Rejects when the wallets were not written. The user is told here, once
+   * (see `reportSaveFailure`); the rejection carries `reported` so awaiting
+   * screens stop their success path without a second alert (H03).
+   */
   const saveToDisk = useCallback(
     async (force: boolean = false) => {
       if (!force && BlueApp.getWallets().length === 0) {
@@ -166,18 +181,44 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       }
       BlueApp.tx_metadata = txMetadata.current;
       BlueApp.counterparty_metadata = counterpartyMetadata.current;
-      await BlueApp.saveToDisk();
-      const w: TWallet[] = [...BlueApp.getWallets()];
-      setWallets(w);
+      try {
+        await BlueApp.saveToDisk();
+      } catch (error) {
+        throw reportSaveFailure(error);
+      } finally {
+        setWallets([...BlueApp.getWallets()]);
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [txMetadata.current, counterpartyMetadata.current],
   );
 
+  /** Throws when a wallet with the same identity is already loaded: one ID must name one wallet (H02). */
   const addWallet = useCallback((wallet: TWallet) => {
+    const id = wallet.getID();
+    if (BlueApp.wallets.some(existing => existing.getID() === id)) throw new Error(loc.wallets.import_already_loaded);
     BlueApp.wallets.push(wallet);
     setWallets([...BlueApp.getWallets()]);
   }, []);
+
+  /**
+   * Adds and persists a new wallet. When the save fails the wallet is taken
+   * out again, so the list never shows a wallet the disk does not hold, and
+   * the (already reported) error is rethrown (H03).
+   */
+  const addWalletAndSave = useCallback(
+    async (wallet: TWallet) => {
+      addWallet(wallet);
+      try {
+        await saveToDisk();
+      } catch (error) {
+        BlueApp.deleteWallet(wallet);
+        setWallets([...BlueApp.getWallets()]);
+        throw error;
+      }
+    },
+    [addWallet, saveToDisk],
+  );
 
   const deleteWallet = useCallback((wallet: TWallet) => {
     BlueApp.deleteWallet(wallet);
@@ -193,12 +234,25 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         return false;
       }
 
-      if (forceDelete) {
-        deleteWallet(wallet);
-        await saveToDisk(true);
+      // The deletion is undone in memory when it could not be saved, so the
+      // list keeps showing what the disk holds (H03).
+      const deleteAndSave = async (): Promise<boolean> => {
+        const removal = BlueApp.deleteWallet(wallet);
+        setWallets([...BlueApp.getWallets()]);
+        try {
+          await saveToDisk(true);
+        } catch (error) {
+          removal.undo();
+          setWallets([...BlueApp.getWallets()]);
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+          console.error(`handleWalletDeletion: saving the deletion of ${walletID} failed`, error);
+          return false;
+        }
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         return true;
-      }
+      };
+
+      if (forceDelete) return deleteAndSave();
 
       let isNotificationsSettingsEnabled = false;
       try {
@@ -257,11 +311,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
             }
           }
         }
-        deleteWallet(wallet);
-        console.debug(`handleWalletDeletion: wallet ${walletID} deleted successfully`);
-        await saveToDisk(true);
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        return true;
+        const deleted = await deleteAndSave();
+        if (deleted) console.debug(`handleWalletDeletion: wallet ${walletID} deleted successfully`);
+        return deleted;
       } catch (e: unknown) {
         console.error(`handleWalletDeletion: encountered error for wallet ${walletID}`, e);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -296,17 +348,14 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         });
       }
     },
-    [deleteWallet, saveToDisk, wallets],
+    [saveToDisk, wallets],
   );
-
-  const resetWallets = useCallback(() => {
-    setWallets(BlueApp.getWallets());
-  }, []);
 
   const setWalletsWithNewOrder = useCallback(
     (wlts: TWallet[]) => {
       BlueApp.wallets = wlts;
-      saveToDisk();
+      // Already reported to the user by saveToDisk.
+      saveToDisk().catch(() => {});
     },
     [saveToDisk],
   );
@@ -369,65 +418,30 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
           console.debug('[refreshAllWalletTransactions] Setting wallet transaction status to ALL');
           setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
         }
-        console.debug('[refreshAllWalletTransactions] Waiting for connectivity...');
-        await BlueElectrum.waitTillConnected();
-        if (!(await BlueElectrum.ping())) {
-          // above `waitTillConnected` is not reliable, as app might have returned from long sleep, so it thinks its
-          // connected but actually socket is closed. thus, we ping, and if it fails - we wait again (reconnection code
-          // should pick up)
-          console.log('[refreshAllWalletTransactions] ping failed, waiting for connection...');
-          await BlueElectrum.waitTillConnected();
-        }
-
-        console.debug('[refreshAllWalletTransactions] Connected to Electrum');
-
-        // Race only the post-connect work. `waitTillConnected` can take up to
-        // WAIT_TILL_CONNECTED_MAX_WALL_MS_NEVER (+ a second wait); starting the timer earlier caused refresh to abort
-        // while Electrum was still legitimately connecting.
-        const REFRESH_FETCH_PHASE_TIMEOUT_MS = Math.max(
-          120_000,
-          BlueElectrum.WAIT_TILL_CONNECTED_MAX_WALL_MS_NEVER + BlueElectrum.WAIT_TILL_CONNECTED_MAX_WALL_MS_AFTER_FIRST,
-        );
+        // Neurai wallets talk to their own backends (WSS/RPC); the inherited
+        // Bitcoin Electrum client is always disabled, so waiting for it or for
+        // the BIP47 payment-code task only delayed the refresh (H24).
         const timeoutPromise = new Promise<never>(
           (_resolve, reject) =>
             (refreshTimeout = setTimeout(() => {
               console.debug('[refreshAllWalletTransactions] Timeout reached');
               reject(new Error('Timeout reached'));
-            }, REFRESH_FETCH_PHASE_TIMEOUT_MS)),
+            }, REFRESH_TIMEOUT_MS)),
         );
-
-        if (typeof BlueApp.fetchSenderPaymentCodes !== 'function') {
-          console.warn('[refreshAllWalletTransactions] fetchSenderPaymentCodes is not available');
-        }
-
-        const paymentCodesPromise =
-          typeof BlueApp.fetchSenderPaymentCodes === 'function'
-            ? (async () => {
-                const codesStart = Date.now();
-                console.debug('[refreshAllWalletTransactions] Fetching sender payment codes (parallel)');
-                await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
-                console.debug('[refreshAllWalletTransactions] fetch payment codes took', (Date.now() - codesStart) / 1000, 'sec');
-              })()
-            : Promise.resolve();
 
         console.debug('[refreshAllWalletTransactions] Fetching wallet balances and transactions');
         await Promise.race([
           (async () => {
-            await Promise.all([
-              paymentCodesPromise,
-              (async () => {
-                const balanceStart = Date.now();
-                await BlueApp.fetchWalletBalances(lastSnappedTo);
-                console.debug('[refreshAllWalletTransactions] fetch balance took', (Date.now() - balanceStart) / 1000, 'sec');
+            const balanceStart = Date.now();
+            await BlueApp.fetchWalletBalances(lastSnappedTo);
+            console.debug('[refreshAllWalletTransactions] fetch balance took', (Date.now() - balanceStart) / 1000, 'sec');
 
-                const txStart = Date.now();
-                await BlueApp.fetchWalletTransactions(lastSnappedTo);
-                console.debug('[refreshAllWalletTransactions] fetch tx took', (Date.now() - txStart) / 1000, 'sec');
-              })(),
-            ]);
+            const txStart = Date.now();
+            await BlueApp.fetchWalletTransactions(lastSnappedTo);
+            console.debug('[refreshAllWalletTransactions] fetch tx took', (Date.now() - txStart) / 1000, 'sec');
 
             console.debug('[refreshAllWalletTransactions] Saving data to disk');
-            await saveToDisk();
+            await saveToDisk().catch(() => {}); // reported by saveToDisk
           })(),
           timeoutPromise,
         ]);
@@ -458,8 +472,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         _lastTimeTriedToRefetchWallet[walletID] = Date.now();
 
         if (wallet && isNeuraiWallet(wallet)) {
-          // Neurai wallets fetch through the Neurai backend (no BlueElectrum
-          // round-trip and no global pipeline). Drive their fetchers directly.
+          // Neurai wallets fetch through the Neurai backend. Every stored wallet
+          // is a Neurai wallet; the Bitcoin Electrum branch that used to follow
+          // could not be reached (H24).
           setWalletTransactionUpdateStatus(walletID);
           const balanceStart = Date.now();
           await wallet.fetchBalance();
@@ -468,17 +483,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
           await wallet.fetchTransactions();
           console.debug('[fetchAndSaveWalletTransactions] (neurai) fetch tx took', (Date.now() - txStart) / 1000, 'sec');
         } else {
-          const index = wallets.findIndex(w => w.getID() === walletID);
-          await BlueElectrum.waitTillConnected();
-          setWalletTransactionUpdateStatus(walletID);
-
-          const balanceStart = Date.now();
-          await BlueApp.fetchWalletBalances(index);
-          console.debug('[fetchAndSaveWalletTransactions] fetch balance took', (Date.now() - balanceStart) / 1000, 'sec');
-
-          const txStart = Date.now();
-          await BlueApp.fetchWalletTransactions(index);
-          console.debug('[fetchAndSaveWalletTransactions] fetch tx took', (Date.now() - txStart) / 1000, 'sec');
+          console.warn('[fetchAndSaveWalletTransactions] no Neurai wallet with this ID');
+          noErr = false;
         }
       } catch (err) {
         noErr = false;
@@ -486,46 +492,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       } finally {
         setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
       }
-      if (noErr) await saveToDisk();
+      // A failed save was already reported by saveToDisk; callers fire and forget.
+      if (noErr) await saveToDisk().catch(() => {});
     },
     [saveToDisk, wallets],
-  );
-
-  const addAndSaveWallet = useCallback(
-    async (w: TWallet) => {
-      if (wallets.some(i => i.getID() === w.getID())) {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: 'This wallet has been previously imported.' });
-        return;
-      }
-      if (!w.getLabel() || w.getLabel() === 'Wallet') w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
-      w.setUserHasSavedExport(true);
-      addWallet(w);
-      if (getScanWasBBQR()) {
-        // to avoid proxying `useBBQR` through a bunch of screens during import procedure, we use a trick:
-        // on add-wallet screen we reset `lastScanWasBBQR` to false. then potentially user scans QR in BBQR format
-        // and saves his wallet to storage, in which case execution lands here, where we check last scan and save walletID
-        // internally as a marker that this wallet should display animated QR codes in this format
-        await setWalletIdMustUseBBQR(w.getID());
-      }
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-      await saveToDisk();
-
-      presentAlert({
-        hapticFeedback: HapticFeedbackTypes.ImpactHeavy,
-        message: loc.wallets.import_success,
-      });
-
-      await w.fetchBalance();
-      try {
-        const walletChain = isNeuraiWallet(w) ? (isTestnetChain(w.network) ? 'testnet' : 'mainnet') : 'mainnet';
-        await majorTomToGroundControl(w.getAllExternalAddresses(), [], [], walletChain);
-      } catch (error) {
-        console.warn('Failed to setup notifications:', error);
-        // Consider if user should be notified of notification setup failure
-      }
-    },
-    [wallets, addWallet, saveToDisk],
   );
 
   function confirmWalletDeletion(wallet: any, onConfirmed: () => void) {
@@ -568,10 +538,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       getTransactions: BlueApp.getTransactions,
       selectedWalletID,
       addWallet,
+      addWalletAndSave,
       deleteWallet,
       currentSharedCosigner,
       setSharedCosigner: setCurrentSharedCosigner,
-      addAndSaveWallet,
       setItem: BlueApp.setItem,
       getItem: BlueApp.getItem,
       fetchWalletBalances: BlueApp.fetchWalletBalances,
@@ -586,10 +556,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       setWalletsInitialized,
       refreshAllWalletTransactions,
       sleep: BlueApp.sleep,
-      createFakeStorage: BlueApp.createFakeStorage,
-      resetWallets,
       decryptStorage: BlueApp.decryptStorage,
-      isPasswordInUse: BlueApp.isPasswordInUse,
       walletTransactionUpdateStatus,
       setWalletTransactionUpdateStatus,
       handleWalletDeletion,
@@ -601,14 +568,13 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       saveToDisk,
       selectedWalletID,
       addWallet,
+      addWalletAndSave,
       deleteWallet,
       currentSharedCosigner,
-      addAndSaveWallet,
       fetchAndSaveWalletTransactions,
       walletsInitialized,
       setWalletsInitialized,
       refreshAllWalletTransactions,
-      resetWallets,
       walletTransactionUpdateStatus,
       handleWalletDeletion,
     ],

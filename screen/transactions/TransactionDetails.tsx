@@ -101,7 +101,7 @@ const TransactionDetails = () => {
       if (counterpartyLabel && paymentCode) {
         counterpartyMetadata[paymentCode] = { label: counterpartyLabel };
       }
-      saveToDisk();
+      saveToDisk().catch(() => {}); // reported by saveToDisk
     }
   }, [tx, txMetadata, memo, counterpartyLabel, paymentCode, saveToDisk, counterpartyMetadata]);
 

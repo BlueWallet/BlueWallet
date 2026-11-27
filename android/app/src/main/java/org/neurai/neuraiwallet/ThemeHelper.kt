@@ -61,16 +61,6 @@ object ThemeHelper {
      * @param context Application context
      */
     fun updateAllWidgets(context: Context) {
-        // Update Bitcoin Price Widgets
-        val bitcoinPriceWidgetIds = AppWidgetUtils.getBitcoinPriceWidgetIds(context)
-        if (bitcoinPriceWidgetIds.isNotEmpty()) {
-            BitcoinPriceWidget.updateNetworkStatus(context, bitcoinPriceWidgetIds)
-        }
-        
-        // Update Market Widgets
-        val marketWidgetIds = MarketWidget.getAllWidgetIds(context)
-        if (marketWidgetIds.isNotEmpty()) {
-            MarketWidget.refreshAllWidgetsImmediately(context)
-        }
+        NeuraiWidgets.renderAll(context)
     }
 }

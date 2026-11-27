@@ -226,6 +226,7 @@
     "status_checking": "Checking the DePIN server…",
     "status_needs_reveal": "Reveal your public key to receive messages",
     "status_server_off": "This DePIN server has the chat turned off",
+    "status_server_incompatible": "Paused: server no longer allowed",
     "copied": "Copied",
     "hide_qr": "Hide QR",
     "token_open": "Chat open on this server",
@@ -262,20 +263,15 @@
     "server_own": "Own DePIN server",
     "server_own_explain": "A neurai-wallet-services address with DePIN: wss://, or ws:// if it is on your local network",
     "server_address": "Server address",
-    "server_invalid": "The address must start with wss://, or ws:// if the server is on your local network (192.168.x.x, 10.x.x.x…)",
+    "server_invalid": "The address must start with wss://, or ws:// if the server is on your local network at a 192.168.0.x or 192.168.1.x address.",
+    "server_incompatible": "DePIN is paused. Your saved server {url} uses ws:// outside 192.168.0.x and 192.168.1.x, which this version no longer allows. Nothing is sent to any server until you change it.",
+    "server_incompatible_edit": "The saved server {url} is no longer allowed: without TLS only 192.168.0.x and 192.168.1.x addresses are accepted. Enter a wss:// address or choose the wallet's server. DePIN stays paused until you save.",
+    "server_change": "Change DePIN server",
     "server_save": "Save"
   },
   "errors": {
     "error": "Error",
     "network": "Network Error"
-  },
-  "plausibledeniability": {
-    "create_fake_storage": "Create Encrypted Storage",
-    "create_password_explanation": "Password for the fake storage should not match the password for your main storage.",
-    "help": "Under certain circumstances, you might be forced to disclose a password. To keep your coins safe, NeuraiWallet can create another encrypted storage with a different password. Under pressure, you may disclose this password to a third party. If entered in NeuraiWallet, it will unlock a new “fake” storage. This will seem legit to the third party, but it will secretly keep your main storage with coins safe.",
-    "help2": "The new storage will be fully functional, and you can store some minimum amounts there so that it looks more believable.",
-    "password_should_not_match": "Password is currently in use. Please try a different password.",
-    "title": "Plausible Deniability"
   },
   "pleasebackup": {
     "ok": "OK, I wrote it down.",
@@ -491,7 +487,6 @@
     "notifications": "Notifications",
     "password": "Password",
     "password_explain": "Enter the password you will use to unlock your storage.",
-    "plausible_deniability": "Plausible Deniability",
     "reset_storage_button": "Start fresh",
     "reset_storage_confirm": "Reset storage",
     "reset_storage_message": "This removes all wallets stored on this device and opens NeuraiWallet with empty local storage. Only continue if you have your backup phrase or are reviewing the app.",
@@ -552,11 +547,25 @@
     "quick_unavailable": "Not available",
     "encrypt_recommended": "Recommended",
     "encrypt_storage_expl": "Encrypts your wallets on this phone and asks for the password when the app opens.",
-    "plausible_deniability_expl": "A second password opens decoy wallets.",
-    "plausible_deniability_needs_password": "Needs the password turned on.",
     "block_screenshots": "Block screenshots",
     "block_screenshots_expl": "Turning it off only lasts until the app restarts. The recovery phrase can never be captured.",
-    "security_bio_expl": "Asked before sending, unlocking, exporting or deleting a wallet."
+    "security_bio_expl": "Asked before sending, unlocking, exporting or deleting a wallet.",
+    "storage_unavailable_title": "Wallet storage unavailable",
+    "storage_unavailable_message": "Your wallets could not be read right now. Nothing was changed. Try again in a moment, or restart the phone if it keeps failing.",
+    "storage_retry": "Try again",
+    "storage_save_failed": "Your changes could not be saved. The stored wallets were not overwritten. Try again.",
+    "storage_preserved_records": "Some stored wallets could not be opened by this version. They are kept unchanged.",
+    "encrypt_other_storage": "This storage also holds another encrypted storage with a different password, created by the removed decoy feature. Removing the password would erase it, so the password stays on.",
+    "storage_restore_backup": "Restore the backup copy",
+    "storage_restore_backup_title": "Restore the backup copy?",
+    "storage_restore_backup_message": "The main storage cannot be read. NeuraiWallet keeps a backup copy, which may be older: wallets added or changed after it was saved will not be there. Your recovery phrases restore any wallet. The backup copy replaces the unreadable storage.",
+    "storage_restore_bucket_message": "Your password opens a part of the storage whose content is damaged. The copy you choose replaces only that part and will open with the same password. Other storages protected by other passwords are kept as they are, and the damaged content is kept aside.",
+    "storage_reset_failed": "The storage could not be reset, so it was not opened. Try again.",
+    "storage_reset_cleanup_pending": "The storage was reset. Some old backup files could not be deleted yet; they will be deleted the next time the app opens.",
+    "storage_restore_backup_dated": "Restore the copy saved on {date}",
+    "storage_restore_backup_several": "There are several different backup copies; the ones you do not choose stay on the device and are offered again if a recovery is ever needed.",
+    "storage_restore_changed": "The backup copies changed since you chose one. Nothing was restored: check them again and choose.",
+    "storage_readable_again": "The main storage changed or can be read again since the copy was offered. Nothing was restored: it is checked again the usual way."
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",
@@ -728,7 +737,6 @@
     "import_passphrase": "Passphrase",
     "import_passphrase_message": "Enter passphrase if you have used any",
     "import_error": "Failed to import. Please make sure that the provided data is valid.",
-    "import_imported": "Imported",
     "import_scan_qr": "Scan or import a file",
     "import_success": "Your wallet has been successfully imported.",
     "import_already_loaded": "This wallet is already loaded.",
@@ -782,7 +790,8 @@
     "hw_backup_step_show": "“Review seed”: the device shows your words",
     "hw_backup_words": "These words are essential to back up your wallet. Write them down on paper, in order, and keep them safe: without them, if the device is lost or breaks, so are the funds.",
     "hw_backup_replay": "Play again",
-    "hw_backup_ok": "Got it"
+    "hw_backup_ok": "Got it",
+    "screen_protect_failed": "The screen could not be protected against screenshots and recordings, so the secret stays hidden. Try again."
   },
   "total_balance_view": {
     "display_in_bitcoin": "Display in XNA",
@@ -855,7 +864,6 @@
     "tx_deposit": "Privacy pool deposit",
     "tx_withdraw": "Privacy pool withdrawal",
     "tx_other": "Privacy pool operation",
-    "asset": "Asset",
     "badge_locked": "Locked",
     "badge_working": "Working",
     "badge_ready": "Ready",

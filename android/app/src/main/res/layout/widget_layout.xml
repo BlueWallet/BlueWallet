@@ -1,34 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Neurai Price widget: XNA price and its 24-hour change (drawn by NeuraiWidgets.priceViews). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_layout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp"
+    android:layout_height="match_parent"
     android:background="@drawable/widget_background"
-    android:gravity="end">
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:padding="14dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="@null"
+            android:src="@mipmap/ic_launcher_round" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" 
-            android:visibility="invisible" />
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:text="@string/widget_xna"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/network_status"
+            android:id="@+id/data_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/offline"
+            android:text="@string/widget_not_updated"
             android:textColor="@color/container_red"
-            android:textSize="12sp"
+            android:textSize="11sp"
             android:textStyle="bold"
-            android:visibility="gone"
-            android:layout_marginEnd="8dp" />
+            android:visibility="gone" />
     </LinearLayout>
 
     <ProgressBar
@@ -36,106 +47,31 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="visible"/>
+        android:layout_marginTop="8dp"
+        android:visibility="visible" />
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/price_value"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="end"
-        android:layout_gravity="end"
-        android:layout_marginBottom="10dp">
-        <TextView
-            android:id="@+id/last_updated_label"
-            style="@style/WidgetTextSecondary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/last_updated"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:layout_marginEnd="8dp"
-            android:visibility="gone"
-            android:layout_gravity="end"/>
+        android:layout_marginTop="8dp"
+        android:autoSizeMaxTextSize="28sp"
+        android:autoSizeMinTextSize="14sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:lines="1"
+        android:textColor="@color/text_primary"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/last_updated_time"
-            style="@style/WidgetTextPrimary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="--:--"
-            android:textColor="@color/text_primary"
-            android:textSize="12sp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="2dp"
-            android:visibility="gone"
-            android:layout_gravity="end"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/change_value"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="end"
-        android:layout_gravity="end">
-
-        <TextView
-            android:id="@+id/price_value"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:autoSizeMaxTextSize="24sp"
-            android:autoSizeMinTextSize="12sp"
-            android:autoSizeStepGranularity="2sp"
-            android:autoSizeTextType="uniform"
-            android:duplicateParentState="false"
-            android:editable="false"
-            android:gravity="end"
-            android:lines="1"
-            android:text="Loading..."
-            android:textSize="24sp"
-            android:textColor="@color/text_primary"
-            android:textStyle="bold"
-            android:visibility="gone" />
-        <LinearLayout
-            android:id="@+id/price_arrow_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
-            android:visibility="gone"
-            android:layout_gravity="end">
-
-            <ImageView
-                android:id="@+id/price_arrow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:layout_marginBottom="8dp"
-                android:layout_gravity="end"/>
-
-            <TextView
-                android:id="@+id/previous_price_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/price_from"
-                android:textSize="12sp"
-                android:textColor="@color/text_primary"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:layout_gravity="end"/>
-            <TextView
-                android:id="@+id/previous_price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="--"
-                android:textSize="12sp"
-                android:textColor="@color/text_primary"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:layout_gravity="end"/>
-        </LinearLayout>
-    </LinearLayout>
+        android:layout_marginTop="2dp"
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
 </LinearLayout>

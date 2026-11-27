@@ -25,14 +25,6 @@
     "sameWalletAsInvoiceError": "Buraz! Ne možeš platiti račun s istim voletom s kojim si račun stvorio, ono.",
     "title": "Uredi novčeke"
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Stvori fejk enkriptirani spremnik",
-    "create_password_explanation": "Lozinka za fejk spremnik treba biti drugačija od lozinke za oriđi spremnik",
-    "help": "Pazi. Netko gadan te može u iznimnim okolnostima (pljačka, prijevremeni izbori, itd.) brutalno pritisnuti da mu otkriješ lozinku za svoj volet. NeuraiWallet ti čuva leđa buraz. Nemaš brige. Gledaj, stvoriti ćemo fejk volet sa drugačijom lozinkom. Haha, žišku? Pa kad se ovaj počne pjeniti, a ti vidiš da je vrag odnio šalu, samo mu podvali lozinku za ovaj drugi volet. Eto mu ga. Nek si cucla. ",
-    "help2": "Novi spremnik će biti posve funkcionalan, možeš pohraniti koliko misliš da je potrebno da izgleda uvjerljivo.",
-    "password_should_not_match": "Lozinka za fejk spremnik treba biti drugačija od lozinke za oriđi spremnik",
-    "title": "Fejk volet"
-  },
   "receive": {
     "details_create": "Stvori",
     "details_label": "Opis",
@@ -71,7 +63,6 @@
     "language": "Jezik",
     "lightning_settings": "Lightning postavke",
     "password": "Lozinka",
-    "plausible_deniability": "Fejk volet...",
     "save": "Spremi"
   },
   "transactions": {
@@ -101,7 +92,6 @@
     "export_title": "izvoz voleta",
     "import_do_import": "Unesi",
     "import_error": "Neuspješan unos. Molimo pažljivo provjerite ispravnost unesenih podataka.",
-    "import_imported": "Uneseno",
     "import_scan_qr": "ili skeniraj QR kod?",
     "import_success": "Uspjeh",
     "import_title": "unesi",

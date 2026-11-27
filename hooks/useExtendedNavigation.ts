@@ -130,7 +130,9 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
             try {
               await presentWalletExportReminder(wallet.getLabel());
               wallet.setUserHasSavedExport(true);
-              await saveToDisk();
+              // Not awaited inside this try: its catch means "show the export
+              // screen", not "the save failed" (reported by saveToDisk).
+              saveToDisk().catch(() => {});
               proceedWithNavigation();
             } catch (error) {
               // A hardware wallet's words are on the device: explain where, nothing secret to unlock.

@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 
 import presentAlert, { AlertType } from '../components/Alert';
+import { isReportedSaveError } from '../class/storage-errors';
 import { TWallet } from '../class/wallets/types';
 import { useStorage } from './context/useStorage';
 
@@ -30,7 +31,7 @@ export function useWalletRefresh(wallet: TWallet): { refreshing: boolean; refres
       const changed = oldBalance !== wallet.getBalance() || oldSilent !== silentOf(wallet) || oldCount !== wallet.getTransactions().length;
       if (changed) await saveToDisk();
     } catch (err: any) {
-      if (err?.message) presentAlert({ message: err.message, type: AlertType.Toast });
+      if (err?.message && !isReportedSaveError(err)) presentAlert({ message: err.message, type: AlertType.Toast });
     } finally {
       running.current = false;
       setRefreshing(false);

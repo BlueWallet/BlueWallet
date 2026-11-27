@@ -88,6 +88,69 @@ describe('useScreenProtect', () => {
     b.unmount();
   });
 
+  // H09: a failed FLAG_SECURE must not be reported as protected.
+  it('keeps secrets hidden and reports failure when protection cannot be enabled', async () => {
+    (CaptureProtection.prevent as jest.Mock).mockRejectedValue(new Error('no activity'));
+    const { result } = renderHook(() => useScreenProtect());
+    act(() => {
+      result.current.enableScreenProtect();
+    });
+    await settle(1000);
+
+    expect(CaptureProtection.prevent).toHaveBeenCalledTimes(2); // first try + one automatic retry
+    expect(result.current.isProtectionReady).toBe(false);
+    expect(result.current.isProtectionFailed).toBe(true);
+    (CaptureProtection.prevent as jest.Mock).mockReset().mockResolvedValue(undefined);
+  });
+
+  it('becomes ready when the automatic retry succeeds', async () => {
+    (CaptureProtection.prevent as jest.Mock).mockRejectedValueOnce(new Error('mid transition')).mockResolvedValue(undefined);
+    const { result } = renderHook(() => useScreenProtect());
+    act(() => {
+      result.current.enableScreenProtect();
+    });
+    await settle(1000);
+
+    expect(result.current.isProtectionReady).toBe(true);
+    expect(result.current.isProtectionFailed).toBe(false);
+  });
+
+  it('retries on demand after a failure, without counting the screen twice', async () => {
+    (CaptureProtection.prevent as jest.Mock).mockRejectedValue(new Error('no activity'));
+    const { result, unmount } = renderHook(() => useScreenProtect());
+    act(() => {
+      result.current.enableScreenProtect();
+    });
+    await settle(1000);
+    expect(result.current.isProtectionFailed).toBe(true);
+
+    (CaptureProtection.prevent as jest.Mock).mockReset().mockResolvedValue(undefined);
+    act(() => {
+      result.current.enableScreenProtect(); // the retry button, or regaining focus
+    });
+    await settle();
+    expect(result.current.isProtectionReady).toBe(true);
+    expect(result.current.isProtectionFailed).toBe(false);
+
+    unmount();
+    await settle(2000);
+    expect(CaptureProtection.allow).toHaveBeenCalledTimes(1); // one holder, one release
+  });
+
+  it('does not mark a screen ready after it went away during the wait', async () => {
+    (CaptureProtection.prevent as jest.Mock).mockRejectedValueOnce(new Error('mid transition')).mockResolvedValue(undefined);
+    const { result } = renderHook(() => useScreenProtect());
+    act(() => {
+      result.current.enableScreenProtect();
+    });
+    act(() => {
+      result.current.disableScreenProtect();
+    });
+    await settle(1000);
+    expect(result.current.isProtectionReady).toBe(false);
+    expect(result.current.isProtectionFailed).toBe(false);
+  });
+
   it('ignores a disable from a screen that never enabled', async () => {
     const a = renderHook(() => useScreenProtect());
     const b = renderHook(() => useScreenProtect());

@@ -34,8 +34,18 @@ async function load(): Promise<void> {
   loaded = true;
 }
 
+/**
+ * Reads the saved overrides once. A failed read is not kept: the next call
+ * tries again, instead of every caller inheriting the same rejection until the
+ * app restarts (H19).
+ */
 export function loadOverrides(): Promise<void> {
-  if (!loading) loading = load();
+  if (!loading) {
+    loading = load().catch(error => {
+      loading = null;
+      throw error;
+    });
+  }
   return loading;
 }
 
@@ -60,12 +70,9 @@ export async function setWssUrlOverride(network: NeuraiNetwork, url: string | nu
   cache.set(network, trimmed);
 }
 
-// Kick off the first read at module import. Reads from createDefaultBackend
-// are sync and will see the cache once it resolves; until then they fall back
-// to the compiled-in default — which is the same value as a "no override"
-// state, so there is no incorrect state, only a brief window where a freshly
-// installed app cannot honour a saved override until the cache fills. After
-// that first promise resolves, all subsequent backend creations honour it.
+// Kick off the first read at module import. Until it resolves no wallet
+// keeps a backend (AbstractNeuraiWallet.getBackend refuses), and the unlock
+// waits for it, so a saved override is never bypassed by the default node.
 loadOverrides().catch(() => {
   // Storage errors are non-fatal; defaults will be used.
 });

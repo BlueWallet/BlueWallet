@@ -18,14 +18,19 @@ import Button from '../components/Button';
 import SafeArea from '../components/SafeArea';
 import { BiometricType, unlockWithBiometrics, useBiometrics } from '../hooks/useBiometrics';
 import loc from '../loc';
+import presentAlert from '../components/Alert';
 import { useStorage } from '../hooks/context/useStorage';
 import { PasswordInput, PasswordInputHandle } from '../components/PasswordInput';
+import { StorageRecoverableError, type RestoreChoice } from '../class/storage-errors';
+import { getRestoreChoices, getRestoreScope } from '../blue_modules/start-and-decrypt';
 
 enum AuthType {
   Encrypted,
   Biometrics,
   None,
   BiometricsUnavailable,
+  /** The store could not be read: stay locked, offer retry or an explicit reset (H04). */
+  StorageUnavailable,
 }
 
 type State = {
@@ -37,6 +42,8 @@ type State = {
   showPasswordInput: boolean;
   password: string;
   isSuccess: boolean;
+  /** The backup copies the user can restore while the store is unreadable (none, one, or several that differ). */
+  restoreChoices: RestoreChoice[];
 };
 
 const SET_AUTH = 'SET_AUTH';
@@ -44,13 +51,15 @@ const SET_IS_AUTHENTICATING = 'SET_IS_AUTHENTICATING';
 const SET_SHOW_PASSWORD_INPUT = 'SET_SHOW_PASSWORD_INPUT';
 const SET_PASSWORD = 'SET_PASSWORD';
 const SET_SUCCESS = 'SET_SUCCESS';
+const SET_CAN_RESTORE_BACKUP = 'SET_CAN_RESTORE_BACKUP';
 
 type Action =
   | { type: typeof SET_AUTH; payload: { type: AuthType; detail: keyof typeof BiometricType | undefined } }
   | { type: typeof SET_IS_AUTHENTICATING; payload: boolean }
   | { type: typeof SET_SHOW_PASSWORD_INPUT; payload: boolean }
   | { type: typeof SET_PASSWORD; payload: string }
-  | { type: typeof SET_SUCCESS; payload: boolean };
+  | { type: typeof SET_SUCCESS; payload: boolean }
+  | { type: typeof SET_CAN_RESTORE_BACKUP; payload: RestoreChoice[] };
 
 const initialState: State = {
   auth: {
@@ -61,6 +70,7 @@ const initialState: State = {
   showPasswordInput: false,
   password: '',
   isSuccess: false,
+  restoreChoices: [],
 };
 
 function reducer(state: State, action: Action): State {
@@ -75,6 +85,8 @@ function reducer(state: State, action: Action): State {
       return { ...state, password: action.payload };
     case SET_SUCCESS:
       return { ...state, isSuccess: action.payload };
+    case SET_CAN_RESTORE_BACKUP:
+      return { ...state, restoreChoices: action.payload };
     default:
       return state;
   }
@@ -86,6 +98,8 @@ const UnlockWith: React.FC = () => {
   const keyboardOffset = useRef(new Animated.Value(0)).current;
   const passwordInputRef = useRef<PasswordInputHandle>(null);
   const passwordResolveRef = useRef<((password: string | undefined) => void) | null>(null);
+  /** The ordinary unlock, for a restore that found the store readable again (defined below). */
+  const startUnlockRef = useRef<() => void>(() => {});
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useStorage();
   const { deviceBiometricType, isBiometricUseCapableAndEnabled, isBiometricUseEnabled, clearKeychain } = useBiometrics();
 
@@ -136,14 +150,26 @@ const UnlockWith: React.FC = () => {
     isUnlockingWallets.current = false;
   }, [setWalletsInitialized]);
 
+  /** What restoring the offered copies replaces: the whole store, or only the damaged bucket. */
+  const restoreScope = useRef<'store' | 'bucket'>('store');
+
+  const showStorageUnavailable = useCallback((restoreChoices: RestoreChoice[] = [], scope: 'store' | 'bucket' = 'store') => {
+    restoreScope.current = scope;
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+    dispatch({ type: SET_SHOW_PASSWORD_INPUT, payload: false });
+    dispatch({ type: SET_CAN_RESTORE_BACKUP, payload: restoreChoices });
+    dispatch({ type: SET_AUTH, payload: { type: AuthType.StorageUnavailable, detail: undefined } });
+  }, []);
+
   const unlockUsingBiometrics = useCallback(async () => {
     if (isUnlockingWallets.current || state.isAuthenticating) return;
     isUnlockingWallets.current = true;
     dispatch({ type: SET_IS_AUTHENTICATING, payload: true });
 
     if (await unlockWithBiometrics()) {
-      await startAndDecrypt();
-      successfullyAuthenticated();
+      const result = await startAndDecrypt();
+      if (result === 'unlocked') successfullyAuthenticated();
+      else showStorageUnavailable(result === 'backup_available' ? getRestoreChoices() : [], getRestoreScope());
     }
 
     dispatch({ type: SET_IS_AUTHENTICATING, payload: false });
@@ -174,15 +200,44 @@ const UnlockWith: React.FC = () => {
     // We'll get the result through the unlockWithKey callback
   }, []);
 
+  /** `restoreChoice`: the id of the backup copy the user chose to restore (it may ask for its password or biometrics). */
   const unlockWithKey = useCallback(
-    async (isRetry = false) => {
+    async (isRetry = false, restoreChoice?: string) => {
       if (isUnlockingWallets.current || state.isAuthenticating) return;
       isUnlockingWallets.current = true;
       dispatch({ type: SET_IS_AUTHENTICATING, payload: true });
 
-      const result = await startAndDecrypt(isRetry, promptForPassword);
+      const result = await startAndDecrypt(isRetry, promptForPassword, { fromBackup: restoreChoice });
 
-      if (result) {
+      if (result === 'readable_again') {
+        // The store reads again while the user was choosing: nothing was
+        // restored, and it opens the usual way, with its own checks.
+        presentAlert({ message: loc.settings.storage_readable_again });
+        dispatch({ type: SET_IS_AUTHENTICATING, payload: false });
+        isUnlockingWallets.current = false;
+        startUnlockRef.current();
+        return;
+      }
+
+      if (result === 'not_authorized') {
+        // The restore was not authorized: stay on the same choices, nothing was opened.
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        dispatch({ type: SET_IS_AUTHENTICATING, payload: false });
+        isUnlockingWallets.current = false;
+        return;
+      }
+
+      if (result === 'unavailable' || result === 'backup_available') {
+        // The chosen copy is no longer what the user saw: nothing was restored,
+        // the copies there are now are shown again.
+        if (restoreChoice !== undefined && result === 'backup_available') presentAlert({ message: loc.settings.storage_restore_changed });
+        showStorageUnavailable(result === 'backup_available' ? getRestoreChoices() : [], getRestoreScope());
+        dispatch({ type: SET_IS_AUTHENTICATING, payload: false });
+        isUnlockingWallets.current = false;
+        return;
+      }
+
+      if (result === 'unlocked') {
         dispatch({ type: SET_SUCCESS, payload: true });
         passwordInputRef.current?.showSuccess();
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -197,41 +252,53 @@ const UnlockWith: React.FC = () => {
         isUnlockingWallets.current = false;
         // Wait for shake animation to complete, then retry
         setTimeout(() => {
-          unlockWithKey(true);
+          unlockWithKey(true, restoreChoice);
         }, 500); // After shake animation completes (320ms) + small delay
       }
     },
-    [state.isAuthenticating, startAndDecrypt, successfullyAuthenticated, promptForPassword],
+    [state.isAuthenticating, startAndDecrypt, successfullyAuthenticated, promptForPassword, showStorageUnavailable],
   );
 
-  useEffect(() => {
-    const startUnlock = async () => {
-      const storageIsEncrypted = await isStorageEncrypted();
-      const biometricUseCapableAndEnabled = await isBiometricUseCapableAndEnabled();
-      const biometricsUseEnabled = await isBiometricUseEnabled();
-      const biometricType = biometricUseCapableAndEnabled ? deviceBiometricType : undefined;
+  const startUnlock = useCallback(async () => {
+    let storageIsEncrypted: boolean;
+    try {
+      storageIsEncrypted = await isStorageEncrypted();
+    } catch (error) {
+      console.warn('[UnlockWith] storage cannot be read:', (error as Error).message);
+      if (error instanceof StorageRecoverableError) showStorageUnavailable(error.choices, error.scope);
+      else showStorageUnavailable();
+      return;
+    }
+    const biometricUseCapableAndEnabled = await isBiometricUseCapableAndEnabled();
+    const biometricsUseEnabled = await isBiometricUseEnabled();
+    const biometricType = biometricUseCapableAndEnabled ? deviceBiometricType : undefined;
 
-      if (storageIsEncrypted) {
-        dispatch({ type: SET_AUTH, payload: { type: AuthType.Encrypted, detail: undefined } });
-        unlockWithKey();
-      } else if (biometricUseCapableAndEnabled) {
-        dispatch({ type: SET_AUTH, payload: { type: AuthType.Biometrics, detail: biometricType } });
-        unlockUsingBiometrics();
-      } else if (biometricsUseEnabled && biometricType === undefined) {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        dispatch({ type: SET_AUTH, payload: { type: AuthType.BiometricsUnavailable, detail: undefined } });
-      } else {
-        dispatch({ type: SET_AUTH, payload: { type: AuthType.None, detail: undefined } });
-        unlockWithKey();
-      }
-    };
-
-    startUnlock();
+    if (storageIsEncrypted) {
+      dispatch({ type: SET_AUTH, payload: { type: AuthType.Encrypted, detail: undefined } });
+      unlockWithKey();
+    } else if (biometricUseCapableAndEnabled) {
+      dispatch({ type: SET_AUTH, payload: { type: AuthType.Biometrics, detail: biometricType } });
+      unlockUsingBiometrics();
+    } else if (biometricsUseEnabled && biometricType === undefined) {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      dispatch({ type: SET_AUTH, payload: { type: AuthType.BiometricsUnavailable, detail: undefined } });
+    } else {
+      dispatch({ type: SET_AUTH, payload: { type: AuthType.None, detail: undefined } });
+      unlockWithKey();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  startUnlockRef.current = startUnlock;
+
+  useEffect(() => {
+    startUnlock();
+  }, [startUnlock]);
+
   const onUnlockPressed = () => {
-    if (state.auth.type === AuthType.Biometrics) {
+    if (state.auth.type === AuthType.StorageUnavailable) {
+      startUnlock();
+    } else if (state.auth.type === AuthType.Biometrics) {
       unlockUsingBiometrics();
     } else {
       unlockWithKey();
@@ -248,14 +315,38 @@ const UnlockWith: React.FC = () => {
           text: loc.settings.reset_storage_confirm,
           style: 'destructive',
           onPress: async () => {
-            await clearKeychain();
-            successfullyAuthenticated();
+            // Stays locked when the reset did not reach the disk (H04).
+            if (await clearKeychain()) successfullyAuthenticated();
           },
         },
       ],
       { cancelable: true },
     );
   }, [clearKeychain, successfullyAuthenticated]);
+
+  const confirmRestoreBackup = useCallback(
+    (choice: RestoreChoice, several: boolean) => {
+      // Say what is replaced, and with which protection (sixth review).
+      const message =
+        restoreScope.current === 'bucket' ? loc.settings.storage_restore_bucket_message : loc.settings.storage_restore_backup_message;
+      Alert.alert(
+        loc.settings.storage_restore_backup_title,
+        several ? `${message} ${loc.settings.storage_restore_backup_several}` : message,
+        [
+          { text: loc._.cancel, style: 'cancel' },
+          { text: loc.settings.storage_restore_backup, onPress: () => unlockWithKey(false, choice.id) },
+        ],
+        { cancelable: true },
+      );
+    },
+    [unlockWithKey],
+  );
+
+  /** One copy: "Restore the backup copy". Several that differ: one button each, with the date it was saved. */
+  const restoreLabel = (choice: RestoreChoice, several: boolean) =>
+    several && choice.savedAt
+      ? String(loc.formatString(loc.settings.storage_restore_backup_dated, { date: new Date(choice.savedAt).toLocaleString() }))
+      : loc.settings.storage_restore_backup;
 
   const renderUnlockOptions = () => {
     if (state.isAuthenticating && !state.showPasswordInput) {
@@ -299,6 +390,28 @@ const UnlockWith: React.FC = () => {
         return <Button onPress={onUnlockPressed} title={loc._.unlock} />;
       case AuthType.BiometricsUnavailable:
         return <BlueTextCentered>{loc.settings.biometrics_no_longer_available}</BlueTextCentered>;
+      case AuthType.StorageUnavailable:
+        return (
+          <View style={styles.passwordContainer} testID="StorageUnavailable">
+            <BlueTextCentered>{loc.settings.storage_unavailable_title}</BlueTextCentered>
+            <View style={styles.linkSpacing} />
+            <BlueTextCentered>{loc.settings.storage_unavailable_message}</BlueTextCentered>
+            <View style={styles.buttonSpacing} />
+            <Button onPress={onUnlockPressed} title={loc.settings.storage_retry} testID="StorageRetryButton" />
+            {state.restoreChoices.map((choice, index) => (
+              <React.Fragment key={choice.id}>
+                <View style={styles.linkSpacing} />
+                <BlueButtonLink
+                  testID={`StorageRestoreBackupButton-${index}`}
+                  title={restoreLabel(choice, state.restoreChoices.length > 1)}
+                  onPress={() => confirmRestoreBackup(choice, state.restoreChoices.length > 1)}
+                />
+              </React.Fragment>
+            ))}
+            <View style={styles.linkSpacing} />
+            <BlueButtonLink testID="StartFreshButton" title={loc.settings.reset_storage_button} onPress={confirmStartFresh} />
+          </View>
+        );
       default:
         return null;
     }

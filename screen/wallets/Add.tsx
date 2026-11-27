@@ -14,6 +14,7 @@ import { NeuraiECDSAWallet } from '../../class/wallets/neurai-ecdsa-wallet';
 import { NeuraiHDWallet } from '../../class/wallets/neurai-hd-wallet';
 import { NeuraiPQWallet } from '../../class/wallets/neurai-pq-wallet';
 import presentAlert from '../../components/Alert';
+import { isReportedSaveError } from '../../class/storage-errors';
 import { ConnectFooter, ConnectOption } from '../../components/ConnectUI';
 import { HomeWalletKind, walletKindIconOf } from '../../components/home/homeTheme';
 import NeuraiLoader, { untilLoaderPainted } from '../../components/NeuraiLoader';
@@ -64,7 +65,7 @@ const KINDS: { kind: WalletKind; icon: HomeWalletKind; title: string; explain: s
 
 const WalletsAdd: React.FC = () => {
   const p = useSettingsPalette();
-  const { addWallet, saveToDisk } = useStorage();
+  const { addWalletAndSave } = useStorage();
   const { navigate, goBack } = useExtendedNavigation<NavigationProps>();
 
   const [label, setLabel] = useState('');
@@ -86,16 +87,17 @@ const WalletsAdd: React.FC = () => {
       wallet.setLabel(label.trim() || loc.wallets.details_title);
       wallet.generate();
       await wallet.prewarmEngine();
-      addWallet(wallet);
-      await saveToDisk();
+      // Rejects (and drops the wallet again) when it was not saved: the backup
+      // screen is only reached for a wallet that is on disk.
+      await addWalletAndSave(wallet);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       navigate('PleaseBackup', { walletID: wallet.getID() });
     } catch (err: any) {
-      presentAlert({ message: err?.message ?? String(err) });
+      if (!isReportedSaveError(err)) presentAlert({ message: err?.message ?? String(err) });
     } finally {
       setIsLoading(false);
     }
-  }, [walletKind, network, label, addWallet, saveToDisk, navigate]);
+  }, [walletKind, network, label, addWalletAndSave, navigate]);
 
   const onNetworkChange = useCallback((next: NeuraiNetwork) => {
     setNetwork(next);

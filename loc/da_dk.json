@@ -19,14 +19,6 @@
     "refill_lnd_balance": "Genopfyld Lightning wallet",
     "title": "Administration"
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Opret falsk kryopteret lager",
-    "create_password_explanation": "Adgangskoden til det falske lager må ikke være den samme som den du bruger til det rigtige lager",
-    "help": "Under visse omstændighder, kan du blive tvunget til at give din adgangskode. For at beskytte dine coins kan du med Bluewallet lave et falsk krypteret lager, med en anden kode. I en presset situation, kan du give denne adgangskode istedet. Hvis denne kode indtastes i NeuraiWallet, vil brugeren se den alternative wallet. Det vil se heltlegitimt ud for andre, og dermed beskytte din originale wallet og dine coins.",
-    "help2": "Det nye lager vil være fuldt funktionsdygtigt, og du kan evt have nogle småbeløb så det ser troværdigt ud.",
-    "password_should_not_match": "Adgangskoden til det falske lager må ikke være den samme som den du bruger til det rigtige lager",
-    "title": "Sandsynlig benægtelse"
-  },
   "receive": {
     "details_create": "Opret",
     "details_label": "Beskrivelse",
@@ -63,7 +55,6 @@
     "language": "Sprog",
     "lightning_settings": "Lightning settings",
     "password": "Adgangskode",
-    "plausible_deniability": "Sandsynlig benægtelse...",
     "save": "save"
   },
   "transactions": {
@@ -89,7 +80,6 @@
     "export_title": "wallet eksport",
     "import_do_import": "Importer",
     "import_error": "Importen lykkedes ikke. Er det en gyldig nøgle?",
-    "import_imported": "Importeret",
     "import_scan_qr": "eller scan QR kode istedet?",
     "import_success": "Succes",
     "import_title": "importer",

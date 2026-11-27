@@ -83,7 +83,6 @@ export type DetailViewStackParamList = {
   About: undefined;
   ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string };
   SettingsBlockExplorer: undefined;
-  PlausibleDeniability: undefined;
   EncryptStorage: undefined;
   Language: undefined;
   NotificationSettings: undefined;

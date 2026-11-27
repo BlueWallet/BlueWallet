@@ -1,8 +1,12 @@
 # NeuraiWallet
 
-A mobile wallet for the [Neurai](https://neurai.org) blockchain, built with React Native for
-Android and iOS. Keys are generated on the device and stored in the platform keystore; no seed
-or private key ever leaves it.
+A mobile wallet for the [Neurai](https://neurai.org) blockchain, built with React Native.
+Android is the shipping platform (Google Play); the iOS, watchOS and Mac Catalyst targets stay in
+the tree but are not published yet. Software wallets generate their words on the device and keep
+them in the platform secure store (encrypted again with the app password when one is set); the
+JavaScript layer handles them to derive keys and sign. Hardware wallets keep the seed on the ESP32
+signer (when a device is set up from the app, the words pass through the phone's memory on the way
+to it). No seed or private key is sent to a server.
 
 NeuraiWallet is a fork of [BlueWallet](https://github.com/BlueWallet/BlueWallet). The
 navigation shell, the theming, the encrypted storage and the settings screens come from there;
@@ -15,16 +19,18 @@ the wallet, transaction, asset and messaging layers are Neurai's own and are bui
 * **HD wallets** on Neurai's BIP44 path, created from a 12-word mnemonic or imported from one.
 * **Post-quantum wallets** signed with ML-DSA-44, using bech32m `AuthScript` addresses.
 * **Hardware wallet** support over USB serial for the Neurai ESP32 signer: the device holds the
-  seed and signs; the phone only builds and broadcasts.
+  seed and signs; the phone builds and broadcasts. Setting a device up from the app generates or
+  takes the words on the phone and sends them over USB once.
 * **Neurai Assets** — the native tokens of the chain (root, sub, unique/NFT, owner, restricted,
   qualifier and DePIN assets) are listed per wallet and can be sent from the Send screen.
 * **DePIN messaging** — a token-gated chat tab (see below).
 * **Neurai Connect** — QR login and dApp sessions (see below).
 * **Privacy pool (C7, testnet)** — private XNA notes with zero-knowledge proofs built on the
   phone (see below).
-* Inherited from BlueWallet and still in use: encrypted storage with plausible deniability,
-  biometric unlock on the sensitive screens, "is it my address?" verification, raw transaction
-  broadcast, fiat rates and 50+ UI languages.
+* Inherited from BlueWallet and still in use: password-encrypted storage, biometric unlock on the
+  sensitive screens, "is it my address?" verification, raw transaction broadcast, fiat rates and
+  50+ UI languages. (The decoy-storage "plausible deniability" feature was removed; a store that
+  still holds a decoy keeps opening with each password.)
 
 ## Networks
 
@@ -63,15 +69,15 @@ Neurai's DePIN assets (`&NAME`) carry a chat: holders of the same token can mess
 end to end encrypted, relayed by a DePIN-enabled Neurai node rather than by a server of ours.
 The app derives a dedicated account-100 chat identity: `m/44'/coin'/100'/0/0` for Legacy wallets and `m/84'/coin'/100'/0/0` for ECDSA wallets. The selected exact address is passed to neurai-depin-msg 4.x; a key is not silently changed to its Legacy alias.
 
-Requests use RPC 5 through the selected HTTP/WSS backend. Bootstrap pins the expected genesis, pool key and root. Every addressed call signs all arguments and the verified instance/membership context; replies are authenticated against the locally computed request hash before decryption. The WSS backend includes `depin.receive_seq` and serializes cursor integers exactly.
+Requests use DePIN RPC 6 with ECIES format-3 envelopes over the WSS service (the wallet's, or one set for DePIN alone; a plain `ws://` server is accepted only at a 192.168.0.x or 192.168.1.x address on the local network, the same hosts Android lets through without TLS). Bootstrap pins the expected genesis, pool key and root. Every addressed call signs all arguments and the verified instance/membership context; replies are authenticated against the locally computed request hash before decryption. The WSS backend includes `depin.receive_seq` and serializes cursor integers exactly.
 
 Reads use admission sequences instead of sender timestamps/hashes. The full cursor is kept with its decrypted history in memory, scoped to the endpoint/address/token. Nonces cannot cross an instance/revision, address or scope. Membership changes refresh recipients and renew challenges; a read has one bounded recovery attempt. A changed stream restarts pagination with hash deduplication. Late messages with old sender timestamps are not skipped, and bounded page loops continue on the next poll.
 
 The recipient picker reads a verified directory. Private messages select the exact recipient plus the sender, including ECDSA destinations, even if the complete group is larger than a single message allows. Group limits and complete-directory requirements are enforced locally. The existing independent recipient audit remains advisory; a pool signature is not independent proof of asset ownership.
 
-A one-tap reveal spends from the chat identity to publish its key. Settings select the wallet service endpoint. PQ messaging is not enabled. ESP32 firmware and its separate SDK are explicitly deferred: hardware messaging reports the missing RPC 5 support instead of attempting old unsigned/legacy reads or opening an obsolete authentication session.
+A one-tap reveal spends from the chat identity to publish its key. Settings select the wallet service endpoint. PQ messaging is not enabled. Hardware (ESP32) messaging needs firmware with DePIN RPC 6 / format 3; older firmware is reported as unsupported instead of falling back to obsolete reads.
 
-The published `@neuraiproject/neurai-rpc@0.8.0` and `@neuraiproject/neurai-depin-msg@4.0.0` are installed from npm. Exact versions and registry integrity are pinned in `package-lock.json`.
+The published `@neuraiproject/neurai-rpc@0.10.0` and `@neuraiproject/neurai-depin-msg@5.0.0` are installed from npm. Exact versions and registry integrity are pinned in `package-lock.json`.
 
 ## Neurai Connect
 
@@ -174,16 +180,18 @@ npm run android:clean    # gradle clean, then rebuild and run on Android
 ## Tests
 
 ```bash
-npm test           # everything: lint + unit + integration
-npm run lint       # tsc --noEmit, unused-loc-key check, then eslint
-npm run lint:fix   # the same, applying eslint's fixes
-npm run unit       # jest tests/unit/* only
-npm run integration  # jest tests/integration/* (needs test mnemonics in the environment)
+npm test             # everything: lint + unit + integration
+npm run lint         # tsc (app and privacy host), unused-loc-key check, then eslint
+npm run lint:eslint  # eslint alone; npm run lint:fix applies its fixes
+npm run unit         # jest, every tests/unit/*.test.* file
+npm run integration  # jest tests/integration (a local server, runs offline)
 ```
 
 The unit suite is the one to run while working; it is self-contained and mocks the native
-modules in `tests/setup.js`. Integration tests talk to real Neurai endpoints and expect
-mnemonics in environment variables. End-to-end tests use Detox on Android:
+modules in `tests/setup.js`. Storage tests use `tests/unit/helpers/storage-double.ts`, which
+simulates the secure store and the Realm backup with their failure modes. No test needs
+secrets or a live network. End-to-end tests use Detox on Android; the inherited specs under
+`tests/e2e/` still target removed Bitcoin flows:
 
 ```bash
 npm run e2e:debug         # build a debug APK if needed, then run the e2e suite
@@ -205,12 +213,11 @@ npm run e2e:release-test  # run the suite against a release build
 | `tests/` | `tests/unit/`, `tests/integration/` and `tests/e2e/` |
 | `android/`, `ios/` | The native projects |
 
-Conventions for contributors — TypeScript only, commit-message prefixes, linting rules — are in
-[`CLAUDE.md`](CLAUDE.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md). Common questions are answered
-in [`FAQ.md`](FAQ.md).
+Conventions for contributors are in [`CONTRIBUTING.md`](CONTRIBUTING.md). Common questions are
+answered in [`FAQ.md`](FAQ.md).
 
 ## Licence
 
 MIT. See [`LICENSE`](LICENSE). NeuraiWallet derives from BlueWallet, which is also MIT licensed.
 
-Run `npm ci` to install the published RPC 5 dependencies from the registry using `package-lock.json`. No local package archives are required. Group sends rebuild once only after an authenticated membership/recipient rejection; an ambiguous submission result is never retried automatically.
+Run `npm ci` to install the published DePIN RPC 6 dependencies from the registry using `package-lock.json`. No local package archives are required. Group sends rebuild once only after an authenticated membership/recipient rejection; an ambiguous submission result is never retried automatically.

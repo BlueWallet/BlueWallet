@@ -72,14 +72,6 @@
     "sats": "sats.",
     "wasnt_paid_and_expired": "Fatura nuk është paguar dhe ka skaduar."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Krijo një memorie të kriptuar",
-    "create_password_explanation": "Fjalekalimi per depozizen fallco nuk duhet te jete i njejti me ate te depozites se vertete.",
-    "help": "Në rrethana të caktuara, mund të detyroheni të zbuloni një fjalëkalim. Për të mbajtur monedhat tuaja të sigurta, NeuraiWallet mund të krijojë një hapësirë tjetër të koduar me një fjalëkalim të ndryshëm. Nën presion, mund ta zbuloni këtë fjalëkalim një pale të tretë. Nëse futet në NeuraiWallet, ai do të hapë një hapësirë të re “të rreme”. Kjo do të duket e ligjshme për palën e tretë, por në mënyrë të fshehtë do të mbajë të sigurt hapësirën tuaj kryesore me monedhat.",
-    "help2": "Hapësira e re do të jetë plotësisht funksionale dhe mund të ruani aty shuma minimale në mënyrë që të duket më e besueshme.",
-    "password_should_not_match": "Fjalekalimi eshte ne perdorim. Ju lutem, provin nje fjalekalim tjeter.",
-    "title": "Mohim i besueshëm"
-  },
   "pleasebackup": {
     "ok": "Ok, i shkruajta.",
     "ok_lnd": "Ok, i shpëtova.",
@@ -195,7 +187,6 @@
     "network_broadcast": "Publiko Transferten",
     "network_electrum": "Serveri Elektrum",
     "password": "Fjalekalim",
-    "plausible_deniability": "Mohim i besueshëm",
     "privacy": "Privatesia",
     "push_notifications_explanation": "Duke aktivizuar njoftimet, kodi i pajisjes suaj do të dërgohet në server, së bashku me adresat e portofolit dhe ID-të e transaksioneve për të gjitha portofolat dhe transfertat e kryera pasi të aktivizoni njoftimet. Kodi i pajisjes përdoret për të dërguar njoftime, ndërsa informacioni i portofolit na mundëson t’ju njoftojmë për Bitcoin-in që ju vjen ose për konfirmimet e transaksioneve.\n\nVetëm informacioni i krijuar pas aktivizimit të njoftimeve transmetohet—asnjanjë të dhënë nga më parë nuk mblidhet.\n\nÇaktivizimi i njoftimeve do të fshijë të gjithë këtë informacion nga serveri. Gjithashtu, fshirja e një portofoli nga aplikacioni do të heqë edhe informacionin e tij përkatës nga serveri.",
     "save": "Ruaj",

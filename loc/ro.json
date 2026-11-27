@@ -54,14 +54,6 @@
     "sats": "sats.",
     "wasnt_paid_and_expired": "Această factură nu a fost plătită și a expirat."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Creează Spațiu de Stocare Criptat",
-    "create_password_explanation": "Parola pentru stocarea falsă nu trebuie să fie acceași cu parola pentru stocarea principală.",
-    "help": "În anumite circumstanțe, ai putea fi forțat să spui parola. Pentru a-ți păstra monedele în siguranță, NeuraiWallet poate crea un alt spațiu de stocare cu o parolă diferită. Sub presiune, poți oferi această parolă unei entități terțe. Dacă e introdusă în NeuraiWallet, va debloca un nou spațiu de stocare \"fals\". Acest lucru va părea în regulă unei entități terțe, dar îți va păstra în  siguranță spațiul de stocare secret cu monedele tale.",
-    "help2": "Noul spațiu de stocare va fi complet funcțional, și poți păstra o cantitate minimă pentru a părea mai credibil. ",
-    "password_should_not_match": "Parola este deja în folosință. Încearcă o parolă diferită.",
-    "title": "Negare plauzibilă"
-  },
   "pleasebackup": {
     "ok": "OK, o scriu pe foaie.",
     "ok_lnd": "Ok, am salvat,",
@@ -202,7 +194,6 @@
     "notifications": "Notificări",
     "open_link_in_explorer": "Deschide link în explorer",
     "password": "Parolă",
-    "plausible_deniability": "Negare plauzibilă",
     "privacy": "Confidențialitate",
     "privacy_read_clipboard": "Citește clipboard",
     "privacy_system_settings": "Setări sistem",
@@ -295,7 +286,6 @@
     "export_title": "Export portofel",
     "import_do_import": "Importă",
     "import_error": "Importare eșuată. Asigură-te că datele furnizate sunt valide.",
-    "import_imported": "Importat",
     "import_scan_qr": "Scanează sau importă fișier",
     "import_success": "Portofelul tău a fost importat cu succes.",
     "import_search_accounts": "Caută conturi",

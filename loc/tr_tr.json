@@ -57,14 +57,6 @@
     "sats": "sats.",
     "wasnt_paid_and_expired": "Bu fatura ödenmeden zaman aşımına uğradı."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Sahte şifreli depolama oluşturun",
-    "create_password_explanation": "Sahte depolama şifreniz, ana depolama şifrenizle aynı olmamalıdır.",
-    "help": "Bazı koşullar altında, şifrenizi açıklamanız gerekebilir. Paralarınızı güvende tutmak için, NeuraiWallet başka bir şifre ile şifreli depolama alanı yaratabilir. Baskı altında, Bu şifreyi 3. bir tarafa söyleyebilirsiniz. Girilirse NeuraiWallet, yeni 'sahte' bir depolamanın kilidini açacaktır. Bu 3. şahıslara normal görünecektir, ancak paraların olduğu ana depolama alanınızı gizlice saklamaya devam edecektir.",
-    "help2": "Yeni depolama alanı tamamen işlevsel olacak ve ufak bir miktar tutarsanız daha inanılır görünecektir.",
-    "password_should_not_match": "Sahte depolama şifreniz, ana depolama şifrenizle aynı olmamalıdır",
-    "title": "Makul Ret"
-  },
   "pleasebackup": {
     "ok_lnd": "Tamam, kaydettim.",
     "text_lnd": "Lütfen kurtarma kodunuzu kaydedin. Cüzdanınızı kayıp etmeniz durumunda onu geri oluşturabilmenizi sağlar.",
@@ -145,7 +137,6 @@
     "language": "Dil",
     "lightning_settings": "Lightning Ayarları",
     "password": "Şifre",
-    "plausible_deniability": "Makul ret...",
     "privacy": "Gizlilik",
     "privacy_system_settings": "Sistem Ayarları",
     "privacy_quickactions": "Cüzdan Kısayolları",
@@ -183,7 +174,6 @@
     "export_title": "cüzdan yedekle",
     "import_do_import": "İçe Aktar",
     "import_error": "İçeri aktarma başarısız oldu. Lütfen girilen bilginin doğru olduğundan emin olun.",
-    "import_imported": "İçeri aktarıldı",
     "import_scan_qr": "veya QR kod tara?",
     "import_success": "Başarılı",
     "import_title": "içeri yükle",

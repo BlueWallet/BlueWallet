@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { InteractionManager } from 'react-native';
 
 import {
@@ -33,21 +33,18 @@ const BALANCE_POLL_MS = 15_000;
 
 /** Provides the RPC-backed state needed before a token conversation is opened. */
 const useDepinChatSetup = ({ identity, network, supported, knownRevealed = false, paused = false }: UseDepinChatSetupParams) => {
-  const backendRef = useRef<{ key: string; backend: NeuraiBackend } | null>(null);
+  // Every access asks for the backend in force now: `getDepinRpcBackend` keeps
+  // one connection per network and URL, and refuses while DePIN is suspended.
+  // Keeping a reference here let a balance read reach the previous server
+  // after the user changed it (third review).
+  const getBackend = useCallback((): NeuraiBackend => getDepinRpcBackend(network), [network]);
   const rpc = useMemo<DepinRpc | null>(() => {
     if (!supported) return null;
     return async <T = unknown>(method: string, params: unknown[]): Promise<T> => {
       await loadDepinRpcOverrides();
-      const config = getDepinRpcConfig(network);
-      const key = `${config.url}|${config.username ?? ''}|${config.password ?? ''}`;
-      if (!backendRef.current || backendRef.current.key !== key) {
-        backendRef.current = { key, backend: getDepinRpcBackend(network) };
-      }
-      return backendRef.current.backend.rpc<T>(method, params);
+      return getBackend().rpc<T>(method, params);
     };
-  }, [network, supported]);
-
-  const getBackend = useCallback(() => backendRef.current?.backend ?? getDepinRpcBackend(network), [network]);
+  }, [getBackend, supported]);
   const [chatAssets, setChatAssets] = useState<Record<string, number>>({});
   const [loadingAssets, setLoadingAssets] = useState(false);
   const [serverInfo, setServerInfo] = useState<DepinServerInfo | null>(null);

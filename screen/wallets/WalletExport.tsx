@@ -10,7 +10,7 @@ import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-n
 
 import { validateMnemonic } from '../../blue_modules/bip39';
 import { ConnectNoticeCard } from '../../components/ConnectUI';
-import NeuraiLoader from '../../components/NeuraiLoader';
+import ScreenProtectionGate from '../../components/ScreenProtectionGate';
 import QRCode from '../../components/QRCode';
 import RecoveryWords from '../../components/RecoveryWords';
 import { SettingsCard, SettingsScreenHeader, SettingsSectionLabel, useSettingsPalette } from '../../components/settings/SettingsUI';
@@ -33,7 +33,7 @@ const WalletExport: React.FC = () => {
   const { walletID } = useRoute<RouteProps>().params;
   const navigation = useNavigation();
   const wallet = wallets.find(w => w.getID() === walletID)!;
-  const { enableScreenProtect, disableScreenProtect, isProtectionReady } = useScreenProtect();
+  const { enableScreenProtect, disableScreenProtect, isProtectionReady, isProtectionFailed } = useScreenProtect();
   const { currentAppState, previousAppState } = useAppState();
 
   const secrets: string[] = useMemo(() => {
@@ -76,7 +76,7 @@ const WalletExport: React.FC = () => {
   // Nothing secret is drawn until the window is protected.
   let content: React.ReactNode;
   if (!isProtectionReady) {
-    content = <NeuraiLoader style={styles.loader} />;
+    content = <ScreenProtectionGate ready={false} failed={isProtectionFailed} onRetry={enableScreenProtect} loaderStyle={styles.loader} />;
   } else if (secrets.length !== 1) {
     // SLIP39: several shares, each written down on its own.
     content = (

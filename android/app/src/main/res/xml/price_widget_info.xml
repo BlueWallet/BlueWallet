@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Neurai Price widget (receiver .BitcoinPriceWidget). Fetched by NeuraiWidgetWorker; the system's update every 30 minutes only redraws (marks old data, also offline). -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/price_widget_description"
+    android:initialKeyguardLayout="@layout/widget_layout"
+    android:initialLayout="@layout/widget_layout"
+    android:maxResizeHeight="200dp"
+    android:maxResizeWidth="300dp"
+    android:minHeight="100dp"
+    android:minResizeHeight="90dp"
+    android:minResizeWidth="140dp"
+    android:minWidth="170dp"
+    android:previewImage="@drawable/widget_preview"
+    android:previewLayout="@layout/widget_price_preview"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellHeight="2"
+    android:targetCellWidth="2"
+    android:updatePeriodMillis="1800000"
+    android:widgetCategory="home_screen|keyguard" />

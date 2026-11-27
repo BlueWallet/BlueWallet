@@ -1,0 +1,30 @@
+diff --git a/node_modules/react-native-secure-key-store/android/src/main/java/com/reactlibrary/securekeystore/RNSecureKeyStoreModule.java b/node_modules/react-native-secure-key-store/android/src/main/java/com/reactlibrary/securekeystore/RNSecureKeyStoreModule.java
+index e20d488..4f066e4 100644
+--- a/node_modules/react-native-secure-key-store/android/src/main/java/com/reactlibrary/securekeystore/RNSecureKeyStoreModule.java
++++ b/node_modules/react-native-secure-key-store/android/src/main/java/com/reactlibrary/securekeystore/RNSecureKeyStoreModule.java
+@@ -41,7 +41,12 @@ public class RNSecureKeyStoreModule extends ReactContextBaseJavaModule {
+   @ReactMethod
+   public void set(String alias, String input, @Nullable ReadableMap options, Promise promise) {
+     try {
+-      getSecureSharedPreferences().edit().putString(alias, input).commit();
++      // commit() reports a failed disk write by returning false: surface it,
++      // or the app would report a save that did not happen (NeuraiWallet H03).
++      if (!getSecureSharedPreferences().edit().putString(alias, input).commit()) {
++        promise.reject("E_COMMIT", "{\"code\":9,\"api-level\":" + Build.VERSION.SDK_INT + ",\"message\":\"commit failed\"}");
++        return;
++      }
+       promise.resolve("stored ciphertext in app storage");
+     } catch (Exception e) {
+       e.printStackTrace();
+@@ -83,7 +88,10 @@ public class RNSecureKeyStoreModule extends ReactContextBaseJavaModule {
+   @ReactMethod
+   public void remove(String alias, Promise promise) {
+     try {
+-      getSecureSharedPreferences().edit().remove(alias).commit();
++      if (!getSecureSharedPreferences().edit().remove(alias).commit()) {
++        promise.reject("E_COMMIT", "{\"code\":6,\"api-level\":" + Build.VERSION.SDK_INT + ",\"message\":\"commit failed\"}");
++        return;
++      }
+       promise.resolve("cleared alias");
+     } catch (Exception e) {
+       e.printStackTrace();

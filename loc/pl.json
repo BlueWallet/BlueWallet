@@ -77,14 +77,6 @@
     "date_time": "Data i czas",
     "wasnt_paid_and_expired": "Ta faktura nie została opłacona i przeterminowała się."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Utwórz zaszyfrowany magazyn danych",
-    "create_password_explanation": "Hasło fałszywego magazynu danych, powinno różnić się od głównego.",
-    "help": "W pewnych okolicznościach możesz być zmuszony do podania hasła. Aby chronić swoje środki w portfelu głównym, NeuraiWallet może stworzyć dodatkowy, zaszyfrowany magazyn danych z innym hasłem. W przypadku nacisku ze strony trzeciej możesz ujawnić to alternatywne hasło. Po jego wpisaniu NeuraiWallet odblokuje nowy, fałszywy portfel. Będzie on wyglądał na prawdziwy i pozwoli ukryć zawartość portfela głównego.",
-    "help2": "Nowy magazyn danych będzie w pełni funkcjonalny i możesz przechowywać w niej minimalne ilości, aby wyglądało to wiarygodnie.",
-    "password_should_not_match": "Hasło jest aktualnie w użyciu. Spróbuj z innym hasłem.",
-    "title": "Wiarygodna zaprzeczalność"
-  },
   "pleasebackup": {
     "ok": "OK, zapisałem.",
     "ok_lnd": "OK, zachowałem.",
@@ -298,7 +290,6 @@
     "open_link_in_explorer": "Otwórz link w eksploratorze bloków",
     "password": "Hasło",
     "password_explain": "Podaj hasło, do odblokowania pamięci telefonu.",
-    "plausible_deniability": "Wiarygodna zaprzeczalność",
     "privacy": "Prywatność",
     "privacy_read_clipboard": "Czytaj Schowek",
     "privacy_system_settings": "Ustawienia Systemowe",
@@ -435,7 +426,6 @@
     "import_passphrase_title": "Hasło",
     "import_passphrase_message": "Wprowadź hasło, jeśli użyłeś jakiegokolwiek",
     "import_error": "Import nieudany. Upewnij się proszę, że dane są prawidłowe.",
-    "import_imported": "Zaimportowano",
     "import_scan_qr": "Skanuj lub importuj plik",
     "import_success": "Twój portfel został pomyślnie zaimportowany.",
     "import_success_watchonly": "Twój portfel został zaimportowany. UWAGA: To jest portfel tylko do odczytu, nie możesz z niego wydawać.",

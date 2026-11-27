@@ -220,7 +220,7 @@ const ReceiveDetails = () => {
     if (newAddress === undefined) {
       newAddress = wallet.getAddress();
     } else {
-      saveToDisk();
+      saveToDisk().catch(() => {}); // reported by saveToDisk
     }
 
     if (!newAddress) {
@@ -242,7 +242,7 @@ const ReceiveDetails = () => {
     // BIP47 is Bitcoin-only; left as a no-op so the existing handler wiring
     // keeps compiling. The toggle in the header menu is hidden via
     // `wallet.allowBIP47()` returning false on every Neurai wallet.
-    saveToDisk();
+    saveToDisk().catch(() => {}); // reported by saveToDisk
     obtainWalletAddress();
   }, [saveToDisk, obtainWalletAddress]);
 

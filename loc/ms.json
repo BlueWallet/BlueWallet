@@ -54,14 +54,6 @@
     "sats": "sat.",
     "wasnt_paid_and_expired": "Invois ini tidak dibayar dan sudah luput."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Cipta Simpanan Sulit.",
-    "create_password_explanation": "Kata laluan untuk simpanan palsu tidak boleh sepadan dengan kata laluan untuk simpanan utama anda.",
-    "help": "Dalam keadaan tertentu, anda mungkin dipaksa untuk mendedahkan kata laluan. Supaya duit anda kekal selamat, NeuraiWallet boleh menghasilkan simpanan sulit lain dengan kata laluan berbeza. Apabila dipaksa. anda dapat mendedahkan kata laluan ini kepada pihak ketiga. Jika dimasukkan ke dalam NeuraiWallet, satu simpanan \"palsu\" akan dinyahkunci. Simpanan ini akan kelihatan tulen kepada pihak ketiga, tetapi secara rahsia mengekalkan keselamatan duit anda.",
-    "help2": "Simpanan baharu itu akan berfungsi secara penuh, dan anda boleh menyimpan sedikit jumlah minimum di sana agar ia kelihatan tulen.",
-    "password_should_not_match": "Kata laluan sudah dalam penggunaan. Sila cuba kata laluan lain.",
-    "title": "Penafian Munasabah"
-  },
   "pleasebackup": {
     "ok": "OK, sudah disalin.",
     "text": "Sila ambil sedikit waktu untuk menyalin frasa nemonik ini di atas sehelai kertas.\nSalinan ini adalah sandaran anda dan anda boleh menggunakan salinan ini untuk mendapatkan semula dompet anda. ",
@@ -199,7 +191,6 @@
     "notifications": "Pemberitahuan",
     "open_link_in_explorer": "Buka pautan di dalam penjelajah",
     "password": "Kata Laluan",
-    "plausible_deniability": "Penafian Munasabah",
     "privacy": "Persendirian",
     "privacy_read_clipboard": "Baca Papan Sepit",
     "privacy_system_settings": "Tetapan Sistem",
@@ -291,7 +282,6 @@
     "import_passphrase_title": "Frasa Laluan",
     "import_passphrase_message": "Masukkan frasa laluan jika ada digunakan",
     "import_error": "Gagal untuk dipindah masuk. Sila pastikan butiran yang diberikan adalah sah.",
-    "import_imported": "Dipindah Masuk",
     "import_scan_qr": "Imbas atau pindah masuk fail",
     "import_success": "Dompet anda sudah berjaya dipindah masuk.",
     "import_title": "Pindah Masuk",

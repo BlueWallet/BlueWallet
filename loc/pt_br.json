@@ -76,14 +76,6 @@
     "date_time": "Data e Horário",
     "wasnt_paid_and_expired": "Esta fatura não foi paga e expirou."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Criar armazenamento criptografado",
-    "create_password_explanation": "A senha para o armazenamento falso não deve ser igual a do armazenamento principal.",
-    "help": "Em algumas circunstâncias, você pode ser forçado a revelar uma senha. Para manter seus bitcoins seguros, a NeuraiWallet pode criar uma senha alternativa. Sob pressão, você pode revelar essa senha ao invés da senha principal. Quando inserida na NeuraiWallet, esta abrirá uma interface falsa, que parecerá legítima a um terceiro, enquanto suas carteiras originais continuarão à salvo em segredo.",
-    "help2": "Essa nova interface é completamente funcional e você pode inclusive manter nela um valor mínimo para que pareça mais real.",
-    "password_should_not_match": "Esta senha já está sendo usada. Por favor, tente uma senha diferente.",
-    "title": "Negação plausível"
-  },
   "pleasebackup": {
     "ok": "Ok, eu anotei.",
     "ok_lnd": "OK, eu salvei.",
@@ -281,7 +273,6 @@
     "open_link_in_explorer": "Abrir link no navegador",
     "password": "Senha",
     "password_explain": "Insira a senha que você vai usar para desbloquear o seu armazenamento.",
-    "plausible_deniability": "Negação plausível",
     "privacy": "Privacidade",
     "privacy_read_clipboard": "Leia a área de transferência",
     "privacy_system_settings": "Configurações do sistema",
@@ -415,7 +406,6 @@
     "import_passphrase_title": "Senha",
     "import_passphrase_message": "Digite a senha, caso você tenha usado alguma",
     "import_error": "Erro ao importar. Por favor, confira se os dados que você passou são válidos.",
-    "import_imported": "Importada",
     "import_scan_qr": "Ler código ou importar arquivo",
     "import_success": "Sua carteira foi importada com sucesso.",
     "import_success_watchonly": "A carteira foi importada.\nAVISO: Esta é uma carteira de consulta e você NÃO pode mover fundos com ela.",

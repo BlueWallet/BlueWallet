@@ -8,7 +8,6 @@ import { securityScore } from '../../components/settings/securityScore';
 import {
   biometricLabel,
   SettingsCard,
-  SettingsRow,
   SettingsScreenHeader,
   SettingsSectionLabel,
   SettingsSwitchRow,
@@ -151,10 +150,6 @@ const EncryptStorage = () => {
     }
   };
 
-  const navigateToPlausibleDeniability = () => {
-    navigation.navigate('PlausibleDeniability');
-  };
-
   const encrypted = state.storageIsEncryptedSwitchEnabled;
   const bioName = biometricLabel(deviceBiometricType);
   const score = securityScore({
@@ -224,15 +219,6 @@ const EncryptStorage = () => {
               loading={state.currentLoadingSwitch === 'encrypt' && state.isLoading}
               testID="EncyptedAndPasswordProtected"
               switchTestID="EncyptedAndPasswordProtectedSwitch"
-            />
-            <SettingsRow
-              divider
-              icon="masks"
-              title={loc.settings.plausible_deniability}
-              subtitle={encrypted ? loc.settings.plausible_deniability_expl : loc.settings.plausible_deniability_needs_password}
-              onPress={navigateToPlausibleDeniability}
-              disabled={!encrypted}
-              testID={encrypted ? 'PlausibleDeniabilityButton' : undefined}
             />
           </SettingsCard>
         </View>

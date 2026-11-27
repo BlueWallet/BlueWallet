@@ -86,14 +86,13 @@ async function main() {
   await page.route(ORIGIN, route => route.fulfill({ body: html, contentType: 'text/html' }));
 
   let chunks = 0;
-  let bridge: PrivacyHostBridge;
+  const bridge = new PrivacyHostBridge({
+    // Like injectJavaScript: fire and forget (late messages after close are dropped).
+    send: text => void page.evaluate(t => (window as any).__neuraiPrivacyHost.receive(t), text).catch(() => {}),
+  });
   await page.exposeFunction('__appReceive', (text: string) => bridge.receive(text));
   await page.addInitScript(() => {
     (window as any).ReactNativeWebView = { postMessage: (text: string) => (window as any).__appReceive(text) };
-  });
-  bridge = new PrivacyHostBridge({
-    // Like injectJavaScript: fire and forget (late messages after close are dropped).
-    send: text => void page.evaluate(t => (window as any).__neuraiPrivacyHost.receive(t), text).catch(() => {}),
   });
   await page.goto(ORIGIN);
   await bridge.whenReady();

@@ -183,3 +183,224 @@ it('rejects already rounded amounts before sending a signing command', async () 
   ).rejects.toThrow();
   expect(sendCommandHeartbeat).not.toHaveBeenCalled();
 });
+
+// ---- H16 · the signed PQ transaction must be the reviewed draft plus signatures ----
+
+/** A device double that answers `sign_tx` with `respond(draftHex)`. */
+function signingDevice(respond: (draftHex: string) => string, order: string[] = []) {
+  const transport: INeuraiTransport = {
+    connected: true,
+    open: async () => {},
+    close: async () => {},
+    sendCommand: async () => {
+      order.push('ping');
+      return { status: 'ok', device: 'NeuraiHW' } as Awaited<ReturnType<INeuraiTransport['sendCommand']>>;
+    },
+    sendCommandFinal: async () => ({}) as never,
+    sendCommandHeartbeat: async (command: Record<string, unknown>) => {
+      order.push('sign');
+      return { status: 'success', tx: respond(command.tx as string) } as never;
+    },
+  };
+  return new NeuraiESP32({ transport });
+}
+
+const withSignature = (tx: Transaction) => {
+  tx.ins.forEach(input => {
+    input.witness = [Buffer.alloc(2420, 7), Buffer.from('51', 'hex')];
+  });
+  return tx;
+};
+
+async function pqDraft() {
+  const { wallet } = fixture(5000000000n, 'pq', deviceAuthScriptAddress());
+  const draft = await wallet.buildUnsignedSend(recipient, 100000001n, { feeRate: 1 });
+  return { wallet, draft };
+}
+
+it('accepts a device response that only adds signatures', async () => {
+  const { wallet, draft } = await pqDraft();
+  const device = signingDevice(hex => withSignature(Transaction.fromHex(hex)).toHex());
+  const signed = await wallet.signWithDevice(device, draft);
+  expect(signed.txId).toBe(Transaction.fromHex(draft.rawTxHex!).getId());
+});
+
+const tampering: Array<[string, (tx: Transaction) => void]> = [
+  [
+    'amount',
+    tx => {
+      tx.outs[0].value = tx.outs[0].value + 1n;
+    },
+  ],
+  [
+    'destination',
+    tx => {
+      tx.outs[0].script = Buffer.from('76a914' + '11'.repeat(20) + '88ac', 'hex');
+    },
+  ],
+  [
+    'extra output',
+    tx => {
+      tx.addOutput(Buffer.from('76a914' + '22'.repeat(20) + '88ac', 'hex'), 1000n);
+    },
+  ],
+  [
+    'input',
+    tx => {
+      tx.ins[0].index = 7;
+    },
+  ],
+  [
+    'sequence',
+    tx => {
+      tx.ins[0].sequence = 0;
+    },
+  ],
+  [
+    'lock time',
+    tx => {
+      tx.locktime = 99;
+    },
+  ],
+];
+
+test.each(tampering)('rejects a signed transaction with a different %s before any broadcast', async (_label, tamper) => {
+  const { wallet, draft } = await pqDraft();
+  const broadcast = jest.spyOn(wallet, 'broadcastTx');
+  const device = signingDevice(hex => {
+    const tx = withSignature(Transaction.fromHex(hex));
+    tamper(tx);
+    return tx.toHex();
+  });
+  await expect(wallet.signWithDevice(device, draft)).rejects.toThrow('differs from the one you approved');
+  expect(broadcast).not.toHaveBeenCalled();
+});
+
+it('rejects a response that carries no signature', async () => {
+  const { wallet, draft } = await pqDraft();
+  const device = signingDevice(hex => hex);
+  await expect(wallet.signWithDevice(device, draft)).rejects.toThrow('is not signed');
+});
+
+// ---- H18 · one turn of the device queue for ping + sign, one shared link ----
+
+it('keeps ping and sign together: a queued chat command waits until signing ends', async () => {
+  const { withDevice }: typeof import('../../blue_modules/neurai-hw/deviceQueue') = require('../../blue_modules/neurai-hw/deviceQueue');
+  const { wallet, draft } = await pqDraft();
+  const order: string[] = [];
+  const device = signingDevice(hex => withSignature(Transaction.fromHex(hex)).toHex(), order);
+  const signing = wallet.signWithDevice(device, draft);
+  const chat = withDevice(async () => {
+    order.push('chat');
+  });
+  await Promise.all([signing, chat]);
+  expect(order).toEqual(['ping', 'sign', 'chat']);
+});
+
+describe('shared USB link', () => {
+  const link: typeof import('../../blue_modules/neurai-hw/sharedLink') = require('../../blue_modules/neurai-hw/sharedLink');
+  type FakeDevice = { ping: jest.Mock; disconnect: jest.Mock };
+  const fakeDevice = (): FakeDevice => ({ ping: jest.fn(async () => ({ device: 'NeuraiHW' })), disconnect: jest.fn(async () => {}) });
+  const asDevice = (device: FakeDevice) => device as unknown as NeuraiESP32;
+  beforeEach(() => link.resetLinkForTests());
+
+  it('opens once for two screens asking at the same time', async () => {
+    const device = fakeDevice();
+    const open = jest.fn(async () => asDevice(device));
+    const [a, b] = await Promise.all([link.acquireLink('send', open), link.acquireLink('chat', open)]);
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(a).toBe(asDevice(device));
+    expect(b).toBe(asDevice(device));
+  });
+
+  it('keeps the port open while another screen holds it, and closes it with the last one', async () => {
+    const device = fakeDevice();
+    await link.acquireLink('chat', async () => asDevice(device));
+    await link.acquireLink('send', async () => asDevice(device));
+    await link.releaseLink('send');
+    expect(device.disconnect).not.toHaveBeenCalled();
+    expect(link.currentLink()).toBe(asDevice(device));
+    await link.releaseLink('chat');
+    expect(device.disconnect).toHaveBeenCalledTimes(1);
+    expect(link.currentLink()).toBeNull();
+  });
+
+  it('reopens when the shared link stopped answering', async () => {
+    const dead = fakeDevice();
+    dead.ping.mockRejectedValue(new Error('unplugged'));
+    await link.acquireLink('chat', async () => asDevice(dead));
+    const fresh = fakeDevice();
+    const reopened = await link.acquireLink('send', async () => asDevice(fresh));
+    expect(reopened).toBe(asDevice(fresh));
+    expect(dead.disconnect).toHaveBeenCalledTimes(1);
+  });
+
+  it('shares a failed open with every waiter and allows a later retry', async () => {
+    const open = jest.fn(async (): Promise<NeuraiESP32> => {
+      throw new Error('USB permission denied');
+    });
+    const results = await Promise.allSettled([link.acquireLink('a', open), link.acquireLink('b', open)]);
+    expect(results.map(r => r.status)).toEqual(['rejected', 'rejected']);
+    expect(open).toHaveBeenCalledTimes(1);
+    const device = fakeDevice();
+    await expect(link.acquireLink('a', async () => asDevice(device))).resolves.toBe(asDevice(device));
+  });
+});
+
+describe('shared USB link · release during an acquisition (review 7)', () => {
+  const link: typeof import('../../blue_modules/neurai-hw/sharedLink') = require('../../blue_modules/neurai-hw/sharedLink');
+  beforeEach(() => link.resetLinkForTests());
+
+  it('does not close the port under a screen whose ping is still pending', async () => {
+    let answer!: () => void;
+    const device = {
+      ping: jest.fn(() => new Promise(resolve => (answer = () => resolve({ device: 'NeuraiHW' })))),
+      disconnect: jest.fn(async () => {}),
+    };
+    const asDevice = device as unknown as NeuraiESP32;
+    await link.acquireLink('send', async () => asDevice); // opens: no ping
+
+    const chat = link.acquireLink('chat', async () => asDevice); // reuses: waits on its ping
+    // eslint-disable-next-line no-unmodified-loop-condition -- set by the device double once the queued ping runs
+    while (!answer) await Promise.resolve();
+    const released = link.releaseLink('send'); // the last other holder leaves meanwhile
+    answer();
+    expect(await chat).toBe(asDevice);
+    await released;
+    expect(device.disconnect).not.toHaveBeenCalled();
+    expect(link.currentLink()).toBe(asDevice);
+  });
+});
+
+describe('shared USB link · two screens reconnecting together (second review)', () => {
+  const link: typeof import('../../blue_modules/neurai-hw/sharedLink') = require('../../blue_modules/neurai-hw/sharedLink');
+  beforeEach(() => link.resetLinkForTests());
+  const fake = (alive: boolean) => ({
+    ping: jest.fn(async () => {
+      if (!alive) throw new Error('unplugged');
+      return { device: 'NeuraiHW' };
+    }),
+    disconnect: jest.fn(async () => {}),
+  });
+
+  it.each(['chat leaves first', 'send leaves first'])('both hold the reopened port; %s and the other keeps it', async order => {
+    const dead = fake(false);
+    await link.acquireLink('setup', async () => dead as unknown as NeuraiESP32);
+    const fresh = fake(true);
+    const open = jest.fn(async () => fresh as unknown as NeuraiESP32);
+
+    const [chat, send] = await Promise.all([link.acquireLink('chat', open), link.acquireLink('send', open)]);
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(chat).toBe(fresh);
+    expect(send).toBe(fresh);
+    expect(dead.disconnect).toHaveBeenCalledTimes(1);
+
+    await link.releaseLink('setup'); // the screen that held the dead link is gone too
+    const [first, second] = order === 'chat leaves first' ? ['chat', 'send'] : ['send', 'chat'];
+    await link.releaseLink(first);
+    expect(fresh.disconnect).not.toHaveBeenCalled();
+    expect(link.currentLink()).toBe(fresh);
+    await link.releaseLink(second);
+    expect(fresh.disconnect).toHaveBeenCalledTimes(1);
+  });
+});

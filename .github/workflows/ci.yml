@@ -3,9 +3,8 @@ name: Tests
 # https://dev.to/edvinasbartkus/running-react-native-detox-tests-for-ios-and-android-on-github-actions-2ekn
 # https://medium.com/@reime005/the-best-ci-cd-for-react-native-with-e2e-support-4860b4aaab29
 
-env:
-  HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
-  HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+# No secrets: the unit and integration suites use test-only fixtures and a
+# local server. The Bitcoin-era mnemonic secrets were read by no test here.
 
 on: [pull_request]
 
@@ -27,8 +26,18 @@ jobs:
     - name: Install node_modules
       run: npm ci || npm ci
 
-    - name: Run tests
-      run: npm run lint
+    # One step per check, and every step runs even if an earlier one failed,
+    # so a failing stage does not hide the results of the next ones.
+    - name: TypeScript (app and privacy host)
+      run: npm run tslint
+
+    - name: Unused localization keys
+      if: success() || failure()
+      run: npm run lint:loc
+
+    - name: ESLint
+      if: success() || failure()
+      run: npm run lint:eslint
 
   unit:
     runs-on: ubuntu-latest
@@ -47,18 +56,17 @@ jobs:
     - name: Install node_modules
       run: npm ci || npm ci
 
+    # Every tests/unit/*.test.* file must be discovered: a script glob once
+    # swallowed the first file as the --maxWorkers value.
+    - name: Check the unit test inventory
+      run: |
+        expected=$(ls tests/unit/*.test.* | wc -l)
+        found=$(npx jest --listTests tests/unit | wc -l)
+        echo "unit test files: $expected, discovered by jest: $found"
+        test "$expected" -eq "$found"
+
     - name: Run tests
       run: npm run unit
-      env:
-        BIP47_HD_MNEMONIC: ${{ secrets.BIP47_HD_MNEMONIC}}
-        HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
-        HD_MNEMONIC_BIP49: ${{ secrets.HD_MNEMONIC_BIP49 }}
-        HD_MNEMONIC_BIP49_MANY_TX: ${{ secrets.HD_MNEMONIC_BIP49_MANY_TX }}
-        HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
-        HD_MNEMONIC_BREAD: ${{ secrets.HD_MNEMONIC_BREAD }}
-        FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
-        MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
-        MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
 
   integration:
     runs-on: ubuntu-latest
@@ -77,16 +85,6 @@ jobs:
     - name: Install node_modules
       run: npm ci || npm ci
 
+    # Deterministic (local server), so no retries are needed.
     - name: Run tests
-      run: npm run integration || npm run integration || npm run integration || npm run integration
-      env:
-        BIP47_HD_MNEMONIC: ${{ secrets.BIP47_HD_MNEMONIC}}
-        HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
-        HD_MNEMONIC_BIP49: ${{ secrets.HD_MNEMONIC_BIP49 }}
-        HD_MNEMONIC_BIP49_MANY_TX: ${{ secrets.HD_MNEMONIC_BIP49_MANY_TX }}
-        HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
-        HD_MNEMONIC_BREAD: ${{ secrets.HD_MNEMONIC_BREAD }}
-        FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
-        MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
-        MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
-        RETRY: 1
+      run: npm run integration

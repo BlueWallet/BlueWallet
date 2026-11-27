@@ -77,14 +77,6 @@
     "date_time": "Data e Hora",
     "wasnt_paid_and_expired": "Esta fatura não foi paga e expirou"
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Criar armazenamento encriptado",
-    "create_password_explanation": "A palavra-passe para armazenamento FALSO não deve coincidir com a palavra-passe principal.",
-    "help": "Em algumas circunstâncias, pode ser forçado a relevar uma palavra-passe. Para manter as suas moedas seguras, A NeuraiWallet pode criar outro armazenamento encriptado, com uma palavra-passe diferente. Sobre pressão, pode revelar esta palavra-passe a um terceiro. Se inserida na NeuraiWallet, esta vai abrir um armazenamento \"falso\". Que vai parecer legítimo a um terceiro, mas que secretamente vai manter o seu armazenamento principal com as moedas em segurança.",
-    "help2": "Este novo armazenamento é completamente funcional, e pode guardar um valor mínimo para parecer mais real.",
-    "password_should_not_match": "A palavra-passe está atualmente em uso. Por favor, tente uma palavra-passe diferente.",
-    "title": "Negação plausível"
-  },
   "pleasebackup": {
     "ok": "OK, já anotei.",
     "ok_lnd": "Ok, eu guardei.",
@@ -295,7 +287,6 @@
     "open_link_in_explorer": "Abrir link no explorador",
     "password": "Password",
     "password_explain": "Digite a palavra-passe que usará para desbloquear o seu armazenamento.",
-    "plausible_deniability": "Negação Plausível",
     "privacy": "Privacidade",
     "privacy_read_clipboard": "Copiar da Área de Transferência",
     "privacy_system_settings": "Configurações do Sistema",
@@ -431,7 +422,6 @@
     "import_passphrase_title": "Passphrase",
     "import_passphrase_message": "Insira a passphrase, caso tenha utilizado alguma",
     "import_error": "Falha na importação. Certifique-se de que os dados fornecidos são válidos.",
-    "import_imported": "Importada",
     "import_scan_qr": "Ler código QR ou importar ficheiro",
     "import_success": "Sucesso",
     "import_success_watchonly": "A sua carteira foi importada com sucesso.\nAVISO: Esta é uma carteira apenas de consulta e não poderá gastar a partir dela.",

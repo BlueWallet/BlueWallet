@@ -81,6 +81,8 @@ ctx.onmessage = ({ data }) => {
       if (started) return;
       started = true;
       try {
+        // The base URL is the app's concern; the worker gets artifacts through fetchArtifact.
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { artifactBaseUrl: _ignored, ...config } = data.config;
         startC7PoolWorker({
           ...(config as unknown as Parameters<typeof startC7PoolWorker>[0]),

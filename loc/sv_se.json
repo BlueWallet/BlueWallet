@@ -62,14 +62,6 @@
     "sats": "sats",
     "wasnt_paid_and_expired": "Denna faktura har ej betalats och är nu utgången"
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Skapa fejkad lagringsyta",
-    "create_password_explanation": "Lösenordet för den fejkade lagringsytan får inte vara samma som ditt huvudlösenord",
-    "help": "Under vissa omständigheter kan du bli tvingad att uppge ditt lösenord. För att se till att dina pengar är säkra kan NeuraiWallet skapa ytterligare en krypterad lagringsyta, med ett annat lösenord. Vid tvång kan du uppge detta alternativa lösenord. När det matas in i NeuraiWallet så kommer det att låsa upp din 'fejkade' lagringsyta. Det kommer att se ut precis som vanligt men i själva verket är dina pengar i säkert förvar på din primära lagringsyta.",
-    "help2": "Den alternativa lagringsytan kommer att vara fullt fungerade och du kan eventuellt spara en mindre summa där för att den ska verka mer trovärdig.",
-    "password_should_not_match": "Lösenordet för den fejkade lagringsytan får inte vara samma som ditt huvudlösenord",
-    "title": "Trovärdigt förnekande"
-  },
   "pleasebackup": {
     "ok_lnd": "Ok, jag har sparat det",
     "text": "Innan du går vidare, skriv ned dessa ord på ett papper och förvara på ett säkert ställe. \nDe är din backup och säkerställer att du kan återställa din plånbok igen om något händer.",
@@ -222,7 +214,6 @@
     "notifications": "Notifikationer",
     "open_link_in_explorer": "Öppna länken i utforskaren",
     "password": "Lösenord",
-    "plausible_deniability": "Trovärdigt förnekande...",
     "privacy": "Integritet",
     "privacy_read_clipboard": "Läs Urklipp",
     "privacy_system_settings": "Systeminställningar",
@@ -327,7 +318,6 @@
     "import_passphrase_title": "Lösenordsfras",
     "import_passphrase_message": "Ange lösenordsfras om du har använt någon",
     "import_error": "Import misslyckades. Kontrollera att informationen du matade in är korrekt.",
-    "import_imported": "Importerad",
     "import_scan_qr": "eller skanna QR-kod istället?",
     "import_success": "Import lyckad!",
     "import_success_watchonly": "Din plånbok har importerats. VARNING: Det här är en plånbok som endast går att titta på--watch-only--, du kan INTE spendera från den.",

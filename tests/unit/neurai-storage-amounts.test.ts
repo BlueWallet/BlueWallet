@@ -5,6 +5,7 @@ import { NeuraiHardwareWallet } from '../../class/wallets/neurai-hardware-wallet
 import { decodeWalletAmounts, encodeWalletAmounts } from '../../blue_modules/neurai/walletAmountsCodec';
 import { MAX_MONEY } from '../../blue_modules/neurai/amounts';
 import * as encryption from '../../blue_modules/encryption';
+import { appOn, StorageDouble } from './helpers/storage-double';
 
 const mnemonic = 'result pact model attract result puzzle final boss private educate luggage era';
 
@@ -64,33 +65,27 @@ it('retains a legacy wallet with unsafe cached numbers and prevents spending unt
   expect((NeuraiHDWallet.fromJson(JSON.stringify(migrated)) as unknown as NeuraiHDWallet).amountsStale).toBe(true);
 });
 
+/** Opens `disk` the way the app does at start: a save is only allowed after a complete load. */
+async function openStore(disk: StorageDouble, encrypted: boolean): Promise<BlueApp> {
+  if (encrypted && !disk.primary.has('data')) {
+    disk.seed({ data: JSON.stringify([encryption.encrypt(JSON.stringify({ wallets: [] }), 'test-password')]), data_encrypted: '1' });
+  }
+  const app = appOn(disk);
+  expect(await app.loadFromDisk(encrypted ? 'test-password' : undefined)).toBe(true);
+  return app;
+}
+
 test.each([false, true])('saves and loads through the actual BlueApp clone path (encrypted=%s)', async encrypted => {
-  const disk = new Map<string, string>();
-  const app = new BlueApp();
-  const setup = (instance: BlueApp) => {
-    jest.spyOn(instance, 'getRealmForTransactions').mockResolvedValue({ close: jest.fn() } as never);
-    jest.spyOn(instance, 'openRealmKeyValue').mockResolvedValue({ close: jest.fn() } as never);
-    jest.spyOn(instance, 'saveToRealmKeyValue').mockImplementation(() => {});
-    jest.spyOn(instance, 'moveRealmFilesToCacheDirectory').mockResolvedValue(undefined);
-    jest.spyOn(instance, 'setItem').mockImplementation(async (key, value) => {
-      disk.set(key, value);
-    });
-    jest.spyOn(instance, 'getItemWithFallbackToRealm').mockImplementation(async key => disk.get(key) ?? null);
-  };
-  setup(app);
+  const disk = new StorageDouble();
+  const app = await openStore(disk, encrypted);
   const wallet = NeuraiHDWallet.forNetwork('testnet', mnemonic);
   wallet.balance = MAX_MONEY;
   wallet.addPendingTx('pending', -1n);
   app.wallets = [wallet];
-  if (encrypted) {
-    app.cachedPassword = 'test-password';
-    disk.set('data', JSON.stringify([encryption.encrypt(JSON.stringify({ wallets: [] }), 'test-password')]));
-  }
   await app.saveToDisk();
-  expect(disk.has('data')).toBe(true);
-  if (encrypted) expect(disk.get('data')).not.toContain(mnemonic);
-  const restored = new BlueApp();
-  setup(restored);
+  expect(disk.primary.has('data')).toBe(true);
+  if (encrypted) expect(disk.primary.get('data')).not.toContain(mnemonic);
+  const restored = appOn(disk);
   expect(await restored.loadFromDisk(encrypted ? 'test-password' : undefined)).toBe(true);
   expect(restored.wallets).toHaveLength(1);
   expect(restored.wallets[0].getID()).toBe(wallet.getID());
@@ -110,10 +105,7 @@ test.each([false, true])('loads a pre-migration storage bucket without dropping 
   });
   const plain = JSON.stringify({ wallets, tx_metadata: { known: { memo: 'Keep this label' } }, counterparty_metadata: {} });
   const stored = encrypted ? JSON.stringify([encryption.encrypt(plain, 'existing-password')]) : plain;
-  const app = new BlueApp();
-  jest.spyOn(app, 'getItemWithFallbackToRealm').mockResolvedValue(stored);
-  jest.spyOn(app, 'getRealmForTransactions').mockResolvedValue({ close: jest.fn() } as never);
-  jest.spyOn(app, 'moveRealmFilesToCacheDirectory').mockResolvedValue(undefined);
+  const app = appOn(new StorageDouble().seed({ data: stored }));
   expect(await app.loadFromDisk(encrypted ? 'existing-password' : undefined)).toBe(true);
   expect(app.wallets).toHaveLength(3);
   for (let i = 0; i < originals.length; i++) {
@@ -127,19 +119,12 @@ test.each([false, true])('loads a pre-migration storage bucket without dropping 
 });
 
 test.each([false, true])('coalesces push bursts and waits for the latest persisted wallet (encrypted=%s)', async encrypted => {
-  const app = new BlueApp();
-  const disk = new Map<string, string>();
+  const storage = new StorageDouble();
+  const app = await openStore(storage, encrypted);
+  const disk = storage.primary;
   const wallet = NeuraiHDWallet.forNetwork('testnet', mnemonic);
   wallet.balance = 10000000000000001n;
   app.wallets = [wallet];
-  if (encrypted) {
-    app.cachedPassword = 'test-password';
-    disk.set('data', JSON.stringify([encryption.encrypt(JSON.stringify({ wallets: [] }), 'test-password')]));
-  }
-  jest.spyOn(app, 'getRealmForTransactions').mockResolvedValue({ close: jest.fn() } as never);
-  jest.spyOn(app, 'openRealmKeyValue').mockResolvedValue({ close: jest.fn() } as never);
-  jest.spyOn(app, 'saveToRealmKeyValue').mockImplementation(() => {});
-  jest.spyOn(app, 'getItemWithFallbackToRealm').mockImplementation(async key => disk.get(key) ?? null);
   let release!: () => void;
   let started!: () => void;
   const firstStarted = new Promise<void>(resolve => {

@@ -4,126 +4,30 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.widget.RemoteViews
-import androidx.work.WorkManager
 
+/**
+ * The small Neurai widget: XNA price and its 24-hour change.
+ *
+ * The class keeps its old name on purpose: it is the widget's component name,
+ * and renaming it would break the widgets already on users' home screens
+ * (they turn into this one instead).
+ */
 class BitcoinPriceWidget : AppWidgetProvider() {
 
-    companion object {
-        private const val TAG = "BitcoinPriceWidget"
-        private const val SHARED_PREF_NAME = "group.io.bluewallet.bluewallet"
-        
-        fun updateNetworkStatus(context: Context, appWidgetIds: IntArray) {
-            val isNetworkAvailable = NetworkUtils.isNetworkAvailable(context)
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            
-            for (appWidgetId in appWidgetIds) {
-                val views = RemoteViews(context.packageName, R.layout.widget_layout)
-                views.setViewVisibility(R.id.network_status, if (isNetworkAvailable) View.GONE else View.VISIBLE)
-                appWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
-            }
-        }
-
-        fun refreshWidget(context: Context, appWidgetId: Int) {
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            
-            // Create new RemoteViews to ensure it picks up current theme
-            val views = RemoteViews(context.packageName, R.layout.widget_layout)
-            
-            // Set network status
-            val isNetworkAvailable = NetworkUtils.isNetworkAvailable(context)
-            views.setViewVisibility(R.id.network_status, if (isNetworkAvailable) View.GONE else View.VISIBLE)
-            
-            // Try to load cached data first
-            val sharedPref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            val cachedPrice = sharedPref.getString("previous_price", null)
-            val preferredCurrency = sharedPref.getString("preferredCurrency", "USD")
-            val preferredCurrencyLocale = sharedPref.getString("preferredCurrencyLocale", null)
-            
-            if (cachedPrice != null) {
-                // Show cached data immediately
-                try {
-                    val locale = preferredCurrencyLocale
-                        ?.let { runCatching { java.util.Locale.forLanguageTag(it) }.getOrNull() }
-                        ?.takeIf { it.language.isNotBlank() }
-                        ?: java.util.Locale.getDefault()
-
-                    val currencyFormat = java.text.NumberFormat.getCurrencyInstance(locale)
-                    val currency = java.util.Currency.getInstance(preferredCurrency ?: "USD")
-                    currencyFormat.currency = currency
-                    currencyFormat.maximumFractionDigits = 0
-
-                    val parsedCached = cachedPrice.toDoubleOrNull()?.toInt()
-
-                    views.setViewVisibility(R.id.loading_indicator, View.GONE)
-                    views.setViewVisibility(R.id.price_arrow_container, View.GONE)
-
-                    if (parsedCached != null) {
-                        views.setViewVisibility(R.id.price_value, View.VISIBLE)
-                        views.setViewVisibility(R.id.last_updated_label, View.VISIBLE)
-                        views.setViewVisibility(R.id.last_updated_time, View.VISIBLE)
-                        views.setTextViewText(R.id.price_value, currencyFormat.format(parsedCached))
-                        views.setTextViewText(
-                            R.id.last_updated_time,
-                            java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(java.util.Date())
-                        )
-                    } else {
-                        // If parsing fails, show loading state
-                        views.setViewVisibility(R.id.price_value, View.GONE)
-                        views.setViewVisibility(R.id.last_updated_label, View.GONE)
-                        views.setViewVisibility(R.id.last_updated_time, View.GONE)
-                        views.setViewVisibility(R.id.loading_indicator, View.VISIBLE)
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error displaying cached price", e)
-                    // Show loading state if cache display fails
-                    views.setViewVisibility(R.id.loading_indicator, View.VISIBLE)
-                    views.setViewVisibility(R.id.price_value, View.GONE)
-                    views.setViewVisibility(R.id.last_updated_label, View.GONE)
-                    views.setViewVisibility(R.id.last_updated_time, View.GONE)
-                    views.setViewVisibility(R.id.price_arrow_container, View.GONE)
-                }
-            } else {
-                // No cached data, show loading state
-                views.setViewVisibility(R.id.loading_indicator, View.VISIBLE)
-                views.setViewVisibility(R.id.price_value, View.GONE)
-                views.setViewVisibility(R.id.last_updated_label, View.GONE)
-                views.setViewVisibility(R.id.last_updated_time, View.GONE)
-                views.setViewVisibility(R.id.price_arrow_container, View.GONE)
-            }
-            
-            appWidgetManager.updateAppWidget(appWidgetId, views)
-            WidgetUpdateWorker.scheduleImmediateUpdate(context)
-            WidgetUpdateWorker.scheduleWork(context)
-        }
-    }
-
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        super.onUpdate(context, appWidgetManager, appWidgetIds)
-        
-        for (widgetId in appWidgetIds) {
-            Log.d(TAG, "Updating widget with ID: $widgetId")
-            refreshWidget(context, widgetId)
-        }
+        // Placed, or the system's periodic update (also offline): draw from the stored quote.
+        NeuraiWidgets.refresh(context)
     }
 
-    override fun onEnabled(context: Context) {
-        super.onEnabled(context)
-        WidgetUpdateWorker.scheduleImmediateUpdate(context)
-        WidgetUpdateWorker.scheduleWork(context)
+    override fun onAppWidgetOptionsChanged(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, newOptions: Bundle?) {
+        appWidgetManager.updateAppWidget(appWidgetId, NeuraiWidgets.priceViews(context))
     }
 
     override fun onDisabled(context: Context) {
-        super.onDisabled(context)
-        context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE).edit().clear().apply()
-        WorkManager.getInstance(context).cancelUniqueWork(WidgetUpdateWorker.WORK_NAME)
-    }
-
-    override fun onAppWidgetOptionsChanged(context: Context, appWidgetManager: AppWidgetManager, 
-                                          appWidgetId: Int, newOptions: Bundle?) {
-        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
-        refreshWidget(context, appWidgetId)
+        // The last small widget is gone; the work and the quote stay while a market widget exists.
+        if (!NeuraiWidgets.hasWidgets(context)) {
+            NeuraiWidgetWorker.cancelAll(context)
+            NeuraiMarket.forget(context)
+        }
     }
 }

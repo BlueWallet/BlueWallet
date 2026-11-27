@@ -77,14 +77,6 @@
     "date_time": "Datum und Zeit",
     "wasnt_paid_and_expired": "Diese Rechnung ist unbezahlt abgelaufen."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Verschlüsselten Speicher erstellen",
-    "create_password_explanation": "Das Passwort für den täuschenden Speicher darf nicht mit dem deines Hauptspeichers übereinstimmen",
-    "help": "NeuraiWallet erlaubt die Erstellung eines zweiten verschlüsselten Speichers mit eigenem Passwort. Sodass unter Zwang das Passwort preiszugeben, dann dies, anstelle des richtigen Passwortes genannt werden kann. NeuraiWallet öffnet dann die Wallet, welche im zweiten Speicher zur Täuschung angelegt ist und der Hauptspeicher bleibt geheim und sicher.",
-    "help2": "Der zweite Speicher ist funktional identisch. Zahle auf die darin angelegten Wallet ein Minimalbetrag ein, um die Täuschung glaubhafter zu machen.",
-    "password_should_not_match": "Das Passwort für den täuschenden Speicher darf nicht mit dem deines Hauptspeichers übereinstimmen",
-    "title": "Glaubhafte Täuschung"
-  },
   "pleasebackup": {
     "ok": "Ok, sie sind notiert.",
     "ok_lnd": "Die Sicherung ist erstellt.",
@@ -293,7 +285,6 @@
     "open_link_in_explorer": "Link in Explorer öffnen",
     "password": "Passwort",
     "password_explain": "Das Entschlüsselungpasswort für den Speicher eingeben.",
-    "plausible_deniability": "Glaubhafte Täuschung",
     "privacy": "Privatsphäre",
     "privacy_read_clipboard": "Zwischenablage lesen",
     "privacy_system_settings": "Systemeinstellungen",
@@ -429,7 +420,6 @@
     "import_passphrase_title": "Passphrase",
     "import_passphrase_message": "Wenn genutzt, die Passphrase eingeben",
     "import_error": "Fehler beim Import. Ist die Eingabe korrekt?",
-    "import_imported": "Importiert",
     "import_scan_qr": "QR-Code scannen oder Datei importieren",
     "import_success": "Wallet wurde erfolgreich importiert.",
     "import_success_watchonly": "Deine Wallet wurde erfolgreich importiert. WARNUNG: Dies ist eine reine Wallet nur zum Anschauen, du kannst NICHT mit ihr ausgeben.",

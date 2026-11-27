@@ -77,14 +77,6 @@
     "date_time": "Dagfesting og tíð",
     "wasnt_paid_and_expired": "Gjaldsumbønin er ógoldin og fyrnað."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Ger bronglaða goymslu",
-    "create_password_explanation": "Loyniorðið fyri skálskagoymsluna skal vera ólíkt loyniorðinum til tína vanligu goymslu.",
-    "help": "Í óynsktum føri kanst tú verða kroystur at útvega eitt loyniorð. NeuraiWallet kann gera eina aðra bronglaða goymslu við einum øðrum loyniorði, fyri at tryggja tín pening. Undir tvingsli kanst tú geva tað loyniorðið til triðja partin. Tá tað loyniorðið verður inntøppa í NeuraiWallet letur tað eina \"skálka\" goymslu upp. Hendan skal tykast trúlig fyri møguligum triðja parti, soleiðis at høvuðsgoymslan, við helminginum av tíni upphædd, ikki verður avdúka.",
-    "help2": "Nýggja goymslan er virkin. Tú kanst hava eina líttla upphædd á eini mappu í henni, soleiðis at tað tykist trúligt.",
-    "password_should_not_match": "Loyniorðið er longu í nýtslu. Vinaliga áset eitt annað loyniorð.",
-    "title": "Haldgóð avsannan"
-  },
   "pleasebackup": {
     "ok": "Ja, eg havi goymt tey á tryggan hátt.",
     "ok_lnd": "Ja, eg havi goymt tað.",
@@ -298,7 +290,6 @@
     "open_link_in_explorer": "Lat leinkju upp í kaga",
     "password": "Loyniorð",
     "password_explain": "Inntøppa loyniorðið tú ynskir at brúka til at lata goymsluna upp.",
-    "plausible_deniability": "Haldgóð avsannan",
     "privacy": "Dátuvernd",
     "privacy_read_clipboard": "Lesa setiborð",
     "privacy_system_settings": "Stýrikervisstillingar",
@@ -435,7 +426,6 @@
     "import_passphrase_title": "Loynisetning",
     "import_passphrase_message": "Inntøppa loynisetning, í fall tú hevur ein",
     "import_error": "Innlesing miseydnaðist. Vinaliga syrg fyri at dáturnar eru gildigar.",
-    "import_imported": "Innlisin",
     "import_scan_qr": "Skanna ella innles úr fílu",
     "import_success": "Tað eydnaðist at innlesa tína mappu.",
     "import_success_watchonly": "Tað eydnaðist at innlesa tína mappu. GEV GÆTUR: Hetta er ein eygleiðingarmappa; tú kanst IKKI nýta úr henni.",

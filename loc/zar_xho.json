@@ -36,14 +36,6 @@
     "sameWalletAsInvoiceError": ": Awukwazi ukuhlawula i-invoyisi kunye ngengxowa oyisebenzisile ukudala leyo invoyisi.",
     "title": "lawula imali"
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Ukudala igumbi lokugcina elifihlakeleyo",
-    "create_password_explanation": "Inombolo yakho yokuvula igumbi lokugcina inkohliso akumele ifane ne nombolo yokuvula  igumbi lakho  elinyanisekileyo",
-    "help": "Phantsi kweemeko unokunyaneliswa ukuba uchaze a inombolo yokuvula. NeuraiWallet ukugcina imali yakho ikhuselekile, unokudala enye ukugcinwa kwekhowudi, ngegama eligqithisiweyo. Phantsi kwefuthe, unako ukutyhila le phasiwedi kumntu wesithatu. Ukuba ungenayo NeuraiWallet, iya kuvula ukugcinwa kwetyala ‘entsha’. Oku kuya kubonakala Umlenze kumntu wesithathu kodwa uza kugcina ngasese ukugcinwa kwakho ngemali ekhuselekile..",
-    "help2": "Igumbi lokugcina elitsha liza kusebenza ngokupheleleyo, kwaye unako ukugcina okunye ‘ + ‘lxabiso elincinci apho likhangeleka ngakumbi.",
-    "password_should_not_match": "Inombolo yakho yokuvula igumbi lokugcina inkohliso akumele ifane ne nombolo yokuvula  igumbi lakho  elinyanisekileyo",
-    "title": "Ukuphika"
-  },
   "receive": {
     "details_create": "Yenza",
     "details_label": "Inkcazo",
@@ -81,7 +73,6 @@
     "language": "Ulwimi",
     "lightning_settings": "Izixhobo zokukhanyisa",
     "password": "Inombolo yokuvula",
-    "plausible_deniability": "Ukuphika...",
     "save": "ndoloza"
   },
   "transactions": {
@@ -111,7 +102,6 @@
     "export_title": "ukuthunyelwa kweebhanki ",
     "import_do_import": "Ngeniswe",
     "import_error": "Ayiphumelelanga ukungenisa. Nceda, uqiniseka ukuba idata ehlinzekiweyo iyasebenza.",
-    "import_imported": "Ngenisiwe",
     "import_scan_qr": "okanye ukukhangela iQR code?",
     "import_success": "Iphumelele",
     "import_title": "ukungenisa",

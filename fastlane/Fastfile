@@ -42,20 +42,24 @@ module AndroidHelpers
     PROJECT_ROOT
   end
 
+  # Signing material lives in a private temporary directory, never in the
+  # project tree, and every lane removes it in an `ensure` block, so a failed
+  # build leaves nothing behind for the next job (H15).
   def keystore_paths
-    {
-      hex: File.join(project_root, 'bluewallet-release-key.keystore.hex'),
-      file: File.join(project_root, 'android', 'bluewallet-release-key.keystore'),
-    }
+    dir = Dir.mktmpdir('neurai-release-keystore')
+    File.chmod(0o700, dir)
+    { dir: dir, file: File.join(dir, 'release.keystore') }
   end
 
   def write_keystore_from_hex!(hex_value, paths)
     UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if hex_value.nil? || hex_value.empty?
-    File.write(paths[:hex], hex_value)
-    Actions.sh("xxd -plain -revert #{paths[:hex]} > #{paths[:file]}") do |status|
-      UI.user_error!("Error reverting hex to keystore") unless status.success?
-    end
-    File.delete(paths[:hex])
+    hex = hex_value.gsub(/\s+/, '')
+    UI.user_error!("KEYSTORE_FILE_HEX is not valid hex") unless hex.match?(/\A(?:[0-9a-fA-F]{2})+\z/)
+    File.open(paths[:file], File::WRONLY | File::CREAT | File::TRUNC, 0o600) { |f| f.write([hex].pack('H*')) }
+  end
+
+  def remove_keystore!(paths)
+    FileUtils.rm_rf(paths[:dir]) if paths && paths[:dir]
   end
 
   def version_name_and_update_code!(build_gradle_path, build_number)
@@ -88,7 +92,11 @@ module AndroidHelpers
   end
 
   def assemble_release!(log_path:)
-    Actions.sh("cd android && ./gradlew assembleRelease --no-daemon --stacktrace --console=plain | tee #{log_path}") do |status|
+    # An APK left by an earlier build must never be signed as this one's, so
+    # the outputs go before Gradle runs; and `pipefail` makes the pipeline's
+    # status Gradle's rather than `tee`'s, which always succeeded.
+    FileUtils.rm_rf(File.join(project_root, 'android', 'app', 'build', 'outputs', 'apk', 'release'))
+    Actions.sh('bash', '-c', "set -o pipefail; cd android && ./gradlew assembleRelease --no-daemon --stacktrace --console=plain | tee '#{log_path}'") do |status|
       UI.user_error!("Gradle assembleRelease failed") unless status.success?
     end
   end
@@ -108,10 +116,14 @@ module AndroidHelpers
     paths[:signed]
   end
 
-  def sign_apk!(apk_path, keystore_path, keystore_password)
+  # apksigner reads the password from KEYSTORE_PASSWORD: it is not in the
+  # command line, so neither the process list nor the fastlane log shows it.
+  def sign_apk!(apk_path, keystore_path)
     signer = apksigner_path
     UI.user_error!("apksigner not found in Android build-tools") if signer.nil? || signer.empty?
-    Actions.sh("#{signer} sign --ks #{keystore_path} --ks-pass=pass:#{keystore_password} #{apk_path}")
+    UI.user_error!("KEYSTORE_PASSWORD environment variable is missing") if ENV['KEYSTORE_PASSWORD'].to_s.empty?
+    Actions.sh(signer, 'sign', '--ks', keystore_path, '--ks-pass', 'env:KEYSTORE_PASSWORD', apk_path)
+    Actions.sh(signer, 'verify', '--print-certs', apk_path)
   end
 
   def write_github_output(hash)
@@ -125,22 +137,24 @@ module AndroidHelpers
   def ensure_temp_credentials!(auto: false)
     return unless auto
 
-    temp_dir = Dir.mktmpdir('bw-temp-keystore')
-    keystore_path = File.join(temp_dir, 'temp.keystore')
-    password = "temp#{SecureRandom.hex(6)}"
-    alias_name = "bluewallet-temp"
+    temp_dir = Dir.mktmpdir('neurai-temp-keystore')
+    begin
+      keystore_path = File.join(temp_dir, 'temp.keystore')
+      ENV['KEYSTORE_PASSWORD'] = "temp#{SecureRandom.hex(6)}"
 
-    Actions.sh(
-      "keytool -genkeypair -v -keystore #{keystore_path} -storepass #{password} -keypass #{password} " \
-      "-alias #{alias_name} -keyalg RSA -keysize 2048 -validity 10000 " \
-      "-dname \"CN=Temp,O=BlueWallet,OU=CI,L=NY,ST=NY,C=US\""
-    ) do |status|
-      UI.user_error!("Failed to create temporary keystore with keytool") unless status.success?
+      Actions.sh(
+        'keytool', '-genkeypair', '-keystore', keystore_path,
+        '-storepass:env', 'KEYSTORE_PASSWORD', '-keypass:env', 'KEYSTORE_PASSWORD',
+        '-alias', 'neurai-temp', '-keyalg', 'RSA', '-keysize', '2048', '-validity', '30',
+        '-dname', 'CN=Temp,O=NeuraiWallet,OU=CI'
+      ) do |status|
+        UI.user_error!("Failed to create temporary keystore with keytool") unless status.success?
+      end
+
+      ENV['KEYSTORE_FILE_HEX'] = File.binread(keystore_path).unpack1('H*')
+    ensure
+      FileUtils.rm_rf(temp_dir)
     end
-
-    keystore_hex = File.binread(keystore_path).unpack1('H*')
-    ENV['KEYSTORE_FILE_HEX'] = keystore_hex
-    ENV['KEYSTORE_PASSWORD'] = password
   end
 end
 
@@ -227,15 +241,6 @@ end
 
 platform :android do
 
-  desc "Prepare the keystore file"
-  lane :prepare_keystore do
-    Dir.chdir(PROJECT_ROOT) do
-      paths = AndroidHelpers.keystore_paths
-      AndroidHelpers.write_keystore_from_hex!(ENV['KEYSTORE_FILE_HEX'], paths)
-      UI.message("Keystore created successfully.")
-    end
-  end
-
   desc "Update version, build number, and sign APK"
   lane :update_version_build_and_sign_apk do |options|
     Dir.chdir(PROJECT_ROOT) do
@@ -243,25 +248,27 @@ platform :android do
       AndroidHelpers.require_env!(%w[BUILD_NUMBER KEYSTORE_PASSWORD KEYSTORE_FILE_HEX])
 
       keystore_paths = AndroidHelpers.keystore_paths
-      AndroidHelpers.write_keystore_from_hex!(ENV['KEYSTORE_FILE_HEX'], keystore_paths)
+      begin
+        AndroidHelpers.write_keystore_from_hex!(ENV['KEYSTORE_FILE_HEX'], keystore_paths)
 
-      build_gradle_path = File.join('android', 'app', 'build.gradle')
-      version_name = AndroidHelpers.version_name_and_update_code!(build_gradle_path, ENV['BUILD_NUMBER'])
-      branch = AndroidHelpers.branch_name
-      apk_paths = AndroidHelpers.resolve_apk_paths(version_name: version_name, build_number: ENV['BUILD_NUMBER'], branch_name: branch)
+        build_gradle_path = File.join('android', 'app', 'build.gradle')
+        version_name = AndroidHelpers.version_name_and_update_code!(build_gradle_path, ENV['BUILD_NUMBER'])
+        branch = AndroidHelpers.branch_name
+        apk_paths = AndroidHelpers.resolve_apk_paths(version_name: version_name, build_number: ENV['BUILD_NUMBER'], branch_name: branch)
 
-      UI.message("Building APK...")
-      AndroidHelpers.assemble_release!(log_path: AndroidHelpers.gradle_log_path)
-      UI.message("APK build completed.")
+        UI.message("Building APK...")
+        AndroidHelpers.assemble_release!(log_path: AndroidHelpers.gradle_log_path)
+        UI.message("APK build completed.")
 
-      signed_apk_path = AndroidHelpers.finalize_apk!(apk_paths)
-      ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
+        signed_apk_path = AndroidHelpers.finalize_apk!(apk_paths)
+        ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
 
-      UI.message("Signing APK with apksigner...")
-      AndroidHelpers.sign_apk!(signed_apk_path, keystore_paths[:file], ENV['KEYSTORE_PASSWORD'])
-      UI.message("APK signed successfully: #{signed_apk_path}")
-
-      FileUtils.rm_f(keystore_paths[:file])
+        UI.message("Signing APK with apksigner...")
+        AndroidHelpers.sign_apk!(signed_apk_path, keystore_paths[:file])
+        UI.message("APK signed successfully: #{signed_apk_path}")
+      ensure
+        AndroidHelpers.remove_keystore!(keystore_paths)
+      end
     end
   end
 
@@ -276,23 +283,25 @@ platform :android do
       AndroidHelpers.require_env!(%w[KEYSTORE_FILE_HEX KEYSTORE_PASSWORD])
 
       keystore_paths = AndroidHelpers.keystore_paths
-      AndroidHelpers.write_keystore_from_hex!(ENV['KEYSTORE_FILE_HEX'], keystore_paths)
+      begin
+        AndroidHelpers.write_keystore_from_hex!(ENV['KEYSTORE_FILE_HEX'], keystore_paths)
 
-      build_gradle_path = File.join('android', 'app', 'build.gradle')
-      version_name = AndroidHelpers.version_name_and_update_code!(build_gradle_path, build_number)
-      branch = AndroidHelpers.branch_name
+        build_gradle_path = File.join('android', 'app', 'build.gradle')
+        version_name = AndroidHelpers.version_name_and_update_code!(build_gradle_path, build_number)
+        branch = AndroidHelpers.branch_name
 
-      UI.message("Building release APK...")
-      AndroidHelpers.assemble_release!(log_path: AndroidHelpers.gradle_log_path)
+        UI.message("Building release APK...")
+        AndroidHelpers.assemble_release!(log_path: AndroidHelpers.gradle_log_path)
 
-      apk_paths = AndroidHelpers.resolve_apk_paths(version_name: version_name, build_number: build_number, branch_name: branch)
-      signed_apk_path = AndroidHelpers.finalize_apk!(apk_paths)
+        apk_paths = AndroidHelpers.resolve_apk_paths(version_name: version_name, build_number: build_number, branch_name: branch)
+        signed_apk_path = AndroidHelpers.finalize_apk!(apk_paths)
 
-      UI.message("Signing APK with apksigner...")
-      AndroidHelpers.sign_apk!(signed_apk_path, keystore_paths[:file], ENV['KEYSTORE_PASSWORD'])
-      UI.success("APK signed successfully: #{signed_apk_path}")
-
-      FileUtils.rm_f(keystore_paths[:file])
+        UI.message("Signing APK with apksigner...")
+        AndroidHelpers.sign_apk!(signed_apk_path, keystore_paths[:file])
+        UI.success("APK signed successfully: #{signed_apk_path}")
+      ensure
+        AndroidHelpers.remove_keystore!(keystore_paths)
+      end
 
       apk_absolute_path = File.expand_path(signed_apk_path)
       ENV['APK_OUTPUT_PATH'] = apk_absolute_path

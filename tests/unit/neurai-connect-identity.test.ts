@@ -22,7 +22,7 @@ jest.mock('react-native-secure-key-store', () => ({
       store.set(k, v);
     }),
     get: jest.fn(async (k: string) => {
-      if (!store.has(k)) throw new Error('not found');
+      if (!store.has(k)) throw Object.assign(new Error('not found'), { code: '404' }); // a missing key, as the real store reports it
       return store.get(k);
     }),
     remove: jest.fn(async (k: string) => {

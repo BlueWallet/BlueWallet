@@ -50,6 +50,9 @@ import { getAssetType } from '../../blue_modules/neurai/assetUtils';
 import { estimateNeuraiFeeSats } from '../../blue_modules/neurai/feeEstimate';
 import { dustThresholdSats } from '../../blue_modules/neurai/dust';
 import { AbstractNeuraiWallet, type NeuraiAddressEntry } from './abstract-neurai-wallet';
+import { walletIdV2 } from './wallet-id';
+import { withDevice } from '../../blue_modules/neurai-hw/deviceQueue';
+import { assertSignedMatchesDraft } from '../../blue_modules/neurai-hw/verifySignedTx';
 import { deriveLegacyAddress } from '../../blue_modules/neurai-hw/xpubDerivation';
 
 /** Minimal UTXO shape returned by `getaddressutxos`. */
@@ -187,6 +190,20 @@ export class NeuraiHardwareWallet extends AbstractNeuraiWallet {
 
   get walletKind(): WalletKind {
     return this.keyType;
+  }
+
+  /**
+   * A device wallet has no words (`secret` is empty), so the legacy ID was the
+   * derivation path alone and two devices on the same path collided. The ID is
+   * network + key type + master fingerprint + path; records saved before the
+   * fingerprint was stored fall back to the device public key.
+   */
+  getID(): string {
+    const fingerprint = (this.hwFingerprint || '').toLowerCase();
+    const pubkey = (this.pubkey || '').toLowerCase();
+    const device = fingerprint ? 'fp:' + fingerprint : pubkey ? 'pk:' + pubkey : '';
+    if (!device) return super.getID();
+    return walletIdV2([this.type, this.network, this.keyType, device, this.hwPath || '']);
   }
 
   allowSweepFromWif(): boolean {
@@ -777,21 +794,33 @@ export class NeuraiHardwareWallet extends AbstractNeuraiWallet {
     // the device identity here: signing is WYSIWYS and bound to the device's own
     // keys, so a wrong/mismatched device would simply produce a signature that
     // is invalid for this wallet's UTXOs.
-    const probe = await device.ping();
-    if (probe.device !== 'NeuraiHW') {
-      throw new Error('Connected device is not a NeuraiHW hardware wallet');
-    }
+    //
+    // Ping and sign run as one turn of the device queue: the DePIN chat polls
+    // the same port, and a command slipped in between would be paired with the
+    // wrong response (H18).
+    return withDevice(async () => {
+      const probe = await device.ping();
+      if (probe.device !== 'NeuraiHW') {
+        throw new Error('Connected device is not a NeuraiHW hardware wallet');
+      }
 
-    if (unsigned.keyType === 'pq') {
-      const result = await device.signPqRawTransaction({ txHex: unsigned.rawTxHex!, inputs: unsigned.inputs!, display: unsigned.display });
-      if (!result.txHex) throw new Error('Device did not return a signed transaction');
-      return { signedHex: result.txHex, txId: result.txId };
-    }
+      if (unsigned.keyType === 'pq') {
+        const result = await device.signPqRawTransaction({
+          txHex: unsigned.rawTxHex!,
+          inputs: unsigned.inputs!,
+          display: unsigned.display,
+        });
+        if (!result.txHex) throw new Error('Device did not return a signed transaction');
+        // Only signatures may differ from the reviewed draft (H16).
+        const txId = assertSignedMatchesDraft(unsigned.rawTxHex!, result.txHex);
+        return { signedHex: result.txHex, txId };
+      }
 
-    const signed = await device.signPsbt(unsigned.psbtBase64!, unsigned.display);
-    const { txHex, txId } = finalizeSignedPSBT(unsigned.psbtBase64!, signed.psbt, this.network as NetworkType);
-    if (!txHex) throw new Error('Could not finalize the signed transaction');
-    return { signedHex: txHex, txId };
+      const signed = await device.signPsbt(unsigned.psbtBase64!, unsigned.display);
+      const { txHex, txId } = finalizeSignedPSBT(unsigned.psbtBase64!, signed.psbt, this.network as NetworkType);
+      if (!txHex) throw new Error('Could not finalize the signed transaction');
+      return { signedHex: txHex, txId };
+    });
   }
 
   // ---------- helpers --------------------------------------------------------------

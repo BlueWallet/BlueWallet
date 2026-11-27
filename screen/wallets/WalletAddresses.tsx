@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MAX_LISTED_ADDRESSES, NeuraiAddressEntry } from '../../class/wallets/abstract-neurai-wallet';
 import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
 import presentAlert from '../../components/Alert';
+import { isReportedSaveError } from '../../class/storage-errors';
 import { AddressRow } from '../../components/addresses/AddressRow';
 import NeuraiLoader from '../../components/NeuraiLoader';
 import {
@@ -150,7 +151,7 @@ const WalletAddresses: React.FC = () => {
         setEntries(neurai.getAddressEntries());
         await saveToDisk();
       } catch (err: any) {
-        presentAlert({ message: err?.message ?? String(err) });
+        if (!isReportedSaveError(err)) presentAlert({ message: err?.message ?? String(err) });
         return;
       } finally {
         setDeriving(false);

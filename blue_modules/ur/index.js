@@ -1,13 +1,4 @@
-import {
-  Bytes,
-  CryptoAccount,
-  CryptoHDKey,
-  CryptoKeypath,
-  CryptoOutput,
-  CryptoPSBT,
-  PathComponent,
-  ScriptExpressions,
-} from '@keystonehq/bc-ur-registry/dist';
+import { Bytes, CryptoAccount, CryptoOutput, CryptoPSBT, ScriptExpressions } from '@keystonehq/bc-ur-registry/dist';
 import { URDecoder } from '@ngraveio/bc-ur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Psbt } from 'bitcoinjs-lib';
@@ -24,6 +15,11 @@ import {
 } from '../uint8array-extras';
 import { splitQRs } from '../bbqr/split';
 import { decodeUR as origDecodeUr, encodeUR as origEncodeUR, extractSingleWorkload as origExtractSingleWorkload } from '../bc-ur/dist';
+
+// Bitcoin multisig account paths (BIP45, BIP48 wrapped and native segwit). They
+// used to be read from `MultisigHDWallet`, a class removed with the Bitcoin
+// wallets, so decoding such an account threw a ReferenceError.
+const BITCOIN_MULTISIG_PATHS = ["m/45'", "m/48'/0'/0'/1'", "m/48'/0'/0'/2'"];
 
 const USE_UR_V1 = 'USE_UR_V1';
 const USE_BBQR_WALLET_IDS = 'USE_BBQR_WALLET_IDS';
@@ -274,9 +270,7 @@ class BlueURDecoder extends URDecoder {
           script === ScriptExpressions.WITNESS_SCRIPT_HASH.getExpression() ||
           // fallback to paths (unreliable).
           // dont know how to add ms p2sh (legacy) or p2sh-p2wsh (wrapped segwit) atm
-          derivationPath === MultisigHDWallet.PATH_LEGACY ||
-          derivationPath === MultisigHDWallet.PATH_WRAPPED_SEGWIT ||
-          derivationPath === MultisigHDWallet.PATH_NATIVE_SEGWIT;
+          BITCOIN_MULTISIG_PATHS.includes(derivationPath);
         const version = hexToUint8Array(isMultisig ? '02aa7ed3' : '04b24746');
         const parentFingerprint = hdKey.getParentFingerprint();
         const depth = hdKey.getOrigin().getDepth();

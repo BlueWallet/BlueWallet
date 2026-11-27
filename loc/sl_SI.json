@@ -56,14 +56,6 @@
     "sats": "sats.",
     "wasnt_paid_and_expired": "Ta račun ni bil plačan in je potekel."
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Ustvari šifrirano shrambo",
-    "create_password_explanation": "Geslo za lažno shrambo se ne sme ujemati z geslom glavne shrambe.",
-    "help": "V določenih okoliščinah boste morda prisiljeni razkriti geslo. Da zavarujete vaša sredstva, lahko NeuraiWallet ustvari dodatno šifrirano shrambo z drugačnim geslom. Pod prisilo, lahko to geslo razkrijete tretji osebi. Če ga vnesete v NeuraiWallet, se bo odklenila 'lažna' shramba. To se bo tretji osebi zdelo verodostojno, vaša skrivna glavna shramba s pravimi sredstvi pa bo ostala varna.",
-    "help2": "Nova shramba bo popolnoma uporabna, za večjo verodostojnost lahko tam hranite manjši znesek.",
-    "password_should_not_match": "Geslo je trenutno v uporabi. Prosimo, poskusite z drugim geslom.",
-    "title": "Verodostojno Zanikanje"
-  },
   "pleasebackup": {
     "ok": "V redu, sem si zapisal.",
     "ok_lnd": "V redu, sem shranil.",
@@ -216,7 +208,6 @@
     "notifications": "Obvestila",
     "open_link_in_explorer": "Odpri v raziskovalcu blokov",
     "password": "Geslo",
-    "plausible_deniability": "Verodostojno zanikanje",
     "privacy": "Zasebnost",
     "privacy_read_clipboard": "Branje odložišča",
     "privacy_system_settings": "Sistemske nastavitve",
@@ -319,7 +310,6 @@
     "import_passphrase_title": "Dodatna beseda/niz (passphrase)",
     "import_passphrase_message": "Vnesite dodatno besedo/niz (passphrase), če jo uporabljate",
     "import_error": "Napaka pri uvozu. Prosimo, preverite ali so podani podatki pravilni.",
-    "import_imported": "Uvoženo",
     "import_scan_qr": "Skeniraj ali uvozi datoteko",
     "import_success": "Vaša denarnica je bila uspešno uvožena.",
     "import_search_accounts": "Preišči račune",

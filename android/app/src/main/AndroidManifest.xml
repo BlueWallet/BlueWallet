@@ -65,21 +65,25 @@
         android:name="android.support.FILE_PROVIDER_PATHS"
         android:resource="@xml/file_paths" />
 </provider>
-        <receiver android:name=".BitcoinPriceWidget" android:exported="true">
+        <!-- Home-screen widgets: "Neurai Price" and "Neurai Market" (NeuraiWidgets,
+             NeuraiWidgetWorker). The receivers keep their old class names: they are the
+             widgets' component names, and widgets already placed keep working. -->
+        <receiver
+            android:name=".BitcoinPriceWidget"
+            android:exported="true"
+            android:label="@string/price_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
-                <action android:name="android.intent.action.SCREEN_ON"/>
-                <action android:name="android.intent.action.SCREEN_OFF"/>
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/bitcoin_price_widget_info"/>
+                android:resource="@xml/price_widget_info"/>
         </receiver>
 
-        <!-- Market Widget -->
         <receiver
             android:name=".MarketWidget"
-            android:exported="true">
+            android:exported="true"
+            android:label="@string/market_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -87,16 +91,6 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/market_widget_info" />
         </receiver>
-
-        <!-- Market Widget Configuration Activity -->
-        <activity
-            android:name=".MarketWidgetConfigureActivity"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
-            </intent-filter>
-        </activity>
 
         <!-- Settings Activity - accessible from System Settings -->
         <activity

@@ -19,7 +19,6 @@ import { useSettings } from '../hooks/context/useSettings';
 import Settings from '../screen/settings/Settings';
 import Currency from '../screen/settings/Currency';
 import GeneralSettings from '../screen/settings/GeneralSettings';
-import PlausibleDeniability from '../screen/PlausibleDeniability';
 import Licensing from '../screen/settings/Licensing';
 import NetworkSettings from '../screen/settings/NetworkSettings';
 import NeuraiBackendEdit from '../screen/settings/NeuraiBackendEdit';
@@ -219,11 +218,6 @@ const DetailViewStackScreensStack = () => {
           name="GeneralSettings"
           component={GeneralSettings}
           options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.settings.general }}
-        />
-        <DetailViewStack.Screen
-          name="PlausibleDeniability"
-          component={PlausibleDeniability}
-          options={navigationStyle(getSettingsHeaderOptions(loc.plausibledeniability.title))(theme)}
         />
         <DetailViewStack.Screen
           name="Licensing"

@@ -12,6 +12,7 @@ import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList
 import { MODAL_TYPES } from './PromptPasswordConfirmationSheet.types';
 import { useStorage } from '../hooks/context/useStorage';
 import presentAlert from '../components/Alert';
+import { OtherEncryptedBucketsError, StorageWriteError } from '../class/storage-errors';
 
 type DynamicStyles = {
   modalContent: ViewStyle;
@@ -34,7 +35,7 @@ const PromptPasswordConfirmationSheet = () => {
   const explanationOpacity = useRef(new Animated.Value(1)).current;
 
   const { colors } = useTheme();
-  const { encryptStorage, decryptStorage, saveToDisk, cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useStorage();
+  const { encryptStorage, decryptStorage } = useStorage();
 
   const stylesHook = useMemo<DynamicStyles>(
     () => ({
@@ -114,7 +115,7 @@ const PromptPasswordConfirmationSheet = () => {
     Keyboard.dismiss();
     setIsLoading(true);
 
-    const isCreateFlow = modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE;
+    const isCreateFlow = modalType === MODAL_TYPES.CREATE_PASSWORD;
     if (isCreateFlow) {
       if (!password || password !== confirmPassword) {
         setIsLoading(false);
@@ -125,39 +126,23 @@ const PromptPasswordConfirmationSheet = () => {
       return handleShakeAnimation();
     }
 
+    // encryptStorage/decryptStorage write the new store themselves and reject
+    // when it was not written, so success is only shown for a committed change.
     const runAction = async () => {
       if (returnTo === 'EncryptStorage') {
         if (modalType === MODAL_TYPES.CREATE_PASSWORD) {
           await encryptStorage(password);
-          await saveToDisk();
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           navigation.goBack();
           return true;
         }
         if (modalType === MODAL_TYPES.ENTER_PASSWORD) {
           await decryptStorage(password);
-          await saveToDisk();
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           const action = StackActions.popToTop();
           navigation.dispatch(action);
           return true;
         }
-      }
-
-      if (returnTo === 'PlausibleDeniability' && modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) {
-        const isProvidedPasswordInUse = password === cachedPassword || (await isPasswordInUse(password));
-        if (isProvidedPasswordInUse) {
-          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-          presentAlert({ message: loc.plausibledeniability.password_should_not_match });
-          return false;
-        }
-
-        await createFakeStorage(password);
-        resetWallets();
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        const popToTop = StackActions.popToTop();
-        navigation.dispatch(popToTop);
-        return true;
       }
 
       return false;
@@ -169,7 +154,13 @@ const PromptPasswordConfirmationSheet = () => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       }
     } catch (error) {
-      presentAlert({ message: (error as Error).message });
+      if (error instanceof OtherEncryptedBucketsError) {
+        presentAlert({ message: loc.settings.encrypt_other_storage });
+      } else if (error instanceof StorageWriteError) {
+        presentAlert({ message: loc.settings.storage_save_failed });
+      } else {
+        presentAlert({ message: (error as Error).message });
+      }
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     } finally {
       setIsLoading(false);
@@ -210,15 +201,10 @@ const PromptPasswordConfirmationSheet = () => {
               <View style={styles.feeModalFooter} />
             </Animated.View>
           )}
-          {(modalType === MODAL_TYPES.ENTER_PASSWORD ||
-            ((modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) && !showExplanation)) && (
+          {(modalType === MODAL_TYPES.ENTER_PASSWORD || (modalType === MODAL_TYPES.CREATE_PASSWORD && !showExplanation)) && (
             <>
               <Text adjustsFontSizeToFit style={[styles.textLabel, stylesHook.feeModalLabel]}>
-                {modalType === MODAL_TYPES.CREATE_PASSWORD
-                  ? loc.settings.password_explain
-                  : modalType === MODAL_TYPES.CREATE_FAKE_STORAGE
-                    ? `${loc.settings.password_explain} ${loc.plausibledeniability.create_password_explanation}`
-                    : loc._.enter_password}
+                {modalType === MODAL_TYPES.CREATE_PASSWORD ? loc.settings.password_explain : loc._.enter_password}
               </Text>
               <View style={styles.inputContainer}>
                 <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
@@ -237,7 +223,7 @@ const PromptPasswordConfirmationSheet = () => {
                     autoFocus
                   />
                 </Animated.View>
-                {(modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) && (
+                {modalType === MODAL_TYPES.CREATE_PASSWORD && (
                   <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
                     <TextInput
                       testID="ConfirmPasswordInput"

@@ -53,14 +53,6 @@
     "sats": "聰",
     "wasnt_paid_and_expired": "此賬單尚未付款，已過期。"
   },
-  "plausibledeniability": {
-    "create_fake_storage": "建立加密儲存",
-    "create_password_explanation": "虛假儲存空間密碼不能和主儲存空間密碼相同",
-    "help": "在某些情況下，你不得不透露密碼。爲了讓你的比特幣更加安全，NeuraiWallet可以建立另一個用不同密碼的加密空間，在壓力之下，你可能透露這個密碼。如果進入 NeuraiWallet，我們會解鎖一個新的虛假儲存空間。對第三方來說看上去是合理的，但會偷偷的幫你保證主錢包的安全，幣也就安全了。",
-    "help2": "新的儲存空間具備完整的功能，你可以存入少量的金額在裏面。",
-    "password_should_not_match": "此密碼已被使用，請用另一個密碼。",
-    "title": "合理推諉"
-  },
   "pleasebackup": {
     "ok": "好，我把它写下来了。",
     "ok_lnd": "好的，我已經儲存了",
@@ -184,7 +176,6 @@
     "notifications": "通知事項",
     "open_link_in_explorer": "在資源管理器中打開鏈接",
     "password": "密碼",
-    "plausible_deniability": "合理推諉",
     "privacy": "私隱",
     "privacy_read_clipboard": "讀取剪貼板",
     "privacy_system_settings": "系統設定",
@@ -269,7 +260,6 @@
     "export_title": "錢包匯出",
     "import_do_import": "匯入",
     "import_error": "匯入失敗，請確認所提供的資訊是有效的",
-    "import_imported": "已經匯入",
     "import_scan_qr": "掃描或匯入檔案",
     "import_success": "成功",
     "import_title": "匯入",

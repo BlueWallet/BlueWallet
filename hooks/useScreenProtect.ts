@@ -8,16 +8,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 // leaves: the closing animation keeps drawing the old screen for a few frames, and a screen share
 // or recording would catch the secret in them (BlueWallet issue #8964).
 const RELEASE_DELAY_MS = 1000;
+// `prevent()` fails when no activity is attached, typically mid-transition; one retry a moment
+// later usually lands.
+const RETRY_DELAY_MS = 500;
 let holders = 0;
 let releaseTimer: ReturnType<typeof setTimeout> | undefined;
 
-const acquire = async (): Promise<void> => {
+const acquire = (): void => {
   holders++;
   if (releaseTimer) {
     clearTimeout(releaseTimer);
     releaseTimer = undefined;
   }
-  await CaptureProtection.prevent();
 };
 
 const release = (): void => {
@@ -30,32 +32,66 @@ const release = (): void => {
   }, RELEASE_DELAY_MS);
 };
 
-const nextFrame = () => new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+const protect = async (): Promise<boolean> => {
+  try {
+    await CaptureProtection.prevent();
+    return true;
+  } catch (error) {
+    console.warn('useScreenProtect: could not enable capture protection', error);
+    return false;
+  }
+};
 
+const nextFrame = () => new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
+/**
+ * `isProtectionReady` turns true only once the window is protected: screens hold their secrets
+ * back until then. If protection cannot be enabled, `isProtectionFailed` turns true and the
+ * secrets stay hidden (H09); calling `enableScreenProtect` again (on focus, or from a retry
+ * button) tries once more.
+ */
 export const useScreenProtect = () => {
   const isHolding = useRef(false);
-  // True once the window is protected, so a screen can hold back secrets until then instead of
-  // drawing them in the frames before FLAG_SECURE lands.
+  const isReady = useRef<boolean>(isDesktop);
+  const inFlight = useRef<Promise<void> | null>(null);
   const [isProtectionReady, setIsProtectionReady] = useState<boolean>(isDesktop);
+  const [isProtectionFailed, setIsProtectionFailed] = useState<boolean>(false);
 
   const enableScreenProtect = useCallback(async () => {
-    if (isDesktop || isHolding.current) return;
-    isHolding.current = true;
-    try {
-      await acquire();
-      await nextFrame();
-    } catch (error) {
-      // Without an activity the flag cannot be set; showing the screen beats locking the user out
-      // of their own backup.
-      console.warn('useScreenProtect: could not enable capture protection', error);
+    if (isDesktop) return;
+    if (!isHolding.current) {
+      isHolding.current = true;
+      acquire();
+    } else if (isReady.current) {
+      return;
     }
-    if (isHolding.current) setIsProtectionReady(true);
+    if (inFlight.current) return inFlight.current;
+
+    inFlight.current = (async () => {
+      setIsProtectionFailed(false);
+      let protectedNow = await protect();
+      if (!protectedNow && isHolding.current) {
+        await sleep(RETRY_DELAY_MS);
+        if (isHolding.current) protectedNow = await protect();
+      }
+      if (protectedNow) await nextFrame();
+      if (!isHolding.current) return;
+      isReady.current = protectedNow;
+      setIsProtectionReady(protectedNow);
+      setIsProtectionFailed(!protectedNow);
+    })().finally(() => {
+      inFlight.current = null;
+    });
+    return inFlight.current;
   }, []);
 
   const disableScreenProtect = useCallback(async () => {
     if (isDesktop || !isHolding.current) return;
     isHolding.current = false;
+    isReady.current = false;
     setIsProtectionReady(false);
+    setIsProtectionFailed(false);
     release();
   }, []);
 
@@ -63,6 +99,7 @@ export const useScreenProtect = () => {
     () => () => {
       if (isHolding.current) {
         isHolding.current = false;
+        isReady.current = false;
         release();
       }
     },
@@ -78,6 +115,7 @@ export const useScreenProtect = () => {
     enableScreenProtect,
     disableScreenProtect,
     isProtectionReady,
+    isProtectionFailed,
     isScreenBeingRecorded,
   };
 };

@@ -14,7 +14,7 @@ test('group send resolves, encrypts for every exact identity and returns the aut
   });
   expect(sent.recipientCount).toBe(3);
   expect(sent.messageHash).toBe(node.messages[0].hash);
-  for (const [actor, key] of [
+  for (const [, key] of [
     [node.legacy, '77'],
     [node.strict, '88'],
     [node.other, '99'],
@@ -148,7 +148,7 @@ test('an unsigned transport error claiming code -26 cannot trigger a write retry
   const call = async (method: string, params: unknown[]) => {
     if (method === 'depinsubmitmsg') {
       submits++;
-      throw { code: -26, message: 'Recipient not authorized' };
+      throw Object.assign(new Error('Recipient not authorized'), { code: -26 }); // not a verified DepinRpcError
     }
     return node.call(method, params);
   };

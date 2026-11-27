@@ -5,7 +5,8 @@ import { getClipboardContent } from '../blue_modules/clipboard';
 import { updateExchangeRate } from '../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import {
-  clearStoredNotifications,
+  acknowledgeStoredNotification,
+  describeNotification,
   getDeliveredNotifications,
   getStoredNotifications,
   initializeNotifications,
@@ -68,9 +69,11 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
     await new Promise(resolve => setTimeout(resolve, 200));
     try {
+      // Each entry is removed only after it was dispatched (H20): opening a
+      // screen for one push no longer drops the rest of the batch.
       const notifications2process = await getStoredNotifications();
-      await clearStoredNotifications();
       setApplicationIconBadgeNumber(0);
+      let navigated = false;
 
       const deliveredNotifications = await getDeliveredNotifications();
       setTimeout(async () => {
@@ -85,7 +88,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
       for (const payload of notifications2process) {
         const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
 
-        console.log('processing push notification:', payload);
+        console.log('processing push notification:', describeNotification(payload));
         let wallet;
         switch (+payload.type) {
           case 2:
@@ -101,7 +104,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         if (wallet) {
           const walletID = wallet.getID();
           fetchAndSaveWalletTransactions(walletID);
-          if (wasTapped) {
+          if (wasTapped && !navigated) {
             // Land the home screen on this wallet's network too: going back from
             // the wallet must not drop the user on a list where it is missing.
             if (isNeuraiWallet(wallet)) setSelectedNetworkStorage(wallet.getNeuraiNetwork());
@@ -116,19 +119,20 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
                 address: payload.address,
               });
             }
-
-            return true;
+            navigated = true;
           }
         } else {
           console.log('could not find wallet while processing push notification, NOP');
         }
+        await acknowledgeStoredNotification(payload);
       }
+      if (navigated) return true;
 
       if (deliveredNotifications.length > 0) {
         for (const payload of deliveredNotifications) {
           const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
 
-          console.log('processing push notification:', payload);
+          console.log('processing push notification:', describeNotification(payload));
           let wallet;
           switch (+payload.type) {
             case 2:

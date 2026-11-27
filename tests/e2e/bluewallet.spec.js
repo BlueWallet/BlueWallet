@@ -274,167 +274,6 @@ describe('NeuraiWallet UI Tests - no wallets', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can encrypt storage, with plausible deniabilityl decrypt fake storage', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt('t4');
-    if (process.env.CI) {
-      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t4'), 'as it previously passed on Travis');
-    }
-    await device.clearKeychain();
-    await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
-    await waitForId('WalletsList');
-
-    // lets create a wallet
-    await helperCreateWallet();
-
-    // go to settings
-    await expect(element(by.id('SettingsButton'))).toBeVisible();
-    await element(by.id('SettingsButton')).tap();
-    await expect(element(by.id('SecurityButton'))).toBeVisible();
-
-    // go to Security page where we will enable encryption
-    await element(by.id('SecurityButton')).tap();
-    // await expect(element(by.id('EncyptedAndPasswordProtected'))).toBeVisible();
-    await expect(element(by.id('PlausibleDeniabilityButton'))).toBeNotVisible();
-
-    // lets encrypt the storage.
-    // first, trying to mistype second password:
-    await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
-    await element(by.id('IUnderstandButton')).tap();
-
-    await element(by.id('PasswordInput')).replaceText('08902');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-    await element(by.id('ConfirmPasswordInput')).replaceText('666');
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-    await confirmPasswordDialog();
-
-    // now, lets put correct passwords and encrypt the storage
-    await element(by.id('PasswordInput')).clearText();
-    await element(by.id('PasswordInput')).replaceText('qqq');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-    await element(by.id('ConfirmPasswordInput')).clearText();
-    await element(by.id('ConfirmPasswordInput')).replaceText('qqq');
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-    await confirmPasswordDialog(); // might not always work the first time
-    await sleep(1000); // propagate
-
-    // relaunch app
-    await device.launchApp({ newInstance: true });
-
-    // trying to decrypt with incorrect password
-    await waitForId('PasswordInput');
-    await element(by.id('PasswordInput')).typeText('wrong\n');
-    await waitForKeyboardToClose();
-    await sleep(1000); // wait for shake animation and retry
-
-    // correct password
-    await element(by.id('PasswordInput')).typeText('qqq\n');
-    await waitForKeyboardToClose();
-    await waitForId('WalletsList');
-
-    // previously created wallet should be visible
-    await expect(element(by.id('cr34t3d'))).toBeVisible();
-
-    // now lets enable plausible deniability feature
-
-    // go to settings -> security screen -> plausible deniability screen
-    await element(by.id('SettingsButton')).tap();
-    await expect(element(by.id('SecurityButton'))).toBeVisible();
-    await element(by.id('SecurityButton')).tap();
-    // await expect(element(by.id('EncyptedAndPasswordProtected'))).toBeVisible();
-    await expect(element(by.id('PlausibleDeniabilityButton'))).toBeVisible();
-    await element(by.id('PlausibleDeniabilityButton')).tap();
-
-    // trying to enable plausible denability
-    await element(by.id('CreateFakeStorageButton')).tap();
-    await waitForId('PasswordInput');
-
-    // trying MAIN password: should fail, obviously
-    await element(by.id('PasswordInput')).clearText();
-    await element(by.id('PasswordInput')).replaceText('qqq');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-    await element(by.id('ConfirmPasswordInput')).clearText();
-    await element(by.id('ConfirmPasswordInput')).replaceText('qqq');
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-    await confirmPasswordDialog(); // first time might not always work
-    await sleep(1000); // propagate
-    await expect(element(by.text('Password is currently in use. Please try a different password.'))).toBeVisible();
-    await element(by.text('OK')).atIndex(0).tap();
-
-    // trying new password, but will mistype
-    await element(by.id('PasswordInput')).clearText();
-    await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-    await element(by.id('ConfirmPasswordInput')).clearText();
-    await element(by.id('ConfirmPasswordInput')).replaceText('passwordForFakeStorageWithTypo'); // retyping with typo
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-    await confirmPasswordDialog();
-
-    // trying new password
-    await element(by.id('PasswordInput')).clearText();
-    await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-    await element(by.id('ConfirmPasswordInput')).clearText();
-    await element(by.id('ConfirmPasswordInput')).replaceText('passwordForFakeStorage'); // retyping
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-    await confirmPasswordDialog(); // first time might not always work
-    await sleep(1000); // propagate
-    await scrollUpOnHomeScreen();
-
-    // created fake storage.
-    // creating a wallet inside this fake storage
-    await helperCreateWallet('fake_wallet');
-
-    // relaunch the app, unlock with fake password, expect to see fake wallet
-
-    // relaunch app
-    await device.launchApp({ newInstance: true });
-    await waitForId('PasswordInput');
-    await element(by.id('PasswordInput')).typeText('qqq\n');
-    await waitForKeyboardToClose();
-    await waitForId('WalletsList');
-
-    // previously created wallet IN MAIN STORAGE should be visible
-    await expect(element(by.id('cr34t3d'))).toBeVisible();
-
-    // relaunch app
-    await device.launchApp({ newInstance: true });
-    await waitForId('PasswordInput');
-    await element(by.id('PasswordInput')).typeText('passwordForFakeStorage\n');
-    await waitForKeyboardToClose();
-    await waitForId('WalletsList');
-
-    // previously created wallet in FAKE storage should be visible
-    await expect(element(by.id('fake_wallet'))).toBeVisible();
-
-    // now derypting it, to cleanup
-    await element(by.id('SettingsButton')).tap();
-    await element(by.id('SecurityButton')).tap();
-
-    // correct password
-    await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
-    await element(by.text('OK')).tap();
-    await waitForId('PasswordInput');
-    await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-    await confirmPasswordDialog(); // in case it didnt work first time
-    await sleep(1000); // propagate
-    await scrollUpOnHomeScreen();
-    await expect(element(by.text('fake_wallet'))).toBeVisible();
-
-    process.env.CI && require('fs').writeFileSync(lockFile, '1');
-  });
-
   it('can encrypt storage, and decrypt storage works', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t5');
     if (process.env.CI) {
@@ -460,28 +299,6 @@ describe('NeuraiWallet UI Tests - no wallets', () => {
     await waitForKeyboardToClose();
     await confirmPasswordDialog();
     await sleep(1000); // propagate
-    await element(by.id('PlausibleDeniabilityButton')).tap();
-
-    // trying to enable plausible denability
-    await element(by.id('CreateFakeStorageButton')).tap();
-    await element(by.id('PasswordInput')).replaceText('fake');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-    await element(by.id('ConfirmPasswordInput')).clearText();
-    await element(by.id('ConfirmPasswordInput')).replaceText('fake'); // retyping
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-    await confirmPasswordDialog();
-    if (device.getPlatform() === 'ios') {
-      // FIXME: WAllets does not exists on android
-      await waitForId('Wallets');
-      await scrollUpOnHomeScreen();
-    }
-    await sleep(1000); // propagate
-    // created fake storage.
-    // creating a wallet inside this fake storage
-    await helperCreateWallet('fake_wallet');
-
     // relaunch app
     await device.launchApp({ newInstance: true });
     //
@@ -497,10 +314,10 @@ describe('NeuraiWallet UI Tests - no wallets', () => {
     await element(by.id('SettingsButton')).tap();
     await element(by.id('SecurityButton')).tap();
 
-    // putting FAKE storage password. should not succeed
+    // wrong password: should not succeed
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
     await element(by.text('OK')).tap();
-    await element(by.id('PasswordInput')).replaceText('fake');
+    await element(by.id('PasswordInput')).replaceText('wrong');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
     await confirmPasswordDialog();

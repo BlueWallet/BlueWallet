@@ -77,14 +77,6 @@
     "date_time": "日時",
     "wasnt_paid_and_expired": "この請求書は支払いが行われなかったため無効になりました"
   },
-  "plausibledeniability": {
-    "create_fake_storage": "ダミーの暗号化ウォレットの作成",
-    "create_password_explanation": "ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。",
-    "help": "BuleWallet のウォレットの復号に必要なパスワードを第三者に強要される場合、コインを安全に保護するためにメインのウォレットとは異なるパスワードで暗号化されたダミーのウォレットを作成することが可能です。第三者へ異なるパスワードを提供すれば、NeuraiWallet のダミーの暗号化ウォレットを復号することとなり、メインのウォレットは隠匿されコインは安全に保護されます。",
-    "help2": "新規のダミーのウォレットはメインと同様に機能します。少額のコインを入金しておくことでダミーと疑われないようにすることが可能です。",
-    "password_should_not_match": "ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。",
-    "title": "隠匿設定"
-  },
   "pleasebackup": {
     "ok": "はい、書き取りました",
     "ok_lnd": "はい、書きとめました",
@@ -298,7 +290,6 @@
     "open_link_in_explorer": "エクスプローラで開く",
     "password": "パスワード",
     "password_explain": "ストレージのアンロックに使うパスワードを入力",
-    "plausible_deniability": "隠匿設定...",
     "privacy": "プライバシー",
     "privacy_read_clipboard": "クリップボードを読む",
     "privacy_system_settings": "システム設定",
@@ -435,7 +426,6 @@
     "import_passphrase_title": "パスフレーズ",
     "import_passphrase_message": "パスフレーズがある場合は入力",
     "import_error": "インポートに失敗しました。入力したデータが有効か確認してください。",
-    "import_imported": "インポート完了",
     "import_scan_qr": "QR コードの読み取り",
     "import_success": "成功",
     "import_success_watchonly": "ウォレットのインポートに成功しました。警告：これは閲覧専用ウォレットで、支払いはできません。",

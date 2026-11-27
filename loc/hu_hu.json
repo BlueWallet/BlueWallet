@@ -59,14 +59,6 @@
     "sats": "satoshi",
     "wasnt_paid_and_expired": "Ezt a számlát nem fizették ki és lejárt"
   },
-  "plausibledeniability": {
-    "create_fake_storage": "Hamis tárhely létrehozása",
-    "create_password_explanation": "A hamis tárhely jelszava nem lehet ugyanaz, mint az igazi tárhelyé",
-    "help": "Bizonyos körülmények között arra kényszerülhetsz, hogy megadda jelszavadat. A pénzed biztonsága érdekében a NeuraiWallettel létrehozhatsz egy alternatív titkosított tárhelyet, alternatív jelszóval. Kényszer hatása alatt megadhatod az alternatív jelszavadat, ami után a NeuraiWallet az alternatív tárhelyedet fogja megnyitni. Ez ugyanúgy fog kinézni, mint egy igazi tárhely, azzal a különbséggel, hogy a pénzed teljes biztonságban lesz az elsődleges tárhelyen.",
-    "help2": "Az alternatív tárhely teljesen működőképes, és akár egy kisebb összeget is elhelyezhetsz rajta, hogy hitelesebbnek tűnjön.",
-    "password_should_not_match": "A hamis tárhely jelszava nem lehet ugyanaz, mint az igazi tárhelyé",
-    "title": "Elfogadható tagadhatóság"
-  },
   "pleasebackup": {
     "ok": "Rendben, leírtam!",
     "ok_lnd": "OK, elmentettem.",
@@ -217,7 +209,6 @@
     "notifications": "Megjegyzések",
     "open_link_in_explorer": "Link megnyitása explorerben",
     "password": "Jelszó",
-    "plausible_deniability": "Elfogadható tagadhatóság...",
     "privacy": "Személyes adatok",
     "privacy_read_clipboard": "Vágólap olvasása",
     "privacy_system_settings": "Rendszer beállítások",
@@ -322,7 +313,6 @@
     "import_passphrase_title": "Jelszó",
     "import_passphrase_message": "Add meg a jelszavadat ha használsz olyat",
     "import_error": "Importálás sikertelen. Ellenőrizd, hogy helyes adatokat adtál-e meg.",
-    "import_imported": "Importálva",
     "import_scan_qr": "vagy QR-kód szkennelése?",
     "import_success": "Sikeres importálás!",
     "import_search_accounts": "Fiókok keresése",
