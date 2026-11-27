@@ -458,7 +458,7 @@ export const FButton = ({
 export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const insets = useSafeAreaInsets();
   const { height, width, fontScale } = useWindowDimensions();
-  const isWideLayout = shouldUseWideLayout(width, height);
+  const isWideLayout = shouldUseWideLayout(width);
   const isCompactLayout = width < REGULAR_LAYOUT_MIN_WIDTH;
   const scaledButtonHeight = getScaledButtonHeight(fontScale);
 

@@ -122,8 +122,8 @@ const WalletsList: React.FC = () => {
   const currentWalletIndex = useRef<number>(0);
   const { wallets, getTransactions, refreshAllWalletTransactions, addWallet, saveToDisk, setSharedCosigner } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
-  const { height, width, fontScale } = useWindowDimensions();
-  const isWideLayout = shouldUseWideLayout(width, height);
+  const { width, fontScale } = useWindowDimensions();
+  const isWideLayout = shouldUseWideLayout(width);
   const insets = useSafeAreaInsets();
   const carouselHeight = getWalletCarouselHeight(fontScale);
   const transactionItemHeight = Math.round(TX_ROW_BASE_HEIGHT * fontScale);
