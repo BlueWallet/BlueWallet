@@ -59,9 +59,7 @@
   "transactions": {
     "cpfp_create": "Opret",
     "details_copy": "Kopier",
-    "details_from": "Fra",
     "details_title": "Transaktion",
-    "details_to": "Til",
     "list_title": "transaktioner",
     "transaction": "Transaktion"
   },

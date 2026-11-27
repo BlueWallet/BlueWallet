@@ -200,8 +200,6 @@
   "transactions": {
     "cancel_no": "यो लेनदेन बदल्न सकिने योग्य छैन",
     "cancel_title": "यो लेनदेन रद्द गर्नुहोस् (RBF)",
-    "confirmations_lowercase": "{confirmations} पुष्टिकरणहरू",
-    "copy_link": "लिङ्क कापी गर्नुहोस्",
     "expand_note": "नोट बढाउनुहोस्",
     "cpfp_create": "सिर्जना गर्नुहोस्",
     "cpfp_exp": "हामी तपाईंको अपुष्ट लेनदेन खर्च गर्ने अर्को लेनदेन सिर्जना गर्नेछौं। कुल शुल्क मूल लेनदेन शुल्क भन्दा बढी हुनेछ, त्यसैले यसलाई छिटो खनन गर्नुपर्छ। यसलाई CPFP भनिन्छ—Child Pays for Parent।",
@@ -210,7 +208,6 @@
     "details_copy": "कापी",
     "details_copy_note": "नोट कापी",
     "date": "मिति",
-    "details_received": "प्राप्त भयो",
     "details_title": "लेनदेन",
     "pending": "पेनदिंग",
     "list_title": "लेनदेन",

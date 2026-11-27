@@ -1,11 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppState, Platform, PlatformColor } from 'react-native';
-import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import Broadcast from '../screen/settings/Broadcast';
-import TransactionDetails from '../screen/transactions/TransactionDetails';
 import TransactionStatus from '../screen/transactions/TransactionStatus';
 import WalletAddresses from '../screen/wallets/WalletAddresses';
 import AddressDetails from '../screen/wallets/AddressDetails';
@@ -87,8 +85,6 @@ const DetailViewStackScreensStack = () => {
 
   const connectionPollContextValue = useMemo(() => ({ pollConnection }), [pollConnection]);
 
-  const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
-
   const isIOSLightMode = Platform.OS === 'ios' && !theme.dark;
   const settingsCardColor = theme.colors.lightButton ?? theme.colors.modal ?? theme.colors.elevated ?? theme.colors.background;
   const settingsHeaderBackgroundColor = isIOSLightMode ? settingsCardColor : theme.colors.customHeader;
@@ -141,30 +137,13 @@ const DetailViewStackScreensStack = () => {
           options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.wallets.details_title }}
         />
         <DetailViewStack.Screen
-          name="TransactionDetails"
-          component={TransactionDetails}
-          options={navigationStyle({
-            headerStyle: {
-              backgroundColor: theme.colors.customHeader,
-            },
-            headerTitle: loc.transactions.details_title,
-          })(theme)}
-        />
-        <DetailViewStack.Screen
           name="TransactionStatus"
           component={TransactionStatus}
           initialParams={{
             hash: undefined,
             walletID: undefined,
           }}
-          options={navigationStyle({
-            headerStyle: {
-              backgroundColor: theme.colors.customHeader,
-            },
-            headerTitle: '',
-            headerRight: () => DetailButton,
-            headerBackButtonDisplayMode: 'minimal',
-          })(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.transactions.details_title }}
         />
         <DetailViewStack.Screen
           name="SelectWallet"

@@ -178,14 +178,11 @@
     "tools": "Інструменти"
   },
   "transactions": {
-    "copy_link": "Копіювати Посилання",
     "cpfp_create": "Створити",
     "details_balance_hide": "Приховати Баланс",
     "details_copy": "Копіювати",
     "details_copy_note": "Копіювати Нотатку",
-    "details_from": "Від",
     "details_title": "Деталі транзакції",
-    "details_to": "Кому",
     "pending": "Очікування",
     "received_with_amount": "+{amt1} ({amt2})",
     "list_title": "Транзакції",

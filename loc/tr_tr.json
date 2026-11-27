@@ -146,9 +146,7 @@
   "transactions": {
     "cpfp_create": "Oluştur",
     "details_copy": "Kopya",
-    "details_from": "Girdi",
     "details_title": "İşlem",
-    "details_to": "Çıktı",
     "pending": "Beklemede",
     "list_title": "işlemler",
     "transaction": "İşlem"

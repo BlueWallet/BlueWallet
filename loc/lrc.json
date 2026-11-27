@@ -121,15 +121,12 @@
     "tools": "اوزاریا"
   },
   "transactions": {
-    "copy_link": "لٛف گری لینگ",
     "details_copy": "لٛف گری",
     "date": "ویرگار",
-    "details_received": "گرته بیه",
     "details_title": "تراکونش",
     "list_title": "تراکونشیا",
     "list_title_received": "گرته بیه",
-    "transaction": "تراکونش",
-    "open_url_error": "نا مووفق د واز کردن لینگ وا گشت گر پؽش فرز. گشت گر پؽش فرز خوته آلشت کوݩ ۉ د نۊ تفره بکوݩ."
+    "transaction": "تراکونش"
   },
   "wallets": {
     "add_entropy": "آنتروپی",

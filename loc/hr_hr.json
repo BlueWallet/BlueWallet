@@ -67,9 +67,7 @@
   "transactions": {
     "cpfp_create": "Stvori",
     "details_copy": "Kopiraj",
-    "details_from": "Od",
     "details_title": "Transakcija",
-    "details_to": "Za",
     "list_title": "transakcije",
     "transaction": "Transakcija"
   },

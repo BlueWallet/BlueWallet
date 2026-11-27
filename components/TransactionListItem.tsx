@@ -273,7 +273,8 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
 
     const handleOnDetailsPress = useCallback(() => {
       if (walletID && item && item.hash) {
-        navigate('TransactionDetails', { tx: item, hash: item.hash, walletID });
+        // The transaction screen shows the details, the note and the explorer.
+        navigate('TransactionStatus', { hash: item.hash, walletID });
       }
     }, [item, navigate, walletID]);
 

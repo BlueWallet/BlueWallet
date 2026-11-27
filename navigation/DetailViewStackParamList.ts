@@ -1,4 +1,4 @@
-import { Transaction, TWallet } from '../class/wallets/types';
+import { TWallet } from '../class/wallets/types';
 import { XnaUnit, Chain } from '../models/xnaUnits';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
@@ -34,7 +34,6 @@ export type DetailViewStackParamList = {
   WalletsList: { onBarScanned?: string };
   WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string; walletNetwork?: string; onBarScanned?: string };
   WalletDetails: { walletID: string };
-  TransactionDetails: { tx: Transaction; hash: string; walletID: string };
   TransactionStatus: { hash: string; walletID?: string };
   SelectWallet: {
     chainType?: Chain;
