@@ -8,6 +8,7 @@ import { securityScore } from '../../components/settings/securityScore';
 import {
   biometricLabel,
   SettingsCard,
+  SettingsRow,
   SettingsScreenHeader,
   SettingsSectionLabel,
   SettingsSwitchRow,
@@ -67,7 +68,7 @@ const reducer = (state: State, action: Action): State => {
 };
 
 const EncryptStorage = () => {
-  const { isStorageEncrypted } = useStorage();
+  const { isStorageEncrypted, canUpgradeEncryption } = useStorage();
   const { isPrivacyBlurEnabled, setIsPrivacyBlurEnabled } = useSettings();
   const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -220,6 +221,17 @@ const EncryptStorage = () => {
               testID="EncyptedAndPasswordProtected"
               switchTestID="EncyptedAndPasswordProtectedSwitch"
             />
+            {ready && encrypted && canUpgradeEncryption() ? (
+              <SettingsRow
+                icon="enhanced-encryption"
+                title={loc.settings.encryption_upgrade_title}
+                subtitle={loc.settings.encryption_upgrade_row_subtitle}
+                badge={loc.settings.encrypt_recommended}
+                divider
+                onPress={() => navigation.navigate('EncryptionUpgradeSheet')}
+                testID="EncryptionUpgradeRow"
+              />
+            ) : null}
           </SettingsCard>
         </View>
 

@@ -3,6 +3,8 @@ plugins { id("com.facebook.react.settings") }
 extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
 rootProject.name = 'NeuraiWallet'
 include ':app'
+// libsodium for the wallet store's encryption (walletcrypto/src/main/cpp/libsodium/README.md).
+include ':walletcrypto'
 includeBuild('../node_modules/@react-native/gradle-plugin')
 include ':detox'
 project(':detox').projectDir = new File(rootProject.projectDir, '../node_modules/detox/android/detox')

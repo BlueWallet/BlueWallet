@@ -17,7 +17,12 @@
     "success": "Completado",
     "wallet_key": "Llave de la cartera",
     "back": "Atrás",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "show_password": "Mostrar contraseña",
+    "hide_password": "Ocultar contraseña",
+    "unlock_subtitle_password": "Introduce tu contraseña para abrir tus carteras.",
+    "unlock_subtitle_biometrics": "Confirma que eres tú para abrir tus carteras.",
+    "unlock": "Desbloquear"
   },
   "connect": {
     "blocked_expired": "Esta petición ha caducado. Vuelve a iniciar sesión en el sitio.",
@@ -398,7 +403,7 @@
     "notifications": "Notificaciones",
     "open_link_in_explorer": "Abrir enlace en el navegador",
     "password": "Contraseña",
-    "reset_storage_button": "Start fresh",
+    "reset_storage_button": "Empezar de cero",
     "reset_storage_confirm": "Restablecer almacenamiento",
     "reset_storage_message": "Esto elimina todas las carteras guardadas en este dispositivo y abre NeuraiWallet con almacenamiento local vacío. Continúa solo si tienes tu frase de recuperación o estás revisando la app.",
     "reset_storage_title": "¿Restablecer almacenamiento local?",
@@ -477,7 +482,27 @@
     "storage_restore_backup_dated": "Restaurar la copia guardada el {date}",
     "storage_restore_backup_several": "Hay varias copias de respaldo distintas; las que no elijas se quedan en el dispositivo y se vuelven a ofrecer si alguna vez hace falta recuperar.",
     "storage_restore_changed": "Las copias de respaldo han cambiado desde que elegiste. No se ha restaurado nada: revísalas y elige de nuevo.",
-    "storage_readable_again": "El almacenamiento principal ha cambiado o vuelve a poder leerse desde que se ofreció la copia. No se ha restaurado nada: se comprueba de nuevo como siempre."
+    "storage_readable_again": "El almacenamiento principal ha cambiado o vuelve a poder leerse desde que se ofreció la copia. No se ha restaurado nada: se comprueba de nuevo como siempre.",
+    "encryption_upgrade_title": "Mejora el cifrado",
+    "encryption_upgrade_text": "Tus carteras usan un cifrado antiguo. Actualízalo para proteger mejor tu contraseña.",
+    "encryption_upgrade_now": "Mejorar ahora",
+    "encryption_upgrade_later": "Más tarde",
+    "encryption_upgrade_password_text": "¿Mantienes tu contraseña o eliges una nueva?",
+    "encryption_upgrade_keep": "Mantener mi contraseña",
+    "encryption_upgrade_new": "Nueva contraseña",
+    "encryption_upgrade_confirm": "Repite la contraseña",
+    "encryption_upgrade_new_hint": "Mínimo {min} caracteres.",
+    "encryption_upgrade_mismatch": "Las contraseñas no coinciden.",
+    "encryption_upgrade_forget_warning": "Si la olvidas, necesitarás tus frases de recuperación.",
+    "encryption_upgrade_done": "Cifrado mejorado.",
+    "encryption_upgrade_in_use": "Esa contraseña ya se usa en otro almacén. Elige otra.",
+    "encryption_upgrade_row_subtitle": "Tus carteras usan el cifrado antiguo.",
+    "password_strength": "Seguridad de la contraseña",
+    "password_strength_weak": "Débil",
+    "password_strength_fair": "Aceptable",
+    "password_strength_strong": "Fuerte",
+    "biometrics_no_longer_available": "La configuración del dispositivo ha cambiado y ya no coincide con la seguridad elegida en la app. Vuelve a activar la biometría o el código de desbloqueo y reinicia la app para aplicar los cambios.",
+    "encryption_upgrade_older_copies": "Las copias de recuperación antiguas de este móvil conservan el cifrado y la contraseña anteriores."
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "¿Quires recibir notificaciones cuando detectemos transferencias entrantes?"

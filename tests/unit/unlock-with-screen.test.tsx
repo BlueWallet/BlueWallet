@@ -122,6 +122,37 @@ describe('UnlockWith (third review)', () => {
     expect(setWalletsInitialized).toHaveBeenCalledWith(true);
   });
 
+  it('a wrong password says so under the field until the user types again; the right one opens', async () => {
+    const encryption = require('../../blue_modules/encryption');
+    disk.seed({ data: JSON.stringify([encryption.encrypt(store('Mine'), 'right-password')]), data_encrypted: '1' });
+
+    render(<UnlockWith />);
+    await settle();
+    expect(screen.getByTestId('UnlockButton').props.accessibilityState.disabled).toBe(true);
+    expect(screen.queryByTestId('UnlockWrongPassword')).toBeNull();
+
+    fireEvent.changeText(screen.getByTestId('PasswordInput'), 'wrong-password');
+    expect(screen.getByTestId('UnlockButton').props.accessibilityState.disabled).toBe(false);
+    fireEvent.press(screen.getByTestId('UnlockButton'));
+    await settle();
+    expect(screen.getByText(loc._.bad_password)).toBeTruthy();
+    expect(screen.getByTestId('PasswordInput').props.value).toBe('');
+    expect(screen.getByTestId('UnlockButton').props.accessibilityState.disabled).toBe(true);
+    expect(setWalletsInitialized).not.toHaveBeenCalledWith(true);
+
+    // Typing clears the notice; the field can show what is typed.
+    fireEvent.changeText(screen.getByTestId('PasswordInput'), 'right-password');
+    expect(screen.queryByTestId('UnlockWrongPassword')).toBeNull();
+    expect(screen.getByTestId('PasswordInput').props.secureTextEntry).toBe(true);
+    fireEvent.press(screen.getByTestId('PasswordVisibilityToggle'));
+    expect(screen.getByTestId('PasswordInput').props.secureTextEntry).toBe(false);
+
+    fireEvent(screen.getByTestId('PasswordInput'), 'submitEditing');
+    await settle();
+    expect(setWalletsInitialized).toHaveBeenCalledWith(true);
+    expect(app.wallets.map(wallet => wallet.getLabel())).toEqual(['Mine']);
+  });
+
   it('restores the copy the button showed; if it changed, writes nothing and lists the copies again', async () => {
     disk.readFault = { data: 'missing' };
     disk.backup.set('data', store('Caches copy'));

@@ -103,5 +103,6 @@ export type DetailViewStackParamList = {
   };
   ScanQRCode: ScanQRCodeParamList;
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
+  EncryptionUpgradeSheet: undefined;
   ManageWallets: undefined;
 };

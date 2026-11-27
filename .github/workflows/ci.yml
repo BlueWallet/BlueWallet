@@ -35,6 +35,10 @@ jobs:
       if: success() || failure()
       run: npm run lint:loc
 
+    - name: libsodium copy matches its signed release
+      if: success() || failure()
+      run: npm run lint:libsodium
+
     - name: ESLint
       if: success() || failure()
       run: npm run lint:eslint

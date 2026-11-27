@@ -19,6 +19,7 @@ import { purgeStaleTestnetStorage } from '../blue_modules/neurai/testnetReset';
 import { migrateWalletReferences } from '../blue_modules/neurai/walletIdMigration';
 import {
   OtherEncryptedBucketsError,
+  PasswordInUseError,
   StorageCorruptError,
   StorageNotLoadedError,
   StorageReadableAgainError,
@@ -78,7 +79,15 @@ export type PreservedRecord = {
   id?: string;
 };
 
-type Transition = { kind: 'encrypt'; password: string } | { kind: 'decrypt' };
+/**
+ * A save that changes how the store is protected. `upgrade` rewrites the
+ * bucket this session opened in the `nw2:` format (H08), under `password`
+ * (the session's own or a new one); every other bucket is kept byte for byte.
+ */
+type Transition = { kind: 'encrypt'; password: string } | { kind: 'decrypt' } | { kind: 'upgrade'; password: string };
+
+/** The format a new encrypted store is written in: `nw2:` where the native module exists. */
+const newBucketFormat = (): encryption.BucketFormat => (encryption.strongEncryptionAvailable() ? 'nw2' : 'cryptojs');
 
 const WALLET_CLASSES: Record<string, { fromJson(json: string): unknown }> = {
   [NeuraiHDWallet.type]: NeuraiHDWallet,
@@ -174,6 +183,22 @@ function parseOwnBackupFile(name: string): OwnBackupFile | null {
   return { stem: match[1], side: Boolean(match[2]), tokens: match[3] ? match[3].split('.reset-').slice(1) : [] };
 }
 
+/**
+ * Older wallet copies kept on the device, by file name and place: copies a
+ * restore set aside, the Documents copy of older versions and those it was
+ * renamed to. Not the backup in use (Caches `keyvalue.realm`), Realm's side
+ * files, nor files of a reset, which are deleted or given back on their own.
+ * An encryption upgrade does not rewrite them (H08).
+ */
+export function olderBackupCopies(listing: ReadonlyArray<{ place: 'documents' | 'caches'; name: string }>): string[] {
+  return listing
+    .filter(({ place, name }) => {
+      const own = parseOwnBackupFile(name);
+      return !!own && !own.side && own.tokens.length === 0 && !(place === 'caches' && own.stem === 'keyvalue.realm');
+    })
+    .map(({ name }) => name);
+}
+
 /** The reset a plain store was committed by, if any. */
 function resetTokenOf(json: string): string | null {
   try {
@@ -206,10 +231,13 @@ function isWalletBucket(json: string): boolean {
 }
 
 /** Tries each encrypted bucket with `password`. Pure: it does not touch any session state (H05). */
-export function openEncryptedBucket(buckets: readonly string[], password: string): { plaintext: string; index: number } | null {
+export function openEncryptedBucket(
+  buckets: readonly string[],
+  password: string,
+): { plaintext: string; index: number; key: encryption.BucketKey | null } | null {
   for (let index = 0; index < buckets.length; index++) {
-    const plaintext = encryption.decrypt(buckets[index], password);
-    if (plaintext) return { plaintext, index };
+    const opened = encryption.openBucket(buckets[index], password);
+    if (opened) return { plaintext: opened.plaintext, index, key: opened.key };
   }
   return null;
 }
@@ -239,6 +267,12 @@ export class BlueApp {
   private sessionLoaded = false;
   /** Encrypted bucket this session opened; null for plain storage. Per instance, set only by a complete load (H05). */
   private bucketIndex: number | null = null;
+  /**
+   * The key of the session's `nw2:` bucket (H08), derived once at the unlock
+   * or the write that made it, so saves need no new derivation. Null for a
+   * CryptoJS or plain store; dropped with the password.
+   */
+  private bucketKey: encryption.BucketKey | null = null;
   private preservedRecords: PreservedRecord[] = [];
   /** Top-level bucket fields this version does not know, kept for newer versions. */
   private bucketExtras: Record<string, unknown> = {};
@@ -406,6 +440,25 @@ export class BlueApp {
       return undefined;
     }
   }
+
+  /** Whether the device keeps older wallet copies an encryption upgrade leaves as they are (`olderBackupCopies`). */
+  hasOlderBackupCopies = async (): Promise<boolean> => {
+    try {
+      const [documents, caches] = BlueApp.backupDirs();
+      const listing: Array<{ place: 'documents' | 'caches'; name: string }> = [];
+      for (const [place, dir] of [
+        ['documents', documents],
+        ['caches', caches],
+      ] as const) {
+        if (!(await RNFS.exists(dir))) continue;
+        for (const file of await RNFS.readDir(dir)) listing.push({ place, name: file.name });
+      }
+      return olderBackupCopies(listing).length > 0;
+    } catch (error: any) {
+      console.warn('listing older backup copies failed:', error?.message);
+      return false;
+    }
+  };
 
   /** Copies a restore set aside, in Caches and in Documents (oldest first). */
   async listKeptBackups(): Promise<string[]> {
@@ -603,6 +656,7 @@ export class BlueApp {
         this.loadedData = { kind: 'encrypted', buckets: target.buckets };
         this.cachedPassword = target.password;
         this.bucketIndex = target.index;
+        this.bucketKey = null;
       }
       this.restoringFromBackup = true;
       try {
@@ -699,6 +753,36 @@ export class BlueApp {
     await this.saveWithTransition({ kind: 'encrypt', password });
   };
 
+  /**
+   * Whether the bucket this session opened is still in the old CryptoJS
+   * format and this device can write the new one (H08). Read from what the
+   * session last read or wrote, which is what its next save replaces.
+   */
+  canUpgradeEncryption = (): boolean => {
+    if (!this.sessionLoaded || !this.cachedPassword || this.bucketIndex === null) return false;
+    if (!encryption.strongEncryptionAvailable()) return false;
+    const data = this.loadedData;
+    return (
+      data.kind === 'encrypted' &&
+      this.bucketIndex < data.buckets.length &&
+      encryption.bucketFormat(data.buckets[this.bucketIndex]) === 'cryptojs'
+    );
+  };
+
+  /**
+   * Moves the bucket this session opened to the `nw2:` format (H08), keeping
+   * its password or under `newPassword`. Written by the same queued writer as
+   * every save; the other buckets are kept byte for byte, and a new password
+   * that already opens one of them is refused (`PasswordInUseError`).
+   */
+  upgradeEncryption = async (newPassword?: string): Promise<void> => {
+    this.assertSessionLoaded();
+    if (!this.cachedPassword) throw new Error('Storage is not encrypted');
+    if (!encryption.strongEncryptionAvailable()) throw new Error('strong encryption is not available on this device');
+    if (newPassword === '') throw new Error('Password is required');
+    await this.saveWithTransition({ kind: 'upgrade', password: newPassword ?? this.cachedPassword });
+  };
+
   private async saveWithTransition(transition: Transition): Promise<void> {
     this.transition = transition;
     try {
@@ -770,6 +854,7 @@ export class BlueApp {
       }
     });
     this.damaged = null;
+    this.bucketKey = null;
 
     this.wallets = [];
     this.tx_metadata = {};
@@ -945,6 +1030,7 @@ export class BlueApp {
     let bucketJson = EMPTY_BUCKET_JSON;
     let bucketIndex: number | null = null;
     let sessionPassword: string | undefined;
+    let sessionKey: encryption.BucketKey | null = null;
     if (stored.kind === 'encrypted') {
       if (!password) return false;
       const opened = openEncryptedBucket(stored.buckets, password);
@@ -952,6 +1038,7 @@ export class BlueApp {
       bucketJson = opened.plaintext;
       bucketIndex = opened.index;
       sessionPassword = password;
+      sessionKey = opened.key;
     } else if (stored.kind === 'plain') {
       bucketJson = stored.json;
     }
@@ -1010,6 +1097,7 @@ export class BlueApp {
     this.bucketExtras = extras;
     this.cachedPassword = sessionPassword;
     this.bucketIndex = bucketIndex;
+    this.bucketKey = sessionKey;
     this.loadedData = stored;
     this.restoringFromBackup = false;
 
@@ -1144,20 +1232,35 @@ export class BlueApp {
   /**
    * The stored value for an encrypted session: the bucket this session opened
    * is replaced, every other bucket is kept byte for byte. The target must
-   * still open with the session password, or nothing is written (H05).
+   * still open with the session password, or nothing is written (H05). It
+   * keeps its format; `upgradeTo` writes it as `nw2:` under that password.
    */
-  private async encryptedData(bucketJson: string, password: string): Promise<string[]> {
+  private async encryptedData(
+    bucketJson: string,
+    password: string,
+    upgradeTo?: string,
+  ): Promise<{ buckets: string[]; key: encryption.BucketKey | null }> {
     const stored = await this.writeBase();
     const index = this.bucketIndex;
     if (stored.kind !== 'encrypted' || index === null || index >= stored.buckets.length) {
       throw new StorageWriteError('the encrypted bucket of this session is not in the store');
     }
-    if (!encryption.decrypt(stored.buckets[index], password)) {
+    const current = encryption.openBucket(stored.buckets[index], password, this.bucketKey);
+    if (!current) {
       throw new StorageWriteError('the stored bucket does not open with this session password');
     }
     const buckets = stored.buckets.slice();
-    buckets[index] = encryption.encrypt(bucketJson, password);
-    return buckets;
+    if (upgradeTo === undefined) {
+      const sealed = encryption.sealBucket(bucketJson, password, { like: stored.buckets[index], key: current.key });
+      buckets[index] = sealed.bucket;
+      return { buckets, key: sealed.key };
+    }
+    if (upgradeTo !== password && buckets.some((bucket, other) => other !== index && encryption.decrypt(bucket, upgradeTo))) {
+      throw new PasswordInUseError();
+    }
+    const sealed = encryption.sealBucket(bucketJson, upgradeTo, { format: 'nw2' });
+    buckets[index] = sealed.bucket;
+    return { buckets, key: sealed.key };
   }
 
   /** `restoring`: the write that commits a restore, before the session opens (`commitRestore`). */
@@ -1168,17 +1271,28 @@ export class BlueApp {
 
     let written: Exclude<StoredData, { kind: 'absent' }>;
     let password: string | undefined;
+    let key: encryption.BucketKey | null = null;
     if (transition?.kind === 'encrypt') {
       if ((await this.writeBase()).kind === 'encrypted') throw new StorageWriteError('the store is already encrypted');
       password = transition.password;
-      written = { kind: 'encrypted', buckets: [encryption.encrypt(bucketJson, password)] };
+      const sealed = encryption.sealBucket(bucketJson, password, { format: newBucketFormat() });
+      written = { kind: 'encrypted', buckets: [sealed.bucket] };
+      key = sealed.key;
     } else if (transition?.kind === 'decrypt') {
       const stored = await this.writeBase();
       if (stored.kind === 'encrypted' && stored.buckets.length > 1) throw new OtherEncryptedBucketsError();
       written = { kind: 'plain', json: bucketJson };
+    } else if (transition?.kind === 'upgrade') {
+      if (!this.cachedPassword) throw new StorageWriteError('the store is not encrypted');
+      password = transition.password;
+      const sealed = await this.encryptedData(bucketJson, this.cachedPassword, transition.password);
+      written = { kind: 'encrypted', buckets: sealed.buckets };
+      key = sealed.key;
     } else if (this.cachedPassword) {
       password = this.cachedPassword;
-      written = { kind: 'encrypted', buckets: await this.encryptedData(bucketJson, password) };
+      const sealed = await this.encryptedData(bucketJson, password);
+      written = { kind: 'encrypted', buckets: sealed.buckets };
+      key = sealed.key;
     } else {
       written = { kind: 'plain', json: bucketJson };
     }
@@ -1196,11 +1310,19 @@ export class BlueApp {
     // now holds, whatever happens to the flag or the backup below (H03/H07).
     this.loadedData = written;
     this.restoringFromBackup = false;
-    if (transition) {
-      this.cachedPassword = transition.kind === 'encrypt' ? transition.password : undefined;
-      this.bucketIndex = transition.kind === 'encrypt' ? 0 : null;
-      this.transition = null;
+    // The key of what was just written (null for CryptoJS or plain).
+    this.bucketKey = key;
+    if (transition?.kind === 'encrypt') {
+      this.cachedPassword = transition.password;
+      this.bucketIndex = 0;
+    } else if (transition?.kind === 'upgrade') {
+      // Same bucket, new format (and maybe password).
+      this.cachedPassword = transition.password;
+    } else if (transition?.kind === 'decrypt') {
+      this.cachedPassword = undefined;
+      this.bucketIndex = null;
     }
+    if (transition) this.transition = null;
 
     try {
       await this.setItem(BlueApp.FLAG_ENCRYPTED, flag);

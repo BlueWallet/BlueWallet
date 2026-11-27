@@ -104,6 +104,9 @@ export class StorageDouble {
       .spyOn(app, 'backupSavedAt')
       .mockImplementation(async (path: string) => this.kept.get(path)?.savedAt ?? (isLegacy(path) ? 1000 : 2000));
     jest.spyOn(app, 'listKeptBackups').mockImplementation(async () => [...this.kept.keys()].sort());
+    jest
+      .spyOn(app, 'hasOlderBackupCopies')
+      .mockImplementation(async () => this.kept.size > 0 || this.superseded.size > 0 || this.legacyFile);
     jest.spyOn(app, 'setAsideBackup').mockImplementation(async (path: string) => {
       if (this.setAsideFault) throw this.setAsideFault;
       const legacy = isLegacy(path);

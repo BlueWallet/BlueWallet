@@ -10,7 +10,7 @@ include seeds, private keys or other wallet data in the report.
 
 | Asset | Where it lives | Protection |
 | --- | --- | --- |
-| Recovery words and passphrase (software wallets) | The `data` entry of the platform secure store, plus an encrypted Realm copy in the app's cache directory | Android Keystore or iOS Keychain (`WHEN_UNLOCKED_THIS_DEVICE_ONLY`). Optionally the app password (CryptoJS AES, see below). The Realm copy uses a random 64-byte key kept in the Keychain or Keystore. |
+| Recovery words and passphrase (software wallets) | The `data` entry of the platform secure store, plus an encrypted Realm copy in the app's cache directory | Android Keystore or iOS Keychain (`WHEN_UNLOCKED_THIS_DEVICE_ONLY`). Optionally the app password (argon2id and XChaCha20-Poly1305; stores from older versions keep CryptoJS AES until upgraded, see below). The Realm copy uses a random 64-byte key kept in the Keychain or Keystore. |
 | Hardware wallet seed | The ESP32 signer | Passes through the phone's memory only while a device is set up (see below). Never stored by the app. |
 | Neurai Connect session keys | Secure store (`NEURAI_CONNECT_*`) | Same as the wallet store. |
 | C7 private journal | App documents directory | Encrypted by `@neuraiproject/neurai-privacy` with a key derived from the wallet words. |
@@ -61,7 +61,8 @@ These rules are what keeps a failure from turning into a loss. The tests in
 2. Nothing is written before a complete load.
 3. A save that did not reach the secure store is reported, and the screen does not claim success.
 4. A session writes only the encrypted bucket it opened, after checking that it still opens with
-   the session password.
+   the session password. A bucket keeps its format on every save; only the user's upgrade moves
+   it to the new one, and a new password that already opens another bucket is refused.
 5. Removing the password is refused while another encrypted bucket exists.
 6. Records this version cannot read are kept as they are.
 7. "Start fresh" also deletes the Realm copy and every older backup it owns, so old wallets
@@ -90,14 +91,24 @@ These rules are what keeps a failure from turning into a loss. The tests in
 
 ## Known limits
 
-- **App-password encryption** is CryptoJS AES-CBC with the OpenSSL key derivation (MD5, one
-  iteration) and no authentication. It adds little against an offline guess of a weak password if
-  someone obtains the encrypted store. The platform secure store is the main protection.
-  A replacement format (scrypt + XChaCha20-Poly1305, versioned) is proposed in
-  [`REFACTORING.md`](REFACTORING.md) and awaits approval.
-- **Silent payments** send in two transactions. If the app dies between them, the coins wait at
-  the wallet's own bridge address. They are recoverable from the words, but the payment must be
-  repeated. A persistent record is proposed (H17).
+- **App-password encryption.** A password set with this version, and an older store the user
+  upgrades (offered after each unlock and in Settings › Security), uses the `nw2:` format
+  (`blue_modules/encryption.ts`): argon2id (64 MiB, 3 passes) and XChaCha20-Poly1305 from
+  libsodium (`android/walletcrypto`), with the parameters authenticated in each bucket. It makes
+  each guess cost a phone about 0.2 s and 64 MiB, but cannot save a short password. A store not
+  upgraded yet keeps CryptoJS AES-CBC with the OpenSSL key derivation (MD5, one iteration) and no
+  authentication, which adds little against an offline guess of a weak password. The platform
+  secure store stays the main protection.
+  The upgrade does not rewrite copies set aside by earlier restores or resets (`.kept-*` and the
+  Documents copy): they keep the old format and the old password until "Start fresh", and the
+  upgrade window says so when the phone has any. The session keeps the password (old-format
+  buckets and turning the password off need it) and the key of the bucket it opened; a wrong
+  attempt leaves no key behind, and removing the password or "Start fresh" drops the key. iOS has no
+  native module yet and reads and writes the old format only. No version older than the first
+  one that writes `nw2:` can open an upgraded store: never publish below it.
+- **Silent payments** send in two transactions. Both are saved in the wallet before the first is
+  sent; if the app dies between them, the coins wait at the wallet's own bridge address and the
+  home offers to finish the payment with the same transactions (H17).
 - **Apple targets** are not shipped. Before they are, the Watch bridge must stop sending the
   recovery words (it uses `getXpub() || getSecret()`), and the Bugsnag key inherited from
   BlueWallet must be removed from the three plists.

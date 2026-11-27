@@ -67,6 +67,9 @@ interface StorageContextType {
   encryptStorage: typeof BlueApp.encryptStorage;
   sleep: typeof BlueApp.sleep;
   decryptStorage: typeof BlueApp.decryptStorage;
+  canUpgradeEncryption: typeof BlueApp.canUpgradeEncryption;
+  upgradeEncryption: typeof BlueApp.upgradeEncryption;
+  hasOlderBackupCopies: typeof BlueApp.hasOlderBackupCopies;
   cachedPassword: typeof BlueApp.cachedPassword;
   getItem: typeof BlueApp.getItem;
   setItem: typeof BlueApp.setItem;
@@ -557,6 +560,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       refreshAllWalletTransactions,
       sleep: BlueApp.sleep,
       decryptStorage: BlueApp.decryptStorage,
+      canUpgradeEncryption: BlueApp.canUpgradeEncryption,
+      upgradeEncryption: BlueApp.upgradeEncryption,
+      hasOlderBackupCopies: BlueApp.hasOlderBackupCopies,
       walletTransactionUpdateStatus,
       setWalletTransactionUpdateStatus,
       handleWalletDeletion,

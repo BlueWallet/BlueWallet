@@ -68,6 +68,7 @@ class MainApplication : Application(), ReactApplication {
                     add(SegmentedControlPackage())
                     add(SettingsPackage())
                     add(SecureClipboardPackage())
+                    add(WalletCryptoPackage())
                 }
 
             override fun getUseDeveloperSupport() = BuildConfig.DEBUG

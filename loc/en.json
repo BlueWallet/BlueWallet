@@ -26,7 +26,11 @@
     "port": "Port",
     "ssl_port": "SSL Port",
     "suggested": "Suggested",
-    "back": "Back"
+    "back": "Back",
+    "show_password": "Show password",
+    "hide_password": "Hide password",
+    "unlock_subtitle_password": "Enter your password to open your wallets.",
+    "unlock_subtitle_biometrics": "Confirm it is you to open your wallets."
   },
   "assets": {
     "tab_transactions": "Transactions",
@@ -567,7 +571,26 @@
     "storage_restore_backup_dated": "Restore the copy saved on {date}",
     "storage_restore_backup_several": "There are several different backup copies; the ones you do not choose stay on the device and are offered again if a recovery is ever needed.",
     "storage_restore_changed": "The backup copies changed since you chose one. Nothing was restored: check them again and choose.",
-    "storage_readable_again": "The main storage changed or can be read again since the copy was offered. Nothing was restored: it is checked again the usual way."
+    "storage_readable_again": "The main storage changed or can be read again since the copy was offered. Nothing was restored: it is checked again the usual way.",
+    "encryption_upgrade_title": "Stronger encryption",
+    "encryption_upgrade_text": "Your wallets use an older encryption. Upgrade it to better protect your password.",
+    "encryption_upgrade_now": "Upgrade now",
+    "encryption_upgrade_later": "Later",
+    "encryption_upgrade_password_text": "Keep your password or choose a new one?",
+    "encryption_upgrade_keep": "Keep my password",
+    "encryption_upgrade_new": "New password",
+    "encryption_upgrade_confirm": "Repeat the password",
+    "encryption_upgrade_new_hint": "At least {min} characters.",
+    "encryption_upgrade_mismatch": "The passwords do not match.",
+    "encryption_upgrade_forget_warning": "If you forget it, you will need your recovery phrases.",
+    "encryption_upgrade_done": "Encryption upgraded.",
+    "encryption_upgrade_in_use": "That password is already used by another storage. Choose another one.",
+    "encryption_upgrade_row_subtitle": "Your wallets use the older encryption.",
+    "password_strength": "Password strength",
+    "password_strength_weak": "Weak",
+    "password_strength_fair": "Fair",
+    "password_strength_strong": "Strong",
+    "encryption_upgrade_older_copies": "Older recovery copies on this phone keep the previous encryption and password."
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",

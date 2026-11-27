@@ -1,0 +1,23 @@
+{
+  "comment": "nw2: vectors made by the vendored libsodium (android/walletcrypto, built for the host by scripts/update-libsodium.sh). Used by tests/unit/encryption.test.ts and by the update script, which checks a new libsodium against them.",
+  "salt": "AAECAwQFBgcICQoLDA0ODw",
+  "nonce": "EBESExQVFhcYGRobHB0eHyAhIiMkJSYn",
+  "vectors": [
+    {
+      "password": "correct horse battery staple",
+      "t": 3,
+      "m": 65536,
+      "plaintext": "{\"wallets\":[],\"tx_metadata\":{},\"counterparty_metadata\":{}}",
+      "key": "DRo8ZSPI8G5OCvnFFapbVEjP69aDjy1Sw9i2743cPC4",
+      "bucket": "nw2:eyJ2IjoyLCJrZGYiOiJhcmdvbjJpZCIsInQiOjMsIm0iOjY1NTM2LCJwIjoxLCJzYWx0IjoiQUFFQ0F3UUZCZ2NJQ1FvTERBME9EdyIsIm5vbmNlIjoiRUJFU0V4UVZGaGNZR1JvYkhCMGVIeUFoSWlNa0pTWW4ifQ.MBvSQcROHJpr4t0zdIqikbrEvyDxfNztGZeffqXHfZPIVPoXVaeAG_f4VrPZn9WKjgTor16emw113Fp7Rwkxy9FB_2I48e32uKo"
+    },
+    {
+      "password": "contraseña ñ €",
+      "t": 2,
+      "m": 19456,
+      "plaintext": "{\"wallets\":[\"{\\\"label\\\":\\\"Ahorro €\\\"}\"],\"tx_metadata\":{},\"counterparty_metadata\":{}}",
+      "key": "zzA73RfFZiunyMh6Bseyb13dpu3HXL02Yj7SBLckFeg",
+      "bucket": "nw2:eyJ2IjoyLCJrZGYiOiJhcmdvbjJpZCIsInQiOjIsIm0iOjE5NDU2LCJwIjoxLCJzYWx0IjoiQUFFQ0F3UUZCZ2NJQ1FvTERBME9EdyIsIm5vbmNlIjoiRUJFU0V4UVZGaGNZR1JvYkhCMGVIeUFoSWlNa0pTWW4ifQ.JaSNeDiCQ_P-BcOUFBEIP1XxIv4a1phuSON7n8MBRFykq9dTF1t5UltiIU4m0cLVHoFbOSn1IzMooyMCuN3qdi_T5GGvAFRU50tQ64rVi7Vo-wgRX4pGy_yGzGmCL__d18WDwbm_"
+    }
+  ]
+}

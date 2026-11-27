@@ -91,6 +91,17 @@ export class OtherEncryptedBucketsError extends Error {
 }
 
 /**
+ * The new password of an encryption upgrade already opens another bucket of
+ * the store: with it, an unlock could open either one (H08).
+ */
+export class PasswordInUseError extends Error {
+  constructor() {
+    super('This password already opens another encrypted storage');
+    this.name = 'PasswordInUseError';
+  }
+}
+
+/**
  * The secure store rejects a missing key with code "404" on Android and iOS
  * (react-native-secure-key-store); AsyncStorage, used in tests, resolves null.
  */

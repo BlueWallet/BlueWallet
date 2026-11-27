@@ -33,6 +33,7 @@ import NotificationSettings from '../screen/settings/NotificationSettings';
 import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
+import EncryptionUpgradeSheet from '../screen/EncryptionUpgradeSheet';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
@@ -344,6 +345,17 @@ const DetailViewStackScreensStack = () => {
             sheetGrabberVisible: true,
             closeButtonPosition: CloseButtonPosition.Right,
             headerBackButtonDisplayMode: 'minimal',
+          })(theme)}
+        />
+        <DetailViewStack.Screen
+          name="EncryptionUpgradeSheet"
+          component={EncryptionUpgradeSheet}
+          options={navigationStyle({
+            title: loc.settings.encryption_upgrade_title,
+            presentation: 'formSheet',
+            sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
+            sheetGrabberVisible: true,
+            headerShown: false,
           })(theme)}
         />
         <DetailViewStack.Screen

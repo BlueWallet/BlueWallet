@@ -45,6 +45,10 @@ global.fetch = require('node-fetch');
 
 jest.mock('@react-native-clipboard/clipboard', () => mockClipboard);
 
+// The native libsodium module of the wallet store (android/walletcrypto), as a
+// pure-JS double with the same primitives (checked against libsodium's vectors).
+jest.mock('../codegen/NativeWalletCrypto', () => require('./unit/helpers/wallet-crypto-double'));
+
 // Workaround for software-mansion/react-native-reanimated#8806.
 // Fixed upstream in reanimated 4.3.0; remove once we upgrade.
 // Path is held in a variable so tsc does not statically resolve into worklets'

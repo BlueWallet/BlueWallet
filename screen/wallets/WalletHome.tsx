@@ -68,6 +68,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useHomeWallet } from '../../hooks/useHomeWallet';
 import useMenuElements from '../../hooks/useMenuElements';
 import { useWalletRefresh } from '../../hooks/useWalletRefresh';
+import { useEncryptionUpgradeOffer } from '../../hooks/useEncryptionUpgradeOffer';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe';
 import loc from '../../loc';
 import { XnaUnit } from '../../models/xnaUnits';
@@ -512,6 +513,8 @@ const WalletHome: React.FC = () => {
   const { wallet, network } = useHomeWallet();
   const { wallets, walletTransactionUpdateStatus } = useStorage();
   const navigation = useExtendedNavigation();
+  // After an unlock that opened an old CryptoJS bucket (H08).
+  useEncryptionUpgradeOffer();
   const connectionPoll = useContext(ConnectionPollContext);
   const p = useHomePalette();
   const updating = walletTransactionUpdateStatus !== WalletTransactionsStatus.NONE;
