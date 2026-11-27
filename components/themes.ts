@@ -115,8 +115,11 @@ export const BlueDarkTheme: Theme = {
     buttonAlternativeTextColor: NEURAI_ORANGE,
     alternativeTextColor: '#9ca3af',
     alternativeTextColor2: NEURAI_ORANGE,
-    ballReceive: '#1f2937',
-    ballOutgoing: '#1f2937',
+    // The history's direction icons sit on cards of #1f2937: tinted balls and bright arrows, as on the transaction screen.
+    ballReceive: 'rgba(34, 197, 94, 0.14)',
+    ballOutgoing: 'rgba(239, 68, 68, 0.16)',
+    incomingForegroundColor: '#22c55e',
+    outgoingForegroundColor: '#ef4444',
     lightBorder: '#374151',
     ballOutgoingExpired: '#1f2937',
     modal: '#1f2937',

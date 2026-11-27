@@ -79,11 +79,6 @@ function assetTypeLabel(type: NeuraiAssetType): string {
   }
 }
 
-/**
- * Resolves once the next frame is drawn. Creating the engine or signing blocks
- * the JS thread; waiting first lets the loader show (it keeps moving on the
- * UI thread).
- */
 /** A send that reached the network: its ID to copy, and the way to see it in the explorer. */
 const presentSent = (txid: string, explorerUrl: string) =>
   presentAlert({
@@ -98,6 +93,11 @@ const presentSent = (txid: string, explorerUrl: string) =>
     options: { cancelable: true },
   });
 
+/**
+ * Resolves once the next frame is drawn. Creating the engine or signing blocks
+ * the JS thread; waiting first lets the loader show (it keeps moving on the
+ * UI thread).
+ */
 const afterNextFrame = () => new Promise<void>(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 
 /** Coins a send picks by hand: the wallet's own, or its silent payments. */
@@ -269,7 +269,7 @@ const SendNeurai: React.FC = () => {
       try {
         await wallet.refreshHeldAssets();
       } catch (err: any) {
-        presentAlert({ message: err?.message ?? String(err) });
+        presentAlert({ tone: 'error', message: err?.message ?? String(err) });
       } finally {
         setIsLoadingAssets(false);
       }
@@ -314,7 +314,7 @@ const SendNeurai: React.FC = () => {
           setWalletCoins(await wallet.listCoins());
         }
       } catch (err: any) {
-        presentAlert({ message: err?.message ?? String(err) });
+        presentAlert({ tone: 'error', message: err?.message ?? String(err) });
       } finally {
         setIsLoadingCoins(false);
       }
@@ -395,37 +395,37 @@ const SendNeurai: React.FC = () => {
     Keyboard.dismiss();
     resetDrafts();
     if (!address.trim()) {
-      presentAlert({ message: loc.send.details_address_field_is_not_valid });
+      presentAlert({ tone: 'error', message: loc.send.details_address_field_is_not_valid });
       return;
     }
     // NIP-047 payment code: the wallet derives the one-time address from the inputs it spends.
     const isSilentPayment = looksLikeSilentPaymentCode(address);
     if (isSilentPayment) {
       if (hwWallet) {
-        presentAlert({ message: loc.send.silent_payment_hardware });
+        presentAlert({ tone: 'error', message: loc.send.silent_payment_hardware });
         return;
       }
       if (isAssetMode) {
-        presentAlert({ message: loc.send.silent_payment_no_assets });
+        presentAlert({ tone: 'error', message: loc.send.silent_payment_no_assets });
         return;
       }
     } else if (!wallet.isAddressValid(address.trim())) {
-      presentAlert({ message: loc.send.details_address_field_is_not_valid });
+      presentAlert({ tone: 'error', message: loc.send.details_address_field_is_not_valid });
       return;
     }
     let xna = '0';
     try {
       if (!isSendMax || isAssetMode) xna = amountFromInput(amount.replace(',', '.'));
     } catch {
-      presentAlert({ message: loc.send.details_amount_field_is_not_valid });
+      presentAlert({ tone: 'error', message: loc.send.details_amount_field_is_not_valid });
       return;
     }
     if (isAssetMode && !selectedAsset) {
-      presentAlert({ message: loc.assets.send_select });
+      presentAlert({ tone: 'warning', message: loc.assets.send_select });
       return;
     }
     if (coinSource && selectedCoins.length === 0) {
-      presentAlert({ message: loc.send.select_coins });
+      presentAlert({ tone: 'warning', message: loc.send.select_coins });
       return;
     }
 
@@ -444,7 +444,7 @@ const SendNeurai: React.FC = () => {
         }
         setHwDraft(unsigned);
       } catch (err: any) {
-        presentAlert({ message: err?.message ?? String(err) });
+        presentAlert({ tone: 'error', message: err?.message ?? String(err) });
       } finally {
         setIsBuilding(false);
       }
@@ -485,7 +485,7 @@ const SendNeurai: React.FC = () => {
       if (!result.signedHex) throw new Error('Engine did not return a signed transaction');
       setDraft(result);
     } catch (err: any) {
-      presentAlert({ message: err?.message ?? String(err) });
+      presentAlert({ tone: 'error', message: err?.message ?? String(err) });
     } finally {
       setIsBuilding(false);
     }
@@ -534,7 +534,7 @@ const SendNeurai: React.FC = () => {
               message: String(loc.formatString(loc.send.silent_payment_closed, { reason: err.message, bridge: send.bridge })),
             });
           } else if (err instanceof ChainedSendClosedError) {
-            presentAlert({ message: err.message });
+            presentAlert({ tone: 'error', message: err.message });
           } else {
             // It may have reached the node: the wallet shows it as pending, to be finished there.
             presentAlert({
