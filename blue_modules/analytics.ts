@@ -1,9 +1,7 @@
 import Bugsnag from '@bugsnag/react-native';
 import { getUniqueId } from 'react-native-device-info';
 
-import { BlueApp as BlueAppClass } from '../class/blue-app';
-
-const BlueApp = BlueAppClass.getInstance();
+import bugsnagReady from '../bugsnag';
 
 /**
  * in case Bugsnag was started, but user decided to opt out while using the app, we have this
@@ -14,19 +12,16 @@ let userHasOptedOut: boolean = false;
 
 (async () => {
   try {
-    // Don't try to start Bugsnag again as it's already initialized in native code.
-    // Configure it only when tracking is allowed.
-    const doNotTrack = await BlueApp.isDoNotTrackEnabled();
-    if (doNotTrack) {
+    if (!(await bugsnagReady)) {
       userHasOptedOut = true;
       return;
     }
 
-    const uniqueID = await getUniqueId();
-    Bugsnag.setUser(uniqueID);
     Bugsnag.addOnError(function () {
       return !userHasOptedOut;
     });
+    const uniqueID = await getUniqueId();
+    if (!userHasOptedOut) Bugsnag.setUser(uniqueID);
   } catch (error) {
     // Never let analytics setup crash the app.
     console.error('Failed to initialize analytics:', error);
@@ -41,13 +36,19 @@ A.setOptOut = (value: boolean) => {
 
 A.logError = (errorString: string) => {
   console.error(errorString);
-  if (!userHasOptedOut) {
-    try {
-      Bugsnag.notify(new Error(String(errorString)));
-    } catch (error) {
-      console.error('Failed to report error to Bugsnag:', error);
-    }
-  }
+  bugsnagReady
+    .then(ready => {
+      if (ready && !userHasOptedOut) Bugsnag.notify(new Error(String(errorString)));
+    })
+    .catch(error => console.error('Failed to report error to Bugsnag:', error));
+};
+
+A.leaveNavigationBreadcrumb = (screen: string) => {
+  bugsnagReady
+    .then(ready => {
+      if (ready && !userHasOptedOut) Bugsnag.leaveBreadcrumb(screen, undefined, 'navigation');
+    })
+    .catch(error => console.error('Failed to leave navigation breadcrumb:', error));
 };
 
 export default A;

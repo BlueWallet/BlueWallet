@@ -6,7 +6,7 @@ import {
   ParamListBase,
   StackActions,
 } from '@react-navigation/native';
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SettingsProvider } from './components/Context/SettingsProvider';
@@ -31,10 +31,20 @@ import {
   validateGuardedRoute,
 } from './navigation/navigationGuard';
 import { linking } from './navigation/linking';
+import A from './blue_modules/analytics';
 
 const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorScheme> }) => {
   const { wallets, walletsInitialized, saveToDisk } = useStorage();
   const { isBiometricUseEnabled } = useBiometrics();
+  const previousRouteName = useRef<string | undefined>(undefined);
+
+  const recordCurrentScreen = useCallback(() => {
+    const routeName = navigationRef.getCurrentRoute()?.name;
+    if (routeName && routeName !== previousRouteName.current) {
+      previousRouteName.current = routeName;
+      A.leaveNavigationBreadcrumb(routeName);
+    }
+  }, []);
 
   const validateNavigation = useCallback(
     (route: GuardedRoute) =>
@@ -142,6 +152,8 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
       ref={navigationRef}
       linking={walletsInitialized ? linking : undefined}
       theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}
+      onReady={recordCurrentScreen}
+      onStateChange={recordCurrentScreen}
       onUnhandledAction={handleUnhandledAction}
     >
       <MasterView />
