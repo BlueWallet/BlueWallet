@@ -1,7 +1,6 @@
-import { Alert } from 'react-native';
-
 import { askBackupSaved, isBackupReminderReady } from '../components/BackupReminder';
 import loc from '../loc';
+import { appAlert } from '../components/AppDialog';
 
 /**
  * Asks whether the words of a wallet are backed up, the first time it is about
@@ -12,7 +11,7 @@ import loc from '../loc';
 export const presentWalletExportReminder = (walletLabel?: string): Promise<void> => {
   if (isBackupReminderReady()) return askBackupSaved(walletLabel);
   return new Promise<void>((resolve, reject) => {
-    Alert.alert(
+    appAlert(
       loc.pleasebackup.ask_title,
       loc.pleasebackup.ask_body,
       [

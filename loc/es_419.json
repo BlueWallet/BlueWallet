@@ -105,7 +105,6 @@
     "broadcastError": "Error",
     "broadcastNone": "Introducir hex de transacción",
     "broadcastPending": "Pendiente",
-    "broadcastSuccess": "Éxito",
     "confirm_header": "Confirmar",
     "confirm_sendNow": "Enviar ahora",
     "create_amount": "Cantidad",

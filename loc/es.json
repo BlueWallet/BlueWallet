@@ -22,7 +22,8 @@
     "hide_password": "Ocultar contraseña",
     "unlock_subtitle_password": "Introduce tu contraseña para abrir tus carteras.",
     "unlock_subtitle_biometrics": "Confirma que eres tú para abrir tus carteras.",
-    "unlock": "Desbloquear"
+    "unlock": "Desbloquear",
+    "copied": "Copiado"
   },
   "connect": {
     "blocked_expired": "Esta petición ha caducado. Vuelve a iniciar sesión en el sitio.",
@@ -212,7 +213,6 @@
     "broadcastError": "Error",
     "broadcastNone": "Introduce el hash de la transacción",
     "broadcastPending": "Pendiente",
-    "broadcastSuccess": "Completado",
     "confirm_header": "Confirmar",
     "confirm_sendNow": "Enviar ahora",
     "create_amount": "Cantidad",
@@ -309,7 +309,11 @@
     "problem_with_psbt": "Problema con PSBT",
     "silent_payment_not_saved": "El pago no se envió: no se pudo guardar antes, y no ha salido nada de la cartera. Vuelve a intentarlo.",
     "silent_payment_pending": "El pago al código aún no se ha completado ({reason}). Las dos transacciones están guardadas: la cartera lo muestra como pendiente; termínalo desde ahí.",
-    "silent_payment_closed": "No se pudo completar el pago al código ({reason}). El importe queda en tu dirección ECDSA {bridge}: importa tus palabras de recuperación como cartera ECDSA para usarlo."
+    "silent_payment_closed": "No se pudo completar el pago al código ({reason}). El importe queda en tu dirección ECDSA {bridge}: importa tus palabras de recuperación como cartera ECDSA para usarlo.",
+    "sent_title": "Transacción enviada",
+    "sent_text": "La red ya la tiene. Aparecerá en tus movimientos en un momento.",
+    "sent_view_explorer": "Ver en el explorador",
+    "sent_failed": "No se ha enviado"
   },
   "settings": {
     "about": "Acerca de",
@@ -502,7 +506,8 @@
     "password_strength_fair": "Aceptable",
     "password_strength_strong": "Fuerte",
     "biometrics_no_longer_available": "La configuración del dispositivo ha cambiado y ya no coincide con la seguridad elegida en la app. Vuelve a activar la biometría o el código de desbloqueo y reinicia la app para aplicar los cambios.",
-    "encryption_upgrade_older_copies": "Las copias de recuperación antiguas de este móvil conservan el cifrado y la contraseña anteriores."
+    "encryption_upgrade_older_copies": "Las copias de recuperación antiguas de este móvil conservan el cifrado y la contraseña anteriores.",
+    "encryption_upgrade_done_text": "Tus carteras ya usan el nuevo cifrado."
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "¿Quires recibir notificaciones cuando detectemos transferencias entrantes?"

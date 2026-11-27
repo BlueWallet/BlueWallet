@@ -180,13 +180,13 @@ const NotificationSettings: React.FC = () => {
       if (URI) {
         if (await isGroundControlUriValid(URI)) {
           await saveUri(URI);
-          presentAlert({ message: loc.settings.saved });
+          presentAlert({ tone: 'success', message: loc.settings.saved });
         } else {
           presentAlert({ message: loc.settings.not_a_valid_uri });
         }
       } else {
         await saveUri('');
-        presentAlert({ message: loc.settings.saved });
+        presentAlert({ tone: 'success', message: loc.settings.saved });
       }
     } catch (error) {
       console.error('Error saving URI:', error);

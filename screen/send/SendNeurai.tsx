@@ -19,7 +19,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { FlatList, Keyboard, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Keyboard, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { amountFromInput, satsToXna, xnaToSats } from '../../blue_modules/neurai/amounts';
 import { formatAssetAmount, type NeuraiAssetType, type NeuraiHeldAsset } from '../../blue_modules/neurai/assetUtils';
@@ -53,6 +53,7 @@ import {
   useSettingsPalette,
 } from '../../components/settings/SettingsUI';
 import { useSettings } from '../../hooks/context/useSettings';
+import { getBlockExplorerUrlForWallet } from '../../models/blockExplorer';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -83,6 +84,20 @@ function assetTypeLabel(type: NeuraiAssetType): string {
  * the JS thread; waiting first lets the loader show (it keeps moving on the
  * UI thread).
  */
+/** A send that reached the network: its ID to copy, and the way to see it in the explorer. */
+const presentSent = (txid: string, explorerUrl: string) =>
+  presentAlert({
+    tone: 'success',
+    title: loc.send.sent_title,
+    message: loc.send.sent_text,
+    detail: { label: loc.transactions.txid, value: txid },
+    buttons: [
+      { text: loc.send.sent_view_explorer, onPress: () => Linking.openURL(`${explorerUrl}/tx/${txid}`).catch(() => {}) },
+      { text: loc._.ok, style: 'default' },
+    ],
+    options: { cancelable: true },
+  });
+
 const afterNextFrame = () => new Promise<void>(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 
 /** Coins a send picks by hand: the wallet's own, or its silent payments. */
@@ -155,7 +170,7 @@ type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'Send
 const SendNeurai: React.FC = () => {
   const p = useSettingsPalette();
   const { wallets, saveToDisk } = useStorage();
-  const { isPQAddressReuseEnabled } = useSettings();
+  const { isPQAddressReuseEnabled, selectedBlockExplorer, selectedTestnetBlockExplorer } = useSettings();
   const { navigate, goBack } = useExtendedNavigation<NavigationProps>();
   const { params } = useRoute<RouteProps>();
   const found = wallets.find(w => w.getID() === params.walletID);
@@ -512,14 +527,20 @@ const SendNeurai: React.FC = () => {
           txid = await sendChainedPayment(wallet, send, draft.netDebitSats, saveToDisk);
         } catch (err: any) {
           if (err instanceof ChainedSendNotSavedError) {
-            presentAlert({ message: loc.send.silent_payment_not_saved });
+            presentAlert({ tone: 'error', message: loc.send.silent_payment_not_saved });
           } else if (err instanceof ChainedSendClosedError && err.leg === 'second') {
-            presentAlert({ message: loc.formatString(loc.send.silent_payment_closed, { reason: err.message, bridge: send.bridge }) });
+            presentAlert({
+              tone: 'error',
+              message: String(loc.formatString(loc.send.silent_payment_closed, { reason: err.message, bridge: send.bridge })),
+            });
           } else if (err instanceof ChainedSendClosedError) {
             presentAlert({ message: err.message });
           } else {
             // It may have reached the node: the wallet shows it as pending, to be finished there.
-            presentAlert({ message: loc.formatString(loc.send.silent_payment_pending, { reason: err?.message ?? String(err) }) });
+            presentAlert({
+              tone: 'warning',
+              message: String(loc.formatString(loc.send.silent_payment_pending, { reason: err?.message ?? String(err) })),
+            });
             navigate('WalletTransactions', { walletID: wallet.getID(), walletType: wallet.type });
           }
           return;
@@ -531,18 +552,18 @@ const SendNeurai: React.FC = () => {
         if (draft.netDebitSats > 0n) wallet.addPendingTx(txid, -draft.netDebitSats, draft.asset);
       }
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-      presentAlert({ message: `${loc.send.broadcastSuccess}: ${txid}` });
+      presentSent(txid, getBlockExplorerUrlForWallet(wallet, selectedBlockExplorer.url, selectedTestnetBlockExplorer.url));
       // Pull mempool + balance straight away so the wallet list reflects the
       // pending tx by the time we land on it. Failures here are non-fatal —
       // the WalletTransactions auto-poller will catch up within 10 s.
       Promise.all([wallet.fetchTransactions(), wallet.fetchBalance()]).catch(err => console.debug('post-broadcast refresh failed:', err));
       navigate('WalletTransactions', { walletID: wallet.getID(), walletType: wallet.type });
     } catch (err: any) {
-      presentAlert({ message: err?.message ?? String(err) });
+      presentAlert({ tone: 'error', title: loc.send.sent_failed, message: err?.message ?? String(err) });
     } finally {
       setIsBroadcasting(false);
     }
-  }, [draft, wallet, navigate, address, saveToDisk]);
+  }, [draft, wallet, navigate, address, saveToDisk, selectedBlockExplorer.url, selectedTestnetBlockExplorer.url]);
 
   const hwSignAndBroadcast = useCallback(async () => {
     if (!hwWallet || !hwDraft) return;
@@ -554,7 +575,7 @@ const SendNeurai: React.FC = () => {
       const txid = await hwWallet.broadcastTx(signedHex);
       await hw.disconnect().catch(() => {});
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-      presentAlert({ message: `${loc.send.broadcastSuccess}: ${txid}` });
+      presentSent(txid, getBlockExplorerUrlForWallet(hwWallet, selectedBlockExplorer.url, selectedTestnetBlockExplorer.url));
       // Show the send immediately as a 0-conf pending entry and subtract it
       // from the balance; it is reconciled away once the tx confirms.
       hwWallet.addPendingTx(txid, -(hwDraft.amountSats + hwDraft.feeSats), hwDraft.asset);
@@ -564,11 +585,11 @@ const SendNeurai: React.FC = () => {
       navigate('WalletTransactions', { walletID: hwWallet.getID(), walletType: hwWallet.type });
     } catch (err: any) {
       await hw.disconnect().catch(() => {});
-      presentAlert({ message: err?.message ?? String(err) });
+      presentAlert({ tone: 'error', title: loc.send.sent_failed, message: err?.message ?? String(err) });
     } finally {
       setIsBroadcasting(false);
     }
-  }, [hwWallet, hwDraft, hw, navigate]);
+  }, [hwWallet, hwDraft, hw, navigate, selectedBlockExplorer.url, selectedTestnetBlockExplorer.url]);
 
   const busy = isBuilding || isBroadcasting;
 

@@ -78,7 +78,6 @@
     "broadcastError": "hiba",
     "broadcastNone": "Bejövő tranzakciós hash",
     "broadcastPending": "függőben",
-    "broadcastSuccess": "sikeres",
     "confirm_header": "Megerősítés",
     "confirm_sendNow": "Küldés most",
     "create_amount": "Összeg",

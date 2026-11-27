@@ -23,7 +23,6 @@
   },
   "send": {
     "broadcastPending": "Pend",
-    "broadcastSuccess": "You correct",
     "confirm_header": "Confam",
     "confirm_sendNow": "Push am",
     "create_copy": "Copy make you broadcast am later",

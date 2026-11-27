@@ -1,5 +1,5 @@
-import { Alert } from 'react-native';
 import loc from '../loc';
+import { appAlert } from '../components/AppDialog';
 
 /**
  * Helper function that throws un-cancellable dialog to confirm user's action.
@@ -12,7 +12,7 @@ import loc from '../loc';
  */
 export default function (title = 'Are you sure?', text = ''): Promise<boolean> {
   return new Promise(resolve => {
-    Alert.alert(
+    appAlert(
       title,
       text,
       [

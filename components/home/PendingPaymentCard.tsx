@@ -6,7 +6,7 @@
  * payment without saying where the coins are.
  */
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import {
   chainedSendAmount,
@@ -20,6 +20,7 @@ import loc from '../../loc';
 import presentAlert from '../Alert';
 import Icon from '../Icon';
 import { useHomePalette } from './homeTheme';
+import { appAlert } from '../AppDialog';
 
 /** What the card needs from a wallet (every Neurai wallet has it). */
 type PendingPaymentWallet = ChainedSendWallet & {
@@ -78,7 +79,7 @@ const PendingPaymentCard: React.FC<PendingPaymentCardProps> = ({ wallet, saveToD
           // Unknown or nothing seen: send the first again too (a node that has it answers "already known").
           await finishChainedSend(wallet, send, saveToDisk, state !== 'first-seen');
         }
-        presentAlert({ message: loc.home.pending_payment_done });
+        presentAlert({ tone: 'success', message: loc.home.pending_payment_done });
         Promise.all([wallet.fetchTransactions(), wallet.fetchBalance()]).catch(() => {});
       } catch (error: any) {
         if (error instanceof ChainedSendClosedError && error.leg === 'second') {
@@ -103,7 +104,7 @@ const PendingPaymentCard: React.FC<PendingPaymentCardProps> = ({ wallet, saveToD
         state === 'not-seen'
           ? loc.home.pending_payment_discard_unsent
           : loc.formatString(loc.home.pending_payment_discard_sent, { bridge: send.bridge });
-      Alert.alert(loc.home.pending_payment_title, message, [
+      appAlert(loc.home.pending_payment_title, message, [
         { text: loc._.cancel, style: 'cancel' },
         {
           text: loc.home.pending_payment_discard,

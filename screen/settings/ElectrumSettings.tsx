@@ -1,6 +1,6 @@
 import { RouteProp, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Keyboard, LayoutAnimation, Platform, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Keyboard, LayoutAnimation, Platform, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -33,6 +33,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { appAlert } from '../../components/AppDialog';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
@@ -170,7 +171,7 @@ const ElectrumSettings: React.FC = () => {
   useEffect(() => {
     if (server) {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
-      Alert.alert(
+      appAlert(
         loc.formatString(loc.settings.set_electrum_server_as_default, { server: (server as ElectrumServerItem).host }),
         '',
         [
@@ -230,7 +231,7 @@ const ElectrumSettings: React.FC = () => {
         }
 
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        presentAlert({ message: loc.settings.electrum_saved });
+        presentAlert({ tone: 'success', message: loc.settings.electrum_saved });
 
         await fetchData();
       } catch (error) {
@@ -257,7 +258,7 @@ const ElectrumSettings: React.FC = () => {
   const presentSelectServerAlert = useCallback(
     (value: ElectrumServerItem) => {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
-      Alert.alert(
+      appAlert(
         loc.settings.electrum_preferred_server,
         loc.formatString(loc.settings.set_as_preferred_electrum, { host: value.host, port: String(value.ssl ?? value.tcp) }),
         [
@@ -287,7 +288,7 @@ const ElectrumSettings: React.FC = () => {
             presentResetToDefaultsAlert().then(reset => {
               if (reset) {
                 triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-                presentAlert({ message: loc.settings.electrum_saved });
+                presentAlert({ tone: 'success', message: loc.settings.electrum_saved });
                 fetchData();
               }
             });

@@ -68,7 +68,6 @@
     "broadcastError": "Грешка",
     "broadcastNone": "Въведи Transaction Hex",
     "broadcastPending": "Не потвърдена транзакция",
-    "broadcastSuccess": "Успех",
     "confirm_header": "Потвърди",
     "confirm_sendNow": "Изпрати сега",
     "create_amount": "Сума",

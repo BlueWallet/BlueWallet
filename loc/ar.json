@@ -86,7 +86,6 @@
     "broadcastError": "خطأ",
     "broadcastNone": "أدخل رقم العملية الست عشري (Hex)",
     "broadcastPending": "قيد الانتظار",
-    "broadcastSuccess": "نجح الإرسال",
     "confirm_header": "التأكيد",
     "confirm_sendNow": "إرسال الآن",
     "create_amount": "المبلغ",

@@ -155,11 +155,11 @@ const PromptPasswordConfirmationSheet = () => {
       }
     } catch (error) {
       if (error instanceof OtherEncryptedBucketsError) {
-        presentAlert({ message: loc.settings.encrypt_other_storage });
+        presentAlert({ tone: 'warning', message: loc.settings.encrypt_other_storage });
       } else if (error instanceof StorageWriteError) {
-        presentAlert({ message: loc.settings.storage_save_failed });
+        presentAlert({ tone: 'error', message: loc.settings.storage_save_failed });
       } else {
-        presentAlert({ message: (error as Error).message });
+        presentAlert({ tone: 'error', message: (error as Error).message });
       }
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     } finally {

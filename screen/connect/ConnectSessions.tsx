@@ -15,7 +15,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import dayjs from 'dayjs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -51,6 +51,7 @@ import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { CONNECT_EMPTY_FIELD, ConnectedSite, connectedSites, describeError, hostOf, isValidRelayUrl } from './logic';
+import { appAlert } from '../../components/AppDialog';
 
 const ago = (ms: number | undefined): string => (ms ? dayjs(ms).fromNow() : CONNECT_EMPTY_FIELD);
 /** History shows this many at first; "Show more" adds as many again. */
@@ -197,7 +198,7 @@ const ConnectSessions: React.FC = () => {
   }, [reload]);
 
   const confirm = (title: string, action: string, run: () => void) =>
-    Alert.alert(title, undefined, [
+    appAlert(title, undefined, [
       { text: loc._.cancel, style: 'cancel' },
       { text: action, style: 'destructive', onPress: run },
     ]);

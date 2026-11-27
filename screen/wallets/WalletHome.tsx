@@ -15,7 +15,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   BackHandler,
   FlatList,
   InteractionManager,
@@ -74,6 +73,7 @@ import loc from '../../loc';
 import { XnaUnit } from '../../models/xnaUnits';
 import { ConnectionPollContext } from '../../navigation/ConnectionPollContext';
 import ActionSheet from '../ActionSheet';
+import { appAlert } from '../../components/AppDialog';
 
 /** The home shows the latest ones; "See all" opens the full history. */
 const HOME_TRANSACTIONS = 6;
@@ -554,12 +554,12 @@ const WalletHome: React.FC = () => {
           {
             onPayment: payment => {
               triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-              if (!openNeuraiPaymentUri(navigation, wallets, payment)) Alert.alert(loc.send.header, loc.wallets.select_no_bitcoin);
+              if (!openNeuraiPaymentUri(navigation, wallets, payment)) appAlert(loc.send.header, loc.wallets.select_no_bitcoin);
             },
           },
         );
       } catch (e: any) {
-        Alert.alert(loc.send.details_scan_error, e.message);
+        appAlert(loc.send.details_scan_error, e.message);
       }
     },
     [navigation, wallets],

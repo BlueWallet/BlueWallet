@@ -30,7 +30,8 @@
     "show_password": "Show password",
     "hide_password": "Hide password",
     "unlock_subtitle_password": "Enter your password to open your wallets.",
-    "unlock_subtitle_biometrics": "Confirm it is you to open your wallets."
+    "unlock_subtitle_biometrics": "Confirm it is you to open your wallets.",
+    "copied": "Copied"
   },
   "assets": {
     "tab_transactions": "Transactions",
@@ -303,7 +304,6 @@
   },
   "send": {
     "broadcastButton": "Broadcast",
-    "broadcastSuccess": "Success",
     "create_amount": "Amount",
     "create_details": "Details",
     "create_fee": "Fee",
@@ -377,7 +377,11 @@
     "file_saved_at_path": "The file ({filePath}) has been saved.",
     "silent_payment_not_saved": "The payment was not sent: it could not be saved first, and nothing left the wallet. Try again.",
     "silent_payment_pending": "The payment to the code is not complete yet ({reason}). Both transactions are saved: the wallet shows it as pending, finish it from there.",
-    "silent_payment_closed": "The payment to the code could not be completed ({reason}). The amount stays at your ECDSA address {bridge}: import your recovery words as an ECDSA wallet to use it."
+    "silent_payment_closed": "The payment to the code could not be completed ({reason}). The amount stays at your ECDSA address {bridge}: import your recovery words as an ECDSA wallet to use it.",
+    "sent_title": "Transaction sent",
+    "sent_text": "The network has it. It will show in your activity in a moment.",
+    "sent_view_explorer": "View in explorer",
+    "sent_failed": "Not sent"
   },
   "settings": {
     "about": "About",
@@ -590,7 +594,8 @@
     "password_strength_weak": "Weak",
     "password_strength_fair": "Fair",
     "password_strength_strong": "Strong",
-    "encryption_upgrade_older_copies": "Older recovery copies on this phone keep the previous encryption and password."
+    "encryption_upgrade_older_copies": "Older recovery copies on this phone keep the previous encryption and password.",
+    "encryption_upgrade_done_text": "Your wallets now use the new encryption."
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",

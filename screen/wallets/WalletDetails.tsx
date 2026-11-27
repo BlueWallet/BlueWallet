@@ -9,7 +9,7 @@
  * internals, ten on the transaction count purge its cache.
  */
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, LayoutAnimation, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, LayoutAnimation, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -37,6 +37,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { isNeuraiWallet } from '../../class/wallets/is-neurai-wallet';
 import { NeuraiHardwareWallet } from '../../class/wallets/neurai-hardware-wallet';
 import NeuraiLoader from '../../components/NeuraiLoader';
+import { appAlert } from '../../components/AppDialog';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const WalletDetails: React.FC = () => {
@@ -175,7 +176,7 @@ const WalletDetails: React.FC = () => {
   }, [wallet]);
 
   const onExportHistory = useCallback(() => {
-    Alert.alert(loc.wallets.details_export_history, undefined, [
+    appAlert(loc.wallets.details_export_history, undefined, [
       { text: loc._.cancel, style: 'cancel' },
       { text: loc.wallets.details_export_save, onPress: () => writeFileAndExport(fileName, exportHistoryContent(), false) },
       { text: loc.wallets.details_export_share, onPress: () => writeFileAndExport(fileName, exportHistoryContent(), true) },

@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useReducer, useRef, useState } from 'rea
 import {
   ActivityIndicator,
   Animated,
-  Alert,
   Dimensions,
   Easing,
   Image,
@@ -25,6 +24,7 @@ import { useStorage } from '../hooks/context/useStorage';
 import { PasswordInput, PasswordInputHandle } from '../components/PasswordInput';
 import { StorageRecoverableError, type RestoreChoice } from '../class/storage-errors';
 import { getRestoreChoices, getRestoreScope } from '../blue_modules/start-and-decrypt';
+import { appAlert } from '../components/AppDialog';
 
 const NEURAI_LOGO = require('../img/addWallet/neurai.png');
 const BRAND = 'Neurai Wallet';
@@ -333,7 +333,7 @@ const UnlockWith: React.FC = () => {
   };
 
   const confirmStartFresh = useCallback(() => {
-    Alert.alert(
+    appAlert(
       loc.settings.reset_storage_title,
       loc.settings.reset_storage_message,
       [
@@ -356,7 +356,7 @@ const UnlockWith: React.FC = () => {
       // Say what is replaced, and with which protection (sixth review).
       const message =
         restoreScope.current === 'bucket' ? loc.settings.storage_restore_bucket_message : loc.settings.storage_restore_backup_message;
-      Alert.alert(
+      appAlert(
         loc.settings.storage_restore_backup_title,
         several ? `${message} ${loc.settings.storage_restore_backup_several}` : message,
         [

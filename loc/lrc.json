@@ -64,7 +64,6 @@
   },
   "send": {
     "broadcastError": "ختا",
-    "broadcastSuccess": "مۏوفق بی",
     "confirm_header": "تایید",
     "confirm_sendNow": "هه ایسه کلٛ بکو",
     "create_amount": "مقدار",

@@ -105,7 +105,6 @@
     "broadcastError": "Ошибка",
     "broadcastNone": "Вставьте HEX транзакции",
     "broadcastPending": "В процессе",
-    "broadcastSuccess": "Успешно",
     "confirm_header": "Подтвердить",
     "confirm_sendNow": "Отправить",
     "create_amount": "Сумма",

@@ -1,7 +1,8 @@
-import { Alert, Linking } from 'react-native';
+import { Linking } from 'react-native';
 
 import { isDesktop } from '../blue_modules/environment';
 import loc from '../loc';
+import { appAlert } from '../components/AppDialog';
 
 export const openPrivacyDesktopSettings = () => {
   if (isDesktop) {
@@ -12,7 +13,7 @@ export const openPrivacyDesktopSettings = () => {
 };
 
 export const presentCameraNotAuthorizedAlert = (error: string) => {
-  Alert.alert(
+  appAlert(
     loc.errors.error,
     error,
     [

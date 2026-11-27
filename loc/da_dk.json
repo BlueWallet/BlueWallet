@@ -27,7 +27,6 @@
   },
   "send": {
     "broadcastButton": "Transmitter",
-    "broadcastSuccess": "Succes",
     "confirm_header": "Bekræft",
     "confirm_sendNow": "Send nu",
     "create_amount": "Beløb",

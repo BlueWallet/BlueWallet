@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import ReactNativeBiometrics, { BiometryTypes as RNBiometryTypes } from 'react-native-biometrics';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import loc from '../loc';
@@ -8,6 +8,7 @@ import presentAlert from '../components/Alert';
 import { useStorage } from './context/useStorage';
 import { BlueApp } from '../class/blue-app';
 import { isMissingKeyError } from '../class/storage-errors';
+import { appAlert } from '../components/AppDialog';
 
 const STORAGEKEY = 'Biometrics';
 const rnBiometrics = new ReactNativeBiometrics({ allowDeviceCredentials: true });
@@ -101,7 +102,7 @@ export async function authorizeUnlock(): Promise<boolean> {
 
 const showKeychainWipeAlert = () => {
   if (Platform.OS === 'ios') {
-    Alert.alert(
+    appAlert(
       loc.settings.encrypt_tstorage,
       loc.settings.biom_10times,
       [
@@ -122,7 +123,7 @@ const showKeychainWipeAlert = () => {
             }
             const isAuthenticated = await unlockWithBiometrics();
             if (isAuthenticated) {
-              Alert.alert(
+              appAlert(
                 loc.settings.encrypt_tstorage,
                 loc.settings.biom_remove_decrypt,
                 [

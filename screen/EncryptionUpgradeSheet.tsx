@@ -65,16 +65,16 @@ const EncryptionUpgradeSheet: React.FC = () => {
       try {
         await upgradeEncryption(newPassword);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        presentAlert({ message: loc.settings.encryption_upgrade_done });
+        presentAlert({ tone: 'success', title: loc.settings.encryption_upgrade_done, message: loc.settings.encryption_upgrade_done_text });
         navigation.goBack();
       } catch (error) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         if (error instanceof PasswordInUseError) {
-          presentAlert({ message: loc.settings.encryption_upgrade_in_use });
+          presentAlert({ tone: 'warning', message: loc.settings.encryption_upgrade_in_use });
         } else if (error instanceof StorageWriteError) {
-          presentAlert({ message: loc.settings.storage_save_failed });
+          presentAlert({ tone: 'error', message: loc.settings.storage_save_failed });
         } else {
-          presentAlert({ message: (error as Error)?.message ?? String(error) });
+          presentAlert({ tone: 'error', message: (error as Error)?.message ?? String(error) });
         }
         setBusy(false);
       }

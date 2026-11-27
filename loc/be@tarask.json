@@ -39,7 +39,6 @@
   },
   "send": {
     "broadcastError": "Памылка",
-    "broadcastSuccess": "Посьпех",
     "create_to": "Да"
   },
   "settings": {

@@ -105,7 +105,6 @@
     "broadcastError": "错误",
     "broadcastNone": "输入交易的十六进制数据",
     "broadcastPending": "待处理",
-    "broadcastSuccess": "成功",
     "confirm_header": "确认",
     "confirm_sendNow": "立即发送",
     "create_amount": "金额",

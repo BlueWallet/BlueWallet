@@ -86,7 +86,11 @@ describe('EncryptionUpgradeSheet (H08)', () => {
     await settle();
     expect(formats(disk)).toEqual(['nw2']);
     expect(await appOn(disk).loadFromDisk('pw-a')).toBe(true);
-    expect(presentAlert).toHaveBeenCalledWith({ message: loc.settings.encryption_upgrade_done });
+    expect(presentAlert).toHaveBeenCalledWith({
+      tone: 'success',
+      title: loc.settings.encryption_upgrade_done,
+      message: loc.settings.encryption_upgrade_done_text,
+    });
     expect(goBack).toHaveBeenCalled();
   });
 
@@ -144,7 +148,7 @@ describe('EncryptionUpgradeSheet (H08)', () => {
     fireEvent.press(screen.getByTestId('EncryptionUpgradeSave'));
     await settle();
 
-    expect(presentAlert).toHaveBeenCalledWith({ message: loc.settings.encryption_upgrade_in_use });
+    expect(presentAlert).toHaveBeenCalledWith({ tone: 'warning', message: loc.settings.encryption_upgrade_in_use });
     expect(disk.primary.get('data')).toBe(before);
     expect(goBack).not.toHaveBeenCalled();
   });

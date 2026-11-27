@@ -118,6 +118,7 @@ const ImportNeurai: React.FC = () => {
       await addWalletAndSave(wallet);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       presentAlert({
+        tone: 'success',
         message: loc.wallets.import_success,
         buttons: [{ text: loc._.ok, style: 'default', onPress: () => navigation.getParent()?.goBack() }],
         // Keep the dialog up until the user taps OK so the success is noticed.

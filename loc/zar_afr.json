@@ -82,7 +82,6 @@
   "send": {
     "broadcastButton": "Saai uit",
     "broadcastError": "Probleem",
-    "broadcastSuccess": "Sukses",
     "confirm_header": "Bevestig",
     "confirm_sendNow": "Stuur nou",
     "create_amount": "Bedrag",

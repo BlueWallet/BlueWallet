@@ -5,7 +5,7 @@
  */
 import Clipboard from '@react-native-clipboard/clipboard';
 import React, { useCallback, useState } from 'react';
-import { Alert, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { getBuildNumber, getBundleId, getUniqueIdSync, getVersion } from 'react-native-device-info';
 import BrandIcon from '@react-native-vector-icons/fontawesome6';
 import dayjs from 'dayjs';
@@ -25,6 +25,7 @@ import {
 } from '../../components/settings/SettingsUI';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
+import { appAlert } from '../../components/AppDialog';
 
 const branch = require('../../current-branch.json');
 
@@ -122,7 +123,7 @@ const About: React.FC = () => {
         await w.getReceiveAddressAsync();
         num++;
       }
-      Alert.alert(String(loc.formatString(loc.settings.performance_score, { num })));
+      appAlert(String(loc.formatString(loc.settings.performance_score, { num })));
     } finally {
       setTesting(false);
     }

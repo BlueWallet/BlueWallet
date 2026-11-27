@@ -105,7 +105,6 @@
     "broadcastError": "エラー",
     "broadcastNone": "トランザクションHexを入力",
     "broadcastPending": "試行中",
-    "broadcastSuccess": "成功",
     "confirm_header": "確認",
     "confirm_sendNow": "送金実行",
     "create_amount": "送金額",

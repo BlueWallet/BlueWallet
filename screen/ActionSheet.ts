@@ -1,6 +1,8 @@
 // ActionSheet.ts
 import { Alert } from 'react-native';
 
+import { showAppDialog } from '../components/AppDialog';
+
 import { ActionSheetOptions, CompletionCallback } from './ActionSheet.common';
 
 export default class ActionSheet {
@@ -20,6 +22,14 @@ export default class ActionSheet {
       };
     });
 
-    Alert.alert(options.title || '', options.message || '', alertOptions, { cancelable: !!options.cancelButtonIndex });
+    // A list of choices in the app's style; the system dialog until its host is mounted.
+    const shown = showAppDialog({
+      title: options.title || undefined,
+      message: options.message || undefined,
+      buttons: alertOptions,
+      cancelable: !!options.cancelButtonIndex,
+      layout: 'options',
+    });
+    if (!shown) Alert.alert(options.title || '', options.message || '', alertOptions, { cancelable: !!options.cancelButtonIndex });
   }
 }

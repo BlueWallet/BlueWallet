@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -20,6 +20,7 @@ import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { MODAL_TYPES } from '../PromptPasswordConfirmationSheet.types';
+import { appAlert } from '../../components/AppDialog';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -118,7 +119,7 @@ const EncryptStorage = () => {
         returnTo: 'EncryptStorage',
       });
     } else {
-      Alert.alert(
+      appAlert(
         loc.settings.encrypt_decrypt,
         loc.settings.encrypt_decrypt_q,
         [

@@ -36,7 +36,6 @@
   },
   "send": {
     "broadcastError": "Viga",
-    "broadcastSuccess": "Toiming õnnestus",
     "create_to": "Sihtkoht"
   },
   "settings": {

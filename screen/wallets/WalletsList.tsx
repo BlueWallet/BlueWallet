@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
-import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
@@ -29,6 +29,7 @@ import useMenuElements from '../../hooks/useMenuElements';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useNetworkSelection } from '../../hooks/useNetworkSelection';
+import { appAlert } from '../../components/AppDialog';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS', ADD_GUIDE: 'ADD_GUIDE' };
 
@@ -286,12 +287,12 @@ const WalletsList: React.FC = () => {
           {
             onPayment: payment => {
               triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-              if (!openNeuraiPaymentUri(navigation, wallets, payment)) Alert.alert(loc.send.header, loc.wallets.select_no_bitcoin);
+              if (!openNeuraiPaymentUri(navigation, wallets, payment)) appAlert(loc.send.header, loc.wallets.select_no_bitcoin);
             },
           },
         );
       } catch (e: any) {
-        Alert.alert(loc.send.details_scan_error, e.message);
+        appAlert(loc.send.details_scan_error, e.message);
       }
     },
     [navigation, wallets],

@@ -86,7 +86,7 @@ describe('PendingPaymentCard (H17)', () => {
     expect(wallet.broadcast).toEqual([SEND.second]);
     expect(wallet.getChainedSends()).toEqual([]);
     expect(save).toHaveBeenCalled();
-    expect(presentAlert).toHaveBeenCalledWith({ message: loc.home.pending_payment_done });
+    expect(presentAlert).toHaveBeenCalledWith({ tone: 'success', message: loc.home.pending_payment_done });
   });
 
   it('finishing a payment nothing of which was seen sends both, in order', async () => {

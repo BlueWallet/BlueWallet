@@ -103,7 +103,6 @@
     "broadcastError": "erreur",
     "broadcastNone": "Inserez la transaction en format hexadécimal",
     "broadcastPending": "en cours",
-    "broadcastSuccess": "succès",
     "confirm_header": "Confirmer",
     "confirm_sendNow": "Envoyer maintenant",
     "create_amount": "Montant",

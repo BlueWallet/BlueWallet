@@ -6,7 +6,7 @@
  * changes asks first.
  */
 import React, { useEffect, useReducer, useCallback, useMemo, useRef, useState } from 'react';
-import { Alert, Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { usePreventRemove } from '@react-navigation/native';
 import DraggableFlatList, { DragEndParams, RenderItemParams } from 'react-native-draggable-flatlist';
@@ -30,6 +30,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { ItemType, AddressItemData } from '../../models/itemTypes';
 import { XnaUnit } from '../../models/xnaUnits';
+import { appAlert } from '../../components/AppDialog';
 
 interface WalletItem {
   type: ItemType.WalletSection;
@@ -557,7 +558,7 @@ const ManageWallets: React.FC = () => {
     hasUnsavedChanges && !saveInProgress,
     useCallback(
       ({ data: preventRemoveData }) => {
-        Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
+        appAlert(loc._.discard_changes, loc._.discard_changes_explain, [
           {
             text: loc._.cancel,
             style: 'cancel',

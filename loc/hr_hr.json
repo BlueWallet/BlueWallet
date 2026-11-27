@@ -33,7 +33,6 @@
   },
   "send": {
     "broadcastButton": "Objavi",
-    "broadcastSuccess": "Uspjeh",
     "confirm_header": "Potvrdi",
     "confirm_sendNow": "Pošalji sad",
     "create_amount": "Iznos",

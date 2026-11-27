@@ -59,7 +59,7 @@ export const writeFileAndExport = async function (fileName: string, contents: st
         if (showShareDialog) {
           await _shareOpen(filePath);
         } else {
-          presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { filePath }) });
+          presentAlert({ tone: 'success', message: String(loc.formatString(loc.send.file_saved_at_path, { filePath })) });
         }
       } catch (e: any) {
         console.error(e);
