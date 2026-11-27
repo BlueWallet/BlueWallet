@@ -63,6 +63,11 @@ Mac Catalyst, instead of the standalone `TSBackgroundFetch` 4.1.x pod, which
 only includes iOS device and simulator binaries. Without this patch, Catalyst
 builds fail to import `TSBackgroundFetch/TSBackgroundFetch.h`.
 
+Do not upgrade to 4.5.0 until the `TSBackgroundFetch` 4.2 CocoaPods artifact
+includes a Catalyst slice. 4.5.0 removed the bundled xcframework this patch
+relies on, and the official 4.2.0 and 4.2.1 xcframeworks still only ship iOS
+device and simulator slices.
+
 Remove when the upstream pod dependency includes a Catalyst slice. When
 upgrading, verify the bundled framework still supports all three destinations.
 

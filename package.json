@@ -154,7 +154,7 @@
     "react": "19.3.0",
     "react-localization": "github:BlueWallet/react-localization#ae7969a",
     "react-native": "0.88.1",
-    "react-native-background-fetch": "4.5.0",
+    "react-native-background-fetch": "4.4.2",
     "react-native-biometrics": "3.0.1",
     "react-native-blue-crypto": "github:BlueWallet/react-native-blue-crypto#3cb5442",
     "react-native-camera-kit-no-google": "github:BlueWallet/react-native-camera-kit-no-google#cc1ec91f85dcfc50336a49125ac287076a78005d",

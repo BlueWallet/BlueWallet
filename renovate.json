@@ -30,7 +30,8 @@
     "react-native-notifications",
     "@bugsnag/react-native",
     "react-native-reanimated",
-    "react-native-worklets"
+    "react-native-worklets",
+    "react-native-background-fetch"
   ],
   "schedule": ["before 6am on monday"],
   "prConcurrentLimit": 1,
