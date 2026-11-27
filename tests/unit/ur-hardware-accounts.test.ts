@@ -1,8 +1,12 @@
 import assert from 'assert';
-import { CryptoMultiAccounts } from '@keystonehq/bc-ur-registry/dist';
+import { CryptoHDKey, CryptoKeypath, CryptoMultiAccounts, PathComponent } from '@keystonehq/bc-ur-registry/dist';
 import { UR, UREncoder } from '@ngraveio/bc-ur';
 
-import { BlueURDecoder, decodeUR } from '../../blue_modules/ur';
+import { BlueURDecoder, decodeUR, encodeUR } from '../../blue_modules/ur';
+import { MultisigCosigner } from '../../class/multisig-cosigner';
+import startImport from '../../class/wallet-import';
+import { TWallet } from '../../class/wallets/types';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 
 // CBOR of a crypto-multi-accounts payload as Keystone 3 Pro builds it for Bitget: 10 ETH keys, 4 BTC keys, 1 TON key.
 // From KeystoneHQ/keystone3-firmware rust/apps/wallets/src/bitget.rs, test_generate_with_ton_keys
@@ -85,6 +89,14 @@ describe('BlueURDecoder hardware wallet accounts', () => {
     bitcoinKeys.forEach((key, i) => {
       assert.deepStrictEqual(JSON.parse(decode(key.toCBOR(), 'crypto-hdkey', 2000)), [expected[i]]);
     });
+
+    // a key with no script around it: the default multisig paths tell the prefix
+    const prefixes = [[45], [48, 0, 0, 1], [48, 0, 0, 2]].map(path => {
+      const origin = new CryptoKeypath(path.map(index => new PathComponent({ index, hardened: true })));
+      const key = new CryptoHDKey({ isMaster: false, key: keys[0].getKey(), chainCode: keys[0].getChainCode(), origin });
+      return JSON.parse(decode(key.toCBOR(), 'crypto-hdkey', 2000))[0].ExtPubKey.slice(0, 4);
+    });
+    assert.deepStrictEqual(prefixes, ['xpub', 'Ypub', 'Zpub']);
   });
 
   it('crypto-account: taproot output goes first', () => {
@@ -115,7 +127,7 @@ describe('BlueURDecoder hardware wallet accounts', () => {
     assert.throws(() => decode(Buffer.from(head + wpkh + pkhEcKey, 'hex'), 'crypto-account', 300), /without a usable HD key/);
   });
 
-  it('crypto-account: origin without depth', () => {
+  it('crypto-account: origin without depth, multisig keys', async () => {
     // UR from the sparrowwallet/hummingbird tests; the xpubs are the ones BCR-2020-015 lists for it, with BlueWallet version bytes
     const decoder = new BlueURDecoder();
     decoder.receivePart(
@@ -125,13 +137,40 @@ describe('BlueURDecoder hardware wallet accounts', () => {
       ["m/44'/0'/0'", 'xpub6CnQkivUEH9bSbWVWfDLCtigKKgnSWGaVSRyCbN2QNBJzuvHT1vUQpgSpY1NiVvoeNEuVwk748Cn9G3NtbQB1aGGsEL7aYEnjVWgjj9tefu'],
       ["m/49'/0'/0'", 'ypub6XigKNuynEwE6GiLmrSfVKCa4R5yJybnoJWjr5qsQVAGkPtHZeFUQMcAuBVnC8Qqu7tgXH92EGvqQvdW2XEwR7jsDhGnfRz5hUBcezhjqpL'],
       ["m/84'/0'/0'", 'zpub6qQzfPRBjbGVHz7SiPbrSnt77iRsrFRXMdWng2jWSZUbCiWTsYGLoBQ4sFRnUxDF1N3KXdV2RETtyNnhQqtJvJVSZVHEXeupW5gighTMoZg'],
-      ["m/45'", 'Zpub6xrs4sXZ1QuoxMe4QsyJrHNnQBDGCh3s3aek8Bgwcwo57wAx8e9jTGHfSg9EV9uLN9RodagcxCJ8HSFJvJNqB1qFqCVq8v38i5nSuz6Ctct'],
-      ["m/48'/0'/0'/1'", 'Zpub74kmPgqc7d48WkNpuV4nrAcvNFKvv8angu8m6HUTQnLihTqscbCjvXyAeHRmw3KcuUzwiB6YbgirzQDJVPLE4ztXCsY1EJhDQGHzFMLUyjw'],
+      ["m/45'", 'xpub68JFLJTH96GUqC6SoVw5c2qyLSt776PGu5xde8ddVACuPYyarvSL827TbZGavuNbKQ8DG3VP9fCXPhQRBgPrS4MPG3zaZgwAGuPHYvVuY9X'],
+      ["m/48'/0'/0'/1'", 'Ypub6jvW62AgxwWefTBi58HAe5XRCHBUyWbHmncYJtaa2mxqeN2eMw3BJUK2d5UBw8fhVqt8xhVz92NK77bjmgvDGmCvLXqaePsj8YELrpuEG6b'],
       ["m/48'/0'/0'/2'", 'Zpub74kmPgqc7d48YZeTKqxjeuBMwRDuohKn8wAnzjYCJhKQ6GN2a9tBNQfduSiyqg1mk7phV68cZDABtDqoBZgM1r6hdzXYhpSEnQA1mgBoqP5'],
     ];
     assert.deepStrictEqual(
       JSON.parse(decoder.toString()),
       expectedKeys.map(([AccountKeyPath, ExtPubKey]) => ({ ExtPubKey, MasterFingerprint: '37B5EED4', AccountKeyPath })),
     );
+
+    // the multisig keys (sh, sh(wsh), wsh) keep their prefix when BlueWallet shares them as a QR and scans it back
+    for (const [path, xpub] of expectedKeys.slice(3)) {
+      const [part] = encodeUR(MultisigCosigner.exportToJson('37B5EED4', xpub, path), 2000);
+      const scanned = JSON.parse(Buffer.from(decodeUR([part]) ?? '', 'hex').toString());
+      assert.deepStrictEqual(scanned, { ExtPubKey: xpub, MasterFingerprint: '37B5EED4', AccountKeyPath: path });
+    }
+
+    // wallet import offers the single sig keys only (offline: no Electrum, every wallet counts as used)
+    const paths: (string | undefined)[] = [];
+    const onWallet = (w: TWallet) => paths.push((w as WatchOnlyWallet).getDerivationPath());
+    const importOffline = (text: string) =>
+      startImport(
+        text,
+        false,
+        false,
+        true,
+        () => {},
+        onWallet,
+        async () => '',
+      ).promise;
+    await importOffline(decoder.toString());
+    // nor a legacy multisig key on a BIP48 path, which is a plain xpub
+    await importOffline(
+      JSON.stringify([{ ExtPubKey: expectedKeys[3][1], MasterFingerprint: '37B5EED4', AccountKeyPath: "m/48'/0'/0'/0'" }]),
+    );
+    assert.deepStrictEqual(paths, ["m/44'/0'/0'", "m/49'/0'/0'", "m/84'/0'/0'"]);
   });
 });
