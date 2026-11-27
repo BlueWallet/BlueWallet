@@ -22,7 +22,8 @@ interface HomeTopBarProps {
   onOpenWallets: () => void;
   /** The open wallet's own options (backup, export, its settings). */
   onOpenWalletOptions?: () => void;
-  onOpenSettings: () => void;
+  /** Only where no bottom bar offers the settings (no wallet yet). */
+  onOpenSettings?: () => void;
   onLongPressSettings?: () => void;
 }
 
@@ -32,8 +33,9 @@ const networkLabel = (network: NeuraiNetwork): string =>
 /**
  * The home's top row: the Neurai logo, then three lines — "Neurai Wallet", the
  * wallet's name and its type and network (tap to open the side panel with
- * every wallet) — then two round buttons: the open wallet's options and the
- * app's settings. Each line has the whole width, so a long wallet name fits.
+ * every wallet) — then the open wallet's options. The app's settings are in
+ * the bottom bar; here only before the first wallet, when there is no bar.
+ * Each line has the whole width, so a long wallet name fits.
  * The bar stays put while the sections below change, so the wallet being
  * looked at is always named.
  */
@@ -97,16 +99,18 @@ const HomeTopBar: React.FC<HomeTopBarProps> = ({
             <Icon name="more-horiz" type="material" size={24} color={p.ink} />
           </Pressable>
         ) : null}
-        <Pressable
-          onPress={onOpenSettings}
-          onLongPress={onLongPressSettings}
-          accessibilityRole="button"
-          accessibilityLabel={loc.home.settings}
-          testID="SettingsButton"
-          style={({ pressed }) => [styles.round, { backgroundColor: p.card }, pressed && styles.pressed]}
-        >
-          <Icon name="tune" type="material" size={22} color={p.ink} />
-        </Pressable>
+        {onOpenSettings ? (
+          <Pressable
+            onPress={onOpenSettings}
+            onLongPress={onLongPressSettings}
+            accessibilityRole="button"
+            accessibilityLabel={loc.home.settings}
+            testID="SettingsButton"
+            style={({ pressed }) => [styles.round, { backgroundColor: p.card }, pressed && styles.pressed]}
+          >
+            <Icon name="tune" type="material" size={22} color={p.ink} />
+          </Pressable>
+        ) : null}
       </View>
     </View>
   );

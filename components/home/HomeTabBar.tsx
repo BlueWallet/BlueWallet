@@ -7,6 +7,7 @@ import type { MaterialIconName } from '../Icon';
 import Icon from '../Icon';
 import { useHomePalette } from './homeTheme';
 
+/** The home's sections. DePIN has no item in the bar: its card on the home opens it. */
 export type HomeTab = 'home' | 'assets' | 'depin' | 'privacy';
 
 const BAR_HEIGHT = 62;
@@ -36,23 +37,23 @@ interface HomeTabBarProps {
   onSelect: (tab: HomeTab) => void;
   onScan: () => void;
   onScanLongPress?: () => void;
-  /** New DePIN traffic: a green dot on the DePIN item. */
-  depinUnread?: boolean;
+  /** The app's settings: a screen of their own, not a section. */
+  onOpenSettings: () => void;
+  onLongPressSettings?: () => void;
   hidden?: boolean;
 }
 
 const ITEMS: { tab: HomeTab; icon: MaterialIconName; label: () => string }[] = [
   { tab: 'home', icon: 'home', label: () => loc.home.tab_home },
   { tab: 'assets', icon: 'layers', label: () => loc.home.tab_assets },
-  { tab: 'depin', icon: 'chat-bubble-outline', label: () => loc.home.tab_depin },
   { tab: 'privacy', icon: 'shield', label: () => loc.home.tab_privacy },
 ];
 
 /**
- * Floating bar with the wallet's sections and the scan button in the middle.
- * The sections are the ones the wallet screen used to have as tabs.
+ * Floating bar: Home and Assets, the scan button in the middle, then Privacy
+ * and the app's settings. DePIN is opened from its card on the home.
  */
-const HomeTabBar: React.FC<HomeTabBarProps> = ({ tab, onSelect, onScan, onScanLongPress, depinUnread, hidden }) => {
+const HomeTabBar: React.FC<HomeTabBarProps> = ({ tab, onSelect, onScan, onScanLongPress, onOpenSettings, onLongPressSettings, hidden }) => {
   const p = useHomePalette();
   const insets = useSafeAreaInsets();
   if (hidden) return null;
@@ -70,12 +71,7 @@ const HomeTabBar: React.FC<HomeTabBarProps> = ({ tab, onSelect, onScan, onScanLo
         testID={`HomeTab-${item.tab}`}
         style={({ pressed }) => [styles.item, pressed && styles.pressed]}
       >
-        <View>
-          <Icon name={item.icon} type="material" size={22} color={color} />
-          {item.tab === 'depin' && depinUnread && (
-            <View style={[styles.dot, { backgroundColor: p.unread, borderColor: p.card }]} testID="DepinTabUnreadDot" />
-          )}
-        </View>
+        <Icon name={item.icon} type="material" size={22} color={color} />
         <Text style={[styles.label, active ? styles.labelActive : null, { color }]} numberOfLines={1}>
           {item.label()}
         </Text>
@@ -104,7 +100,19 @@ const HomeTabBar: React.FC<HomeTabBarProps> = ({ tab, onSelect, onScan, onScanLo
         </Pressable>
       </View>
       {renderItem(ITEMS[2])}
-      {renderItem(ITEMS[3])}
+      <Pressable
+        onPress={onOpenSettings}
+        onLongPress={onLongPressSettings}
+        accessibilityRole="button"
+        accessibilityLabel={loc.home.settings}
+        testID="SettingsButton"
+        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
+      >
+        <Icon name="tune" type="material" size={22} color={p.mutedOnCard} />
+        <Text style={[styles.label, { color: p.mutedOnCard }]} numberOfLines={1}>
+          {loc.home.settings}
+        </Text>
+      </Pressable>
     </View>
   );
 };
@@ -132,7 +140,6 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.6 },
   label: { fontSize: 11, fontWeight: '500' },
   labelActive: { fontWeight: '700' },
-  dot: { position: 'absolute', top: -2, right: -5, width: 10, height: 10, borderRadius: 5, borderWidth: 2 },
   scan: { width: 56, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
 });
 

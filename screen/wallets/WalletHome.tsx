@@ -414,15 +414,7 @@ const WalletHomeBody: React.FC<BodyProps> = ({
 
   return (
     <View style={[styles.flex, { backgroundColor: p.ground }]} testID="TransactionsListView">
-      <HomeTopBar
-        wallet={wallet}
-        network={network}
-        updating={updating}
-        onOpenWallets={onOpenWallets}
-        onOpenWalletOptions={openDetails}
-        onOpenSettings={onOpenSettings}
-        onLongPressSettings={onLongPressSettings}
-      />
+      <HomeTopBar wallet={wallet} network={network} updating={updating} onOpenWallets={onOpenWallets} onOpenWalletOptions={openDetails} />
       {serviceStale && syncNotice && (
         <View style={[styles.syncBar, { backgroundColor: p.card }]} accessibilityLiveRegion="polite">
           <ActivityIndicator size="small" color={p.muted} />
@@ -488,7 +480,8 @@ const WalletHomeBody: React.FC<BodyProps> = ({
         onSelect={selectTab}
         onScan={onScan}
         onScanLongPress={onScanLongPress}
-        depinUnread={depinAvailable && hasNewDepinMessages}
+        onOpenSettings={onOpenSettings}
+        onLongPressSettings={onLongPressSettings}
         hidden={keyboardVisible || (tab === 'depin' && conversationOpen)}
       />
     </View>
