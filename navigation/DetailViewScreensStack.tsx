@@ -291,7 +291,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="SettingsBlockExplorer"
           component={SettingsBlockExplorer}
-          options={navigationStyle(getSettingsHeaderOptions(loc.settings.block_explorer))(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.settings.block_explorer }}
         />
 
         <DetailViewStack.Screen
@@ -323,7 +323,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="NotificationSettings"
           component={NotificationSettings}
-          options={navigationStyle(getSettingsHeaderOptions(loc.settings.notifications))(theme)}
+          options={{ headerShown: false, statusBarStyle: theme.dark ? 'light' : 'dark', title: loc.settings.notifications }}
         />
         <DetailViewStack.Screen
           name="SelfTest"

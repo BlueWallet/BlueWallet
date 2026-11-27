@@ -1,5 +1,11 @@
+/**
+ * Settings › Network › Notifications: push alerts for incoming payments and
+ * confirmations, what turning them on shares, and the system settings. Ten
+ * taps on the privacy text show the GroundControl server settings.
+ */
 import React, { useCallback, useEffect, useState } from 'react';
-import { Linking, StyleSheet, TextInput, View, Pressable, AppState, Text } from 'react-native';
+import { Linking, StyleSheet, TextInput, View, Pressable, AppState, Text, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getDefaultUri,
   getPushToken,
@@ -15,28 +21,23 @@ import {
   checkNotificationPermissionStatus,
   NOTIFICATIONS_NO_AND_DONT_ASK_FLAG,
 } from '../../blue_modules/notifications';
-import { BlueSpacing20 } from '../../components/BlueSpacing';
 import presentAlert from '../../components/Alert';
-import { Button } from '../../components/Button';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
-import { useTheme } from '../../components/themes';
+import Icon from '../../components/Icon';
+import {
+  SettingsButton,
+  SettingsCard,
+  SettingsIconCircle,
+  SettingsRow,
+  SettingsScreenHeader,
+  SettingsSectionLabel,
+  SettingsSwitchRow,
+  useSettingsPalette,
+} from '../../components/settings/SettingsUI';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { openSettings } from 'react-native-permissions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  SettingsCard,
-  SettingsFlatList,
-  SettingsListItem,
-  SettingsListItemProps,
-  SettingsSubtitle,
-  isAndroid,
-} from '../../components/platform';
-
-interface SettingItem extends SettingsListItemProps {
-  id: string;
-  section?: number;
-  customContent?: React.ReactNode;
-}
 
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -45,7 +46,9 @@ const NotificationSettings: React.FC = () => {
   const [tokenInfo, setTokenInfo] = useState('<empty>');
   const [URI, setURI] = useState<string | undefined>();
   const [tapCount, setTapCount] = useState(0);
-  const { colors } = useTheme();
+  const navigation = useExtendedNavigation();
+  const p = useSettingsPalette();
+  const insets = useSafeAreaInsets();
 
   const handleTap = () => {
     setTapCount(prevCount => prevCount + 1);
@@ -194,216 +197,100 @@ const NotificationSettings: React.FC = () => {
     setIsLoading(false);
   }, [URI]);
 
-  const renderDeveloperSettings = useCallback(() => {
-    if (tapCount < 10) return null;
-
-    return (
-      <View>
-        <View style={[styles.divider, { backgroundColor: colors.lightBorder ?? colors.borderTopColor }]} />
-        <SettingsCard style={styles.card}>
-          <View style={styles.cardContent}>
-            <Text style={[styles.multilineText, { color: colors.foregroundColor }]}>{loc.settings.groundcontrol_explanation}</Text>
-          </View>
-        </SettingsCard>
-
-        <SettingsListItem
-          title="github.com/NeuraiWallet/GroundControl"
-          iconName="github"
-          onPress={() => Linking.openURL('https://github.com/NeuraiWallet/GroundControl')}
-          chevron
-          position="single"
-          spacingTop
-        />
-
-        <SettingsCard style={styles.card}>
-          <View style={styles.cardContent}>
-            <View
-              style={[
-                styles.uri,
-                { borderColor: colors.formBorder, borderBottomColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
-              ]}
-            >
-              <TextInput
-                placeholder={getDefaultUri()}
-                value={URI}
-                onChangeText={setURI}
-                numberOfLines={1}
-                style={[styles.uriText, { color: colors.alternativeTextColor }]}
-                placeholderTextColor="#81868e"
-                editable={!isLoading}
-                textContentType="URL"
-                autoCapitalize="none"
-                underlineColorAndroid="transparent"
-              />
-            </View>
-
-            <BlueSpacing20 />
-            <Text style={[styles.centered, { color: colors.foregroundColor }]} onPress={() => setTapCount(tapCount + 1)}>
-              ♪ Ground Control to Major Tom ♪
-            </Text>
-            <Text style={[styles.centered, { color: colors.foregroundColor }]} onPress={() => setTapCount(tapCount + 1)}>
-              ♪ Commencing countdown, engines on ♪
-            </Text>
-
-            <View>
-              <CopyToClipboardButton stringToCopy={tokenInfo} displayText={tokenInfo} />
-            </View>
-
-            <BlueSpacing20 />
-            <Button onPress={save} title={loc.settings.save} />
-          </View>
-        </SettingsCard>
-      </View>
-    );
-  }, [tapCount, colors, isLoading, URI, tokenInfo, save]);
-
-  const renderPushNotificationsExplanation = useCallback(() => {
-    return (
-      <SettingsCard compact style={styles.notificationsExplanationCard}>
-        <View style={styles.cardContent}>
-          <Pressable onPress={handleTap}>
-            <SettingsSubtitle>{loc.settings.push_notifications_explanation}</SettingsSubtitle>
-          </Pressable>
-        </View>
-      </SettingsCard>
-    );
-  }, []);
-
-  const settingsItems = useCallback((): SettingItem[] => {
-    const items: SettingItem[] = [
-      {
-        id: 'notificationsToggle',
-        title: loc.settings.notifications,
-        subtitle: loc.notifications.notifications_subtitle,
-        switch: {
-          value: isNotificationsEnabledState || false,
-          onValueChange: onNotificationsSwitch,
-          disabled: isLoading,
-        },
-        isLoading: isNotificationsEnabledState === undefined,
-        testID: 'NotificationsSwitch',
-        Component: View,
-        section: 1,
-      },
-      {
-        id: 'notificationsExplanation',
-        title: '',
-        customContent: renderPushNotificationsExplanation(),
-        section: 1,
-      },
-      {
-        id: 'section1Spacing',
-        title: '',
-        customContent: <View style={styles.sectionSpacing} />,
-        section: 1.5,
-      },
-      {
-        id: 'developerSettings',
-        title: '',
-        customContent: renderDeveloperSettings(),
-        section: 2,
-      },
-      {
-        id: 'section2Spacing',
-        title: '',
-        customContent: <View style={styles.sectionSpacing} />,
-        section: 2.5,
-      },
-      {
-        id: 'privacySystemSettings',
-        title: loc.settings.privacy_system_settings,
-        onPress: onSystemSettings,
-        section: 3,
-      },
-    ];
-
-    return items.filter(item => item.title !== '' || item.customContent);
-  }, [
-    isNotificationsEnabledState,
-    onNotificationsSwitch,
-    isLoading,
-    renderDeveloperSettings,
-    renderPushNotificationsExplanation,
-    onSystemSettings,
-  ]);
-
-  const renderItem = useCallback(
-    (props: { item: SettingItem }) => {
-      const { id, section, customContent, ...listItemProps } = props.item;
-      const items = settingsItems();
-      const contentPadding = !isAndroid ? { paddingHorizontal: horizontalPadding } : undefined;
-
-      if (customContent) {
-        return <View style={contentPadding}>{customContent}</View>;
-      }
-
-      const sectionItems = items.filter(i => i.section === section && !i.customContent);
-      const indexInSection = sectionItems.findIndex(i => i.id === id);
-      const isFirstInSection = indexInSection === 0;
-      const isLastInSection = indexInSection === sectionItems.length - 1;
-      const position = isFirstInSection && isLastInSection ? 'single' : isFirstInSection ? 'first' : isLastInSection ? 'last' : 'middle';
-
-      return <SettingsListItem {...listItemProps} position={position} />;
-    },
-    [settingsItems],
-  );
-
-  const keyExtractor = useCallback((item: SettingItem) => item.id, []);
+  const showDeveloperSettings = tapCount >= 10;
 
   return (
-    <SettingsFlatList
-      data={settingsItems()}
-      renderItem={renderItem}
-      keyExtractor={keyExtractor}
-      contentInsetAdjustmentBehavior="automatic"
-      automaticallyAdjustContentInsets
-      removeClippedSubviews
-    />
+    <View style={[styles.root, { backgroundColor: p.ground }]}>
+      <SettingsScreenHeader title={loc.settings.notifications} onBack={() => navigation.goBack()} />
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]} keyboardShouldPersistTaps="handled">
+        <SettingsCard>
+          <SettingsSwitchRow
+            icon="notifications-active"
+            title={loc.settings.notifications}
+            subtitle={loc.notifications.notifications_subtitle}
+            value={isNotificationsEnabledState || false}
+            onValueChange={onNotificationsSwitch}
+            disabled={isLoading}
+            loading={isNotificationsEnabledState === undefined}
+            switchTestID="NotificationsSwitch"
+          />
+        </SettingsCard>
+
+        <View>
+          <SettingsSectionLabel>{loc.notifications.privacy_title}</SettingsSectionLabel>
+          <SettingsCard>
+            <Pressable onPress={handleTap} accessible={false} style={styles.privacy}>
+              <Icon name="privacy-tip" type="material" size={20} color={p.accentText} />
+              <Text style={[styles.privacyText, { color: p.mutedOnCard }]}>{loc.settings.push_notifications_explanation}</Text>
+            </Pressable>
+          </SettingsCard>
+        </View>
+
+        <SettingsCard>
+          <SettingsRow
+            icon="settings"
+            title={loc.settings.privacy_system_settings}
+            subtitle={loc.notifications.system_settings_subtitle}
+            onPress={onSystemSettings}
+            external
+            testID="NotificationsSystemSettings"
+          />
+        </SettingsCard>
+
+        {showDeveloperSettings ? (
+          <View>
+            <SettingsSectionLabel>GroundControl</SettingsSectionLabel>
+            <SettingsCard style={styles.developer}>
+              <View style={styles.developerHead}>
+                <SettingsIconCircle icon="dns" />
+                <Text style={[styles.privacyText, styles.flex, { color: p.mutedOnCard }]}>{loc.settings.groundcontrol_explanation}</Text>
+              </View>
+              <View style={[styles.field, { backgroundColor: p.ground }]}>
+                <Icon name="language" type="material" size={20} color={p.mutedOnCard} />
+                <TextInput
+                  placeholder={getDefaultUri()}
+                  value={URI}
+                  onChangeText={setURI}
+                  numberOfLines={1}
+                  style={[styles.input, { color: p.ink }]}
+                  placeholderTextColor={p.mutedOnCard}
+                  editable={!isLoading}
+                  textContentType="URL"
+                  keyboardType="url"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  underlineColorAndroid="transparent"
+                />
+              </View>
+              <SettingsButton title={loc.settings.save} icon="check" onPress={save} loading={isLoading} />
+              <SettingsButton
+                title="github.com/NeuraiWallet/GroundControl"
+                icon="open-in-new"
+                variant="secondary"
+                onPress={() => Linking.openURL('https://github.com/NeuraiWallet/GroundControl')}
+              />
+              <View style={[styles.token, { backgroundColor: p.ground }]}>
+                <CopyToClipboardButton stringToCopy={tokenInfo} displayText={tokenInfo} />
+              </View>
+            </SettingsCard>
+          </View>
+        ) : null}
+      </ScrollView>
+    </View>
   );
 };
 
-export default NotificationSettings;
-
-const horizontalPadding = isAndroid ? 20 : 16;
-
 const styles = StyleSheet.create({
-  card: {
-    marginVertical: isAndroid ? 8 : 0,
-  },
-  notificationsExplanationCard: {
-    marginVertical: isAndroid ? 12 : 10,
-  },
-  cardContent: {
-    paddingHorizontal: horizontalPadding,
-    paddingVertical: isAndroid ? 12 : 10,
-  },
-  multilineText: {
-    lineHeight: 20,
-    paddingBottom: 10,
-  },
-  centered: {
-    textAlign: 'center',
-    marginVertical: 4,
-  },
-  uri: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-  },
-  uriText: {
-    flex: 1,
-    marginHorizontal: 8,
-    minHeight: 36,
-    height: 36,
-  },
-  divider: {
-    marginVertical: isAndroid ? 16 : 12,
-    height: 0.5,
-  },
-  sectionSpacing: {
-    height: isAndroid ? 24 : 12,
-  },
+  root: { flex: 1 },
+  flex: { flex: 1 },
+  content: { paddingHorizontal: 16, paddingTop: 8, rowGap: 18 },
+  privacy: { flexDirection: 'row', columnGap: 12, paddingVertical: 14 },
+  privacyText: { flex: 1, fontSize: 14, lineHeight: 20 },
+  developer: { rowGap: 12, paddingVertical: 14 },
+  developerHead: { flexDirection: 'row', columnGap: 12, alignItems: 'flex-start' },
+  field: { flexDirection: 'row', alignItems: 'center', columnGap: 10, height: 50, borderRadius: 16, paddingHorizontal: 14 },
+  input: { flex: 1, fontSize: 15, paddingVertical: 0 },
+  token: { borderRadius: 16, padding: 12 },
 });
+
+export default NotificationSettings;

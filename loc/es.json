@@ -23,7 +23,8 @@
     "unlock_subtitle_password": "Introduce tu contraseña para abrir tus carteras.",
     "unlock_subtitle_biometrics": "Confirma que eres tú para abrir tus carteras.",
     "unlock": "Desbloquear",
-    "copied": "Copiado"
+    "copied": "Copiado",
+    "enter_url": "Escribe la URL"
   },
   "connect": {
     "blocked_expired": "Esta petición ha caducado. Vuelve a iniciar sesión en el sitio.",
@@ -375,7 +376,7 @@
     "general": "General",
     "general_continuity": "Continuidad",
     "general_continuity_e": "Ver carteras y transacciones seleccionadas en tus otros dispositivos iCloud.",
-    "groundcontrol_explanation": "GroundControl es un servidor gratuito y de código abierto de notificaciones push para carteras Bitcoin. Puedes instalar tu propio servidor de GroundControl y poner su URL aquí para no depender del de NeuraiWallet. Déjalo en blanco para usar el predeterminado.",
+    "groundcontrol_explanation": "GroundControl es un servidor gratuito y de código abierto de notificaciones push para carteras Neurai. Puedes instalar tu propio servidor de GroundControl y poner su URL aquí para no depender del de NeuraiWallet. Déjalo en blanco para usar el predeterminado.",
     "header": "Ajustes",
     "language": "Idioma",
     "language_isRTL": "Al seleccionar otro idioma, será necesario reiniciar NeuraiWallet para mostrar los cambios.",
@@ -507,10 +508,19 @@
     "password_strength_strong": "Fuerte",
     "biometrics_no_longer_available": "La configuración del dispositivo ha cambiado y ya no coincide con la seguridad elegida en la app. Vuelve a activar la biometría o el código de desbloqueo y reinicia la app para aplicar los cambios.",
     "encryption_upgrade_older_copies": "Las copias de recuperación antiguas de este móvil conservan el cifrado y la contraseña anteriores.",
-    "encryption_upgrade_done_text": "Tus carteras ya usan el nuevo cifrado."
+    "encryption_upgrade_done_text": "Tus carteras ya usan el nuevo cifrado.",
+    "block_explorer_preferred": "Usar un explorador propio",
+    "block_explorer_custom_subtitle": "Para una red, en lugar de los de arriba.",
+    "block_explorer_invalid_custom_url": "La dirección no es válida. Escribe una URL que empiece por http:// o https://.",
+    "block_explorer_error_saving_custom": "No se ha podido guardar el explorador.",
+    "push_notifications_explanation": "Al activar las notificaciones, el identificador de tu dispositivo se envía al servidor junto con las direcciones de tus carteras y los ID de las transacciones que hagas desde ese momento. El identificador sirve para enviarte las notificaciones, y la información de las carteras, para avisarte de los XNA que recibes y de las confirmaciones.\n\nSolo se envía lo que ocurra después de activarlas; no se recoge nada anterior.\n\nAl desactivarlas se borra toda esta información del servidor. Al eliminar una cartera de la app también se borra la suya."
   },
   "notifications": {
-    "would_you_like_to_receive_notifications": "¿Quires recibir notificaciones cuando detectemos transferencias entrantes?"
+    "would_you_like_to_receive_notifications": "¿Quires recibir notificaciones cuando detectemos transferencias entrantes?",
+    "notifications_subtitle": "Pagos recibidos y confirmaciones de transacciones",
+    "privacy_title": "Qué se comparte",
+    "system_settings_subtitle": "Sonido, avisos y permiso",
+    "permission_denied_message": "Has denegado el permiso para enviarte notificaciones. Si quieres recibirlas, actívalas en los ajustes del dispositivo."
   },
   "transactions": {
     "cancel_explain": "Reemplazaremos esta transacción con una que te pague y tenga tarifas más altas. Esto cancela efectivamente la transacción actual. Esto se llama RBF—Reemplazo por comisión.",
