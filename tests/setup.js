@@ -500,6 +500,7 @@ jest.mock('react-native-haptic-feedback', () => {
 jest.mock('../blue_modules/analytics', () => {
   const ret = jest.fn();
   ret.ENUM = { CREATED_WALLET: '' };
+  ret.leaveNavigationBreadcrumb = jest.fn();
   return ret;
 });
 
