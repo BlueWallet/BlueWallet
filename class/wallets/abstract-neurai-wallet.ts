@@ -69,6 +69,7 @@ import {
 import { accountXpub, type ConnectAccountXpub } from '../../blue_modules/neurai/connect/xpub';
 import { getAssetType, type NeuraiHeldAsset } from '../../blue_modules/neurai/assetUtils';
 import { AbstractWallet } from './abstract-wallet';
+import { chainedSendState, normalizeChainedSends, type ChainedSend, type ChainedSendState } from '../../blue_modules/neurai/chainedSends';
 import { Transaction, Utxo } from './types';
 import {
   PENDING_TX_TTL_MS,
@@ -327,6 +328,8 @@ export interface NeuraiBuildTransactionResult {
   /** Signed transaction that spends an output of `signedHex`, broadcast right
    * after it (silent payments from Legacy and PQ wallets). */
   chainedHex?: string;
+  /** With `chainedHex`: the ECDSA bridge address it spends from (H17 record). */
+  chainedBridge?: string;
   /** Unsigned raw transaction hex (pre-signature). */
   unsignedHex: string;
   /** Total fee in XNA full units. */
@@ -387,6 +390,8 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
    * survives an app restart; reconciled away in `fetchTransactions` once the
    * real tx confirms, or after {@link PENDING_TX_TTL_MS}. */
   protected _pendingTxs: Transaction[];
+  /** Two-step silent payments not seen complete yet (H17). Persisted with the wallet. */
+  protected _chainedSends: ChainedSend[];
   /** Last `status` hash the server reported per subscribed address.
    * Persisted to disk so the next app launch can call `subscribe.bulk` and
    * skip the heavy refetch when nothing changed while the app was closed —
@@ -441,6 +446,7 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     this._txCache = [];
     this._heldAssets = [];
     this._pendingTxs = [];
+    this._chainedSends = [];
     this._addressStatus = {};
     this._addressTxids = null;
     this._pushedAddressTxids = {};
@@ -479,12 +485,15 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
    */
   static fromJson(obj: string): AbstractWallet {
     const wallet = super.fromJson(obj) as AbstractNeuraiWallet;
+    wallet._chainedSends = normalizeChainedSends(wallet._chainedSends);
     const persisted = (JSON.parse(obj) as { testnetGenesis?: unknown }).testnetGenesis;
     if (isTestnetChain(wallet.network) && persisted !== CURRENT_TESTNET_GENESIS) wallet.discardTestnetChainState();
     return wallet;
   }
 
   protected discardTestnetChainState(): void {
+    // Their transactions belong to the chain that was reset.
+    this._chainedSends = [];
     this.balance = 0n;
     this.unconfirmed_balance = 0n;
     this.addressPosition = 0;
@@ -1557,6 +1566,49 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
     emitWalletChanged(this.getID());
   }
 
+  /** Two-step silent payments recorded before sending and not seen complete yet (H17). */
+  getChainedSends(): readonly ChainedSend[] {
+    return this._chainedSends;
+  }
+
+  recordChainedSend(send: ChainedSend): void {
+    if (this._chainedSends.some(s => s.firstTxid === send.firstTxid)) return;
+    this._chainedSends = [...this._chainedSends, send];
+    emitWalletChanged(this.getID());
+  }
+
+  forgetChainedSend(firstTxid: string): void {
+    const kept = this._chainedSends.filter(s => s.firstTxid !== firstTxid);
+    if (kept.length === this._chainedSends.length) return;
+    this._chainedSends = kept;
+    emitWalletChanged(this.getID());
+  }
+
+  /**
+   * What the network has seen of each recorded payment, from its bridge
+   * address (history and mempool): both transactions touch that address, and
+   * it is not one the wallet itself watches.
+   */
+  async chainedSendStates(): Promise<Map<string, ChainedSendState>> {
+    const states = new Map<string, ChainedSendState>();
+    const backend = this.getBackend();
+    for (const send of this._chainedSends) {
+      const [history, mempool] = await Promise.all([backend.getAddressHistory([send.bridge]), backend.getMempool([send.bridge])]);
+      const txids = new Set<string>([...history.map(d => d.txid), ...mempool.map(m => m.txid)]);
+      states.set(send.firstTxid, chainedSendState(send, txids));
+    }
+    return states;
+  }
+
+  /** Forgets the payments the network shows complete. True when something was forgotten. */
+  async reconcileChainedSends(): Promise<boolean> {
+    if (this._chainedSends.length === 0) return false;
+    const states = await this.chainedSendStates();
+    const before = this._chainedSends.length;
+    for (const [firstTxid, state] of states) if (state === 'done') this.forgetChainedSend(firstTxid);
+    return this._chainedSends.length !== before;
+  }
+
   /** Drop pending entries that have CONFIRMED in the cache or aged out (TTL). */
   private _prunePendingTxs(): void {
     if (this._pendingTxs.length === 0) return;
@@ -1955,6 +2007,7 @@ export abstract class AbstractNeuraiWallet extends AbstractWallet {
       signedHex: first.signedHex,
       unsignedHex: first.unsignedHex,
       chainedHex: second.signedHex,
+      chainedBridge: bridgeAddress,
       feeSats: first.feeSats + secondFeeSats,
       sentAmountSats: amountSats,
       netDebitSats: first.netDebitSats,

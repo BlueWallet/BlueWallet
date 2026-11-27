@@ -315,7 +315,6 @@
     "select_coins": "Select the coins to spend.",
     "coins_empty": "No coins to spend.",
     "coins_loading": "Loading coins…",
-    "silent_payment_retry": "The coins left the wallet, but the payment to the code was not sent ({reason}). Tap Send to try again.",
     "details_adv_full": "Use Full Balance",
     "details_adv_import": "Import Transaction",
     "details_adv_import_qr": "Import Transaction (QR)",
@@ -371,7 +370,10 @@
     "qr_error_no_qrcode": "We were unable to find a valid QR Code in the selected image. Make sure the image contains only a QR Code and no additional content such as text or buttons.",
     "reset_amount": "Reset Amount",
     "reset_amount_confirm": "Would you like to reset the amount?",
-    "file_saved_at_path": "The file ({filePath}) has been saved."
+    "file_saved_at_path": "The file ({filePath}) has been saved.",
+    "silent_payment_not_saved": "The payment was not sent: it could not be saved first, and nothing left the wallet. Try again.",
+    "silent_payment_pending": "The payment to the code is not complete yet ({reason}). Both transactions are saved: the wallet shows it as pending, finish it from there.",
+    "silent_payment_closed": "The payment to the code could not be completed ({reason}). The amount stays at your ECDSA address {bridge}: import your recovery words as an ECDSA wallet to use it."
   },
   "settings": {
     "about": "About",
@@ -1028,6 +1030,13 @@
     "privacy_needs_keys": "The privacy pool needs a wallet whose keys are on this phone. Hardware wallets cannot use it.",
     "privacy_unavailable": "The privacy pool is not available right now.",
     "exit_again": "Press back again to leave",
-    "exit_stay": "Stay in the wallet"
+    "exit_stay": "Stay in the wallet",
+    "pending_payment_title": "Payment not finished",
+    "pending_payment_text": "A silent payment of {amount} XNA to {to} is not complete. The transactions you approved are saved; finish it to pay the recipient.",
+    "pending_payment_complete": "Finish payment",
+    "pending_payment_discard": "Discard",
+    "pending_payment_discard_unsent": "Nothing of this payment was sent. Discard it?",
+    "pending_payment_discard_sent": "The coins are already at your ECDSA address {bridge}. Discarding only removes this notice; to use them, import your recovery words as an ECDSA wallet. Discard it?",
+    "pending_payment_done": "Payment completed"
   }
 }

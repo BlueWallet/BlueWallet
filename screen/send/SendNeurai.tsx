@@ -24,6 +24,13 @@ import { FlatList, Keyboard, Modal, Pressable, ScrollView, StyleSheet, Text, Tex
 import { amountFromInput, satsToXna, xnaToSats } from '../../blue_modules/neurai/amounts';
 import { formatAssetAmount, type NeuraiAssetType, type NeuraiHeldAsset } from '../../blue_modules/neurai/assetUtils';
 import { looksLikeSilentPaymentCode, SILENT_PAYMENT_ACCENT, silentPaymentTint } from '../../blue_modules/neurai/silentPayments';
+import {
+  ChainedSendClosedError,
+  ChainedSendNotSavedError,
+  sendChainedPayment,
+  type ChainedSend,
+} from '../../blue_modules/neurai/chainedSends';
+import { computeTxid } from '@neuraiproject/neurai-create-transaction';
 import { useNeuraiHwDevice } from '../../blue_modules/neurai-hw/useNeuraiHwDevice';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { parseNeuraiPaymentUri, type NeuraiPaymentUri } from '../../class/neurai-uri-match';
@@ -147,7 +154,7 @@ type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'Send
 
 const SendNeurai: React.FC = () => {
   const p = useSettingsPalette();
-  const { wallets } = useStorage();
+  const { wallets, saveToDisk } = useStorage();
   const { isPQAddressReuseEnabled } = useSettings();
   const { navigate, goBack } = useExtendedNavigation<NavigationProps>();
   const { params } = useRoute<RouteProps>();
@@ -486,20 +493,42 @@ const SendNeurai: React.FC = () => {
     if (!draft || !wallet) return;
     setIsBroadcasting(true);
     try {
-      let txid = await wallet.broadcastTx(draft.signedHex);
-      // Show the send immediately as a 0-conf pending entry and subtract it
-      // from the balance; it is reconciled away once the tx confirms. A retry
-      // of a silent payment's second transaction debits nothing more.
-      if (draft.netDebitSats > 0n) wallet.addPendingTx(txid, -draft.netDebitSats, draft.asset);
+      let txid: string;
       if (draft.chainedHex) {
+        // Two steps (silent payment from Legacy or PQ coins): both are saved in
+        // the wallet before anything is sent, so they can be finished later (H17).
+        if (!draft.chainedBridge) throw new Error('The two-step payment has no bridge address');
+        const send: ChainedSend = {
+          firstTxid: computeTxid(draft.signedHex),
+          first: draft.signedHex,
+          secondTxid: computeTxid(draft.chainedHex),
+          second: draft.chainedHex,
+          bridge: draft.chainedBridge,
+          to: address.trim(),
+          amountSats: draft.sentAmountSats.toString(),
+          createdAt: Math.floor(Date.now() / 1000),
+        };
         try {
-          txid = await wallet.broadcastTx(draft.chainedHex);
+          txid = await sendChainedPayment(wallet, send, draft.netDebitSats, saveToDisk);
         } catch (err: any) {
-          // The coins already left: Send again only retries the second transaction.
-          setDraft({ ...draft, signedHex: draft.chainedHex, chainedHex: undefined, netDebitSats: 0n });
-          presentAlert({ message: loc.formatString(loc.send.silent_payment_retry, { reason: err?.message ?? String(err) }) });
+          if (err instanceof ChainedSendNotSavedError) {
+            presentAlert({ message: loc.send.silent_payment_not_saved });
+          } else if (err instanceof ChainedSendClosedError && err.leg === 'second') {
+            presentAlert({ message: loc.formatString(loc.send.silent_payment_closed, { reason: err.message, bridge: send.bridge }) });
+          } else if (err instanceof ChainedSendClosedError) {
+            presentAlert({ message: err.message });
+          } else {
+            // It may have reached the node: the wallet shows it as pending, to be finished there.
+            presentAlert({ message: loc.formatString(loc.send.silent_payment_pending, { reason: err?.message ?? String(err) }) });
+            navigate('WalletTransactions', { walletID: wallet.getID(), walletType: wallet.type });
+          }
           return;
         }
+      } else {
+        txid = await wallet.broadcastTx(draft.signedHex);
+        // Show the send immediately as a 0-conf pending entry and subtract it
+        // from the balance; it is reconciled away once the tx confirms.
+        if (draft.netDebitSats > 0n) wallet.addPendingTx(txid, -draft.netDebitSats, draft.asset);
       }
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       presentAlert({ message: `${loc.send.broadcastSuccess}: ${txid}` });
@@ -513,7 +542,7 @@ const SendNeurai: React.FC = () => {
     } finally {
       setIsBroadcasting(false);
     }
-  }, [draft, wallet, navigate]);
+  }, [draft, wallet, navigate, address, saveToDisk]);
 
   const hwSignAndBroadcast = useCallback(async () => {
     if (!hwWallet || !hwDraft) return;

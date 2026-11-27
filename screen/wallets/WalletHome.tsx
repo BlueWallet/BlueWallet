@@ -53,6 +53,7 @@ import { ExitNotice, useBackToExit } from '../../components/home/ExitNotice';
 import HomeTabBar, { HomeTab, homeTabBarSpace, useKeyboardVisible } from '../../components/home/HomeTabBar';
 import HomeTiles, { HomeTile } from '../../components/home/HomeTiles';
 import HomeTopBar from '../../components/home/HomeTopBar';
+import PendingPaymentCard from '../../components/home/PendingPaymentCard';
 import { useHomePalette } from '../../components/home/homeTheme';
 import { TransactionDayCard, transactionDayKey, useSortedTransactions, useTransactionDays } from '../../components/home/TransactionDayList';
 import Icon, { MaterialIconName } from '../../components/Icon';
@@ -369,6 +370,7 @@ const WalletHomeBody: React.FC<BodyProps> = ({
         onToggleHidden={toggleHidden}
       />
       <HomeActions actions={actions} />
+      {neurai && <PendingPaymentCard wallet={neurai} saveToDisk={saveToDisk} refreshKey={refreshing} />}
       <HomeTiles tiles={tiles} />
       <View style={styles.sectionRow}>
         <Text style={[styles.sectionTitle, { color: p.ink }]} accessibilityRole="header">

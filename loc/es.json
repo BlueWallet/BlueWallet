@@ -259,7 +259,6 @@
     "select_coins": "Elige las monedas que quieres gastar.",
     "coins_empty": "No hay monedas que gastar.",
     "coins_loading": "Cargando monedas…",
-    "silent_payment_retry": "Las monedas ya salieron de la cartera, pero el pago al código no se envió ({reason}). Pulsa Enviar para intentarlo de nuevo.",
     "details_no_signed_tx": "El archivo seleccionado no contiene una transacción que se pueda importar.",
     "details_note_placeholder": "Nota personal",
     "details_scan": "Escanear",
@@ -302,7 +301,10 @@
     "reset_amount": "Cantidad predeterminada",
     "reset_amount_confirm": "¿Quieres volver a la cantidad predeterminada?",
     "success_done": "Completado",
-    "problem_with_psbt": "Problema con PSBT"
+    "problem_with_psbt": "Problema con PSBT",
+    "silent_payment_not_saved": "El pago no se envió: no se pudo guardar antes, y no ha salido nada de la cartera. Vuelve a intentarlo.",
+    "silent_payment_pending": "El pago al código aún no se ha completado ({reason}). Las dos transacciones están guardadas: la cartera lo muestra como pendiente; termínalo desde ahí.",
+    "silent_payment_closed": "No se pudo completar el pago al código ({reason}). El importe queda en tu dirección ECDSA {bridge}: importa tus palabras de recuperación como cartera ECDSA para usarlo."
   },
   "settings": {
     "about": "Acerca de",
@@ -890,7 +892,14 @@
     "privacy_needs_keys": "El pool de privacidad necesita una cartera con las claves en este móvil. Las carteras hardware no pueden usarlo.",
     "privacy_unavailable": "El pool de privacidad no está disponible ahora mismo.",
     "exit_again": "Pulsa atrás otra vez para salir",
-    "exit_stay": "Quedarse en la cartera"
+    "exit_stay": "Quedarse en la cartera",
+    "pending_payment_title": "Pago sin terminar",
+    "pending_payment_text": "Un pago silencioso de {amount} XNA a {to} no se ha completado. Las transacciones que aprobaste están guardadas; termínalo para que cobre el destinatario.",
+    "pending_payment_complete": "Terminar pago",
+    "pending_payment_discard": "Descartar",
+    "pending_payment_discard_unsent": "No se ha enviado nada de este pago. ¿Descartarlo?",
+    "pending_payment_discard_sent": "Las monedas ya están en tu dirección ECDSA {bridge}. Descartar solo quita este aviso; para usarlas, importa tus palabras de recuperación como cartera ECDSA. ¿Descartarlo?",
+    "pending_payment_done": "Pago completado"
   },
   "assets": {
     "tab_transactions": "Transacciones",
