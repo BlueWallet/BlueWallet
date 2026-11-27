@@ -68,9 +68,9 @@ const PleaseBackup: React.FC = () => {
   const passphrase = wallet instanceof AbstractHDWallet ? wallet.getPassphrase() : undefined;
   const secretWords = wallet.getSecret().split(/\s/);
 
-  const openPassphrase = useCallback(() => {
+  const openPassphrase = useCallback(async () => {
+    await enableScreenProtect();
     setIsPassphraseVisible(true);
-    enableScreenProtect();
   }, [enableScreenProtect]);
 
   const closePassphrase = useCallback(() => {
@@ -135,11 +135,13 @@ const PleaseBackup: React.FC = () => {
                 <View style={[styles.modalCard, stylesHook.modalCard]}>
                   <Text style={[styles.modalTitle, stylesHook.modalTitle]}>{loc.wallets.import_passphrase_title}</Text>
                   <Text style={[styles.modalMessage, stylesHook.modalMessage]}>{loc.pleasebackup.passphrase_modal_message}</Text>
-                  <View style={[styles.modalChip, stylesHook.modalChip]}>
-                    <Text testID="BackupPassphrase" selectable style={[styles.modalChipText, stylesHook.modalChipText]}>
-                      {passphrase}
-                    </Text>
-                  </View>
+                  <ScrollView style={styles.modalChipScroll} testID="BackupPassphraseScroll" nestedScrollEnabled>
+                    <View style={[styles.modalChip, stylesHook.modalChip]}>
+                      <Text testID="BackupPassphrase" style={[styles.modalChipText, stylesHook.modalChipText]}>
+                        {passphrase}
+                      </Text>
+                    </View>
+                  </ScrollView>
                   <Button
                     testID="ClosePassphraseButton"
                     onPress={closePassphrase}
@@ -229,9 +231,11 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 14,
   },
-  modalChip: {
-    alignSelf: 'flex-start',
+  modalChipScroll: {
+    maxHeight: 240,
     marginBottom: 12,
+  },
+  modalChip: {
     paddingTop: 6,
     paddingBottom: 6,
     paddingLeft: 8,
