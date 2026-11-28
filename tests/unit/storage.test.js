@@ -503,6 +503,28 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
   assert.ok(await Storage5.isPasswordInUse('password'));
   assert.ok(!(await Storage5.isPasswordInUse('blablablabla')));
 
+  // Password checks must not change the currently active storage bucket.
+  const fakeWallet = Storage5.wallets[0];
+  fakeWallet.setLabel('updated-fakewallet');
+
+  await Storage5.saveToDisk();
+
+  // The real bucket must remain intact.
+  const RealStorage = new BlueApp();
+  loadResult = await RealStorage.loadFromDisk('password');
+
+  assert.ok(loadResult);
+  assert.strictEqual(RealStorage.wallets.length, 1);
+  assert.strictEqual(RealStorage.wallets[0].getLabel(), 'testlabel');
+
+  // The fake bucket must contain the updated data.
+  const FakeStorage = new BlueApp();
+  loadResult = await FakeStorage.loadFromDisk('fakePassword');
+
+  assert.ok(loadResult);
+  assert.strictEqual(FakeStorage.wallets.length, 1);
+  assert.strictEqual(FakeStorage.wallets[0].getLabel(), 'updated-fakewallet');
+
   // now we will decrypt storage. label of wallet should be testlabel
 
   const Storage6 = new BlueApp();
@@ -518,7 +540,7 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
   assert.strictEqual(isEncrypted, false);
   const storage5loadResult = await Storage7.loadFromDisk();
   assert.ok(storage5loadResult);
-  assert.strictEqual(Storage7.wallets[0].getLabel(), 'fakewallet');
+  assert.strictEqual(Storage7.wallets[0].getLabel(), 'updated-fakewallet');
 });
 
 it('Appstorage - address_metadata labels: set, persist', async () => {

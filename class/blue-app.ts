@@ -204,7 +204,7 @@ export class BlueApp {
    * Iterates through all values of `data` trying to
    * decrypt each one, and returns first one successfully decrypted
    */
-  decryptData(data: string, password: string): false | string {
+  decryptData(data: string, password: string): false | { decrypted: string; bucketIndex: number } {
     data = JSON.parse(data);
     let decrypted;
     let num = 0;
@@ -212,8 +212,7 @@ export class BlueApp {
       decrypted = encryption.decrypt(value, password);
 
       if (decrypted) {
-        usedBucketNum = num;
-        return decrypted;
+        return { decrypted, bucketIndex: num };
       }
       num++;
     }
@@ -380,10 +379,14 @@ export class BlueApp {
     }
     let dataRaw: string | false | null = await this.getItemWithFallbackToRealm('data');
     if (password && dataRaw !== null) {
-      dataRaw = this.decryptData(dataRaw, password);
-      if (dataRaw) {
+      const result = this.decryptData(dataRaw, password);
+      if (result) {
+        dataRaw = result.decrypted;
+        usedBucketNum = result.bucketIndex;
         // password is good, cache it
         this.cachedPassword = password;
+      } else {
+        dataRaw = false;
       }
     }
     if (dataRaw !== null && dataRaw !== false) {
@@ -692,7 +695,10 @@ export class BlueApp {
           // need, we just to find bucket with the same index
           if (usedBucketNum !== false) {
             if (num === usedBucketNum) {
-              decrypted = true;
+              decrypted = encryption.decrypt(bucket, this.cachedPassword);
+              if (!decrypted) {
+                throw new Error('Unable to verify the encrypted storage bucket. Save aborted to prevent data loss.');
+              }
             }
             num++;
           } else {
