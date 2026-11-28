@@ -73,13 +73,13 @@ export const linking: LinkingOptions<RootParamList> = {
       DrawerRoot: {
         screens: {
           DetailViewStackScreensStack: {
-            // DrawerParamList intentionally avoids NavigatorScreenParams to break
-            // its type cycle, so React Navigation cannot infer this nested key.
-            initialRouteName: 'WalletsList' as never,
+            // DrawerParamList avoids NavigatorScreenParams to break a type cycle;
+            // 7.5.2 only allows this nested shape with those params, so cast the block.
+            initialRouteName: 'WalletsList',
             screens: {
               ManageWallets: 'manage-wallets',
             },
-          },
+          } as never,
         },
       },
     },
