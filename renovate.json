@@ -44,6 +44,11 @@
       "matchPackageNames": ["*"],
       "groupName": "all dependencies",
       "groupSlug": "all"
+    },
+    {
+      "matchPackageNames": ["@arkade-os/**"],
+      "groupName": "arkade",
+      "groupSlug": "arkade"
     }
   ],
   "lockFileMaintenance": {
