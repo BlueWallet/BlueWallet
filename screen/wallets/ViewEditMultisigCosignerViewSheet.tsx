@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { secretTextStyle } from '../../helpers/secretsOnScreen';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -98,8 +99,8 @@ const ViewEditMultisigCosignerViewSheet = () => {
               <Text style={[styles.sectionTitleText, stylesHook.sectionTitle]}>{loc._.seed}</Text>
             </View>
             <BlueSpacing10 />
-            <SquareEnumeratedWords contentAlign={SquareEnumeratedWordsContentAlign.left} entries={seedWords} appendNumber />
-            {vaultKeyData.passphrase ? <BlueTextCentered>{vaultKeyData.passphrase}</BlueTextCentered> : null}
+            <SquareEnumeratedWords contentAlign={SquareEnumeratedWordsContentAlign.left} entries={seedWords} appendNumber secret />
+            {vaultKeyData.passphrase ? <BlueTextCentered style={secretTextStyle()}>{vaultKeyData.passphrase}</BlueTextCentered> : null}
           </>
         )}
       </SheetKeyboardForm>

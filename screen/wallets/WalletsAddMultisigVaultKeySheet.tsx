@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { secretTextStyle } from '../../helpers/secretsOnScreen';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
@@ -43,7 +44,7 @@ const WalletsAddMultisigVaultKeySheet = () => {
         <View style={styles.secretContainer}>
           {words.map((text, index) => (
             <View style={[styles.word, stylesHook.word]} key={`${text}${index}`}>
-              <Text style={[styles.wordText, stylesHook.wordText]}>{`${index + 1}. ${text}`}</Text>
+              <Text style={[styles.wordText, stylesHook.wordText, secretTextStyle()]}>{`${index + 1}. ${text}`}</Text>
             </View>
           ))}
         </View>

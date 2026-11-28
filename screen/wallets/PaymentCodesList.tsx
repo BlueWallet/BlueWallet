@@ -198,10 +198,7 @@ export default function PaymentCodesList() {
     } else {
       navigation.navigate('SendDetailsRoot', {
         screen: 'SendDetails',
-        params: {
-          paymentCode: pc,
-          walletID,
-        },
+        params: { address: pc, walletID },
       });
     }
   };

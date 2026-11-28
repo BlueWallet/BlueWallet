@@ -165,6 +165,7 @@ export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeSt
           {this.state.displayQRCode && (
             <View style={animatedQRCodeStyle.qrcodeContainer}>
               <QRCode
+                isSecret // a signed PSBT is broadcastable: e2e builds draw a blank square
                 isLogoRendered={false}
                 value={currentFragment.toUpperCase()}
                 size={this.state.qrCodeHeight}
