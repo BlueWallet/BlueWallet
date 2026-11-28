@@ -14,7 +14,7 @@ import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages, LangCode } from './languages';
 import { resolveLangCodeFromRnLocales, RnLocale } from './resolveDeviceLangCode';
-import enJson from './en.json';
+import enJson from './en.json' with { type: 'json' };
 
 export const STORAGE_KEY = 'lang';
 /** LangCode we last picked from the device locale; while `lang` still equals it the device keeps winning. */

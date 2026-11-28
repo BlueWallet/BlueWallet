@@ -31,7 +31,7 @@ import { Measure } from '../measure.ts';
 import { deleteArkadeRealm, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm/realmInstance';
 import { registerArkPaymentPush } from '../../blue_modules/notifications';
 import { errorMessage } from '../../helpers/errorMessage';
-const { bech32m } = require('bech32');
+import { bech32m } from 'bech32';
 
 const bip32 = BIP32Factory(ecc);
 
