@@ -174,7 +174,11 @@ const ReceiveDetails = () => {
   const wallet = walletID ? wallets.find(w => w.getID() === walletID) : undefined;
   const isBIP47Enabled = wallet?.isBIP47Enabled();
 
-  const paymentCodeString = useMemo(() => (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) || '', [wallet]);
+  // only for a wallet with payment codes on: a wallet whose secret is not a BIP39 phrase (SLIP39 shares) throws here
+  const paymentCodeString = useMemo(
+    () => (wallet && isBIP47Enabled && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) || '',
+    [wallet, isBIP47Enabled],
+  );
 
   /** Dark: theme input surface (#262626) reads softer than pure elevated / system gray 6. Light: iOS-style grouped background. */
   const cardBackgroundColor = isDarkTheme ? colors.inputBackgroundColor : '#F2F2F7';
